@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.5 1999/12/15 04:18:56 dustin Exp $
+ * $Id: PhotoSession.java,v 1.6 2000/01/10 09:04:29 dustin Exp $
  */
 
 package net.spy.photo;
@@ -273,6 +273,12 @@ public class PhotoSession extends Object
 		Hashtable h = new Hashtable();
 		Connection photo=null;
 		Statement st=null;
+
+		// We need a short lifetime for whatever page this produces
+        long l=new java.util.Date().getTime();
+        l+=10000L;
+        response.setDateHeader("Expires", l);
+
 
 		// Make sure the user can add.
 		if(!canadd()) {
