@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.4 2000/08/22 08:29:36 dustin Exp $
+ * $Id: irtime.c,v 1.5 2000/08/22 16:52:19 dustin Exp $
  */
 
 #include <Common.h>
@@ -107,7 +107,11 @@ StopApplication(void)
 void receiveData(ExgSocketType *exgsocket)
 {
 	Err err;
-	ULong t=0;
+	ULong myt=0, t=0;
+	long tdiff=0;
+
+	/* Get my time so I can calculate a diff */
+	myt=TimGetSeconds();
 
 	exgsocket->goToCreator=0;
 
@@ -127,9 +131,18 @@ void receiveData(ExgSocketType *exgsocket)
 				alertPopup(msg);
 			}
 		} else {
-			/* It takes about five seconds for all the data stuff to finish */
-			t+=5;
-			TimSetSeconds(t);
+			/* Give it a second to get here */
+			t+=1;
+
+			/* At some point, right here, we're just going to ask the user
+			 * if he wants the time set...but for now, calculate the new
+			 * time and diff it. */
+
+			tdiff=(myt-t);
+
+			myt=TimGetSeconds();
+			myt+=tdiff;
+			TimSetSeconds(myt);
 			infoPopup("Set time!");
 		}
 
