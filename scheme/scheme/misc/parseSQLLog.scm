@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseSQLLog.scm,v 1.5 2002/12/28 06:58:31 dustin Exp $
+; $Id: parseSQLLog.scm,v 1.6 2002/12/28 11:47:58 dustin Exp $
 
 (module parse-sql-log
 	(import
@@ -29,9 +29,6 @@
 												   (car tparts))
 												 2))))))
 	rv))
-
-(define (approx-time x)
-  (* 60 (truncate (/ x 60))))
 
 (define (print-update rrdfile last-time total-calls total-time)
   (print "update " rrdfile " "
