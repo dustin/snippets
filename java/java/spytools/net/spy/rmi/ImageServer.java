@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServer.java,v 1.1 1999/11/26 01:00:12 dustin Exp $
+// $Id: ImageServer.java,v 1.2 2000/04/17 01:31:03 dustin Exp $
 
 package net.spy.rmi;
 
@@ -14,4 +14,5 @@ public interface ImageServer extends Remote {
 		throws RemoteException;
 	public void storeImage(int image_id, ImageData image)
 		throws RemoteException;
+	public boolean ping() throws RemoteException;
 }

@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RHash.java,v 1.2 2000/01/25 06:49:51 dustin Exp $
+// $Id: RHash.java,v 1.3 2000/04/17 01:30:57 dustin Exp $
 
 package net.spy;
 
@@ -93,5 +93,19 @@ public class RHash {
 			throw new Exception("Error getting " + rhashserver
 				+ " service:  " + e);
 		}
+	}
+
+	public static void main(String args[]) throws Exception {
+		System.out.println("Connecting to local ObjectServer.");
+		RHash rh=new RHash("//localhost/RObjectServer");
+		System.out.println("Storing something.");
+		rh.put("TestString", "Test");
+		System.out.println("Waiting ten seconds.");
+		Thread.sleep(10000);
+		System.out.println("Re-opening ObjectServer connection.");
+		rh=new RHash("//localhost/RObjectServer");
+		System.out.println("Fetching something.");
+		String blah=(String)rh.get("TestString");
+		System.out.println("Result:  " + blah);
 	}
 }

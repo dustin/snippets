@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.8 2000/03/09 06:59:01 dustin Exp $
+ * $Id: SpyDB.java,v 1.9 2000/04/17 01:30:58 dustin Exp $
  */
 
 package net.spy;
@@ -160,6 +160,19 @@ public class SpyDB extends Object {
 		Connection conn=getConn();
 		Statement st = conn.createStatement();
 		st.executeUpdate(query);
+	}
+
+	/**
+	 * Prepare a statement.
+	 *
+	 * @param query SQL query to prepare.
+	 *
+	 * @exception Exception thrown if something bad happens.
+	 */
+	public PreparedStatement prepareStatement(String query) throws Exception {
+		Connection conn=getConn();
+		PreparedStatement pst = conn.prepareStatement(query);
+		return(pst);
 	}
 
 	/**

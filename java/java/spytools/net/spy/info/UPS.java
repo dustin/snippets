@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.3 2000/03/22 07:49:33 dustin Exp $
+// $Id: UPS.java,v 1.4 2000/04/17 01:31:00 dustin Exp $
 
 package net.spy.info;
 
@@ -101,6 +101,7 @@ public class UPS extends Info {
 		if(info==null) {
 			String url="http://wwwapps.ups.com/tracking/tracking.cgi?tracknum=";
 			url += tracking_number;
+			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();
 		}
@@ -109,5 +110,6 @@ public class UPS extends Info {
 	public static void main(String args[]) throws Exception {
 		UPS u = new UPS(args[0]);
 		System.out.println("Info:\n" + u);
+		System.out.println("Info (XML):\n" + u.toXML());
 	}
 }

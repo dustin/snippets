@@ -29,6 +29,9 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/Info.class \
 	net/spy/info/Stocks.class net/spy/info/StockQuote.class \
 	net/spy/info/eBay.class \
+	net/spy/info/FedEx.class \
+	net/spy/info/Traffic.class \
+	net/spy/info/FlightTracker.class \
 	net/spy/info/UPS.class net/spy/info/Weather.class
 
 
