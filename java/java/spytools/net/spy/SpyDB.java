@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.29 2001/03/16 01:03:02 dustin Exp $
+ * $Id: SpyDB.java,v 1.30 2001/04/08 21:02:50 dustin Exp $
  */
 
 package net.spy;
@@ -84,15 +84,17 @@ public class SpyDB extends Object {
 	 * @param conf SpyConfig object describing how to connect.
 	 */
 	public SpyDB(SpyConfig conf) {
-		this.conf=conf;
+		this(conf, true);
+	}
 
-		try {
-			initStuff();
-		} catch(Exception e) {
-			log("Error initializing SpyDB:  " + e);
-			e.printStackTrace();
-		}
-		// System.out.println("Debug:  " + pool + "\n" + connections);
+	/**
+	 * Get a SpyDB object wrapping the given connection.
+	 *
+	 * @param conn the connection to wrap.
+	 */
+	public SpyDB(Connection conn) {
+		super();
+		this.conn=conn;
 	}
 
 	/**
