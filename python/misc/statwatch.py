@@ -188,30 +188,13 @@ def getServers():
         cluster=cluster.strip()
         tmp=[]
         rl=u.open("http://buildmaster.eng.2wire.com/clusterinfo/" + cluster \
-            + "-full.txt")
+            + ".txt")
         for s in rl.readlines():
             s=s.strip()
-            parts=s.split(".")
-            url="http://" + parts[0] + ".diag." + parts[1] \
-                + ".2wire.com:8080/admin/monitor/stat"
+            parts=s.split("\t")
+            url=parts[2] + "/admin/monitor/stat"
             tmp.append(Host(url, parts[0]))
         servers[cluster] = tmp
-
-    # Production aliases
-    servers['noc0'] = servers['prod']
-    # Staging aliases
-    try:
-        servers['noc1'] = servers['50']
-        servers['staging'] = servers['50']
-    except KeyError:
-        pass
-    # Farooq
-    servers['noc5']=[Host('http://noc.noc5.2wire.com/admin/monitor/stat',
-        'noc5')]
-    # Dustin
-    servers['noc13']=\
-        [Host('http://desktop.dsallings.eng.2wire.com/admin/monitor/stat',
-            'noc13')]
 
     return servers
 
