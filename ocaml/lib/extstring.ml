@@ -18,19 +18,6 @@ let rec is_my_letter l c =
 			is_my_letter (List.tl l) c
 ;;
 
-(* Private function to skip the next n occurrences of any character in this
- * list in this string.  Return the new offset.
- *)
-let rec pvt_skip_chars s l i =
-	if (i >= String.length s ) then
-		String.length s
-	else
-		if is_my_letter l (String.get s i) then
-			pvt_skip_chars s l (i+1)
-		else
-			i
-;;
-
 (**
 	Find the index of one of these characters, or -1 if it doesn't exist.
 
@@ -48,15 +35,22 @@ let rec str_index_of_one str l i =
 		-1
 ;;
 
-(* Private recursive function for splitting a stream in a buffer *)
-let rec pvt_rec_split_chars rv str l i limit =
+(* Private recursive function for splitting a stream in a buffer.
+ skipf is the character skip function for when a match is found
+ rv is the list that will contain the return value
+ str is the string being split
+ l is the list of things on which to split
+ i is the index at which to split
+ limit is the maximum number of entries in the return array
+ *)
+let rec pvt_rec_split_chars skipf rv str l i limit =
 	if (List.length rv < (limit-1)) && (i < String.length str) then (
 		let pos = str_index_of_one str l i in
 		if pos != -1 then (
-			pvt_rec_split_chars
+			pvt_rec_split_chars skipf
 				(rv @ [ String.sub str i (pos - i)])
 				str l
-				(pvt_skip_chars str l pos)
+				(skipf str l pos)
 				limit
 		) else (
 			rv @ [ String.sub str i ((String.length str) - i) ]
@@ -70,29 +64,15 @@ let rec pvt_rec_split_chars rv str l i limit =
 	)
 ;;
 
-(* Private function to skip the next n occurrences of this character in
- * this string.  Return the new offset.
- *)
-let rec pvt_skip_char s c i =
-	if (i >= String.length s ) then (
-		String.length s
-	) else (
-		if ((String.get s i) == c) then (
-			pvt_skip_char s c (i+1)
-		) else (
-			i
-		)
-	)
-;;
-
 (* Private recursive function for splitting a stream in a buffer *)
-let rec pvt_rec_split rv str c i limit =
+let rec pvt_rec_split skipf rv str c i limit =
 	if (List.length rv < (limit - 1)) && (i < String.length str) then (
 		if String.contains_from str i c then
 			let o = String.index_from str i c in
-			pvt_rec_split (rv @ [ String.sub str i (o - i)])
+			pvt_rec_split skipf
+				(rv @ [ String.sub str i (o - i)])
 				str c
-				(pvt_skip_char str c o)
+				(skipf str c o)
 				limit;
 		else
 			rv @ [ String.sub str i ((String.length str) - i) ]
@@ -112,7 +92,37 @@ let rec pvt_rec_split rv str c i limit =
  @return an array of strings of the split elements
 *)
 let split s c limit =
-	pvt_rec_split [] s c 0 limit
+	let rec pvt_skip_char s c i =
+		if (i >= String.length s ) then (
+			String.length s
+		) else (
+			if ((String.get s i) == c) then (
+				pvt_skip_char s c (i+1)
+			) else (
+				i
+			)
+		)
+		in
+	pvt_rec_split pvt_skip_char [] s c 0 limit
+;;
+
+(**
+ Split a string into a list of Strings.  The difference between this function
+ and split is that this function will return empty strings for successive
+ instance of split characters.
+
+ @param s the original string
+ @param c the character on which to split
+ @param limit the maximum number of splits to do
+ @return an array of strings of the split elements
+*)
+let split_all s c limit =
+	pvt_rec_split (fun s c i ->
+					if i >= String.length s then
+						String.length s
+					else
+						succ i)
+			[] s c 0 limit
 ;;
 
 (**
@@ -124,7 +134,35 @@ let split s c limit =
  @return an array of strings
 *)
 let split_chars s l limit =
-	pvt_rec_split_chars [] s l 0 limit
+	let rec pvt_skip_chars s l i =
+		if (i >= String.length s ) then
+			String.length s
+		else
+			if is_my_letter l (String.get s i) then
+				pvt_skip_chars s l (i+1)
+			else
+				i
+		in
+	pvt_rec_split_chars pvt_skip_chars [] s l 0 limit
+;;
+
+(**
+ Split a string into a list of Strings.  The difference between this function
+ and split_chars is that this function will return empty strings for successive
+ instance of split characters.
+
+ @param s the original string
+ @param l the list of characters on which to split
+ @param limit the maximum number of splits to do
+ @return an array of strings
+*)
+let split_chars_all s l limit =
+	pvt_rec_split_chars (fun s c i ->
+							if i >= String.length s then
+								String.length s
+							else
+								succ i)
+			[] s l 0 limit
 ;;
 
 (*
