@@ -2,7 +2,7 @@
  * Copyright (c) 1998 Beyond.com
  * Written by Dustin Sallings <dustin@beyond.com>
  *
- * $Id: mmmain.c,v 1.5 1998/11/05 00:08:27 dustin Exp $
+ * $Id: mmmain.c,v 1.6 1998/11/05 09:13:58 dustin Exp $
  */
 
 #include <stdio.h>
@@ -318,6 +318,9 @@ _get_hashprice(char *prices)
 	char *tmp, **s;
 	struct hashtable *h;
 	int i;
+
+	if(prices==NULL)
+		return(NULL);
 
 	tmp=strdup(prices);
 	h=hash_init(HASHSIZE);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.1 1998/11/04 05:09:15 dustin Exp $
+ * $Id: hash.c,v 1.2 1998/11/05 09:13:57 dustin Exp $
  */
 
 #include <stdio.h>
@@ -82,6 +82,9 @@ hash_find(struct hashtable *hash, char *key)
 {
 	struct hash_container *p;
 	int     hashval;
+
+	if(hash==NULL)
+		return(NULL);
 
 	hashval = _do_hash(hash, key);
 
