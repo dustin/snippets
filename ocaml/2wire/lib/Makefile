@@ -30,13 +30,13 @@ testtop: $(PARTS)
 
 docs: $(PARTS)
 	mkdir -p doc
-	ocamldoc -d doc -html *.ml
+	ocamldoc -d doc -html *.mli *.ml
 
 clean:
 	rm -rf testtop *.a *.cma *.cmxa *.cmx *.cmi *.cmo *.o doc
 
-.ml.mli:
-	$(OCAMLOPT) -i $< > $@
+# .ml.mli:
+	# $(OCAMLOPT) -i $< > $@
 
 .mli.cmi: $<
 	$(MKLIB) $< `echo $< | sed s/.mli/.ml/`
