@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.7 2000/05/01 04:32:46 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.8 2000/05/18 07:38:47 dustin Exp $
 
 package net.spy.rmi;
 
@@ -42,6 +42,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 				image_data=fetchImage(image_id);
 			}
 		} catch(Exception e) {
+			log("Error fetching image:  " + e);
 			throw new RemoteException("Error fetching image", e);
 		}
 		return(image_data);
@@ -52,6 +53,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 		if(rhash==null) {
 			getRhash();
 			if(rhash==null) {
+				log("Can't get an RHash connection");
 				throw new RemoteException("Can't get an RHash connection");
 			}
 		}
@@ -59,6 +61,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 			log("Caching an image.");
 			rhash.put("photo_" + image_id, image.image_data);
 		} catch(Exception e) {
+			log("Error storing image:  " + e);
 			throw new RemoteException("Error storing image", e);
 		}
 	}
@@ -106,6 +109,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 				v.addElement(tmp);
 			}
 		} catch(Exception e) {
+			log("Error making thumbnail:  " + e);
 			throw new Exception("Error making thumbnail:  " + e);
 		} finally {
 			try {
@@ -146,7 +150,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 	}
 
 	protected void log(String what) {
-		// System.err.println(what);
+		System.err.println(what);
 	}
 
 	// Fetch an image
@@ -167,6 +171,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 			try {
 				photo=getDBConn();
 			} catch(Exception e) {
+				log("Can't get database connection:  " + e);
 				throw new Exception("Can't get database connection: " + e);
 			}
 
@@ -188,6 +193,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 					rhash.put(key, v);
 				}
 			} catch(Exception e) {
+				log("Problem getting image:  " + e);
 				throw new Exception("Problem getting image: " + e);
 			} finally {
 				freeDBConn(photo);
