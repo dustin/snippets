@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Saver.java,v 1.2 2002/07/22 06:45:49 dustin Exp $
+// $Id: Saver.java,v 1.3 2002/08/15 04:20:46 dustin Exp $
 
 package net.spy.db;
 
@@ -17,7 +17,7 @@ import net.spy.SpyConfig;
  */
 public class Saver extends Object {
 
-	private final static int MAX_RECURSION_DEPTH=100;
+	private static final int MAX_RECURSION_DEPTH=100;
 
 	private SaveContext context=null;
 	private SpyConfig config=null;

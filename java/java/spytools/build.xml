@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.22 2002/08/13 05:10:15 dustin Exp $
+	$Id: build.xml,v 1.23 2002/08/15 04:20:41 dustin Exp $
 
 	-->
 
@@ -283,15 +283,15 @@
 				<include name="net/spy/**/*.java"/>
 			</fileset>
 		</pmd>
-			<pmd reportFile="pmd-basic-report.html"
-				rulesetfiles="rulesets/basic.xml"
+		<pmd reportFile="pmd-basic-report.html"
+			rulesetfiles="rulesets/basic.xml"
 			format="html">
 			<fileset dir=".">
 				<include name="net/spy/**/*.java"/>
 			</fileset>
 		</pmd>
-			<pmd reportFile="pmd-design-report.html"
-				rulesetfiles="rulesets/design.xml"
+		<pmd reportFile="pmd-design-report.html"
+			rulesetfiles="rulesets/design.xml"
 			format="html">
 			<fileset dir=".">
 				<include name="net/spy/**/*.java"/>
