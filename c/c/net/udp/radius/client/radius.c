@@ -1,9 +1,10 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.8 1998/08/04 20:15:57 dustin Exp $
+ * $Id: radius.c,v 1.9 1998/08/06 06:29:48 dustin Exp $
  */
 
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
