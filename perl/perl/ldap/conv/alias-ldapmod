@@ -69,14 +69,18 @@ my($alias, $domain)=@ARGV;
 
 for $key (keys(%r)) {
 	if($key!~/\@/) {
-		print "$key hath no \@\n";
+		print STDERR "$key hath no \@\n";
+		next;
+	}
+	if($key!~/$domain/) {
+		print STDERR "$key is not in the domain $domain\n";
 		next;
 	}
 	($uid)=split('@', $key);
 	print "dn: uid=$uid, ou=Agents, dc=spy, dc=net\n";
 	print "changetype: modify\n";
-	print "replace: mailRoutingAddress\n";
-	print "mailRoutingAddress: $key\n";
+	print "replace: maildrop\n";
+	print "maildrop: $key\n";
 
 	my @tmp=();
 	for(@{$r{$key}}) {
@@ -85,8 +89,8 @@ for $key (keys(%r)) {
 	}
 
 	if(@tmp) {
-		print "-\nadd: mailLocalAddress\n";
-		print map { "mailLocalAddress: $_\@$domain\n" } @tmp;
+		print "-\nadd: mailacceptinggeneralid\n";
+		print map { "mailacceptinggeneralid: $_\n" } @tmp;
 	}
 	print "\n";
 }
