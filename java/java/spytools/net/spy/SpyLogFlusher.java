@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.5 2000/01/24 10:11:07 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.6 2000/01/25 06:41:10 dustin Exp $
  */
 
 package net.spy;
@@ -36,6 +36,14 @@ public class SpyLogFlusher extends Thread {
 	 * can be overridden.
 	 */
 	public String logfile = "/tmp/spy.log";
+
+	/**
+	 * Get a SpyFlusher and place it in a given threadgroup.
+	 */
+	public SpyLogFlusher() {
+		super("log_flusher");
+		this.setDaemon(true);
+	}
 
 	/**
 	 * Get a SpyFlusher and place it in a given threadgroup.

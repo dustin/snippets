@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.4 2000/01/24 06:57:09 dustin Exp $
+// $Id: SpyUtil.java,v 1.5 2000/01/25 06:41:13 dustin Exp $
 
 package net.spy;
 
@@ -59,6 +59,7 @@ public class SpyUtil {
 
 		while( st.hasMoreTokens() ) {
 			ret[i]=st.nextToken();
+			i++;
 		}
 
 		return(ret);

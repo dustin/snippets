@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.2 2000/01/24 06:40:32 dustin Exp $
+ * $Id: SpyLog.java,v 1.3 2000/01/25 06:41:09 dustin Exp $
  */
 
 package net.spy;
@@ -28,7 +28,6 @@ public class SpyLog extends Object {
 	protected static boolean initialized = false;
 	protected static SpyLogFlusher flusher;
 	protected static int refcount;
-	protected static ThreadGroup mythreadgroup;
 
 	/**
 	 * Instantiate a SpyLog entry.
@@ -91,14 +90,12 @@ public class SpyLog extends Object {
 	}
 
 	protected synchronized void initialize() {
-		ThreadGroup system = getSystemGroup();
 		// Do this soon, we don't want anything else causing this to happen.
 		initialized = true;
 		refcount = 0;
 
-		mythreadgroup = new ThreadGroup(system, "logging");
 		if(flusher==null) {
-			flusher = new SpyLogFlusher(mythreadgroup);
+			flusher = new SpyLogFlusher();
 		}
 		flusher.start();
 		// Sleep a tiny bit so the thread can get going, otherwise,
@@ -125,16 +122,5 @@ public class SpyLog extends Object {
 		// One fewer reference.
 		refcount--;
 		super.finalize();
-	}
-
-	// Get the system threadgroup for initialize
-	protected static ThreadGroup getSystemGroup() {
-		ThreadGroup start=null, last=null;
-
-		for(start=Thread.currentThread().getThreadGroup(); start!=null;) {
-			last=start;
-			start=start.getParent();
-		}
-		return(last);
 	}
 }

@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.4 2000/01/25 04:39:29 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.5 2000/01/25 06:41:14 dustin Exp $
 
 package net.spy.rmi;
 
@@ -146,7 +146,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 	}
 
 	protected void log(String what) {
-		System.err.println(what);
+		// System.err.println(what);
 	}
 
 	// Fetch an image
@@ -180,8 +180,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 				while(rs.next()) {
 					byte data[];
 					String data_in=rs.getString(3);
-					System.err.println("Decoding " + rs.getString(1) + " "
-						+ rs.getString(2));
+					log("Decoding " + rs.getString(1) + " " + rs.getString(2));
 					data=base64.decodeBuffer(data_in);
 					v.addElement(data);
 				}

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.3 2000/01/24 06:40:36 dustin Exp $
+// $Id: SpyRunner.java,v 1.4 2000/01/25 06:41:12 dustin Exp $
 
 package net.spy;
 
@@ -36,10 +36,13 @@ import java.io.*;
 public class SpyRunner extends Thread {
 	Class tclass=null;
 	String args[]=null;
+	String classname=null;
 
 	static Properties prop=null;
 
-	public SpyRunner(String object, String args[]) {
+	public SpyRunner(ThreadGroup tg, String object, String args[]) {
+		super(tg, "main");
+		this.classname=object;
 		try {
 			tclass=Class.forName(object);
 			this.args=args;
@@ -63,16 +66,27 @@ public class SpyRunner extends Thread {
 
 			// invoke the method
 			m.invoke(tclass, params);
+		} catch(InvocationTargetException ite) {
+			System.err.println("Error invoking method for " + classname
+				+ ":  " + ite);
+			ite.printStackTrace();
+			Throwable t = ite.getTargetException();
+			System.err.println("Original:  " + t);
+			t.printStackTrace();
 		} catch(Exception e) {
-			System.err.println("Error invoking method:  " + e);
+			System.err.println("Error invoking method for " + classname
+				+ ":  " + e);
 			e.printStackTrace();
 		}
 	}
 
 	public static void main(String args[]) throws Exception {
 		initProperties(args[0]);
+		String apps=prop.getProperty("apps");
 
-		String a[]=SpyUtil.split(" ", prop.getProperty("apps"));
+		ThreadGroup system=getSystemGroup();
+
+		String a[]=SpyUtil.split(" ", apps);
 		for(int i=0; i<a.length; i++) {
 			// System.out.println("Got app:  " + a[i]);
 
@@ -86,13 +100,37 @@ public class SpyRunner extends Thread {
 				// System.out.println("No argstring, using an empty one");
 				cargs=new String[0];
 			}
-			Thread t = new SpyRunner(classname, cargs);
-			t.run();
+
+			ThreadGroup tg=new ThreadGroup(system,  a[i]);
+
+			System.out.println("Starting " + classname);
+			Thread t = new SpyRunner(tg, classname, cargs);
+			t.start();
+			System.out.println("Started...");
+			// Wait a second before starting each thing, in case there are
+			// dependencies
+			try {
+				Thread.sleep(1000);
+			} catch(Exception e) {
+				// OK, maybe not.
+			}
 		}
+		// system.list();
 	}
 
 	protected static void initProperties(String from) throws Exception {
 		prop=new Properties();
 		prop.load(new FileInputStream(from));
 	}
+
+    // Get the system threadgroup for initialize
+    protected static ThreadGroup getSystemGroup() {
+        ThreadGroup start=null, last=null;
+
+        for(start=Thread.currentThread().getThreadGroup(); start!=null;) {
+            last=start;
+            start=start.getParent();
+        }
+        return(last);
+    }
 }
