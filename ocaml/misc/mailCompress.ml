@@ -45,7 +45,8 @@ let should_process fn =
 		(ends_with fn ".") && (is_new_enough fn) && (not (is_gzip fn))
 	with x ->
 		print_endline("Unknown error determining whether to process " ^ fn);
-		raise x
+		print_endline (Printexc.to_string x);
+		false
 ;;
 
 let rec copy_gzip infile gzfile buf =
