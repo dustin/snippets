@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.34 2002/08/18 19:18:41 dustin Exp $
+	$Id: build.xml,v 1.35 2002/08/22 22:00:27 dustin Exp $
 
 	-->
 
@@ -128,6 +128,7 @@
 			</manifest>
 			<include name="net/spy/**/*.class"/>
 			<include name="net/spy/**/*.properties"/>
+			<include name="etc/license.txt"/>
 		</jar>
 	</target>
 
@@ -147,6 +148,7 @@
 			<include name="testsuite.jar"/>
 			<include name="etc/test.sql"/>
 			<include name="etc/build.number"/>
+			<include name="etc/license.txt"/>
 		</jar>
 		<property name="spy.jar.upToDate" value="true"/>
 	</target>
