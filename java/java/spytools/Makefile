@@ -9,7 +9,7 @@ JAVADOC=$(JAVAHOME)/bin/javadoc
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
-C3=$(MYLIB)/xml4j.jar:$(MYLIB)/oromatcher.jar
+C3=$(MYLIB)/oromatcher.jar
 CLASSPATH=$(C1):$(C2):$(C3):.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
@@ -32,11 +32,19 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/Traffic.class \
 	net/spy/info/FlightTracker.class \
 	net/spy/info/BigWords.class \
-	net/spy/info/UPS.class net/spy/info/Weather.class
+	net/spy/info/UPS.class net/spy/info/Weather.class \
+	net/spy/pool/ObjectPool.class \
+	net/spy/pool/ObjectPoolCleaner.class \
+	net/spy/pool/PoolAble.class \
+	net/spy/pool/PoolContainer.class \
+	net/spy/pool/PoolException.class \
+	net/spy/pool/PoolFiller.class \
+	net/spy/pool/PooledObject.class \
+	net/spy/pool/JDBCPoolFiller.class \
 
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
-	net.spy.info
+	net.spy.info net.spy.pool
 
 FDEST=/home/dustin/lib/java
 SCP=scp

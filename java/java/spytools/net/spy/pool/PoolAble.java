@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.1 2000/07/01 09:44:29 dustin Exp $
+// $Id: PoolAble.java,v 1.2 2000/07/03 07:12:15 dustin Exp $
 
 package net.spy.pool;
 
@@ -65,7 +65,7 @@ public class PoolAble extends Object {
 	 * Check the object back in.  The PoolAble will not be usable again
 	 * until it's checked back out from the pooler.
 	 */
-	public void checkIn() {
+	public synchronized void checkIn() {
 		checked_out=false;
 	}
 
@@ -73,14 +73,14 @@ public class PoolAble extends Object {
 	 * Check the object out.  Do *NOT* call this directly, bad things will
 	 * happen.
 	 */
-	public void checkOut() {
+	public synchronized void checkOut() {
 		checked_out=true;
 	}
 
 	/**
 	 * Find out if the object is checked out.
 	 */
-	public boolean checkedOut() {
+	public synchronized boolean checkedOut() {
 		return(checked_out);
 	}
 
@@ -89,9 +89,9 @@ public class PoolAble extends Object {
 	 *
 	 * @return a string representation of this object.
 	 */
-	public synchronized String toString() {
+	public String toString() {
 		String out=null;
-		if(checked_out) {
+		if(checkedOut()) {
 			out="PoolAble " + object_id + " is checked out.";
 		} else {
 			out="PoolAble " + object_id + " is not checked out.";

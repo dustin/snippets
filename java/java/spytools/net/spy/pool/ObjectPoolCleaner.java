@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolCleaner.java,v 1.2 2000/07/01 11:53:59 dustin Exp $
+// $Id: ObjectPoolCleaner.java,v 1.3 2000/07/03 07:12:14 dustin Exp $
 
 package net.spy.pool;
 
@@ -22,7 +22,7 @@ public class ObjectPoolCleaner extends Thread {
 		this.start();
 	}
 
-	protected synchronized void doPrune() throws Exception {
+	protected void doPrune() throws Exception {
 		op.prune();
 	}
 

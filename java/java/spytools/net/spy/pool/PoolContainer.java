@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.4 2000/07/01 11:54:00 dustin Exp $
+// $Id: PoolContainer.java,v 1.5 2000/07/03 07:12:17 dustin Exp $
 
 package net.spy.pool;
 
@@ -48,7 +48,7 @@ public class PoolContainer extends Object {
 				// If it's not checked out, we have our man!
 				if(!p.checkedOut()) {
 					// Since we got one from the pool, we want to move it
-					// to the end of the vector.
+				// to the end of the vector.
 					ret=p;
 				}
 			} // Flipping through the current pool
@@ -91,10 +91,12 @@ public class PoolContainer extends Object {
 	/**
 	 * debugging tool, dump out the current state of the pool to System.out
 	 */
-	public synchronized void dumpPool() {
+	public void dumpPool() {
 		System.out.println("Pool " + name);
-		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-			System.out.println("\t" + e.nextElement());
+		synchronized (pool) {
+			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+				System.out.println("\t" + e.nextElement());
+			}
 		}
 	}
 
@@ -103,13 +105,15 @@ public class PoolContainer extends Object {
 	 *
 	 * @return the number of available (not checked out) objects.
 	 */
-	public synchronized int avaliableObjects() {
+	public int avaliableObjects() {
 		int ret=0;
 
-		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-			PoolAble p=(PoolAble)e.nextElement();
-			if(!p.checkedOut()) {
-				ret++;
+		synchronized (pool) {
+			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+				PoolAble p=(PoolAble)e.nextElement();
+				if(!p.checkedOut()) {
+					ret++;
+				}
 			}
 		}
 
@@ -123,14 +127,17 @@ public class PoolContainer extends Object {
 	 * This method should only be called from the ObjectPoolCleaner --
 	 * please don't call it directly.
 	 */
-	public synchronized void prune() {
-		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-			// Don't remove too many objects.
-			if(_current_objects>_min_objects) {
+	public void prune() {
+		synchronized (pool) {
+			int i=0;
+			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
-				if(!p.checkedOut()) {
-					pool.removeElement(p);
-					_current_objects--;
+				// Don't remove too many objects.
+				if(_current_objects>_min_objects) {
+					if(!p.checkedOut()) {
+						pool.removeElement(p);
+						_current_objects--;
+					}
 				}
 			}
 		}
@@ -160,7 +167,9 @@ public class PoolContainer extends Object {
 			_current_objects++;
 			p.setObjectID(_object_id);
 			_object_id++;
-			pool.addElement(p);
+			synchronized(pool) {
+				pool.addElement(p);
+			}
 		} else {
 			throw new PoolException("Cannot create another object in the pool");
 		}
