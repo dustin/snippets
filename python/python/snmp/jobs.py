@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.5 2002/05/01 20:33:43 dustin Exp $
+$Id: jobs.py,v 1.6 2002/05/02 20:03:11 dustin Exp $
 """
 
 # time is important
@@ -38,7 +38,8 @@ class Job:
 		what it does.
 		"""
 		self.descriptor=descriptor
-		self.frequency=freq
+		# Make sure it's a float.
+		self.frequency=float(freq)
 		if Job.db == None:
 			Job.db=storage.DBMStorage('hostmarks.db')
 		if self.prefix==None:
@@ -84,7 +85,7 @@ class SNMPJob(Job):
 class VolatileSNMPJob(VolatileJob, SNMPJob):
 	"""An SNMP job that records its state in the volatile DB."""
 
-	def __init__(self, host, community, oid, freq, jobtype='snmp'):
+	def __init__(self, host, community, freq, oid, jobtype='snmp'):
 		# Call the super constructors
 		# VolatileJob's constructor is called with a descriptor of XXXX
 		# because SNMPJob should fill it it with the correct value.
@@ -149,7 +150,7 @@ class RRDSNMPJob(RRDJob, SNMPJob):
 	More than one oid may be collected at a time.
 	"""
 
-	def __init__(self, host, community, oids, freq, rrdfile):
+	def __init__(self, host, community, freq, oids, rrdfile):
 		# RRDJob's constructor is called with a descriptor of XXXX because
 		# SNMPJob should fill it it with the correct value.
 		RRDJob.__init__(self, rrdfile, 'XXXX', freq)
@@ -233,8 +234,8 @@ def createJob(jobtype, args):
 
 	Currently, the following job types are supported:
 
-	 * VolatileSNMPJob (host, community, variable, frequency)
-	 * RRDSNMPJob (host, community, variable(s), frequency, rrdfile)
+	 * VolatileSNMPJob (host, community, frequency, variable)
+	 * RRDSNMPJob (host, community, frequency, variable(s), rrdfile)
 	"""
 
 	rv=None
