@@ -151,10 +151,14 @@ let process le rrd =
 	let at = approx_time le.le_time in
 	if at != global_state.g_last_ts then
 		begin
+			(* If we see a log entry that is older than the current set,
+				there's a problem. *)
 			if at < global_state.g_last_ts then
 				raise (Back_in_time (string_of_log_entry le));
+			(* If this is not the first one, print it out *)
 			if global_state.g_last_ts != 0 then
 				print_entry rrd;
+			(* Adjust all of the global params *)
 			reset_global at
 		end;
 
