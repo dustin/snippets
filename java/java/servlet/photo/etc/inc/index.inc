@@ -1,6 +1,8 @@
 <html><head><title>Photo Album</title></head>
 <body bgcolor="fFfFfF">
 
+<font face="Ariel,Helvetica">
+
 <h2>Dustin's Photo Album</h2>
 
 <ul>
@@ -37,6 +39,8 @@ web page publishing system, type <tt>man vi</tt> at your prompt.
 <!--
     Logged in as:  %REMOTE_USER%
 -->
+
+</font>
 
 </body>
 </html>
