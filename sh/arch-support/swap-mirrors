@@ -4,6 +4,13 @@
 # Swap a replicatable archive between read-only and read-write mode.
 
 archive="dustin@spy.net--projects-2004"
+tla tree-version > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+	tv=`tla tree-version`
+	archive=`tla parse-package-name -a $tv`
+fi
+
 if [ $# -gt 0 ]
 then
 	archive="$1"
