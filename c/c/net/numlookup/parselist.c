@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.4 1999/05/08 08:35:48 dustin Exp $
+ * $Id: parselist.c,v 1.5 1999/05/08 08:36:59 dustin Exp $
  */
 
 #include <stdio.h>
@@ -30,7 +30,7 @@ getfunc(void *lib)
 	func = dlsym(lib, THEFUNC);
 	if (func == NULL) {
 		/* fprintf(stderr, "Trying _libtest_main\n"); */
-		func = dlsym(lib, THEFUNC);
+		func = dlsym(lib, "_"THEFUNC);
 		/*
 		 * if(func==NULL) {
 		 * fprintf(stderr, "Damnit...couldn't find it there, either\n");
