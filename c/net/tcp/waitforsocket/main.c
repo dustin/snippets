@@ -13,19 +13,19 @@
 #include <assert.h>
 
 /* Socket getter */
-int attemptConnection(char *host, int port);
+int attemptConnection(char *, char *);
 
 static void
 usage(const char *name)
 {
-	fprintf(stderr, "Usage:\n  %s hostname port\n", name);
+	fprintf(stderr, "Usage:\n  %s hostname service|port\n", name);
 }
 
 int
 main(int argc, char **argv)
 {
 	char   *hostname=0x00;
-	int     port=0;
+	char   *svc=0x00;
 	time_t  t=0;
 
 	if (argc < 3) {
@@ -34,13 +34,9 @@ main(int argc, char **argv)
 	}
 
 	hostname = argv[1];
-	port = atoi(argv[2]);
-	if(port < 1 || port > 65535) {
-		usage(argv[0]);
-		exit(0);
-	}
+	svc=argv[2];
 
-	while(!attemptConnection(hostname, port)) {
+	while(!attemptConnection(hostname, svc)) {
 		t=time(NULL);
 		fprintf(stderr, "Failed to connect at %s", ctime(&t));
 		sleep(1);

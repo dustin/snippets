@@ -60,27 +60,23 @@ static int waitForConnect(int s)
 }
 
 int
-attemptConnection(char *host, int port)
+attemptConnection(char *host, char *svc)
 {
 	struct addrinfo hints, *res, *res0;
 	int     success, i, flag;
 	register int s = -1;
 	struct linger l;
 	int fflags =0;
-	char portstring[8];
 	char *cause=NULL;
 
-	if (host == NULL || port < 1 || port > 65535) {
+	if (host == NULL || svc == NULL) {
 		return (0);
 	}
-
-	memset(&portstring, 0x00, sizeof(portstring));
-	snprintf(portstring, sizeof(portstring)-1, "%d", port);
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	if(getaddrinfo(host, portstring, &hints, &res0) != 0) {
+	if(getaddrinfo(host, svc, &hints, &res0) != 0) {
 		perror(host);
 		return(0);
 	}
