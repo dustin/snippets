@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.8 1999/05/26 06:01:45 dustin Exp $
+-- $Id: pg.e,v 1.9 1999/05/26 06:10:37 dustin Exp $
 --
 class PG
 
@@ -218,6 +218,16 @@ feature {PG} -- Internal data stuff
 
    password: STRING;
       -- Database password
+
+feature {MEMORY} -- Destructor
+	dispose is
+		do
+			io.put_string("***** Calling destructor%N");
+			if conn /= Void then
+				io.put_string("Closing database connection!%N");
+				pg_finish(conn);
+			end
+		end
 
 feature {PG}
 
