@@ -23,6 +23,14 @@
 #define _ndebug(a, b)
 #endif
 
-int getclientsocket(char *host, int port);
+/* Socket options */
+#define DO_NAGLE 1
+#define NON_BLOCKING 2
+
+#ifndef MAXINT
+#define MAXINT 0x7fffffff
+#endif
+
+int getclientsocket(char *host, int port, int sock_opts);
 
 #endif

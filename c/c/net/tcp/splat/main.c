@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.2 1999/01/05 20:09:31 dustin Exp $
+ * $Id: main.c,v 1.3 2003/04/03 01:45:07 dustin Exp $
  */
 
 #include <config.h>
@@ -39,39 +39,87 @@ serv_conn_alrm(int sig)
 	return;
 }
 
+static void
+usage(const char *name)
+{
+	fprintf(stderr,
+		"Usage:\n  %s [-pb] [-n max_conns] [-d data] hostname port\n",
+		name);
+	fprintf(stderr, "\t-p Keep max_conns connections open\n");
+	fprintf(stderr, "\t-b Disable non-blocking IO\n");
+	fprintf(stderr, "\t-n Maximum number of connections to open\n");
+}
+
 int
 main(int argc, char **argv)
 {
-	char   *hostname;
-	int     port, s, selected, size;
+	char   *hostname=0x00;
+	char   *data=0x00;
+	int     port=0, c=0, s=0, selected=0, size=0, currentlyOpen=0;
+	int     keep_populated=0, sock_flags=NON_BLOCKING;
 	fd_set  fdset, tfdset;
 	char    buf[8192];
 	struct timeval t;
+	int maxconns=MAXINT;
 
-	if (argc < 3) {
-		printf("Too few arguments, usage:\n%s hostname port [data]\n",
-			argv[0]);
+	/* Process options */
+	while ((c=getopt(argc, argv, "bpn:d:")) >= 0) {
+		switch(c) {
+			case 'p':
+				keep_populated=1;
+				break;
+			case 'n':
+				maxconns=atoi(optarg);
+				break;
+			case 'd':
+				data=optarg;
+				break;
+			case 'b':
+				sock_flags &= (~NON_BLOCKING);
+				break;
+			case '?':
+				usage(argv[0]);
+				return(1);
+				break;
+		}
+	}
+
+	if (optind >= argc) {
+		usage(argv[0]);
 		exit(0);
 	}
+
 	FD_ZERO(&tfdset);
 
-	hostname = argv[1];
-	port = atoi(argv[2]);
+	hostname = argv[optind];
+	port = atoi(argv[optind+1]);
 
 	resettraps();
 
 	for (;;) {
-		s = getclientsocket(hostname, port);
-		if (s > 0) {
-			printf("Got one: %d...\n", s);
-			FD_SET(s, &tfdset);
-			if (argc > 3) { /* send some data if we've got some */
-				_ndebug(2, ("Sending ``%s''\n", argv[3]));
-				send(s, argv[3], strlen(argv[3]), 0);
+		int numToOpen=1, i;
+
+		/* Figure out how many connections we need to open */
+		if(keep_populated) {
+			numToOpen=(maxconns-currentlyOpen);
+		}
+
+		/* Open them (if the number is less than 1, it won't do anything */
+		for(i=0; i<numToOpen; i++) {
+			_ndebug(2, ("Connecting to ``%s:%d''\n", hostname, port));
+			s = getclientsocket(hostname, port, sock_flags);
+			if (s > 0) {
+				printf("Got one: %d...\n", s);
+				FD_SET(s, &tfdset);
+				currentlyOpen++;
+				if (data != NULL) { /* send some data if we've got some */
+					_ndebug(2, ("Sending ``%s''\n", data));
+					send(s, data, strlen(data), 0);
+				}
 			}
 		}
 		fdset = tfdset;
-		t.tv_sec = 0;
+		t.tv_sec = 1;
 		t.tv_usec = 2600;
 
 		_ndebug(2, ("Selecting...\n"));
@@ -86,13 +134,15 @@ main(int argc, char **argv)
 					if (size == 0) {
 						_ndebug(2, ("Lost %d\n", i));
 						close(i);
+						currentlyOpen--;
 						FD_CLR(i, &fdset);
 					} else {
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
 					}
 				}
-				if (selected == 0)
+				if (selected == 0) {
 					break;
+				}
 			}
 		}		/* select */
 	}			/* infinite loop */

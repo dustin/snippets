@@ -1,16 +1,18 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.2 1999/01/05 20:09:32 dustin Exp $
+ * $Id: sockets.c,v 1.3 2003/04/03 01:45:09 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/errno.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <syslog.h>
@@ -21,7 +23,7 @@
 extern int _debug;
 
 int
-getclientsocket(char *host, int port)
+getclientsocket(char *host, int port, int sock_opts)
 {
 	struct hostent *hp;
 	int     success, i, flag;
@@ -63,16 +65,27 @@ getclientsocket(char *host, int port)
 			sizeof(int)) < 0) {
 			puts("Nagle algorithm not dislabled.");
 		}
+		if(sock_opts & NON_BLOCKING) {
+			int fflags = fcntl(s, F_GETFL);
+			if(fcntl(s, F_SETFL, fflags | O_NONBLOCK) < 0) {
+				perror("fcntl");
+			}
+		}
 		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-			sleep(1);
+			if(errno=EINPROGRESS) {
+				success = 1;
+			} else {
+				sleep(1);
+			}
 		} else {
 			success = 1;
 			break;
 		}
 	}
 
-	if (!success)
+	if (!success) {
 		s = -1;
+	}
 
 	return (s);
 }
