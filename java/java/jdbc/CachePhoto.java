@@ -6,7 +6,7 @@ import java.rmi.Naming;
 
 import net.spy.*;
 import net.spy.rmi.*;
-import net.spy.util.*;
+import net.spy.photo.*;
 
 public class CachePhoto {
 
@@ -19,7 +19,7 @@ public class CachePhoto {
 		server = (ImageServer)Naming.lookup("//dhcp-104/ImageServer");
 
 		// Load the postgres driver.
-		Class.forName("postgresql.Driver");
+		Class.forName("org.postgresql.Driver");
 		source="jdbc:postgresql://dhcp-104/photo";
 		events = DriverManager.getConnection(source, "dustin", "");
 
@@ -35,16 +35,15 @@ public class CachePhoto {
 		String query;
 		Statement st;
 		st = events.createStatement();
-		Vector v = new Vector();
 
-		query = "select id from album order by ts";
+		query = "select id from album order by ts desc";
 
 		ResultSet rs = st.executeQuery(query);
 		while(rs.next()) {
 			int id = rs.getInt(1);
 			try {
 				// true == thumbnail
-				ImageData data=server.getImage(id, true);
+				PhotoImage data=server.getImage(id, true);
 			} catch(Exception e) {
 				System.err.println("Fuck:  " + e);
 			}
