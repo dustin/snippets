@@ -1,8 +1,9 @@
 ; Date calculation stuff.
 ; Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
-; $Id: dates.scm,v 1.1 2002/12/27 10:34:25 dustin Exp $
+; $Id: dates.scm,v 1.2 2002/12/28 05:37:38 dustin Exp $
 
-(module dates)
+(module dates
+		(export dates-seconds-for-time dates-decode))
 
 ;
 ; Constants used to perform calculations
