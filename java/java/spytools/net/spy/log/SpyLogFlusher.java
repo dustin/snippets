@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.4 2000/07/27 19:21:48 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.5 2000/07/27 20:05:50 dustin Exp $
  */
 
 package net.spy.log;
@@ -68,6 +68,9 @@ public class SpyLogFlusher extends Thread {
 	 */
 	public SpyLogFlusher() {
 		this("GenericSpyLogQueue");
+		Exception e=new Exception("Using deprecated API!");
+		System.err.println("Warning!  " + e);
+		e.printStackTrace();
 	}
 
 	/**
@@ -78,6 +81,9 @@ public class SpyLogFlusher extends Thread {
 	 */
 	public SpyLogFlusher(ThreadGroup t) {
 		this("GenericSpyLogQueue", t);
+		Exception e=new Exception("Using deprecated API!");
+		System.err.println("Warning!  " + e);
+		e.printStackTrace();
 	}
 
 	/**

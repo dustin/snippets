@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.3 2000/07/27 19:21:46 dustin Exp $
+ * $Id: SpyLog.java,v 1.4 2000/07/27 20:05:49 dustin Exp $
  */
 
 package net.spy.log;
 
 import net.spy.*;
 
-import java.lang.*;
 import java.util.*;
 
 /**
@@ -28,7 +27,7 @@ public class SpyLog extends Object {
 	protected SpyLogQueue queue=null;
 	protected static boolean initialized = false;
 	protected static Vector flushers=null;
-	protected String queue_name="GenericSpyLogQueue";
+	protected String queue_name=null;
 
 	/**
 	 * Instantiate a SpyLog entry with the default flusher.
@@ -36,6 +35,9 @@ public class SpyLog extends Object {
 	 */
 	public SpyLog() {
 		this("GenericSpyLogQueue");
+		Exception e=new Exception("Using deprecated API!");
+		System.err.println("Warning:  " + e);
+		e.printStackTrace();
 	}
 
 
@@ -58,7 +60,7 @@ public class SpyLog extends Object {
 			synchronized(flushers) {
 				// Default flusher.
 				if(flushers.size()==0) {
-					SpyLogFlusher flusher = new SpyLogFlusher();
+					SpyLogFlusher flusher = new SpyLogFlusher(queue_name);
 					addFlusher(flusher);
 				}
 			}
@@ -76,6 +78,9 @@ public class SpyLog extends Object {
 	 */
 	public SpyLog(SpyLogFlusher f) {
 		this("GenericSpyLogQueue", f);
+		Exception e=new Exception("Using deprecated API!");
+		System.err.println("Warning:  " + e);
+		e.printStackTrace();
 	}
 
 	/**

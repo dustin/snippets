@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.4 2000/07/27 19:21:49 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.5 2000/07/27 20:05:52 dustin Exp $
  */
 
 package net.spy.log;
@@ -24,6 +24,9 @@ public class SpyLogQueue extends Object {
 	 */
 	public SpyLogQueue() {
 		this("GenericSpyLogQueue");
+		Exception e=new Exception("Using deprecated API!");
+		System.err.println("Warning!  " + e);
+		e.printStackTrace();
 	}
 
 	public SpyLogQueue(String name) {
