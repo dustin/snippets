@@ -24,7 +24,7 @@ try:
             threading.Thread.__init__(self)
 
             self.host=host
-            self.prefix=""
+            self.prefix=prefix
 
             self.setDaemon(True)
             self.start()
@@ -58,14 +58,14 @@ class Host:
     def update(self, prefix=""):
         """Update this host with values from the given URL"""
         u=urllib.URLopener()
-        r=u.open(self.url)
+        theurl=self.url + "/" + prefix
+        r=u.open(theurl)
         h={}
         for l in r.readlines():
             l=l.rstrip()
             (k, v) = l.split(' = ')
-            if(k.startswith(prefix)):
-                v=int(v)
-                h[k] = v
+            v=int(v)
+            h[k] = v
         self.vals=h
 
     def setException(self, e):
