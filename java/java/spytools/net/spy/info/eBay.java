@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.2 2000/04/22 10:29:16 dustin Exp $
+// $Id: eBay.java,v 1.3 2000/06/16 20:08:41 dustin Exp $
 
 package net.spy.info;
 
@@ -15,8 +15,6 @@ import net.spy.net.*;
 
 public class eBay extends Info {
 
-	String item_number=null;
-
 	/**
 	 * Get an eBay object.
 	 *
@@ -24,7 +22,14 @@ public class eBay extends Info {
 	 */
 	public eBay(String item_number) {
 		super();
-		this.item_number = item_number;
+		this.arg = item_number;
+	}
+
+	/**
+	 * Get an unitialized eBay object.
+	 */
+	public eBay() {
+		super();
 	}
 
 	public String toString() {
@@ -47,7 +52,7 @@ public class eBay extends Info {
 	protected void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
-			hinfo.put("item_number", item_number);
+			hinfo.put("item_number", arg);
 			getInfo();
 			String lines[]=SpyUtil.split("\n", info);
 			int section=0;
@@ -92,7 +97,7 @@ public class eBay extends Info {
 		if(info==null) {
 			String url=
 				"http://cgi.ebay.com/aw-cgi/eBayISAPI.dll?ViewItem&item=";
-			url += item_number;
+			url += arg;
 			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();

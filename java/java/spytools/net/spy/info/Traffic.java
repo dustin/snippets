@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Traffic.java,v 1.1 2000/04/17 18:48:58 dustin Exp $
+// $Id: Traffic.java,v 1.2 2000/06/16 20:08:37 dustin Exp $
 
 package net.spy.info;
 
@@ -15,16 +15,21 @@ import net.spy.net.*;
 
 public class Traffic extends Info {
 
-	String geo_loc=null;
-
 	/**
 	 * Get an Traffic object.
 	 *
-	 * @param geo_loc the item number to look up
+	 * @param geo_loc The Yahoo geographical location string.
 	 */
 	public Traffic(String geo_loc) {
 		super();
-		this.geo_loc = geo_loc;
+		this.arg = geo_loc;
+	}
+
+	/**
+	 * Get an unitialized Traffic object.
+	 */
+	public Traffic() {
+		super();
 	}
 
 	public String toString() {
@@ -44,7 +49,7 @@ public class Traffic extends Info {
 	protected void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
-			hinfo.put("geo_loc", geo_loc);
+			hinfo.put("geo_loc", arg);
 			getInfo();
 			String lines[]=SpyUtil.split("\n", info);
 			int section=0;
@@ -80,7 +85,7 @@ public class Traffic extends Info {
 		if(info==null) {
 			String url=
 				"http://traffic.yahoo.com/traffic/";
-			url += geo_loc;
+			url += arg;
 			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();

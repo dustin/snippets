@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FlightTracker.java,v 1.1 2000/04/17 18:48:58 dustin Exp $
+// $Id: FlightTracker.java,v 1.2 2000/06/16 20:08:34 dustin Exp $
 
 package net.spy.info;
 
@@ -19,14 +19,46 @@ public class FlightTracker extends Info {
 	String flightnum=null;
 
 	/**
-	 * Get an FlightTracker object.
+	 * Get a FlightTracker object.
 	 *
-	 * @param airline the item number to look up
+	 * @param airline the 3-letter airline abreviation
+	 * @param flightnum the flight number on that airline
 	 */
 	public FlightTracker(String airline, String flightnum) {
 		super();
 		this.airline = airline;
 		this.flightnum = flightnum;
+	}
+
+	/**
+	 * Get a FlightTracker object.
+	 *
+	 * @param arg airline and flight number with a colon separating them.
+	 * i.e. DFW:3832
+	 */
+	public FlightTracker(String arg) {
+		super();
+		setArg(arg);
+	}
+
+	/**
+	 * Get an uninitialized FlightTracker object.
+	 */
+	public FlightTracker() {
+		super();
+	}
+
+	/**
+	 * Set the object arguments.
+	 *
+	 * @param arg airline and flight number with a colon separating them.
+	 * i.e. DFW:3832
+	 */
+	public void setArg(String arg) {
+		this.arg=arg;
+		StringTokenizer st = new StringTokenizer(arg, ":");
+		airline=st.nextToken();
+		flightnum=st.nextToken();
 	}
 
 	public String toString() {

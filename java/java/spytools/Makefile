@@ -1,12 +1,12 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/afs/@cell/local/@sys/java
+JAVAHOME=/usr/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
-MYLIB=/afs/@cell/misc/web/java
+MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
 C3=$(MYLIB)/xml4j.jar:$(MYLIB)/oromatcher.jar
@@ -29,6 +29,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/Info.class \
 	net/spy/info/Stocks.class net/spy/info/StockQuote.class \
 	net/spy/info/eBay.class \
+	net/spy/info/PackageInfo.class \
 	net/spy/info/FedEx.class \
 	net/spy/info/Traffic.class \
 	net/spy/info/FlightTracker.class \

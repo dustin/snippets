@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.2 2000/06/16 03:04:06 dustin Exp $
+// $Id: FedEx.java,v 1.3 2000/06/16 20:08:33 dustin Exp $
 
 package net.spy.info;
 
@@ -13,9 +13,7 @@ import net.spy.net.*;
  * Get FedEx info.
  */
 
-public class FedEx extends Info {
-
-	String airbill_number=null;
+public class FedEx extends PackageInfo {
 
 	/**
 	 * Get an FedEx object.
@@ -24,18 +22,22 @@ public class FedEx extends Info {
 	 */
 	public FedEx(String airbill_number) {
 		super();
-		this.airbill_number = airbill_number;
+		this.arg = airbill_number;
 	}
 
 	public String toString() {
 		String ret="";
 		try {
-			// This is an easy way to initialize it.
+			// Make sure we got something...
 			get("ERROR");
 			if(error) {
 				ret=get("ERROR");
 			} else {
 				ret=get("info");
+			}
+			// Let's see if we got a delivered status
+			if(ret.indexOf("Delivered")>=0) {
+				delivered=true;
 			}
 		} catch(Exception e) {
 			// Who cares.
@@ -46,7 +48,7 @@ public class FedEx extends Info {
 
 	protected void parseInfo() throws Exception {
 		hinfo=new Hashtable();
-		hinfo.put("airbill_number", airbill_number);
+		hinfo.put("airbill_number", arg);
 		getInfo();
 		String lines[]=SpyUtil.split("\n", info);
 		int section=0;
@@ -55,7 +57,7 @@ public class FedEx extends Info {
 			if(lines[i].startsWith("Airbill Found")) {
 				section=1;
 				error=false;
-			} else if(lines[i].startsWith(airbill_number) && section==1) {
+			} else if(lines[i].startsWith(arg) && section==1) {
 				section=2;
 			} else if(lines[i].startsWith("If you have any questions")
 				&& section==2) {
@@ -83,7 +85,7 @@ public class FedEx extends Info {
 		if(info==null) {
 			String url=
 				"http://www.fedex.com/cgi-bin/track_it?airbills=";
-			url += airbill_number;
+			url += arg;
 			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();
@@ -93,6 +95,7 @@ public class FedEx extends Info {
 	public static void main(String args[]) throws Exception {
 		FedEx f = new FedEx(args[0]);
 		System.out.println("Info:\n" + f);
+		System.out.println("Delivery status:  " + f.isDelivered());
 		System.out.println("Info (XML):\n" + f.toXML());
 	}
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.3 2000/06/16 03:04:07 dustin Exp $
+// $Id: Info.java,v 1.4 2000/06/16 20:08:35 dustin Exp $
 
 package net.spy.info;
 
@@ -21,12 +21,21 @@ public abstract class Info extends Object {
 	// Info store.
 	protected String info=null;
 	protected Hashtable hinfo=null;
+	protected String arg=null;
 
 	/**
 	 * Get an info object.
 	 */
 	public Info() {
 		super();
+	}
+
+	/**
+	 * Set the arguments, useful when it was called with a constructor with no
+	 * args.
+	 */
+	public void setArg(String arg) {
+		this.arg=arg;
 	}
 
 	/**
@@ -120,16 +129,14 @@ public abstract class Info extends Object {
 		return(ret);
 	}
 
-	protected abstract void parseInfo() throws Exception;
+	/**
+	 * getInfo gets the data to be parsed.
+	 */
 	protected abstract void getInfo() throws Exception;
 
-/*
-	protected void parseInfo() throws Exception {
-		throw new Exception("parseInfo() must be overridden!");
-	}
-
-	protected void getInfo() throws Exception {
-		throw new Exception("getInfo() must be overridden!");
-	}
-*/
+	/**
+	 * parseInfo parses the data into the hinfo Hashtable object.
+	 * It will be called when needed.
+	 */
+	protected abstract void parseInfo() throws Exception;
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.6 2000/06/16 03:04:08 dustin Exp $
+// $Id: UPS.java,v 1.7 2000/06/16 20:08:39 dustin Exp $
 
 package net.spy.info;
 
@@ -28,9 +28,7 @@ import net.spy.net.*;
  * </ul>
  */
 
-public class UPS extends Info {
-
-	String tracking_number=null;
+public class UPS extends PackageInfo {
 
 	/**
 	 * Get a UPS info object.
@@ -39,7 +37,14 @@ public class UPS extends Info {
 	 */
 	public UPS(String tracking_number) {
 		super();
-		this.tracking_number = tracking_number;
+		this.arg = tracking_number;
+	}
+
+	/**
+	 * Get an unitialized UPS object.
+	 */
+	public UPS() {
+		super();
 	}
 
 	/**
@@ -57,6 +62,13 @@ public class UPS extends Info {
 				ret+="Status:  " + get("Package Status", "unknown") + ", ";
 				ret+="Location:  " + get("Last Scanned at", "unknown") + ", ";
 				ret+="When:  " + get("Last Scanned on", "unknown");
+			}
+			// Check to see if the thing's been delivered.
+			String delcheck=get("Package Status");
+			if(delcheck!=null) {
+				if(delcheck.startsWith("Delivered")) {
+					delivered=true;
+				}
 			}
 		} catch(Exception e) {
 			// Just let it return null
@@ -103,7 +115,7 @@ public class UPS extends Info {
 	protected void getInfo() throws Exception {
 		if(info==null) {
 			String url="http://wwwapps.ups.com/tracking/tracking.cgi?tracknum=";
-			url += tracking_number;
+			url += arg;
 			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();
@@ -113,6 +125,7 @@ public class UPS extends Info {
 	public static void main(String args[]) throws Exception {
 		UPS u = new UPS(args[0]);
 		System.out.println("Info:\n" + u);
+		System.out.println("Delivery status:  " + u.isDelivered());
 		System.out.println("Info (XML):\n" + u.toXML());
 	}
 }
