@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.18 1999/06/16 22:04:07 dustin Exp $
+ * $Id: main.c,v 1.19 1999/06/17 00:02:38 dustin Exp $
  */
 
 #include <config.h>
@@ -337,6 +337,7 @@ recv_data(struct host_ret conn, struct url u, char *buf, size_t len)
 	} else {
 		size = recv(conn.s, buf, len, 0);
 	}
+	buf[size]=0x00;
 	return(size);
 }
 
@@ -371,11 +372,11 @@ main(int argc, char **argv)
 
 	req.port = -1;
 
-	while ((c = getopt(argc, argv, "Nfdt:n:sS")) >= 0) {
+	while ((c = getopt(argc, argv, "Nfd:t:n:sS")) >= 0) {
 		switch (c) {
 
 		case 'd':
-			_debug = 3;
+			_debug = atoi(optarg);
 			break;
 
 		case 'N':
@@ -446,7 +447,7 @@ main(int argc, char **argv)
 				timers[s][0] = tmptime;
 			}
 			if (s > 0) {
-				_ndebug(2, ("Got one: %d...\n", s));
+				_ndebug(1, ("Got one: %d...\n", s));
 				bytes[s] = 0;
 				FD_SET(s, &tfdset);
 
@@ -478,7 +479,8 @@ main(int argc, char **argv)
 					selected--;
 					size = recv_data(conns[i], req, buf, 8192);
 					if (size == 0) {
-						_ndebug(2, ("Lost %d\n", i));
+						_ndebug(1, ("Lost %d\n", i));
+						_ndebug(3, (strings[i].string));
 						hit++;
 						close_conn(req, conns[i]);
 
@@ -497,7 +499,6 @@ main(int argc, char **argv)
 						bytes[i] += size;
 						str_append(&strings[i], buf);
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
-						_ndebug(2, ("%s", buf));
 					}
 				}
 				if (selected == 0)

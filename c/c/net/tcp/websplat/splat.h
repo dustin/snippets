@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.7 1999/06/16 20:48:30 dustin Exp $
+ * $Id: splat.h,v 1.8 1999/06/17 00:02:39 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -14,7 +14,7 @@
 
 #if (PDEBUG>0)
 #ifndef _ndebug
-#define _ndebug(a, b) if(_debug > a ) printf b;
+#define _ndebug(a, b) if(_debug >= a ) printf b;
 #endif
 #endif
 
