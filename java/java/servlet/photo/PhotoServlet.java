@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.18 1999/09/30 06:09:28 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.19 1999/09/30 06:36:48 dustin Exp $
  */
 
 import java.io.*;
@@ -389,6 +389,10 @@ public class PhotoServlet extends HttpServlet
 
 		// This is a little different, so we won't use send_response()
 		response.setContentType("text/css");
+		java.util.Date d=new java.util.Date();
+		long l=d.getTime();
+		l+=36000000L;
+		response.setDateHeader("Expires", l);
 		try {
 			PrintWriter out = response.getWriter();
 			out.print(output);
