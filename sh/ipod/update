@@ -4,13 +4,13 @@
 
 RSYNC=rsync
 
-$RSYNC -varltpogS --password-file=.rsyncpw \
-	--delete --stats --progress dustin@disk::dustindbbak/db/ db/
+$RSYNC -varltpogHS --password-file=.rsyncpw \
+	--delete --stats --progress dustin@disk::dustindbbak/ db/
 
-$RSYNC -varltpogS --password-file=.rsyncpw \
+$RSYNC -varltpogHS --password-file=.rsyncpw \
 	--delete --stats dustin@disk::dustinsfcvs/ sfcvs/
 
-$RSYNC -varltpogS --password-file=.rsyncpw \
+$RSYNC -varltpogHS --password-file=.rsyncpw \
 	--exclude='rcache.*' \
 	--exclude='*.old' \
 	--delete --stats dustin@disk::dustinbak/tars/ tars/
