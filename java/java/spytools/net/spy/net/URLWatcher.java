@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcher.java,v 1.1 2002/08/19 07:08:32 dustin Exp $
+// $Id: URLWatcher.java,v 1.2 2002/08/20 04:01:55 dustin Exp $
 
 package net.spy.net;
 
@@ -20,10 +20,20 @@ public class URLWatcher extends Thread {
 
 	private static URLWatcher instance=null;
 
+	// How long to sleep between updates
+	private static final int NAP_TIME=60000;
+	// maximum number of cleaner runs that can occur with no touches before
+	// we shut down the thread.
+	private static final int MAX_TOUCHLESS_RUNS=60;
+
 	// This is where the items are stored.
 	private HashMap pages=null;
 	private int numRuns=0;
 	private boolean notdone=true;
+
+	// This lets it know when to give up
+	private int recentTouches=0;
+	private int touchlessRuns=0;
 
 	/**
 	 * Get an instance of URLWatcher.
@@ -41,7 +51,7 @@ public class URLWatcher extends Thread {
 	 * @return the URLWatcher
 	 */
 	public static synchronized URLWatcher getInstance() {
-		if(instance==null) {
+		if(instance==null || (!instance.isAlive())) {
 			instance=new URLWatcher();
 		}
 		return(instance);
@@ -113,18 +123,37 @@ public class URLWatcher extends Thread {
 					URLItem ui=(URLItem)i.next();
 					ui.update();
 				}
-				// Wait five minutes
-				sleep(300000);
+				// Wait until the next run
+				sleep(NAP_TIME);
 			} catch(InterruptedException e) {
 				e.printStackTrace();
 				try {
-					// Try to sleep another second.
+					// Try to sleep another minute if we were interrupted
 					sleep(60000);
 				} catch(InterruptedException ie) {
 					ie.printStackTrace();
 				}
 			}
+
+			// Check to see if we're shutting down.
+			watchTouches();
+
 		} // not done
+	}
+
+	private void watchTouches() {
+		// If nothing's touched it during this run, mark it as a touchless run
+		if(recentTouches == 0) {
+			touchlessRuns++;
+		} else {
+			// Otherwise, reset the touchless counter.
+			touchlessRuns=0;
+		}
+		// If there have been more than MAX_TOUCHLESS_RUNS, shut down
+		if(touchlessRuns > MAX_TOUCHLESS_RUNS) {
+			shutdown();
+		}
+		recentTouches=0;
 	}
 
 	/**
@@ -142,6 +171,7 @@ public class URLWatcher extends Thread {
 	 * @throws IOException if there was a problem updating the URL
 	 */
 	public String getContent(URL u) throws IOException {
+		recentTouches++;
 		URLItem ui=(URLItem)pages.get(u);
 		// If we don't have one for this URL yet, create it.
 		if(ui==null) {
