@@ -13,6 +13,8 @@ type in_record = {
 	in_version: string;
 	in_secret: string;
 	in_model: string;
+	in_password: string;
+	in_wirelessid: string;
 };;
 
 (* The output fields *)
@@ -65,15 +67,27 @@ let genBoxNum product_line sn =
 	checkDup (abs(a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24))) plsn
 ;;
 
+(* Like List.nth, but with a default *)
+let nthDefault l def n =
+	try
+		List.nth l n
+	with Failure("nth") ->
+		def
+;;
+
 (* Make a record as a hash table of all known fields *)
 let makeRecord modelMap ts l =
 	let ht = Hashtbl.create 1 in
 	(* Get all of the fields into the hashtable *)
 	List.iter (fun i -> Hashtbl.add ht i "") cdb_fields;
 	(* Parse the record *)
-	let parts = List.nth (Extstring.split l '|' 5) in
-	let record = {in_sn=parts 0; in_version=parts 1;
-		in_secret=parts 2; in_model=parts 3} in
+	let parts = nthDefault (Extstring.split_all l '|' 99) "" in
+	let record = {	in_sn=parts 0;
+					in_version=parts 1;
+					in_secret=parts 2;
+					in_model=parts 3;
+					in_password=parts 4;
+					in_wirelessid=parts 5} in
 	try
 		let product_line = Hashtbl.find modelMap record.in_model in
 		(* Convenience function for updating the hashtable *)
@@ -101,13 +115,13 @@ let storeRecord db modelMap ts l =
 
 (* Parse a model map line *)
 let parseModelMap ht l =
-	let parts = List.nth (Extstring.split l '|' 3) in
+	let parts = List.nth (Extstring.split_all l '|' 3) in
 	Hashtbl.add ht (parts 0) (parts 1)
 ;;
 
 let loadMfgKeys from =
 	Fileutils.iter_file_lines (fun l ->
-			let parts = List.nth (Extstring.split l '|' 3) in
+			let parts = List.nth (Extstring.split_all l '|' 3) in
 			Hashtbl.add seenIds (int_of_string (parts 0)) (parts 1)
 		) from
 ;;
