@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyToker.java,v 1.1 1999/10/20 02:25:38 dustin Exp $
+ * $Id: SpyToker.java,v 1.2 2000/01/24 06:40:37 dustin Exp $
  */
 
 package net.spy;
@@ -9,9 +9,21 @@ package net.spy;
 import java.util.*;
 import java.io.*;
 
+/**
+ * A simple token in-plugger.
+ */
+
 public class SpyToker extends Object {
 
-	// Tokenize a file, replacing all of the stuff in the hash.
+	/**
+	 * tokenize a file
+	 *
+	 * @param file file to tokenize
+	 * @param p HashTable whose entries will be looked up to fill in the
+	 * tokens in the text file.
+	 *
+	 * @return tokenized data from the file.
+	 */
 	public String tokenize(String file, Hashtable p) {
 		String input, output="";
 		int which;

@@ -6,15 +6,31 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Oversimplified HTTP document fetcher.
+ */
+
 // Fetch the contents of a URL
 public class HTTPFetch {
 	URL url;
 
+	/**
+	 * Create a new HTTPFetch object for a given string representation of a
+	 * URL.
+	 *
+	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
+	 */
 	public HTTPFetch(String u) throws MalformedURLException {
 		url=new URL(u);
 	}
 
-	// Get each line in its own vector.
+	/**
+	 * Get a vector containing the individual lines of the document
+	 * returned from the URL.
+	 *
+	 * @exception Exception Any failures keeping the data from being
+	 * retrieved will be sent from here.
+	 */
 	public Vector getLines() throws Exception {
 		Vector v = new Vector();
 
@@ -31,7 +47,12 @@ public class HTTPFetch {
 		return(v);
 	}
 
-	// Get all the data as one big string.
+	/**
+	 * Return the contents of the URL as a whole string.
+	 *
+	 * @exception Exception Any failures keeping the data from being
+	 * retrieved will be sent from here.
+	 */
 	public String getData() throws Exception {
 		String s = "";
 

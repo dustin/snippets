@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.3 1999/12/15 03:58:15 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.4 2000/01/24 06:40:34 dustin Exp $
  */
 
 package net.spy;
@@ -11,13 +11,37 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 
+/**
+ * SpyLogFlusher does the actual work of SpyLog.  This is where the log
+ * queue is flushed and placed in permanent storage.
+ * <p>
+ * By default, log entries are written to the file described in the
+ * variable <code>logfile</code>.
+ * <p>
+ * Classes overriding this will be most interested in the protected method
+ * doFlush().  doFlush is called on a given interval when it's time to
+ * flush the logs.  The logs are available via a SpyLog object called
+ * ``log_object.''  To get a list of all log entries that need to be
+ * flushed, the following piece of code may be executed:<br>
+ * <code>Vector v = log_object.flush();</code>
+ */
+
 public class SpyLogFlusher extends Thread {
 
 	// private static BufferedWriter log_file=null;
 	protected static SpyLog log_object;
 
+	/**
+	 * Path to the logfile.  The default logfile is /tmp/spy.log, but this
+	 * can be overridden.
+	 */
 	public String logfile = "/tmp/spy.log";
 
+	/**
+	 * Get a SpyFlusher and place it in a given threadgroup.
+	 *
+	 * @param t the threadgroup in which the SpyFlusher should be placed.
+	 */
 	public SpyLogFlusher(ThreadGroup t) {
 		super(t, "log_flusher");
 		this.setDaemon(true);
@@ -57,6 +81,12 @@ public class SpyLogFlusher extends Thread {
 		}
 	}
 
+	/**
+	 * Object finalization.
+	 *
+	 * @exception Throwable An exception might be thrown, but you won't
+	 * catch it, so it doesn't matter.
+	 */
 	public void finalize() throws Throwable {
 		doFlush();
 		super.finalize();

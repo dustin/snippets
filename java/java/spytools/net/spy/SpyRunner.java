@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.2 2000/01/23 10:36:31 dustin Exp $
+// $Id: SpyRunner.java,v 1.3 2000/01/24 06:40:36 dustin Exp $
 
 package net.spy;
 
@@ -8,6 +8,30 @@ import java.lang.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.io.*;
+
+/**
+ * SpyRunner - a hack-ass application server.
+ * <p>
+ * This is a stanalone application that will run other standalone
+ * applications in its process space.
+ * <p>
+ * Configuration for what to start is passed in as the first argument upon
+ * execution, and comes in the form of a properties file.  An example
+ * properties file is as follows:
+ * <p>
+ * <pre>
+ * # List of applications to start.
+ * apps	app1 app2
+ *
+ * # Configuration for app1
+ * app1.class	com.example.app1
+ * app1.args	Arguments for app1
+ *
+ * # Configuration for app2
+ * app2.class   com.example.app2
+ * app2.args    Arguments for app2
+ * </pre>
+ */
 
 public class SpyRunner extends Thread {
 	Class tclass=null;

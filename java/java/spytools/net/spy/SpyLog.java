@@ -1,13 +1,26 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.1 1999/10/20 02:25:36 dustin Exp $
+ * $Id: SpyLog.java,v 1.2 2000/01/24 06:40:32 dustin Exp $
  */
 
 package net.spy;
 
 import java.lang.*;
 import java.util.*;
+
+/**
+ * The Spy Asyncrhonous logger.
+ * <p>
+ * SpyLog is an implementation of an asynchronous logger that allows one to
+ * have multiple points of input into a single queueing system that runs in
+ * its own thread recording the logs.
+ * <p>
+ * If this doesn't sound immediately obvious to you, imagine having a
+ * transactional system that logs into a database without slowing down the
+ * transactions.  SpyLog gives you the ability to get a log entry out of your
+ * way quickly, to be permanently recorded later.
+ */
 
 public class SpyLog extends Object {
 	protected static Vector log_buffer[];
@@ -17,12 +30,9 @@ public class SpyLog extends Object {
 	protected static int refcount;
 	protected static ThreadGroup mythreadgroup;
 
-	// Actual log implementation.  Fairly simple, just add it to the proper
-	// vector.
-	public void log(SpyLogEntry msg) {
-		log_buffer[current_buffer].addElement(msg);
-	}
-
+	/**
+	 * Instantiate a SpyLog entry.
+	 */
 	public SpyLog() {
 		super();
 		// Important to initialize only once, this sets up all the static
@@ -35,6 +45,11 @@ public class SpyLog extends Object {
 		refcount++;
 	}
 
+	/**
+	 * Instantiate a SpyLog entry with an alternative log flusher.  An
+	 * alternative log flusher may log into a SQL database, or to a pager,
+	 * or email, etc...
+	 */
 	public SpyLog(SpyLogFlusher f) {
 		super();
 
@@ -51,7 +66,19 @@ public class SpyLog extends Object {
 		refcount++;
 	}
 
-	// This should only be used by the cleanup thread.
+	/**
+	 * Log an entry.
+	 *
+	 * @param msg SpyLogEntry object to be logged.
+	 */
+	public void log(SpyLogEntry msg) {
+		log_buffer[current_buffer].addElement(msg);
+	}
+
+	/**
+	 * Flush the current log entries -- DO NOT CALL THIS.  This is for
+	 * internal use only, and should only be called by a SpyLogFlusher.
+	 */
 	public synchronized Vector flush() {
 		int last_buffer = current_buffer;
 		if(current_buffer == 0) {
@@ -94,14 +121,14 @@ public class SpyLog extends Object {
 		System.runFinalizersOnExit(true);
 	}
 
-	public void finalize() throws Throwable {
+	protected void finalize() throws Throwable {
 		// One fewer reference.
 		refcount--;
 		super.finalize();
 	}
 
 	// Get the system threadgroup for initialize
-	public static ThreadGroup getSystemGroup() {
+	protected static ThreadGroup getSystemGroup() {
 		ThreadGroup start=null, last=null;
 
 		for(start=Thread.currentThread().getThreadGroup(); start!=null;) {

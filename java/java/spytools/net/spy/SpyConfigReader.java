@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfigReader.java,v 1.1 1999/10/20 07:58:12 dustin Exp $
+ * $Id: SpyConfigReader.java,v 1.2 2000/01/24 06:40:28 dustin Exp $
  */
 
 package net.spy;
@@ -11,6 +11,10 @@ import java.util.*;
 import java.io.*;
 
 import org.w3c.dom.*;
+
+/**
+ * This object is specific to IBM's XML parser.
+ */
 
 public class SpyConfigReader {
 

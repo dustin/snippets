@@ -1,13 +1,21 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.2 1999/12/15 03:58:16 dustin Exp $
+// $Id: SpyUtil.java,v 1.3 2000/01/24 06:40:38 dustin Exp $
 
 package net.spy;
 
 import java.util.*;
 
+/**
+ * Miscellaneous utilities.
+ */
+
 public class SpyUtil {
-	// Shuffle an array.
+	/**
+	 * Shuffle (unsort) an array.
+	 *
+	 * @param in The array of objects to shuffle.
+	 */
 	public static Object[] shuffle(Object in[]) {
 		Object tmp;
 		Object ret[] = in;
@@ -31,22 +39,27 @@ public class SpyUtil {
 		return(ret);
 	}
 
-	// Split a string
+	/**
+	 * Split a string based on a tokenizer.
+	 *
+	 * @param on the string to split on (from StringTokenizer)
+	 *
+	 * @param input the string that needs to be split
+	 *
+	 * @see StringTokenizer
+	 */
 	public static String[] split(String on, String input) {
 		Vector v = new Vector();
 		StringTokenizer st = new StringTokenizer(input, on);
-		String ret[];
-		int i;
+		String ret[]=null;
+		int i=0;
+
+		ret=new String[st.countTokens()];
 
 		while( st.hasMoreTokens() ) {
-			v.addElement(st.nextToken());
+			ret[i]=st.nextToken();
 		}
 
-		ret=new String[v.size()];
-
-		for(i=0; i<v.size(); i++) {
-			ret[i]=(String)v.elementAt(i);
-		}
 		return(ret);
 	}
 }

@@ -2,12 +2,16 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.2 2000/01/19 08:03:42 dustin Exp $
+// $Id: SNPP.java,v 1.3 2000/01/24 06:40:41 dustin Exp $
 
 package net.spy.net;
 
 import java.io.*;
 import java.net.*;
+
+/**
+ * SNPP client.
+ */
 
 public class SNPP {
 	protected Socket s;
@@ -16,11 +20,35 @@ public class SNPP {
 	protected BufferedReader din;
 	protected PrintWriter prout;
 
+	/**
+	 * Current full line received from the SNPP server.
+	 */
 	public String currentline;
+	/**
+	 * Current message received from the SNPP server.
+	 */
 	public String currentmessage;
+	/**
+	 * Current status received from SNPP server.
+	 */
 	public int currentstatus;
+	/**
+	 * Debug mode on/off.
+	 */
 	public boolean debug = false;
 
+	/**
+	 * Get a new SNPP object connected to host:port
+	 *
+	 * @param host SNPP host to connect to
+	 * @param port SNPP port number
+	 *
+	 * @exception IOException Thrown if the various input and output
+	 * streams cannot be established.
+	 *
+	 * @exception UnknownHostException Thrown if the SNPP server hostname
+	 * cannot be resolved.
+	 */
 	public SNPP(String host, int port)
 		throws IOException, UnknownHostException {
 		s = new Socket(host, port);
@@ -33,18 +61,15 @@ public class SNPP {
 		getaline();
 	}
 
-	public void finalize() throws Throwable {
-		if(debug) {
-			System.out.println("Finalizing...");
-		}
-		try {
-			cmd("quit");
-		} catch(Exception e) {
-		}
-		super.finalize();
-	}
-
-	// Send a page, all bottled up and stuff.
+	/**
+	 * Send a simple page.
+	 *
+	 * @param id SNPP recipient ID.
+	 * @param msg msg to send.
+	 *
+	 * @exception Exception Thrown if any of the commands required to send
+	 * the page threw an exception.
+	 */
 	public void sendpage(String id, String msg) throws Exception {
 		// Reset so this thing can be called more than once.
 		cmd("rese");
@@ -59,18 +84,15 @@ public class SNPP {
 		cmd("send");
 	}
 
-	// Return whether the current status number is within an OK range.
-	public boolean ok() {
-		boolean r = false;
-		if(currentstatus < 300 ) {
-			if(currentstatus >= 200) {
-				r = true;
-			}
-		}
-		return(r);
-	}
-
-	// Send an SNPP command.
+	/**
+	 * Send an SNPP command.
+	 *
+	 * @param command command to send.  It's sent literally to the SNPP
+	 * server.
+	 *
+	 * @exception Exception Thrown if the command does not return an ``OK''
+	 * status from the SNPP server.
+	 */
 	public void cmd(String command) throws Exception {
 		if(debug) {
 			System.out.println(">> " + command);
@@ -83,8 +105,35 @@ public class SNPP {
 		}
 	}
 
+	/**
+	 * Object finalization.
+	 *
+	 * @exception Throwable Thrown if finalization fails.
+	 */
+	public void finalize() throws Throwable {
+		if(debug) {
+			System.out.println("Finalizing...");
+		}
+		try {
+			cmd("quit");
+		} catch(Exception e) {
+		}
+		super.finalize();
+	}
+
+	// Return whether the current status number is within an OK range.
+	protected boolean ok() {
+		boolean r = false;
+		if(currentstatus < 300 ) {
+			if(currentstatus >= 200) {
+				r = true;
+			}
+		}
+		return(r);
+	}
+
 	// Return a line from the SNPP server.
-	private void getaline() throws IOException {
+	protected void getaline() throws IOException {
 		String stmp;
 		Integer itmp;
 

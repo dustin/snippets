@@ -5,6 +5,7 @@ JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
+JAVADOC=$(JAVAHOME)/bin/javadoc
 C1=/home/dustin/lib/java/jsdk.jar:/home/dustin/lib/java/DBCB.jar
 C2=/home/dustin/lib/java/RHash.jar:/home/dustin/lib/java/cos.jar
 C3=/home/dustin/lib/java/xml4j.jar
@@ -23,6 +24,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/rmi/DoBindings.class net/spy/RHash.class \
 	net/spy/temperature/SpyTemp.class net/spy/SpyRunner.class
 
+SOURCES=net/spy/*.java net/spy/*/*.java
+
 
 FDEST=/home/dustin/lib/java
 SCP=scp
@@ -31,6 +34,9 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 .SUFFIXES: .java .class .jar
 
 all: spy.jar
+
+docs: $(SOURCES)
+	$(JAVADOC) -public -d doc $(SOURCES)
 
 spy.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES)

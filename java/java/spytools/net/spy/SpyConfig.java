@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.3 1999/10/20 08:40:32 dustin Exp $
+ * $Id: SpyConfig.java,v 1.4 2000/01/24 06:40:27 dustin Exp $
  */
 
 package net.spy;
@@ -10,10 +10,22 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+/**
+ * SpyConfig - an abstracted config file maintainer.
+ * <p>
+ * Currently, the config file must be in XML, in a specific format.
+ * I'll fix that.
+ */
+
 public class SpyConfig extends Hashtable {
 	protected static Hashtable ConfigStore=null;
 	protected static Hashtable ConfigTimeStamps=null;
 
+	/**
+	 * Construct a new SpyConfig object describing a config file.
+	 *
+	 * @param conffile The config file we are describing.
+	 */
 	public SpyConfig(String conffile) {
 		super();
 		if(ConfigStore==null) {
@@ -76,7 +88,11 @@ public class SpyConfig extends Hashtable {
 		}
 	}
 
-	// Interface to get that returns a String instead of an object.
+	/**
+	 * Get the value for a given config entry.
+	 *
+	 * @param key which config entry to return.
+	 */
 	public String get(String key) {
 		return( (String)super.get(key));
 	}
