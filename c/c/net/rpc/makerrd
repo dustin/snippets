@@ -1,0 +1,22 @@
+#!/bin/sh
+
+/usr/local/rrdtool-1.0.33/bin/rrdtool create $1 \
+	-s 60 \
+	DS:cpu_user:COUNTER:300:0:100 \
+	DS:cpu_iow:COUNTER:300:0:100 \
+	DS:cpu_sys:COUNTER:300:0:100 \
+	DS:cpu_idl:COUNTER:300:0:100 \
+	DS:pgin:COUNTER:300:0:100 \
+	DS:pgout:COUNTER:300:0:100 \
+	DS:intr:COUNTER:300:0:100 \
+	DS:ipkts:COUNTER:300:0:100 \
+	DS:coll:COUNTER:300:0:100 \
+	DS:errors:COUNTER:300:0:100 \
+	DS:cs:COUNTER:300:0:100 \
+	DS:load1:GAUGE:300:0:100 \
+	DS:load5:GAUGE:300:0:100 \
+	DS:load15:GAUGE:300:0:100 \
+	RRA:AVERAGE:0.5:5:1555200 \
+	RRA:MAX:0.5:5:1555200 \
+	RRA:AVERAGE:0.5:3600:17520 \
+	RRA:MAX:0.5:3600:17520
