@@ -22,7 +22,7 @@
     [super dealloc];
 }
 
-float ctof(float c)
+static float ctof(float c)
 {
     float rv=0.0;
     rv=((9.0/5.0)*c) + 32.0;

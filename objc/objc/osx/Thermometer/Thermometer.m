@@ -79,6 +79,16 @@
     return(trend);
 }
 
+-(int)tag
+{
+    return(tag);
+}
+
+-(void)setTag:(int)to
+{
+    tag=to;
+}
+
 -(void)setName: (NSString *)n
 {
     name=n;
@@ -88,6 +98,13 @@
 -(NSString *)name
 {
     return(name);
+}
+
+-(NSString *)description
+{
+    NSString *rv = [NSString stringWithFormat: @"%@ %.2f", name, reading];
+
+    return(rv);
 }
 
 -(void)update

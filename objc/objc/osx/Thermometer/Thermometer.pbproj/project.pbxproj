@@ -13,11 +13,15 @@
 		};
 		080E96DDFE201D6D7F000001 = {
 			children = (
+				DA58D017042EF20000A80132,
+				DA58D018042EF20000A80132,
 				F54ADCEB0369034301A801C4,
 				F54ADCEC0369034301A801C4,
 				DA7C50F9041C92D50018EE5C,
 				DA7C50FA041C92D50018EE5C,
 				F54D19D9040EA22A01BE144C,
+				DAE13580042D9F3D00A80132,
+				DAE13581042D9F3D00A80132,
 				F54D19DA040EA22A01BE144C,
 				DAB80BDC042D85D700A80132,
 				DAB80BDD042D85D700A80132,
@@ -279,6 +283,8 @@
 				F54D19DB040EA22A01BE144C,
 				DA7C50FB041C92D50018EE5C,
 				DAB80BDE042D85D700A80132,
+				DAE13582042D9F3D00A80132,
+				DA58D01A042EF20000A80132,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -302,6 +308,8 @@
 				F54D19DC040EA22A01BE144C,
 				DA7C50FC041C92D50018EE5C,
 				DAB80BDF042D85D700A80132,
+				DAE13583042D9F3D00A80132,
+				DA58D019042EF20000A80132,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -361,6 +369,30 @@
 //DA2
 //DA3
 //DA4
+		DA58D017042EF20000A80132 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = ThermController.m;
+			refType = 4;
+		};
+		DA58D018042EF20000A80132 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = ThermController.h;
+			refType = 4;
+		};
+		DA58D019042EF20000A80132 = {
+			fileRef = DA58D017042EF20000A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA58D01A042EF20000A80132 = {
+			fileRef = DA58D018042EF20000A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		DA7C50F9041C92D50018EE5C = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -427,6 +459,30 @@
 		};
 		DAC72A7604108DB200A80132 = {
 			fileRef = DAC72A7404108DB200A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAE13580042D9F3D00A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = ThermometerCell.h;
+			refType = 4;
+		};
+		DAE13581042D9F3D00A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = ThermometerCell.m;
+			refType = 4;
+		};
+		DAE13582042D9F3D00A80132 = {
+			fileRef = DAE13580042D9F3D00A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAE13583042D9F3D00A80132 = {
+			fileRef = DAE13581042D9F3D00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -65,10 +65,19 @@
     path = [mainBundle pathForResource:@"therm-f" ofType:@"png"];
     NSImage *fi = [[NSImage alloc]initWithContentsOfFile:path];
 
+    // Get the test controller.
+    NSLog(@"Initializing Test");
+    /*
+    id testc=[[TestController alloc] initWithWindowNibName: @"Test"];
+    [testc startUp];
+    NSLog(@"Initialized Test");
+    */
+
     // Create the collection of thermometers
     therms=[[NSMutableArray alloc] initWithCapacity: 6];
 
     // Initialize all of the individual thermometers
+    /*
     Thermometer *t=[[Thermometer alloc] initWithName: @"backyard"];
     [backYard setTherm: t];
     [therms addObject: backYard];
@@ -93,6 +102,7 @@
     [machineRoom setTherm: t];
     [therms addObject: machineRoom];
     [t release];
+    */
 
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
@@ -113,7 +123,7 @@
     id defaults=[NSUserDefaults standardUserDefaults];
     id defaultUnit=[defaults objectForKey:@"units"];
     [self setUnits: defaultUnit];
-
+    /*
     [self update];
 
     // set up us the log view
@@ -125,6 +135,7 @@
         target: self
         selector: @selector(update)
         userInfo:nil repeats:true];
+        */
 }
 
 @end

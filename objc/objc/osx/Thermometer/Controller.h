@@ -3,6 +3,7 @@
 #import <Cocoa/Cocoa.h>
 #import "ThermometerView.h"
 #import "LogOutline.h"
+// #import "TestController.h"
 
 // How long (in seconds) to sleep between samples
 #define SAMPLE_RATE 60

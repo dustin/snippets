@@ -13,6 +13,7 @@
 @interface Thermometer : NSObject {
     float reading;
     NSString *name;
+    int tag;
 
     NSMutableArray *lastReadings;
     float trend;
@@ -31,6 +32,9 @@
 
 -(NSArray *)lastReadings;
 -(void)update;
+
+-(int)tag;
+-(void)setTag:(int)to;
 
 // Delegate
 -(void)setDelegate:(id)delegate;

@@ -19,6 +19,13 @@
             SUPERCLASS = NSObject;
         },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {
+            ACTIONS = {update = id; };
+            CLASS = ThermController;
+            LANGUAGE = ObjC;
+            OUTLETS = {dockMenu = NSMenu; status = NSTextField; thermMatrix = NSMatrix; };
+            SUPERCLASS = NSWindowController;
+        },
         {CLASS = ThermometerView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }
     );
     IBVersion = 1;
