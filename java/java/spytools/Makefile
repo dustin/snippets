@@ -46,6 +46,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/SpyLDIFReader.class \
 	net/spy/util/InterfaceImplementor.class \
 	net/spy/util/QuickRun.class \
+	net/spy/util/Debug.class \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/pool/PoolAble.class \
@@ -57,6 +58,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/JDBCPoolAble.class \
 	net/spy/pool/SNPPPoolFiller.class \
 	net/spy/pool/SNPPPoolAble.class \
+	net/spy/pool/PoolDebug.class \
 	net/spy/cache/SpyCache.class \
 	'net/spy/cache/SpyCache$$SpyCacheCleaner.class' \
 	'net/spy/cache/SpyCache$$SpyCacheItem.class' \
