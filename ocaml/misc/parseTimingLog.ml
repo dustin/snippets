@@ -8,6 +8,7 @@ open Unix;;
 open Hashtbl;;
 open List;;
 open Stringutils;;
+open Fileutils;;
 
 (* The type for log entries *)
 type log_entry = {
@@ -160,13 +161,10 @@ let print_output filename =
 (* do it *)
 let main() =
 	let rrd = (Array.get Sys.argv 1) in
-	try
-		while true do
-			let l = (read_line()) in
-			if (strstr l "TransactionTiming" 40) >= 40 then
-				process(get_log_entry(l))
-		done;
-	with End_of_file -> ();
+	conditional_fold_lines
+		(function l -> process(get_log_entry(l)))
+		(function l -> (strstr l "TransactionTiming" 40) >= 40)
+		Pervasives.stdin;
 	print_output rrd;
 ;;
 
