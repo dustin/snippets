@@ -17,6 +17,11 @@ type in_record = {
 	in_wirelessid: string;
 };;
 
+type model_record = {
+	mr_id: string;
+	mr_product_line: string;
+};;
+
 (* The output fields *)
 let cdb_fields = [
 	"boxnum"; "modelnum"; "idstring"; "pca"; "productstring";
@@ -41,7 +46,8 @@ let makeMetaInf () =
 
 let makeOutRecord product_line sn ht =
 	(product_line ^ "," ^ sn), (String.concat "" (List.map
-		(fun x -> (Netstring.encode (Hashtbl.find ht x))) cdb_fields))
+		(fun x -> (Netstring.encode (Hashtbl.find ht x))) cdb_fields)),
+		ht
 ;;
 
 let rec checkDup n plsn =
@@ -80,8 +86,9 @@ let makeRecord modelMap ts l =
 	let ht = Hashtbl.create 1 in
 	(* Get all of the fields into the hashtable *)
 	List.iter (fun i -> Hashtbl.add ht i "") cdb_fields;
-	(* Parse the record *)
-	let parts = nthDefault (Extstring.split_all l '|' 99) "" in
+	(* Parse the record.  Split and remove all the whitespace *)
+	let parts = nthDefault (List.map Extstring.strip
+								(Extstring.split_all l '|' 99)) "" in
 	let record = {	in_sn=parts 0;
 					in_version=parts 1;
 					in_secret=parts 2;
@@ -89,16 +96,17 @@ let makeRecord modelMap ts l =
 					in_password=parts 4;
 					in_wirelessid=parts 5} in
 	try
-		let product_line = Hashtbl.find modelMap record.in_model in
+		let mr_rec = Hashtbl.find modelMap record.in_model in
 		(* Convenience function for updating the hashtable *)
 		let htr = Hashtbl.replace ht in
-		htr "boxnum" (string_of_int (genBoxNum product_line record.in_sn));
-		htr "modelnum" record.in_model;
-		htr "pca" record.in_model;
+		htr "boxnum" (string_of_int
+						(genBoxNum mr_rec.mr_product_line record.in_sn));
+		htr "modelnum" mr_rec.mr_id;
+		htr "pca" mr_rec.mr_id;
 		htr "version" record.in_version;
 		htr "authcode" record.in_secret;
 		htr "moddate" ts;
-		Some (makeOutRecord product_line record.in_sn ht)
+		Some (makeOutRecord mr_rec.mr_product_line record.in_sn ht)
 	with Not_found ->
 		prerr_endline("Unknown model:  " ^ record.in_model);
 		None
@@ -108,15 +116,18 @@ let makeRecord modelMap ts l =
 let storeRecord db modelMap ts l =
 	match (makeRecord modelMap ts l) with
 	  None -> ()
-	| Some(k,v) ->
-		print_endline(k ^ " -- " ^ v);
+	| Some(k,v,ht) ->
+		Printf.printf "%s|%s\n" (Hashtbl.find ht "boxnum") k;
 		Cdb.add db k v
 ;;
 
 (* Parse a model map line *)
 let parseModelMap ht l =
-	let parts = List.nth (Extstring.split_all l '|' 3) in
-	Hashtbl.add ht (parts 0) (parts 1)
+	try
+		let parts = List.nth (Extstring.split_all l '|' 4) in
+		Hashtbl.add ht (parts 0) {mr_id=parts 1; mr_product_line=parts 2};
+	with Failure("nth") ->
+		Printf.eprintf "Error on model map line:  ``%s''\n" l
 ;;
 
 let loadMfgKeys from =
@@ -131,19 +142,40 @@ let processFile destcdb modelMap filename =
 	let ts = Printf.sprintf "%04d%02d%02dT%02d%02d%02d"
 			(tm.tm_year + 1900) (tm.tm_mon + 1) tm.tm_mday
 			tm.tm_hour tm.tm_min tm.tm_sec in
-	Printf.eprintf "File timestamp is %s\n" ts;
 	Fileutils.iter_file_lines (storeRecord destcdb modelMap ts) filename
 
 ;;
 
+let processArgs destcdb modelMap paths =
+	List.iter (fun path ->
+			if Fileutils.isdir path then (
+				Fileutils.walk_dir path (fun d files arg ->
+						List.iter (processFile destcdb modelMap)
+							(List.map (Filename.concat d) files)) ()
+			) else (
+				processFile destcdb modelMap path
+			)
+		) paths
+;;
+
+let usage() =
+	prerr_endline("Usage:  " ^ Sys.argv.(0)
+		^ " destcdb mfgkeys modelmap inputpath [inputpath ...]");
+	exit(1)
+;;
+
 let main () =
-	let destcdb = Cdb.open_out Sys.argv.(1) in
-	loadMfgKeys Sys.argv.(2);
-	let modelMap = Hashtbl.create 1 in
-	print_endline(makeMetaInf());
-	Fileutils.iter_file_lines (parseModelMap modelMap) Sys.argv.(3);
-	processFile destcdb modelMap Sys.argv.(4);
-	Cdb.close_cdb_out destcdb
+	try
+		let destcdb = Cdb.open_out Sys.argv.(1) in
+		loadMfgKeys Sys.argv.(2);
+		let modelMap = Hashtbl.create 1 in
+		print_endline(makeMetaInf());
+		Fileutils.iter_file_lines (parseModelMap modelMap) Sys.argv.(3);
+		processArgs destcdb modelMap
+			(Extlist.nthtail (Array.to_list Sys.argv) 4);
+		Cdb.close_cdb_out destcdb
+	with Invalid_argument("out-of-bound array or string access") ->
+		usage()
 ;;
 
 (* Start main unless we're interactive. *)
