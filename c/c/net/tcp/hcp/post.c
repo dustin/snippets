@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.1 1998/11/11 00:59:53 dustin Exp $
+ * $Id: post.c,v 1.2 1998/11/11 06:35:09 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,12 +16,12 @@
 #include "http.h"
 
 #define VERSION "0.1"
-#define USERAGENT "Mozilla/4.04 [en] (X11; U; IRIX 6.2 IP22; Nav)"
+#define USERAGENT "Mozilla/4.05 [en] (X11; U; IRIX 6.2 IP22; Nav)"
 
 void
 _gendelimit(char *d, size_t len)
 {
-	snprintf(d, len-1, "---------------------------d%d",
+	snprintf(d, len-1, "---------------------------%d%d",
 		time(NULL), getpid());
 }
 
@@ -78,16 +78,16 @@ postfile(char *url, char *path)
 	send_data(conn, u, line);
 
 	/* Write out tmp file */
-	fprintf(tmp, "%s\r\n", delimit);
+	fprintf(tmp, "--%s\r\n", delimit);
 	fprintf(tmp, "Content-Disposition: form-data; "
 		"name=\"file\"; filename=\"%s\"\r\n\r\n", path);
 
 	/* Read in the file, and send it along */
 	while( (len=fread(line, 1, 1024, f)) > 0 ) {
-		fwrite(line, 1, len, tmp);
+		len=fwrite(line, 1, len, tmp);
 	}
 
-	fprintf(tmp, "%s--\r\n", delimit);
+	fprintf(tmp, "\r\n--%s--\r\n", delimit);
 
 	/* tell how long tmp is */
 	snprintf(line, 1024, "Content-Length: %d\r\n\r\n", ftell(tmp));

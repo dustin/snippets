@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.1 1998/11/11 00:59:52 dustin Exp $
+ * $Id: http.c,v 1.2 1998/11/11 06:35:08 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -293,6 +293,8 @@ getstatus(struct url u, struct host_ret conn)
 
 	/* Eat the rest of the page */
 	while (recv_data(conn, u, line, 1024));
+
+	return(st);
 }
 
 /*
