@@ -1,6 +1,6 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Collapse.pm,v 1.1 1997/12/31 08:43:46 dustin Exp $
+# $Id: Collapse.pm,v 1.2 1997/12/31 08:52:42 dustin Exp $
 
 package Collapse;
 
@@ -15,10 +15,10 @@ sub new
     $self->{ary}=[$a];
     $self->{expand}=$h;
 
-    foreach (keys(%{$self->{expand}}))
-    {
-	print "Will expand $_\n";
-    }
+    # foreach (keys(%{$self->{expand}}))
+    # {
+    #    print "Will expand $_\n";
+    # }
 
     bless($self);
     return($self);
@@ -32,14 +32,14 @@ sub get_ary
     return($self->{ary});
 }
 
-sub print_ary_text
+sub print_text
 {
     my($self)=shift;
 
     _show_array_text($self, "", -1, $self->{ary});
 }
 
-sub print_ary_html
+sub print_html
 {
     my($self)=shift;
 
@@ -179,11 +179,11 @@ create the boxes, and %h for the list to expand.
 
     Return the array.
 
-=item print_ary_text
+=item print_text
 
     Print the array in text format.
 
-=item print_ary_html
+=item print_html
 
     Print the array as html unordered lists.
 
