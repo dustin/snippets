@@ -220,6 +220,8 @@ search(struct config_t config, unsigned int ip)
 {
 	int     i;
 
+	/* The list is sorted by specifics of netmask.  We start with the
+	 * most specific netmask, and go down to 0. */
 	for (i = 0; i < config.index; i++) {
 		/*
 		 * printf("Testing %X/%d for %X (%X)\n", ip, config.addr[i]->mask,
@@ -259,6 +261,8 @@ main(int argc, char **argv)
 	}
 
 	destroyConfig(config);
+
+	return(0);
 
 #ifdef MYMALLOC
 	_mdebug_dump();

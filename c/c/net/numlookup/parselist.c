@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.5 1999/05/08 08:36:59 dustin Exp $
+ * $Id: parselist.c,v 1.6 1999/05/08 17:29:17 dustin Exp $
  */
 
 #include <stdio.h>
@@ -53,7 +53,16 @@ lastmod(char *file)
 	return (st.st_mtime);
 }
 
-void
+/* this is in case we can't load the shared library, just print out an
+ * error */
+void emergency(void)
+{
+	char buf[80];
+	fgets(buf, 79, stdin);
+	puts("ERROR");
+}
+
+int
 main(int argc, char **argv)
 {
 	void   *lib = 0;
@@ -68,7 +77,6 @@ main(int argc, char **argv)
 	lib = dlopen(THELIB, RTLD_LAZY);
 	if (lib == NULL) {
 		puts(dlerror());
-		exit(1);
 	}
 	for (;;) {
 		/* If it's been modified since we last recorded mod date... */
@@ -77,7 +85,8 @@ main(int argc, char **argv)
 			/* record a new mod date */
 			mod = lastmod(THELIB);
 			/* close the library */
-			dlclose(lib);
+			if(lib)
+				dlclose(lib);
 			/* open a new one. we don't care if it succeeds after start */
 			lib = dlopen(THELIB, RTLD_LAZY);
 		}
@@ -85,12 +94,13 @@ main(int argc, char **argv)
 		if (func != NULL) {
 			func(argc, argv);
 		} else {
-			/* Take a nap if we couldn't find the function */
-			sleep(1);
+			/* Emergency function, just read and report an error */
+			emergency();
 		}
 	}
 
 	/* close it, we're leaving now, not that any of this will ever happen */
-	dlclose(lib);
-	exit(0);
+	if(lib)
+		dlclose(lib);
+	return(0);
 }
