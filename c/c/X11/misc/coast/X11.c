@@ -35,11 +35,12 @@ init_window(void)
   XWMHints wmhints;
   XGCValues xgcvalues;
 
-/*  I went ahead and put the XOpenDisplay call in here so
-the whole thing would be in one c file.
-*/
+/*
+ * I went ahead and put the XOpenDisplay call in here so
+ * the whole thing would be in one c file.
+ */
 
-  if(NULL == (display = XOpenDisplay(NULL)) )
+  if (NULL == (display = XOpenDisplay(NULL)))
     {
       fprintf(stderr, "Cannot connect to X server: %s\n",
 	      XDisplayName(NULL));
