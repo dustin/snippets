@@ -30,7 +30,7 @@
 	</target>
 
 	<target name="install" depends="all">
-		<copy todir="/afs/.spy.net/misc/web/java/">
+		<copy todir="/afs/.spy.net/misc/web/root/init/WEB-INF/classes">
 			<fileset dir=".">
 				<include name="net/**/*.class"/>
 			</fileset>
