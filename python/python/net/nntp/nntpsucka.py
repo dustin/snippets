@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.5 2002/03/20 19:28:12 dustin Exp $
+# $Id: nntpsucka.py,v 1.6 2002/03/20 19:38:33 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -89,7 +89,8 @@ class NNTPSucka:
 				messid="*empty*"
 				messid=ids[str(i)]
 				if self.db.has_key(messid):
-					print "Already seen " + messid
+					# Too noisy, but kind of interesting.
+					# print "Already seen " + messid
 					self.stats.addDup()
 				else:
 					self.moveArticle(groupname, i)
@@ -128,7 +129,7 @@ def main():
 
 	sucka.copyServer()
 
-	print self.getStats()
+	print sucka.getStats()
 
 if __name__ == '__main__':
 	main()
