@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.4 2001/07/03 09:07:23 dustin Exp $
+// $Id: Debug.java,v 1.5 2001/07/03 09:15:30 dustin Exp $
 
 package net.spy.util;
 
@@ -41,8 +41,8 @@ public class Debug extends Object {
 
 				if(of!=null) {
 					try {
-						FileOutputStream fos=new FileOutputStream(of);
-						PrintWriter debugOut=new PrintWriter(fos, true);
+						FileOutputStream fos=new FileOutputStream(of, true);
+						PrintWriter debugOut=new PrintWriter(fos);
 						debugOut.println(getTimestamp() + ":  Initialized.");
 						debugs.put(propname, debugOut);
 					} catch(Exception e) {
