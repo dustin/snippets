@@ -20,15 +20,43 @@ do
 	cd $TMP
 
 	gzip -dc "$fn" | tar xf -
-	 ~/prog/snippets/python/misc/archLogRewrite.py */*/*/*/*/*/*/patch-log/*
-	 mv "$fn" "$fn".old
-	 tar cf - "`basename "$fn" .tar.gz`" | gzip -9c > "$fn"
+	ev=1
+	# Find each patch log directory.
+	for d in `find . -name patch-log`
+	do
+		~/prog/snippets/python/misc/archLogRewrite.py $d/patch*
+		if [ $? -eq 0 ]
+		then
+			ev=0
+		fi
+	done
 
-	cd $TOP
-	chmod 644 "$f"
-	rm "$f"
-	cp "$TMP/$fn" "$f"
-	chmod 444 "$f"
+	# If anything got modified, let's put it all back together.
+	if [ $ev -eq 0 ]
+	then
+		echo "Modified $f"
+		mv "$fn" "$fn".old
+		tar cf - "`basename "$fn" .tar.gz`" | gzip -9c > "$fn"
+
+		# Do some quick sanity checking
+		oc=`gzip -dc "$fn.old" | tar tvf - | wc -l`
+		nc=`gzip -dc "$fn" | tar tvf - | wc -l`
+
+		if [ $oc -ne $nc ]
+		then
+			echo "Directory counts don't match:  $oc != $nc"
+			exit 1
+		fi
+
+		cd $TOP
+		chmod 644 "$f"
+		rm "$f"
+		cp "$TMP/$fn" "$f"
+		chmod 444 "$f"
+	else
+		echo "Didn't modify anything, doing nothing."
+		cd $TOP
+	fi
 
 	rm -rf $TMP
 done
