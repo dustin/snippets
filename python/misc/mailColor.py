@@ -78,11 +78,10 @@ print colorTable
 print """\\margl1440\\margr1440\\vieww9120\\viewh13240\\viewkind0
 \\pard\\tx720\\tx1440\\tx2160\\tx2880\\tx3600\\tx4320\\tx5040\\tx5760\\tx6480\\tx7200\\tx7920\\tx8640\\ql\\qnatural"""
 
-l=sys.stdin.readline()
 user=''
 inaheader=0
 needsep=0
-while l != '':
+for l in sys.stdin:
     if l.startswith('From '):
         # If we were processing a user, end the user thingy
         if user != '':
@@ -116,8 +115,6 @@ while l != '':
         # End header for this user, begin body
         print header[user][1]
         print msg[user][0]
-
-    l=sys.stdin.readline()
 
 # RTF footer
 print "}"
