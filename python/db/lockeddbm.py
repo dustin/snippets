@@ -17,6 +17,9 @@ class LockedDBM(object):
         self.db=anydbm.open(path, flag, mode)
         self.lockfile=open(path + ".lock", "w")
 
+    def __contains__(self, key):
+        return (self.has_key(key))
+
     def __getitem__(self, key):
         rv=None
         try:
