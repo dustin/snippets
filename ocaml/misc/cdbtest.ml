@@ -36,7 +36,7 @@ let main() =
 		Cdb.close_cdb_in cdb;
 		Printf.printf "found:\t\t%d\nnot found:\t%d\ndifferent\t%d\n"
 			!found !notfound !different
-	with Invalid_argument("out-of-bound array or string access") ->
+	with Invalid_argument("index out of bounds") ->
 		usage()
 ;;
 

@@ -21,7 +21,7 @@ let main() =
 				Printf.printf "``%s'' = NOT FOUND\n" k;
 		) (Extlist.nthtail (Array.to_list Sys.argv) 2);
 		Cdb.close_cdb_in cdb
-	with Invalid_argument("out-of-bound array or string access") ->
+	with Invalid_argument("index out of bounds") ->
 		usage()
 ;;
 

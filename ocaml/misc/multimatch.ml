@@ -34,7 +34,7 @@ let main() =
 					check_match l (StringSet.max_elt lt) (StringSet.min_elt gt)
 				with Not_found -> ()
 			) Sys.argv.(2);
-	with Invalid_argument("out-of-bound array or string access") ->
+	with Invalid_argument("index out of bounds") ->
 		usage()
 ;;
 

@@ -2,6 +2,19 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-08-02 06:59:09 GMT	Dustin Sallings <dustin@spy.net>	patch-77
+
+    Summary:
+      Fixed up the try/with to catch the correct array out of bound errors
+    Revision:
+      snippets--ocaml--1.0--patch-77
+
+
+    modified files:
+     CHANGELOG misc/cdbget.ml misc/cdbpick.ml misc/cdbtest.ml
+     misc/multimatch.ml
+
+
 2004-08-02 06:29:50 GMT	Dustin Sallings <dustin@spy.net>	patch-76
 
     Summary:

@@ -25,7 +25,7 @@ let main() =
 				)
 				Sys.argv.(2);
 		Cdb.close_cdb_out destcdb
-	with Invalid_argument("out-of-bound array or string access") ->
+	with Invalid_argument("index out of bounds") ->
 		usage()
 ;;
 
