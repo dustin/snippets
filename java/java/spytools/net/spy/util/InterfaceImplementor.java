@@ -42,21 +42,24 @@ public class InterfaceImplementor extends Object {
 	/**
 	 * Get a new InterfaceImplementor to implement the passed in interface.
 	 *
-	 * @param intf The interface to implement.
+	 * @param c The interface to implement.
 	 *
-	 * @exception Exception if the passed in class is not an interface.
+	 * @exception NullPointerException if the passed in class is null
+	 * @exception IllegalArgumentException if the passed in class is not
+	 * 			an interface
 	 */
-	public InterfaceImplementor(Class c) throws Exception {
+	public InterfaceImplementor(Class c) {
 		super();
 
 		// Verify the interface isn't null
 		if(c==null) {
-			throw new Exception("Null interface is invalid.");
+			throw new NullPointerException("Null interface is invalid.");
 		}
 
 		// Verify that it's an interface
 		if(!c.isInterface()) {
-			throw new Exception("Passed in class is not an interface.");
+			throw new IllegalArgumentException(
+				"Passed in class is not an interface.");
 		}
 
 		// Go ahead and initialize this here.  That way we don't have to
@@ -98,21 +101,24 @@ public class InterfaceImplementor extends Object {
 	 *
 	 * @param c Superclass
 	 *
-	 * @exception Exception if the passed in class isn't valid for this
-	 * operation.
+	 * @exception NullPointerException if the passed in class is null
+	 * @exception IllegalArgumentException if the passed in class isn't
+	 * 		valid for this operation.
 	 */
-	public void setSuperClass(Class c) throws Exception {
+	public void setSuperClass(Class c) {
 		if(c==null) {
-			throw new Exception("Null class is invalid.");
+			throw new NullPointerException("Null class is invalid.");
 		}
 
 		int modifiers=c.getModifiers();
 
 		if(Modifier.isFinal(modifiers)) {
-			throw new Exception("You can't extend from final classes.");
+			throw new IllegalArgumentException(
+				"You can't extend from final classes.");
 		}
 		if(Modifier.isInterface(modifiers)) {
-			throw new Exception("Interfaces aren't valid here.");
+			throw new IllegalArgumentException(
+				"Interfaces aren't valid here.");
 		}
 
 		superClass=c;
@@ -121,7 +127,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Extract the methods from the above.
-	private void getMethods(Class c) throws Exception {
+	private void getMethods(Class c) {
 		// First, get the declared ones
 		Method methods[]=c.getDeclaredMethods();
 		for(int i=0; i<methods.length; i++) {
@@ -153,13 +159,12 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Get the method signature with exceptions
-	private String getSignature(Method method) throws Exception {
+	private String getSignature(Method method) {
 		return(getSignature(method, true));
 	}
 
 	// Get the method signature
-	private String getSignature(Method method, boolean needExceptions)
-		throws Exception {
+	private String getSignature(Method method, boolean needExceptions) {
 
 		String ret="";
 
@@ -196,7 +201,7 @@ public class InterfaceImplementor extends Object {
 		return(ret.trim());
 	}
 
-	private String getExSignature(Method method) throws Exception {
+	private String getExSignature(Method method) {
 		String ret="";
 		// Now flip through the exceptions
 		Class e[]=method.getExceptionTypes();
@@ -213,7 +218,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Get the constructor signature
-	private String getSignature(Constructor con) throws Exception {
+	private String getSignature(Constructor con) {
 		String ret=null;
 
 		// Get the modifiers
@@ -247,7 +252,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Implement a constructor that tries to error out as best as possible
-	private String implement(Method method) throws Exception {
+	private String implement(Method method) {
 		// Start
 		String ret=null;
 		ret="\t// InterfaceImplementor added " + method.getName() + "\n";
@@ -281,7 +286,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Implement a constructor that calls the super constructor
-	private String implementConstructor(Constructor con) throws Exception {
+	private String implementConstructor(Constructor con) {
 		String ret=null;
 		ret="\t// InterfaceImplementor added constructor\n";
 		ret+="\t" + getSignature(con) + " {\n";
@@ -304,7 +309,7 @@ public class InterfaceImplementor extends Object {
 	 *
 	 * @exception Exception now and then
 	 */
-	public String makeSource() throws Exception {
+	public String makeSource() {
 		String ret="";
 
 		// If there's a package, declare it
@@ -403,10 +408,9 @@ public class InterfaceImplementor extends Object {
 			// Figure out if there's a package name, if so, make sure the
 			// dirs exist and all that.
 			if(op!=null) {
-				char sep=File.separatorChar;
-				File packagepath= new File(op.replace('.', sep));
+				File packagepath= new File(op.replace('.', File.separatorChar));
 				packagepath.mkdirs();
-				fn+=packagepath + "/";
+				fn+=packagepath.toString() + File.separatorChar;
 			}
 			// Stick the classname.java to the end
 			fn+=oc + ".java";

@@ -5,12 +5,13 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.24 2002/08/15 07:12:52 dustin Exp $
+	$Id: build.xml,v 1.25 2002/08/16 05:32:57 dustin Exp $
 
 	-->
 
 <project name="spy.jar" default="spy.jar" basedir=".">
 
+	<!-- Setup -->
 	<path id="myclasses">
 		<fileset dir="${user.home}/lib/java">
 			<include name="jndi.jar"/>
@@ -26,6 +27,18 @@
 			<include name="spytest.jar"/>
 		</fileset>
 	</path>
+
+	<property name="SRCDIR" value="."/>
+	<property name="BUILDDIR" value="."/>
+	<property name="DEPRECATION" value="on"/>
+	<property name="DEBUG" value="on"/>
+	<property name="VERBOSE" value="off"/>
+
+	<taskdef name="spgen" classname="net.spy.util.SPGenTask">
+		<classpath refid="myclasses"/>
+	</taskdef>
+
+	<!-- end setup -->
 
 	<target name="clean">
 		<delete>
@@ -74,7 +87,8 @@
 	</target>
 
 	<!-- Regular install -->
-	<target name="install" depends="install-jar,install-docs"/>
+	<target name="install" depends="install-jar,install-docs">
+	</target>
 
 	<target name="install-jar" depends="spy.jar">
 		<copy file="spy.jar"
@@ -131,16 +145,36 @@
 	</target>
 
 	<target name="all" depends="rmic,dbstuff">
-		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
+		<javac
+			srcdir="${SRCDIR}"
+			destdir="${BUILDDIR}"
+			deprecation="${DEPRECATION}"
+			debug="${DEBUG}"
+			verbose="${VERBOSE}">
+
 			<classpath refid="myclasses"/>
 			<include name="net/spy/**/*.java"/>
 		</javac>
 	</target>
 
-	<target name="test-spfiles" depends="all">
-		<taskdef name="spgen" classname="net.spy.util.SPGenTask">
+	<!-- Make sure the interface implementor is there -->
+	<target name="iitask">
+		<javac
+			srcdir="${SRCDIR}"
+			destdir="${BUILDDIR}"
+			deprecation="${DEPRECATION}"
+			debug="${DEBUG}"
+			verbose="${VERBOSE}">
+
+			<include name="net/spy/util/InterfaceImplementor.java"/>
+			<include name="net/spy/util/InterfaceImplementorTask.java"/>
+		</javac>
+		<taskdef name="spgen" classname="net.spy.util.InterfaceImplementorTask">
 			<classpath refid="myclasses"/>
 		</taskdef>
+	</target>
+
+	<target name="test-spfiles" depends="all">
 		<spgen srcdir="tests" destdir="tests"/>
 	</target>
 
