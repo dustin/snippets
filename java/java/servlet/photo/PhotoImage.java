@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.1 1999/09/28 04:47:01 dustin Exp $
+ * $Id: PhotoImage.java,v 1.2 1999/09/28 05:46:07 dustin Exp $
  */
 
 import java.io.*;
@@ -19,9 +19,8 @@ import com.javaexchange.dbConnectionBroker.*;
 
 
 // The class
-public class PhotoImage
+public class PhotoImage extends PhotoHelper
 {
-	DbConnectionBroker dbs;
 	RHash rhash;
 	Vector image_data;
 
@@ -34,48 +33,16 @@ public class PhotoImage
 		}
 	}
 
-	private void getDBS() throws Exception {
-		try {
-			Class.forName("postgresql.Driver");
-			String source="jdbc:postgresql://dhcp-104/photo";
-			dbs = new DbConnectionBroker("postgresql.Driver",
-				source, "dustin", "", 2, 5, "/tmp/pool.log", 0.01);
-		} catch(Exception e) {
-			// System.err.println("dbs broke:  " + e.getMessage());
-			throw new Exception ("dbs broke: " + e.getMessage());
-		}
-	}
-
 	public PhotoImage() throws Exception {
 		super();
 		image_data = null;
 		getRhash();
-		getDBS();
 	}
 
 	public PhotoImage(DbConnectionBroker db, RHash r) {
-		super();
+		super(db);
 		image_data = null;
-		dbs=db;
 		rhash=r;
-	}
-
-	private void log(String message) {
-		System.err.println("PhotoImage: " + message);
-	}
-
-	// Grab a connection from the pool.
-	private Connection getDBConn() throws SQLException {
-		Connection photo;
-
-		// The path to the database...
-		photo = dbs.getConnection();
-		return(photo);
-	}
-
-	// Gotta free the connection
-	private void freeDBConn(Connection conn) {
-		dbs.freeConnection(conn);
 	}
 
 	// Show an image
