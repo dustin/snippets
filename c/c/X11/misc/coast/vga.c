@@ -135,6 +135,7 @@ void
 init_vga()
 {
   struct videoconfig vc;
+  float aspect;
 
   _getvideoconfig(&vc);
 
@@ -150,6 +151,11 @@ init_vga()
     }
 
   _getvideoconfig(&vc);
+
+
+  aspect = fabs((lat_diff / (float) ((float) max_x / (float) max_y) - lng_diff));
+  max_lat += aspect;
+  min_lat -= aspect;
 }
 #endif
 
@@ -157,11 +163,16 @@ init_vga()
 void
 init_vga()
 {
+  float aspect;
   vga_init();			/*
 				 * init vgalib graphics
 				 */
   vga_setmode(VGAMODE);
   setup_palette();
+
+  aspect = fabs((lat_diff / (float) ((float) max_x / (float) max_y) - lng_diff));
+  max_lat += aspect;
+  min_lat -= aspect;
 }
 #endif
 
