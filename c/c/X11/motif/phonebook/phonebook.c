@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: phonebook.c,v 1.1 1997/06/16 13:46:05 dustin Exp $
+ * $Id: phonebook.c,v 1.2 1997/06/16 23:57:25 dustin Exp $
  */
 
 #include <stdio.h>
@@ -27,20 +27,20 @@ extern char **dbrnames, **dbfnames;
 
 Widget CreateMenus(Widget main_window, infotype *info)
 {
-    Widget menu_bar, menu_pane, menu_pane2, button, cascade;
+    Widget menu_bar, menu_pane, button, cascade;
     Arg args[MAX_ARGS];
     int n;
 
     /* create a menu bar */
 
     n=0;
-    menu_bar = XmCreateMenuBar(main_window, "menu_bar", args, n);
+    menu_bar = XmCreateMenuBar(main_window, "menuBar", args, n);
     XtManageChild(menu_bar);
 
     n=0;
-    menu_pane=XmCreatePulldownMenu(menu_bar, "menu_pane1", args, n);
+    menu_pane=XmCreatePulldownMenu(menu_bar, "fileMenu", args, n);
 
-    /* buttons for first menu thing */
+    /* buttons for file menu thing */
 
     n=0;
     button = XmCreatePushButton(menu_pane, "Show Fields", args, n);
@@ -52,35 +52,54 @@ Widget CreateMenus(Widget main_window, infotype *info)
     XtManageChild(button);
     XtAddCallback(button, XmNactivateCallback, Quit, NULL);
 
-    /* first menu thing */
+    /* File menu thing */
 
     n=0;
     XtSetArg(args[n], XmNsubMenuId, menu_pane); n++;
     cascade=XmCreateCascadeButton(menu_bar, "File", args, n);
     XtManageChild(cascade);
 
-    /* new menu pane */
+    /* config menu */
+
+    n=0;
+    menu_pane=XmCreatePulldownMenu(menu_bar, "configMenu", args, n);
+
+    n=0;
+    button = XmCreatePushButton(menu_pane, "DB server", args, n);
+    XtManageChild(button);
+    XtAddCallback(button, XmNactivateCallback, UnImplemented, NULL);
+
+    n=0;
+    button = XmCreatePushButton(menu_pane, "DB name", args, n);
+    XtManageChild(button);
+    XtAddCallback(button, XmNactivateCallback, UnImplemented, NULL);
 
     n = 0;
-    menu_pane2 = XmCreatePulldownMenu(menu_bar, "menu_pane2", args, n);
+    XtSetArg(args[n], XmNsubMenuId, menu_pane); n++;
+    cascade = XmCreateCascadeButton(menu_bar, "Config", args, n);
+    XtManageChild(cascade);
+
+    /* help menu pane */
 
     n = 0;
-    button = XmCreatePushButton(menu_pane2, "Help", args, n);
+    menu_pane = XmCreatePulldownMenu(menu_bar, "helpMenu", args, n);
+
+    n = 0;
+    button = XmCreatePushButton(menu_pane, "Help", args, n);
     XtManageChild(button);
     XtAddCallback(button, XmNactivateCallback, Help, NULL);
 
     /* button under new menu */
 
     n = 0;
-    button = XmCreatePushButton(menu_pane2, "About", args, n);
+    button = XmCreatePushButton(menu_pane, "About", args, n);
     XtManageChild(button);
     XtAddCallback(button, XmNactivateCallback, About, NULL);
 
-    /* new menu */
+    /* Help menu */
 
     n = 0;
-    XtSetArg(args[n], XmNsubMenuId, menu_pane2);
-    n++;
+    XtSetArg(args[n], XmNsubMenuId, menu_pane); n++;
     cascade = XmCreateCascadeButton(menu_bar, "Help", args, n);
     XtManageChild(cascade);
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: callbacks.c,v 1.2 1997/06/16 13:50:41 dustin Exp $
+ * $Id: callbacks.c,v 1.3 1997/06/16 23:57:24 dustin Exp $
  */
 
 #include <stdio.h>
@@ -22,6 +22,12 @@
 
 extern progdata globl;
 extern char **dbrnames, **dbfnames;
+
+void UnImplemented(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    CreateTrans("Sorry, but that feature isn't implemented yet.",
+        "unimplemented");
+}
 
 void Quit(Widget w, XtPointer client_data, XtPointer call_data)
 {

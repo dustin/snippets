@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: find.c,v 1.1 1997/06/16 13:50:42 dustin Exp $
+ * $Id: find.c,v 1.2 1997/06/16 23:57:25 dustin Exp $
  */
 
 #include <stdio.h>
@@ -20,24 +20,38 @@
 extern progdata globl;
 extern char **dbrnames, **dbfnames;
 
+static char *relentries[]={
+    "is",
+    "is not",
+    "is like",
+    "is not like",
+    NULL
+};
+
+static char *relquery[]={
+    " = ",
+    " != ",
+    " like ",
+    " not like "
+};
+
+SearchCB cbdata;
+
 void Find(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    Widget frm, pane, rc, b, list;
+    Widget frm, pane, rc, b, list, opt;
     XmString item;
     int n, i;
     Arg args[MAX_ARGS];
-    SearchCB *cbdata;
-
-    cbdata=(SearchCB *)malloc(sizeof(SearchCB));
 
     n=0;
     XtSetArg(args[n], XmNallowShellResize, True); n++;
-    cbdata->top=XmCreateDialogShell(globl.parent, "findbox", args, n);
-    XtManageChild(cbdata->top);
+    cbdata.top=XmCreateDialogShell(globl.parent, "findbox", args, n);
+    XtManageChild(cbdata.top);
 
     n=0;
     /* XtSetArg(args[n], XmNpacking, XmPACK_COLUMN); n++; */
-    frm=XmCreateRowColumn(cbdata->top, "container", args, n);
+    frm=XmCreateRowColumn(cbdata.top, "container", args, n);
     XtManageChild(frm);
 
     n=0;
@@ -50,26 +64,44 @@ void Find(Widget w, XtPointer client_data, XtPointer call_data)
     XtManageChild(XmCreateLabelGadget(rc, "Find entries where", args, n));
 
     n=0;
-    cbdata->field=XmCreatePulldownMenu(rc, "pane", args, n);
+    opt=XmCreatePulldownMenu(rc, "pane", args, n);
 
     for(i=0; i<NFIELDS; i++)
     {
-	int n=0;
-	cbdata->buttons[i]=XmCreatePushButtonGadget(cbdata->field, dbrnames[i], args, n);
-	XtManageChild(cbdata->buttons[i]);
+	n=0;
+	b=XmCreatePushButtonGadget(opt, dbrnames[i], args, n);
+        XtAddCallback(b, XmNactivateCallback, FindSetFrom, (XtPointer) i);
+	XtManageChild(b);
     }
 
     n=0;
-    XtSetArg(args[n], XmNsubMenuId, cbdata->field); n++;
-    list=XmCreateOptionMenu(rc, "thing", args, n);
+    XtSetArg(args[n], XmNsubMenuId, opt); n++;
+    list=XmCreateOptionMenu(rc, "fromMenu", args, n);
     XtManageChild(list);
 
-    n=0;
-    XtManageChild(XmCreateLabelGadget(rc, "is like", args, n));
+    /* relation */
 
     n=0;
-    cbdata->value=XmCreateTextField(rc, "findsel", args, n);
-    XtManageChild(cbdata->value);
+    opt=XmCreatePulldownMenu(rc, "pane", args, n);
+
+    for(i=0; relentries[i]!=NULL; i++)
+    {
+	n=0;
+	b=XmCreatePushButtonGadget(opt, relentries[i], args, n);
+        XtAddCallback(b, XmNactivateCallback, FindSetRelation, (XtPointer) i);
+	XtManageChild(b);
+    }
+
+    n=0;
+    XtSetArg(args[n], XmNsubMenuId, opt); n++;
+    list=XmCreateOptionMenu(rc, "relationMenu", args, n);
+    XtManageChild(list);
+
+    /* end of relation */
+
+    n=0;
+    cbdata.value=XmCreateTextField(rc, "findsel", args, n);
+    XtManageChild(cbdata.value);
 
     n=0;
     XtSetArg(args[n], XmNorientation, XmHORIZONTAL); n++;
@@ -79,43 +111,47 @@ void Find(Widget w, XtPointer client_data, XtPointer call_data)
 
     n=0;
     b=XmCreatePushButtonGadget(rc, "Go", args, n);
-    XtAddCallback(b, XmNactivateCallback, FindCB, (XtPointer) cbdata);
+    XtAddCallback(b, XmNactivateCallback, FindCB, (XtPointer) &cbdata);
     XtManageChild(b);
 
     n=0;
-    b=XmCreatePushButtonGadget(rc, "Cancel", args, n);
-    XtAddCallback(b, XmNactivateCallback, CloseFindWindow, (XtPointer) cbdata);
+    b=XmCreatePushButtonGadget(rc, "Close", args, n);
+    XtAddCallback(b, XmNactivateCallback, CloseFindWindow, NULL);
     XtManageChild(b);
+}
+
+void FindSetFrom(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    cbdata.field=(int)client_data;
+}
+
+void FindSetRelation(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    cbdata.relation=(int)client_data;
 }
 
 void FindCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    SearchCB *sdb=(SearchCB *) client_data;
     XmString data;
+    char query[120];
     Widget data2;
     Arg args[MAX_ARGS];
     int n;
 
-    n=0;
-    XtSetArg(args[n], XmNmenuHistory, &data2);
-    XtGetValues(sdb->field, args, n);
+    strcpy(query, "select * from phone where ");
+    strcat(query, dbfnames[cbdata.field]);
+    strcat(query, relquery[cbdata.relation]);
+    strcat(query, "'");
 
-    /* puts(data2); */
+    data=XmTextFieldGetString(cbdata.value);
 
-    n=0;
-    XtSetArg(args[n], XmNlabelString, &data);
-    XtGetValues(data2, args, n);
+    strcat(query, data);
+    strcat(query, "'");
 
-    puts(data);
-
-    data=XmTextFieldGetString(sdb->value);
-    puts(data);
+    CreateTrans(query, "your query");
 }
 
 void CloseFindWindow(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    SearchCB *sdb=(SearchCB *) client_data;
-
-    XtUnmanageChild(sdb->top);
-    free(sdb);
+    XtUnmanageChild(cbdata.top);
 }
