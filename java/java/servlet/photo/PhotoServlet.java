@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.2 1999/09/15 18:52:06 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.3 1999/09/15 19:21:17 dustin Exp $
  */
 
 import java.io.*;
@@ -81,6 +81,8 @@ public class PhotoServlet extends HttpServlet
 			doIndex(request, response);
 		} else if(func.equalsIgnoreCase("findform")) {
 			doFindForm(request, response);
+		} else if(func.equalsIgnoreCase("catview")) {
+			doCatView(request, response);
 		} else if(func.equalsIgnoreCase("display")) {
 			doDisplay(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
@@ -143,6 +145,47 @@ public class PhotoServlet extends HttpServlet
 		}
 		output += tokenize("findform.inc", h);
 		output += tokenize("tail.inc", h);
+		send_response(response, output);
+	}
+
+	private static void doCatView(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output = new String("");
+		String query;
+
+		output += "<html><head><title>View Images by Category</title></head>";
+		output += "<body bgcolor=\"#fFfFfF\">\n";
+		output += "<h2>Category List</h2>\n";
+
+		query = "select name,id,catsum(id) as cs from cat\n"
+			  + "where id in\n"
+			  + "  (select cat from wwwacl where\n"
+			  + "   userid=" + remote_uid + ")\n"
+			  + " order by cs desc";
+
+		output += "<ul>\n";
+
+		try {
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				String t;
+				if(rs.getInt(3)==1) {
+					t = " image";
+				} else {
+					t = " images";
+				}
+
+				output += "<li>" + rs.getString(1) + ":  <a href=\"" + self_uri
+					+ "?func=search&searchtype=advanced&cat="
+					+ rs.getString(2) + "&maxret=5\">"
+					+ rs.getString(3) + t + "</a></li>\n";
+			}
+		} catch(Exception e) {
+		}
+
+		output += "</ul>\n";
+		output += tokenize("tail.inc", new Hashtable());
 		send_response(response, output);
 	}
 
