@@ -57,6 +57,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/Base64OutputStream.class \
 	net/spy/util/Base64InputStream.class \
 	net/spy/util/TimeStampedHash.class \
+	net/spy/util/Digest.class \
 	net/spy/util/SPGen.class \
 	'net/spy/util/SPGen$$Parameter.class' \
 	net/spy/pool/ObjectPool.class \
@@ -109,7 +110,12 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 all: $(CLASSES)
 
 doc: $(CLASSES)
-	$(JAVADOC) -d doc $(PACKAGES)
+	$(JAVADOC) -d doc \
+		-windowtitle "Spy.jar Documentation" \
+		-doctitle "spy.jar Documentation" \
+		-linkoffline http://java.sun.com/products/jdk/1.3/docs/api/ \
+			http://java.sun.com/j2se/1.3/docs/api/ \
+		$(PACKAGES)
 
 jar: spy.jar
 
