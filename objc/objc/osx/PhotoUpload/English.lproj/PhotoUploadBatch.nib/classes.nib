@@ -1,7 +1,7 @@
 {
     IBClasses = (
         {
-            ACTIONS = {addPhotos = id; saveBatch = id; };
+            ACTIONS = {addPhotos = id; dateToToday = id; saveBatch = id; };
             CLASS = BatchController;
             LANGUAGE = ObjC;
             OUTLETS = {

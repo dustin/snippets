@@ -56,10 +56,19 @@
 
 - (IBAction)dateToToday:(id)sender
 {
-    NSDate *today = [NSDate date];
-    [dateTaken setStringValue:[today
-		descriptionWithCalendarFormat:@"%Y/%m/%d"
-		timeZone:nil locale:nil]];
+    id kw=[NSApp keyWindow];
+    // Check to see if the key window is the window
+    // for the other controller, and do the right thing.
+    if(_batchController != nil && (kw == [_batchController window])) {
+        [_batchController dateToToday:self];
+    } else {
+        NSDate *today = [NSDate date];
+        NSString *datestr=
+            [today descriptionWithCalendarFormat:
+                            @"%Y/%m/%d" timeZone: nil
+                                          locale: nil];
+        [dateTaken setStringValue:datestr];
+    }
 }
 
 - (IBAction)newBatch:(id)sender
@@ -71,6 +80,7 @@
 		@"PhotoUploadBatch"];
 	NSLog(@"Opening window.\n");
 	}
+    [authWindow orderOut: self];
     [_batchController showWindow:self];
 }
 

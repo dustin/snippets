@@ -14,5 +14,6 @@
     IBOutlet NSTextField *taken;
 }
 - (IBAction)addPhotos:(id)sender;
+- (IBAction)dateToToday:(id)sender;
 - (IBAction)saveBatch:(id)sender;
 @end
