@@ -2,6 +2,18 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-07-19 08:14:03 GMT	Dustin Sallings <dustin@spy.net>	patch-73
+
+    Summary:
+      Print out the map that was guessed as well.
+    Revision:
+      snippets--ocaml--1.0--patch-73
+
+
+    modified files:
+     CHANGELOG misc/cipher.ml
+
+
 2004-07-13 16:04:40 GMT	Dustin Sallings <dustin@spy.net>	patch-72
 
     Summary:

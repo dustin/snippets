@@ -194,6 +194,8 @@ let apply_map m word =
 
 let print_solution m words =
 	print_endline("Possible solution:");
+	CharMap.iter (fun k v -> Printf.printf "%c=%c " k v) m;
+	print_newline();
 	List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
 	print_endline "-----------";
 ;;
