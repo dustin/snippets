@@ -1,12 +1,12 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/afs/@cell/local/@sys/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
-MYLIB=/home/dustin/lib/java
+MYLIB=/afs/@cell/misc/web/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
 C3=$(MYLIB)/xml4j.jar:$(MYLIB)/oromatcher.jar

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.4 2000/04/17 01:31:00 dustin Exp $
+// $Id: UPS.java,v 1.5 2000/05/01 07:11:27 dustin Exp $
 
 package net.spy.info;
 
@@ -59,14 +59,16 @@ public class UPS extends Info {
 			}
 		} catch(Exception e) {
 			// Just let it return null
+			System.err.println("WTF!: " + e);
+			e.printStackTrace();
 		}
 		return(ret);
 	}
 
 	protected void parseInfo() throws Exception {
 		if(hinfo==null) {
-			getInfo();
 			hinfo=new Hashtable();
+			getInfo();
 			String lines[]=SpyUtil.split("\n", info);
 			int section=0;
 			for(int i=0; i<lines.length; i++) {
