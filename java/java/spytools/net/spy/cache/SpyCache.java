@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.8 2001/07/27 22:49:30 dustin Exp $
+ * $Id: SpyCache.java,v 1.9 2001/07/28 02:39:13 dustin Exp $
  */
 
 package net.spy.cache;
@@ -14,6 +14,13 @@ import net.spy.util.*;
 
 /**
  * Spy in-memory cache object.
+ *
+ * <p>
+ *
+ * If the system properties <tt>net.spy.cache.multi.addr</tt> and
+ * <tt>net.spy.cache.multi.port</tt> are both set, requests may be sent as
+ * ASCII strings on that multicast group and port to clear cache entries
+ * based on prefix.
  */
 public class SpyCache extends Object {
 	private static TimeStampedHash cacheStore=null;
