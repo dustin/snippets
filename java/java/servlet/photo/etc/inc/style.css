@@ -1,0 +1,17 @@
+body {
+	font-family: cursive, Arial, Helvetica, sans-serif;
+	background-color: white;
+}
+
+td {
+	font-family: cursive, Arial, Helvetica, sans-serif;
+	background-color: white;
+}
+
+// blockquote {
+// 	font-family: fantasy;
+// }
+
+h1,h2,h3,h4,h5 {
+	text-transform: capitalize;
+}

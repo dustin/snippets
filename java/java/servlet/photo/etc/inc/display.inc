@@ -15,7 +15,7 @@ function openWindow(URL,name) {
 }
 // done hiding -->
 </script>
-
+<link rel="stylesheet" href="%URIROOT%/inc/style.css">
 </head>
 <body bgcolor="#fFfFfF">
 
@@ -24,7 +24,6 @@ function openWindow(URL,name) {
 </center>
 <p>
 
-<font face="Arial,Helvetica">
 Category: %CAT%
 <p>
 
@@ -43,7 +42,6 @@ Keywords:<br>
 
 
 Info:<br>
-</font>
 %INFO%
 
 <p>

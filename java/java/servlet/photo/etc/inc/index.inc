@@ -1,7 +1,7 @@
-<html><head><title>Photo Album</title></head>
+<html><head><title>Photo Album</title>
+<link rel="stylesheet" href="%URIROOT%/inc/style.css">
+</head>
 <body bgcolor="fFfFfF">
-
-<font face="Arial,Helvetica">
 
 <h2>Dustin's Photo Album</h2>
 
@@ -39,8 +39,6 @@ web page publishing system, type <tt>man vi</tt> at your prompt.
 <!--
     Logged in as:  %REMOTE_USER%
 -->
-
-</font>
 
 </body>
 </html>
