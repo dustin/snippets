@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.25 2001/06/01 22:58:04 dustin Exp $
+// $Id: PoolContainer.java,v 1.26 2001/08/06 21:35:04 dustin Exp $
 
 package net.spy.pool;
 
@@ -277,7 +277,17 @@ public class PoolContainer extends Object {
 			+ " and a max of " + _max_objects
 			+ " with a yellow line at " + _yellow_line);
 
-		getStartObjects();
+		try {
+			getStartObjects();
+		} catch(PoolException e) {
+			// If there was a problem initializing the pool, throw away
+			// what we've got.
+			for(Enumeration en=pool.elements(); en.hasMoreElements(); ) {
+				PoolAble p=(PoolAble)en.nextElement();
+				p.discard();
+			}
+			throw e;
+		}
 	}
 
 	// Populate with the minimum number of objects.

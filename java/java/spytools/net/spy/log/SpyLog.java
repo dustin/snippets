@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.9 2001/07/03 08:59:21 dustin Exp $
+ * $Id: SpyLog.java,v 1.10 2001/08/06 21:35:02 dustin Exp $
  */
 
 package net.spy.log;
@@ -89,7 +89,7 @@ public class SpyLog extends Object {
 			try {
 				f.start();
 			} catch(IllegalThreadStateException e) {
-				// We don't care if it's already started.
+				e.printStackTrace();
 			}
 			flushers.addElement(f);
 		}

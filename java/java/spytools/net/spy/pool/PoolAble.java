@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.14 2001/05/25 00:21:20 dustin Exp $
+// $Id: PoolAble.java,v 1.15 2001/08/06 21:35:03 dustin Exp $
 
 package net.spy.pool;
 
@@ -25,6 +25,8 @@ public abstract class PoolAble extends Object {
 	private long start_time=0;
 	private String pool_name=null;
 	private PoolDebug pooldebug=null;
+	private int checkouts=0;
+	private int checkins=0;
 
 	/**
 	 * Minimum value returned from pruneStatus() if we may clean the object.
@@ -146,6 +148,7 @@ public abstract class PoolAble extends Object {
 	 */
 	public synchronized void checkIn() {
 		checked_out=false;
+		checkins++;
 		if(max_age==0) {
 			available=true;
 		} else {
@@ -170,6 +173,7 @@ public abstract class PoolAble extends Object {
 	 * Check the object out.  Called from the PoolContainer
 	 */
 	public synchronized void checkOut() {
+		checkouts++;
 		checked_out=true;
 		available=false;
 		debug("Checked out.");
@@ -258,6 +262,7 @@ public abstract class PoolAble extends Object {
 		} else {
 			out="PoolAble " + object_id + " is not checked out";
 		}
+		out+=" (o=" + checkouts + ", i=" + checkins + ")";
 		if(max_age>0) {
 			out+=" expires " + new Date(start_time + max_age);
 		}

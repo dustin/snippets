@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.33 2001/08/02 20:35:29 dustin Exp $
+ * $Id: SpyDB.java,v 1.34 2001/08/06 21:35:00 dustin Exp $
  */
 
 package net.spy;
@@ -259,15 +259,15 @@ public class SpyDB extends Object {
 			if(pool==null) {
 				pool=new ObjectPool(conf);
 			}
+
+			// Set the database options:
+			setDBOptions(conf);
+
+			// Grab the poolfiller with our temporary config.
+			JDBCPoolFiller pf=new JDBCPoolFiller(name, conf);
+			// OK, add the pool.
+			pool.createPool(name, pf);
 		}
-
-		// Set the database options:
-		setDBOptions(conf);
-
-		// Grab the poolfiller with our temporary config.
-		JDBCPoolFiller pf=new JDBCPoolFiller(name, conf);
-		// OK, add the pool.
-		pool.createPool(name, pf);
 	}
 
 	// set options prefixed with the name
@@ -428,7 +428,9 @@ public class SpyDB extends Object {
 
 	private void getDBConnFromSpyPool() throws SQLException {
 		try {
-			object=pool.getObject(name);
+			synchronized(POOL_MUTEX) {
+				object=pool.getObject(name);
+			}
 			conn=(Connection)object.getObject();
 			if(!auto_free) {
 				connections.put(conn, object);
