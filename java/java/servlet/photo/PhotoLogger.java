@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 1999 Dustin Sallings
+ *
+ * $Id: PhotoLogger.java,v 1.2 1999/09/29 07:38:57 dustin Exp $
+ */
+
 import java.lang.*;
 import java.util.*;
 

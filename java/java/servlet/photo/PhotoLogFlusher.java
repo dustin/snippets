@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 1999 Dustin Sallings
+ *
+ * $Id: PhotoLogFlusher.java,v 1.2 1999/09/29 07:38:55 dustin Exp $
+ */
+
 import java.sql.*;
 import java.lang.*;
 import java.util.*;

@@ -1,4 +1,9 @@
-// Object to store the shite properly.
+/*
+ * Copyright (c) 1999 Dustin Sallings
+ *
+ * $Id: PhotoLogEntry.java,v 1.3 1999/09/29 07:38:54 dustin Exp $
+ */
+
 
 import java.util.*;
 import java.text.*;
