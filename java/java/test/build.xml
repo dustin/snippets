@@ -3,7 +3,7 @@
 <!--
  Build system for multithreaded test classes.
 
- $Id: build.xml,v 1.4 2002/07/12 05:10:07 dustin Exp $
+ $Id: build.xml,v 1.5 2002/08/12 22:39:56 dustin Exp $
  -->
 
 <project name="mttest" default="spytest.jar" basedir=".">
@@ -51,7 +51,7 @@
 	<target name="install" depends="spytest.jar,install-docs">
 		<copy file="spytest.jar"
 			tofile="/afs/spy.net/home/dustin/public_html/soft/spytest.jar"/>
-		<copy file="spytest.jar" tofile="${user.home}/lib/spytest.jar"/>
+		<copy file="spytest.jar" tofile="${user.home}/lib/java/spytest.jar"/>
 	</target>
 
 	<target name="install-docs" depends="javadoc">
