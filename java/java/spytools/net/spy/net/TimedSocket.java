@@ -24,9 +24,12 @@ public abstract class TimedSocket extends Object {
 	 * @param	addr  Address of host
 	 * @param	port  Port of service
 	 * @param	delay Delay in milliseconds
+	 *
+	 * @exception IOTimeoutException if there's a timeout connecting
+	 * @exception IOException for other failures connecting
 	 */
 	public static Socket getSocket(InetAddress addr, int port, int delay)
-		throws InterruptedIOException, IOException {
+		throws IOTimeoutException, IOException {
 
 		// Start the stopwatch
 		SocketThread st=new SocketThread(addr, port);
@@ -61,7 +64,7 @@ public abstract class TimedSocket extends Object {
 				if (timer > delay) {
 					st.interrupt();
 					// Can't connect to server
-					throw new InterruptedIOException("Could not connect for "
+					throw new IOTimeoutException("Could not connect for "
 						+ delay + " milliseconds");
 				}
 			} // else (not connected)
