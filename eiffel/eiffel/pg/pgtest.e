@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pgtest.e,v 1.5 1999/06/03 22:16:36 dustin Exp $
+-- $Id: pgtest.e,v 1.6 2002/11/23 08:31:38 dustin Exp $
 --
 class PGTEST
 
@@ -20,7 +20,10 @@ feature {ANY}
          db: PG;
       do
          !!db.make;
-         db.set_dbname("events");
+         db.set_dbname("dustin");
+         db.set_username("dustin");
+         db.set_password("blahblah");
+         db.set_host("db");
          db.connect;
          a := db.tables;
          io.put_string("Tables:%N");
