@@ -1,18 +1,20 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.5 2000/07/19 08:56:17 dustin Exp $
+# $Id: 1921graph.tk,v 1.6 2000/07/19 20:08:44 dustin Exp $
 
 set width 640
 set height 480
+
+set gmtoffset -8
 
 proc ctof { c } {
 	return [expr ($c*9/5)+32]
 }
 
 proc showGraph { width height } {
-	global dumpData
+	global dumpData gmtoffset
 
-	set min_t $dumpData(mission_start)
+	set min_t [expr $dumpData(mission_start)+($gmtoffset*3600)]
 	set max_t [expr $min_t+($dumpData(sample_rate)*60*$dumpData(mission_samples))]
 	set items 0
 
@@ -43,16 +45,20 @@ proc showGraph { width height } {
 		incr i
 	}
 
+	# figure out the margin
+	set xmargin [expr int($width*.0625)]
+	# Two thirds of the margin goes to the left
+	set xleft [expr int(double($xmargin)*(2.0/3.0))]
+	# One third of the margin goes to the right
+	set xright [expr int(double($xmargin)*(1.0/3.0))]
+
 	# the y factor
 	set yfactor [expr ($height-40)/($max_v-$min_v+1)]
 	# the x factor
-	puts "max_t=$max_t, min_t=$min_t ([expr $max_t-$min_t])"
-	set xfactor [expr (1.0*($width-40.0))/(1.0*($max_t-$min_t+$rate))]
+	set xfactor [expr ($max_t-$min_t)/($width-($xmargin))]
 
-	set nadj [expr ($min_t-$min_t)]
-	set minx [expr $width-(($width-40)-($nadj*$xfactor))]
-	set nadj [expr ($max_t-$min_t)]
-	set maxx [expr $width-(($width-40)-($nadj*$xfactor))]
+	set minx $xleft
+	set maxx [expr (($max_t-$min_t)/$xfactor)+$xleft]
 
 	set miny [expr ($height-40-($max_v-$min_v)*$yfactor)]
 	set maxy [expr ($height-20)]
@@ -63,35 +69,21 @@ proc showGraph { width height } {
 	.c create line $minx $miny $maxx $miny
 	.c create line $minx $maxy $maxx $maxy
 
-	puts "($minx,$miny) to ($maxx, $maxy)"
-
-	# Find out the stuff for the graph.
-	set starttime [clock format $dumpData(mission_start) ]
-	puts "Mission start time:  $starttime"
-	# Figure out how many seconds we have to graph
-	set timespan [expr ($rate*60*$dumpData(mission_samples))]
-	puts "OK, looks like we have $timespan seconds of data"
-	# Find the first even hour
-	set firstline [expr (($dumpData(mission_start) / 3600)+1) * 3600 ]
-	puts "First time:  [clock format $firstline]"
-
 	######################################################################
 	# Time lines
 	######################################################################
 
 	# Draw the hour lines.
+	set firstline [expr (($min_t / 3600)+1) * 3600 ]
 	for { set i $firstline } { $i < $max_t } { set i [expr $i + 3600 ] } {
-		set nadj [expr ($i-$min_t)]
-		set x [expr $width-(($width-40)-($nadj*$xfactor))]
-		# puts "Drawing line for  [clock format $i] ($i, max is $max_t)"
+		set x [expr (($i-$min_t)/$xfactor)+$xleft]
 		.c create line $x $maxy $x $miny -dash . -fill grey
 	}
 
-	set firstline [expr (($dumpData(mission_start) / 86400)+1) * 86400 ]
+	set firstline [expr (($min_t / 86400)+1) * 86400 ]
 	# Draw the day lines.
 	for { set i $firstline } { $i < $max_t } { set i [expr $i + 86400 ] } {
-		set nadj [expr ($i-$min_t)]
-		set x [expr $width-(($width-40)-($nadj*$xfactor))]
+		set x [expr (($i-$min_t)/$xfactor)+$xleft]
 		.c create line $x $maxy $x $miny -fill grey
 		.c addtag text withtag [.c create text $x [expr ($height-10)] \
 			-text [clock format $i -format %m/%d]]
@@ -118,8 +110,7 @@ proc showGraph { width height } {
 		set nadj [expr ($i-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
 		.c create line $minx $y $maxx $y -fill grey
-		.c addtag text withtag [.c create text 20 $y \
-			-text $i]
+		.c addtag text withtag [.c create text [expr $xleft/2] $y -text $i]
 	}
 
 	######################################################################
@@ -129,9 +120,7 @@ proc showGraph { width height } {
 	for { set i $min_t } { $i < $max_t } { set i [expr $i + ($rate*60)] } {
 		set n $input($i)
 
-		# set x [expr ($i+1) * $xfactor ]
-		set nadj [expr ($i-$min_t)]
-		set x [expr $width-(($width-40)-($nadj*$xfactor))]
+		set x [expr (($i-$min_t)/$xfactor)+$xleft]
 		set nadj [expr ($n-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
 
