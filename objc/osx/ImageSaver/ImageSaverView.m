@@ -154,6 +154,7 @@
 
 - (void)fetchImage
 {
+    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 	currentURLOffset++;
 	if(currentURLOffset >= [imageUrls count]) {
 		NSLog(@"Resetting URL offset to 0");
