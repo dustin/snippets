@@ -9,6 +9,16 @@ import java.util.*;
 
 public class InterfaceImplementor extends Object {
 
+	public static String decodeType(Class type) {
+		String rv=null;
+		if(type.isArray()) {
+			rv=decodeType(type.getComponentType()) + "[]";
+		} else {
+			rv=type.getName();
+		}
+		return(rv);
+	}
+
 	public static String displayMethodName(Method method) throws Exception {
 		String ret="";
 
@@ -21,7 +31,7 @@ public class InterfaceImplementor extends Object {
 
 		// Get the return type
 		Class rt=method.getReturnType();
-		ret+=" " + rt.getName() + " ";
+		ret+=" " + decodeType(rt) + " ";
 
 		// Add the method name
 		String name=method.getName();
@@ -32,7 +42,7 @@ public class InterfaceImplementor extends Object {
 		ret+=name + "(";
 		if(types.length > 0) {
 			for(int i=0; i<types.length; i++) {
-				ret+=types[i].getName() + " a" + i + ",";
+				ret+=decodeType(types[i]) + " a" + i + ",";
 			}
 			// Strip off the last comma
 			ret=ret.substring(0, ret.length()-1);
