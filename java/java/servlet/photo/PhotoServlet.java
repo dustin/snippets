@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.9 1999/09/24 06:10:19 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.10 1999/09/24 06:44:35 dustin Exp $
  */
 
 import java.io.*;
@@ -25,6 +25,7 @@ public class PhotoServlet extends HttpServlet
 	String remote_user, self_uri;
 	DbConnectionBroker dbs;
 	RHash rhash;
+	MultipartRequest multi;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
@@ -60,7 +61,14 @@ public class PhotoServlet extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 
-		String func;
+		String func, type;
+
+		type = request.getContentType();
+		if(type != null && type.startsWith("multipart/form-data")) {
+			multi = new MultipartRequest(request, "/tmp");
+		} else {
+			multi = null;
+		}
 
 		// Set the self_uri
 		self_uri = request.getRequestURI();
@@ -78,7 +86,11 @@ public class PhotoServlet extends HttpServlet
 		getUid();
 
 		// Figure out what they want, default to index.
-		func=request.getParameter("func");
+		if(multi==null) {
+			func=request.getParameter("func");
+		} else {
+			func=multi.getParameter("func");
+		}
 		log("func is " + func);
 		if(func == null) {
 			doIndex(request, response);
@@ -158,18 +170,19 @@ public class PhotoServlet extends HttpServlet
 			photo=getDBConn();
 			Statement st=photo.createStatement();
 
-			query = "select canadd from wwwusers where username=" + remote_user;
+			query = "select canadd from wwwusers where username='"
+				+ remote_user + "'";
 
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
 				String tmp;
 				tmp = rs.getString(1);
-				log("Canadd = " + tmp);
-				if(tmp == "t") {
+				if(tmp.startsWith("t")) {
 					r=true;
 				}
 			}
 		} catch(Exception e) {
+			log(e.getMessage());
 		} finally {
 			if(photo != null) {
 				freeDBConn(photo);
@@ -187,16 +200,7 @@ public class PhotoServlet extends HttpServlet
 		int id;
 		Hashtable h = new Hashtable();
 		Connection photo=null;
-		MultipartRequest multi =null;
 		Statement st=null;
-
-		log("Adding image...");
-
-		try {
-			multi = new MultipartRequest(request, "/tmp");
-		} catch(IOException e) {
-			throw new ServletException(e.getMessage());
-		}
 
 		// Make sure the user can add.
 		if(!canadd()) {
@@ -206,7 +210,8 @@ public class PhotoServlet extends HttpServlet
 
 		// Check that it's the right file type.
 		type = multi.getContentType("picture");
-		if(type != "image/jpeg") {
+		log("Type is " + type);
+		if(! (type.startsWith("image/jpeg")) ) {
 			h.put("FILENAME", multi.getFilesystemName("picture"));
 			send_response(response, tokenize("add_badfiletype.inc", h));
 			return;
@@ -245,7 +250,7 @@ public class PhotoServlet extends HttpServlet
 				  + "    values('" + keywords + "',\n\t'" + info + "',\n"
 				  + "    \t'" + category + "',\n\t'" + taken + "',\n"
 				  + "    '" + remote_user + "')\n";
-			st.executeQuery(query);
+			st.executeUpdate(query);
 			query = "select currval('album_id_seq')\n";
 			ResultSet rs = st.executeQuery(query);
 			rs.next();
@@ -274,23 +279,25 @@ public class PhotoServlet extends HttpServlet
 
 				// OK, we have a base64 encoding.
 				query = "insert into image_store values(" + id + ", " + i
-					  + "'" + tmp + "')\n";
-				st.executeQuery(query);
+					  + ", '" + tmp + "')\n";
+				st.executeUpdate(query);
 				i++;
 			}
 			query ="update album set size=" + size + "where id=" + id;
-			st.executeQuery(query);
+			st.executeUpdate(query);
 
 			h.put("ID", ""+id);
-			st.executeQuery("commit");
+			st.executeUpdate("commit");
 			out += tokenize("add_success.inc", h);
 		} catch(Exception e) {
+			log(e.getMessage());
 			try {
-				st.executeQuery("rollback");
+				st.executeUpdate("rollback");
 				h.put("QUERY", query);
 				h.put("ERRSTR", e.getMessage());
 				out += tokenize("add_success.inc", h);
 			} catch(Exception e2) {
+				log(e2.getMessage());
 				// Nothing to see here.
 			}
 		} finally {
@@ -299,6 +306,7 @@ public class PhotoServlet extends HttpServlet
 					photo.setAutoCommit(true);
 					freeDBConn(photo);
 				} catch(Exception e) {
+					log(e.getMessage());
 				}
 			}
 		}
