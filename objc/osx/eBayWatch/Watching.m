@@ -29,12 +29,12 @@
 {
     id rv=nil;
 
-    NSLog(@"Asking for row %d of %@", rowIndex, [aTableColumn identifier]);
+    // NSLog(@"Asking for row %d of %@", rowIndex, [aTableColumn identifier]);
     id theItem=[contents objectAtIndex: rowIndex];
     if([[aTableColumn identifier] isEqualToString: @"description"]) {
         rv=[theItem description];
     } else {
-        rv=[NSString stringWithFormat: @"$ %.02f", [theItem price]];
+		rv=[NSNumber numberWithFloat: [theItem price]];
     }
 
     return(rv);

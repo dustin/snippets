@@ -46,7 +46,7 @@
     NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 
     NSString *s=[[NSString alloc]
-        initWithFormat: @"http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=%@",
+        initWithFormat: @"http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=%@&isPrinterFriendly=1",
         itemId];
     NSURL *url=[[NSURL alloc] initWithString: s];
     NSLog(@"Fetching from %@", url);

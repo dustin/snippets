@@ -2,12 +2,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Watching.h"
-#import "HideableProgressIndicator.h"
 
 @interface Controller : NSObject
 {
     IBOutlet NSWindow *addWindow;
-    IBOutlet HideableProgressIndicator *busySignal;
+    IBOutlet NSProgressIndicator *busySignal;
     IBOutlet NSTextField *itemDescription;
     IBOutlet NSTextField *itemNumber;
     IBOutlet NSTableView *table;

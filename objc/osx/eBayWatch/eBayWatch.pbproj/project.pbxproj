@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 38;
+	objectVersion = 39;
 	objects = {
 		080E96DCFE201CFB7F000001 = {
 			fileRef = 29B97318FDCFA39411CA2CEA;
@@ -13,8 +13,6 @@
 		};
 		080E96DDFE201D6D7F000001 = {
 			children = (
-				DAE5FAF0041744EA00EFB499,
-				DAE5FAF1041744EA00EFB499,
 				DAE5FAE804171AF800EFB499,
 				DAE5FAE904171AF800EFB499,
 				DAE5FAE40417170200EFB499,
@@ -25,6 +23,7 @@
 			isa = PBXGroup;
 			name = Classes;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C165CFE840E0CC02AAC07 = {
 			children = (
@@ -33,13 +32,16 @@
 			isa = PBXVariantGroup;
 			name = InfoPlist.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C165EFE840E0CC02AAC07 = {
 			fileRef = 089C165CFE840E0CC02AAC07;
@@ -64,12 +66,16 @@
 			isa = PBXGroup;
 			name = "Linked Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		1058C7A2FEA54F0111CA2CBB = {
 			children = (
@@ -79,6 +85,7 @@
 			isa = PBXGroup;
 			name = "Other Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7A3FEA54F0111CA2CBB = {
 			fileRef = 1058C7A1FEA54F0111CA2CBB;
@@ -97,9 +104,12 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
+			explicitFileType = wrapper.application;
+			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = eBayWatch.app;
 			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 //170
 //171
@@ -118,6 +128,7 @@
 			isa = PBXGroup;
 			name = Products;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 //190
 //191
@@ -130,6 +141,8 @@
 //293
 //294
 		29B97313FDCFA39411CA2CEA = {
+			buildSettings = {
+			};
 			buildStyles = (
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
@@ -154,6 +167,7 @@
 			name = eBayWatch;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97315FDCFA39411CA2CEA = {
 			children = (
@@ -164,12 +178,15 @@
 			name = "Other Sources";
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97316FDCFA39411CA2CEA = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = main.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
@@ -180,6 +197,7 @@
 			name = Resources;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97318FDCFA39411CA2CEA = {
 			children = (
@@ -189,12 +207,15 @@
 			name = MainMenu.nib;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97319FDCFA39411CA2CEA = {
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/MainMenu.nib;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97323FDCFA39411CA2CEA = {
 			children = (
@@ -205,18 +226,25 @@
 			name = Frameworks;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		29B97326FDCFA39411CA2CEA = {
 			buildPhases = (
@@ -279,7 +307,6 @@
 				DAE5FAE60417170200EFB499,
 				DAE5FAEA04171AF800EFB499,
 				DAE5FAEE04171E9F00EFB499,
-				DAE5FAF3041744EA00EFB499,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,7 +327,6 @@
 				DAE5FAE70417170200EFB499,
 				DAE5FAEB04171AF800EFB499,
 				DAE5FAEF04171E9F00EFB499,
-				DAE5FAF2041744EA00EFB499,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,8 +360,10 @@
 		32CA4F630368D1EE00C91783 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = eBayWatch_Prefix.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		32CA4F650368D2AA00C91783 = {
 			fileRef = 32CA4F630368D1EE00C91783;
@@ -358,7 +386,12 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -368,6 +401,8 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -385,14 +420,18 @@
 		DAE5FAE40417170200EFB499 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Watching.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAE50417170200EFB499 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Watching.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAE60417170200EFB499 = {
 			fileRef = DAE5FAE40417170200EFB499;
@@ -409,14 +448,18 @@
 		DAE5FAE804171AF800EFB499 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Controller.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAE904171AF800EFB499 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Controller.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAEA04171AF800EFB499 = {
 			fileRef = DAE5FAE804171AF800EFB499;
@@ -433,14 +476,18 @@
 		DAE5FAEC04171E9F00EFB499 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Item.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAED04171E9F00EFB499 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Item.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		DAE5FAEE04171E9F00EFB499 = {
 			fileRef = DAE5FAEC04171E9F00EFB499;
@@ -450,30 +497,6 @@
 		};
 		DAE5FAEF04171E9F00EFB499 = {
 			fileRef = DAE5FAED04171E9F00EFB499;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DAE5FAF0041744EA00EFB499 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = HideableProgressIndicator.m;
-			refType = 4;
-		};
-		DAE5FAF1041744EA00EFB499 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = HideableProgressIndicator.h;
-			refType = 4;
-		};
-		DAE5FAF2041744EA00EFB499 = {
-			fileRef = DAE5FAF0041744EA00EFB499;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DAE5FAF3041744EA00EFB499 = {
-			fileRef = DAE5FAF1041744EA00EFB499;
 			isa = PBXBuildFile;
 			settings = {
 			};

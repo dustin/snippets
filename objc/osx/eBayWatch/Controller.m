@@ -39,7 +39,7 @@
     // Add it to the watch list.
     [watching addItem: i];
     [i release];
-    [table setNeedsDisplay: true];
+    [table reloadData];
     [addWindow orderOut: self];
     [self setBusy: false];
 }
@@ -108,6 +108,7 @@
         [self addItem: [ob objectAtIndex: 0]
             withDescription: [ob objectAtIndex: 1]];
     }
+	[table reloadData];
 }
 
 // this is performed after awakeFromNib...gives us time to get the UI up
@@ -130,8 +131,7 @@
 {
     NSLog(@"Initializing");
 
-    watching=[[Watching alloc] init];
-    [table setDataSource: watching];
+    watching=[table dataSource];
     [total setFloatValue: 0.0];
 
     // one-off timer to initialize after this window loads.

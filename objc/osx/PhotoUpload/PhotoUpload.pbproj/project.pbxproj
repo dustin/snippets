@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 38;
+	objectVersion = 39;
 	objects = {
 		080E96DDFE201D6D7F000001 = {
 			children = (
@@ -32,6 +32,7 @@
 			isa = PBXGroup;
 			name = Classes;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 //080
 //081
@@ -53,12 +54,16 @@
 			isa = PBXGroup;
 			name = "Linked Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		1058C7A2FEA54F0111CA2CBB = {
 			children = (
@@ -68,6 +73,7 @@
 			isa = PBXGroup;
 			name = "Other Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7A3FEA54F0111CA2CBB = {
 			fileRef = 1058C7A1FEA54F0111CA2CBB;
@@ -86,9 +92,12 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
+			explicitFileType = wrapper.application;
+			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = PhotoUpload.app;
 			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 //170
 //171
@@ -107,6 +116,7 @@
 			isa = PBXGroup;
 			name = Products;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 //190
 //191
@@ -119,6 +129,8 @@
 //293
 //294
 		29B97313FDCFA39411CA2CEA = {
+			buildSettings = {
+			};
 			buildStyles = (
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
@@ -143,6 +155,7 @@
 			name = PhotoUpload;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97315FDCFA39411CA2CEA = {
 			children = (
@@ -152,12 +165,15 @@
 			name = "Other Sources";
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97316FDCFA39411CA2CEA = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = main.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
@@ -173,6 +189,7 @@
 			name = Resources;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97323FDCFA39411CA2CEA = {
 			children = (
@@ -183,18 +200,25 @@
 			name = Frameworks;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		29B97326FDCFA39411CA2CEA = {
 			buildPhases = (
@@ -338,7 +362,12 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -348,7 +377,9 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				OPTIMIZATION_CFLAGS = "-Os";
+				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -371,99 +402,131 @@
 		};
 		F52C09B603540EAB01A801C4 = {
 			isa = PBXFileReference;
+			lastKnownFileType = image.icns;
 			path = PhotoUpload.icns;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AEF0353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = text.html;
 			name = Credits.html;
 			path = English.lproj/Credits.html;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF00353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = DumpMatrix.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF10353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = DumpMatrix.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF20353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = HideableProgressIndicator.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF30353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = HideableProgressIndicator.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF40353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = HideableTextField.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF50353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = HideableTextField.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF60353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = SizeScaler.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF70353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = SizeScaler.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF80353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = UploadController.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AF90353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = UploadController.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AFA0353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = UploadParams.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AFB0353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = UploadParams.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AFC0353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = UploadThread.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AFD0353732F0109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = UploadThread.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601AFF0353732F0109FEFA = {
 			fileRef = F5601AF00353732F0109FEFA;
@@ -557,13 +620,16 @@
 			name = InfoPlist.strings;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601B14035373480109FEFA = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601B15035373480109FEFA = {
 			children = (
@@ -573,12 +639,15 @@
 			name = MainMenu.nib;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601B16035373480109FEFA = {
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/MainMenu.nib;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5601B17035373480109FEFA = {
 			fileRef = F5601B13035373480109FEFA;
@@ -593,22 +662,31 @@
 			};
 		};
 		F5601B19035373650109FEFA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = file;
 			name = EDCommon.framework;
 			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDCommon/build/EDCommon.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		F5601B1A035373650109FEFA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = EDMessage.framework;
 			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDMessage/build/EDMessage.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		F5601B1B035373650109FEFA = {
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = XMLRPC.framework;
 			path = /Users/dustin/prog/eprojects/objcxmlrpc/znek/XMLRPC/build/XMLRPC.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		F5601B94035373660109FEFA = {
 			fileRef = F5601B19035373650109FEFA;
@@ -673,24 +751,31 @@
 			name = PhotoUploadBatch.nib;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5A4F4190356A6BE01A801C4 = {
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/PhotoUploadBatch.nib;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5A4F41B0356A76901A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = BatchController.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5A4F41C0356A76901A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = BatchController.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5A4F41D0356A76901A801C4 = {
 			fileRef = F5A4F41B0356A76901A801C4;
@@ -713,14 +798,18 @@
 		F5BA4842035523AD01A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Batch.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BA4843035523AD01A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Batch.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BA4844035523AD01A801C4 = {
 			fileRef = F5BA4842035523AD01A801C4;
@@ -742,12 +831,15 @@
 			name = BatchUpload.nib;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BAF2D0036CDA2401ED6A41 = {
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/BatchUpload.nib;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BAF2D1036CDA2401ED6A41 = {
 			fileRef = F5BAF2CF036CDA2401ED6A41;
@@ -758,14 +850,18 @@
 		F5BAF2D2036CDA3201ED6A41 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = BatchUploadController.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BAF2D3036CDA3201ED6A41 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = BatchUploadController.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5BAF2D4036CDA3201ED6A41 = {
 			fileRef = F5BAF2D2036CDA3201ED6A41;
@@ -787,13 +883,16 @@
 			name = Localizable.strings;
 			path = "";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5D1960B0362869401A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/Localizable.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5D1960E0362871101A801C4 = {
 			fileRef = F5D1960A0362869401A801C4;
@@ -804,8 +903,10 @@
 		F5D1960F03628AC801A801C4 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = PhotoUpload.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5D1961003628AC801A801C4 = {
 			fileRef = F5D1960F03628AC801A801C4;
@@ -820,6 +921,7 @@
 			isa = PBXVariantGroup;
 			name = Credits.html;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F5D196120362933F01A801C4 = {
 			fileRef = F5D196110362933F01A801C4;

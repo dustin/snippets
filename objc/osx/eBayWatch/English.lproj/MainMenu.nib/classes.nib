@@ -20,7 +20,8 @@
             CLASS = HideableProgressIndicator;
             LANGUAGE = ObjC;
             SUPERCLASS = NSProgressIndicator;
-        }
+        },
+        {CLASS = Watching; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     );
     IBVersion = 1;
 }
