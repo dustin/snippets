@@ -45,7 +45,7 @@
         [self openUploadWindow: self];
 
     NS_HANDLER
-        [self alert:@"Authentication Exception"
+        [self alert:_str(@"Auth Exception")
 			message:[localException description]];
     NS_ENDHANDLER
 
@@ -138,7 +138,6 @@
     int i=0;
     for(i=0; i<[a count]; i++) {
         [imgMatrix removeFile: [[[a objectAtIndex: i] image] name]];
-        // NSLog(@"Removed image:  %@\n", [[a objectAtIndex: i] image]);
     }
     [imgMatrix update];
 }
@@ -195,14 +194,14 @@
                                  calendarFormat: @"%Y/%m/%d"];
     NSString *k=[keywords stringValue];
     if([k length] == 0) {
-        [self alert:@"Keywords not Given"
-            message:@"The keywords field must be filled in."];
+        [self alert:_str(@"A.T.NoKeywords")
+            message:_str(@"A.B.NoKeywords")];
         return;
     }
     NSString *d=[description stringValue];
     if([d length] == 0) {
-        [self alert:@"Description not Given"
-            message:@"The description field must be filled in."];
+        [self alert:_str(@"A.T.NoDescription")
+            message:_str(@"A.B.NoDescription")];
         return;
     }
     NSString *cat=[categories titleOfSelectedItem];
@@ -256,7 +255,7 @@
 {
     if(currentFile <= [[imgMatrix files] count])
     {
-        NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d",
+        NSString *msg=[NSString stringWithFormat:_str(@"UploadingText"),
             currentFile, [[imgMatrix files] count]];
         [uploadingText setStringValue: msg];
         [uploadingText displayIfNeeded];
@@ -267,14 +266,14 @@
 {
     switch(to) {
         case BUTTON_UPLOAD:
-            [uploadButton setTitle:@"Upload"];
+            [uploadButton setTitle:_str(@"B.Upload")];
             [uploadButton setAction:@selector(upload:)];
-            [uploadButton setToolTip: @"Upload selected images."];
+            [uploadButton setToolTip: _str(@"B.Upload.ToolTip")];
             break;
         case BUTTON_STOP:
-            [uploadButton setTitle:@"Stop"];
+            [uploadButton setTitle:_str(@"B.Stop")];
             [uploadButton setAction:@selector(stopUpload:)];
-            [uploadButton setToolTip: @"Stop upload after next image completes."];
+            [uploadButton setToolTip: _str(@"B.Stop.ToolTip")];
             break;
     }
     [uploadButton setNeedsDisplay: TRUE];
@@ -282,7 +281,7 @@
 
 -(void)uploadError: (id)msg
 {
-    [self alert:@"Upload Error" message: msg];
+    [self alert:_str(@"Upload Error") message: msg];
 }
 
 -(void)uploadedFile
@@ -314,7 +313,9 @@
     [progressBar setDisplayedWhenStopped: FALSE];
     [progressBar setHidden: TRUE];
     [uploadingText setHidden: TRUE];
+    // Initialize the button
     buttonType=BUTTON_UPLOAD;
+    [self setButtonAction: buttonType];
 
     defaults=[NSUserDefaults standardUserDefaults];
     id defaultUrl=[defaults objectForKey:@"url"];

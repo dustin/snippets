@@ -3,6 +3,7 @@
 #import <Cocoa/Cocoa.h>
 #import "DumpMatrix.h"
 #import "Batch.h"
+#import "PhotoUpload.h"
 
 @interface BatchController : NSWindowController
 {

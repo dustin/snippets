@@ -9,6 +9,7 @@
 #import "DumpMatrix.h"
 #import "Batch.h"
 #import "BatchController.h"
+#import "PhotoUpload.h"
 
 #define BUTTON_UPLOAD 1
 #define BUTTON_STOP 2

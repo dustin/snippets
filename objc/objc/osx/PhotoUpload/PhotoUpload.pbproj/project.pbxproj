@@ -25,6 +25,7 @@
 				F5BA4843035523AD01A801C4,
 				F5A4F41B0356A76901A801C4,
 				F5A4F41C0356A76901A801C4,
+				F5D1960F03628AC801A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -157,6 +158,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				F5D1960A0362869401A801C4,
 				F52C09B603540EAB01A801C4,
 				F5601B13035373480109FEFA,
 				F5601B15035373480109FEFA,
@@ -255,6 +257,7 @@
 				F5601B0B0353732F0109FEFA,
 				F5BA4844035523AD01A801C4,
 				F5A4F41D0356A76901A801C4,
+				F5D1961003628AC801A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F5601AFE0353732F0109FEFA,
+				F5D1960E0362871101A801C4,
 				F5601B17035373480109FEFA,
 				F56F8F9D035410E801A801C4,
 				F5601B18035373480109FEFA,
@@ -597,7 +601,7 @@
 		F5601B9B035373AB0109FEFA = {
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 10;
+			dstSubfolderSpec = 7;
 			files = (
 				F5601B9E035373B80109FEFA,
 				F5601B9F035373B80109FEFA,
@@ -691,6 +695,38 @@
 		};
 		F5BA4845035523AD01A801C4 = {
 			fileRef = F5BA4843035523AD01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D1960A0362869401A801C4 = {
+			children = (
+				F5D1960B0362869401A801C4,
+			);
+			isa = PBXVariantGroup;
+			name = Localizable.strings;
+			path = "";
+			refType = 4;
+		};
+		F5D1960B0362869401A801C4 = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Localizable.strings;
+			refType = 4;
+		};
+		F5D1960E0362871101A801C4 = {
+			fileRef = F5D1960A0362869401A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D1960F03628AC801A801C4 = {
+			isa = PBXFileReference;
+			path = PhotoUpload.h;
+			refType = 4;
+		};
+		F5D1961003628AC801A801C4 = {
+			fileRef = F5D1960F03628AC801A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};

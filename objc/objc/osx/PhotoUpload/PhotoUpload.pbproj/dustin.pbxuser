@@ -14,7 +14,128 @@
 			F5601AEE035372CE0109FEFA,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 56783449;
+			PBXPerProjectTemplateStateSaveDate = 56788365;
+			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
+				ContentSize = "{550, 632}";
+				LeftSlideOut = {
+					Collapsed = NO;
+					Frame = "{{0, 0}, {550, 632}}";
+					Split0 = {
+						Collapsed = NO;
+						Frame = "{{0, 0}, {550, 632}}";
+						Split0 = {
+							Frame = "{{0, 0}, {550, 632}}";
+						};
+						SplitCount = 1;
+						Tab0 = {
+							Debugger = {
+								Collapsed = NO;
+								Frame = "{{0, 0}, {484, 208}}";
+								Split0 = {
+									Frame = "{{0, 24}, {484, 184}}";
+									Split0 = {
+										Frame = "{{0, 0}, {236, 184}}";
+									};
+									Split1 = {
+										DebugVariablesTableConfiguration = (
+											Name,
+											123,
+											Value,
+											85,
+											Summary,
+											62.123,
+										);
+										Frame = "{{245, 0}, {239, 184}}";
+									};
+									SplitCount = 2;
+								};
+								SplitCount = 1;
+								Tab0 = {
+									Frame = "{{0, 0}, {100, 50}}";
+								};
+								Tab1 = {
+									Frame = "{{0, 0}, {100, 50}}";
+								};
+								TabCount = 2;
+								TabsVisible = YES;
+							};
+							Frame = "{{0, 0}, {484, 208}}";
+							LauncherConfigVersion = 7;
+						};
+						Tab1 = {
+							Frame = "{{0, 0}, {664, 208}}";
+							LauncherConfigVersion = 3;
+							Runner = {
+								Frame = "{{0, 0}, {664, 208}}";
+							};
+						};
+						Tab2 = {
+							BuildMessageFrame = "{{0, 0}, {666, 43}}";
+							BuildTranscriptFrame = "{{0, 52}, {666, 0}}";
+							Frame = "{{0, 0}, {664, 50}}";
+						};
+						Tab3 = {
+							Frame = "{{0, 0}, {612, 295}}";
+						};
+						TabCount = 4;
+						TabsVisible = NO;
+					};
+					SplitCount = 1;
+					Tab0 = {
+						Frame = "{{0, 0}, {313, 531}}";
+						GroupTreeTableConfiguration = (
+							TargetStatusColumn,
+							18,
+							MainColumn,
+							280,
+						);
+					};
+					Tab1 = {
+						ClassesFrame = "{{0, 0}, {280, 398}}";
+						ClassesTreeTableConfiguration = (
+							PBXBookColumnIdentifier,
+							20,
+							PBXClassColumnIdentifier,
+							237,
+						);
+						Frame = "{{0, 0}, {278, 659}}";
+						MembersFrame = "{{0, 407}, {280, 252}}";
+						MembersTreeTableConfiguration = (
+							PBXBookColumnIdentifier,
+							20,
+							PBXMethodColumnIdentifier,
+							236,
+						);
+					};
+					Tab2 = {
+						Frame = "{{0, 0}, {200, 100}}";
+					};
+					Tab3 = {
+						Frame = "{{0, 0}, {200, 557}}";
+						TargetTableConfiguration = (
+							ActiveObject,
+							16,
+							ObjectNames,
+							202.296,
+						);
+					};
+					Tab4 = {
+						BreakpointsTreeTableConfiguration = (
+							breakpointColumn,
+							197,
+							enabledColumn,
+							31,
+						);
+						Frame = "{{0, 0}, {250, 100}}";
+					};
+					TabCount = 5;
+					TabsVisible = NO;
+				};
+				StatusViewVisible = NO;
+				Template = F5CA7ECB015C094F0DCA290F;
+				ToolbarVisible = NO;
+				WindowLocation = "{733, 177}";
+			};
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
@@ -304,7 +425,7 @@
 					WindowLocation = "{15, 178}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 56783449;
+			PBXWorkspaceStateSaveDate = 56788365;
 		};
 		perUserProjectItems = {
 			F51E260703552CF201A801C4 = F51E260703552CF201A801C4;
@@ -483,7 +604,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: 15";
 		rLen = 0;
-		rLoc = 2069;
+		rLoc = 2039;
 		rType = 0;
 		vrLen = 420;
 		vrLoc = 0;
@@ -493,7 +614,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 4";
 		rLen = 0;
-		rLoc = 87;
+		rLoc = 111;
 		rType = 0;
 		vrLen = 445;
 		vrLoc = 0;
@@ -503,7 +624,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 1153;
+		rLoc = 1177;
 		rType = 0;
 		vrLen = 727;
 		vrLoc = 975;
@@ -513,7 +634,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: saveBatch:";
 		rLen = 36;
-		rLoc = 424;
+		rLoc = 448;
 		rType = 0;
 		vrLen = 480;
 		vrLoc = 0;
@@ -533,7 +654,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 70";
 		rLen = 0;
-		rLoc = 1777;
+		rLoc = 1773;
 		rType = 0;
 		vrLen = 946;
 		vrLoc = 1451;
@@ -543,7 +664,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 1153;
+		rLoc = 1177;
 		rType = 0;
 		vrLen = 758;
 		vrLoc = 870;
@@ -553,7 +674,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: dateToToday:";
 		rLen = 274;
-		rLoc = 1840;
+		rLoc = 1836;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 1451;
@@ -563,7 +684,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 2637;
+		rLoc = 2607;
 		rType = 0;
 		vrLen = 600;
 		vrLoc = 132;
@@ -573,7 +694,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 1153;
+		rLoc = 1177;
 		rType = 0;
 		vrLen = 805;
 		vrLoc = 823;
@@ -707,7 +828,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: openAuthWindow:";
 		rLen = 33;
-		rLoc = 1189;
+		rLoc = 1213;
 		rType = 0;
 		vrLen = 725;
 		vrLoc = 910;
@@ -717,7 +838,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: openAuthWindow:";
 		rLen = 0;
-		rLoc = 2373;
+		rLoc = 2369;
 		rType = 0;
 		vrLen = 557;
 		vrLoc = 1315;
@@ -737,7 +858,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: 12";
 		rLen = 0;
-		rLoc = 2047;
+		rLoc = 2017;
 		rType = 0;
 		vrLen = 213;
 		vrLoc = 0;
@@ -747,7 +868,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: newBatch:";
 		rLen = 0;
-		rLoc = 2332;
+		rLoc = 2328;
 		rType = 0;
 		vrLen = 633;
 		vrLoc = 1459;
@@ -775,7 +896,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 5";
 		rLen = 0;
-		rLoc = 87;
+		rLoc = 111;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 0;
@@ -795,7 +916,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1799;
+		rLoc = 1769;
 		rType = 0;
 		vrLen = 1054;
 		vrLoc = 954;
@@ -805,7 +926,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 25";
 		rLen = 0;
-		rLoc = 638;
+		rLoc = 662;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 267;
@@ -825,7 +946,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: openBatch:";
 		rLen = 0;
-		rLoc = 2626;
+		rLoc = 2622;
 		rType = 0;
 		vrLen = 895;
 		vrLoc = 2244;
@@ -835,7 +956,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 2071;
+		rLoc = 2041;
 		rType = 0;
 		vrLen = 713;
 		vrLoc = 378;
@@ -845,7 +966,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: files";
 		rLen = 279;
-		rLoc = 5940;
+		rLoc = 5833;
 		rType = 0;
 		vrLen = 841;
 		vrLoc = 4469;
@@ -855,7 +976,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1506;
+		rLoc = 1476;
 		rType = 0;
 		vrLen = 686;
 		vrLoc = 378;
@@ -864,8 +985,8 @@
 		fRef = F5601AF90353732F0109FEFA;
 		isa = PBXTextBookmark;
 		name = "UploadController.m: date";
-		rLen = 583;
-		rLoc = 5231;
+		rLen = 553;
+		rLoc = 5154;
 		rType = 0;
 		vrLen = 915;
 		vrLoc = 4152;
@@ -885,7 +1006,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 13";
 		rLen = 0;
-		rLoc = 353;
+		rLoc = 377;
 		rType = 0;
 		vrLen = 480;
 		vrLoc = 0;
@@ -895,7 +1016,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1136;
+		rLoc = 1138;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 230;
@@ -915,7 +1036,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 1153;
+		rLoc = 1177;
 		rType = 0;
 		vrLen = 828;
 		vrLoc = 394;
@@ -935,7 +1056,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1491;
+		rLoc = 1461;
 		rType = 0;
 		vrLen = 880;
 		vrLoc = 474;
@@ -945,7 +1066,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: batch";
 		rLen = 34;
-		rLoc = 5904;
+		rLoc = 5797;
 		rType = 0;
 		vrLen = 963;
 		vrLoc = 4193;
@@ -955,7 +1076,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 43;
-		rLoc = 1549;
+		rLoc = 1519;
 		rType = 0;
 		vrLen = 587;
 		vrLoc = 0;
@@ -965,7 +1086,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 5";
 		rLen = 0;
-		rLoc = 87;
+		rLoc = 111;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 0;
@@ -975,7 +1096,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1916;
+		rLoc = 1886;
 		rType = 0;
 		vrLen = 828;
 		vrLoc = 1026;
@@ -995,7 +1116,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 2048;
+		rLoc = 2018;
 		rType = 0;
 		vrLen = 917;
 		vrLoc = 1161;
@@ -1005,7 +1126,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 4155;
+		rLoc = 4078;
 		rType = 0;
 		vrLen = 700;
 		vrLoc = 3087;
@@ -1015,7 +1136,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 1799;
+		rLoc = 1769;
 		rType = 0;
 		vrLen = 1054;
 		vrLoc = 954;
@@ -1025,7 +1146,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: removeAllFiles:";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3645;
 		rType = 0;
 		vrLen = 693;
 		vrLoc = 2460;
@@ -1035,7 +1156,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 20";
 		rLen = 13;
-		rLoc = 442;
+		rLoc = 466;
 		rType = 0;
 		vrLen = 823;
 		vrLoc = 291;
@@ -1045,7 +1166,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 109";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3645;
 		rType = 0;
 		vrLen = 705;
 		vrLoc = 2460;
@@ -1055,7 +1176,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 20";
 		rLen = 13;
-		rLoc = 442;
+		rLoc = 466;
 		rType = 0;
 		vrLen = 802;
 		vrLoc = 291;
@@ -1065,7 +1186,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 110";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3645;
 		rType = 0;
 		vrLen = 754;
 		vrLoc = 2460;
@@ -1075,7 +1196,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 20";
 		rLen = 13;
-		rLoc = 442;
+		rLoc = 466;
 		rType = 0;
 		vrLen = 826;
 		vrLoc = 267;
@@ -1085,7 +1206,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: removeSelected:";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3645;
 		rType = 0;
 		vrLen = 772;
 		vrLoc = 2460;
@@ -1095,7 +1216,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 25";
 		rLen = 0;
-		rLoc = 638;
+		rLoc = 662;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 267;
@@ -1105,7 +1226,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: a";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3645;
 		rType = 0;
 		vrLen = 857;
 		vrLoc = 2427;
@@ -1115,7 +1236,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 25";
 		rLen = 0;
-		rLoc = 638;
+		rLoc = 662;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 267;
@@ -1125,7 +1246,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: removeSelected:";
 		rLen = 0;
-		rLoc = 3611;
+		rLoc = 3607;
 		rType = 0;
 		vrLen = 868;
 		vrLoc = 2590;
@@ -1135,7 +1256,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: 25";
 		rLen = 0;
-		rLoc = 638;
+		rLoc = 662;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 267;
@@ -1345,7 +1466,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: rv";
 		rLen = 0;
-		rLoc = 4452;
+		rLoc = 4375;
 		rType = 0;
 		vrLen = 871;
 		vrLoc = 4899;
@@ -1385,7 +1506,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: upload:";
 		rLen = 26;
-		rLoc = 6035;
+		rLoc = 5928;
 		rType = 0;
 		vrLen = 853;
 		vrLoc = 4495;
@@ -1445,7 +1566,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: removeAllFiles:";
 		rLen = 0;
-		rLoc = 3770;
+		rLoc = 3766;
 		rType = 0;
 		vrLen = 640;
 		vrLoc = 1528;
@@ -1455,7 +1576,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: dateToToday:";
 		rLen = 0;
-		rLoc = 2099;
+		rLoc = 2095;
 		rType = 0;
 		vrLen = 536;
 		vrLoc = 2576;
@@ -1465,7 +1586,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 424;
+		rLoc = 448;
 		rType = 0;
 		vrLen = 480;
 		vrLoc = 0;
@@ -1475,7 +1596,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: saveBatch:";
 		rLen = 0;
-		rLoc = 2047;
+		rLoc = 2017;
 		rType = 0;
 		vrLen = 600;
 		vrLoc = 132;
@@ -1485,7 +1606,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib";
 		rLen = 237;
-		rLoc = 8877;
+		rLoc = 8842;
 		rType = 0;
 		vrLen = 806;
 		vrLoc = 7479;
@@ -1495,7 +1616,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: 38";
 		rLen = 0;
-		rLoc = 2637;
+		rLoc = 2607;
 		rType = 0;
 		vrLen = 642;
 		vrLoc = 276;
@@ -1505,7 +1626,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 13";
 		rLen = 0;
-		rLoc = 353;
+		rLoc = 377;
 		rType = 0;
 		vrLen = 480;
 		vrLoc = 0;
@@ -1515,7 +1636,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 2485;
+		rLoc = 2455;
 		rType = 0;
 		vrLen = 701;
 		vrLoc = 326;
@@ -1525,7 +1646,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.h: 13";
 		rLen = 0;
-		rLoc = 353;
+		rLoc = 377;
 		rType = 0;
 		vrLen = 480;
 		vrLoc = 0;
@@ -1535,7 +1656,7 @@
 		isa = PBXTextBookmark;
 		name = "BatchController.m: catList";
 		rLen = 0;
-		rLoc = 2388;
+		rLoc = 2358;
 		rType = 0;
 		vrLen = 697;
 		vrLoc = 326;
@@ -1545,7 +1666,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.h: dateToToday:";
 		rLen = 36;
-		rLoc = 1153;
+		rLoc = 1177;
 		rType = 0;
 		vrLen = 804;
 		vrLoc = 823;
@@ -1555,7 +1676,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: authenticate:";
 		rLen = 0;
-		rLoc = 1427;
+		rLoc = 1423;
 		rType = 0;
 		vrLen = 811;
 		vrLoc = 791;

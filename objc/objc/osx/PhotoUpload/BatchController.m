@@ -40,14 +40,14 @@
                                  calendarFormat: @"%Y/%m/%d"];
         NSString *k=[keywords stringValue];
         if([k length] == 0) {
-            [self alert:@"Keywords not Given"
-                message:@"The keywords field must be filled in."];
+            [self alert:_str(@"A.T.NoKeywords")
+                message:_str(@"A.B.NoKeywords")];
             return;
         }
         NSString *d=[description stringValue];
         if([d length] == 0) {
-            [self alert:@"Description not Given"
-                message:@"The description field must be filled in."];
+            [self alert:_str(@"A.T.NoDescription")
+                message:_str(@"A.B.NoDescription")];
             return;
         }
         NSString *cat=[category stringValue];
