@@ -11,6 +11,39 @@ import os
 import string
 import traceback
 
+modified = 0
+
+def sanitize(input):
+	rv=input
+	if len(input)>60:
+		rv=input[:55]
+		rv=rv+"..."
+	return(rv)
+
+def extractSummary(lines):
+	rv=''
+	lines.reverse()
+	section=1
+	for l in lines:
+		if section == 1:
+			if l == '\n':
+				section = 2
+			elif l.startswith("Summary:"):
+				origSummary=l[9:].strip()
+		else:
+			if l.startswith("Author:") or l.startswith("Date:"):
+				pass
+			else:
+				if rv == '':
+					test=l.strip()
+					if test != '':
+						rv=sanitize(test)
+	lines.reverse()
+	if rv == '':
+		print "Can't find a good summary from the lines."
+		rv=origSummary
+	return(rv)
+
 def rewriteFile(filename):
 
 	f=open(filename)
@@ -43,6 +76,13 @@ def rewriteFile(filename):
 				pass
 			except:
 				traceback.print_exc()
+		elif l.startswith("Summary:"):
+			summary=l[9:].strip()
+			print "Summary is " + summary
+			if summary == "..." or summary.contains("cscvs"):
+				summary=extractSummary(lines)
+				print "Forcing change to " + summary
+				headers["Summary"]=summary
 
 	sys.stderr.write(repr(headers) + "\n")
 
@@ -64,9 +104,14 @@ def rewriteFile(filename):
 				out.write(l)
 
 		os.rename(filename + ".tmp", filename)
+		global modified
+		modified = modified + 1
 	else:
 		sys.stderr.write("No changes, not modifying log.\n")
 
 # MAIN
 for f in sys.argv[1:]:
 	rewriteFile(f)
+
+# Exit with the number of things modified
+sys.exit(modified)
