@@ -1,16 +1,17 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: getquote,v 1.1 1998/04/25 04:32:06 dustin Exp $
+# $Id: getquote,v 1.2 1998/04/25 05:20:17 dustin Exp $
 
 use LWP::UserAgent;
 use Net::SNPP;
+use strict;
 
 sub getfile
 {
     my($ua,$req,$res);
     $ua=LWP::UserAgent->new;
-    $ua->agent('DustinPlayer/0.1' . $ua->agent);
+    $ua->agent('Dustin/0.1' . $ua->agent);
     $req=HTTP::Request->new('GET', $_[0]);
     $res=$ua->request($req);
     return($res->content);
@@ -19,7 +20,7 @@ sub getfile
 sub getquote
 {
     my(@stuff)=@_;
-    my($url, $in, $out, $stuff, @tmp, $i, $cur, $tmp, @out);
+    my($url, $in, $out, $stuff, @tmp, $i, $cur, $tmp, %quotes, $match);
 
     $stuff=join('+',@stuff);
     $url="http://quote.yahoo.com/q?s=$stuff&d=v1";
@@ -37,16 +38,59 @@ sub getquote
 	    $i+=2;
 	    $tmp.="$tmp[$i], "; $i++;
 	    $tmp.=$tmp[$i]; $i++;
-            push(@out, $tmp);
+	    $quotes{uc($stuff[$cur])}=$tmp;
 	    $cur++;
 	}
     }
-    return(join(' -- ', sort(@out)));
+    return(%quotes);
 }
 
-$quote=getquote(@ARGV);
+sub getlist
+{
+    my($file)=@_;
+    my(%list, @a);
+
+    open(IN, $file);
+    while(<IN>){
+	next if(/^#/ || !/[A-z]/);
+	chop;
+	@a=split;
+	shift(@a);
+	map { $list{uc($_)}=1 } @a;
+    };
+    close(IN);
+    return(sort(keys(%list)));
+}
+
+sub getusers
+{
+    my($file)=@_;
+    my(%list, @a, $user);
+
+    open(IN, $file);
+    while(<IN>) {
+	next if(/^#/ || !/[A-z]/);
+	chop;
+	@a=split;
+	$user=shift(@a);
+	map { push(@{$list{$user}}, uc($_)) } @a;
+    }
+    close(IN);
+    return(%list);
+}
+
+my(@quotes, %users, %quotes, %dist, $snpp);
+
+@quotes=getlist($ARGV[0]);
+%users=getusers($ARGV[0]);
+%quotes=getquote(@quotes);
+
+%dist=map { $_, join(' -- ', map { $quotes{$_} } @{$users{$_}}) } keys(%users);
 
 $snpp=Net::SNPP->new('pager', Port=>'1031');
 
-$snpp->send(Pager => 'dustin',
-            Message => $quote);
+map {
+    print "Sending $dist{$_} to $_\n";
+    $snpp->send(Pager => $_, Message => $dist{$_});
+    $snpp->_RESE();
+} sort(keys(%dist));
