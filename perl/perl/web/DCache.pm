@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.4 1998/01/15 07:30:31 dustin Exp $
+# $Id: DCache.pm,v 1.5 1998/01/15 07:41:41 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -184,12 +184,12 @@ or
 =item checkcache($somekey, $compare)
 
     Check the cache for $somekey.  If no $compare is given, it just
-    checks for the existence of it, returns 1 if it exists, 0 if it
-    doesn't.  If $compare is there, it behaves one of two ways.  If
-    $compare is a number, it returns 1 if the cache exists and the data
-    is less than $compare seconds old.  If it's a path, it returns 1 if
-    the cache exists and the cache file was modified since a file
-    pointing to $compare (or $compare doesn't exist).
+checks for the existence of it, returns 1 if it exists, 0 if it
+doesn't.  If $compare is there, it behaves one of two ways.  If
+$compare is a number, it returns 1 if the cache exists and the data
+is less than $compare seconds old.  If it's a path, it returns 1 if
+the cache exists and the cache file was modified since a file
+pointing to $compare (or $compare doesn't exist).
 
 =item cache($somekey, $mimetype, $data)
 
@@ -202,6 +202,6 @@ or
 =item getname($somekey)
 
     Get the path to the cache file that data will be stored in for
-    $somekey
+$somekey
 
 =cut
