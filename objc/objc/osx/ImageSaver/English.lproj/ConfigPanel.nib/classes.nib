@@ -9,10 +9,15 @@
         },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
         {
-            ACTIONS = {cancelButton = id; okButton = id; };
+            ACTIONS = {cancelButton = id; intervalChanged = id; okButton = id; };
             CLASS = ImageSaverView;
             LANGUAGE = ObjC;
-            OUTLETS = {sheet = NSWindow; urlField = NSTextField; };
+            OUTLETS = {
+                intervalField = NSSlider;
+                sheet = NSWindow;
+                updateLabel = NSTextField;
+                urlField = NSTextField;
+            };
             SUPERCLASS = ScreenSaverView;
         },
         {CLASS = ScreenSaverView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
