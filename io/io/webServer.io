@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.7 2003/08/21 21:00:35 dustin Exp $
+# $Id: webServer.io,v 1.8 2003/08/21 21:09:52 dustin Exp $
 
 //
 // Web request
@@ -18,11 +18,6 @@ WebRequest version = Nil
 // of the non-header information
 WebRequest parseRequest = method(buf,
 	// Copy the buffer and remove everything after the end of the headers
-	/*
-	"\n-- buf --\n" print
-	buf print
-	"\n-- /buf --\n" print
-	*/
 	btmp = buf fromTo(0, buf find("\r\n\r\n") - 1)
 	bextra = buf fromTo(buf find("\r\n\r\n") + 4, buf length - 1)
 	buf empty
