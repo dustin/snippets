@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcherTest.java,v 1.2 2002/08/21 00:56:44 dustin Exp $
+// $Id: URLWatcherTest.java,v 1.3 2002/08/21 02:03:13 dustin Exp $
 
 package net.spy.test;
 
@@ -56,6 +56,7 @@ public class URLWatcherTest extends TestCase {
 		String c2=uw.getContent(u);
 		assertNotNull(c2);
 
+		assertSame("Different results", c1, c2);
 		assertEquals(c1 + "!=" + c2, c1, c2);
 
 		uw.shutdown();

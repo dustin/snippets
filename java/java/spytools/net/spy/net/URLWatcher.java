@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcher.java,v 1.3 2002/08/20 08:04:39 dustin Exp $
+// $Id: URLWatcher.java,v 1.4 2002/08/21 02:03:11 dustin Exp $
 
 package net.spy.net;
 
@@ -140,7 +140,7 @@ public class URLWatcher extends Object {
 			ui=new URLItem(u);
 			startWatching(ui);
 			// Load the content
-			ui.runJob();
+			ui.run();
 		}
 		// Return the current content.
 		return(ui.getContent());
