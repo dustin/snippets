@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: gettemp.cgi,v 1.1 1999/09/20 08:13:05 dustin Exp $
+# $Id: gettemp.cgi,v 1.2 1999/09/20 08:17:32 dustin Exp $
 
 use LWP::UserAgent;
 use CGI;
@@ -52,7 +52,7 @@ if(@ARGV>0) {
 $q=CGI->new;
 
 # print "Content-type: image/gif\nX-Temperature: $temp\n\n";
-print $q->header(-type => 'image/gif', '-expires' => '+1m',
+print $q->header(-type => 'image/gif', '-expires' => '+10m',
 				'-X-temp' => $temp);
 
 open(GIF, "/usr/people/dustin/public_html/images/therm.gif");
