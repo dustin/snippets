@@ -14,12 +14,10 @@
     int mem_total;
     int mem_free;
 
-    NSURL *src;
+    NSUserDefaults *defaults;
 }
 
--(id)initWithUrl: (NSURL *)u;
-
--(NSURL *)src;
+-(id)initWithDefaults: (NSUserDefaults *)d;
 
 -(int)memMax;
 -(int)memTotal;

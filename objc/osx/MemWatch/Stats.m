@@ -11,9 +11,10 @@
 
 @implementation Stats
 
--(id)initWithUrl: (NSURL *)u {
+-(id)initWithDefaults: (NSUserDefaults *)d {
     id rv=[super init];
-    src=u;
+    defaults=d;
+    [d retain];
     return(rv);
 }
 
@@ -29,12 +30,10 @@
     return(mem_free);
 }
 
--(NSURL  *)src {
-    return(src);
-}
-
 -(void)update {
     // NSLog(@"Updating...");
+    NSString *urlStr=[defaults objectForKey: @"url"];
+    NSURL *src=[[NSURL alloc] initWithString: urlStr];
     NSLog(@"Getting stats from %@", src);
     NSString *memlist=[[NSString alloc] initWithContentsOfURL: src];
     NSArray *memarray=[memlist componentsSeparatedByString:@"\n"];
@@ -42,6 +41,7 @@
     mem_total = [[memarray objectAtIndex:2] intValue];
     mem_free = [[memarray objectAtIndex:3] intValue];
     [memlist release];
+    [src release];
 
     NSLog(@"Got %d/%d/%d", mem_max, mem_total, mem_free);
 }

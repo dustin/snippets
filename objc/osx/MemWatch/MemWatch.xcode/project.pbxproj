@@ -13,6 +13,8 @@
 				DAC52AEB058669FD00A04AB9,
 				DAADA78705866F5700E665B6,
 				DAADA78805866F5700E665B6,
+				DA42D1A20588E3FD00958DEA,
+				DA42D1A30588E3FD00958DEA,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -157,6 +159,7 @@
 				8D1107310486CEB800E47090,
 				089C165CFE840E0CC02AAC07,
 				29B97318FDCFA39411CA2CEA,
+				DA42D1C20588E58500958DEA,
 			);
 			isa = PBXGroup;
 			name = Resources;
@@ -321,6 +324,7 @@
 				DAC52AD40586690C00A04AB9,
 				DAC52AEC058669FD00A04AB9,
 				DAADA78905866F5700E665B6,
+				DA42D1A40588E3FD00958DEA,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -336,6 +340,7 @@
 			files = (
 				8D11072A0486CEB800E47090,
 				8D11072B0486CEB800E47090,
+				DA42D1C40588E58500958DEA,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -359,6 +364,7 @@
 				DAC52AD50586690C00A04AB9,
 				DAC52AED058669FD00A04AB9,
 				DAADA78A05866F5700E665B6,
+				DA42D1A50588E3FD00958DEA,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,6 +417,58 @@
 //DA2
 //DA3
 //DA4
+		DA42D1A20588E3FD00958DEA = {
+			expectedFileType = sourcecode.c.h;
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = PreferenceController.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DA42D1A30588E3FD00958DEA = {
+			expectedFileType = sourcecode.c.objc;
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = PreferenceController.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DA42D1A40588E3FD00958DEA = {
+			fileRef = DA42D1A20588E3FD00958DEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA42D1A50588E3FD00958DEA = {
+			fileRef = DA42D1A30588E3FD00958DEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA42D1C20588E58500958DEA = {
+			children = (
+				DA42D1C30588E58500958DEA,
+			);
+			isa = PBXVariantGroup;
+			name = Preferences.nib;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DA42D1C30588E58500958DEA = {
+			expectedFileType = wrapper.nib;
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Preferences.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DA42D1C40588E58500958DEA = {
+			fileRef = DA42D1C20588E58500958DEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		DAADA78705866F5700E665B6 = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;

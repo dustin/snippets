@@ -17,5 +17,6 @@
 
 -(void)addDatum: (int) val;
 -(void)setMaxVal: (int) val;
+-(void)clear;
 
 @end

@@ -11,16 +11,68 @@
     [status setStringValue: statusStr];
     [statusStr release];
     [plot addDatum: [stats memFree]];
+
+    // See if the timer's changed
+    double erval=[[defaults objectForKey: @"frequency"] doubleValue];
+    double cur=(double)[updater timeInterval];
+    if(erval != cur) {
+        NSLog(@"Time has changed from %.2f to %.2f, updating", cur, erval);
+        [updater invalidate];
+        [self scheduleTimer];
+    }
+    [srcUrl setStringValue: [defaults objectForKey: @"url"]];
+}
+
+-(IBAction)update:(id)sender
+{
+    [self update];
+}
+
+-(IBAction)launchPreferences:(id)sender
+{
+    // XXX:  This leaks memory every time the preferences panel is launched
+    id prefc=[[PreferenceController alloc] initWithWindowNibName: @"Preferences"];
+    [prefc startUp: defaults];
+    NSLog(@"Initialized Test");
+}
+
+-(void)initDefaults
+{
+    // Default defaults
+    NSMutableDictionary *dd=[[NSMutableDictionary alloc] initWithCapacity: 4];
+    [dd setObject: @"http://desktop.dsallings.eng.2wire.com:8080/admin/monitor/mem"
+        forKey: @"url"];
+    NSNumber *n=[[NSNumber alloc] initWithInt: 15];
+    [dd setObject: n forKey: @"frequency"];
+    [n release];
+    defaults=[NSUserDefaults standardUserDefaults];
+    // Add the default defaults
+    [defaults registerDefaults: dd];
+    [dd release];
+}
+
+-(void)scheduleTimer
+{
+    int freq=[[defaults objectForKey: @"frequency"] intValue];
+    NSLog(@"Scheduling timer with frequency:  %d", freq);
+    updater=[NSTimer scheduledTimerWithTimeInterval:freq
+        target: self
+        selector: @selector(update)
+        userInfo:nil repeats:true];
+}
+
+-(IBAction)clear:(id)sender
+{
+    [plot clear];
 }
 
 -(void)awakeFromNib
 {
     NSLog(@"Starting MemWatch Controller.");
-    NSString *srcUrlStr=@"http://desktop.dsallings.eng.2wire.com:8080/admin/monitor/mem";
-    NSURL *memurl=[[NSURL alloc] initWithString: srcUrlStr];
-    [srcUrl setStringValue: srcUrlStr];
+    // Initialize the defaults
+    [self initDefaults];
 
-    stats=[[Stats alloc] initWithUrl: memurl];
+    stats=[[Stats alloc] initWithDefaults: defaults];
 
     // Do the initial update
     [self performSelector: @selector(update)
@@ -28,10 +80,7 @@
         afterDelay:0];
 
     // Now schedule a recurring update
-    [NSTimer scheduledTimerWithTimeInterval:15.0
-        target: self
-        selector: @selector(update)
-        userInfo:nil repeats:true];
+    [self scheduleTimer];
 
 }
 

@@ -1,6 +1,7 @@
 {
     IBClasses = (
         {
+            ACTIONS = {clear = id; launchPreferences = id; update = id; };
             CLASS = Controller;
             LANGUAGE = ObjC;
             OUTLETS = {plot = Plot; srcUrl = NSTextField; status = NSTextField; };

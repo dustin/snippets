@@ -24,6 +24,7 @@
 - (void)drawRect:(NSRect)rect {
     // Drawing code here.
     // Convert the numbers to points
+    // NSLog(@"Drawing area is %.0fx%.0f", rect.size.width, rect.size.height);
     float pixdiff=rect.size.width/(float)MAX_OBJS;
     // NSLog(@"There are %f pixels between points", pixdiff);
     // Do the conversion
@@ -59,6 +60,12 @@
 
 -(void)setMaxVal: (int) val {
     maxVal=val;
+}
+
+-(void)clear
+{
+    [data removeAllObjects];
+    [self setNeedsDisplay: true];
 }
 
 @end
