@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: JobQueue.java,v 1.2 2001/04/03 07:37:25 dustin Exp $
+// $Id: JobQueue.java,v 1.3 2001/04/04 08:45:19 dustin Exp $
 
 package net.spy.cron;
 
@@ -23,6 +23,9 @@ public class JobQueue extends Vector {
 	 */
 	public synchronized void addJob(Job j) {
 		addElement(j);
+		synchronized(this) {
+			notifyAll();
+		}
 	}
 
 	/**

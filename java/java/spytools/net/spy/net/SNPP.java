@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.12 2001/02/08 21:28:49 dustin Exp $
+// $Id: SNPP.java,v 1.13 2001/04/04 08:45:23 dustin Exp $
 
 package net.spy.net;
 
@@ -15,12 +15,12 @@ import net.spy.*;
  * SNPP client.
  */
 
-public class SNPP {
-	private Socket s;
-	private InputStream in;
-	private OutputStream out;
-	private BufferedReader din;
-	private PrintWriter prout;
+public class SNPP extends Object {
+	private Socket s=null;
+	private InputStream in=null;
+	private OutputStream out=null;
+	private BufferedReader din=null;
+	private PrintWriter prout=null;
 
 	// 2way support
 	private boolean goes_both_ways=true;
@@ -29,15 +29,15 @@ public class SNPP {
 	/**
 	 * Current full line received from the SNPP server.
 	 */
-	public String currentline;
+	public String currentline=null;
 	/**
 	 * Current message received from the SNPP server.
 	 */
-	public String currentmessage;
+	public String currentmessage=null;
 	/**
 	 * Current status received from SNPP server.
 	 */
-	public int currentstatus;
+	public int currentstatus=-1;
 	/**
 	 * Debug mode on/off.
 	 */
@@ -276,7 +276,7 @@ public class SNPP {
 	}
 
 	/**
-	 * close the connection to the SNPP server
+	 * Close the connection to the SNPP server.
 	 */
 	public void close() {
 		if(s!=null) {
@@ -339,5 +339,20 @@ public class SNPP {
 		stmp = currentline.substring(0, 3);
 		itmp = Integer.valueOf(stmp);
 		currentstatus = itmp.intValue();
+	}
+
+	/**
+	 * Test page routine, send pages from the commandline.
+	 *
+	 * <p>
+	 *
+	 * Usage:<br>
+	 * SNPP hostname port username password
+	 */
+	public static void main(String args[]) throws Exception {
+		SNPP snpp=new SNPP(args[0], Integer.parseInt(args[1]));
+		snpp.debug=true;
+		snpp.sendpage(args[2], args[3]);
+		snpp.close();
 	}
 }

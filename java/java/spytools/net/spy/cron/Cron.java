@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.3 2001/04/03 07:59:25 dustin Exp $
+// $Id: Cron.java,v 1.4 2001/04/04 08:45:17 dustin Exp $
 
 package net.spy.cron;
 
@@ -36,21 +36,39 @@ public class Cron extends Thread {
 	public void run() {
 		while(stillRunning) {
 			// Check all the running jobs.
-			System.err.println("Looking for jobs to run at " + new Date());
 			for(Enumeration e=jq.getReadyJobs(); e.hasMoreElements(); ) {
 				Job j=(Job)e.nextElement();
-				System.err.println("Starting job " + j);
+				System.err.println("CRON: Starting job " + j);
 				Thread t=new Thread(j);
 				t.setName(j.getName());
 				t.setDaemon(true);
 				t.start();
 			}
-			System.err.println("Done looking for jobs to run.");
+
+			// Just to slow things down a bit.
+			yield();
+
+			// Find the soonest job less than a day out.
+			long soonestJob=86400*1000;
+			long now=System.currentTimeMillis();
+			// Figure out how long we need to sleep.
+			for(Enumeration e=jq.elements(); e.hasMoreElements(); ) {
+				Job j=(Job)e.nextElement();
+				long t=j.getStartTime().getTime()-now;
+				if(t>0 && t<soonestJob) {
+					soonestJob=t;
+				}
+				if(t<0) {
+					// If there's one less than 0, only wait a second.
+					soonestJob=1000;
+				}
+			}
 
 			try {
-				// Check once a minute
-				// sleep(60000);
-				sleep(10000);
+				System.err.println("CRON: Sleeping " + soonestJob + "ms.");
+				synchronized(jq) {
+					jq.wait(soonestJob);
+				}
 			} catch(Exception e) {
 				// Don't care, flip faster
 			}
