@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcher.java,v 1.6 2002/08/21 07:09:03 dustin Exp $
+// $Id: URLWatcher.java,v 1.7 2002/08/25 20:46:23 dustin Exp $
 
 package net.spy.net;
 
@@ -50,7 +50,8 @@ public class URLWatcher extends Object {
 	 * @return the URLWatcher
 	 */
 	public static synchronized URLWatcher getInstance() {
-		if(instance==null) {
+		if(instance==null || instance.cron == null
+			|| (!instance.cron.isAlive())) {
 			instance=new URLWatcher();
 		}
 		return(instance);
