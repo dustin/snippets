@@ -1,12 +1,13 @@
 # Configuration file for missing.cgi
 #
-# $Id: missing.cf,v 1.1 1998/09/18 08:02:54 dustin Exp $
+# $Id: missing.cf,v 1.2 1998/09/18 08:36:30 dustin Exp $
 
 # Yeah, this looks like a yucky .ini file.  It's processed top down.
 
 [bleu]
-photo	R=http://bleu.west.spy.net/~dustin/photo/
-dustin	R=http://bleu.west.spy.net/~dustin/
+photo	redirect=http://bleu.west.spy.net/~dustin/photo/
+dustin	redirect=http://bleu.west.spy.net/~dustin/
+(.*gif)	fetch=http://www.beyond.com$1
 
 [-defaults-]
-.*	P=/usr/people/httpd/errors/missing.pl
+.*	perl=/usr/people/httpd/errors/missing.pl

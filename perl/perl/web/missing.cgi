@@ -1,13 +1,15 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: missing.cgi,v 1.1 1998/09/18 08:02:58 dustin Exp $
+# $Id: missing.cgi,v 1.2 1998/09/18 08:36:31 dustin Exp $
 
 use CGI;
+use LWP::UserAgent;
+use Data::Dumper;
 use strict;
 
 sub readConfig
 {
-    my(@h, $i, $key, @a, @b);
+    my(@h, $i, $key, @a);
 
     $i=-1;
     open(IN, '/usr/people/dustin/prog/perl/web/missing.cf');
@@ -22,46 +24,49 @@ sub readConfig
 	    next unless($key=~/\w/);
 	    chop;
 	    @a=split(/\t/);
-	    @b=split('=', $a[1]);
-
-	    push(@{$h[$i]}, [$a[0], @b]);
+	    push(@{$h[$i]}, [$a[0], split('=', $a[1])]);
 	}
     }
     close(IN);
     return(@h);
 }
 
-sub redirect
+sub doredirect
 {
     my($q, $arg)=@_;
-
     print $q->redirect($arg);
 }
 
 sub doperl
 {
     my($q, $arg)=@_;
-    my($data);
-
-    open(IN, $arg);
-    $data=join('', <IN>);
-    close(IN);
-
-    # eval { $data };
-    eval $data;
+    do($arg);
 }
 
 sub dofile
 {
     my($q, $arg)=@_;
+    print $q->header;
     open(IN, $arg);
     print <IN>;
     close(IN);
 }
 
+sub dofetch
+{
+    my($q, $arg)=@_;
+    my($ua, $req, $res);
+    $ua=LWP::UserAgent->new;
+    $ua->agent('DustInvProxy/2.0', $ua->agent);
+    $req=HTTP::Request->new('GET', $arg);
+    $res=$ua->request($req);
+    print $q->header($res->header('content-type'));
+    print $res->content;
+}
+
 sub mainloop
 {
-    my(@cf, $q, $key, $done, @action, %actions);
+    my(@cf, $q, $key, $done, @action, %actions, @stuff);
     $q=CGI->new;
     @cf=readConfig();
 
@@ -72,8 +77,11 @@ sub mainloop
 	     && ($done==0)) {
 	    for(1..(@{$cf[$key]}-1)) {
 	        if($ENV{'PATH_INFO'}=~/$cf[$key]->[$_]->[0]/) {
-		    $done=1;
+		    # Check this out, simulate perl with perl.  :)
+		    @stuff=($1, $2, $3, $4, $5, $6, $7, $8, $9);
 		    @action=@{$cf[$key]->[$_]};
+		    $action[2]=~s/\$(\d+)/$stuff[$1-1]/g;
+		    $done=1;
 	            last;
 	        } # if
 	    } #for
@@ -82,9 +90,10 @@ sub mainloop
 
     # Actions
     %actions=(
-        'R' => \&redirect,
-	'P' => \&doperl,
-	'F' => \&dofile,
+        'redirect' => \&doredirect,
+	'perl' =>     \&doperl,
+	'file' =>     \&dofile,
+	'fetch' =>    \&dofetch,
     );
 
     &{$actions{$action[1]}}($q, $action[2]);
