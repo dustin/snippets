@@ -13,7 +13,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.Hashtable;
+import java.util.HashSet;
 
 /**
  * Think Java Interfaces are even more stupid than the lack of multiple
@@ -33,7 +33,7 @@ import java.util.Hashtable;
 public class InterfaceImplementor extends Object {
 
 	// Functions that are already defined.
-	private Hashtable definedFunctions=null;
+	private HashSet definedFunctions=null;
 	private Class interfaceClass=null;
 	private Class superClass=null;
 	private String outpackage=null;
@@ -61,7 +61,7 @@ public class InterfaceImplementor extends Object {
 
 		// Go ahead and initialize this here.  That way we don't have to
 		// worry about it later.
-		definedFunctions=new Hashtable();
+		definedFunctions=new HashSet();
 		this.interfaceClass=c;
 	}
 
@@ -122,12 +122,22 @@ public class InterfaceImplementor extends Object {
 
 	// Extract the methods from the above.
 	private void getMethods(Class c) throws Exception {
+		// First, get the declared ones
 		Method methods[]=c.getDeclaredMethods();
 		for(int i=0; i<methods.length; i++) {
 			int modifiers=methods[i].getModifiers();
 			// Ignore abstract methods
 			if(!Modifier.isAbstract(modifiers)) {
-				definedFunctions.put(getSignature(methods[i]), "defined");
+				definedFunctions.add(getSignature(methods[i]));
+			}
+		}
+		// Then, get the rest (which includes some declared ones)
+		methods=c.getMethods();
+		for(int i=0; i<methods.length; i++) {
+			int modifiers=methods[i].getModifiers();
+			// Ignore abstract methods
+			if(!Modifier.isAbstract(modifiers)) {
+				definedFunctions.add(getSignature(methods[i]));
 			}
 		}
 	}
@@ -324,7 +334,7 @@ public class InterfaceImplementor extends Object {
 		Method methods[]=interfaceClass.getMethods();
 		for(int i=0; i<methods.length; i++) {
 			String sig=getSignature(methods[i]);
-			if(!definedFunctions.containsKey(sig)) {
+			if(!definedFunctions.contains(sig)) {
 				ret+=implement(methods[i]);
 			}
 		}
