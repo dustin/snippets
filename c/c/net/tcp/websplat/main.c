@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.22 2000/01/12 00:58:12 dustin Exp $
+ * $Id: main.c,v 1.23 2000/01/12 01:39:14 dustin Exp $
  */
 
 #include <config.h>
@@ -536,8 +536,11 @@ main(int argc, char **argv)
 						FD_CLR(i, &tfdset);
 						n--;
 					} else {
+						/* Let's only get about the first 1k of data */
+						if(bytes[i]<1024) {
+							str_append(&strings[i], buf);
+						}
 						bytes[i] += size;
-						str_append(&strings[i], buf);
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
 					}
 				}
