@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.3 2000/07/01 11:05:55 dustin Exp $
+// $Id: ObjectPool.java,v 1.4 2000/07/01 11:28:32 dustin Exp $
 
 package net.spy.pool;
 
@@ -50,9 +50,7 @@ public class ObjectPool extends Object {
 	 * @param name The pool to destroy.
 	 */
 	public synchronized void destroyPool(String name) throws PoolException {
-		if(!pools.containsKey(name)) {
-			throw new PoolException("There's no pool called " + name);
-		}
+		getPool(name);
 		pools.remove(name);
 	}
 
@@ -66,35 +64,37 @@ public class ObjectPool extends Object {
 	 * @throws PoolException if it can't get an object
 	 */
 	public PooledObject getObject(String name) throws PoolException {
-		PoolContainer pc=(PoolContainer)pools.get(name);
-		if(pc==null) {
-			throw new PoolException("There's no pool called " + name);
-		}
-
-		return(pc.getObject());
+		return(getPool(name).getObject());
 	}
 
 	/**
 	 * Dump out the object pools.
 	 */
-	public void dumpPools() {
+	public synchronized void dumpPools() throws PoolException {
 		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
-			System.out.println("Pool " + key);
-			PoolContainer pc=(PoolContainer)pools.get(key);
-			pc.dumpPool();
+			getPool(key).dumpPool();
 		}
 	}
 
 	/**
 	 * Dump out the object pools.
 	 */
-	public void prune() {
+	public synchronized void prune() throws PoolException {
 		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
-			PoolContainer pc=(PoolContainer)pools.get(key);
+			PoolContainer pc=getPool(key);
 			pc.prune();
 		}
+	}
+
+	protected synchronized PoolContainer getPool(String name)
+		throws PoolException {
+		PoolContainer ret=(PoolContainer)pools.get(name);
+		if(ret==null) {
+			throw new PoolException("There's no pool called " + name);
+		}
+		return(ret);
 	}
 
 	protected synchronized void initialize() {

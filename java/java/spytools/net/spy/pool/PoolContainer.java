@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.2 2000/07/01 11:05:57 dustin Exp $
+// $Id: PoolContainer.java,v 1.3 2000/07/01 11:28:34 dustin Exp $
 
 package net.spy.pool;
 
@@ -91,7 +91,8 @@ public class PoolContainer extends Object {
 	/**
 	 * debugging tool, dump out the current state of the pool to System.out
 	 */
-	public void dumpPool() {
+	public synchronized void dumpPool() {
+		System.out.println("Pool " + name);
 		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 			System.out.println("\t" + e.nextElement());
 		}
@@ -122,7 +123,7 @@ public class PoolContainer extends Object {
 	public synchronized void prune() {
 		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 			// Don't remove too many objects.
-			if(_current_objects>=_min_objects) {
+			if(_current_objects>_min_objects) {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(!p.checkedOut()) {
 					pool.removeElement(p);
