@@ -1,0 +1,29 @@
+#!/bin/sh
+# $Id: alive,v 1.1 1997/12/11 08:30:30 dustin Exp $
+
+set kludge { $*
+    shift
+    shift
+    exec /usr/local/bin/scotty -nf $0 $*
+}
+
+set hosts $argv
+
+set count 0
+set returned 0
+
+for { set i 0 } { $i<10 } { incr i 1 } {
+
+    foreach host $hosts {
+
+        set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
+
+        if { $pt>0 } {
+	    incr returned 1
+        }
+
+        incr count 1
+    }
+}
+
+puts "got $returned of $count"
