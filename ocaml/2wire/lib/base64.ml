@@ -20,6 +20,23 @@ let char_map = [|
 	'0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '+'; '/'|]
 ;;
 
+(** Convert a stream of strings to a string of chars. *)
+let stream_convert source =
+	let chunk = ref (Stream.of_string (Stream.next source)) in
+	Stream.from (fun x ->
+		try
+			Stream.empty !chunk;
+			try
+				Stream.empty source;
+				None
+			with Stream.Failure ->
+				chunk := (Stream.of_string (Stream.next source));
+				Some (Stream.next !chunk)
+		with Stream.Failure ->
+			Some (Stream.next !chunk)
+	)
+;;
+
 (** {1 Functions for encoding} *)
 
 (** Encode a chunk.  The chunk is either a 1, 2, or 3 element list. *)
@@ -99,6 +116,7 @@ let encode_string s = encode_to_string (Stream.of_string s);;
 
 (** {1 Functions for decoding} *)
 
+(** Exception raised when there's a problem with the input stream. *)
 exception Invalid_decode_chunk of int;;
 
 (** Reverse mapping of character to its index in the char_map *)
