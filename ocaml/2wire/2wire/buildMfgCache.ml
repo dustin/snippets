@@ -37,6 +37,10 @@ let seenIds = Hashtbl.create 1;;
 (* Reserved keys *)
 let reservedKeys = ref None;;
 
+(* When we collide, we hand out keys from the top.  This is the highest one
+   potentially available to be handed out. *)
+let collisionKey = ref max_int;;
+
 (* The meta_inf is the version number followed by a netstring containing the
 	list of fields as netstrings *)
 let makeMetaInf () =
@@ -68,23 +72,40 @@ let checkReservedDup n plsn =
 				false
 ;;
 
-(* Check for a duplicate generated key, and resolve it to a non-duplicate key *)
-let rec checkDup n plsn =
+(* Check for a duplicate generated key. *)
+let checkUsable n plsn =
 	try
 		let found = Hashtbl.find seenIds n in
-		if (plsn = found ) then (
+		if (plsn = found) then (
 			raise (Duplicate plsn)
 		) else (
 			Printf.eprintf "DUPLICATE AT %d (old: %s, new: %s)\n" n found plsn;
-			checkDup (n + 1) plsn
+			false
 		)
 	with Not_found ->
 		if checkReservedDup n plsn then (
-			checkDup (n + 1) plsn
+			false
 		) else (
 			Hashtbl.add seenIds n plsn;
-			n
+			true
 		)
+;;
+
+(* Return an unused key potentially related to the provided suggestion *)
+let resolveKey start plsn =
+	if (checkUsable start plsn) then (
+		start
+	) else (
+		(* Find the largest unused key *)
+		let rec loop n =
+			if checkUsable n plsn then (
+				collisionKey := (n - 1);
+				n
+			) else (
+				loop (n - 1)
+			)
+		in loop !collisionKey
+	)
 ;;
 
 (* Generate a box number from a productline/sn pair *)
@@ -93,7 +114,7 @@ let genBoxNum product_line sn =
 	let dig = String.get (Digest.string plsn) in
 	let a,b,c,d =	(Char.code (dig 0)), (Char.code (dig 1)),
 					(Char.code (dig 2)), (Char.code (dig 3)) in
-	checkDup (abs(a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24))) plsn
+	resolveKey (abs(a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24))) plsn
 ;;
 
 (* Get the box number for the given productline/serial number.  This will
