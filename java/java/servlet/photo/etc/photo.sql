@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.14 1998/11/08 02:02:31 dustin Exp $
+-- $Id: photo.sql,v 1.15 1998/11/09 06:17:17 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -58,25 +58,41 @@ grant all on cat_id_seq to nobody;
 -- The ACLs for the categories
 
 create table wwwacl(
-	username varchar(16),
+	userid   integer,
 	cat      integer
 );
 
-create index acl_byname on wwwacl(username);
+create index acl_byid on wwwacl(userid);
 grant all on wwwacl to nobody;
+
+-- view for showing acls by name
+
+create view show_acl as
+	select wwwusers.username, wwwacl.cat, cat.name
+	from wwwusers, wwwacl, cat
+	where wwwusers.id=wwwacl.userid
+	and wwwacl.cat=cat.id
+;
 
 -- The group file for the Web server's ACL crap.
 
 create table wwwgroup(
-	username  varchar(16),
+	userid    integer,
 	groupname varchar(16)
 );
 
 grant all on wwwgroup to nobody;
 
+create view show_group as
+	select wwwusers.username, wwwgroup.groupname
+	from wwwusers, wwwgroup
+	where wwwusers.id=wwwgroup.userid
+;
+
 -- The passwd file for the Web server's ACL crap.
 
 create table wwwusers(
+	id       serial,
 	username varchar(16),
 	password char(13),
 	email    text,
@@ -86,6 +102,13 @@ create table wwwusers(
 
 create unique index user_byname on wwwusers(username);
 grant all on wwwusers to nobody;
+grant all on wwwusers_id_seq to nobody;
+
+-- get a user ID from a username
+
+create function getwwwuser(text) returns integer as
+	'select id from wwwusers where username = $1'
+	language 'sql';
 
 -- Search saves
 
