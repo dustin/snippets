@@ -153,6 +153,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				F52C09B603540EAB01A801C4,
 				F5601B13035373480109FEFA,
 				F5601B15035373480109FEFA,
 				F5601AEF0353732F0109FEFA,
@@ -220,7 +221,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PhotoUpload</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>PhotoUpload.icns</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -258,6 +259,7 @@
 				F5601AFE0353732F0109FEFA,
 				F5601B17035373480109FEFA,
 				F5601B18035373480109FEFA,
+				F56F8F9D035410E801A801C4,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -335,6 +337,11 @@
 //F52
 //F53
 //F54
+		F52C09B603540EAB01A801C4 = {
+			isa = PBXFileReference;
+			path = PhotoUpload.icns;
+			refType = 4;
+		};
 		F5601AEF0353732F0109FEFA = {
 			isa = PBXFileReference;
 			path = Credits.html;
@@ -604,6 +611,12 @@
 		};
 		F5601BA0035373B80109FEFA = {
 			fileRef = F5601B1B035373650109FEFA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F56F8F9D035410E801A801C4 = {
+			fileRef = F52C09B603540EAB01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
