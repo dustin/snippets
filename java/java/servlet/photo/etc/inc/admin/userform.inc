@@ -22,6 +22,14 @@
     <td><input name="password" value="%PASS%"></td>
 </tr>
 
+<tr>
+    <td>Can Add:</td>
+    <td>
+	Yes <input type="radio" name="canadd" %CANADD% value="t">
+	No  <input type="radio" name="canadd" %CANNOTADD% value="f">
+    </td>
+</tr>
+
 </table>
 
 <br>
