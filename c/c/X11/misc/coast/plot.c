@@ -10,6 +10,10 @@
 #include <X11/Xutil.h>
 #endif
 
+#ifdef VGACOMPILE
+#include "vga.h"
+#endif
+
 #include "plot.h"
 
 /*
@@ -161,7 +165,7 @@ main(int argc, char *argv[])
 
 #ifndef X11COMPILE
   init_vga();
-  plot();
+  vga_plot();
 #endif
 
 #ifdef X11COMPILE
@@ -270,7 +274,7 @@ main(int argc, char *argv[])
 				 * zoom out
 				 */
 	  factor_bounds(x, y, 2.0);
-	  plot();
+	  vga_plot();
 	  x = MAX_X / 2;
 	  y = MAX_Y / 2;
 	  break;
@@ -279,7 +283,7 @@ main(int argc, char *argv[])
 				 * zoom in
 				 */
 	  factor_bounds(x, y, 0.5);
-	  plot();
+	  vga_plot();
 	  x = MAX_X / 2;
 	  y = MAX_Y / 2;
 	  break;
@@ -289,26 +293,19 @@ main(int argc, char *argv[])
 				 * move
 				 */
 	  factor_bounds(x, y, 1.0);
-	  plot();
+	  vga_plot();
 	  x = MAX_X / 2;
 	  y = MAX_Y / 2;
 	  break;
 
 	}
-    }
+
+        _setcolor(color);
+        vga_drawpixel(x, y);
+     }
 #endif
 
-/*
- * What does this stuff do?  The X code never even goes here.
- */
-
-#ifdef X11COMPILE
-  _setcolor(BlackPixel(display, screen));
-  XDrawPoint(display, window, gc, x, y);
-  XCloseDisplay(display);
-#else
-  _setcolor(color);
-  vga_drawpixel(x, y);
+#ifdef VGACOMPILE
   vga_setmode(3);
   printf("Ok, here I am.  Color is %d.\n", color);
 #endif
