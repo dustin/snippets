@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: nettools.c,v 1.2 1997/08/09 05:30:44 dustin Exp $
+ * $Id: nettools.c,v 1.3 1997/08/09 06:48:01 dustin Exp $
  */
 
 /*
@@ -101,7 +101,7 @@ unsigned int nmc_dqToInt(char *dq)
 
 int nmc_addrsToBits(unsigned int addr)
 {
-    int i, n, ret;
+    int i, n;
 
     n=1;
     for(i=0; i<32; i++)
@@ -128,7 +128,9 @@ int nmc_bitsToAddrs(int bits)
     return(ret);
 }
 
-void nmc_testmain(int argc, char **argv)
+#ifdef NEED_MAIN
+
+void main(int argc, char **argv)
 {
   unsigned int x;
 
@@ -147,3 +149,4 @@ void nmc_testmain(int argc, char **argv)
 	nmc_countBits(nmc_bitsToN(x)));
   printf("nmc_bitsToAddrs(%u):  %d\n", x, nmc_bitsToAddrs(x));
 }
+#endif
