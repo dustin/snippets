@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuakeServlet.java,v 1.2 2002/08/16 07:18:37 dustin Exp $
+// $Id: QuakeServlet.java,v 1.3 2002/12/24 08:48:37 dustin Exp $
 
 package net.spy.quake;
 
@@ -34,7 +34,8 @@ public class QuakeServlet extends HttpServlet {
 
 	public static String getRSS() throws Exception {
 
-		String qurl="http://quake.wr.usgs.gov/recenteqs/Maps/SF_Bay.html";
+		String qurl=
+			"http://quake.wr.usgs.gov/recenteqs/Maps/San_Francisco.html";
 		HTTPFetch hf=new HTTPFetch(qurl);
 		String data=hf.getData();
 		ArrayList useful=new ArrayList();
