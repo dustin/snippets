@@ -1,1 +1,1 @@
-gpg --verify-files -
+gpg --no-verbose --batch --quiet --verify-files -
