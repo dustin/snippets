@@ -1,0 +1,64 @@
+#!/usr/local/bin/perl
+# Analyze and average results.
+# $Id: analyze,v 1.1 1999/09/01 21:07:00 dustin Exp $
+
+use strict;
+use Data::Dumper;
+
+my(%record, $n);
+
+# gather all the data
+for(@ARGV) {
+	my(@a, @data, $min, $max, $count, $r);
+	open(IN, $_);
+	<IN>;
+	while(<IN>) {
+		my(@b);
+		chomp;
+		@b=split(/:/);
+		push(@a, [@b]);
+	}
+	close(IN);
+
+	# find the min and max times
+	$min=9999999999;
+	$max=-1;
+	for $r (@a) {
+		if($r->[4]>$max) {
+			$max=$r->[4];
+		}
+		if($r->[4]<$min) {
+			$min=$r->[4];
+		}
+	}
+
+	# find and record the averages
+	@data=(0,0,0,$min,$max);
+	for $r (@a) {
+		if($r->[4]==$max) {
+			$max=-1;
+		} elsif($r->[4]==$min) {
+			$min=-1;
+		} else {
+			$data[0]+=$r->[3];
+			$data[1]+=$r->[4];
+			$data[2]+=$r->[6];
+			$count++;
+		}
+	}
+	print STDERR "Count for $a[0]->[1] is $count\n";
+	$data[0]/=$count;
+	$data[1]/=$count;
+	$data[2]/=$count;
+
+	$record{$a[0]->[1]}=[@data];
+}
+
+#display results:
+
+print "# n_conn conn_time trans_time bps min_trans max_trans\n";
+for $n (sort { $a <=> $b } (keys(%record))) {
+	print "$n " . join(' ', @{$record{$n}}) . "\n";
+}
+
+exit 0;
