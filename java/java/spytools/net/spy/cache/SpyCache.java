@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.2 2000/10/18 19:52:27 dustin Exp $
+ * $Id: SpyCache.java,v 1.3 2000/11/02 22:19:39 dustin Exp $
  */
 
 package net.spy.cache;
@@ -13,7 +13,9 @@ import java.util.*;
  */
 public class SpyCache extends Object {
 	protected static Hashtable cacheStore=null;
+	protected static String CACHE_MUTEX="CACHE_MUTEX";
 	protected static SpyCacheCleaner cacheCleaner=null;
+	protected static String CLEANER_MUTEX="CLEANER_MUTEX";
 
 	/**
 	 * Get a new SpyCache object.
@@ -87,13 +89,17 @@ public class SpyCache extends Object {
 	}
 
 	protected synchronized void init() {
-		if(cacheStore==null) {
-			cacheStore=new Hashtable();
+		synchronized(CACHE_MUTEX) {
+			if(cacheStore==null) {
+				cacheStore=new Hashtable();
+			}
 		}
 
 		// start or restart the cache cleaner if needed.
-		if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
-			cacheCleaner=new SpyCacheCleaner(cacheStore);
+		synchronized(CLEANER_MUTEX) {
+			if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
+				cacheCleaner=new SpyCacheCleaner(cacheStore);
+			}
 		}
 	}
 

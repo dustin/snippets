@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.20 2000/10/15 08:27:40 dustin Exp $
+ * $Id: SpyDB.java,v 1.21 2000/11/02 22:19:37 dustin Exp $
  */
 
 package net.spy;
@@ -19,10 +19,14 @@ public class SpyDB extends Object {
 
 	// Object pool we store our objects in.
 	protected static ObjectPool pool=null;
+	// This isn't final because I want it to be referenced as a variable
+	protected static String POOL_MUTEX="POOL_MUTEX";
 
 	// Place where we keep up with connections so we can get rid of them
 	// manually if needed.
 	protected static Hashtable connections=null;
+	// This isn't final because I want it to be referenced as a variable
+	protected static String CONNECTIONS_MUTEX="CONNECTIONS_MUTEX";
 
 	// Pooled Object container we got out of the pool.
 	protected PooledObject object=null;
@@ -108,8 +112,11 @@ public class SpyDB extends Object {
 	protected synchronized void initStuff() throws PoolException {
 
 		// If we haven't established our connections hash yet, do so
-		if(connections==null) {
-			connections=new Hashtable();
+		// Synchronize on the class to do this
+		synchronized(CONNECTIONS_MUTEX) {
+			if(connections==null) {
+				connections=new Hashtable();
+			}
 		}
 
 		// Poolname.
@@ -131,13 +138,15 @@ public class SpyDB extends Object {
 
 	}
 
-	protected synchronized void createPool() throws PoolException {
+	protected void createPool() throws PoolException {
 		// We'll need a config to translate into
 		SpyConfig tmpconf=new SpyConfig();
 
 		// If we don't yet have a pool at all, create one.
-		if(pool==null) {
-			pool=new ObjectPool(conf);
+		synchronized(POOL_MUTEX) {
+			if(pool==null) {
+				pool=new ObjectPool(conf);
+			}
 		}
 
 		// Minimum connections in the pool.

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.16 2000/10/18 22:37:57 dustin Exp $
+// $Id: ObjectPool.java,v 1.17 2000/11/02 22:19:44 dustin Exp $
 
 package net.spy.pool;
 
@@ -34,9 +34,11 @@ public class ObjectPool extends Object {
 	protected SpyConfig conf=null;
 	// This is static so we can check up on it.
 	protected static ObjectPoolCleaner cleaner=null;
+	protected static String CLEANER_MUTEX="CLEANER_MUTEX";
 	// This is static because we want everyone to see the same pools, of
 	// course.
 	protected static Hashtable pools=null;
+	protected static String POOL_MUTEX="POOL_MUTEX";
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -172,7 +174,7 @@ public class ObjectPool extends Object {
 		}
 	}
 
-	protected synchronized PoolContainer getPool(String name)
+	protected static synchronized PoolContainer getPool(String name)
 		throws PoolException {
 
 		PoolContainer ret=null;
@@ -186,14 +188,18 @@ public class ObjectPool extends Object {
 		return(ret);
 	}
 
-	protected synchronized void initialize() {
+	protected void initialize() {
 		// Do we have a pool?
-		if(pools==null) {
-			pools=new Hashtable();
+		synchronized(POOL_MUTEX) {
+			if(pools==null) {
+				pools=new Hashtable();
+			}
 		}
 		// Is our cleaner working?
-		if(cleaner==null || (!cleaner.isAlive())) {
-			cleaner=new ObjectPoolCleaner(this);
+		synchronized(CLEANER_MUTEX) {
+			if(cleaner==null || (!cleaner.isAlive())) {
+				cleaner=new ObjectPoolCleaner(this);
+			}
 		}
 	}
 

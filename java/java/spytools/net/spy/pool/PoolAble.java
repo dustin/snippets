@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.7 2000/07/28 23:19:54 dustin Exp $
+// $Id: PoolAble.java,v 1.8 2000/11/02 22:19:45 dustin Exp $
 
 package net.spy.pool;
 
@@ -53,7 +53,7 @@ public class PoolAble extends Object {
 	 *
 	 * @return true if the object will be usable
 	 */
-	public boolean isAlive() {
+	public synchronized boolean isAlive() {
 		return(true);
 	}
 
@@ -72,7 +72,7 @@ public class PoolAble extends Object {
 	 * @exception PoolException if something bad happens (i.e. the object is
 	 * not checked out)
 	 */
-	public Object getObject() throws PoolException {
+	public synchronized Object getObject() throws PoolException {
 		if(!checked_out) {
 			throw new PoolException("This PoolAble has not been checked out.");
 		}
@@ -174,7 +174,7 @@ public class PoolAble extends Object {
 	 *
 	 * @return a string representation of this object.
 	 */
-	public String toString() {
+	public synchronized String toString() {
 		String out=null;
 		if(isCheckedOut()) {
 			out="PoolAble " + object_id + " is checked out";

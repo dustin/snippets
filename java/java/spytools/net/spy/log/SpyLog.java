@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.5 2000/10/13 06:50:15 dustin Exp $
+ * $Id: SpyLog.java,v 1.6 2000/11/02 22:19:41 dustin Exp $
  */
 
 package net.spy.log;
@@ -138,7 +138,7 @@ public class SpyLog extends Object {
 		queue.addToQueue(msg);
 	}
 
-	protected synchronized void initialize() {
+	protected static synchronized void initialize() {
 		// Do this soon, we don't want anything else causing this to happen.
 		initialized = true;
 
