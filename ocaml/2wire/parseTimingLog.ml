@@ -156,7 +156,7 @@ let record_timing le_old le_new li =
 let process le rrd =
 	(* first check to see if we need to print stuff *)
 	let at = approx_time le.le_time in
-	if at != global_state.g_last_ts then
+	if at <> global_state.g_last_ts then
 		begin
 			(* If we see a log entry that is older than the current set,
 				there's a problem. *)
