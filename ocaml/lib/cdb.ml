@@ -267,14 +267,12 @@ let get_matches cdf key =
 	let hpos, hlen = cdf.tables.(hash_to_table kh) in
 	(* Go to the hash and figure out where this slot is *)
 	let slot_num = (hash_to_bucket kh hlen) in
-	let myiter = ref 0 in
 	let incr_slot x = (if (1 + x) > hlen then 0 else (1 + x)) in
 	let rec loop x =
-		let lslot = (slot_num + !myiter) mod hlen in
-		myiter := !myiter + 1;
 		if(x >= hlen) then (
 			None
 		) else (
+			let lslot = (slot_num + x) mod hlen in
 			let spos = (lslot * 8) + (Int32.to_int hpos) in
 			seek_in cdf.f spos;
 			let h = read_le32 cdf.f in
