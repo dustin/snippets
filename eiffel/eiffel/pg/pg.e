@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.17 $";
+version: "$Revision: 1.18 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.17 1999/06/03 18:06:36 dustin Exp $
+-- $Id: pg.e,v 1.18 1999/06/03 18:16:39 dustin Exp $
 --
 class PG
 
@@ -230,7 +230,6 @@ feature {ANY} -- Utility
       local
          a: ARRAY[STRING];
          b: BOOLEAN;
-         i: INTEGER;
          q: STRING;
       do
          !!Result.with_capacity(0,16);
@@ -258,7 +257,6 @@ feature {ANY} -- Utility
       local
          a: ARRAY[STRING];
          b: BOOLEAN;
-         i: INTEGER;
          q: STRING;
       do
          !!Result.with_capacity(0,16);

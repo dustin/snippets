@@ -1,6 +1,6 @@
 indexing
    description: "The Replicator...";
-   version: "$Revision: 1.1 $";
+   version: "$Revision: 1.2 $";
 class PG_REPLICATE
 
 creation {ANY}
@@ -85,8 +85,6 @@ feature {ANY} -- Replication services
       local
          a: ARRAY[STRING];
          i: INTEGER;
-         query: STRING;
-         retry_attempt: INTEGER;
       do
          a := db_from.tables;
          from
