@@ -18,6 +18,7 @@
 
 /* Length of a line */
 #define LINELEN 90
+#define CONFIGFILE "list"
 
 /* The address list */
 struct addr {
@@ -125,9 +126,16 @@ struct config_t readconfig(void)
 {
 	char line[LINELEN];
 	struct config_t config;
+	FILE *f;
 
 	/* allocate a new config */
 	config=initConfig();
+
+	f=fopen(CONFIGFILE, "r");
+	if(f==NULL) {
+		perror(CONFIGFILE);
+		return(config);
+	}
 
 	/* We've got a macro for appending to the address list */
 
@@ -139,7 +147,7 @@ struct config_t readconfig(void)
 	} \
 	config.addr[config.index++]=a;
 
-	while(fgets(line, LINELEN-1, stdin)) {
+	while(fgets(line, LINELEN-1, f)) {
 		int a[4], mask, n;
 		char data[LINELEN];
 		struct addr *addr;
@@ -175,6 +183,7 @@ struct config_t readconfig(void)
 		/* And, append it */
 		LAPPEND(addr);
 	}
+	fclose(f);
 	addrsort(config);
 	return(config);
 }
