@@ -1,7 +1,7 @@
 /*
  * Copyright 1997 SPY Internetworking
  *
- * $id*
+ * $id$
  */
 
 #include <sys/types.h>
@@ -17,13 +17,15 @@
 #define COM_GET		2
 #define COM_STAT	3
 
-struct dllist {
+struct dllist
+  {
     int socket;
     time_t contime;
     int tries;
-};
+  };
 
-struct global {
+struct global
+  {
     int numusers;
     int numtries;
     fd_set fdset;
@@ -33,23 +35,27 @@ struct global {
     char password[15];
     int passmap[8];
     struct dllist **acons;
-};
+  };
 
-struct retpack {
+struct retpack
+  {
     int info;
     char pswds[MAXPASS][15];
-};
+  };
 
-struct init {
+struct init
+  {
     char password[15];
-};
+  };
 
-struct command {
+struct command
+  {
     int command;
     char passwd[15];
-};
+  };
 
-struct info {
+struct info
+  {
     int cons;
     int tries;
     int starttime;
@@ -57,7 +63,7 @@ struct info {
     char curpass[9];
     char encrypted[15];
     struct dllist acons[MAXCONS];
-};
+  };
 
 void con_add(int new);
 void con_del(int n);
@@ -68,3 +74,4 @@ void getsolution(struct command com);
 void inituser(int s);
 void sendpasswords(int s);
 void sendstatus(int s);
+void set_pass(char *p);
