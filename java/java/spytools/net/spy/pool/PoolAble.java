@@ -1,14 +1,20 @@
 //
-// $Id: PoolAble.java,v 1.10 2001/02/07 06:31:38 dustin Exp $
+// $Id: PoolAble.java,v 1.11 2001/03/16 01:03:05 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.*;
+import java.io.*;
 import net.spy.SpyConfig;
 
 /**
  * PoolAble is the object container that is used to store objects in the
  * pool.
+ *
+ * <p>
+ *
+ * The system property net.spy.pool.debug can be set to a file where the
+ * debugging output will go.
  */
 
 public abstract class PoolAble extends Object {
@@ -17,6 +23,11 @@ public abstract class PoolAble extends Object {
 	private Object the_object=null;
 	private long max_age=0;
 	private long start_time=0;
+	private String pool_name=null;
+
+	// Whether we've been globally initialized
+	private static boolean ginitialized=false;
+	private static PrintWriter debugOut=null;
 
 	/**
 	 * Availability flag.
@@ -28,8 +39,10 @@ public abstract class PoolAble extends Object {
 	 */
 	public PoolAble(Object the_object) {
 		super(); // thanks for asking.
+		globalInit();
 		this.the_object=the_object;
 		start_time=System.currentTimeMillis();
+		debug("New object");
 	}
 
 	/**
@@ -42,9 +55,33 @@ public abstract class PoolAble extends Object {
 	 */
 	public PoolAble(Object the_object, long max_age) {
 		super(); // thanks for asking.
+		globalInit();
 		this.the_object=the_object;
 		this.max_age=max_age;
 		start_time=System.currentTimeMillis();
+		debug("New object.");
+	}
+
+	// Global initialization stuff.  This allows us to setup debugging
+	// stuff and all that.
+	private static synchronized void globalInit() {
+		if(ginitialized==false) {
+
+			String of=System.getProperty("net.spy.pool.debug");
+			if(of!=null) {
+				try {
+					FileOutputStream fos=new FileOutputStream(of);
+					debugOut=new PrintWriter(fos);
+
+					debugOut.println(getTimestamp() + ":  Initialized.");
+				} catch(Exception e) {
+					System.err.println("Cannot initialize debugging:  " + e);
+					e.printStackTrace();
+				}
+			}
+
+			ginitialized=true;
+		}
 	}
 
 	/**
@@ -95,6 +132,14 @@ public abstract class PoolAble extends Object {
 	}
 
 	/**
+	 * Set the pool name this thing sits in.  This is for debugging, but
+	 * it's useful information, nonetheless.
+	 */
+	public void setPoolName(String to) {
+		this.pool_name=to;
+	}
+
+	/**
 	 * Get the object ID of this object.
 	 *
 	 * @return the object ID
@@ -128,6 +173,8 @@ public abstract class PoolAble extends Object {
 		if(!isAlive()) {
 			available=false;
 		}
+
+		debug("Checked in.");
 	}
 
 	/**
@@ -136,6 +183,7 @@ public abstract class PoolAble extends Object {
 	public synchronized void checkOut() {
 		checked_out=true;
 		available=false;
+		debug("Checked out.");
 	}
 
 	/**
@@ -179,8 +227,37 @@ public abstract class PoolAble extends Object {
 	 * call super.discard() when it's done.
 	 */
 	public void discard() {
+		debug("Discard called.");
 		available=false;
 		the_object=null;
+	}
+
+	// Get a timestamp for logging
+	private static String getTimestamp() {
+		return("[" + new Date().toString() + "]");
+	}
+
+	/**
+	 * Debugging info.
+	 */
+	protected final void debug(String msg) {
+		if(debugOut!=null) {
+			String classname=getClass().getName();
+			String objectClassname="n/a";
+			if(the_object!=null) {
+				objectClassname=the_object.getClass().getName();
+			}
+
+			String tmsg=getTimestamp()
+				+ " Poolable=" + classname + ", oid=" + object_id
+				+ " in " + pool_name
+				+ ", object=" + objectClassname + ":  " + msg;
+
+			synchronized(debugOut) {
+				debugOut.println(tmsg);
+				debugOut.flush();
+			}
+		}
 	}
 
 	/**

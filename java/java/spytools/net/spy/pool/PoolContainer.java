@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.18 2001/02/07 06:31:39 dustin Exp $
+// $Id: PoolContainer.java,v 1.19 2001/03/16 01:03:07 dustin Exp $
 
 package net.spy.pool;
 
@@ -276,6 +276,7 @@ public class PoolContainer extends Object {
 				+ ". ***");
 			p=filler.getObject();
 			p.setObjectID(_object_id);
+			p.setPoolName(name);
 			_object_id++;
 			synchronized(pool) {
 				pool.addElement(p);

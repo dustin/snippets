@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.28 2001/02/08 05:45:40 dustin Exp $
+ * $Id: SpyDB.java,v 1.29 2001/03/16 01:03:02 dustin Exp $
  */
 
 package net.spy;
@@ -59,7 +59,7 @@ public class SpyDB extends Object {
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
-	 * in SpyConfig object.  The following lists the minimal requiremenet
+	 * in SpyConfig object.  The following lists the minimal requirement
 	 * for configuration:
 	 * <p>
 	 * <ul>

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.3 2001/02/07 06:31:35 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.4 2001/03/16 01:03:04 dustin Exp $
 
 package net.spy.pool;
 
@@ -52,6 +52,8 @@ public class JDBCPoolAble extends PoolAble {
 			int r=rs.getInt(1);
 			// Set the value to true only if r==7
 			ret=(r==7);
+			rs.close();
+			st.close();
 		} catch(Exception e) {
 			// Turn off availability
 			available=false;
