@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.9 2002/03/01 09:15:00 dustin Exp $
+ * $Id: tablecounter.c,v 1.10 2002/03/12 21:03:08 dustin Exp $
  */
 
 #include <stdio.h>
@@ -23,6 +23,8 @@
 
 #define MAKEDBSPEC3(a, b, c) { DBSERVER, DBUSER, DBPASS, NULL, a, NULL, b, c}
 #define MAKEDBSPEC(a, b) MAKEDBSPEC3(a, b, "ts")
+
+#define TIGERDB(a) { "disk", DBUSER, DBPASS, NULL, "tiger", "2345", a, "ts" }
 
 #define INCREMENT 3600
 
@@ -173,6 +175,24 @@ void realmain(time_t backfill_time)
 		MAKEDBSPEC("music", "music_mp3_downloads"),
 		MAKEDBSPEC("music", "music_subscribers"),
 		MAKEDBSPEC("temperature", "samples"),
+		TIGERDB("loaded_files"),
+		TIGERDB("type_1"),
+		TIGERDB("type_2"),
+		TIGERDB("type_3"),
+		TIGERDB("type_4"),
+		TIGERDB("type_5"),
+		TIGERDB("type_6"),
+		TIGERDB("type_7"),
+		TIGERDB("type_8"),
+		TIGERDB("type_9"),
+		TIGERDB("type_a"),
+		TIGERDB("type_c"),
+		TIGERDB("type_h"),
+		TIGERDB("type_i"),
+		TIGERDB("type_p"),
+		TIGERDB("type_r"),
+		TIGERDB("type_s"),
+		TIGERDB("type_z"),
 		MAKEDBSPEC(NULL, NULL),
 		};
 
@@ -182,10 +202,17 @@ void realmain(time_t backfill_time)
 		}
 	} else {
 		for(;;) {
+			int started=0, stopped=0, naptime=0;
+			started=time(NULL);
 			for(i=0; queries[i].table!=NULL; i++) {
 				process(queries[i]);
 			}
-			sleep(INCREMENT);
+			stopped=time(NULL);
+			/* I want to run every hour, so take into consideration the amount
+			   of time it took to query all those tables. */
+			naptime=INCREMENT - (stopped-started);
+			fprintf(stderr, "Sleeping %d seconds\n", naptime);
+			sleep(naptime);
 		}
 	}
 }
