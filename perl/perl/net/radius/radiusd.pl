@@ -9,12 +9,13 @@
 use RADIUS::Dictionary;
 use RADIUS::Packet;
 use IO::Socket::INET;
+use Socket;
 use Net::LDAP;
 use Fcntl;
 use strict;
 
 use Getopt::Std;
-use vars qw($dict @config %secrets %clients $config_time);
+use vars qw($dict %config %secrets $config_time);
 
 use vars qw($opt_x $opt_a $opt_d $opt_l $opt_c $opt_p $opt_e);
 use vars qw($opt_w $opt_s $opt_z $rad_timeout $rad_retries);
@@ -57,33 +58,13 @@ if (length($opt_c)) {
 read_pool($opt_z) if $opt_z;
 
 #
-# Hack! If you have local code you'd like to link it, drop it in this
-# file, and it'll get auto-required. I use this to handle our local
-# user dbase (uses an external dbase instead of just getpwnam() )
-#
-if ( -f "$opt_d/radiuslocal.pl") {
-    mlog("radiuslocal.pl require.\n");
-    require "$opt_d/radiuslocal.pl";
-}
-
-#
 # set current dir.. "
 #
 
 chdir($opt_d);
 
-# Parse the RADIUS dictionary file
-$dict = new RADIUS::Dictionary "dictionary"
-    or die "Couldn't read dictionary: $!";
-
-read_users('users');
-
-(-f('clients.conf') and read_config('clients.conf')) or
-    read_clients('clients');
-
 # Set up the network socket.
 
-print "Port is $opt_p\n";
 my $s = IO::Socket::INET->new(
 	# 'LocalPort' => $opt_p,
 	'LocalAddr' => "0.0.0.0:$opt_p",
@@ -106,6 +87,8 @@ $a->blocking(0) or die("Couldn't make socket non-blocking: $!");
 #
 $SIG{'CHLD'} = sub { wait; --$children; };
 
+# Initialize the config.
+read_config('radiusd.conf');
 
 # Loop forever, recieving packets and replying to them
 #
@@ -118,8 +101,8 @@ while (1) {
 		# time to re-start...
 		exec($opt_e, @old_args) or die("exec: $!");
     }
-    if ($config_time != (stat('users'))[9]) {
-	read_users('users');
+    if ($config_time != (stat('radiusd.conf'))[9]) {
+		read_config('radiusd.conf');
     }
 
 				# Wait for a packet
@@ -141,21 +124,16 @@ while (1) {
     $whence = $a->recv($rec, 1550);
     if( ! length($rec)) {	# Not ready. Try the other socket.
 
-				# Check for a packet on the
-				# authentication socket.
-    $whence = $s->recv($rec, 1550);
-	next if ! length($rec);	# if no packet, wait for another one.
+		# Check for a packet on the
+		# authentication socket.
+	$whence = $s->recv($rec, 1550);
+		next if ! length($rec);	# if no packet, wait for another one.
     }
 
-				# Log the packet. Is this too verbose?
+	# Log the packet. Is this too verbose?
 
-	# FIXME
-	my $from="localhost";
-    # my $from = $s->format_addr($whence, 1); # Ouch. this is very
-				# expensive. get protobynum!
-				# gethostbyaddr! Even with numeric, it
-				# calculates the info, and throws it
-				# away!
+	my($peerport, $peername)=sockaddr_in($whence);
+	my $from=inet_ntoa($peername);
 
     mlog("Packet in from $from, len ". length($rec).".\n") if $opt_x;
 
@@ -164,8 +142,8 @@ while (1) {
     my $client = (split(/:/,  $from ))[0];
 				# Is it a source we recognise?
     if (! defined $secrets{$client}) {
-	mlog("Packet from unknown client $client.\n");
-	next;
+		mlog("Packet from unknown client $client.\n");
+		next;
     }
 
 				# Unpack it
@@ -174,9 +152,9 @@ while (1) {
 				# If debugging, dump the packet
 				# contents to STDOUT
     if($opt_x) {
-	print "Packet in!\n";
-	$p->dump;
-	print "EOP\n";
+		print "Packet in!\n";
+		$p->dump;
+		print "EOP\n";
     }
 
 				# If it's an authentication
@@ -239,9 +217,7 @@ while (1) {
 	$rp->set_identifier($p->identifier);
 	$rp->set_authenticator($p->authenticator);
 
-	$s->sendto(auth_resp($rp->pack, $secrets{$client})
-		   , $whence);
-
+	$s->sendto(auth_resp($rp->pack, $secrets{$client}), $whence);
 
 	my $port = $p->attr('NAS-Port'); # This is dictionary specific
 				# apparently.
@@ -269,8 +245,8 @@ while (1) {
     } else {
 				# It's not an Access-Request, it's not
 				# accounting. WTF!?
-	print "Unexpected packet type recieved.";
-	$p->dump;
+		mlog("Unexpected packet type recieved.");
+		$p->dump;
     }
 }
 
@@ -395,15 +371,104 @@ sub read_pool {
     mlog("Pool read. $entries entries, $vacant vacant, $cleaned cleaned.\n");
 } # '
 
+sub bind_as_radius
+{
+	my($ldap)=@_;
+	my($res);
+
+	# try to bind
+	$res=$ldap->bind($config{'ldap_binddn'},
+		'password' => $config{'ldap_bindpw'});
+	if($res->code()!=0) {
+		die("LDAP bind failed.");
+	}
+}
+
+sub get_ldap_connection
+{
+	my($ldap, $res);
+	for(split(/\s*,\s*/, $config{'ldap_servers'})) {
+		$ldap=Net::LDAP->new($_);
+		last if($ldap);
+	}
+
+	# Die if we didn't get an LDAP connection.
+	if(!defined($ldap)) {
+		die("Could not establish LDAP connection.");
+	}
+
+	bind_as_radius($ldap);
+
+	return($ldap);
+}
+
+sub fetch_dictionary
+{
+	my($ldap, $res, $entry, $dictionary);
+	$ldap=get_ldap_connection();
+
+	$res=$ldap->search('base' => $config{'dictionary_dn'},
+		'scope' => 'base', 'filter' => '(objectclass=*)',
+		'attrs' => [ 'config' ]);
+	for $entry ($res->all_entries()) {
+		($dictionary)=$entry->get('config');
+	}
+
+	my(@d)=split(/[\r\n]/, $dictionary);
+	open(D, ">dictionary");
+	print D join("\n", sort(@d)) . "\n";
+	close(D);
+}
+
+sub fetch_clients
+{
+	my($ldap, $res, $entry);
+	$ldap=get_ldap_connection();
+	$res=$ldap->search('base' => $config{'clients_dn'},
+		'scope' => 'sub', 'filter' => '(objectclass=spyRadiusClient)',
+		'attrs' => [ 'ipHostNumber', 'radiusSecret' ]);
+	for $entry ($res->all_entries()) {
+		my($ip)=$entry->get('ipHostNumber');
+		my($secret)=$entry->get('radiusSecret');
+
+		print "Added secret for $ip\n" if($opt_x);
+		$secrets{$ip}=$secret;
+	}
+}
+
+# Stub
+sub isCached
+{
+	my($dn)=@_;
+	return(0);
+}
+
+# Stub
+sub fromCache
+{
+	my($dn)=@_;
+	die("Stub called.");
+}
+
+# Stub
+sub cache
+{
+	my($dn, $whu)=@_;
+}
+
 sub getLDAPRadiusAttrs
 {
 	my($ldap, $dn)=@_;
 	my(%ret, $res, $entry);
 	%ret=();
 
+	if(isCached($dn)) {
+		return(fromCache($dn));
+	}
+
 	$res=$ldap->search('base' => $dn, 'scope' => 'base',
-		'filter' => '(objectclass=*)',
-		'attrs' => ['seeAlso' ,'radiusAttribute']); # '
+		'filter' => '(objectclass=spyRadiusEntry)',
+		'attrs' => ['radiusSuperClass' ,'radiusAttribute']); # '
 	if($res->code()==0) {
 		my($sa);
 		$sa=undef;
@@ -415,14 +480,14 @@ sub getLDAPRadiusAttrs
 				my(@b)=split(/\s*=\s*/, $_, 2);
 				$ret{$b[0]}=$b[1];
 			}
-			@a=$entry->get('seeAlso');
+			@a=$entry->get('radiusSuperClass');
 			if(@a) {
 				$sa=$a[0];
 			}
 		}
 		if(defined($sa)) {
 			my(%tmp)=getLDAPRadiusAttrs($ldap, $sa);
-			# Populate with the stuff from the seeAlso
+			# Populate with the stuff from the radiusSuperClass
 			for(keys(%tmp)) {
 				if(!defined($ret{$_})) {
 					$ret{$_}=$tmp{$_};
@@ -430,6 +495,7 @@ sub getLDAPRadiusAttrs
 			}
 		}
 	}
+	cache($dn, \%ret);
 	return(%ret);
 }
 
@@ -441,13 +507,13 @@ sub digInLDAP
 	undef($ret);
 	$dn="";
 
-	$ldap=Net::LDAP->new("ldap") || return(undef);
+	$ldap=get_ldap_connection();
 
 	# We do the search and just return the uid because we want the DN to
 	# attempt a binding to and then we'll grab the attributes.
-	$filter="(&(objectClass=beyondRadiusEntry)(uid=$u))";
+	$filter="(&(objectClass=spyRadiusEntry)(uid=$u))";
 	print "Filter is $filter\n" if($opt_x);
-	$res=$ldap->search('base' => 'dc=beyond,dc=com', 'scope' => 'sub',
+	$res=$ldap->search('base' => $config{'ldap_base'}, 'scope' => 'sub',
 		'filter' => $filter, 'attrs' => [ 'uid' ]); # '
 	if($res->code()==0) {
 		# This will get us the last DN...hopefully there'll only be one.
@@ -459,13 +525,14 @@ sub digInLDAP
 
 	# Only do this if we got a dn
 	if($dn ne "") {
-		$res=$ldap->bind($dn, $p);
+		$res=$ldap->bind($dn, 'password' => $p);
 		# If we succesfully bound, let's look up the attributes.
 		if($res->code()==0) {
 
 			# This is where we put stuff.
 			my(%ret);
 
+			bind_as_radius($ldap);
 			%ret=getLDAPRadiusAttrs($ldap, $dn);
 			if(%ret) {
 				$ret=\%ret;
@@ -548,157 +615,31 @@ sub handle_authentication {
 }
 
 
-sub read_users {
-    my($file) = @_;
-    open CONFIG, $file or die("Unable to read config file");
-    $config_time = (stat(CONFIG))[9];
-
-    my $line = 0;
-    my $errors;
-    my @newconfig;
-
-    LINE: while (<CONFIG>) {
-	++$line;
-	s/\s*#[^"]*$//;		# Strip comments.
-	s/\s+$//;		# Strip trailing whitespace.
-	/^$/ and next;		# skip blank lines.
-
-	/^([^\s]+)\s+(.*)$/ or
-	    mlog("Invalid user line $line: $_") and ++$errors and next;
-
-	my($user, $cond) = ($1, $2);
-	my(@c, %attrs);
-
-				# Hairy code. We need to deal with the
-				# possibility of commas inside quoted
-				# strings. There is almost certainly
-				# a better way of doing this...
-
-	$_ = $cond;
-	while ($cond =~ /=/) {
-	    $cond =~ s/^([^\s=,]+)\s*=\s*"([^"]*)"\s*,\s*(.*?)$/$3/
-                                            or
-	    $cond =~ s/^([^\s=,]+)\s*=\s*([^"\s,]+)\s*,\s*(.*?)$/$3/
-                                            or
-            $cond =~ s/^([^\s=,]+)\s*=\s*"([^"]*)"\s*$//
-                                            or
-	    $cond =~ s/^([^\s=,]+)\s*=\s*([^\s",]*)\s*$//
-                                            or
-            mlog("Invalid condition (line $line): $cond\n") and
-                                            ++$errors and last;
-	    push @c, ($1, $2);
-        }
-
-	while (<CONFIG>) {
-	    /^\s+/ or last;
-	    ++$line;
-
-	    s/\s*#[^"]*$//;		# Strip comments.
-	    s/\s+$//;		        # Strip trailing whitespace.
-	    /^$/ and next;		# skip blank lines.
-
-	    /^\s+([^\s=]+)\s*=\s*"(.+?)"\s*,?\s*$/ or
-	    /^\s+([^\s=]+)\s*=\s*(.+?)\s*,?\s*$/ or
-		mlog("Invalid attribute (line $line): $_") and
-		    ++$errors and next;
-	    $attrs{$1} = $2;
-
-			# hackery to handle initialization of IP pools.
-	    my($lhs, $rhs) = ($1, $2);
-	    if (lc($lhs) eq 'framed-ip-address' and $rhs =~ /\//) {
-		my $regex = ippool_getregex($rhs);
-		if (!defined $regex) {
-		    mlog("Invalid IP pool attempted. $rhs -> $regex\n");
-		} else {
-		    $ip_pools{$rhs} = $regex;
-		    mlog("Found IP pool: $rhs -> $regex\n");
-		}
-	    }
-	}
-				# And save the entry to
-	push @newconfig, ( [ $user, \@c, \%attrs ] );
-	redo LINE unless eof;
-    }
-    close(CONFIG);
-				# If there are errors, and this is a
-				# reload, then ignore the file.
-    if ($errors and $#config >= 0) {
-	mlog("Errors in users file. Not loading.\n");
-	return;
-    }
-				# Everything ok, install the new
-				# configuration.
-    @config = @newconfig;
-}
-
-#
-# Read the client secrets file.
-#
-sub read_clients {
-    my($file) = @_;
-    open C, $file or
-	warn("Unable to read '$file' file: $!") and
-	    return;
-
-    my($line) = 0;
-
-    while (<C>) {
-	++$line;
-	s/\s*#[^"]*$//;		# Strip comments.
-	s/\s+$//;		# Strip trailing whitespace.
-	/^$/ and next;		# skip blank lines.
-
-	my @a = split;
-	if ($#a < 1) {
-	    warn("Invalid line $line in client file\n");
-	    next;
-	}
-	$secrets{$a[0]} = $a[1];	# Ignore the short name for now.
-    }
-}
-
 #
 # Read the config file.
 #
 sub read_config {
     my($file) = @_;
-    open CONFIG, $file or
-	warn("Unable to read '$file' file: $!") and
-	    return;
-
-    my($line) = 0;
-
-  LINE: while (<CONFIG>) {
-      ++$line;
-      s/\s*#[^"]*$//;		# Strip comments.
-      s/\s+$//;		# Strip trailing whitespace.
-      /^$/ and next;		# skip blank lines.
-
-      /^([^\s]+)\s+(.*)$/ or
-	  mlog("Invalid config line $line: $_") and next;
-
-      $secrets{$1} = $2;
-      my $client = $1;
-      $clients{$client} = {};
-      while (<CONFIG>) {
-	  /^\s+/ or last;
-	  ++$line;
-
-	  s/\s*#[^"]*$//;		# Strip comments.
-	  s/\s+$//;		        # Strip trailing whitespace.
-	  /^$/ and next;		# skip blank lines.
-
-	  /^\s+([^\s=]+)\s*=\s*"(.+?)"\s*,?\s*$/ or
-	      /^\s+([^\s=]+)\s*=\s*(.+?)\s*,?\s*$/ or
-		  mlog("Invalid client attribute (line $line): $_") and
-		      next;
-	  $clients{$client}->{$1} = $2;
+	%config=();
+	open(CONFIG, "<$file");
+	while(<CONFIG>) {
+		next if(/^#/);
+		next unless(/\w/);
+		chomp;
+		my(@a)=split(/\s*=\s*/, $_, 2);
+		$config{$a[0]}=$a[1];
 	}
-      redo LINE unless eof;
-    }
     close(CONFIG);
-}
+	# mark our config date
+	$config_time=(stat($file))[9];
 
+	# Get the dictionary file.
+	fetch_dictionary();
+	# Parse the RADIUS dictionary file
+	$dict = new RADIUS::Dictionary "dictionary"
+	or die "Couldn't read dictionary: $!";
+	fetch_clients();
+}
 
 #
 # Ask a remote-radius server for authentication...
