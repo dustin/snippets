@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+
+<!--
+	Build file for temperature stuff
+
+	Copyright (c) 2003	Dustin Sallings <dustin@spy.net>
+
+	$Id: build.xml,v 1.1 2003/01/21 06:28:21 dustin Exp $
+
+	-->
+
+<project name="temp" default="temp.jar" basedir=".">
+
+	<!-- Setup -->
+
+	<path id="myclasses">
+		<fileset dir="${user.home}/lib/java">
+			<include name="spy.jar"/>
+		</fileset>
+		<pathelement path="."/>
+	</path>
+
+	<property name="SRCDIR" value="."/>
+	<property name="BUILDDIR" value="."/>
+	<property name="PROJECT" value="temp"/>
+
+	<taskdef name="spgen" classname="net.spy.util.SPGenTask">
+		<classpath refid="myclasses"/>
+	</taskdef>
+
+
+	<!-- end setup -->
+
+	<target name="clean" description="Clean up all generated files.">
+		<delete>
+			<fileset dir="${BUILDDIR}">
+				<include name="**/*.class"/>
+			</fileset>
+			<!--
+				Get rid of the installed one since it keeps messing with my
+				tests
+			-->
+			<fileset dir="${BUILDDIR}">
+				<include name="${PROJECT}.jar"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="docs" depends="all" unless="docs.upToDate">
+		<mkdir dir="docs"/>
+		<javadoc destdir="${DOCDEST}"
+			author="true"
+			version="true"
+			use="true"
+			sourcePath="${SRCDIR}"
+			protected="true"
+			packagenames="net.spy.*"
+			windowtitle="${PROJECT}.jar Documentation from ${build.date}"
+			doctitle="${PROJECT} Documentation - ${build.date}">
+			<link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+			<link href="http://bleu.west.spy.net/~dustin/spyjar/j2/doc/"/>
+		</javadoc>
+		<property name="docs.upToDate" value="true"/>
+	</target>
+
+	<target name="temp.jar" depends="all"
+		description="Jar up ${PROJECT}"
+		unless="${PROJECT}.jar.upToDate">
+		<jar jarfile="${PROJECT}.jar" basedir=".">
+			<include name="net/spy/**/*.class"/>
+			<include name="net/spy/**/*.properties"/>
+		</jar>
+		<property name="${PROJECT}.jar.upToDate" value="true"/>
+	</target>
+
+	<!-- End optional components -->
+
+	<target name="all" depends="spfiles">
+		<javac
+			srcdir="${SRCDIR}"
+			destdir="${BUILDDIR}"
+			deprecation="${DEPRECATION}"
+			debug="${DEBUG}"
+			verbose="${VERBOSE}">
+
+			<classpath refid="myclasses"/>
+			<include name="net/spy/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="install" description="Install the classes" depends="all">
+		<copy
+			todir="/afs/.spy.net/misc/web/java/">
+			<fileset dir="${BUILDDIR}">
+				<include name="net/**/*.class"/>
+				<include name="net/**/*.properties"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="spfiles">
+		<spgen srcdir="${SRCDIR}" destdir="${BUILDDIR}"/>
+	</target>
+
+</project>

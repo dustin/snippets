@@ -1,0 +1,31 @@
+#
+# $Id: MaxHour.spt,v 1.1 2003/01/21 06:28:25 dustin Exp $
+#
+
+@package
+net.spy.temperature.sp.report
+
+@implements
+ReportQuery
+
+@description
+Get the maximum temperature by hour.
+
+@sql
+select
+		date_part('hour',ts) as hour,
+		max(sample) as temp
+	from
+		samples
+	where
+		ts between ? and ?
+		and sensor_id = ?
+	group by
+		hour
+	order by
+		hour
+
+@params
+from_date required VARCHAR String representation of the starting date.
+to_date required VARCHAR String representation of the ending date.
+sensor_id required INTEGER The ID of the sensor.

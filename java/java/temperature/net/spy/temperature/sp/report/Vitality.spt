@@ -1,0 +1,33 @@
+#
+# $Id: Vitality.spt,v 1.1 2003/01/21 06:28:27 dustin Exp $
+#
+
+@package
+net.spy.temperature.sp.report
+
+@implements
+ReportQuery
+
+@description
+Get the min, avg, and max temperatures by hour.
+
+@sql
+select
+		date_part('hour',ts) as hour,
+		min(sample) as min_temp,
+		avg(sample) as avg_temp,
+		max(sample) as max_temp
+	from
+		samples
+	where
+		ts between ? and ?
+		and sensor_id = ?
+	order by
+		hour
+	group by
+		hour
+
+@params
+from_date required VARCHAR String representation of the starting date.
+to_date required VARCHAR String representation of the ending date.
+sensor_id required INTEGER The ID of the sensor.

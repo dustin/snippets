@@ -1,6 +1,6 @@
 -- Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 --
--- $Id: sensors.sql,v 1.3 2001/06/01 08:51:59 dustin Exp $
+-- $Id: sensors.sql,v 1.4 2003/01/21 06:28:21 dustin Exp $
 
 -- Different types of sensors
 create table sensor_types (
@@ -9,6 +9,10 @@ create table sensor_types (
 	units varchar(10) not null,
 	primary key(sensor_type_id)
 );
+grant select on sensor_types to nobody;
+
+-- Add a sensor
+insert into sensor_types(sensor_type, units) values('Thermometer', 'deg C');
 
 -- Here's a description of the sensors.
 create table sensors (

@@ -1,12 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ReportBean.java,v 1.3 2001/06/02 08:59:58 dustin Exp $
+// $Id: ReportBean.java,v 1.4 2003/01/21 06:28:22 dustin Exp $
 
 package net.spy.temperature;
 
 import net.spy.*;
 import java.sql.*;
 import java.util.*;
+
+import net.spy.temperature.sp.report.*;
 
 /**
  * Bean used for Temperature reports.
@@ -153,69 +155,40 @@ public class ReportBean extends Object implements java.io.Serializable {
 
 		String query=null;
 
+		ReportQuery db=null;
+		TemperatureConf conf=new TemperatureConf();
+
 		// Get the report's SQL
 		switch(report_num) {
 			case HISTOGRAM:
-				query="select round(sample,-1) as sample_10,count(*) as count\n"
-					+ " from samples\n"
-					+ " where ts between ? and ?\n"
-					+ " and sensor_id = ?\n"
-					+ " group by sample_10\n"
-					+ " order by count\n";
+				db=new Histogram(conf);
 				break;
 
 			case MAX_HOUR:
-				query="select date_part('hour',ts) as hour,max(sample) as temp"
-					+ "\n"
-					+ "  from samples"
-					+ "  where ts between ? and ?\n"
-					+ "  and sensor_id = ?\n"
-					+ "  group by hour\n"
-					+ "  order by hour\n";
+				db=new MaxHour(conf);
 				break;
 
 			case AVG_HOUR:
-				query="select date_part('hour',ts) as hour,avg(sample) as temp"
-					+ "\n"
-					+ "  from samples"
-					+ "  where ts between ? and ?\n"
-					+ "  and sensor_id = ?\n"
-					+ "  group by hour\n"
-					+ "  order by hour\n";
+				db=new AvgHour(conf);
 				break;
 
 			case MIN_HOUR:
-				query="select date_part('hour',ts) as hour,min(sample) as temp"
-					+ "\n"
-					+ "  from samples"
-					+ "  where ts between ? and ?\n"
-					+ "  and sensor_id = ?\n"
-					+ "  group by hour\n"
-					+ "  order by hour\n";
+				db=new MinHour(conf);
 				break;
 
 			case HOURLY_VITALITY:
-				query="select date_part('hour',ts) as hour,\n"
-					+ " min(sample) as min_temp,\n"
-					+ " avg(sample) as avg_temp,\n"
-					+ " max(sample) as max_temp\n"
-					+ "  from samples"
-					+ "  where ts between ? and ?\n"
-					+ "  and sensor_id = ?\n"
-					+ "  group by hour\n"
-					+ "  order by hour\n";
+				db=new Vitality(conf);
 				break;
 
 			default:
 				throw new Exception("Impossible!  No such report");
 		}
 
-		SpyDB db=new SpyDB(new TemperatureConf());
-		PreparedStatement pst=db.prepareStatement(query);
-		pst.setString(1, start_date);
-		pst.setString(2, stop_date);
-		pst.setInt(3, sensor.getSensorID());
-		ResultSet rs=pst.executeQuery();
+		db.setFromDate(start_date);
+		db.setToDate(stop_date);
+		db.setSensorId(sensor.getSensorID());
+
+		ResultSet rs=db.executeQuery();
 		ResultSetMetaData rmd=rs.getMetaData();
 
 		// This is where the results go.
@@ -238,5 +211,8 @@ public class ReportBean extends Object implements java.io.Serializable {
 			}
 			results.addElement(v);
 		}
+
+		rs.close();
+		db.close();
 	}
 }
