@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.13 2003/08/29 05:33:55 dustin Exp $
+# $Id: webServer.io,v 1.14 2003/08/29 09:15:42 dustin Exp $
 
 // Object definitions
 
@@ -352,17 +352,3 @@ WebUrlDebugHandler handleRequest = method(req, socket,
 	req headers foreach(k, v, socket write("\t", k, " = ", v, "\n"))
 )
 
-//
-// -- The beginning --
-//
-
-write("[Starting web server on port 8456]\n")
-server = Server clone setPort(8456)
-ws = WebServer clone
-ws addHandler("/time", WebUrlTimeHandler clone)
-ws addHandler("/debug", WebUrlDebugHandler clone)
-ws addHandler("/debug/*", WebUrlDebugHandler clone)
-server handleSocket = method(aSocket,
-	ws @handleSocketFromServer(aSocket, self)
-)
-server start
