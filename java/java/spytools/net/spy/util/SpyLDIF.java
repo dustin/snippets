@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.7 2000/10/05 23:38:45 dustin Exp $
+// $Id: SpyLDIF.java,v 1.8 2000/10/06 00:48:04 dustin Exp $
 
 package net.spy.util;
 
@@ -14,6 +14,21 @@ public class SpyLDIF extends Hashtable {
 	 */
 	public SpyLDIF() {
 		super();
+	}
+
+	/**
+	 * Get a new SpyLDIF object from a Hashtable
+	 */
+	public SpyLDIF(Hashtable h) {
+		super();
+
+		for(Enumeration e=h.keys(); e.hasMoreElements(); ) {
+			// Cast the key and value to a string because we reallyreally
+			// need strings.
+			String k=(String)e.nextElement();
+			String v=(String)h.get(k);
+			put(k, v);
+		}
 	}
 
 	/**
