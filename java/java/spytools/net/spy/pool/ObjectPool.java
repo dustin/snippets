@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.28 2002/08/16 07:27:07 dustin Exp $
+// $Id: ObjectPool.java,v 1.29 2002/08/17 06:31:04 dustin Exp $
 
 package net.spy.pool;
 
@@ -170,7 +170,9 @@ public class ObjectPool extends Object {
 
 				// If it's empty, remove it.
 				if(pc.totalObjects()==0) {
-					destroyPool(pc.getName());
+					// XXX:  It may be required to do something else with
+					// this at some later point.
+					i.remove();
 				} else {
 					a.add(pc);
 				}
@@ -273,6 +275,7 @@ public class ObjectPool extends Object {
 				} catch(Exception e) {
 					System.err.println("***\nCleaner got an exception:  "
 						+ e + "\n***");
+					e.printStackTrace();
 				}
 			}
 		}
