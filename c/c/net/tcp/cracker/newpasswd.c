@@ -1,69 +1,69 @@
 /*
  * This stuff was all written by James Lemley then stolen by me.
  *
- * $Id: newpasswd.c,v 1.3 1997/01/10 05:58:44 dustin Exp $
+ * $Id: newpasswd.c,v 1.4 2000/02/24 00:48:47 dustin Exp $
  */
 
 #include "cracker.h"
 
-extern struct global *glob;
-
 /*
-char keychars[] = "  abcdefghijklmnopqrstuvwxyz"
-                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                  "0123456789"
-                  "{}[]~!@#$%^&*()_+`-=:;\"'|\\<,>.?/";
-*/
+ * char keychars[] = "  abcdefghijklmnopqrstuvwxyz"
+ * "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ * "0123456789"
+ * "{}[]~!@#$%^&*()_+`-=:;\"'|\\<,>.?/";
+ */
 
-#define keychars "  abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
-0123456789{}[]~!@#$%^&*()_+`-=:;\"'|\\<,>.?/"
+#define keychars " \tabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+"0123456789{}[]~!@#$%^&*()_+`-=:;\"'|\\<,>.?/"
 
-char *newpasswd()
+char   *
+newpasswd(char *in, int *passmap)
 {
 
-    /* all characters that might be used in a password */
-    register int i;
+	/* all characters that might be used in a password */
+	register int i;
 
-        /* update the passmap */
-        i = 0;
-        while (i < 8)
-        {
-                if (glob->passmap[i] == sizeof(keychars)-2)
-                {
-                        glob->passmap[i] = 1;
-                        glob->password[i] = keychars[1];
-                        i++;
-                }
-                else
-                {
-                        glob->passmap[i]++;
-                        glob->password[i] = keychars[glob->passmap[i]];
-                        break;
-                }
-        }
-        return (glob->password);
+	/* update the passmap */
+	i = 0;
+	while (i < 8) {
+		if (passmap[i] == sizeof(keychars) - 2) {
+			passmap[i] = 1;
+			in[i] = keychars[1];
+			i++;
+		} else {
+			passmap[i]++;
+			in[i] = keychars[passmap[i]];
+			break;
+		}
+	}
+	return (in);
 }
 
-void set_pass(char *p)
+void
+set_pass(char *p, char *in, int *passmap)
 {
-        int i, j;
-        int len;
+	int     i, j;
+	int     len;
 
-        len = strlen(p);
-        if (len > 8)
-                len = 8;
+	for(i=0; i<8; i++) {
+		passmap[i]=0;
+		in[i]=0;
+	}
+	in[i]=0;
 
-        for (i = 0; i < len; i++)
-        {
-                for (j = 0; j < sizeof(keychars); j++)
-                        if (p[i] == keychars[j])
-                                break;
-                glob->passmap[i] = j;
-                if (j == sizeof(keychars))
-                {
-                        printf("Can't restart with this password\n");
-                        exit(1);
-                }
-        }
-        strcpy(glob->password, p);
+	len = strlen(p);
+	if (len > 8)
+		len = 8;
+
+	for (i = 0; i < len; i++) {
+		for (j = 0; j < sizeof(keychars); j++)
+			if (p[i] == keychars[j])
+				break;
+		passmap[i] = j;
+		if (j == sizeof(keychars)) {
+			printf("Can't restart with this password\n");
+			exit(1);
+		}
+	}
+	strcpy(in, p);
 }

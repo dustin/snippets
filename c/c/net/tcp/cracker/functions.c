@@ -1,7 +1,7 @@
 /*
  * Copyright 1997 SPY Internetworking
  *
- * $Id: functions.c,v 1.3 1997/01/07 08:07:32 dustin Exp $
+ * $Id: functions.c,v 1.4 2000/02/24 00:48:46 dustin Exp $
  */
 
 #include <stdio.h>
@@ -38,12 +38,17 @@ sendpasswords(int s)
 
   r.info = htons(0);
 
+  strcpy(r.start, newpasswd(glob->password, glob->passmap));
+
   for (i = 0; i < MAXPASS; i++)
     {
-      strcpy(r.pswds[i], newpasswd());
+      newpasswd(glob->password, glob->passmap);
       glob->acons[s]->tries++;
       glob->numtries++;
     }
+  strcpy(r.stop, newpasswd(glob->password, glob->passmap));
+
+  printf("Sending ``%s'' to ``%s'' to %d\n", r.start, r.stop, s);
 
   send(s, (char *) &r, sizeof(r), 0);
 }

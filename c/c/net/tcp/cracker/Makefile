@@ -1,14 +1,14 @@
 # Copyright 1997 SPY Internetworking
-# $Id: Makefile,v 1.2 1997/01/05 08:41:00 dustin Exp $
+# $Id: Makefile,v 1.3 2000/02/24 00:48:41 dustin Exp $
 INCLUDES=
 CFLAGS=-O2 $(INCLUDES)
 LDFLAGS=-s
 
 # if you have UFC lib installed, *HOOK* it up.  :)
-UFC=/usr/people/dustin/lib/libufc.a
+# UFC=/usr/people/dustin/lib/libufc.a
 
 S_OBJS=sockets.o cracker.o newpasswd.o functions.o
-C_OBJS=client.o
+C_OBJS=client.o newpasswd.o
 ST_OBJS=getstatus.o
 SERV=cracker_serv
 CLIENT=cracker_client

@@ -10,7 +10,7 @@
 
 #define MAXCONS 100
 
-#define MAXPASS 50
+#define MAXPASS 1000000
 
 #define COM_STOP	0
 #define COM_INIT	1
@@ -40,7 +40,8 @@ struct global
 struct retpack
   {
     int info;
-    char pswds[MAXPASS][15];
+	char start[15];
+	char stop[15];
   };
 
 struct init
@@ -69,9 +70,10 @@ void con_add(int new);
 void con_del(int n);
 void pipe_del(int n);
 int initialize(void);
-char *newpasswd();
 void getsolution(struct command com);
 void inituser(int s);
 void sendpasswords(int s);
 void sendstatus(int s);
-void set_pass(char *p);
+
+char *newpasswd(char *in, int *passmap);
+void set_pass(char *p, char *in, int *passmap);
