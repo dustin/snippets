@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.3 1997/09/22 16:17:05 dustin Exp $
+ * $Id: parsedetail.c,v 2.4 1997/09/22 16:46:02 dustin Exp $
  */
 
 #include <stdio.h>
@@ -134,7 +134,15 @@ void display(void)
 
 void help(char *me)
 {
-    printf("Usage: %s [-t timefmt] [-d delim] -l listfile -f infile\n", me);
+    char *p;
+    p="$Version: 2.3$";
+
+    /* Pull out version info */
+    for(; *p!=' '; p++);
+    p++; p[strlen(p)-1]=0x00;
+
+    printf("%s %s Copyright (c) 1996-1997  Dustin Sallings\n", me, p);
+    printf("  Usage: %s [-t timefmt] [-d delim] -l listfile -f infile\n", me);
     puts("       listfile is the list of fields to pull from the RADIUS file");
     puts("       infile is the RADIUS file to read from (- for stdin)");
     puts("       timefmt is a strftime(3) time format");
