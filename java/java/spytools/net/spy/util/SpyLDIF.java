@@ -1,11 +1,10 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.10 2001/02/07 06:31:47 dustin Exp $
+// $Id: SpyLDIF.java,v 1.11 2001/04/03 00:02:03 dustin Exp $
 
 package net.spy.util;
 
 import java.util.*;
 import java.io.*;
-import sun.misc.*;
 import net.spy.SpyUtil;
 
 public class SpyLDIF extends Hashtable {
@@ -89,7 +88,7 @@ public class SpyLDIF extends Hashtable {
 	 */
 	public String getLDIF() {
 		String ret="";
-		BASE64Encoder base64=new BASE64Encoder();
+		Base64 base64=new Base64();
 
 		for(Enumeration e=keys(); e.hasMoreElements(); ) {
 			String k=null, v=null;
@@ -98,7 +97,7 @@ public class SpyLDIF extends Hashtable {
 			// Don't do the encoded stuff
 			if(k.indexOf(":encoded")==-1) {
 				v=getString(k);
-				String v2=base64.encodeBuffer(v.getBytes());
+				String v2=base64.encode(v.getBytes());
 				String parts[]=SpyUtil.split("\r\n\t ", v2);
 				if(parts.length>0) {
 					v2=parts[0] + "\n";
@@ -130,8 +129,8 @@ public class SpyLDIF extends Hashtable {
 				try {
 					String tmp=v.substring(1).trim();
 					this.put(k + ":encoded", tmp);
-					BASE64Decoder base64 = new BASE64Decoder();
-					byte data[]=base64.decodeBuffer(tmp);
+					Base64 base64 = new Base64();
+					byte data[]=base64.decode(tmp);
 					v=new String(data);
 				} catch(Exception e) {
 					System.err.println(
