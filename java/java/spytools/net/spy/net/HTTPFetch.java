@@ -39,7 +39,7 @@ public class HTTPFetch {
 			BufferedReader br = getReader();
 			String line;
 			while( (line=br.readLine()) != null) {
-				s+=line;
+				s+=line + "\n";
 			}
 		} catch(Exception e) {
 			throw new Exception(e.getMessage());

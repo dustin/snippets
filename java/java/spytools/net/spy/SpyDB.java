@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.4 1999/12/15 03:58:14 dustin Exp $
+ * $Id: SpyDB.java,v 1.5 2000/01/12 07:59:06 dustin Exp $
  */
 
 package net.spy;
@@ -13,24 +13,59 @@ import com.javaexchange.dbConnectionBroker.*;
 
 public class SpyDB extends Object {
 
-	protected static DbConnectionBroker dbs=null;
+	protected static Hashtable dbss;
 	Connection conn=null;
 	SpyConfig conf = null;
+	String log_file=null;
+	DbConnectionBroker dbs=null;
 	boolean auto_free = true;
 
 	public SpyDB(SpyConfig conf) {
 		this.conf=conf;
+
+		log_file=conf.get("dbcbLogFilePath");
+		if(log_file==null) {
+			log_file="/tmp/pool.log";
+		}
+		if(dbss==null) {
+			dbss=new Hashtable();
+		}
+		dbs=(DbConnectionBroker)dbss.get(log_file);
 		if(dbs==null) {
 			initDBS();
 		}
+
 	}
 
 	public SpyDB(SpyConfig conf, boolean auto_free) {
 		this.conf=conf;
 		this.auto_free=auto_free;
+
+		log_file=conf.get("dbcbLogFilePath");
+		if(log_file==null) {
+			log_file="/tmp/pool.log";
+		}
+		if(dbss==null) {
+			dbss=new Hashtable();
+		}
+		dbs=(DbConnectionBroker)dbss.get(log_file);
 		if(dbs==null) {
 			initDBS();
 		}
+
+	}
+
+	public ResultSet executeQuery(String query) throws Exception {
+		Connection conn=getConn();
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		return(rs);
+	}
+
+	public void executeUpdate(String query) throws Exception {
+		Connection conn=getConn();
+		Statement st = conn.createStatement();
+		st.executeUpdate(query);
 	}
 
 	public Connection getConn() throws Exception {
@@ -44,6 +79,7 @@ public class SpyDB extends Object {
 	public void freeDBConn() {
 		log("Freeing");
 		dbs.freeConnection(conn);
+		conn=null;
 	}
 
 	public void freeDBConn(Connection c) {
@@ -97,16 +133,15 @@ public class SpyDB extends Object {
 		// Get rid of garbage.
 		System.runFinalization();
 		System.gc();
-		String log_file = conf.get("dbcbLogFilePath");
-		if(log_file == null) {
-			log_file = "/tmp/pool.log";
-		}
+
 		// Load the db driver
 		try {
 			Class.forName(conf.get("dbDriverName"));
 			dbs = new DbConnectionBroker(conf.get("dbDriverName"),
 				conf.get("dbSource"), conf.get("dbUser"), conf.get("dbPass"),
 				3, 20, log_file, 0.01);
+			dbss.put(log_file, dbs);
+			log("Got a new DBCB object logging to " + log_file);
 		} catch(Exception e) {
 			// Do nothing
 			// throw new Exception("dbs broke:  " + e);
