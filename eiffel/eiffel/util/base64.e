@@ -13,14 +13,15 @@ feature {ANY} -- Constructors
          e, d: STRING;
       do
          init_const;
-		 -- io.put_string("Encoded:%N");
-		 -- e:=encode(argument(1));
-		 -- io.put_string(e);
-		 -- io.put_string("%N");
-		 -- io.put_string("Decoded:%N");
-		 -- d:=decode(e);
-		 -- io.put_string(d);
-		 -- io.put_string("%N");
+            -- io.put_string("Encoded:%N");
+            -- e:=encode(argument(1));
+            -- io.put_string(e);
+            -- io.put_string("%N");
+            -- io.put_string("Decoded:%N");
+            -- d:=decode(e);
+            -- io.put_string(d);
+            -- io.put_string("%N");
+
       end -- make
 
 feature {ANY} -- Actual encode/decode stuff
@@ -94,7 +95,7 @@ feature {ANY} -- Actual encode/decode stuff
          ab, bb, cb, db, tmpa, tmpb: BIT 8;
          o: INTEGER;
          a, b, c: CHARACTER;
-         second, third: BOOLEAN;
+         first, second, third: BOOLEAN;
       do
          !!Result.make(0);
          Result.clear;
@@ -106,9 +107,14 @@ feature {ANY} -- Actual encode/decode stuff
          loop
             if find_next(in) then
                ab := the_bits(in);
+               first := true;
+            else
+               first := false;
             end;
             if find_next(in) then
                bb := the_bits(in);
+            else
+               first := false;
             end;
             if find_next(in) then
                if is_padding(in) then
@@ -126,17 +132,20 @@ feature {ANY} -- Actual encode/decode stuff
                   third := true;
                end;
             end;
-            tmpa := ab @<< 2;
-            tmpb := bb @>> 4 and lasttwo;
-            Result.add_last((tmpa or tmpb).to_character);
-            if second then
-               -- second byte
-               tmpa := bb @<< 4;
-               tmpb := cb @>> 2 and lastfour;
+            if first then
+               -- first byte
+               tmpa := ab @<< 2;
+               tmpb := bb @>> 4 and lasttwo;
                Result.add_last((tmpa or tmpb).to_character);
-               if third then
-                  -- third byte
-                  Result.add_last((db or cb @<< 6).to_character);
+               if second then
+                  -- second byte
+                  tmpa := bb @<< 4;
+                  tmpb := cb @>> 2 and lastfour;
+                  Result.add_last((tmpa or tmpb).to_character);
+                  if third then
+                     -- third byte
+                     Result.add_last((db or cb @<< 6).to_character);
+                  end;
                end;
             end;
          end;
