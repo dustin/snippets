@@ -26,10 +26,10 @@ type cdb_file = {
 }
 
 val open_cdb_in : string -> cdb_file
+val close_cdb_in : cdb_file -> unit
 
-(*
+val get_matches : cdb_file -> string -> string Stream.t
 val find : cdb_file -> string -> string
-*)
 
 (*
  * arch-tag: 55F4CBF0-2B50-11D8-BEDC-000393CFE6B8

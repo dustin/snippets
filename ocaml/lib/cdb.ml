@@ -202,7 +202,10 @@ type cdb_file = {
 	tables: (int * int) array;
 };;
 
-(** Open a CDB file for searching. *)
+(** Open a CDB file for searching.
+
+ @param fn the file to open
+ *)
 let open_cdb_in fn =
 	let fin = open_in_bin fn in
 	let tables = Array.make 256 (0,0) in
@@ -222,9 +225,59 @@ let open_cdb_in fn =
 
 (**
  Close a cdb file.
+
+ @param cdf the cdb file to close
  *)
 let close_cdb_in cdf =
 	close_in cdf.f
+;;
+
+(** Get a stream of matches.
+
+ @param cdf the cdb file
+ @param key the key to search
+ *)
+let get_matches cdf key =
+	let kh = hash key in
+	(* Find out where the hash table is *)
+	let hpos, hlen = cdf.tables.(kh land 0xff) in
+	(* Go to the hash and figure out where this slot is *)
+	let slot_num = ((kh lsr 8) mod hlen) in
+	let myiter = ref 0 in
+	let incr_slot x = (if (1 + x) > hlen then 0 else (1 + x)) in
+	let rec loop x =
+		let lslot = (slot_num + !myiter) mod hlen in
+		myiter := !myiter + 1;
+		if(x >= hlen) then (
+			None
+		) else (
+			let spos = (lslot * 8) + hpos in
+			seek_in cdf.f spos;
+			let h = read_le cdf.f in
+			let pos = read_le cdf.f in
+			(* validate that we a real bucket *)
+			if (h = kh) && (pos > 0) then (
+				seek_in cdf.f pos;
+				let klen = read_le cdf.f in
+				if (klen = String.length key) then (
+					let dlen = read_le cdf.f in
+					let rkey = String.create klen in
+					really_input cdf.f rkey 0 klen;
+					if(rkey = key) then (
+						let rdata = String.create dlen in
+						really_input cdf.f rdata 0 dlen;
+						Some(rdata)
+					) else (
+						loop (x + 1)
+					)
+				) else (
+					loop (x + 1)
+				)
+			) else (
+				loop (x + 1)
+			)
+		) in
+	Stream.from loop
 ;;
 
 (**
@@ -234,47 +287,7 @@ let close_cdb_in cdf =
  @param key the key to find
  *)
 let find cdf key =
-	let kh = hash key in
-	print_endline("key hash is " ^ (string_of_int kh));
-	(* Find out where the hash table is *)
-	let hpos, hlen = cdf.tables.(kh land 0xff) in
-	print_endline("Busket is " ^ (string_of_int (kh land 0xff)));
-	(* Go to the hash and figure out where this slot is *)
-	let rec loop slot_num x =
-		print_endline("Loop #" ^ (string_of_int x));
-		print_endline("slot_num =" ^ (string_of_int slot_num));
-		if(x > 0) then (
-			let spos = (slot_num * 8) + hpos in
-			print_endline("Seeking to " ^ (string_of_int spos));
-			seek_in cdf.f spos;
-			let h = read_le cdf.f in
-			let pos = read_le cdf.f in
-			print_endline("h,pos = " ^ (string_of_int h)
-				^ ", " ^ (string_of_int pos));
-			if (pos > 0) then (
-				print_endline("Pos is positive");
-				if (h = kh) then (
-					print_endline("hashes match, seeking to "
-						^ (string_of_int pos));
-					seek_in cdf.f pos;
-					let klen = read_le cdf.f in
-					if (klen = String.length key) then (
-						print_endline("key lengths match");
-						let dlen = read_le cdf.f in
-						let rkey = String.create klen in
-						really_input cdf.f rkey 0 klen;
-						if(rkey = key) then (
-							print_endline("Keys match");
-							let rdata = String.create dlen in
-							really_input cdf.f rdata 0 dlen;
-							print_endline("*** Found " ^ rdata);
-						)
-					)
-				)
-			);
-			loop (if (1 + slot_num) > hlen then 0 else (1 + slot_num)) (x - 1);
-		) in
-	loop ((kh lsr 8) mod hlen) hlen;
+	Stream.next (get_matches cdf key)
 ;;
 
 (** test app to create ``test.cdb'' and put some stuff in it *)
@@ -289,9 +302,25 @@ let main() =
 	iter (fun k v -> print_endline(k ^ " -> " ^ v)) "test.cdb";
 	print_endline("*** Searching a ***");
 	let cdf = open_cdb_in "test.cdb" in
-	find cdf "a";
+	print_endline(find cdf "a");
 	print_endline("*** Searching c ***");
-	find cdf "c";
+	print_endline(find cdf "c");
+	print_endline("*** Stream searching c ***");
+	let str = get_matches cdf "c" in
+	let str2 = get_matches cdf "c" in
+	print_endline(Stream.next str);
+	print_endline(Stream.next str2);
+	print_endline(Stream.next str);
+	print_endline(Stream.next str2);
+	(
+	try
+		print_endline("Testing stream exhaustion failure");
+		print_endline(Stream.next str);
+		print_endline("!!! Expected failure.");
+	with Stream.Failure -> print_endline("failed as expected")
+	);
+	print_endline("*** Stream.iter ***");
+	Stream.iter print_endline (get_matches cdf "c");
 	close_cdb_in cdf;
 ;;
 
