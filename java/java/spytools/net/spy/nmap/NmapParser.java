@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapParser.java,v 1.2 2000/01/26 22:08:50 dustin Exp $
+// $Id: NmapParser.java,v 1.3 2000/01/28 19:25:43 dustin Exp $
 
 package net.spy.nmap;
 
@@ -8,6 +8,23 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 import net.spy.*;
+
+/**
+ * NMAP log parser.  After creating an nmap machine parseable log, you can
+ * parse the log like this:
+ * <p>
+ * <pre>
+ * NmapParser np = new NmapParser("/path/to/log/file");
+ *
+ * for(Enumeration e = p.entries(); e.hasMoreElements(); ) {
+ * 	NmapEntry ne = (NmapEntry)e.nextElement();
+ * 	System.out.println(ne);
+ * }
+ * </pre>
+ * <p>
+ * NOTE:  That's not a very useful example, please read the rest of the
+ * documentation and play around before complaining.
+ */
 
 public class NmapParser extends Object {
 	protected String inputFile=null;
