@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.1 2002/05/23 04:49:26 dustin Exp $
+	$Id: build.xml,v 1.2 2002/05/23 18:49:53 dustin Exp $
 
   -->
 
@@ -40,18 +40,14 @@
 		</javac>
 	</target>
 
-	<target name="dbstuff" depends="dbstubs,interfaceimplementor">
-		<java classname="net.spy.util.InterfaceImplementor" >
-				<arg value="-interface"/>
-					<arg value="java.sql.PreparedStatement"/>
-				<arg value="-superclass"/>
-					<arg value="net.spy.db.CachePreparedStatementStub"/>
-				<arg value="-outputclass"/>
-					<arg value="net.spy.db.CachePreparedStatement"/>
-				<classpath>
-					<pathelement path="${java.class.path}"/>
-				</classpath>
-		</java>
+	<target name="dbstuff" depends="resultset,preparedstatement">
+	</target>
+
+  <target name="resultset" depends="interfaceimplementor">
+    <javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+      <classpath refid="myclasses"/>
+      <include name="net/spy/db/CachedResultSetStub.java"/>
+    </javac>
 		<java classname="net.spy.util.InterfaceImplementor" >
 			<arg value="-interface"/>
 				<arg value="java.sql.ResultSet"/>
@@ -63,19 +59,32 @@
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 		</java>
-	</target>
+  </target>
+
+  <target name="preparedstatement" depends="resultset,interfaceimplementor">
+    <javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+      <classpath refid="myclasses"/>
+      <include name="net/spy/db/CachePreparedStatementStub.java"/>
+    </javac>
+
+		<java classname="net.spy.util.InterfaceImplementor" >
+				<arg value="-interface"/>
+					<arg value="java.sql.PreparedStatement"/>
+				<arg value="-superclass"/>
+					<arg value="net.spy.db.CachePreparedStatementStub"/>
+				<arg value="-outputclass"/>
+					<arg value="net.spy.db.CachePreparedStatement"/>
+				<classpath>
+					<pathelement path="${java.class.path}"/>
+				</classpath>
+		</java>
+
+  </target>
 
 	<target name="interfaceimplementor">
 		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/util/InterfaceImplementor.java"/>
-		</javac>
-	</target>
-
-	<target name="dbstubs">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
-			<classpath refid="myclasses"/>
-			<include name="net/spy/db/*Stub.java"/>
 		</javac>
 	</target>
 
