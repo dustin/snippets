@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-# $Id: ping,v 1.4 2002/02/27 23:46:02 dustin Exp $ \
+# $Id: ping,v 1.5 2002/03/28 07:07:27 dustin Exp $ \
 exec scotty -nf $0 $*
 
 set stats {}
@@ -37,10 +37,15 @@ proc showstats { } {
     puts "  Average pingtime:  ${ave}ms"
 }
 
+set logfile [open "$host.log" w]
+
 set count 0
 while { 1 } {
 	incr count
 	set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
+
+	puts $logfile "$count [getclock] $pt"
+	flush $logfile
 
 	if { $pt<0 } {
 		lappend stats -1
