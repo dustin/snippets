@@ -72,6 +72,8 @@ all: $(CLASSES) $(CACHE_CLASSES)
 doc: $(CLASSES)
 	$(JAVADOC) -public -d doc $(PACKAGES)
 
+jar: spy.jar
+
 spy.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES) net/spy/cache/*class
 
