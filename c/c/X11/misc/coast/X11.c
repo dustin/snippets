@@ -5,6 +5,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 
 #include "plot.h"
 #include "data.h"
@@ -15,6 +16,7 @@
 extern Display *display;
 extern Window window, rootwindow;
 extern GC gc;
+extern Cursor busy_cursor, normal_cursor;
 extern int screen, verbose, max_x, max_y;
 
 extern char *filename;
@@ -70,9 +72,17 @@ init_window(void)
   event_mask = ButtonPressMask | ExposureMask | KeyPressMask |
     PointerMotionMask;
 
+/*
+ * Here we pick a nifty cursor.
+ */
+
+  normal_cursor = XCreateFontCursor(display, XC_crosshair);
+  busy_cursor = XCreateFontCursor(display, XC_watch);
+
   attributes.event_mask = event_mask;
   attributes.border_pixel = BlackPixel(display, screen);
   attributes.background_pixel = WhitePixel(display, screen);
+  attributes.cursor = normal_cursor;
   attributes.backing_store = WhenMapped;
 
 /*
@@ -83,7 +93,7 @@ init_window(void)
  * land.  This can be hard coded in if you want to lie.
  */
 
-  attr_mask = CWEventMask | CWBackPixel | CWBorderPixel | CWBackingStore;
+  attr_mask = CWEventMask | CWBackPixel | CWBorderPixel | CWBackingStore | CWCursor;;
 
   window = XCreateWindow(display, rootwindow, 0, 0, max_x, max_y, 2,
        CopyFromParent, InputOutput, CopyFromParent, attr_mask, &attributes);
@@ -184,6 +194,18 @@ init_window(void)
 }
 
 void
+busy(void)
+{
+  XDefineCursor(display, window, busy_cursor);
+}
+
+void
+notbusy(void)
+{
+  XDefineCursor(display, window, normal_cursor);
+}
+
+void
 reportpos(int x, int y)
 {
   float lng, lat;
@@ -241,6 +263,8 @@ xplot()
   XWindowAttributes wattr;
 
   FILE *infile;
+
+  busy();
 
   if (NULL == (infile = fopen(filename, "rb")))
     exit(12);
@@ -333,6 +357,7 @@ xplot()
  */
 
   XFlush(display);
+  notbusy();
 }
 
 /*
