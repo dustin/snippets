@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.3 2000/06/16 20:08:33 dustin Exp $
+// $Id: FedEx.java,v 1.4 2000/06/16 20:42:28 dustin Exp $
 
 package net.spy.info;
 
@@ -23,6 +23,13 @@ public class FedEx extends PackageInfo {
 	public FedEx(String airbill_number) {
 		super();
 		this.arg = airbill_number;
+	}
+
+	/**
+	 * Instantiate a FedEx object with no argument
+	 */
+	public FedEx() {
+		super();
 	}
 
 	public String toString() {
