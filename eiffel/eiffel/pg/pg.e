@@ -1,6 +1,6 @@
 indexing
    description: "Postgres database access..."
-   version: "$Revision: 1.23 $"
+   version: "$Revision: 1.24 $"
    author: "Dustin Sallings <dustin@spy.net>"
    copyright: "1999"
    license: "See forum.txt."
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.23 2002/11/23 08:31:36 dustin Exp $
+-- $Id: pg.e,v 1.24 2002/11/23 09:40:05 dustin Exp $
 --
 class PG
 
@@ -173,6 +173,15 @@ feature {ANY} -- Query features
          Result := pg_ntuples(res)
       end -- num_rows
 
+   clear_results is
+	-- Destroy the current results
+	require
+		has_results: has_results
+	do
+		pg_clear_result(res)
+		res := nullpointer
+	end
+
    get_row: BOOLEAN is
       -- Get the next row of data back, returns false if there's no more data
       require
@@ -183,8 +192,7 @@ feature {ANY} -- Query features
          p: POINTER
       do
          if current_row >= num_rows then
-            pg_clear_result(res)
-            res := nullpointer
+			clear_results
             Result := false
          else
             from
