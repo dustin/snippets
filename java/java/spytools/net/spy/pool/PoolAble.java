@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.19 2001/08/30 01:21:19 dustin Exp $
+// $Id: PoolAble.java,v 1.20 2001/08/30 02:24:00 dustin Exp $
 
 package net.spy.pool;
 
@@ -162,17 +162,10 @@ public abstract class PoolAble extends Object {
 	public synchronized void checkIn() {
 		checked_out=false;
 		checkins++;
-		if(max_age==0) {
-			available=true;
-		} else {
-			long current_time=System.currentTimeMillis();
-			if(current_time-start_time < max_age) {
-				available=true;
-			} else {
-				// This should already be the case, but let's make sure.
-				available=false;
-			}
-		}
+
+		// At this point, set the availability based on whether this object
+		// is expired.
+		available=!isExpired();
 
 		// Also, make sure the thing's alive.
 		if(!isAlive()) {
@@ -180,6 +173,21 @@ public abstract class PoolAble extends Object {
 		}
 
 		debug("Checked in.");
+	}
+
+	// Returns true if this should be invalidated based on the time
+	private boolean isExpired() {
+		boolean rv=true;
+
+		if(max_age==0) {
+			rv=false;
+		} else {
+			long current_time=System.currentTimeMillis();
+			if(current_time-start_time < max_age) {
+				rv=false;
+			}
+		}
+		return(rv);
 	}
 
 	/**
@@ -203,6 +211,13 @@ public abstract class PoolAble extends Object {
 	 * Find out if the object is available for a requestor
 	 */
 	public synchronized boolean isAvailable() {
+		// If it currently believes it's available, but it's expired, make
+		// it unavailable.
+		if(available) {
+			if(isExpired()) {
+				available=false;
+			}
+		}
 		return(available);
 	}
 
@@ -220,7 +235,7 @@ public abstract class PoolAble extends Object {
 			ret++;
 			// If it's not checked out, and it's not available, we *need*
 			// to prune it.
-			if(!available) {
+			if(!isAvailable()) {
 				ret++;
 			}
 
@@ -280,7 +295,7 @@ public abstract class PoolAble extends Object {
 		if(max_age>0) {
 			out.append(" expires " + new Date(start_time + max_age));
 		}
-		if(!available) {
+		if(!isAvailable()) {
 			out.append(" (not available)");
 		}
 		return(out.toString());
