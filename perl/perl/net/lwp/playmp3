@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: playmp3,v 1.1 1998/03/26 07:31:01 dustin Exp $
+# $Id: playmp3,v 1.2 1998/03/26 07:51:05 dustin Exp $
 
 use LWP::UserAgent;
 use Tk;
@@ -22,36 +22,38 @@ sub getfile
 sub playtrack
 {
     my($a, $b, $c)=@_;
-
     system('/usr/local/bin/mpg123', "$base/$a/$b/$c") unless(fork());
+}
+
+sub listpopup
+{
+    my($title, $label, $sub, @list)=@_;
+
+    my($top, $nm);
+    $MW=MainWindow->new;
+    $MW->title($title);
+    $MW->Label(-text => $label)->pack;
+    $nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
+             ->pack(-expand => 'yes', -fill => 'x');
+    $nm->insert(0, sort(@list));
+    $nm->bind('<Double-1>' => $sub);
+
 }
 
 sub showalbum
 {
     my($k, $a)=@_;
-    my($top, $nm);
-
-    $MW=MainWindow->new;
-    $MW->title('Track Select');
-    $MW->Label(-text => 'Select the track you wish to play.')->pack;
-    $nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
-	     ->pack(-expand => 'yes', -fill => 'x');
-    $nm->insert(0, sort(@{$h{$k}{$a}}));
-    $nm->bind('<Double-1>' => sub { playtrack($k,$a,$_[0]->get('active')); });
+    listpopup('Track Select', 'Select the track you wish to play.',
+	      sub { playtrack($k,$a,$_[0]->get('active')); },
+	      @{$h{$k}{$a}});
 }
 
 sub showband
 {
     my($k)=@_;
-    my($top, $nm);
-
-    $MW=MainWindow->new;
-    $MW->title('Album Select');
-    $MW->Label(-text => 'Select from one of the following albums.')->pack;
-    $nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
-	     ->pack(-expand => 'yes', -fill => 'x');
-    $nm->insert(0, sort(keys(%{$h{$k}})));
-    $nm->bind('<Double-1>' => sub { showalbum($k, $_[0]->get('active')); });
+    listpopup('Album Select', 'Select from one of the following albums.',
+	      sub { showalbum($k, $_[0]->get('active')); },
+	      keys(%{$h{$k}}) );
 }
 
 # Processing index.
@@ -60,12 +62,8 @@ map {
     push(@{$h{$a[0]}{$a[1]}}, $a[2]);
 } split(/\n/, getfile($index));
 
-$MW=MainWindow->new;
-$MW->title('Band Select');
-$MW->Label(-text => 'Select from one of the following bands.')->pack;
-$nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
-	 ->pack(-expand => 'yes', -fill => 'x');
-$nm->insert(0, sort(keys(%h)));
-$nm->bind('<Double-1>' => sub { showband($_[0]->get('active')); });
+listpopup('Band Select', 'Select from one of the following bands.',
+	  sub { showband($_[0]->get('active')); },
+	  keys(%h));
 
 MainLoop;
