@@ -1,8 +1,9 @@
 # Makefile for RHash, remote object server stuff.
 
-JAR=/usr/pkg/java/bin/jar
-JAVAC=/usr/pkg/java/bin/javac
-RMIC=/usr/pkg/java/bin/rmic
+JAVAHOME=/usr/local/jdk1.1.8
+JAR=$(JAVAHOME)/bin/jar
+JAVAC=$(JAVAHOME)/bin/javac
+RMIC=$(JAVAHOME)/bin/rmic
 
 CLASSES=Example.class RHash.class RObject.class RObjectImpl.class \
 	RObjectImpl_Skel.class RObjectImpl_Stub.class
