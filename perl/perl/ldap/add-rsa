@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+use Net::LDAP;
+
+$ldap_server = "ldap.capital-internet.net";
+$base = "dc=capital-data,dc=com";
+
+$ldap = Net::LDAP->new("$ldap_server") or die "$@";
+
+$ldap->bind (   # bind to a directory with dn and password
+                     dn       => 'BINDDN',
+                     password => 'PASSWORD'
+                    );
+
+print "User ID: ";
+$userid = <STDIN>;
+chomp($userid);
+
+print "File: ";
+$file = <STDIN>;
+chomp($file);
+
+$dn = "uid=$userid,$base";
+$key = "";
+
+open(FILE,"<$file") || die "Can't open $file";
+while(<FILE>) {
+	$key .= $_;
+}
+close(FILE);
+
+
+$result = $ldap->modify( $dn,
+	changes => [ add => [ sshkey => "$key" ], ]
+);
+$result->code && warn "failed to add entry: ", $result->error ;
+$ldap->unbind;

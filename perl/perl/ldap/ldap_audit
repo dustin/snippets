@@ -1,0 +1,127 @@
+#!/usr/local/bin/perl -w
+
+use strict;
+
+use Net::LDAP;
+use Data::Dumper;
+use LDAPSlave;
+
+my $ldap_server = "dhcp-104";
+my @slave_servers=("printer.west.spy.net");
+my $base = "dc=spy,dc=net";
+
+my $binddn='uid=dustin,ou=agents,dc=spy,dc=net';
+my $bindpw='bizzo1';
+
+my @slaves=();
+
+my $master = Net::LDAP->new("$ldap_server") or die "$@";
+
+$master->bind ( dn => $binddn, password => $bindpw);
+
+for(@slave_servers) {
+	my $tmp=Net::LDAP->new("$_") or die "$@";
+	$tmp->bind( dn => $binddn, password => $bindpw);
+	push(@slaves, new LDAPSlave($_, $tmp));
+}
+
+audit($base, $master, @slaves);
+
+$master->unbind;
+for(@slaves) { $_->ldap()->unbind };
+
+sub audit {
+	my($base, $master, @slaves)=@_;
+	my($slave);
+
+	my @master_dns=getDns($master, $base);
+	my %master_hash=map { $_, 1 } @master_dns;
+
+	# First, just compare the DNs both ways.
+	for $slave (@slaves) {
+		my @dns=getDns($slave->ldap(), $base);
+		my %h=map { $_, 1 } @dns;
+
+		for(keys(%h)) {
+			if(!defined($master_hash{$_})) {
+				print "!!! $_ is not in the master !!!\n";
+			}
+		}
+		for(keys(%master_hash)) {
+			if(!defined($h{$_})) {
+				my $t=$slave->name();
+				print "!!! $_ is not in the slave ($t) !!!\n";
+			}
+		}
+	}
+
+	# Now do a compare on the data in each DN.
+	my $dn;
+	for $dn (@master_dns) {
+		my $master_data="";
+		my $t="";
+		eval {
+			$master_data=gettree($master, $dn);
+		};
+		if($@) {
+			print "Failed on $dn\n";
+		}
+		for $slave (@slaves) {
+			eval {
+				my $slave_data=gettree($slave->ldap(), $dn);
+				$t = $slave->name();
+
+				if($master_data ne $slave_data) {
+					print "!!! $dn is not the same on $t !!!\n";
+				}
+			};
+
+			if($@) {
+				print "Failed for $dn on $t, missing?\n";
+			}
+		}
+	}
+}
+
+sub gettree {
+	my($ldap, $base)=@_;
+	my($result, $entry, $att, $ret);
+
+	$ret="";
+
+	$result = $ldap->search ( 'base' => $base, 'scope' => 'base',
+		'filter' => '(objectclass=*)',
+	);
+
+	$result->code && die $result->error;
+
+	my %h=();
+	for $entry ($result->all_entries()) {
+		my $dn=$entry->dn();
+		$h{$dn}{'dn'}=$dn;
+		for $att ($entry->attributes()) {
+			my(@vals);
+			@vals=sort($entry->get($att));
+
+			$h{$dn}{$att}=\@vals;
+		}
+	}
+
+	return(Dumper(\%h));
+}
+
+sub getDns {
+	my($ldap, $base)=@_;
+	my($result, $entry, @ret);
+	@ret=();
+	$result = $ldap->search ( 'base' => $base, 'scope' => 'sub',
+		'filter' => '(objectclass=*)', 'attrs' => ['dn']
+	);
+
+	$result->code && die $result->error;
+
+	for $entry ($result->all_entries()) {
+		push(@ret, $entry->dn());
+	}
+	return(sort(@ret));
+}
