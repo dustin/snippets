@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.1 2000/07/19 03:22:35 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.2 2000/07/19 23:36:39 dustin Exp $
  */
 
 package net.spy.log;
@@ -49,12 +49,19 @@ public class SpyLogQueue extends Object {
 	 * @param ms The maximum number of milliseconds to wait.
 	 */
 	public void waitForQueue(long ms) {
+		int size=0;
+
+		// Figure out the size first.
 		synchronized(log_mutex) {
-			if(log_buffer.size()>0) {
-				return;
-			}
+			size=log_buffer.size();
+		}
+
+		if(size<=0) {
+			// Only do this if we don't already think we have data
 			try {
-				log_mutex.wait(ms);
+				synchronized(log_mutex) {
+					log_mutex.wait(ms);
+				}
 			} catch(InterruptedException e) {
 				// If we are going to return too early, pause just a sec
 				System.err.println("SpyLogQueue.waitForQueue got exception:  "
@@ -66,7 +73,7 @@ public class SpyLogQueue extends Object {
 						+ e2);
 				}
 			}
-		}
+		} // if we have no data
 	}
 
 	/**

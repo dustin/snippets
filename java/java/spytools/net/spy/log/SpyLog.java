@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.1 2000/07/19 03:22:33 dustin Exp $
+ * $Id: SpyLog.java,v 1.2 2000/07/19 23:36:36 dustin Exp $
  */
 
 package net.spy.log;
@@ -27,26 +27,32 @@ import java.util.*;
 public class SpyLog extends Object {
 	protected SpyLogQueue queue=null;
 	protected static boolean initialized = false;
-	protected static SpyLogFlusher flusher=null;
-	protected static int refcount=0;
+	protected static Vector flushers=null;
 
 	/**
-	 * Instantiate a SpyLog entry.
+	 * Instantiate a SpyLog entry with the default flusher.
 	 */
 	public SpyLog() {
 		super();
+
 		// Important to initialize only once, this sets up all the static
 		// variables including the cleanup thread.
 		if(initialized == false) {
 			initialize();
+
+			// If this is initialization, and we don't have a flusher, make
+			// one.
+			synchronized(flushers) {
+				// Default flusher.
+				if(flushers.size()==0) {
+					SpyLogFlusher flusher = new SpyLogFlusher();
+					addFlusher(flusher);
+				}
+			}
 		}
 
 		// Grab a queue object
 		queue=new SpyLogQueue();
-
-		// Count of the number of objects out there, when there aren't any
-		// more, we stop the cleaner thread and force a shutdown.
-		refcount++;
 	}
 
 	/**
@@ -57,21 +63,31 @@ public class SpyLog extends Object {
 	public SpyLog(SpyLogFlusher f) {
 		super();
 
-		// The log flusher object.
-		flusher=f;
-
 		// Important to initialize only once, this sets up all the static
 		// variables including the cleanup thread.
 		if(initialized == false) {
 			initialize();
 		}
 
+		// The log flusher object.
+		addFlusher(f);
+
 		// Grab a queue object
 		queue=new SpyLogQueue();
+	}
 
-		// Count of the number of objects out there, when there aren't any
-		// more, we stop the cleaner thread and force a shutdown.
-		refcount++;
+	/**
+	 * Add another log flusher to the pool.
+	 */
+	public void addFlusher(SpyLogFlusher f) {
+		synchronized(flushers) {
+			try {
+				f.start();
+			} catch(IllegalThreadStateException e) {
+				// We don't care if it's already started.
+			}
+			flushers.addElement(f);
+		}
 	}
 
 	/**
@@ -86,20 +102,16 @@ public class SpyLog extends Object {
 	protected synchronized void initialize() {
 		// Do this soon, we don't want anything else causing this to happen.
 		initialized = true;
-		refcount = 0;
 
-		if(flusher==null) {
-			flusher = new SpyLogFlusher();
+		if(flushers==null) {
+			flushers=new Vector();
 		}
-		flusher.start();
 
 		// Really need to make sure all finalization occurs.
 		System.runFinalizersOnExit(true);
 	}
 
 	protected void finalize() throws Throwable {
-		// One fewer reference.
-		refcount--;
 		super.finalize();
 	}
 }

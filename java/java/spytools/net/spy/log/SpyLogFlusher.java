@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.1 2000/07/19 03:22:34 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.2 2000/07/19 23:36:38 dustin Exp $
  */
 
 package net.spy.log;
@@ -57,8 +57,15 @@ public class SpyLogFlusher extends Thread {
 		this.setDaemon(true);
 	}
 
+	/**
+	 * Return the current queue of things to be logged
+	 */
+	protected Vector flush() {
+		return(log_queue.flush());
+	}
+
 	protected void doFlush() {
-		Vector v = log_queue.flush();
+		Vector v = flush();
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
 			BufferedWriter log_file=null;
