@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.18 2001/08/30 00:51:18 dustin Exp $
+// $Id: PoolAble.java,v 1.19 2001/08/30 01:21:19 dustin Exp $
 
 package net.spy.pool;
 
@@ -74,7 +74,9 @@ public abstract class PoolAble extends Object {
 	// Get the debug name
 	private String debugName() {
 		StringBuffer sb=new StringBuffer();
-		sb.append("PoolAble for ");
+		sb.append("PoolAble ");
+		sb.append(object_id);
+		sb.append(" for ");
 		sb.append(Integer.toHexString(poolHash));
 		return(sb.toString());
 	}
