@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.27 2002/03/30 05:39:50 dustin Exp $
+# $Id: nntpsucka.py,v 1.28 2002/05/24 19:11:20 dustin Exp $
 
 import nntplib
 import time
@@ -261,10 +261,11 @@ class NNTPSucka:
 		resp, list = self.dest.list()
 		for l in list:
 			group=l[0]
-			try:
-				self.copyGroup(group)
-			except nntplib.NNTPTemporaryError, e:
-				print "Error on group " + group + ":  " + str(e)
+			if group != 'control.cancel':
+				try:
+					self.copyGroup(group)
+				except nntplib.NNTPTemporaryError, e:
+					print "Error on group " + group + ":  " + str(e)
 
 	def getStats(self):
 		"""Get the statistics object."""
@@ -309,4 +310,4 @@ if __name__ == '__main__':
 	try:
 		main()
 	except pidlock.AlreadyLockedException, ale:
-		sys.stderr.write("Already running:  " + str(ale[0]))
+		sys.stderr.write("Already running:  " + str(ale[0]) + "\n")
