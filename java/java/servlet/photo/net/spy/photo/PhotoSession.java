@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.1 1999/10/20 03:43:02 dustin Exp $
+ * $Id: PhotoSession.java,v 1.2 1999/11/26 00:59:09 dustin Exp $
  */
 
 package net.spy.photo;
@@ -877,7 +877,7 @@ public class PhotoSession extends Object
 				v=p.getImage();
 			}
 			logger.log(new PhotoLogImageEntry(remote_uid.intValue(),
-				which, p.wasCached(), request));
+				which, true, request));
 			for(i = 0; i<v.size(); i++) {
 				out.write( (byte[])v.elementAt(i));
 			}

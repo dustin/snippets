@@ -8,7 +8,8 @@ MYLIB=/home/dustin/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
 C3=$(MYLIB)/spy.jar:$(MYLIB)/postgresql.jar:$(MYLIB)/xml4j.jar
-CLASSPATH=$(C1):$(C2):$(C3):.
+C4=$(MYLIB)/ImageServer.jar
+CLASSPATH=$(C1):$(C2):$(C3):$(C4):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
 SCP=scp

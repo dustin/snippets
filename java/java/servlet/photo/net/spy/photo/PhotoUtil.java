@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.1 1999/10/20 03:43:04 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.2 1999/11/26 00:59:11 dustin Exp $
  */
 
 package net.spy.photo;
@@ -37,28 +37,7 @@ public class PhotoUtil
 
 	// Make a strings safe for the database.
 	public static String dbquote_str(String thing) {
-
-		// Quick...handle null
-		if(thing == null) {
-			return(null);
-		}
-
-		String scopy = new String(thing);
-		if(scopy.indexOf('\'') >= 0) {
-			String sout = new String("");
-			StringTokenizer st = new StringTokenizer(scopy, "\'");
-			while(st.hasMoreTokens()) {
-				String part = st.nextToken();
-
-				if(st.hasMoreTokens()) {
-					sout += part + "\'\'";
-				} else {
-					sout += part;
-				}
-			}
-			scopy=sout;
-		}
-		return(scopy);
+		return(SpyDB.dbquote_str(thing));
 	}
 
 	// Tokenize a template file and return the tokenized stuff.
