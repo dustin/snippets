@@ -4,7 +4,7 @@ OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
-PARTS=stringutils fileutils lru linkedlist base64
+PARTS=stringutils fileutils lru linkedlist base64 cdb
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -22,9 +22,11 @@ linkedlist: linkedlist.cmi linkedlist.mli
 
 lru: linkedlist lru.cmi lru.mli
 
+cdb: cdb.cmi cdb.mli
+
 testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
-		fileutils.cmo stringutils.cmo linkedlist.cmo lru.cmo base64.cmo
+		fileutils.cmo stringutils.cmo linkedlist.cmo lru.cmo base64.cmo cdb.cmo
 
 docs: $(PARTS)
 	mkdir -p doc
