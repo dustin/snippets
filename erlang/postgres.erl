@@ -35,6 +35,14 @@ makeString(String) ->
 	StrLength = length(String)+4,
 	[binary_to_list(<<StrLength:32/integer-big>>)|String].
 
+assert(V, Msg) ->
+	case V of
+		true ->
+			true;
+		_ ->
+			exit(Msg)
+	end.
+
 % Get the first four items from a list and create a 32-bit int out of them.
 % Return the 32-bit number and the remaining list.
 getInt32(Data) when length(Data) >= 4 ->
@@ -68,14 +76,19 @@ init([Host,Port,User,Database]) ->
 connected(X, Pid, Info) ->
 	io:format("connected/3 called~n", []).
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Callbacks
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% authentication handlers
+
+perform_auth(auth_md5, Data, connected, Info) ->
+	io:format("Performing MD5 auth~n", []),
+	{next_state, connected, Info};
+perform_auth(Type, Data, connected, Info) ->
+	exit("Trying to use unhandled auth type " ++ atom_to_list(Type)).
+
+%%%%% end of authentication handlers
 
 % Auth request
-handle_info({tcp, _Port, [$R|Data]}, connected, Info) ->
-	{Len, Rest1} = getInt32(Data),
-	{TypeNum, Rest2} = getInt32(Rest1),
+handle_packet($R, Length, Data, connected, Info) ->
+	{TypeNum, Rest} = getInt32(Data),
 	Type = case TypeNum of
 		0 -> auth_ok;
 		1 -> auth_k4;
@@ -85,8 +98,24 @@ handle_info({tcp, _Port, [$R|Data]}, connected, Info) ->
 		5 -> auth_md5;
 		6 -> auth_scm
 	end,
-	io:format("Got auth request (~p):  ~p bytes:  ~p~n", [Type, Len, Rest2]),
-	{next_state, connected, Info}.
+	io:format("Got auth request (~p):  ~p bytes:  ~p~n", [Type, Length, Rest]),
+	perform_auth(Type, Data, connected, Info);
+
+% Any other packet
+handle_packet(Type, Length, Data, State, Info) ->
+	io:format("Got packet ~p length ~p [~p] in state ~p~n",
+		[Type, Length, Data, State]),
+	{next_state, State, Info}.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Callbacks
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Auth request
+handle_info({tcp, _Port, [Type|Data]}, State, Info) ->
+	{Len, Rest} = getInt32(Data),
+	assert(length(Rest)+4 == Len, "Incorrect data length"),
+	handle_packet(Type, Len, Rest, State, Info).
 
 % XXX  Doesn't do anything useful yet
 handle_sync_event(X, Pid, AnyState, Info) ->
