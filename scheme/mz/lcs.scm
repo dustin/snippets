@@ -56,3 +56,9 @@
                            (else
                             (loop rv i (+ 1 j))))))))
       (loop '() 0 0))))
+
+; Routine to print out the subsequence matrix
+(define (dbg-subseq v)
+  (for-each
+   (lambda (x) (display x) (newline))
+   (vector->list v)))
