@@ -1,6 +1,6 @@
 indexing
 	description: "Logger object.";
-	version: "$Revision: 1.2 $";
+	version: "$Revision: 1.1 $";
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "2002";
 	license: "See forum.txt.";
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: logger.e,v 1.2 2002/11/14 08:36:30 dustin Exp $
+-- $Id: logger.e,v 1.1 2002/11/14 08:37:23 dustin Exp $
 --
 class LOGGER
 

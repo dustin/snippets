@@ -1,6 +1,6 @@
 indexing
 	description: "";
-	version: "$Revision: 1.2 $";
+	version: "$Revision: 1.1 $";
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "2002";
 	license: "See forum.txt.";
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: logger_constants.e,v 1.2 2002/11/14 08:36:31 dustin Exp $
+-- $Id: logger_constants.e,v 1.1 2002/11/14 08:37:24 dustin Exp $
 --
 expanded class LOGGER_CONSTANTS
 
