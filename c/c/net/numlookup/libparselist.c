@@ -22,6 +22,7 @@ snprintf(char *s, size_t n, const char *format,...)
 {
 	int r;
 	va_list ap;
+
 	va_start(ap, format);
 	r=vsnprintf(s, n - 1, format, ap);
 	va_end(ap);
@@ -30,27 +31,32 @@ snprintf(char *s, size_t n, const char *format,...)
 
 #endif
 
-void
+static void
 _do_log(int level, char *msg)
 {
-	openlog("testip", LOG_PID | LOG_NDELAY, LOG_LOCAL0);
+	static int open=0;
+
+	if(open==0) {
+		open=1;
+		openlog("testip", LOG_PID | LOG_NDELAY, LOG_LOCAL0);
+	}
 	syslog(LOG_LOCAL0 | level, msg);
-	closelog();
 }
 
-void
+static void
 _log(char *format,...)
 {
 	va_list ap;
 	char    buf[LINELEN];
+
 	va_start(ap, format);
-	vsnprintf(buf, LINELEN - 1, format, ap);
+	(void)vsnprintf(buf, LINELEN - 1, format, ap);
 	va_end(ap);
 	_do_log(LOG_INFO, buf);
 }
 
 /* Initialize a config structure */
-struct config_t
+static struct config_t
 initConfig(void)
 {
 	struct config_t config;
@@ -71,13 +77,15 @@ initConfig(void)
 }
 
 /* This code is kinda duplicated from below, but we can deal with that */
-int
+static int
 parseIP(const char *ip)
 {
-	int     a[4];
+	int     a[4], n;
 	unsigned int ret;
 
-	sscanf(ip, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]);
+	n=sscanf(ip, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]);
+	if(n!=4)
+		return(0);
 	ret = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3];
 	return (ret);
 }
@@ -86,7 +94,7 @@ parseIP(const char *ip)
  * I usually call this routine ``killwhitey,'' but I stole it from
  * Nathan, so I'll keep the name.
  */
-char *
+static char *
 getCleanLine(char *data, int size, FILE * infile)
 {
 	char *first_char, *comment, *last_char;
@@ -106,12 +114,11 @@ getCleanLine(char *data, int size, FILE * infile)
 		*last_char = 0x00;
 		last_char--;
 	}
-	strcpy(data, first_char);
-	return(data);
+	return(strcpy(data, first_char));
 }
 
 /* Read the config */
-struct config_t
+static struct config_t
 readconfig(void)
 {
 	char    line[LINELEN];
@@ -151,13 +158,16 @@ readconfig(void)
 		addr&=config.masks[mask];
 
 		/* store it in our hash */
-		hash_store(config.hash[mask], addr, data);
+		if(hash_store(config.hash[mask], addr, data)==0) {
+			_log("Error storing entry:  %d/%d (%s)", addr, mask, line);
+			continue;
+		}
 	}
-	fclose(f);
+	(void)fclose(f);
 	return (config);
 }
 
-void
+static void
 destroyConfig(struct config_t config)
 {
 	int     i;
@@ -169,7 +179,7 @@ destroyConfig(struct config_t config)
 	}
 }
 
-char   *
+static char   *
 search(struct config_t config, unsigned int ip)
 {
 	int     i, addr;
@@ -187,7 +197,7 @@ search(struct config_t config, unsigned int ip)
 	return (NULL);
 }
 
-int
+static int
 main(int argc, char **argv)
 {
 	struct config_t config;
@@ -200,7 +210,7 @@ main(int argc, char **argv)
 	for (i = 0; i < LIFETIME; i++) {
 		tmp = fgets(buf, LINELEN - 1, stdin);
 		if (tmp == NULL) {
-			sleep(1);
+			(void)sleep(1);
 			break;
 		}
 		buf[strlen(buf) - 1] = 0x00;
@@ -214,6 +224,7 @@ main(int argc, char **argv)
 	}
 
 	destroyConfig(config);
+	closelog(); /* I don't think it hurts to do this if it isn't open */
 
 #ifdef MYMALLOC
 	_mdebug_dump();

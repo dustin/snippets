@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.7 1999/05/08 22:04:55 dustin Exp $
+ * $Id: parselist.c,v 1.8 1999/05/08 22:22:00 dustin Exp $
  */
 
 #include <stdio.h>
@@ -55,10 +55,10 @@ lastmod(char *file)
 
 /* this is in case we can't load the shared library, just print out an
  * error */
-void emergency(void)
+static void emergency(void)
 {
-	char buf[80];
-	fgets(buf, 79, stdin);
+	char buf[80], *tmp;
+	tmp=fgets(buf, 79, stdin);
 	puts("ERROR");
 }
 
@@ -100,9 +100,8 @@ main(int argc, char **argv)
 	}
 
 	/* close it, we're leaving now, not that any of this will ever happen */
-#ifndef lint
+	/* NOTREACHED */
 	if(lib)
 		dlclose(lib);
 	return(0);
-#endif /* lint */
 }
