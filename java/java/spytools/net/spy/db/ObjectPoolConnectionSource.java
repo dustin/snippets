@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolConnectionSource.java,v 1.1 2002/08/03 05:00:18 dustin Exp $
+// $Id: ObjectPoolConnectionSource.java,v 1.2 2002/08/03 06:43:25 dustin Exp $
 
 package net.spy.db;
 
@@ -46,6 +46,9 @@ public class ObjectPoolConnectionSource extends Object
 	 * @see ConnectionSource
 	 */
 	public Connection getConnection(SpyConfig conf) throws SQLException {
+		// Get the pool name
+		poolName=conf.get("dbPoolName");
+
 		// make sure it's initialized
 		if(!initialized) {
 			initialize(conf);
@@ -82,8 +85,6 @@ public class ObjectPoolConnectionSource extends Object
 				if(pool==null) {
 					pool=new ObjectPool(conf);
 				}
-				// Get the pool name
-				poolName=conf.get("dbPoolName");
 				if(!pool.hasPool(poolName)) {
 					try {
 						createPool(conf);

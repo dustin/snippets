@@ -1,10 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.12 2002/07/10 05:41:13 dustin Exp $
+ * $Id: SpyCache.java,v 1.13 2002/08/03 06:43:23 dustin Exp $
  */
 
 package net.spy.cache;
+
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 
 import java.io.IOException;
 
@@ -45,7 +48,8 @@ public class SpyCache extends Object {
 	 * @param cacheTime Amount of time (in milliseconds) to store object.
 	 */
 	public void store(String key, Object value, long cacheTime) {
-		SpyCacheItem i=new SpyCacheItem(key, value, cacheTime);
+		SpyCacheItem i=new SpyCacheItem(key, new SoftReference(value),
+			cacheTime);
 		synchronized(cacheStore) {
 			cacheStore.put(key, i);
 		}
@@ -63,7 +67,8 @@ public class SpyCache extends Object {
 		synchronized(cacheStore) {
 			SpyCacheItem i=(SpyCacheItem)cacheStore.get(key);
 			if(i!=null && (!i.expired())) {
-				ret=i.getObject();
+				Reference ref=i.getObject();
+				ret=ref.get();
 			}
 		}
 		return(ret);
@@ -231,10 +236,10 @@ public class SpyCache extends Object {
 
 	private class SpyCacheItem extends Object {
 		private Object key=null;
-		private Object value=null;
+		private Reference value=null;
 		private long exptime=0;
 
-		public SpyCacheItem(Object key, Object value, long cacheTime) {
+		public SpyCacheItem(Object key, Reference value, long cacheTime) {
 			super();
 
 			this.key=key;
@@ -252,7 +257,7 @@ public class SpyCache extends Object {
 			return(out);
 		}
 
-		public Object getObject() {
+		public Reference getObject() {
 			return(value);
 		}
 
