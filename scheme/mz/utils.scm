@@ -2,6 +2,21 @@
 (define (vdisplay . args)
   (for-each display args))
 
+; Get the tail of a list from a specific point
+(define (nth-tail n l)
+  (if (= 0 n)
+	l
+	(nth-tail (- n 1) (cdr l))))
+
+; Get the head of a list from a specific point
+(define (nth-head n lin)
+  (reverse
+	(letrec ((loop (lambda (rv l n)
+					 (if (= 0 n)
+					   rv
+					   (loop (cons (car l) rv) (cdr l) (- n 1))))))
+	  (loop '() lin n))))
+
 ; Prefix a string (s) with a given string (p)
 ; until the requested length (l) is met
 (define (prefix-string s p l)
@@ -65,3 +80,15 @@
                                  (cons (car l) '())
                                  (qs (cadr p))))))))
       (qs lin))))
+
+; Return the unique entries in a list
+(define (uniq lin)
+  (letrec ((loop (lambda (l rv)
+				   (if (null? l) (reverse rv)
+					 (if (eq?
+						   (if (null? rv) 'blah (car rv))
+						   (car l))
+					   (loop (cdr l) rv)
+					   (loop (cdr l)
+							 (cons (car l) rv)))))))
+	(loop (qsort lin) '())))
