@@ -6,13 +6,13 @@
 
 let main() =
 	(* Print out the base64 encoded first argument *)
-	Fileutils.operate_on_file (fun f ->
+	Fileutils.operate_on_file_in (fun f ->
 			Stream.iter print_string (Base64.encode (Stream.of_channel f)))
 		Sys.argv.(1);
 	print_newline();
 	(* Now try a file copy filtering through base64 *)
 	let out = open_out Sys.argv.(2) in
-	Fileutils.operate_on_file (fun f ->
+	Fileutils.operate_on_file_in (fun f ->
 				Stream.iter (fun s -> output_string out s)
 			(Base64.decode
 				(Base64.stream_convert (Base64.encode (Stream.of_channel f)))))
