@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.22 2002/03/24 09:33:07 dustin Exp $
+# $Id: nntpsucka.py,v 1.23 2002/03/24 09:52:54 dustin Exp $
 
 import nntplib
 import time
@@ -236,4 +236,7 @@ def main():
 	print "Total time spent:  " + str(stop-start) + "s"
 
 if __name__ == '__main__':
-	main()
+	try:
+		main()
+	except pidlock.AlreadyLockedException, ale:
+		print "Already running:  " + str(ale[0])
