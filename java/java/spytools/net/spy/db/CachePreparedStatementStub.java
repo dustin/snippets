@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.7 2001/03/27 09:30:48 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.8 2001/05/07 07:46:07 dustin Exp $
  */
 
 package net.spy.db;
 
 import java.sql.*;
+import java.math.*;
 import java.util.StringTokenizer;
 import net.spy.*;
 import net.spy.cache.*;
@@ -223,6 +224,11 @@ public class CachePreparedStatementStub extends Object {
 		// This one works a bit different because we have to store the
 		// original type
 		setArg(a0, new Integer(a1), Types.NULL);
+	}
+
+	// Implemented
+	public void setBigDecimal(int a0, BigDecimal a1) throws SQLException {
+		setArg(a0, a1, Types.DECIMAL);
 	}
 
 	// Implemented

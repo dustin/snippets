@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.8 2001/04/07 11:30:04 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.9 2001/05/07 07:46:09 dustin Exp $
  */
 
 package net.spy.db;
@@ -288,6 +288,21 @@ public class CachedResultSetStub extends Object implements Cloneable {
 		return(n);
 	}
 
+	public BigDecimal getBigDecimal(int index) throws SQLException {
+		BigDecimal rv=null;
+
+		Object o=getResultColumn(index);
+		if(o!=null) {
+			try {
+				rv=(BigDecimal)o;
+			} catch(Exception e) {
+				throw new SQLException("Error getting date value:  " + e);
+			}
+		}
+
+		return(rv);
+	}
+
 	public java.sql.Date getDate(int index) throws SQLException {
 		java.sql.Date rv=null;
 		Object o=getResultColumn(index);
@@ -385,6 +400,10 @@ public class CachedResultSetStub extends Object implements Cloneable {
 
 	public java.sql.Timestamp getTimestamp(String name) throws SQLException {
 		return(getTimestamp(findColumn(name)));
+	}
+
+	public BigDecimal getBigDecimal(String name) throws SQLException {
+		return(getBigDecimal(findColumn(name)));
 	}
 
 	public Object getObject(String name) throws SQLException {
