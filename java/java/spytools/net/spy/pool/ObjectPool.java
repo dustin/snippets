@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.2 2000/07/01 09:44:28 dustin Exp $
+// $Id: ObjectPool.java,v 1.3 2000/07/01 11:05:55 dustin Exp $
 
 package net.spy.pool;
 
@@ -11,6 +11,7 @@ public class ObjectPool extends Object {
 	protected static Hashtable pools=null;
 	protected Exception objectException=null;
 	protected SpyConfig conf=null;
+	protected ObjectPoolCleaner cleaner=null;
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -60,11 +61,11 @@ public class ObjectPool extends Object {
 	 *
 	 * @param name The pool from which we'll get our object.
 	 *
-	 * @return a PoolAble object.
+	 * @return a PooledObject object.
 	 *
 	 * @throws PoolException if it can't get an object
 	 */
-	public PoolAble getObject(String name) throws PoolException {
+	public PooledObject getObject(String name) throws PoolException {
 		PoolContainer pc=(PoolContainer)pools.get(name);
 		if(pc==null) {
 			throw new PoolException("There's no pool called " + name);
@@ -79,16 +80,27 @@ public class ObjectPool extends Object {
 	public void dumpPools() {
 		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
-
 			System.out.println("Pool " + key);
 			PoolContainer pc=(PoolContainer)pools.get(key);
 			pc.dumpPool();
 		}
 	}
 
+	/**
+	 * Dump out the object pools.
+	 */
+	public void prune() {
+		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
+			String key=(String)e.nextElement();
+			PoolContainer pc=(PoolContainer)pools.get(key);
+			pc.prune();
+		}
+	}
+
 	protected synchronized void initialize() {
 		if(pools==null) {
 			pools=new Hashtable();
+			cleaner=new ObjectPoolCleaner(this);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.1 2000/07/01 09:44:30 dustin Exp $
+// $Id: PoolContainer.java,v 1.2 2000/07/01 11:05:57 dustin Exp $
 
 package net.spy.pool;
 
@@ -18,6 +18,8 @@ public class PoolContainer extends Object {
 	protected int _current_objects=0;
 	protected int _object_id=0;
 
+	protected boolean _debug=true;
+
 	public PoolContainer(String name, PoolFiller pf, SpyConfig conf)
 		throws PoolException {
 		super();
@@ -28,11 +30,14 @@ public class PoolContainer extends Object {
 		initialize();
 	}
 
-	public synchronized PoolAble getObject() throws PoolException {
+	public synchronized PooledObject getObject() throws PoolException {
 		PoolAble ret=null;
 
-		// We'll try up to three times to get an object from the pool
-		for(int retry=0; ret==null && retry<3; retry++) {
+		// How many times we're flipping through the object pool
+		int retries=6;
+
+		// We'll try up to three seconds to get an object from the pool
+		for(int retry=0; ret==null && retry<retries; retry++) {
 
 			// Find the next available object.
 			for(Enumeration e=pool.elements();
@@ -49,9 +54,17 @@ public class PoolContainer extends Object {
 			} // Flipping through the current pool
 
 			try {
-				System.out.println("*** No free entries in pool, sleeping ***");
-				// Wait a second if the pool is full, in case it frees up
-				Thread.sleep(1000);
+				debug("*** No free entries in pool, sleeping ***");
+
+				// We're halfway through, or more!  Desperate measures!
+				if(retry==retries/2) {
+					debug("!!! Trying to force cleanup!");
+					System.gc();
+					System.runFinalization();
+				}
+				// Wait a half a second if the pool is full, in case
+				// something gets checked in
+				Thread.sleep(500);
 			} catch(Exception e) {
 				// Things just go faster.
 			}
@@ -65,20 +78,57 @@ public class PoolContainer extends Object {
 			ret=getNewObject();
 		}
 
-		// Check it out.
-		ret.checkOut();
-
 		// OK, let's stick it at the end of the vector (may already be, but
 		// you know...) so that it's one of the last we check for next time.
 		pool.removeElement(ret);
 		pool.addElement(ret);
 
-		return(ret);
+		// We're going to return a brand new PooledObject representing this
+		// checked out entry.
+		return(new PooledObject(ret));
 	}
 
+	/**
+	 * debugging tool, dump out the current state of the pool to System.out
+	 */
 	public void dumpPool() {
 		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 			System.out.println("\t" + e.nextElement());
+		}
+	}
+
+	/**
+	 * Find out how many objects are available in this pool.
+	 *
+	 * @return the number of available (not checked out) objects.
+	 */
+	public synchronized int avaliableObjects() {
+		int ret=0;
+
+		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+			PoolAble p=(PoolAble)e.nextElement();
+			if(!p.checkedOut()) {
+				ret++;
+			}
+		}
+
+		return(ret);
+	}
+
+	/**
+	 * Remove any object that is not checked out, as long as we stay above
+	 * our minimum object requirement.
+	 */
+	public synchronized void prune() {
+		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+			// Don't remove too many objects.
+			if(_current_objects>=_min_objects) {
+				PoolAble p=(PoolAble)e.nextElement();
+				if(!p.checkedOut()) {
+					pool.removeElement(p);
+					_current_objects--;
+				}
+			}
 		}
 	}
 
@@ -99,7 +149,7 @@ public class PoolContainer extends Object {
 		PoolAble p=null;
 		// Don't add an object if we're at capacity.
 		if(_current_objects<_max_objects) {
-			System.out.println("*** Getting a new object in the "
+			debug("*** Getting a new object in the "
 				+ name + " pool, currently have " + _current_objects
 				+ ". ***");
 			p=filler.getObject();
@@ -123,5 +173,11 @@ public class PoolContainer extends Object {
 
 	protected String getProperty(String what) {
 		return(conf.get(name + "." + what));
+	}
+
+	protected void debug(String msg) {
+		if(_debug) {
+			System.out.println(msg);
+		}
 	}
 }
