@@ -7,9 +7,14 @@ $|=1;
 print "Enter password:  ";
 $|=0;
 my $pass=<>;
+chomp($pass);
 
 my $ldap=Net::LDAP->new("dhcp-104");
-$ldap->bind('uid=dustin,ou=agents,dc=spy,dc=net', 'password' => $pass);
+my $res=$ldap->bind('uid=dustin,ou=agents,dc=spy,dc=net', 'password' => $pass);
+if($res->code()!=0) {
+	print "Error authenticating:  " . $res->code() . "\n";
+	exit(-1);
+}
 
 my(@dns)=();
 
@@ -21,6 +26,11 @@ for $entry ($result->all_entries()) {
 }
 
 for(@dns) {
-	print "Modifying $_\n";
-	$ldap->modify($_, "delete" => {'objectClass', 'account'});
+	print "Modifying $_...";
+	my $r=$ldap->modify($_, "delete" => {'objectClass', 'account'});
+	if($r->code()==0) {
+		print "ok\n";
+	} else {
+		print "failed (" . $r->code() . ")\n";
+	}
 }
