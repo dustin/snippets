@@ -1,0 +1,34 @@
+# Copyright (c) 1998  Dustin Sallings
+# $Id: Makefile.in,v 1.1 2003/06/12 17:05:36 dustin Exp $
+
+SHELL=/bin/sh
+CC=@CC@
+LINT=lint
+INCLUDES=-I.
+DEFINES=
+CFLAGS=@CFLAGS@ $(INCLUDES) $(DEFINES)
+LIBS=@LIBS@
+LDFLAGS=$(LIBS)
+
+.SUFFIXES: .c .o .l .a .ln
+OBJS=main.o sockets.o
+SRCS=main.c sockets.c
+LINTS=main.ln sockets.ln
+EXES=waitforsocket
+AUTOJUNK=config.h config.status config.cache config.log Makefile
+JUNK=$(OBJS) $(EXES) $(LINTS)
+
+waitforsocket: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+
+lint: $(LINTS)
+	$(LINT) $(LINTS)
+
+.c.ln:
+	$(LINT) $(INCLUDES) -c $<
+
+clean:
+	rm -f $(JUNK) core
+
+ultrabrite: clean
+	rm -f $(AUTOJUNK)

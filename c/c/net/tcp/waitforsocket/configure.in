@@ -1,0 +1,69 @@
+dnl $Id: configure.in,v 1.1 2003/06/12 17:05:42 dustin Exp $
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(main.c)
+AC_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROGRAM_CHECK(UNAMEPROG, uname, uname, )
+AC_PROGRAM_CHECK(TRPROG, tr, tr, )
+AC_PROGRAM_CHECK(SEDPROG, sed, sed, )
+AC_PROGRAM_CHECK(CUTPROG, cut, cut, )
+
+dnl What we on, boys?
+echo "Checking out your OS..."
+OS=`$UNAMEPROG|$TRPROG '[[A-Z]]' '[[a-z]]'`
+VER=`$UNAMEPROG -r`
+if test "$OS" = "sunos" && test "$VER" -ge 5
+then
+    OS="solaris"
+fi
+case "$OS" in
+    'sunos')
+        echo "Woohoo!  SunOS 4.x, one of my favs"
+	;;
+    'netbsd')
+	echo "NetBSD!  One of my favs, setting -Wall"
+	CFLAGS="$CFLAGS -Wall"
+	;;
+    'solaris')
+	echo "Solaris?!?  Oh, alright..."
+	;;
+    'hp-ux')
+        echo "HP-UX, this should be fun..."
+        if test GCC != "yes"
+        then
+            echo "Setting ANSI flags"
+            CFLAGS="$CFLAGS -Ae"
+        fi
+        BSDLIKE=0
+        ;;
+    'irix')
+	echo "Looks like IRIX it's going to be..."
+	if test GCC = "yes"
+	then
+	    echo "That's odd, we're using gcc...  OK."
+	    echo "If you have the IDO, please set the environ CC to cc"
+	    echo "to use the native compiler."
+	else
+	    echo "Using the native IDO, let's set some CFLAGS"
+	    CFLAGS="$CFLAGS -fullwarn"
+	fi
+	;;
+esac
+
+dnl Do libraries
+if test "$OS" != "irix"
+then
+    AC_CHECK_LIB(nsl, main)
+    AC_CHECK_LIB(socket, main)
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h sys/select.h)
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(select socket herror)
+
+AC_OUTPUT(Makefile)
