@@ -1,13 +1,16 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.24 2001/01/25 07:56:24 dustin Exp $
+ * $Id: SpyDB.java,v 1.25 2001/01/25 09:43:01 dustin Exp $
  */
 
 package net.spy;
 
 import java.sql.*;
 import java.util.*;
+
+import javax.sql.*;
+import javax.naming.*;
 
 import net.spy.pool.*;
 
@@ -52,6 +55,7 @@ public class SpyDB extends Object {
 
 	// Whether we want to use a pool.
 	protected boolean use_pool=true;
+	protected boolean use_jndi=true;
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
@@ -68,7 +72,8 @@ public class SpyDB extends Object {
 	 * The following config entries are optional, but supported:
 	 * <p>
 	 * <ul>
-	 *  <li>dbPool - whether to use a pool - default true</li>
+	 *  <li>dbPoolType - what type of pool to use (SpyPool, jndi, none)
+	 *      - default SpyPool</li>
 	 *  <li>dbPoolName - default db</li>
 	 *  <li>dbMinConns - minimum number of connections - default 1</li>
 	 *  <li>dbMaxConns - maximum number of connections - default 5</li>
@@ -124,10 +129,19 @@ public class SpyDB extends Object {
 		}
 
 		// Figure out whether we want to pool.
-		String tmp=conf.get("dbPool");
+		String tmp=conf.get("dbPoolType");
 		if(tmp!=null) {
-			Boolean b=new Boolean(tmp);
-			use_pool=b.booleanValue();
+
+			if(tmp.equalsIgnoreCase("jndi")) {
+				use_pool=false;
+				use_jndi=true;
+			} else if(tmp.equalsIgnoreCase("none")) {
+				use_pool=false;
+				use_jndi=false;
+			} else {
+				use_pool=true;
+				use_jndi=false;
+			}
 		}
 
 		// If we'll be using a pool, get it initialized.
@@ -326,7 +340,7 @@ public class SpyDB extends Object {
 				try {
 					conn.close();
 				} catch(Exception e) {
-					// Oh well...
+					e.printStackTrace();
 				}
 			}
 			conn=null;
@@ -352,7 +366,7 @@ public class SpyDB extends Object {
 			try {
 				conn.close();
 			} catch(Exception e) {
-				// Oh well...
+				e.printStackTrace();
 			}
 		}
 		this.conn=null;
@@ -376,43 +390,66 @@ public class SpyDB extends Object {
 		// System.err.println("DB:  " + msg);
 	}
 
+	protected void getDBConnFromSpyPool() throws SQLException {
+		try {
+			object=pool.getObject(name);
+			conn=(Connection)object.getObject();
+			if(!auto_free) {
+				connections.put(conn, object);
+			}
+		} catch(Exception e) {
+			throw new SQLException(
+				"Unable to get database connection:  " + e);
+		}
+	}
+
+	protected void getDBConnFromJDBC() throws SQLException {
+		SpyConfig conf=getNormalizedConfig();
+		setDBOptions("", conf);
+
+		// Make sure the username and password are set
+		conf.put("user", conf.get("dbUser"));
+		conf.put("password", conf.get("dbPass"));
+
+		// Figure out what this guy's trying to get us to do.
+		String driver=conf.get("dbDriverName");
+		String source=conf.get("dbSource");
+
+		// Try to load the class
+		try {
+			Class.forName(driver);
+		} catch(Exception e) {
+			throw new SQLException("Can't load class for db connection: "
+				+ e);
+		}
+
+		// Try to get the actual connection
+		conn=DriverManager.getConnection(source, conf);
+	}
+
+	protected void getDBConnFromJNDI() throws SQLException {
+		// Make sure the username and password are set
+		// Figure out what this guy's trying to get us to do.
+		String source=conf.get("dbSource");
+
+		try {
+			Context initial = new InitialContext();
+			DataSource dsrc = (DataSource)initial.lookup(source);
+			conn = dsrc.getConnection();
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Error getting connection from JNDI:  " + e);
+		}
+	}
+
 	protected void getDBConn() throws SQLException {
 		// Different behavior whether we're using a pool or not
 		if(use_pool) {
-			try {
-				object=pool.getObject(name);
-				conn=(Connection)object.getObject();
-				if(!auto_free) {
-					connections.put(conn, object);
-				}
-			} catch(Exception e) {
-				throw new SQLException(
-					"Unable to get database connection:  " + e);
-			}
+			getDBConnFromSpyPool();
+		} else if(use_jndi) {
+			getDBConnFromJNDI();
 		} else {
-			SpyConfig conf=getNormalizedConfig();
-			setDBOptions("", conf);
-
-			System.out.println("Using this config:  " + conf);
-
-			// Make sure the username and password are set
-			conf.put("user", conf.get("dbUser"));
-			conf.put("password", conf.get("dbPass"));
-
-			// Figure out what this guy's trying to get us to do.
-			String driver=conf.get("dbDriverName");
-			String source=conf.get("dbSource");
-
-			// Try to load the class
-			try {
-				Class.forName(driver);
-			} catch(Exception e) {
-				throw new SQLException("Can't load class for db connection: "
-					+ e);
-			}
-
-			// Try to get the actual connection
-			conn=DriverManager.getConnection(source, conf);
+			getDBConnFromJDBC();
 		}
 	}
 

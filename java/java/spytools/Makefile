@@ -8,8 +8,8 @@ RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
 COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
-C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
-C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
+C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
+C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
 C3=$(MYLIB)/oromatcher.jar
 CLASSPATH=$(C1):$(C2):$(C3):.
 
