@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.6 2000/10/13 08:28:36 dustin Exp $
+ * $Id: Debug.java,v 1.7 2000/10/13 09:38:35 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -34,35 +34,47 @@ public class Debug extends HttpServlet
 	}
 
 
-	protected String dumpThreadGroup(int depth, ThreadGroup tg, String sc) {
+	protected String dumpThreadGroup(ThreadGroup tg, String sc) {
 		String ret="";
 		int n;
 
-		for(int i=0; i<depth; i++) {
-			ret+="  ";
-		}
-		ret+=tg + "\n";
+		ret+="<ul>\n";
+
+		ret+="<li>" + tg + "<ul>\n";
 
 		Thread ts[]=new Thread[tg.activeCount()+10];
 		n=tg.enumerate(ts, false);
 		for(int i=0; i<n; i++) {
-			for(int j=0; j<depth+1; j++) {
-				ret+="  ";
+			ret+="<li>\n";
+
+			// Show the thread's operational status.
+			String status=null;
+			try {
+				if(ts[i].isAlive()) {
+					status="+ ";
+				} else {
+					status="- ";
+				}
+			} catch(Exception e) {
+				status="? ";
 			}
+			ret+=status;
+
+			// Add the name.
 			ret+=ts[i];
 			// If sc isn't null, show the class name.
 			if(sc!=null) {
 				ret+=" [" + ts[i].getClass().getName() + "]";
 			}
-			ret+="\n";
+			ret+="</li>\n";
 		}
-		ret+="\n";
+		ret+="</ul></ul>\n";
 
 		ThreadGroup tgs[]=new ThreadGroup[tg.activeGroupCount()+10];
 		n=tg.enumerate(tgs, false);
 
 		for(int i=0; i<n; i++) {
-			ret+=dumpThreadGroup(depth+1, tgs[i], sc);
+			ret+=dumpThreadGroup(tgs[i], sc);
 		}
 
 		return(ret);
@@ -75,11 +87,11 @@ public class Debug extends HttpServlet
 
 		while(tg.getParent()!=null) { tg=tg.getParent(); }
 
-		return(dumpThreadGroup(0, tg, showclasses));
+		return(dumpThreadGroup(tg, showclasses));
 	}
 
 	protected String dumpSessions(HttpSession session) {
-		String ret="";
+		String ret="<ul>\n";
 
 		String myid=session.getId();
 
@@ -93,47 +105,51 @@ public class Debug extends HttpServlet
 			long last=s.getLastAccessedTime();
 			long diff=(now-last)/1000;
 
-			ret+=id + " Idle for " + diff + "s";
+			ret+= "<li><code>" + id + "</code> Idle for " + diff + "s";
 
 			if(id.equals(myid)) {
-				ret+="  <- You are here.";
+				ret+="  &lt;- You are here.";
 			}
 
-			ret+="\n";
+			ret+="\n<ul>\n";
 
 			String names[]=s.getValueNames();
 			for(int i=0; i<names.length; i++) {
-				ret+="  " + names[i] + " - ";
+				ret+="<li>" + names[i] + " - ";
 				Object o=s.getValue(names[i]);
 				Class c=o.getClass();
-				ret+=c.getName() + "\n";
+				ret+=c.getName() + "</li>\n";
 			}
+			ret+="</ul></li>\n";
 		}
 
+		ret+="</ul>\n";
 		return(ret);
 	}
 
 	protected String dumpServlets() {
-		String ret="";
+		String ret="<ul>\n";
 
 		for(Enumeration e=context.getServletNames(); e.hasMoreElements(); ) {
 			String servletName=(String)e.nextElement();
 			Servlet s=null;
 
-			ret+="  " + servletName + "\n";
+			ret+="<li>" + servletName + "\n<ul>\n";
 			try {
 				s=context.getServlet(servletName);
 				String si=s.getServletInfo();
 				if(si==null) {
 					si="[No info for this servlet]";
 				}
-				ret+="\t" + si + "\n";
+				ret+="\t<li>" + si + "</li>\n";
 			} catch(Exception ex) {
 				ret+="\t[Error getting servlet info:  " + ex + "]\n";
 			}
+			ret+="</ul></li>\n";
 
 		}
 
+		ret+="</ul>\n";
 		return(ret);
 	}
 
@@ -145,12 +161,12 @@ public class Debug extends HttpServlet
 		String jservStuff=jservPrefix + "attribute_names";
 		if(request.getAttribute(jservStuff)!=null) {
 			try {
-				stuff+="------- Jserv Specific Stuff ---------\n";
+				stuff+="<h1>Jserv Specific Stuff</h1>\n<ul>\n";
 				for(Enumeration e=(Enumeration)request.getAttribute(jservStuff);
 					e.hasMoreElements(); ) {
 
 					String attr = e.nextElement().toString();
-					stuff+="  " + attr + "=";
+					stuff+="<li>" + attr + "=";
 					if ( request.getAttribute(jservPrefix + attr) != null ) {
 						stuff+= request.getAttribute(jservPrefix
 							+ attr.toString()) + "\n";
@@ -158,7 +174,7 @@ public class Debug extends HttpServlet
 						stuff+="[NULL]\n";
 					}
 				}
-				stuff+="--------------------------------------\n";
+				stuff+="</ul>\n";
 			} catch(Exception e) {
 			}
 		}
@@ -172,35 +188,44 @@ public class Debug extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 		String stuff="";
-		response.setContentType("text/plain");
+		// Doing HTML
+		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 		ObjectPool op=new ObjectPool(new SpyConfig());
-		stuff+="ObjectPool dump:\n" + op;
-		out.println(stuff);
+
+		out.println(
+			"<html><head><title>DebugServlet</title></head>\n"
+			+ "<body bgcolor=\"#FfFfFf\">"
+		);
+
+		// Gotta do this with out.print because of the damned properties list
+		out.print("<h1>System Properties</h1>\n<pre>\n");
 		System.getProperties().list(out);
+		out.print("</pre>\n");
+
+		stuff+="<h1>ObjectPool Dump</h1>\n";
+		stuff+="<pre>\nObjectPool dump:\n" + op + "\n</pre>\n";
 
 		// Get any jserv specific info we can get.
 		stuff+=getJservSpecific(request);
 
-		stuff+="----------- Runtime Info -------------\n";
+		stuff+="<h1>Runtime Info</h1>\n";
 		Runtime r=Runtime.getRuntime();
-		stuff+="Total memory in JVM:  " + r.totalMemory() + "\n";
-		stuff+="Free memory in JVM:   " + r.freeMemory() + "\n";
-		stuff+="--------------------------------------\n";
+		stuff+="Total memory in JVM:  " + r.totalMemory() + "<br>\n";
+		stuff+="Free memory in JVM:   " + r.freeMemory() + "<br>\n";
 
-		stuff+="-------------- Threads ---------------\n";
+		stuff+="<h1>Threads</h1>\n";
 		stuff+=dumpThreads(request.getParameter("show_thread_classes"));
-		stuff+="--------------------------------------\n";
 
-		stuff+="-------------- Servlets --------------\n";
+		stuff+="<h1>Servlets</h1>\n";
 		stuff+=dumpServlets();
-		stuff+="--------------------------------------\n";
 
-		stuff+="-------------- Session ---------------\n";
+		stuff+="<h1>Sessions</h1>\n";
 		stuff+=dumpSessions(request.getSession(true));
-		stuff+="--------------------------------------\n";
 
 		out.println(stuff);
+
+		out.println("</body></html>");
 
 		out.close();
 	}
