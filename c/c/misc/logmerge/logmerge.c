@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.8 2002/06/06 05:49:33 dustin Exp $
+ * $Id: logmerge.c,v 1.9 2002/06/06 18:35:13 dustin Exp $
  */
 
 #include <stdio.h>
@@ -181,6 +181,11 @@ static int unfsckLine(struct logfile *lf)
 	assert(start[0] == '\"');
 	end=index(start+1, '\"');
 	assert(end != NULL);
+	/* If there's an embedded quote, keep seeking */
+	while( !(end[1]==' ' && end[2]=='\"') ) {
+		end=index(end+1, '\"');
+		assert(end);
+	}
 	end++; /* The quote is part of what we want */
 	assert(*end == ' ');
 	*end=0x00;
