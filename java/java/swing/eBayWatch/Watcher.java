@@ -17,6 +17,9 @@ public class Watcher extends Object {
 
 		time=e.get("Time left");
 		descr=e.get("Description");
+        if(descr==null) {
+            descr="Item " + item_no;
+        }
 		price=e.get("Currently");
 		who=e.get("High bid");
 
@@ -28,13 +31,34 @@ public class Watcher extends Object {
 		return(changed);
 	}
 
+    public double getPrice() {
+        double rv=0;
+        try {
+            String tmp=price;
+            if(price.indexOf("$")>=0) {
+                tmp=price.substring(price.indexOf("$")+1);
+            }
+            rv=Double.parseDouble(tmp);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return(rv);
+    }
+
+    /**
+     * Who's bidding?
+     */
+    public String getWho() {
+        return(who);
+    }
+
 	public String getItemNo() {
 		return(item_no);
 	}
 
 	public String describe() {
 		String ret="";
-		if(descr.length()>0) {
+		if((descr!=null) && descr.length()>0) {
 			ret=descr;
 		} else {
 			ret="Item " + item_no;
