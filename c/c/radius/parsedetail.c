@@ -1,11 +1,12 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.1 1997/09/21 00:32:58 dustin Exp $
+ * $Id: parsedetail.c,v 2.2 1997/09/22 16:12:54 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -14,7 +15,9 @@
 
 char **tags;
 char **out;
-time_t timestamp;
+char *timefmt;
+char delim;
+struct tm ts;
 
 static char *month[]={
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
@@ -44,7 +47,7 @@ void dotime(char *t)
     t+=3;
     tm.tm_year=atoi(t)-1900;
 
-    timestamp=mktime(&tm);
+    ts=tm;
 }
 
 void insert(char *handle, char *value)
@@ -59,12 +62,12 @@ register int type;
 
     if(tags[type]!=NULL)
     {
-	/* Remove quotes */
-	if(value[0]=='"')
-	{
+        /* Remove quotes */
+        if(value[0]=='"')
+        {
             value++;
-	    value[strlen(value)-1]=0;
-	}
+            value[strlen(value)-1]=0;
+        }
         strcpy(out[type], value);
     }
 }
@@ -73,7 +76,7 @@ void cleanup(void)
 {
     int i;
     for(i=0; tags[i]!=NULL; i++)
-	out[i][0]=0x00;
+        out[i][0]=0x00;
 }
 
 void process(char *line)
@@ -85,7 +88,7 @@ register int i, j=0;
     {
         case 0:
             display();
-	    cleanup();
+            cleanup();
             break;
         case '\t':
             i=1;
@@ -101,47 +104,98 @@ register int i, j=0;
 
 void display(void)
 {
-    char buf[1024];
+    char buf[1024], timebuf[80];
+    time_t timestamp;
+    struct tm tm;
     int i;
 
-    sprintf(buf, "%d", (int)timestamp);
+    /* Do something right with the time */
+    tm=ts;
+    if(timefmt==NULL)
+    {
+        timestamp=mktime(&tm);
+        sprintf(buf, "%d", (int)timestamp);
+    }
+    else
+    {
+        strftime(timebuf, 79, timefmt, &tm);
+        strcpy(buf, timebuf);
+    }
 
     for(i=0; tags[i]!=NULL; i++)
     {
-	strcat(buf, ":");
-	strcat(buf, out[i]);
+        buf[strlen(buf)+1]=0x00;
+        buf[strlen(buf)]=delim;
+        strcat(buf, out[i]);
     }
 
     puts(buf);
+}
+
+void help(char *me)
+{
+    printf("Usage: %s [-t timefmt] [-d delim] -l listfile -f infile\n", me);
+    puts("       listfile is the list of fields to pull from the RADIUS file");
+    puts("       infile is the RADIUS file to read from");
+    puts("       timefmt is a strftime(3) time format");
+    puts("       delim is the character to delimit the fields");
 }
 
 int main(int argc, char *argv[])
 {
 char line[80];
 FILE *in;
-int i;
+char *listfile=NULL, *infile=NULL;
+int i, c;
 
-    if(argc<2)
-    {
-        fprintf(stderr, "Too few arguments, want filenames\n");
-        exit(1);
-    }
+    timefmt=NULL;
+    delim=':';
 
-    if( (strcmp(argv[1], "-") == 0) )
+    while((c=getopt(argc, argv, "l:f:t:d:"))!=-1)
     {
-	in=stdin;
-    }
-    else
-    {
-        if( (in=fopen(argv[1], "r")) == NULL)
+        switch(c)
         {
-            perror(argv[1]);
-            exit(2);
+            case 'l':
+                listfile=optarg;
+                break;
+            case 'f':
+                infile=optarg;
+                break;
+            case 't':
+                timefmt=optarg;
+                break;
+            case 'd':
+                delim=optarg[0];
+                break;
+            case '?':
+                help(argv[0]);
+                exit(0);
         }
     }
 
+    if(infile==NULL || listfile==NULL)
+    {
+        help(argv[0]);
+        exit(0);
+    }
+
+    /* Open the input file */
+    if( (strcmp(infile, "-")==0))
+    {
+        in=stdin;
+    }
+    else
+    {
+        in=fopen(infile, "r");
+    }
+    if(in==NULL)
+    {
+        perror(infile);
+        exit(1);
+    }
+
     /* Get the tags list */
-    tags=getList("list");
+    tags=getList(listfile);
 
     /* Make room for the output */
     for(i=0; tags[i]!=NULL; i++);
@@ -149,7 +203,7 @@ int i;
     out=(char **)malloc(i*sizeof(char *));
 
     for(; i>=0; i--)
-	out[i]=(char *)malloc(LINELEN*sizeof(char));
+        out[i]=(char *)malloc(LINELEN*sizeof(char));
 
     /* process */
 
