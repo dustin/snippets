@@ -1,7 +1,10 @@
 /*
  * Copyright (c) 1999  Dustin Sallings
  *
- * $Id
+ * Licensed as according to the Eiffel Forum Freeware License, version 1
+ * See forum.txt for more information.
+ *
+ * $Id: pg_cstuff.c,v 1.3 1999/05/28 04:50:56 dustin Exp $
  */
 
 #include <stdio.h>

@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-   version: "$Revision: 1.12 $";
+   version: "$Revision: 1.13 $";
    author: "Dustin Sallings <dustin@spy.net>";
    copyright: "1999";
    license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.12 1999/05/28 01:40:38 dustin Exp $
+-- $Id: pg.e,v 1.13 1999/05/28 04:50:54 dustin Exp $
 --
 class PG
 
@@ -25,6 +25,8 @@ feature {ANY}
       -- Make an uninitialized PG object.
       do
          current_row := 0;
+         !!last_row.make(0,16);
+		 last_row.clear;
       end -- make
 
    current_row: INTEGER;
@@ -72,7 +74,6 @@ feature {ANY}
       require
          is_connected;
       do
-         last_row := Void;
          current_row := 0;
          res := pg_query(conn,q.to_external);
          if res = Void then
@@ -92,12 +93,12 @@ feature {ANY}
          p: POINTER;
       do
          if current_row >= pg_ntuples(res) then
+			res := nullpointer; -- Clear out the results, so we'll know
             Result := false;
          else
             from
                fields := pg_nfields(res);
-               !!last_row.make(0,0);
-               last_row.clear;
+			   last_row.clear;
                i := 0;
             until
                i >= fields
@@ -207,6 +208,9 @@ feature {PG} -- Internal data stuff
    res: POINTER;
       -- Result holder for C library.
 
+   nullpointer: POINTER;
+      -- Result holder for C library.
+
    host: STRING;
       -- Database host
 
@@ -237,6 +241,7 @@ feature {PG}
          if conn /= Void then
             -- io.put_string("Closing database connection!%N");
             pg_finish(conn);
+			conn := nullpointer;
          end;
       end -- dispose
 
