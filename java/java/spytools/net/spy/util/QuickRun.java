@@ -1,11 +1,12 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.1 2000/11/05 11:55:30 dustin Exp $
+// $Id: QuickRun.java,v 1.2 2000/11/09 10:37:11 dustin Exp $
 
 package net.spy.util;
 
 import java.util.*;
 import java.net.*;
+import java.lang.reflect.*;
 import java.io.*;
 
 import net.spy.SpyUtil;
@@ -74,6 +75,8 @@ public class QuickRun extends Thread {
 			sun.tools.javac.Main compiler=
 				new sun.tools.javac.Main(ostream, "javac");
 			compiler.compile(SpyUtil.split(" ", args));
+		} else if(cmd.equals("RUN")) {
+			runClass(SpyUtil.split(" ", args));
 		} else if(cmd.equalsIgnoreCase("QUIT")) {
 			out.close();
 			ostream.close();
@@ -81,6 +84,31 @@ public class QuickRun extends Thread {
 		} else {
 			out.println("Invalid command:  " + cmd);
 		}
+	}
+
+	protected void runClass(String args[]) throws Exception {
+		String cn=args[0];
+		String cargs[]=new String[args.length-1];
+		// Copy the args over.
+		for(int i=0; i<cargs.length; i++) {
+			cargs[i]=args[i+1];
+		}
+
+		// Find the class
+		Class tclass=Class.forName(cn);
+
+		// Find the method
+		Class paramtypes[] = new Class[1];
+		String tmp[]=new String[0];
+		paramtypes[0]=tmp.getClass();
+		Method m = tclass.getMethod("main", paramtypes);
+
+		// Set the args
+		Object params[]=new Object[1];
+		params[0]=cargs;
+
+		// Run it!
+		m.invoke(tclass, params);
 	}
 
 	public void goServer() throws Exception {
