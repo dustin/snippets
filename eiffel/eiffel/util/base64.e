@@ -1,7 +1,7 @@
 indexing
    description: "Base64 stuff.";
    author: "Dustin Sallings <dustin@spy.net>";
-   version: "$Revision: 1.11 $";
+   version: "$Revision: 1.12 $";
    copyright: "1999";
    licensing: "EFLL <see forum.txt>";
 class BASE64
@@ -28,8 +28,7 @@ feature {ANY} -- Actual encode/decode stuff
          a, b, c: CHARACTER;
          second, third: BOOLEAN;
       do
-         !!Result.make(0);
-         Result.clear;
+         !!Result.make(256);
          from
             i := 1;
             o := 0;
@@ -90,8 +89,7 @@ feature {ANY} -- Actual encode/decode stuff
          a, b, c: CHARACTER;
          first, second, third: BOOLEAN;
       do
-         !!Result.make(0);
-         Result.clear;
+         !!Result.make(256);
          from
             current_char := 0;
          until
