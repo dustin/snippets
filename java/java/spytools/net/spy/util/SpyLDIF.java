@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.5 2000/08/17 23:37:18 dustin Exp $
+// $Id: SpyLDIF.java,v 1.6 2000/09/05 08:07:13 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,13 @@ public class SpyLDIF extends Hashtable {
 		boolean done=false;
 
 		while(!done) {
-			ld=slr.readLDIF();
+			ld=null;
+			try {
+				ld=slr.readLDIF();
+			} catch(Exception e) {
+				System.err.println("Error reading LDIF:  " + e);
+				e.printStackTrace();
+			}
 			if(ld!=null) {
 				v.addElement(ld);
 			} else {
