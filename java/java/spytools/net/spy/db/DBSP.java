@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.10 2002/08/21 22:27:14 dustin Exp $
+// $Id: DBSP.java,v 1.11 2002/08/23 17:25:38 dustin Exp $
 
 package net.spy.db;
 
@@ -167,7 +167,9 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
-	 * How long are the results of this SP valid?  (Forces use of CacheDB)
+	 * Set the number of seconds the results of this SP will be valid.
+	 * This option uses {@link SpyCacheDB#prepareStatement(String,long)}
+	 * instead of the native driver's version.
 	 *
 	 * @param time time (in seconds) to keep the results around
 	 */

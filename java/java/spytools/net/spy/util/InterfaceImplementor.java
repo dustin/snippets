@@ -16,7 +16,10 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 
 /**
- * Think Java Interfaces are even more stupid than the lack of multiple
+ * Extend existing classes with missing methods required to implement a
+ * specified interface.
+ *
+ * Think Java Interfaces are a poor replacement for the lack of multiple
  * inheritence?  SO DO I!  That's why this class exists.
  * <p>
  * Using InterfaceImplementor, you can write code that's portable among
@@ -29,7 +32,6 @@ import java.util.HashSet;
  * java net.spy.util.InterfaceImplementor -interface java.sql.ResultSet
  * -superclass test.TestSet -outputclass test.TestSetImpl
  */
-
 public class InterfaceImplementor extends Object {
 
 	// Functions that are already defined.

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolConnectionSource.java,v 1.4 2002/08/23 07:46:22 dustin Exp $
+// $Id: ObjectPoolConnectionSource.java,v 1.5 2002/08/23 17:25:42 dustin Exp $
 
 package net.spy.db;
 
@@ -19,6 +19,29 @@ import net.spy.pool.NoSuchPoolException;
 
 /**
  * Connection source to retrieve connections from an ObjectPool.
+ *
+ * The configuration passed into getConnection() requires the following
+ * parameters:
+ *
+ * <ul>
+ *  <li>dbDriverName - Driver to load (i.e. org.postgresql.Driver)</li>
+ *  <li>dbSource - dbUser</li>
+ *  <li>dbUser - Database username</li>
+ *  <li>dbPass - Database password</li>
+ * </ul>
+ *
+ * The following parameters are optional:
+ *
+ * <ul>
+ *  <li>dbPoolName - default: <i>db</i></li>
+ *  <li>dbMinConns - minimum number of connections - default 1</li>
+ *  <li>dbStartConns - minimum number of connections - default 1</li>
+ *  <li>dbYellowLine - the pool's ``yellow line'' percentage
+ *      - default 75</li>
+ *  <li>dbMaxConns - maximum number of connections - default 5</li>
+ *  <li>dbMaxLifeTime - maximum connection lifetime in milliseconds -
+ *      default 6 hours</li>
+ * </ul>
  */
 public class ObjectPoolConnectionSource extends Object
 	implements ConnectionSource {

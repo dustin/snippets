@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.40 2002/08/03 06:07:03 dustin Exp $
+ * $Id: SpyDB.java,v 1.41 2002/08/23 17:25:36 dustin Exp $
  */
 
 package net.spy;
@@ -39,33 +39,19 @@ public class SpyDB extends Object {
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
-	 * in SpyConfig object.  The following lists the minimal requirement
-	 * for configuration:
-	 * <p>
-	 * <ul>
-	 *  <li>dbDriverName - Driver to load (i.e. org.postgresql.Driver)</li>
-	 *  <li>dbSource - JDBC URL we'll be connecting to.</li>
-	 *  <li>dbUser - Database username</li>
-	 *  <li>dbPass - Database password</li>
-	 * </ul>
+	 * in SpyConfig object.
 	 *
-	 * The following config entries are optional, but supported:
 	 * <p>
-	 * <ul>
-	 *  <li>dbConnectionSource - the ConnectionSource class responsible for
-	 *      getting DB connections for this SpyDB
-	 *      - default net.spy.db.ObjectPoolConnectionSource</li>
-	 *  <li>dbPoolType - what type of pool to use (SpyPool, jndi, none)
-	 *      - default SpyPool</li>
-	 *  <li>dbPoolName - default db</li>
-	 *  <li>dbMinConns - minimum number of connections - default 1</li>
-	 *  <li>dbStartConns - minimum number of connections - default 1</li>
-	 *  <li>dbYellowLine - the pool's ``yellow line'' percentage
-	 *      - default 75</li>
-	 *  <li>dbMaxConns - maximum number of connections - default 5</li>
-	 *  <li>dbMaxLifeTime - maximum connection lifetime in milliseconds -
-	 *      default 6 hours</li>
-	 * </ul>
+	 *
+	 * The configuration may vary greatly depending on the connector.  The
+	 * only configuration option for SpyDB itself is
+	 * <i>dbConnectionSource</i> which specifies the name of the class that
+	 * implements {@link ConnectionSource} that will be providing
+	 * connections for this SpyDB instance.  The default is
+	 * {@link net.spy.db.ObjectPoolConnectionSource
+	    net.spy.db.ObjectPoolConnectionSource}.
+	 * You will also need to provide any additional parameters that are
+	 * required by the ConnectionSource in this config.
 	 *
 	 * @param conf SpyConfig object describing how to connect.
 	 */

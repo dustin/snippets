@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: JNDIConnectionSource.java,v 1.2 2002/08/23 00:13:16 dustin Exp $
+// $Id: JNDIConnectionSource.java,v 1.3 2002/08/23 17:25:40 dustin Exp $
 
 package net.spy.db;
 
@@ -31,6 +31,17 @@ public class JNDIConnectionSource extends Object implements ConnectionSource {
 
 	/**
 	 * This will get a connection to the JNDI resource.
+	 *
+	 * The following parameters are required:
+	 * <li>
+	 *  <ul>dbSource - the JNDI resource containing the connection
+	 * </li>
+	 *
+	 * Additional parameters will be passed to {@link InitialContext} after
+	 * being converted to a {@link Hashtable} object.  Note:  It will not
+	 * be cast to Hashtable, but instead a new Hashtable instance will be
+	 * created with those parameters.  This allows you to get connections
+	 * from a JNDI context that doesn't know about {@link SpyConfig}.
 	 *
 	 * @param conf  The configuration to use for getting the database
 	 * source

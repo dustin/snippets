@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.10 2002/08/23 00:13:17 dustin Exp $
+// $Id: SPGen.java,v 1.11 2002/08/23 17:25:46 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.10 $";
+	private String version="$Revision: 1.11 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
@@ -135,13 +135,23 @@ public class SPGen extends Object {
 			+ " * <p>\n"
 			+ " *");
 
-		out.println(" */\n");
+		// end the class documentation comment
+		out.println(" */");
 
 		// Actual code generation
 		out.println("public class " + classname + " extends "
 			+ superclass + " {\n");
 
-		// Next constructor
+		// Constructor documentation
+		out.println("\t/**\n"
+			+ "\t * Construct a DBSP which will get its connections from\n"
+			+ "\t *   SpyDB using the given config.\n"
+			+ "\t * @param conf the configuration to use\n"
+			+ "\t * @exception SQLException if there's a failure to "
+			+ "construct\n"
+			+ "\t */");
+
+		// SpyConfig constructor
 		out.println("\tpublic " + classname + "(SpyConfig conf) "
 			+ "throws SQLException {\n"
 			+ "\t\t// Super constructor\n"
@@ -149,7 +159,16 @@ public class SPGen extends Object {
 			+ "\t\tspinit();\n"
 			+ "\t}\n");
 
-		// Next constructor
+		// Constructor documentation
+		out.println("\t/**\n"
+			+ "\t * Construct a DBSP which use the existing Connection\n"
+			+ "\t *   for database operations.\n"
+			+ "\t * @param conn the connection to use\n"
+			+ "\t * @exception SQLException if there's a failure to "
+			+ "construct\n"
+			+ "\t */");
+
+		// Connection constructor
 		out.println("\tpublic " + classname + "(Connection conn) "
 			+ "throws SQLException {\n"
 			+ "\t\t// Super constructor\n"
