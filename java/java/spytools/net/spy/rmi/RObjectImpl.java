@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.7 2000/07/21 07:19:51 dustin Exp $
+// $Id: RObjectImpl.java,v 1.8 2002/02/20 11:27:27 dustin Exp $
 
 package net.spy.rmi;
 
@@ -9,7 +9,7 @@ import java.rmi.RMISecurityManager;
 import java.rmi.server.UnicastRemoteObject;
 
 import java.util.*;
-import java.lang.*;
+import java.security.*;
 import java.io.*;
 
 /**
@@ -18,7 +18,7 @@ import java.io.*;
 public class RObjectImpl extends UnicastRemoteObject implements RObject {
 
 	// Number of hash directory levels.
-	public int levels = 256;
+	public static final int levels = 256;
 	// Base directory for hashing
 	public String basedir = "/tmp/rcache";
 
@@ -31,19 +31,40 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 		this.basedir=basedir;
 	}
 
-    public void storeObject(String name, Object o) throws RemoteException {
-		int hash, subhash;
-		String pathto;
-		File f;
+	public String getPath(String key) {
+		MessageDigest md=null;
+		try {
+			md=MessageDigest.getInstance("SHA");
+		} catch(NoSuchAlgorithmException e) {
+			throw new Error("There's no SHA?");
+		}
+		md.update(key.getBytes());
+		byte data[]=md.digest();
 
-		hash=name.hashCode();
-		subhash=hash%levels;
-		pathto=basedir + "/" + subhash + "/" + hash;
+		StringBuffer sb=new StringBuffer();
+		for(int i=0; i<data.length; i++) {
+			int bai=(int)data[i] & 0xff;
+			if(bai<10) {
+				sb.append('0');
+			}
+			sb.append(Integer.toHexString(bai));
+		}
 
-		f=new File(basedir + "/" + subhash);
+		String hashed=sb.toString();
+
+		String base=basedir+"/"+hashed.substring(0,2);
+		String path=basedir+"/"+hashed.substring(0,2)+"/"+hashed;
+
+		File f=new File(base);
 		if(!f.isDirectory()) {
 			f.mkdirs();
 		}
+
+		return(path);
+	}
+
+    public void storeObject(String name, Object o) throws RemoteException {
+		String pathto=getPath(name);
 
 		try {
 			FileOutputStream ostream = new FileOutputStream(pathto);
@@ -59,12 +80,7 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 	}
 
     public Object getObject(String name) throws RemoteException {
-		int hash, subhash;
-		String pathto;
-
-		hash=name.hashCode();
-		subhash=hash%levels;
-		pathto=basedir + "/" + subhash + "/" + hash;
+		String pathto=getPath(name);
 
 		try {
 			Object o;
