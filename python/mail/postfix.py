@@ -54,6 +54,27 @@ class PolicyEngine:
                 else:
                     attrs[parts[0]]=parts[1]
 
+class ChainedPolicyEngine(PolicyEngine):
+    """PolicyEngine that executes multiple policy engine until one returns a
+       value."""
+
+    def __init__(self, engines=[]):
+        PolicyEngine.__init__(self)
+        self.engines=engines
+
+    def addEngine(self, engine):
+        """Add an engine to the processing chain."""
+        self.engines.append(engine)
+
+    def process(self, attributes):
+        """Process all of the engines until a favorable result is returned."""
+        rv = None
+        for engine in self.engines:
+            rv = engine.process(attributes)
+            if rv is not None:
+                break
+        return rv
+
 class GreylistPolicyEngine(PolicyEngine):
     """PolicyEngine implementation that implements a greylist."""
 
