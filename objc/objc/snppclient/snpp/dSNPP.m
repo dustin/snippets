@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dSNPP.m,v 1.1 1998/03/17 04:04:55 dustin Exp $
+ * $Id: dSNPP.m,v 1.2 1998/04/16 20:02:22 dustin Exp $
  */
 
 #include <config.h>
@@ -96,6 +96,14 @@
     return(self);
 }
 
+-(int)sendAPage :(char *)to thatsays:(char *)message priority:(char *)pri;
+{
+    [self protoSend: "priority" :pri];
+    if( ([self status]<200) || ([self status]>299 ) )
+        return(-1);
+    return([self sendAPage :to thatsays:message]);
+}
+
 -(int)sendAPage :(char *)to thatsays:(char *)message;
 {
     [self protoSend: "page" :to];
@@ -111,6 +119,11 @@
 	return(-1);
 
     return(0);
+}
+
+-reset
+{
+    return([self protoSend: "reset"]);
 }
 
 -quit;

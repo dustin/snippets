@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: dSNPP.h,v 1.1 1998/03/17 04:04:57 dustin Exp $
+ * $Id: dSNPP.h,v 1.2 1998/04/16 20:02:18 dustin Exp $
  */
 
 #ifndef _DSNPP_H
@@ -22,6 +22,7 @@
 -(int)connectTo: (char *)host :(int)port;
 -(int)status;
 -(int)sendAPage :(char *)to thatsays:(char *)message;
+-(int)sendAPage :(char *)to thatsays:(char *)message priority:(char *)pri;
 -protoSend :(char *)cmd :(char *)message;
 -protoSend :(char *)cmd;
 -quit;
