@@ -1,0 +1,152 @@
+; Dustin utilities
+
+; display more than one object
+; (stdout only)
+(define (vdisplay . args)
+  (for-each display args))
+
+; swap two entries in a list
+(define (swap l a b)
+  (let ((t (list-ref l a))
+	(v (list->vector l)))
+    (vector-set! v a
+	(vector-ref v b))
+    (vector-set! v b t)
+    (vector->list v)))
+
+; slow sort
+(define (ssort l . comp)
+  (if (not (pair? l))
+	l
+    (let ((al (if (pair? comp)
+	(car comp) >)))
+      (if (and
+		(not (continuation? al))
+		(not (procedure? al)))
+	(set! al  >))
+      (do ((i 1 (+ 1 i)))
+	( (>= i (length l)) l)
+	(if (al (car l)
+		(list-ref l i))
+	  (set! l (swap l 0 i))))
+      (set-cdr! l (ssort (cdr l) al)))))
+
+; Prefix a string (s) with a given
+; string (p) until the requested
+; length (l) is met
+(define (prefix-string s p l)
+  (if (not (string? s))
+    (prefix-string (object->string s)
+	p l)
+    (if (> l (string-length s))
+      (prefix-string (string-append p s)
+	  p l)
+      s)))
+
+; format a string
+; supported:  %s, %%
+(define (format s . a)
+  (do ((si 0 (+ 1 si)) (ai 0 ai)
+	(rv "" rv) (av "" av)
+	(sc (string->list s) sc))
+    ((>= si (length sc)) rv)
+    (set! rv (string-append rv
+      (if (= #\% (list-ref sc si))
+	(begin
+	  (set! si (+ 1 si))
+	  (case (list-ref sc si)
+	    ( (#\s)
+		(set! av (list-ref a ai))
+		(set! ai (+ 1 ai))
+		(if (string? av)
+		    av
+		    (object->string av)))
+	    ( (#\%)
+		"%")
+	    (else
+		(error (string-append
+		  "No such format char \""
+		  (list->string (list
+			(list-ref sc si)))
+		  "\"")))))
+	(list->string
+	  (list (list-ref sc si))))))))
+
+; Split a string on a char
+(define (split s c)
+  (string-tokenize s
+    (list->string (list c))))
+
+; ++ (increment a variable in-line)
+(macro (++ e)
+  `(set! ,(cadr e) (+ 1 ,(cadr e))))
+
+(macro (mprint a)
+  (object->string (cdr a)))
+
+; curry attempt
+(macro (curry a)
+  (let ((b (gensym)))
+   `(lambda (,b)
+      (,(cadr a) ,@(cddr a) ,b))))
+
+; like perl's ..
+(define (make-range a b)
+  (letrec ((loop (lambda (rv v)
+    (if (< v a) rv
+      (loop (cons v rv) (- v 1))))))
+    (loop '() b)))
+
+; partition a list into those that meet
+; this criteria and those that don't
+(define (partition f lin)
+  (letrec ((loop (lambda (l y n)
+	(if (null? l)
+	  (list (reverse y) (reverse n))
+	  (if (f (car l))
+	    (loop (cdr l) (cons (car l) y) n)
+	    (loop (cdr l) y
+		(cons (car l) n)))))))
+	(loop lin '() '())))
+
+; fold a list
+(define (fold f i l)
+  (if (null? l) i
+    (fold f (f i (car l)) (cdr l))))
+
+; fold the chars in a string
+(define (fold-string f i s)
+  (fold f i (string->list s)))
+
+; map with an index
+; this reverses because it builds
+; backwards
+(define (mapi f lin)
+  (reverse
+    (letrec ((loop (lambda (rv i l)
+      (if (null? l) rv
+        (loop (cons (f i (car l)) rv) (+ i 1)
+	  (cdr l))))))
+    (loop '() 0 lin))))
+
+; quicksort using partition
+; (new implementation)
+(define (qsort lin . opcomp)
+  ; this is all argument handling and
+  ; stuff
+  (let ((comp (if (pair? opcomp)
+	(car opcomp) >)))
+    (if (and
+	  (not (continuation? comp))
+	  (not (procedure? comp)))
+        (set! comp  >))
+  ; begin actual quicksort
+  (letrec ((qs (lambda (l)
+    (if (not (pair? l)) l
+      (let ((p (partition
+		(lambda (x)
+		  (comp (car l) x)) (cdr l))))
+        (append (qs (car p))
+	  (cons (car l) '())
+	  (qs (cadr p))))))))
+      (qs lin))))

@@ -1,0 +1,153 @@
+; Call logger
+
+; fields and stuff
+(define mainForm 1000)
+(define noteField 1)
+(define startButton 2)
+(define stopButton 3)
+(define recButton 8)
+(define calcButton 11)
+(define startField 5)
+(define stopField 6)
+(define durField 10)
+(define mSave 0)
+(define mLoad 1)
+(define mReport 2)
+(define mQuit 9)
+(define mUndo 10)
+(define mLast 11)
+(define mRmLast 12)
+
+; init
+(define (initialize)
+  (set! *resdb*
+    (dm-open-db "CallLogForm" 1)))
+
+(define call-log-list '())
+
+(define (log-call-time time d notes)
+  (set! call-log-list
+    (append call-log-list
+      (list (list time d notes)))))
+
+(define (log-call d notes)
+  (log-call-time (current-ts)
+    d notes))
+
+(define (load-call-log)
+ (let ((in (open-input-file
+	";calllog")))
+   (set! call-log-list (read in))
+    (close-input-port in)))
+
+(define (save-call-log)
+    (let ((out (open-output-file
+	";calllog.sav")))
+      (write call-log-list out)
+      (close-output-port out)))
+
+(define (show-datum x)
+  (string-append
+	 (format-time (car x))
+	 " - "
+	(object->string (cadr x))
+	"s "
+	(object->string (caddr x))
+	"#0a"))
+
+(define (show-data x)
+	(map show-datum x))
+
+(define (show-log)
+  (apply vdisplay
+    (show-data call-log-list)))
+
+(define (save-call-report)
+  (let ((out (open-output-file
+	"call report" 2)))
+    (for-each (lambda (x)
+      (display x out))
+	(show-data call-log-list))
+    (close-output-port out)))
+
+(define (remove-last-entry)
+  (set! call-log-list
+    (reverse (cdr
+      (reverse call-log-list)))))
+
+; Get the last entry
+(define (get-last-entry)
+  (car (reverse call-log-list)))
+
+; Gui code starts here
+
+; Calculate duration field
+(define (calc-duration)
+  (fld-set-text durField
+    (-	(ts->number
+	  (parse-ts
+	    (fld-get-text stopField)))
+	(ts->number
+	  (parse-ts
+	    (fld-get-text startField))))))
+
+; store it
+(define (log-from-gui)
+  (log-call-time
+    (ts->number (parse-ts
+	(fld-get-text startField)))
+    (string->object
+	(fld-get-text durField))
+    (fld-get-text noteField))
+  (message "Entry recorded"))
+
+; Main form handler
+(define (mainHandler event . args)
+  (case event
+    ((ctl-select)
+      (cond
+	((eqv? (car args) startButton)
+	  (fld-set-text startField
+		(current-ts)))
+	((eqv? (car args) stopButton)
+	  (fld-set-text stopField
+		(current-ts))
+	  (calc-duration))
+	((eqv? (car args) calcButton)
+	  (calc-duration))
+	((eqv? (car args) recButton)
+	  (log-from-gui))))
+    ((menu)
+      (cond
+	((eqv? (car args) mSave)
+		(save-call-log)
+		(message "Saved."))
+	((eqv? (car args) mLoad)
+		(load-call-log)
+		(message "Loaded."))
+	((eqv? (car args) mQuit)
+		(frm-return #n))
+	((eqv? (car args) mReport)
+		(save-call-report)
+		(message
+		  "Report complete"))
+	((eqv? (car args) mUndo)
+	  (message
+	    "Undo not supported (yet)"))
+	((eqv? (car args) mLast)
+	  (message
+	    (show-datum
+		(get-last-entry))))
+	((eqv? (car args) mRmLast)
+	  (remove-last-entry)
+	  (message
+	    "Last entry removed."))
+          (else (display "Menu?  ")
+	  (display args)(newline))))
+    (else #f)))
+
+
+; The gui
+(define (run-gui)
+  (frm-popup mainForm
+      mainHandler))

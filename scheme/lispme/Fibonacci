@@ -1,0 +1,20 @@
+; Fibonacci
+
+; the learning sequence
+(define fibseq '(1 1))
+
+(define (fibonacci x)
+  (if (< x 2)
+    1
+  (if (< (length fibseq) (- x 1))
+    (if (< (length fibseq) x)
+	(begin
+	  (vdisplay "calculating " x "#0a")
+	  (set! fibseq
+	    (append fibseq
+	      (fibonacci (- x 1)))))
+	  (begin (vdisplay "Using " x "#0a")
+	  (list-ref fibseq x)))
+	(begin (vdisplay "recursing " x "#0a")
+	(+ (fibonacci (- x 1))
+	      (fibonacci (- x 2)))))))

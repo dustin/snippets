@@ -1,0 +1,8 @@
+; Event shower
+(define (event-shower f . ig)
+  (frm-popup f
+    (lambda (e . a)
+      (if (not (member e ig))
+        (begin
+	(vdisplay "e: " e  " - " a)
+	(newline))))))

@@ -1,0 +1,14 @@
+; soundex hashtable
+
+(define (sx-ht-put! ht k v)
+  (hashtbl-put! ht (soundex k) v))
+
+(define (sx-ht-get ht k)
+  (hashtbl-get ht (soundex k)))
+
+(define (sx-ht-remove! ht k)
+  (hashtbl-remove! ht (soundex k)))
+
+(define (sx-ht-update! ht k f i)
+  (hashtbl-update! ht
+    (soundex k) f i))

@@ -1,0 +1,12 @@
+; hash test
+
+(define *h (make-hashtbl))
+
+(define (htest-init) (delay
+((lambda ()
+(hashtbl-put! *h "dustin" 1)
+(hashtbl-put! *h "noelani" 2)
+(hashtbl-put! *h "jennifer" 3)
+(hashtbl-remove! *h "jennifer")
+(hashtbl-keys-values *h)
+))))

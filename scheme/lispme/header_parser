@@ -1,0 +1,21 @@
+; header parser
+
+; get the named header as a list
+(define (get-header name)
+  (let ((in (open-input-file name))
+	(rv '()))
+    (do ((line (read-line in)
+			(read-line in)))
+		((eof-object? line) rv)
+		(set! rv (append rv
+		  (list (cdr
+		    (split line #\ ))))))))
+
+; Make lisp out of it
+(define (parse-header name)
+  (map (lambda (x)
+	(set! x (list
+	  'define
+	  (string->object (car x))
+	  (string->object (cadr x)))))
+	(get-header name)))

@@ -1,0 +1,93 @@
+; Dustin's Graphics Utilities
+
+; do a graphics demo
+(define (gdemo r . a)
+  (own-gui #t)
+  (set-fg white)
+  (move 0 0)
+  (rect 160 160 0)
+  (set-fg black)
+  (let ((rv (apply r a)))
+    (event #t)
+    (cls)
+    (own-gui #f)
+    rv))
+
+; set a pixel
+(define (set-pixel x y . cf)
+  (if (and (>= x 0) (>= y 0)
+	(<= x 160) (<= y 160))
+    (begin
+      (if (pair? cf)
+	(set-fg ((car cf) x y)))
+      (move x y) (draw x y))))
+
+(define (shl a b)
+   (bit-shift (integer a) b))
+(define (shr a b)
+   (bit-shift (integer a) (- b)))
+
+; Extremely Fast Line Algorithm
+; point1 point2 colorFunction
+(define (efla x1 y1 x2 y2 cf)
+  (let ((yl #f) (ival 1) (endval 0)
+	   (shortl (- y2 y1))
+	   (longl (- x2 x1)) (decinc 0))
+    (if (> (abs shortl) (abs longl))
+      (begin
+	(set! yl shortl)
+	(set! shortl longl)
+	(set! longl yl)))
+    (set! endval longl)
+    (if (< longl 0)
+      (begin
+	(set! ival -1)
+	(set! longl (- 0 longl))))
+    (if (not (zero? longl))
+      (set! decinc
+	(/ (shl shortl 16) longl)))
+    (if (and (negative? ival)
+	    (not (negative? endval)))
+	(error "- ival, non - endval"))
+    (if (and (not (negative? ival))
+	    (negative? endval))
+	(error "- ival, non - endval"))
+    (if yl
+      (do ((i 0 (+ i ival))
+	    (j 0 (+ j decinc)))
+	    ((= i endval) #n)
+	(set-pixel
+		(+ x1 (shr j 16))
+		(+ y1 i) cf))
+      (do ((i 0 (+ i ival))
+	    (j 0 (+ j decinc)))
+	    ((= i endval) #n)
+         (set-pixel (+ x1 i)
+	   (+ y1 (shr j 16)) cf)))))
+
+; Bresenham circle
+(define (circle xc yc r)
+  (do
+    ((x 0 x) (y r y) (u 1 u)
+	(v (- (* r 2) 1) v) (e 0 e)
+	(finished #f finished))
+    ((or finished (> x y)) #n)
+    (set-pixel (+ xc x) (+ yc y))
+    (set-pixel (+ xc y) (- yc x))
+    (set-pixel (- xc x) (- yc y))
+    (set-pixel (- xc y) (+ yc x))
+    (set! x (+ 1 x))
+    (set! e (+ e u))
+    (set! u (+ u 2))
+    (if (< v (* 2 e))
+      (begin
+	(set! y (- y 1))
+	(set! e (- e v))
+	(set! v (- v 2))))
+    (if (> x y)
+      (set! finished #t)
+      (begin
+	(set-pixel (+ xc y) (+ yc x))
+	(set-pixel (+ xc x) (- yc y))
+	(set-pixel (- xc y) (- yc x))
+	(set-pixel (- xc x) (+ yc y))))))

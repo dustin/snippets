@@ -1,0 +1,72 @@
+; char conversions
+
+(define (lower? c)
+  (and (>= c #\a) (<= c #\z)))
+
+(define (upper? c)
+  (and (>= c #\A) (<= c #\Z)))
+
+(define (letter? c)
+  (or (lower? c) (upper? c)))
+
+(define (xform-char c offset)
+  (integer->char
+    (+ (char->integer c) offset)))
+
+(define (lc-char c)
+  (if (upper? c)
+    (xform-char c 32)
+    c))
+
+(define (uc-char c)
+  (if (lower? c)
+    (xform-char c -32)
+    c))
+
+; how far is this letter from a
+; (ignore case)
+(define (letter-id c)
+  (- (char->integer (lc-char c)) 97))
+
+; what is this letter (0 = a)
+(define (id->letter id)
+  (integer->char (+ 97 id)))
+
+(define (rotn-char n c)
+  (if (letter? c)
+    (xform-char c
+      (if (> (+ (letter-id c) n) 25)
+        (- n 26)
+        n))
+    c))
+
+(define rotmap (delay
+  (list->vector (map (lambda (n)
+    (delay (list->vector (map
+      (curry rotn-char n)
+	(map integer->char
+		(make-range 0 255))))))
+    (make-range 0 25)))))
+
+(define (maprot n c)
+  (vector-ref
+    (force
+      (vector-ref (force rotmap) n))
+    (char->integer c)))
+
+(define (xform-string f s)
+  (list->string
+    (map f (string->list s))))
+
+(define (rotn-string n s)
+  (xform-string
+    (curry maprot n) s))
+
+(define rot13-string
+  (curry rotn-string 13))
+
+(define lc-string
+  (curry xform-string lc-char))
+
+(define uc-string
+  (curry xform-string uc-char))

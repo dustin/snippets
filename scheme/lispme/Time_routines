@@ -1,0 +1,141 @@
+; Time routines
+
+; seconds per normal year
+(define seconds-per-year
+	31536000.0)
+; average seconds per year
+(define seconds-per-year-avg
+	31557600.0)
+(define seconds-per-day
+	86400.0)
+(define monthdays
+	'(0 31 59 90 120 151 181 212 243 273 304 334))
+(define monthdays-ly
+	'(0 31 60 91 121 152 182 213 244 274 305 335))
+
+(define (leapyear? y)
+	(zero? (remainder y 4)))
+
+(define (sec-for-year y)
+  (if (< y 1904)
+    (error "Cannot calculate years before 1904.")
+    (+ (* seconds-per-year
+            (- y 1904))
+	(* seconds-per-day
+            (ceiling (/ (- y 1904) 4.0))))))
+
+(define (sec-for-month y m)
+  (+ (sec-for-year y)
+        (* seconds-per-day
+	(list-ref
+	  (if (leapyear? y)
+		monthdays-ly
+		monthdays) (- m 1)))))
+
+(define (sec-for-day y m d)
+  (+	(sec-for-month y m)
+	(* seconds-per-day (- d 1))))
+
+(define (sec-for-hour y m d h)
+  (+	(sec-for-day y m d)
+	(* 3600 h)))
+
+(define (sec-for-min y m d h mn)
+  (+	(sec-for-hour y m d h)
+	(* 60 mn)))
+
+(define (sec-for-time y m d h mn s)
+  (+	(sec-for-min y m d h mn) s))
+
+(define (sec-for-time-list l)
+  (sec-for-time
+	(car l)
+	(cadr l)
+	(caddr l)
+	(cadddr l)
+	(caddddr l)
+	(cadddddr l)))
+
+; how long ago (in seconds) was this?
+; (define (how-long-ago x)
+;   (-	(sec-for-time-list (date-time))
+; 	x))
+
+; reverse conversion routines
+(define (monsec y)
+  (map (lambda (x)
+	(* x seconds-per-day))
+      (if (leapyear? y)
+	monthdays-ly
+	monthdays)))
+
+; Find the position of the greatest
+; number in the given sorted list
+; where the number at the position
+; is less than or equal to the given n
+(define (lte-n l n)
+  (let ((rv 0))
+    (do ((i 0 (+ 1 i)))
+	((>= i (length l)) rv)
+	(if (<= (list-ref l i) n)
+	  (set! rv i)))))
+
+; convert the number of seconds to
+; a time array
+(define (time-decode ts)
+  (let ((y 0) (m 0) (d 0) (h 0) (mn 0)
+	(s ts))
+    (set! y (+ 1904 (integer (/ s
+	seconds-per-year-avg))))
+    (set! s (- s (sec-for-year y)))
+    (set! m (lte-n (monsec y) s))
+    (set! s (- s (list-ref (monsec y)
+	m)))
+    (set! d (integer
+	(/ s seconds-per-day)))
+    (set! s (- s (* d seconds-per-day)))
+    (set! h (integer (/ s 3600)))
+    (set! s (- s (* h 3600)))
+    (set! mn (integer (/ s 60)))
+    (set! s (integer (- s (* mn 60))))
+    (list y (+ 1 m) (+ 1 d) h mn s)))
+
+; String up a timestamp
+(define (string-up-ts t)
+  ((lambda (s)
+	(substring s 4
+	  (- (string-length s) 1)))
+      (object->string t)))
+
+; Make an old-school ts string
+(define (my-make-ts t)
+   (string-up-ts (make-ts t)))
+
+; display a time list usefully
+(define (format-time tl)
+  (cond
+    ( (list? tl)
+      (format "%s-%s-%s %s:%s:%s"
+	(car tl) (cadr tl) (caddr tl)
+	(prefix-string
+		(cadddr tl) "0" 2)
+	(prefix-string
+		(caddddr tl) "0" 2)
+	(prefix-string
+		(cadddddr tl) "0" 2)))
+    ( (string? tl)
+       (format-time
+	(string-tokenize tl "-")))
+    ( (ts? tl)
+	(format-time (string-up-ts tl)))
+    ( (number? tl)
+      (format-time
+	(my-make-ts tl)))))
+
+; This is ugly, but LispMe won't do it
+(define (parse-ts s)
+  (make-ts
+     (integer (sec-for-time-list
+      (map (lambda (x)
+	(string->object x))
+	  (split s #\-))))))

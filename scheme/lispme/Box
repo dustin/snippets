@@ -1,0 +1,45 @@
+; Box
+
+; do we want borders?
+(define borders #t)
+
+; draw a box with a center and radius
+(define (box x y r)
+  (move (integer (- x r))
+	(integer (- y r)))
+  (rect (integer (+ x r))
+	(integer (+ y r)) 0))
+
+; draw our fractal box
+(define (mbox x y r . c)
+  (if borders
+    (begin
+      (set-fg black)
+      (box x y r)))
+  (set-fg
+    (if (> (length c) 0)
+        ((car c) x y r)
+        white))
+  (box x y (if borders (- r 1) r))
+  (set-fg black))
+
+(define (fstar x y r c)
+  (if (> r (if borders 3 2))
+    (begin
+      (fstar (- x r) (- y r) (/ r 2) c)
+      (fstar (- x r) (+ y r) (/ r 2) c)
+      (fstar (+ x r) (- y r) (/ r 2) c)
+      (fstar (+ x r) (+ y r) (/ r 2) c)))
+  (mbox x y r c))
+
+(define (go b r . c)
+  (set! borders b)
+  (gdemo (lambda ()
+  (fstar 80 80 r
+    (if (pair? c)
+      (car c)
+      (lambda (x y r)
+	(rgb->index
+	  (random 256)
+	  (random 256)
+	  (random 256))))))))

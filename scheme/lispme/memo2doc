@@ -1,0 +1,85 @@
+; memo2doc
+
+; fields and stuff
+(define mainForm 1000)
+(define memoList 10)
+(define vfsList 11)
+(define destName 20)
+(define copyBtn 30)
+(define menuQuit 100)
+
+(define (init-lists)
+  (lst-set-list memoList
+    (qsort (dir "LispMe")))
+  (lst-set-list vfsList
+    (qsort (map
+	(curry vfs-vol-get-label)
+	    (vfs-volumes)))))
+
+(define (init-m2d)
+  (set! *resdb*
+    (dm-open-db "Memo2Doc" 1)))
+
+(define (unk-event ev a)
+  (vdisplay "unk  " ev " " a)
+  (newline)
+  #f)
+
+(define (copy-file s d vid)
+  (vdisplay "cp " s " -> " d)
+  (newline)
+  (let ((fout (vfs-open vid d #x1f)))
+    (iter-file (lambda (lno l)
+	(vfs-write fout l)
+	(vfs-write fout "#0a"))
+      s)
+    (vfs-close fout)))
+
+(define (get-lbld-vols)
+  (map (lambda (x)
+		(cons (vfs-vol-get-label x)
+			x)) (vfs-volumes)))
+
+(define (get-vol n)
+  (letrec ((loop (lambda (l)
+    (if (null? l) #f
+      (let ((i (car l)))
+        (if (equal? (car i) n) (cdr i)
+	  (loop (cdr l))))))))
+      (loop (get-lbld-vols))))
+
+(define (get-lst-txt l)
+  (lst-get-text l (lst-get-sel l)))
+
+(define (ui-copy-file)
+  (copy-file
+	(get-lst-txt memoList)
+	(fld-get-text destName)
+	(get-vol (get-lst-txt vfsList)))
+  (message "Copy complete")
+  (fld-set-text destName ""))
+
+(define (handler ev . a)
+  (case ev
+    ((frm-open) (init-lists))
+    ((menu)
+	(case (car a)
+	  ((100)
+		(frm-return #n))
+	  (else (unk-event ev a))))
+    ((ctl-select)
+	(case (car a)
+	  ((30) (ui-copy-file) #t)
+	(else (unk-event ev a))))
+    ((pen-down pen-up key-down
+	lst-enter lst-select timeout
+	pen-move fld-enter ctl-enter
+	frm-title-enter
+	frm-title-select #f)
+      #f)
+    (else
+        (unk-event ev a))))
+
+; main
+(define (run-m2d)
+  (frm-popup mainForm handler))

@@ -1,0 +1,43 @@
+; Soundex
+
+(define scodes '(
+    (#\B . 1) (#\F . 1) (#\P . 1)
+	(#\V . 1)
+    (#\C . 2) (#\G . 2) (#\J . 2)
+	(#\K . 2) (#\Q . 2) (#\S . 2)
+	(#\X . 2) (#\Z . 2)
+    (#\D . 3) (#\T . 3)
+    (#\L . 4)
+    (#\M . 5) (#\N . 5)
+    (#\R . 6)))
+
+; get a code (or false)
+(define (get-scode c)
+  (if (assoc c scodes)
+	(cdr (assoc c scodes))
+	#f))
+
+(define (soundex s)
+  (let* ((rv (uc-string
+		(substring s 0 1)))
+	  (lc (get-scode
+		(car (string->list rv))))
+	(c #f))
+    (for-each
+	(lambda (i)
+	  (set! c (get-scode i))
+	  (if (and c
+		(not (eq? c lc))
+		(< (string-length rv) 4))
+	      (set! rv (string-append rv
+			   (object->string c))))
+	  (set! lc
+	      (if (or
+                         (eq? #\H I)
+                         (eq? #\W i))
+		lc
+		c)))
+	(string->list (uc-string s)))
+    (while (< (string-length rv) 4)
+	(set! rv (string-append rv "0")))
+    rv))

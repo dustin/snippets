@@ -1,0 +1,23 @@
+; textread
+
+; this function takes
+; (string -> int -> unit) and a
+; filename
+(define (iter-file func filenm)
+    (let ((f (open-input-file filenm)))
+      (letrec ((loop (lambda (x)
+	(let ((line (read-line f)))
+	  (if (eof-object? line) #n
+	    (begin
+		(func x line)
+		(loop (+ 1 x))))))))
+	(loop 0))))
+
+; read a text file...print a line at a
+; time
+(define (print-file fn)
+  (iter-file (lambda (n line)
+	(display n)(display "	")
+	(display line)
+	(newline))
+      fn))

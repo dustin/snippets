@@ -1,0 +1,25 @@
+; dada
+
+(define place '(rlist "Santa Clara"
+	"the World" "California"))
+(define stmt '(ilist "Hello from " place))
+
+; built-in
+(define (strcat x)
+  (if (null? x)
+	""
+	(string-append (car x)
+		(strcat (cdr x)))))
+
+(define (expand w)
+  (cond
+    ( (symbol? w) (expand (eval w)))
+    ( (string? w) w)
+    ( (pair? w)
+      (if (eqv? (car w) 'ilist)
+	(strcat
+	  (map expand (cdr w)))
+	(expand
+	  (list-ref (cdr w)
+	    (random (length
+		(cdr w)))))))))

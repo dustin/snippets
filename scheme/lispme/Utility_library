@@ -1,0 +1,18 @@
+; Utility library
+(define (filter f l)
+	(if (null? l) '()
+	(let ((x (car l))
+		(r (filter f (cdr l))))
+	(if (f x) (cons x r) r))))
+(define (nan? x)
+	(not (or (<= x 0) (<= 0 x))))
+(define (inf? x)
+	(and (not (eqv? x 0))
+		(eqv? x (* x 2))))
+(define (range l u) (if (> l u) '()
+	(cons l (range (+ l 1) u))))
+(define (do-range p l u)
+  (letrec ((h (lambda (i)
+    (if (> i u) #n
+	(begin (p i) (h  (+ i 1)))))))
+  (h l)))

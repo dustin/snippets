@@ -1,0 +1,35 @@
+; string->binary
+
+; internal definition
+(define (char->integer x)
+  (char->integer x))
+
+; get a list of integers representing
+; the characters in a string
+(define (string->integers s)
+  (map char->integer
+    (string->list s)))
+
+; implement a right shift
+(define (shiftright s x)
+  (truncate (/ s (expt 2 x))))
+
+; figure out if a bit is set
+(define (bitset? i b)
+    (odd? (integer (shiftright i b))))
+
+; convert an int to a string of bits
+(define (int->bits in)
+  (do
+	((i 7 (- i 1)) (rv "" rv))
+	    ((< i 0) rv)
+	    (set! rv (string-append rv
+		(if (bitset? in i)
+		    "1"
+		    "0")))))
+
+; convert a string t a list of binary
+; strings
+(define (string->binary s)
+  (map int->bits
+    (string->integers s)))

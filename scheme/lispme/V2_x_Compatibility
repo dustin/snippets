@@ -1,0 +1,26 @@
+; V2.x Compatibility
+; This memo defines obsolete V2.x
+; procedures in terms of V3.0 ones
+
+(define (delete-record db n)
+	(write-record db n #f))
+
+(define (write-record dbname n r)
+  (let ((db (dm-open dbname 2)))
+  (if r (dm-update-record db n r)
+	(dm-remove-record db n))
+  (dm-close db)))
+
+(define (date-time)
+  (let* ((ts (current-ts))
+		(d (ts->date ts))
+		(t (ts->time ts)))
+      (list (date-year d)
+	(date-month d) (date-day d)
+	(time-hour t) (time-minute t)
+	(ts-second ts))))
+
+(define (set-resdb name)
+  (set! *resdb*
+	(dm-open-db name 1)))
+

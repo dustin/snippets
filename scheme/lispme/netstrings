@@ -1,0 +1,7 @@
+; netstrings
+
+(define (netstring s)
+  (string-append
+    (object->string
+      (string-length s))
+    ":" s ","))

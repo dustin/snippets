@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for f in "$@"
+do
+	nfn=`echo $f  | sed -e 's/^..//' -e 's,[^A-z0-9],_,g'`
+	echo "$f -> $nfn"
+	mv "$f" "$nfn"
+done

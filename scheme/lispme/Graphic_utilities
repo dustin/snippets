@@ -1,0 +1,69 @@
+; Graphic utilities
+
+(define (move x y)
+	(set-car! (car *gstate*)  x)
+	(set-cdr! (car *gstate*)  y) #n)
+
+; some fill patterns
+(define grey
+"#55#aa#55#aa#55#aa#55#aa"
+)
+
+(define brick
+"#01#01#01#ff#10#10#10#ff")
+
+(define dots
+"#c3#81#18#3c#3c#18#81#c3")
+
+(define (set-pattern p)
+  (set-car! (cddr *gstate*) p) #n)
+
+(define (set-font f)
+  (set-car! (cdr *gstate*) f) #n)
+
+(define (set-mode m)
+  (set-car! (cdddr *gstate*) m) #n)
+
+(define (set-fg c)
+  (set-car! (cddddr *gstate*) c)
+  #n)
+
+(define (set-bg c)
+  (set-car! (cdddddr *gstate*) c)
+  #n)
+
+(define (set-text c)
+  (set-car! (cddddddr *gstate*)
+	c)
+  #n)
+
+; clear screen
+(define (cls)
+  (let ((gs  (append *gstate* '())))
+	(set-pattern #f)
+	(move 0 0)
+	(rect 160 108 0)
+	(set! *gstate* gs) #n))
+
+; drawing modes
+(define dm-paint 0)
+(define dm-erase 1)
+(define dm-mask 2)
+(define dm-invert 3)
+(define dm-overlay 4)
+(define dm-paint-inverse 5)
+(define dm-swap 6)
+
+; default graphic state
+(define (default-gstate)
+  (list (cons 0 0) 0 #t 0 255 0 255))
+
+; some colors
+(define red (rgb->index 255 0 0))
+(define green (rgb->index 0 255 0))
+(define blue (rgb->index 0 0 255))
+(define yellow (rgb->index 255 255 0))
+(define black (rgb->index 0 0 0))
+(define white (rgb->index 255 255 255))
+; etc.
+

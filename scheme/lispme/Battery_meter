@@ -1,0 +1,11 @@
+; Battery meter
+
+; Get the battery percentage
+(define (bat%)
+  (/ (list-ref (battery-info) 6) 100))
+
+; Simple textual battery meter
+(define (bmeter)
+  (do ((i (* 40 (bat%)) (- i 1)))
+  ((< i 1) #n)
+  (display "-")))

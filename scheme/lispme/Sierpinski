@@ -1,0 +1,78 @@
+; Sierpinski
+
+(define (line x1 y1 x2 y2 . ignore)
+  (move x1 y1) (draw x2 y2))
+
+(define (linex x1 y1 x2 y2 . cf)
+   (efla x1 y1 x2 y2
+	(if (null? cf) #f (car cf))))
+
+; x, y centers the triangle.  r is the
+; line length from point to base
+; d is the direction
+(define (triangle x y r d . cf)
+  (let ((cfa (if (null? cf)
+			#f (car cf))))
+    (line (- x r) y (+ x r) y cfa)
+    (line (- x r) y x
+	((if (< d 0) + -) y r) cfa)
+    (line (+ x r) y x ((if (< d 0) + -)
+	y r) cfa)))
+
+(define (triangle2 x y r d cf)
+  (line x y (+ x r) y cf)
+  (line x y x (+ y r) cf)
+  (line (+ x r) y x (+ y r) cf))
+
+(define (sierp x y r cf)
+  (if (> r 3)
+    (begin
+      (sierp (- x (/ r 2)) y (/ r 2) cf)
+      (sierp (+ x (/ r 2)) y (/ r 2) cf)
+      (sierp x (- y (/ r 2)) (/ r 2) cf)
+      (triangle x y r 1 cf))))
+
+(define (sierp2 x y r cf)
+  (if (> r 3)
+    (begin
+      (triangle2 x y r 1 cf)
+      (sierp2 (+ x (/ r 2)) y (/ r 2) cf)
+      (sierp2 x y (/ r 2) cf)
+      (sierp2 x (+ y (/ r 2)) (/ r 2) cf)
+)))
+
+(define (colorwack s x y r cf)
+  (set-fg black)
+  (move 0 0)
+  (rect 160 160 0)
+  (set-palette 254 255 0 0)
+  (set-fg 254)
+  (s x y r cf)
+  (do
+    ((iters 0 (+ 1 iters)) (finished #f))
+    (finished iters)
+    ;(sound 220 500)
+    (do ((r 255 (- r 2)) (g 0 (+ g 2)))
+      ((or finished (> g 255)) #n)
+      (set-palette 254 r g 0)
+      (set! finished
+	(not (eqv? 'timeout
+	  (car (event #f))))))
+    ;(sound 440 500)
+    (do ((g 255 (- g 2)) (b 0 (+ b 2)))
+      ((or finished (> b 255)) #n)
+      (set-palette 254 0 g b)
+      (set! finished
+	  (not (eq? 'timeout
+		(car (event #f))))))
+    ;(sound 880 500)
+    (do ((b 255 (- b 2)) (r 0 (+ r 2)))
+      ((or finished (> r 255)) #n)
+      (set-palette 254 r 0 b)
+      (set! finished
+	  (not (eq? 'timeout
+		(car (event #f))))))
+  ;(sound 880 250)
+  ;(sound 440 250)
+  ;(sound 220 250)
+)

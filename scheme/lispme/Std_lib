@@ -1,0 +1,53 @@
+; Std lib
+(define (abs n)
+  (if (real? n)
+    (if (>= n 0) n (- n))
+    (magnitude n)))
+
+(define (for-each f l)
+  (if (null? l) #n
+	(begin (f (car l))
+	  (for-each f (cdr l)))))
+
+(define (map f l)
+  (letrec ((result (cons '() '()))
+    (helper (lambda (p l)
+	(cond ((null? l) p)
+	  (else (set-cdr! p
+		(cons (f (car l)) '() ))
+	(helper (cdr p) (cdr l)))))))
+    (helper result l)
+    (cdr result)))
+
+(define (expt b n)
+  (define (iex k)
+    (cond ((eq? k 0) 1)
+	((odd? k) (* b (iex (- k 1))))
+	(else (let ((h (iex (/ k 2))))
+		(* h h)))))
+  (if (and (integer? n) (>= n 0))
+	(iex n) (exp (* n (log b)))))
+
+(define (max n . l)
+  (if (null? l) n
+    (let ((m (apply max l)))
+      (if (<= n m) m n))))
+
+(define (min n . l)
+  (if (null? l) n
+    (let ((m (apply min l)))
+      (if (<= n m) n m))))
+
+(define (modulo a b)
+  (let ((r (remainder a b)))
+    (if (or (eqv? r 0)
+	       (eq? (> r 0) (> b 0)))
+	r (+ r b))))
+
+(define (negative? x) (< x 0))
+(define (positive? x) (> x 0))
+(define (zero? x) (eqv? x 0))
+
+(define (port? p)
+    (or (input-port? p)
+	  (output-port? p)))

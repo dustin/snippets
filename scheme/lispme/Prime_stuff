@@ -1,0 +1,125 @@
+; Prime stuff
+
+(define
+  divisible?
+    (lambda (x y)
+	(cond
+	    ( (< x 16383 )
+		(eqv? 0 (modulo x y)))
+	    ( else
+		(let ((d (/ x y)))
+		(= d (round d)))))))
+
+(define
+	even?
+		(lambda (x)
+			(divisible? x 2)))
+
+(define
+  prime?
+    (lambda (x)
+      (cond
+	((< x 2) #f)
+	((eqv? x 2) #t)
+	((even? x) #f)
+	(else
+	  (let ((stopat (sqrt x))
+		(done #f) (p #t))
+	    (do ((i 3 (+ i 2)))
+		( done p )
+		(cond
+		  ( (> i stopat)
+			(set! done #t))
+		  ( (divisible? x i)
+			(set! done #t)
+			(set! p #f))
+		  ( else #f )))))
+		)))
+
+(define
+  next-prime
+   (lambda (x)
+      (set! x (cond
+	((< x 2) 2)
+	((even? x) (+ x 1))
+	((prime? x) (+ x 2))
+	(else x)))
+      (do
+	((i x (+ i 2)))
+	( (prime? i) i)
+	)))
+
+(define
+	primes1
+	(lambda (start-n stop-n)
+	    (let ((prms '()))
+		(set! start-n
+			(next-prime start-n))
+		(do
+			( (i start-n
+			    (next-prime i)))
+			( (> i stop-n) prms )
+			(set! prms (append
+			  prms (list i)))))))
+
+(define
+  sum
+     (lambda (l)
+	(let ((s 0))
+	  (for-each (lambda (i)
+		(set! s (+ s i) ) ) l )
+		  s)))
+
+(define
+  prime2?
+    (lambda (x tsts)
+    (display "Testing ")(display x)
+	(newline)
+      (cond
+	((< x 2) #f)
+	((= x 2) #t)
+	((even? x) #f)
+	(else
+	  (let ((stopat (sqrt x))
+		(done #f) (p #t) (n 0))
+	    (do ((i 0 (+ i 1)))
+		( done p )
+		(set! n (list-ref tsts i))
+		(cond
+		  ( (> n stopat)
+			(set! done #t))
+		  ( (divisible? x n)
+			(set! done #t)
+			(set! p #f))
+		  ( else #f )))))
+		)))
+
+(define
+  next-prime2
+   (lambda (x tsts)
+      (set! x (cond
+	((< x 2) 2)
+	((even? x) (+ x 1))
+	((prime2? x tsts) (+ x 2))
+	(else x)))
+      (do
+	((i x (+ i 2)))
+	( (prime2? i tsts) i)
+	)))
+
+(define
+	primes2
+	(lambda (start-n stop-n)
+	    (let ((prms '())
+	       (tsts (primes1 1 (sqrt
+		(+ 2 stop-n)))))
+		(set! start-n
+			(next-prime2
+			start-n tsts))
+		(do
+			( (i start-n
+			    (next-prime2
+				i tsts)))
+			( (> i stop-n) prms )
+			(set! prms (append
+			  prms (list i)))))))

@@ -1,0 +1,92 @@
+; hash
+
+(define (hash o)
+  (cond
+    ((number? o) o)
+    ((string? o)
+      (bit-and #xffffffff
+        (fold (lambda (h c)
+	(bit-xor (char->integer c)
+	  (+ (bit-shift h 5) h)))
+	5381
+	(string->list o))))
+    (else
+      (error "unhashable"))))
+
+(define (make-hashtbl . args)
+  (let ((size 167) (hf hash))
+    (for-each (lambda (a)
+       (cond
+	((procedure? a) (set! hf a))
+	((continuation? a) (set! hf a))
+	((number? a) (set! size a))))
+      args)
+    (cons 'hashtbl
+      (cons hf
+	(make-vector size '())))))
+
+(define (hashtbl? o)
+  (and (pair? o)
+	(eq? 'hashtbl (car o))))
+
+(define (hashtbl-assert o)
+  (if (not (hashtbl? o))
+    (error "Not a hashtbl")))
+
+(define (hashtbl-put! ht k v)
+  (hashtbl-assert ht)
+  (let* ((bucket-id
+	(modulo ((cadr ht) k)
+	  (vector-length (cddr ht)))))
+    (vector-set! (cddr ht) bucket-id
+	(append (vector-ref (cddr ht)
+			bucket-id)
+		(list (cons k v))))))
+
+(define (hashtbl-get-pair ht k)
+  (hashtbl-assert ht)
+  (let* ((bucket-id
+		(modulo ((cadr ht) k)
+		   (vector-length
+			(cddr ht))))
+	      (bucket (vector-ref (cddr ht)
+		bucket-id)))
+	(assoc k bucket)))
+
+(define (hashtbl-get ht k)
+  (let ((rv (hashtbl-get-pair ht k)))
+    (if rv (cdr rv) #f)))
+
+(define (hashtbl-update! ht k f init)
+  (let ((pos (hashtbl-get-pair ht k)))
+    (if pos
+	(set-cdr! pos (f (cdr pos)))
+	(hashtbl-put! ht k init))))
+
+(define (hashtbl-remove! ht k)
+  (let* ((bucket-id
+	(modulo ((cadr ht) k)
+	(vector-length (cddr ht)))))
+    (vector-set! (cddr ht) bucket-id
+	(filter (lambda (x)
+	  (not (equal? (car x) k)))
+	  (vector-ref (cddr ht)
+		bucket-id)))))
+
+(define (hashtbl-keys-values ht)
+  (hashtbl-assert ht)
+  (apply append
+	(vector->list (cddr ht))))
+
+(define (hashtbl-keys ht)
+  (map car
+	(hashtbl-keys-values ht)))
+
+(define (hashtbl-values ht)
+  (map cdr
+	(hashtbl-keys-values ht)))
+
+(define (hashtble-iter ht f)
+  (for-each (lambda (p)
+			(f (car p) (cdr p)))
+	(hashtbl-keys-values ht)))

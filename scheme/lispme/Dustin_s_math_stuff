@@ -1,0 +1,32 @@
+; Dustin's math stuff
+
+; factorial
+(define (factorial x)
+  (if (< x 2) 1
+	(* x (factorial (- x 1)))))
+
+; combinations (n things, k at a time)
+(define (combo n k)
+  (/ (factorial n)
+      (* (factorial k)
+	(factorial (- n k)))))
+
+; number of arrangements of n,
+; taken k at a time
+(define (permu n k)
+  (/ (factorial n) (factorial (- n k))))
+
+; Get the average value in a list
+(define (avg l)
+  (/ (apply + l) (length l)))
+
+; round to a given place
+; -1 = tens, 0 = ones, 1 = tenths
+(define (roundit x y)
+  (/ (round (* x (expt 10 y)))
+	(expt 10 y)))
+
+; get nth percentile from a sample
+(define (%ile n l)
+  (list-ref (qsort l)
+    (integer (* (/ n 100.) (length l)))))
