@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.16 1999/05/10 22:53:08 dustin Exp $
+ * $Id: libparselist.c,v 1.17 1999/05/11 02:37:10 dustin Exp $
  */
 
 #include <stdio.h>
@@ -150,7 +150,7 @@ destroyConfig(struct config_t config)
 static char   *
 search(struct config_t config, unsigned int ip)
 {
-	int     i, addr;
+	int     i, addr, which;
 	struct	hash_container *h;
 
 	/* We have an array of integer hashes of all of our known networks.  The
@@ -159,12 +159,21 @@ search(struct config_t config, unsigned int ip)
 		addr=ip&config.masks[i];
 		h=hash_find(config.hash[i], addr);
 		if(h) {
-			return(h->value);
+			if(h->index>1) {
+				/* We do this if we have more than one value */
+				which=(ip%h->index);
+				_log("Multiple values matched, returning %d\n", which);
+			} else {
+				/* We'll special case a single result for speed */
+				which=0;
+			}
+
+			return(h->value[which]);
 		}
 	}
 	/* Return an empty string if nothing found.
 	 * This implies misconfiguration */
-	return ("");
+	return (DEFAULT_OUTPUT);
 }
 
 int
@@ -194,6 +203,8 @@ main(int argc, char **argv)
 			fflush(stdout);
 		} else {
 			_log("AHH!!!!  Nothing found for %s", buf);
+			puts(DEFAULT_OUTPUT);
+			fflush(stdout);
 		}
 	}
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.6 1999/05/10 22:53:11 dustin Exp $
+ * $Id: parselist.h,v 1.7 1999/05/11 02:37:12 dustin Exp $
  */
 
 #include <syslog.h>
@@ -28,10 +28,14 @@
 #define EMERGENCY_TIME 30
 
 /* Path to the config file */
+#ifndef CONFIGFILE
 #define CONFIGFILE "/usr/local/apache_mod/conf/rewrite.conf"
+#endif
 
 /* The library to load */
+#ifndef THELIB
 #define THELIB "/usr/local/apache_mod/bin/libparselist.so"
+#endif
 
 /* The function to run in the library */
 #define THEFUNC "main"
@@ -41,6 +45,9 @@
 
 /* The facility to log to */
 #define LOG_FACILITY LOG_LOCAL0
+
+/* Output if we can't find anything better */
+#define DEFAULT_OUTPUT ""
 
 /* The config structure */
 struct config_t {

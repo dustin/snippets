@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.11 1999/05/10 21:19:37 dustin Exp $
+ * $Id: parselist.c,v 1.12 1999/05/11 02:37:11 dustin Exp $
  */
 
 #include <stdio.h>
@@ -59,7 +59,7 @@ static void emergency(void)
 	/* We'll run the emergency loop based on time */
 	while( (time(0)-t)<EMERGENCY_TIME ) {
 		tmp=fgets(buf, 79, stdin);
-		puts("");
+		puts(DEFAULT_OUTPUT);
 		fflush(stdout);
 	}
 }
@@ -75,10 +75,17 @@ main(int argc, char **argv)
 	if (mod > 0) {
 		_log("Last modified: %s", ctime(&mod));
 	}
+	_log("Opening " THELIB);
 	/* initial dl opening */
 	lib = dlopen(THELIB, RTLD_LAZY);
 	if (lib == NULL) {
-		_log("Error opening %s:  %s", THELIB, dlerror());
+		char *err;
+		err=dlerror();
+		if(err) {
+			_log("Error opening %s, reason unknown.", THELIB);
+		} else {
+			_log("Error opening %s:  %s", THELIB, err);
+		}
 	}
 	for (;;) {
 		/* If it's been modified since we last recorded mod date... */

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.3 1999/05/08 22:21:58 dustin Exp $
+ * $Id: hash.c,v 1.4 1999/05/11 02:37:07 dustin Exp $
  */
 
 #include <stdio.h>
@@ -32,6 +32,21 @@ hash_init(int size)
 	return (hash);
 }
 
+static struct hash_container *new_hash_container(void)
+{
+	struct hash_container *h;
+
+	h=calloc(1, sizeof(struct hash_container));
+	assert(h);
+	h->size=4;
+	h->index=0;
+	h->value=calloc(HASHVALUES, sizeof(char *));
+
+	assert(h->value);
+
+	return(h);
+}
+
 /* Store something in a hash table */
 struct hash_container *
 hash_store(struct hashtable *hash,
@@ -40,24 +55,31 @@ hash_store(struct hashtable *hash,
 	struct hash_container *c, *p;
 	int     hashval;
 
-	c = calloc(1, sizeof(struct hash_container));
-	assert(c);
+	/* Verify we got a value */
+	assert(value);
 
-	c->key = key;
+	c=hash_find(hash, key);
 
-	c->value = strdup(value);
-	c->next = NULL;
+	if(c==NULL) {
+		/* This function will not return an invalid pointer */
+		c = new_hash_container();
+		c->key = key;
 
-	hashval = _do_hash(hash, key);
+		c->next = NULL;
+		hashval = _do_hash(hash, key);
+		p = hash->buckets[hashval];
 
-	p = hash->buckets[hashval];
-
-	if (p) {
-		for (; p->next; p = p->next);
-		p->next = c;
-	} else {
-		hash->buckets[hashval] = c;
+		if (p) {
+			for (; p->next; p = p->next);
+			p->next = c;
+		} else {
+			hash->buckets[hashval] = c;
+		}
 	}
+
+	c->value=realloc(c->value, (c->size<<=1)*sizeof(char *) );
+	assert(c->value);
+	c->value[c->index++]=strdup(value);
 
 	return (c);
 }
@@ -86,7 +108,7 @@ void
 hash_delete(struct hashtable *hash, int key)
 {
 	struct hash_container *p, *deleteme = NULL;
-	int     hashval;
+	int     hashval, i;
 
 	hashval = _do_hash(hash, key);
 	p = hash->buckets[hashval];
@@ -110,8 +132,11 @@ hash_delete(struct hashtable *hash, int key)
 	}
 
 	if (deleteme) {
-		if (deleteme->value)
+		if (deleteme->value) {
+			for(i=0; i<deleteme->index; i++)
+				free(deleteme->value[i]);
 			free(deleteme->value);
+		}
 		free(deleteme);
 	}
 }
@@ -121,7 +146,7 @@ void
 hash_destroy(struct hashtable *hash)
 {
 	struct hash_container *p, *next;
-	int     i;
+	int     i, j;
 
 	if (hash == 0)
 		return;
@@ -132,8 +157,11 @@ hash_destroy(struct hashtable *hash)
 		if (p) {
 			for (; p;) {
 				next = p->next;
-				if (p->value)
+				if (p->value) {
+					for(j=0; j<p->index; j++)
+						free(p->value[i]);
 					free(p->value);
+				}
 				free(p);
 				p = next;
 			}

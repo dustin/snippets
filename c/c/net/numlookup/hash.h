@@ -1,19 +1,22 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.h,v 1.1 1999/05/08 21:17:51 dustin Exp $
+ * $Id: hash.h,v 1.2 1999/05/11 02:37:08 dustin Exp $
  */
 
 #ifndef HASH_H
 #define HASH_H 1
 
 #define HASHSIZE 16369
+#define HASHVALUES 4
 
 #include <stdlib.h>
 
 struct hash_container {
 	int    key;
-	void   *value;
+	int    size;
+	int    index;
+	char   **value;
 	struct hash_container *next;
 };
 

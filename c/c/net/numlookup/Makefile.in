@@ -1,4 +1,12 @@
-CFLAGS=@CFLAGS@ @DEFS@ -DMYMALLOC
+# $Id: Makefile.in,v 1.11 1999/05/11 02:37:05 dustin Exp $
+
+# these two are just for debugging, in case we don't want to use the normal
+# paths.
+CONFIG_PATH=# -DCONFIGFILE=\"list\"
+SO_PATH=# -DTHELIB=\"./libparselist.so\"
+
+DEFS=-DMYMALLOC $(CONFIG_PATH) $(SO_PATH)
+CFLAGS=@CFLAGS@ @DEFS@ $(DEFS)
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 MAKESO=@MAKESO@
