@@ -1,7 +1,8 @@
 <center>
 <img src="%ITOP%/%IMAGE%"><br>
 </center>
-<form method="POST" action="/cgi-bin/dustin/photo/admin/edittext.cgi">
+<form method="POST" action="%CGIDIR%/admin/admin.cgi">
+<input type="hidden" name="func" value="edittext">
 <input type="hidden" name="oid" value="%OID%">
 
 Size:  %SIZE%<br>
