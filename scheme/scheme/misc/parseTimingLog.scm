@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseTimingLog.scm,v 1.4 2003/01/06 17:53:26 dustin Exp $
+; $Id: parseTimingLog.scm,v 1.5 2003/01/22 02:05:29 dustin Exp $
 
 (module parse-timing-log
 	(import
@@ -152,7 +152,7 @@
 
 ; Print the block header (regular rrdtool stuff and the columns)
 (define (print-block-header filename)
-  (for-each display '("update " filename " -t "))
+  (for-each display (list "update " filename " -t "))
   (display (string-join ":"
 						(flatten-list
 						  (map (lambda (x)
