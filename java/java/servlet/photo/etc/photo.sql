@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.7 1998/06/29 05:57:44 dustin Exp $
+-- $Id: photo.sql,v 1.8 1998/07/06 01:57:07 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -95,6 +95,27 @@ create table searches (
 
 create unique index search_byid on searches(id);
 grant all on searches to nobody;
+
+-- Hmm...  Store images in text?  OK, sure...
+
+create sequence image_store_seq;
+grant all on image_store_seq to nobody;
+
+create table image_map (
+    id      int default nextval('image_store_seq'),
+    name    varchar
+);
+
+create unique index image_map_name on image_map(name);
+
+create table image_store (
+    id      int,
+    line    int,
+    data    varchar(76)
+);
+
+grant all on image_store to nobody;
+create index images_id on image_store(id);
 
 -- A SQL function to return the count of elements in a category.
 
