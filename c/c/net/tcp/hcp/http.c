@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.4 1998/11/11 07:15:00 dustin Exp $
+ * $Id: http.c,v 1.5 1998/11/11 07:16:15 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -113,7 +113,7 @@ openhost(char *host, int port, int dossl)
 }
 
 /* What to do when a connection times out.  */
-DRETSIGTYPE
+RETSIGTYPE
 timeout(int c)
 {
 	alarm(0);
