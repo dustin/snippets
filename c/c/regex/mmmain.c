@@ -2,7 +2,7 @@
  * Copyright (c) 1998 Beyond.com
  * Written by Dustin Sallings <dustin@beyond.com>
  *
- * $Id: mmmain.c,v 1.1 1998/11/04 05:09:17 dustin Exp $
+ * $Id: mmmain.c,v 1.2 1998/11/04 07:27:26 dustin Exp $
  */
 
 #include <stdio.h>
@@ -17,9 +17,13 @@
 #include "hash.h"
 #include "mymalloc.h"
 
-#define USE_MMAP
+#undef USE_MMAP
 
 #define WORDMAP "fixupmap"
+
+#ifndef MAP_FILE
+#define MAP_FILE 0   /* for non-BSD systems */
+#endif
 
 /* this is kinda like strrchr, 'cept it doesn't start at the end of the
  * line
@@ -249,7 +253,7 @@ main(int argc, char **argv)
 
 /* Map it, or malloc/read/free */
 #ifdef USE_MMAP
-	source = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	source = mmap(NULL, st.st_size, PROT_READ, MAP_FILE|MAP_SHARED, fd, 0);
 	assert(source);
 #else
 	source = malloc(st.st_size);

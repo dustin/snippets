@@ -1,10 +1,14 @@
-disney,(disney|buena vista)
-macafee,mcafee
-mcafee,(mcafee|network associates)
 christian,(christian|bible)
-god,(god|bible|christian|jewish|muslim)
+disney,(disney|buena vista)
 doom,(doom|quake|heretic)
 email,(email|e mail)
-navigator,(navigator|communicator)
-manager,manag
+god,(god|bible|christian|jewish|muslim)
+macafee,mcafee
 management,manag
+manager,manag
+mcafee,(mcafee|network associates)
+navigator,(navigator|communicator)
+windows,win
+win98,win 98
+win95,win 95
+winnt,win nt
