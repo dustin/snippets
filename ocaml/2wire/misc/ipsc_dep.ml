@@ -7,10 +7,11 @@
  *)
 
 module StringSet = Set.Make(String);;
+module StringMap = Map.Make(String);;
 
 (* Recursively try to install all packages until we can't install anymore *)
-let rec resolve ht seen =
-	let installed = Hashtbl.fold (fun k v acc ->
+let rec resolve stuff seen =
+	let installed = StringMap.fold (fun k v acc ->
 			if ((not (StringSet.mem k seen))
 				&& StringSet.is_empty (StringSet.diff v seen)) then (
 
@@ -19,10 +20,11 @@ let rec resolve ht seen =
 				acc
 			)
 		)
-		ht StringSet.empty in
+		stuff StringSet.empty in
 	(* If we installed anything, try again *)
 	if (not (StringSet.is_empty installed)) then (
-		resolve ht (StringSet.union installed seen)
+		resolve (StringSet.fold StringMap.remove installed stuff)
+			(StringSet.union installed seen)
 	) else (
 		StringSet.union installed seen
 	)
@@ -35,14 +37,13 @@ let setof l =
 
 (* Load the data and send it off for processing *)
 let main() =
-	let ht = Hashtbl.create 1 in
-	Fileutils.iter_file_lines (fun l ->
+	let stuff = Fileutils.fold_file_lines (fun l acc ->
 			match Extstring.split l ' ' max_int with
 			  [] -> failwith("Invalid line:  " ^ l)
-			| pkg::deps -> Hashtbl.replace ht pkg
-				(setof (List.filter ((<>) "0") deps));
-		) Sys.argv.(1);
-	let installed = resolve ht StringSet.empty in
+			| pkg::deps ->
+				StringMap.add pkg (setof (List.filter ((<>) "0") deps)) acc
+		) StringMap.empty Sys.argv.(1) in
+	let installed = resolve stuff StringSet.empty in
 	Printf.printf "%d\n" (StringSet.cardinal installed)
 	(* StringSet.iter (fun l -> Printf.printf "Installed %s\n" l) installed; *)
 ;;
