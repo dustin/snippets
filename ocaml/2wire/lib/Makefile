@@ -35,6 +35,9 @@ docs: $(PARTS)
 	mkdir -p doc
 	ocamldoc -keep-code -colorize-code -d doc -html *.mli *.ml
 
+install-docs: docs
+	cp doc/* /afs/spy.net/home/dustin/public_html/projects/ocaml/doc
+
 clean:
 	rm -rf testtop *.a *.cma *.cmxa *.cmx *.cmi *.cmo *.o doc
 
