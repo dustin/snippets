@@ -289,4 +289,10 @@ class OidResolve:
 		'experimental': '1.3.6.1.3',
 		'private': '1.3.6.1.4',
 		'enterprises': '1.3.6.1.4.1',
+		# Net-snmp specific:
+		'ssCpuRawUser': '1.3.6.1.4.1.2021.11.50',
+		'ssCpuRawSystem': '1.3.6.1.4.1.2021.11.52',
+		'ssCpuRawIdle': '1.3.6.1.4.1.2021.11.53',
+		'ssCpuRawWait': '1.3.6.1.4.1.2021.11.54',
+		'ssCpuRawKernel': '1.3.6.1.4.1.2021.11.55',
 }

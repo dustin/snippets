@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.3 2002/04/09 00:44:15 dustin Exp $
+$Id: jobs.py,v 1.4 2002/04/09 20:42:49 dustin Exp $
 """
 
 # time is important
@@ -139,6 +139,10 @@ class RRDJob(Job):
 		"""Record the current state."""
 		RRDJob.rrd.recordState(self.file, data, timestamp)
 
+	def getNames(self):
+		"""Get the column names for this RRD."""
+		raise exceptions.NotImplementedError
+
 class RRDSNMPJob(RRDJob, SNMPJob):
 	"""A job that collects data from snmp and stores it in an rrd.
 
@@ -150,6 +154,14 @@ class RRDSNMPJob(RRDJob, SNMPJob):
 		# SNMPJob should fill it it with the correct value.
 		RRDJob.__init__(self, rrdfile, 'XXXX', freq)
 		SNMPJob.__init__(self, host, community, oids, freq)
+
+	def getNames(self):
+		"""Get the SNMP variables that are being watched."""
+		rv=self.oid
+		if not isinstance(self.oid, list):
+			rv=list(rv)
+		assert(isinstance(rv, list))
+		return(rv)
 
 	def go(self):
 		"""Get and record the data."""

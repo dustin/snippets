@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: xmlservices.py,v 1.2 2002/04/05 01:08:14 dustin Exp $
+$Id: xmlservices.py,v 1.3 2002/04/09 20:42:52 dustin Exp $
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
@@ -76,6 +76,7 @@ class Handler:
 			if save:
 				perfval.append(row)
 		rv['performance']=perfval
+		rv['names']=j.getNames()
 
 		return rv
 

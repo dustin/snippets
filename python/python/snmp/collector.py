@@ -3,7 +3,7 @@
 Collect network data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: collector.py,v 1.2 2002/04/05 01:08:10 dustin Exp $
+$Id: collector.py,v 1.3 2002/04/09 20:42:48 dustin Exp $
 """
 
 # Python's scheduling stuff
@@ -94,9 +94,19 @@ if __name__ == '__main__':
 		nc.initXMLRPC(int(sys.argv[1]))
 
 	try:
-		nc.addJob(jobs.VolatileSNMPJob('lamer', 'public', 'sysDescr.0', 5))
+		nc.addJob(jobs.VolatileSNMPJob('lamer', 'public', 'sysDescr.0', 60))
 		nc.addJob(jobs.RRDSNMPJob('lamer', 'public',
-			('ifInOctets.2', 'ifOutOctets.2'), 5, 'test.rrd'))
+			('ifInOctets.2', 'ifOutOctets.2'), 60, 'rrd/lamer_int.rrd'))
+		nc.addJob(jobs.RRDSNMPJob('lamer', 'public',
+			('ipInReceives.0', 'ipInDelivers.0'), 60, 'rrd/lamer_ip_in.rrd'))
+		nc.addJob(jobs.RRDSNMPJob('lamer', 'public',
+			('udpInDatagrams.0', 'udpOutDatagrams.0'), 60, 'rrd/lamer_udp.rrd'))
+		nc.addJob(jobs.RRDSNMPJob('lamer', 'public',
+			('tcpInSegs.0', 'tcpOutSegs.0'), 60, 'rrd/lamer_tcp.rrd'))
+		nc.addJob(jobs.RRDSNMPJob('lamer', 'public',
+			('ssCpuRawUser.0', 'ssCpuRawSystem.0',
+			 'ssCpuRawIdle.0', 'ssCpuRawWait.0',
+			 'ssCpuRawKernel.0'), 60, 'rrd/lamer_cpu.rrd'))
 
 		# Add a job to watch for listening connections
 		nc.addJob(jobs.SNMPWalkCountJob('lamer', 'public','tcpConnState',5,2))
@@ -117,4 +127,4 @@ if __name__ == '__main__':
 
 	finally:
 		print "Requesting a stop."
-		nc.stop()
+		c.stop()
