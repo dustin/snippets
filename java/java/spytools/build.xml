@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.3 2002/05/23 20:43:11 dustin Exp $
+	$Id: build.xml,v 1.4 2002/05/29 20:21:35 dustin Exp $
 
   -->
 
@@ -16,6 +16,8 @@
 			<include name="jndi.jar"/>
 			<include name="jdbc2_0-stdext.jar"/>
 		</fileset>
+		<pathelement path="${java.class.path}"/>
+		<pathelement path="."/>
 	</path>
 
 	<target name="clean">
@@ -23,6 +25,9 @@
 			<fileset dir="net">
 				<include name="**/*.class"/>
 			</fileset>
+      <fileset dir=".">
+        <include name="spy.jar"/>
+      </fileset>
 		</delete>
 	</target>
 
@@ -37,10 +42,20 @@
     </javadoc>
   </target>
 
-	<target name="spy.jar" depends="all">
+	<target name="thinjar" depends="all">
 		<jar jarfile="spy.jar" basedir=".">
-			<include name="**/*.class"/>
-			<include name="**/*.properties"/>
+			<include name="net/spy/**/*.class"/>
+			<include name="net/spy/**/*.properties"/>
+		</jar>
+	</target>
+
+	<target name="spy.jar" depends="all,docs">
+		<jar jarfile="spy.jar" basedir=".">
+			<include name="build.xml"/>
+			<include name="docs/**"/>
+			<include name="net/spy/**/*.class"/>
+			<include name="net/spy/**/*.java"/>
+			<include name="net/spy/**/*.properties"/>
 		</jar>
 	</target>
 
@@ -66,9 +81,7 @@
 				<arg value="net.spy.db.CachedResultSetStub"/>
 			<arg value="-outputclass"/>
 				<arg value="net.spy.db.CachedResultSet"/>
-			<classpath>
-				<pathelement path="${java.class.path}"/>
-			</classpath>
+			<classpath refid="myclasses"/>
 		</java>
   </target>
 
@@ -85,9 +98,7 @@
 					<arg value="net.spy.db.CachePreparedStatementStub"/>
 				<arg value="-outputclass"/>
 					<arg value="net.spy.db.CachePreparedStatement"/>
-				<classpath>
-					<pathelement path="${java.class.path}"/>
-				</classpath>
+			  <classpath refid="myclasses"/>
 		</java>
 
   </target>
