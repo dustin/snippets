@@ -1,18 +1,20 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.5 2001/05/21 23:05:44 dustin Exp $
+ * $Id: SpyCache.java,v 1.6 2001/05/22 03:28:13 dustin Exp $
  */
 
 package net.spy.cache;
 
 import java.util.*;
 
+import net.spy.util.*;
+
 /**
  * Spy in-memory cache object.
  */
 public class SpyCache extends Object {
-	private static SpyCacheStore cacheStore=null;
+	private static TimeStampedHash cacheStore=null;
 	private static String CACHE_MUTEX="CACHE_MUTEX";
 	private static SpyCacheCleaner cacheCleaner=null;
 	private static String CLEANER_MUTEX="CLEANER_MUTEX";
@@ -91,7 +93,7 @@ public class SpyCache extends Object {
 	private synchronized void init() {
 		synchronized(CACHE_MUTEX) {
 			if(cacheStore==null) {
-				cacheStore=new SpyCacheStore();
+				cacheStore=new TimeStampedHash();
 			}
 		}
 
@@ -108,12 +110,12 @@ public class SpyCache extends Object {
 	////////////////////////////////////////////////////////////////////
 
 	private class SpyCacheCleaner extends Thread {
-		private SpyCacheStore cacheStore=null;
+		private TimeStampedHash cacheStore=null;
 
 		// How many cleaning passes we've done.
 		private int passes=0;
 
-		public SpyCacheCleaner(SpyCacheStore cacheStore) {
+		public SpyCacheCleaner(TimeStampedHash cacheStore) {
 			super();
 			this.cacheStore=cacheStore;
 			this.setName("SpyCacheCleaner");
@@ -123,7 +125,7 @@ public class SpyCache extends Object {
 
 		public String toString() {
 			return(super.toString() + " - " + passes + " runs, mod age:  "
-				+ cacheStore.getModAge());
+				+ cacheStore.getUseAge());
 		}
 
 		private void cleanup() throws Exception {
@@ -144,7 +146,7 @@ public class SpyCache extends Object {
 
 			// Return true if the difference between now and the last
 			// time the cache was touched is less than an hour.
-			if( (cacheStore.getModAge()) < (3600*1000) ) {
+			if( (cacheStore.getUseAge()) < (3600*1000) ) {
 				rv=true;
 			}
 
@@ -172,8 +174,6 @@ public class SpyCache extends Object {
 			cacheStore.clear();
 		}
 	} // Cleaner class
-
-	// Cache item storage
 
 	private class SpyCacheItem extends Object {
 		private Object key=null;
@@ -214,6 +214,6 @@ public class SpyCache extends Object {
 			}
 			return(ret);
 		}
-	} // SpyCacheStore
+	} // SpyCacheItem
 
 }

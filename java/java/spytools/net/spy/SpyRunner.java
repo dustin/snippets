@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.8 2001/04/03 07:37:19 dustin Exp $
+// $Id: SpyRunner.java,v 1.9 2001/05/22 03:28:12 dustin Exp $
 
 package net.spy;
 
@@ -72,8 +72,11 @@ public class SpyRunner extends Thread {
 		}
 	}
 
+	/**
+	 * The main portion of SpyRunner.
+	 */
 	public static void main(String args[]) throws Exception {
-		conf=new SpyConfig(args[0]);
+		conf=new SpyConfig(new File(args[0]));
 		String apps=conf.get("apps");
 
 		ThreadGroup system=getSystemGroup();

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.3 2001/04/03 08:30:53 dustin Exp $
+// $Id: DBSP.java,v 1.4 2001/05/22 03:28:16 dustin Exp $
 
 package net.spy.db;
 
@@ -716,7 +716,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	public static void main(String args[]) throws Exception {
 		// Get a Config
-		SpyConfig dbconfig=new SpyConfig(args[1]);
+		SpyConfig dbconfig=new SpyConfig(new java.io.File(args[1]));
 
 		// Now, we have sit back and reflect on a way to instantiate this
 		// thing.

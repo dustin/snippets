@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.14 2001/02/07 06:31:02 dustin Exp $
+ * $Id: SpyConfig.java,v 1.15 2001/05/22 03:28:10 dustin Exp $
  */
 
 package net.spy;
@@ -28,11 +28,19 @@ public class SpyConfig extends Properties {
 	 *
 	 * @param conffile The config file we are describing.
 	 */
-	public SpyConfig(String conffile) {
+	public SpyConfig(File conffile) {
 		super();
-
 		confInit();
 		loadConfig(conffile);
+	}
+
+	/**
+	 * Construct a new SpyConfig object describing a config file.
+	 *
+	 * @deprecated Give it a File object instead.
+	 */
+	public SpyConfig(String conffile) {
+		this(new File(conffile));
 	}
 
 	/**
@@ -44,7 +52,7 @@ public class SpyConfig extends Properties {
 		confInit();
 	}
 
-	private synchronized void confInit() {
+	private static synchronized void confInit() {
 		if(configStore==null) {
 			configStore=new Hashtable();
 			configTimeStamps=new Hashtable();
@@ -60,7 +68,7 @@ public class SpyConfig extends Properties {
 	 *
 	 * @return true if the config loaded successfully.
 	 */
-	public boolean loadConfig(String conffile) {
+	public boolean loadConfig(File conffile) {
 		boolean loaded=false;
 
 		// See whether we've cached the config file or not.
@@ -70,12 +78,12 @@ public class SpyConfig extends Properties {
 			loaded=true;
 		} else {
 			try {
-				SpyConfigReader r = new SpyConfigReader();
-				Hashtable h = r.hashConfig(conffile);
+				Hashtable h = hashConfig(conffile);
 				record(conffile, h);
 				set(h);
 				loaded=true;
 			} catch(Exception e) {
+				// Didn't load.
 			}
 		}
 
@@ -90,8 +98,27 @@ public class SpyConfig extends Properties {
 	 * @param confFiles an array of config file paths to attempt to load
 	 *
 	 * @return true if a config file was loaded
+	 *
+	 * @deprecated Use the File one instead.
 	 */
 	public boolean loadConfig(String confFiles[]) {
+		boolean gotit=false;
+		for(int i=0; i<confFiles.length && gotit==false; i++) {
+			gotit=loadConfig(new File(confFiles[i]));
+		}
+		return(gotit);
+	}
+
+	/**
+	 * Try to load a config file.  This function allows an object to load a
+	 * config file from a list of files.  Only the first file in the list
+	 * that works is actually loaded.
+	 *
+	 * @param confFiles an array of config file paths to attempt to load
+	 *
+	 * @return true if a config file was loaded
+	 */
+	public boolean loadConfig(File confFiles[]) {
 		boolean gotit=false;
 		for(int i=0; i<confFiles.length && gotit==false; i++) {
 			gotit=loadConfig(confFiles[i]);
@@ -100,13 +127,12 @@ public class SpyConfig extends Properties {
 	}
 
 	// Check to see if we have current data on this file.
-	private boolean isUpToDate(String file) {
+	private boolean isUpToDate(File file) {
 		boolean r = false;
 		try {
 			if(configStore.containsKey(file)) {
 				long ts=(long)((Long)configTimeStamps.get(file)).longValue();
-				File f = new File(file);
-				if(ts == f.lastModified()) {
+				if(ts == file.lastModified()) {
 					r=true;
 				}
 			}
@@ -117,10 +143,9 @@ public class SpyConfig extends Properties {
 	}
 
 	// record stuff to keep up with config file status
-	private void record(String file, Hashtable h) {
+	private void record(File file, Hashtable h) {
 		try {
-			File f = new File(file);
-			Long l = new Long(f.lastModified());
+			Long l = new Long(file.lastModified());
 
 			configStore.put(file, h);
 			configTimeStamps.put(file, l);
@@ -189,14 +214,9 @@ public class SpyConfig extends Properties {
 		}
 	}
 
-	// The config reader class
-	private class SpyConfigReader {
-
-		public Hashtable hashConfig(String filename) throws Exception {
-			Properties p = new Properties();
-			p.load(new FileInputStream(filename));
-			return(p);
-		}
+	private Hashtable hashConfig(File file) throws Exception {
+		Properties p = new Properties();
+		p.load(new FileInputStream(file));
+		return(p);
 	}
-
 }
