@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.2 2000/01/16 06:19:17 dustin Exp $
+ * $Id: main.c,v 1.3 2000/01/16 06:23:20 dustin Exp $
  */
 
 #include <stdio.h>
@@ -174,7 +174,7 @@ int parse_headers(char *buf, int *size)
 		}
 	}
 	*end=0x00;
-	end+=2;
+	end+=index;
 	s=*size-((int)end-(int)buf);
 
 	grow.size=1024*sizeof(char);
