@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.30 2001/08/30 20:26:47 dustin Exp $
+// $Id: PoolContainer.java,v 1.31 2001/08/30 20:50:45 dustin Exp $
 
 package net.spy.pool;
 
@@ -366,9 +366,9 @@ public class PoolContainer extends Object {
 
 				rv=(long)((double)rv*factor);
 
-				// All connections should be available for at least 5 seconds.
-				if(rv<5) {
-					rv=5;
+				// All connections should be available for at least 5 seconds
+				if(rv<5000) {
+					rv=5000;
 				}
 			}
 		}
