@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.9 2001/01/28 11:39:39 dustin Exp $
+ * $Id: Debug.java,v 1.10 2002/11/26 09:09:45 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -66,7 +66,6 @@ public class Debug extends HttpServlet
 			}
 			ret+="</li>\n";
 		}
-		ret+="</ul></ul>\n";
 
 		ThreadGroup tgs[]=new ThreadGroup[tg.activeGroupCount()+10];
 		n=tg.enumerate(tgs, false);
@@ -74,6 +73,8 @@ public class Debug extends HttpServlet
 		for(int i=0; i<n; i++) {
 			ret+=dumpThreadGroup(tgs[i], sc);
 		}
+
+		ret+="</li></ul></ul>\n";
 
 		return(ret);
 	}
