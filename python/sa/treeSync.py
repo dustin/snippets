@@ -10,12 +10,27 @@ import sys
 import stat
 import shutil
 import getopt
+import string
 import exceptions
 
 # Global configuration
 deepCompare=0
 verbose=0
 delete=0
+
+# Characters we will allow in the destination tree.
+goodChars=string.letters + string.digits + "=,_+.-~ "
+
+def buildGoodSet(goodChars, badChar='_'):
+    """Build a translation table that turns all characters not in goodChars
+       to badChar"""
+    allChars=string.maketrans("", "")
+    badchars=string.translate(allChars, allChars, goodChars)
+    rv=string.maketrans(badchars, badChar * len(badchars))
+    return rv
+
+# Build a translation table that includes only characters
+transt=buildGoodSet(goodChars, '_')
 
 def dbgMsg(msg, args):
     global verbose
@@ -101,10 +116,10 @@ def processDeletes(src, dest, srcnames):
     global delete
 
     if delete:
-        # Index the source names
+        # Index the source names (translated)
         snames={}
         for name in srcnames:
-            snames[name]=1
+            snames[string.translate(name, transt)]=1
 
         # Look for missing stuff
         for dname in os.listdir(dest):
@@ -128,7 +143,9 @@ def myCopyTree(src, dest):
 
     for name in names:
         srcname = os.path.join(src, name)
-        destname = os.path.join(dest, name)
+        # Get the destination name after having gone through the translation
+        # table
+        destname = os.path.join(dest, string.translate(name, transt))
         if os.path.isdir(srcname):
             myCopyTree(srcname, destname)
         else:
