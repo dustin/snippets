@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.5 1998/01/02 06:43:29 dustin Exp $
+ * $Id: main.c,v 1.6 1998/01/02 10:49:33 dustin Exp $
  */
 
 #include <config.h>
@@ -30,10 +30,17 @@ RETSIGTYPE serv_sigint(int sig)
 
     pidfile=rcfg_lookup(cf, "etc.pidfile");
     if(pidfile==NULL)
-	pidfile=DEFPIDFILE;
+        pidfile=DEFPIDFILE;
 
     unlink(pidfile);
     exit(0);
+}
+
+RETSIGTYPE serv_cluster_alrm(int sig)
+{
+    _ndebug(2, ("Caught alrm on connect attempt\n"));
+    resettraps();
+    return;
 }
 
 void resettraps(void)
@@ -42,6 +49,8 @@ void resettraps(void)
     signal(SIGQUIT, serv_sigint);
     signal(SIGTERM, serv_sigint);
     signal(SIGHUP, serv_sigint);
+    signal(SIGALRM, serv_cluster_alrm);
+
 }
 
 int checkpidfile(char *filename)
@@ -81,7 +90,7 @@ void writepid(int pid)
     pidfile=rcfg_lookup(cf, "etc.pidfile");
 
     if(pidfile==NULL)
-	pidfile=DEFPIDFILE;
+        pidfile=DEFPIDFILE;
 
     r=checkpidfile(pidfile);
 
@@ -142,58 +151,87 @@ void detach(void)
 
 int mapcon(char *p, int stats)
 {
-     char key[80];
-     char **list=NULL;
-     char *host;
-     int port, s, i, index;
+    char key[80];
+    char **list=NULL;
+    char *host;
+    int port, s, i, index, defalrm, alrm;
 
-     _ndebug(2, ("mapcon(%s, %d)\n", p, stats));
+    _ndebug(2, ("mapcon(%s, %d)\n", p, stats));
 
-     sprintf(key, "ports.%s.iscluster", p);
-     if(rcfg_lookupInt(cf, key))
-     {
-	 _ndebug(2, ("That's a cluster, do it.\n"));
-         sprintf(key, "ports.%s.cluster", p);
-	 list=rcfg_getSection(cf, key);
-	 for(i=0; list[i]!=NULL; i++);
-	 index=stats%i;
-	 _ndebug(2, ("Index got %d\n", index));
+    sprintf(key, "ports.%s.tcptimeout", p);
+    defalrm=rcfg_lookupInt(cf, key);
+    if(defalrm<1)
+        defalrm=DEFCONTIME;
 
-	 s=-1;
-	 i=index;
+    sprintf(key, "ports.%s.iscluster", p);
+    if(rcfg_lookupInt(cf, key))
+    {
+        _ndebug(2, ("That's a cluster, do it.\n"));
 
-	 do
-	 {
-	     if(list[i]==NULL)
-		 i=0;
+        sprintf(key, "ports.%s.cluster", p);
+        list=rcfg_getSection(cf, key);
+        for(i=0; list[i]!=NULL; i++);
+        index=stats%i;
+        _ndebug(2, ("Index got %d\n", index));
 
-             sprintf(key, "ports.%s.cluster.%s.remote_port", p, list[i]);
-             _ndebug(5, ("Looking up ``%s''\n", key));
-             port=rcfg_lookupInt(cf, key);
+        s=-1;
+        i=index;
 
-             sprintf(key, "ports.%s.cluster.%s.remote_addr", p, list[i]);
-             _ndebug(5, ("Looking up ``%s''\n", key));
-             host=rcfg_lookup(cf, key);
+        do
+        {
+            if(list[i]==NULL)
+                i=0;
 
-	     s=getclientsocket(rcfg_lookup(cf, key), port);
+           sprintf(key, "ports.%s.cluster.%s.remote_port", p, list[i]);
+           _ndebug(5, ("Looking up ``%s''\n", key));
+           port=rcfg_lookupInt(cf, key);
 
-	     ++i;
-	 } while(s==-1 && i!=index);
-     }
-     else
-     {
-         sprintf(key, "ports.%s.remote_port", p);
-         _ndebug(5, ("Looking up ``%s''\n", key));
-         port=rcfg_lookupInt(cf, key);
-         sprintf(key, "ports.%s.remote_addr", p);
-         _ndebug(5, ("Looking up ``%s''\n", key));
-         host=rcfg_lookup(cf, key);
-	 s=getclientsocket( rcfg_lookup(cf, key), port);
-     }
+           sprintf(key, "ports.%s.cluster.%s.remote_addr", p, list[i]);
+           _ndebug(5, ("Looking up ``%s''\n", key));
+           host=rcfg_lookup(cf, key);
 
-     if(list!=NULL)
-         rcfg_freeSectionList(list);
-     return(s);
+           _ndebug(5, ("Found ``%s''\n", host));
+
+            sprintf(key, "ports.%s.cluster.%s.tcptimeout", p, list[i]);
+            _ndebug(5, ("Looking up ``%s''\n", key));
+            alrm=rcfg_lookupInt(cf, key);
+            if(alrm<1)
+                alrm=defalrm;
+
+            _ndebug(2, ("%d seconds to connect\n", alrm));
+
+            alarm(alrm);
+            s=getclientsocket(host, port);
+            alarm(0);
+
+            ++i;
+        } while(s==-1 && i!=index);
+    }
+    else
+    {
+        sprintf(key, "ports.%s.remote_port", p);
+        _ndebug(5, ("Looking up ``%s''\n", key));
+        port=rcfg_lookupInt(cf, key);
+        sprintf(key, "ports.%s.remote_addr", p);
+        _ndebug(5, ("Looking up ``%s''\n", key));
+        host=rcfg_lookup(cf, key);
+
+        sprintf(key, "ports.%s.cluster.%s.tcptimeout", p, list[i]);
+        _ndebug(5, ("Looking up ``%s''\n", key));
+        alrm=rcfg_lookupInt(cf, key);
+        if(alrm<1)
+            alrm=defalrm;
+
+        _ndebug(2, ("%d seconds to connect\n"));
+
+        alarm(alrm);
+        s=getclientsocket( rcfg_lookup(cf, key), port);
+        alarm(0);
+    }
+
+    if(list!=NULL)
+        rcfg_freeSectionList(list);
+    return(s);
 }
 
 int listento(char *gimme)
@@ -207,17 +245,17 @@ int listento(char *gimme)
      host=ptr;
      for(tmp=ptr; *tmp; tmp++)
      {
-	 if(*tmp==':')
-	 {
-	     *tmp=NULL;
-	     tmp++;
-	     port=atoi(tmp);
-	 }
+         if(*tmp==':')
+         {
+             *tmp=NULL;
+             tmp++;
+             port=atoi(tmp);
+         }
      }
      if(port==-1)
      {
-	 host=NULL;
-	 port=atoi(ptr);
+         host=NULL;
+         port=atoi(ptr);
      }
 
      s=getservsocket(host, port);
@@ -238,8 +276,8 @@ void _main(void)
     /* Initialize maps */
     for(i=0; i<MAPSIZE; i++)
     {
-	map[i]=-1;
-	portmap[i]=NULL;
+        map[i]=-1;
+        portmap[i]=NULL;
     }
 
     FD_ZERO(&tfdset);
@@ -248,106 +286,106 @@ void _main(void)
     ports=rcfg_getSection(cf, "ports");
     for(i=0; ports[i]; i++)
     {
-	_ndebug(0, ("Initialize port %s\n", ports[i]));
-	s=listento(ports[i]);
-	if(s>=0)
-	{
-	     if(s>upper)
-		 upper=s;
+        _ndebug(0, ("Initialize port %s\n", ports[i]));
+        s=listento(ports[i]);
+        if(s>=0)
+        {
+             if(s>upper)
+                 upper=s;
 
-	     _ndebug(3, ("Listening on, and Fdsetting %d\n", s));
-	     FD_SET(s, &tfdset);
-	     portmap[s]=strdup(ports[i]);
-	}
+             _ndebug(3, ("Listening on, and Fdsetting %d\n", s));
+             FD_SET(s, &tfdset);
+             portmap[s]=strdup(ports[i]);
+        }
     }
     rcfg_freeSectionList(ports);
     upper++;
 
     for(;;)
     {
-	 fdset=tfdset;
-	 fromlen=sizeof(fsin);
+         fdset=tfdset;
+         fromlen=sizeof(fsin);
 
-	 _ndebug(2, ("Selecting...\n"));
-	 if(_debug>5)
-	 {
+         _ndebug(2, ("Selecting...\n"));
+         if(_debug>5)
+         {
              for(i=0; i<MAPSIZE; i++)
-	     {
-	         if(FD_ISSET(i, &fdset))
-		     printf("    ...on %d\n", i);
-	     }
-	 }
+             {
+                 if(FD_ISSET(i, &fdset))
+                     printf("    ...on %d\n", i);
+             }
+         }
 
-	 if( (selected=select(MAPSIZE, &fdset, NULL, NULL, NULL)) > 0)
-	 {
-	     for(i=0; i<MAPSIZE; i++)
-	     {
-		 _ndebug(4, ("Testing %d for fdset\n", i));
-		 if(FD_ISSET(i, &fdset))
-		 {
-		     _ndebug(2, ("Select found %d (portmaps to %s)\n",
-				 i, portmap[i]));
-		     if(portmap[i]!=NULL)
-		     {
-			  _ndebug(2, ("Got a connection for port %s\n",
-				      portmap[i]));
-			  if( (cs=accept(i, (struct sockaddr *)&fsin,
-			       &fromlen)) >= 0)
+         if( (selected=select(MAPSIZE, &fdset, NULL, NULL, NULL)) > 0)
+         {
+             for(i=0; i<MAPSIZE; i++)
+             {
+                 _ndebug(4, ("Testing %d for fdset\n", i));
+                 if(FD_ISSET(i, &fdset))
+                 {
+                     _ndebug(2, ("Select found %d (portmaps to %s)\n",
+                                 i, portmap[i]));
+                     if(portmap[i]!=NULL)
+                     {
+                          _ndebug(2, ("Got a connection for port %s\n",
+                                      portmap[i]));
+                          if( (cs=accept(i, (struct sockaddr *)&fsin,
+                               &fromlen)) >= 0)
                           {
-			     if( (os=mapcon(portmap[i], ++stats[i])) >= 0)
-			     {
-				 _ndebug(2, ("Got new connection, %d<->%d\n",
-					     os, cs));
-				 /* Select on both directions */
-				 FD_SET(cs, &tfdset);
-				 FD_SET(os, &tfdset);
+                             if( (os=mapcon(portmap[i], ++stats[i])) >= 0)
+                             {
+                                 _ndebug(2, ("Got new connection, %d<->%d\n",
+                                             os, cs));
+                                 /* Select on both directions */
+                                 FD_SET(cs, &tfdset);
+                                 FD_SET(os, &tfdset);
 
-				 /* Map both directions */
-				 map[cs]=os;
-				 map[os]=cs;
-			     }
-			     else
-			     {
-				 close(cs);
-			     }
-			  }
-		     }
-		     else /* We've got data, need to send it */
-		     {
-			 _ndebug(2, ("That's a listener\n"));
-			 if(map[i]>0)
-			 {
-			     size=recv(i, buf, BUFLEN, 0);
-			     if(size==0)
-			     {
-				 close(i);
-				 close(map[i]);
-				 FD_CLR(i, &tfdset);
-				 FD_CLR(map[i], &tfdset);
-				 map[map[i]]=-1;
-				 map[i]=-1;
-			     }
-			     else
-			     {
-				 _ndebug(3, ("Sending %d bytes from %d "
-					     "to %d\n", size, i, map[i]));
-			         send(map[i], buf, size, 0);
-			     }
-			 }
-		     }
-		     if(--selected==0)
-		     {
-			 _ndebug(4, ("Select done\n"));
-		         break;
-		     }
-		 }
-	     }
-	 }
-	 else
-	 {
-	     perror("Select");
-	     exit(0);
-	 }
+                                 /* Map both directions */
+                                 map[cs]=os;
+                                 map[os]=cs;
+                             }
+                             else
+                             {
+                                 close(cs);
+                             }
+                          }
+                     }
+                     else /* We've got data, need to send it */
+                     {
+                         _ndebug(2, ("That's a listener\n"));
+                         if(map[i]>0)
+                         {
+                             size=recv(i, buf, BUFLEN, 0);
+                             if(size==0)
+                             {
+                                 close(i);
+                                 close(map[i]);
+                                 FD_CLR(i, &tfdset);
+                                 FD_CLR(map[i], &tfdset);
+                                 map[map[i]]=-1;
+                                 map[i]=-1;
+                             }
+                             else
+                             {
+                                 _ndebug(3, ("Sending %d bytes from %d "
+                                             "to %d\n", size, i, map[i]));
+                                 send(map[i], buf, size, 0);
+                             }
+                         }
+                     }
+                     if(--selected==0)
+                     {
+                         _ndebug(4, ("Select done\n"));
+                         break;
+                     }
+                 }
+             }
+         }
+         else
+         {
+             perror("Select");
+             exit(0);
+         }
     } /* Infinite loop */
 }
 
@@ -357,6 +395,6 @@ void main(void)
     cf=rcfg_readconfig(CONFFILE);
     _debug=rcfg_lookupInt(cf, "etc.debug");
     if(_debug==0)
-	detach();
+        detach();
     _main();
 }
