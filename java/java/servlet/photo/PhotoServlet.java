@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.38 1999/10/20 03:42:46 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.39 1999/10/20 04:16:08 dustin Exp $
  */
 
 import java.io.*;
@@ -75,7 +75,7 @@ public class PhotoServlet extends HttpServlet
 		Connection photo=null;
 		boolean worked=false;
 		Exception why=null;
-		PhotoDB pdb = new PhotoDB();
+		SpyDB pdb = new SpyDB(new PhotoConfig());
 
 		try {
 			photo=pdb.getConn();

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SetPW.java,v 1.1 1999/10/20 03:43:05 dustin Exp $
+ * $Id: SetPW.java,v 1.2 1999/10/20 04:16:09 dustin Exp $
  */
 
 package net.spy.photo;
@@ -17,9 +17,10 @@ public class SetPW {
 			BufferedReader rd=
 				new BufferedReader(new InputStreamReader(System.in));
 			PhotoConfig config = new PhotoConfig();
-			Class.forName(config.dbDriverName);
-			Connection db = DriverManager.getConnection(config.dbSource,
-				config.dbUser, config.dbPass);
+			Class.forName(config.get("dbDriverName"));
+			Connection db =
+			DriverManager.getConnection(config.get("dbSource"),
+				config.get("dbUser"), config.get("dbPass"));
 			PhotoSecurity security=new PhotoSecurity(null);
 
 			String user = null;

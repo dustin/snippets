@@ -34,8 +34,8 @@ photo.jar: $(CLASSES)
 test: all
 	env CLASSPATH=$(CLASSPATH) $(SERVLETRUNNER) -d $(PWD)
 
-setpw: SetPW.class
-	env CLASSPATH=$(CLASSPATH) $(JAVA) SetPW
+setpw: net/spy/photo/SetPW.class
+	env CLASSPATH=$(CLASSPATH) $(JAVA) net.spy.photo.SetPW
 
 install: all
 	$(SCP) PhotoServlet.class photo.jar $(DEST)
