@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestTest.java,v 1.1 1999/11/19 07:29:23 dustin Exp $
+// $Id: TestTest.java,v 1.2 2001/01/27 09:14:10 dustin Exp $
 
 package net.spy.test;
 
@@ -8,39 +8,47 @@ import java.sql.*;
 import java.util.*;
 import net.spy.*;
 
-// This class implements the actual test that will be taken by people
+/**
+ * The actual test to be taken.
+ */
 public class TestTest {
-	protected TestQuestion questions[];
-	protected int test_id = -1;
-	protected int num_questions = -1;
-	protected int current_question_i=0;
-	protected TestQuestion current_question=null;
+
+	private TestQuestion questions[];
+	private int test_id = -1;
+	private int num_questions = -1;
+	private int current_question_i=0;
+	private TestQuestion current_question=null;
 
 	public TestTest(int test_id, int num_questions) throws Exception {
 		this.test_id=test_id;
 		this.num_questions=num_questions;
 
 		try {
-			SpyDB db = new SpyDB(new TestConfig(), true);
-			Connection tdb = db.getConn();
-			Statement st = tdb.createStatement();
-			int i;
+			SpyDB db = new SpyDB(new TestConfig());
 
+			PreparedStatement pst=db.prepareStatement(
+				"select question_id from test_questions where test_id = ?");
+
+			pst.setInt(1, test_id);
+
+			ResultSet rs = pst.executeQuery();
+
+			// Get the questions
 			Vector v = new Vector();
-
-			String query = "select question_id from question where test_id = "
-				+ test_id;
-			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
 				v.addElement( new Integer(rs.getInt("question_id")) );
 			}
+			// We're done with the DB for now.
+			rs.close();
+			db.close();
 
+			// Prepare to shuffle the questions
 			Integer q_list[] = new Integer[v.size()];
-
-			for(i=0; i<v.size(); i++) {
+			for(int i=0; i<v.size(); i++) {
 				q_list[i]=(Integer)v.elementAt(i);
 			}
 
+			// Shuffle them
 			q_list = (Integer [])SpyUtil.shuffle(q_list);
 
 			// Different behavior depending on whether we have enough
@@ -51,10 +59,13 @@ public class TestTest {
 				questions = new TestQuestion[q_list.length];
 			}
 
-			for(i=0; i<questions.length; i++) {
+			// OK, populate our questions.
+			for(int i=0; i<questions.length; i++) {
 				questions[i]=new TestQuestion( q_list[i].intValue() );
 			}
+
 		} catch(Exception e) {
+			e.printStackTrace();
 			throw new Exception("Error generating test:  " + e);
 		}
 	}
@@ -84,10 +95,13 @@ public class TestTest {
 		return(questions[i]);
 	}
 
-	public void dump() {
-		int i;
-		for(i=0; i<questions.length; i++) {
-			questions[i].dump();
+	public String toString() {
+		String ret="";
+
+		for(int i=0; i<questions.length; i++) {
+			ret+=questions[i];
 		}
+
+		return(ret);
 	}
 }

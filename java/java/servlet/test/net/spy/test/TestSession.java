@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: TestSession.java,v 1.4 2000/05/01 04:32:43 dustin Exp $
+ * $Id: TestSession.java,v 1.5 2001/01/27 09:14:06 dustin Exp $
  */
 
 package net.spy.test;
@@ -33,24 +33,8 @@ public class TestSession extends Object
 	Integer test_no=null;
 	TestTest test=null;
 
-	// have we done this before?
-	static boolean initialized=false;
-
 	protected void log(String s) {
 		servlet.log(s);
-	}
-
-	// The only way to get the session context is to have a session, so we
-	// have to do it here.  That sucks, but it's what we got.
-	protected synchronized void initialize() {
-		// Yes, this test was already done, but this time, it's
-		// synchronized.
-		if(initialized==false) {
-			initialized=true;
-			TestSessionSweeper t =
-				new TestSessionSweeper(session.getSessionContext());
-			t.start();
-		}
 	}
 
 	// Constructor.
@@ -63,9 +47,6 @@ public class TestSession extends Object
 		servlet=s;
 		session=request.getSession(true);
 		test_config=new TestConfig();
-		if(initialized==false) {
-			initialize();
-		}
 	}
 
 	// process a request

@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestQuestion.java,v 1.2 2000/01/10 09:05:50 dustin Exp $
+// $Id: TestQuestion.java,v 1.3 2001/01/27 09:14:05 dustin Exp $
 
 package net.spy.test;
 
@@ -16,29 +16,53 @@ public class TestQuestion {
 	public TestQuestion(int question_id) throws Exception {
 		int correct_answer;
 		try {
-			SpyDB db = new SpyDB(new TestConfig(), true);
-			Connection tdb = db.getConn();
-			Statement st = tdb.createStatement();
+			SpyDB db = new SpyDB(new TestConfig());
 			int current=0;
 
-			String query="select * from question where question_id = "
-				+ question_id;
-			ResultSet rs = st.executeQuery(query);
-			rs.next();
-			question=rs.getString("question");
-			correct_answer = rs.getInt("answer_id");
+			PreparedStatement pst=db.prepareStatement(
+				"select * from test_questions where question_id = ?");
 
-			// We'll be doing four answers for now
-			answers = new TestAnswer[4];
-			query = "select * from answer where question_id = " +
-				question_id;
-			rs=st.executeQuery(query);
+			pst.setInt(1, question_id);
+
+			ResultSet rs = pst.executeQuery();
+			rs.next();
+
+			this.question=rs.getString("question");
+			boolean shuffle=rs.getBoolean("shuffle_answers");
+
+			// Done with that result set
+			rs.close();
+
+			Vector answers_v=new Vector();
+
+			PreparedStatement pst2=db.prepareStatement(
+				"select * from test_answers where question_id = ?\n"
+					+ " order by answer_id");
+
+			pst2.setInt(1, question_id);
+
+			rs=pst2.executeQuery();
+
 			while(rs.next()) {
-				answers[current++]=new TestAnswer(rs.getString("answer"),
-					rs.getInt("answer_id") == correct_answer);
+				answers_v.addElement(
+					new TestAnswer(
+						rs.getString("answer"),
+						rs.getBoolean("correct")));
 			}
-			answers=(TestAnswer [])SpyUtil.shuffle(answers);
+			// Done with the DB stuff
+			rs.close();
+			db.close();
+
+			// Make an array out of it
+			answers=new TestAnswer[answers_v.size()];
+			answers_v.copyInto(answers);
+
+			// If we're supposed to shuffle this, do so.
+			if(shuffle) {
+				answers=(TestAnswer [])SpyUtil.shuffle(answers);
+			}
 		} catch(Exception e) {
+			e.printStackTrace();
 			throw new Exception("Error instantiating test:  " + e);
 		}
 	}
@@ -61,12 +85,14 @@ public class TestQuestion {
 		return(ret);
 	}
 
-	public void dump() {
-		int i;
-		System.out.println(question);
-		for(i=0; i<4; i++) {
-			System.out.println("\t" + answers[i].isCorrect() + ":  "
-				+ answers[i].getAnswer());
+	public String toString() {
+		String ret=question + "\n";
+
+		for(int i=0; i<answers.length; i++) {
+			ret+="\t" + answers[i].isCorrect() + ":  "
+				+ answers[i].getAnswer() + "\n";
 		}
+
+		return(ret);
 	}
 }
