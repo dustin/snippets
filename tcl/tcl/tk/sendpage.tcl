@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.7 1999/09/04 06:40:45 dustin Exp $
+# $Id: sendpage.tcl,v 1.8 1999/09/05 12:26:21 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -72,13 +72,18 @@ proc snpp_sendpage { host port id msg } {
 	}
 
 	if { $hold_state == 1 } {
-		set windows {.hold.mdy.y .hold.mdy.m .hold.mdy.d .hold.hms.h
+		set windows {.hold.mdy.m .hold.mdy.d .hold.hms.h
 			.hold.hms.m .hold.hms.s}
 
-		set t ""
+		# This one is treated a little special...
+		set t [ .hold.mdy.y get ]
 
 		foreach window $windows {
 			set s [ $window get ]
+			# Format for 2 characters if it's not already
+			if { [string length $s] < 2 } {
+				set s [format "%02d" $s]
+			}
 			append t $s
 		}
 
@@ -153,7 +158,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.7 $ }
+	set rev { $Revision: 1.8 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -164,7 +169,7 @@ proc about { } {
 # Preferences store
 
 proc preferences_store { p } {
-	global snpp_server snpp_port timezone
+	global snpp_server snpp_port timezone enter_to_send
 
 	set snpp_server [ $p.server.server get ]
 	set snpp_port [ $p.port.port get ]
@@ -172,10 +177,22 @@ proc preferences_store { p } {
 	write_config
 }
 
+# Enter to send
+
+proc toggle_ets { } {
+	global enter_to_send
+
+	if { $enter_to_send } {
+		bind .message.what "<Return>" sendpage
+	} else {
+		bind .message.what "<Return>" {}
+	}
+}
+
 # Preferences window.
 
 proc preferences { } {
-	global snpp_server snpp_port timezone
+	global snpp_server snpp_port timezone enter_to_send
 
 	set p .preferences
 	catch { $p destroy }
@@ -207,6 +224,14 @@ proc preferences { } {
 	pack $p.timezone.msg -side left -expand 1
 	pack $p.timezone.timezone -side right -expand 1
 	pack $p.timezone -side top -expand 1 -fill x
+
+	# The Enter to send field.
+	frame $p.ets
+	label $p.ets.msg -text "Enter to Send"
+	checkbutton $p.ets.ets -variable enter_to_send -command toggle_ets
+	pack $p.ets.msg -side left -expand 1
+	pack $p.ets.ets -side right -expand 1
+	pack $p.ets -side top -expand 1 -fill x
 
 	# The buttons.
 	frame $p.buttons
@@ -255,7 +280,7 @@ proc toggle_hold { } {
 }
 
 proc read_config {} {
-	global snpp_server snpp_port timezone
+	global snpp_server snpp_port timezone enter_to_send
 
 	set err [ catch { set fd [ open "sendpage.cnf" r ] } ]
 
@@ -272,7 +297,7 @@ proc read_config {} {
 
 # Save the running config to disk.
 proc write_config {} {
-	global snpp_server snpp_port timezone
+	global snpp_server snpp_port timezone enter_to_send
 
 	set err [ catch { set fd [ open "sendpage.cnf" w ] } ]
 
@@ -283,7 +308,7 @@ proc write_config {} {
 	# write out all necessary variables.
 	puts $fd "# DO NOT EDIT THIS!"
 
-	foreach var {snpp_server snpp_port timezone} {
+	foreach var {snpp_server snpp_port timezone enter_to_send} {
 		set value ""
 		eval append value $$var
 		puts $fd "set $var $value"
@@ -303,6 +328,7 @@ set last_uid ""
 set snpp_server "pager.beyond.com"
 set snpp_port   1041
 set timezone -8
+set enter_to_send 1
 
 read_config
 
@@ -336,6 +362,8 @@ pack .whom -side top -expand 1 -fill x
 frame .message
 label .message.msg -text "What"
 entry .message.what -width $entwidth
+# This doesn't actually do the toggling, just the binding, so it applies here
+toggle_ets
 pack .message.msg -side left -expand 1
 pack .message.what -side right -expand 1
 pack .message -side top -expand 1 -fill x
