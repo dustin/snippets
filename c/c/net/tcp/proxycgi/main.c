@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.8 2003/07/29 18:18:55 dustin Exp $
+ * $Id: main.c,v 1.9 2003/07/29 18:22:33 dustin Exp $
  */
 
 #include <stdio.h>
@@ -275,17 +275,20 @@ int parse_headers(char *buf, int *size)
 		#define startsWith(haystack, needle) \
 			(strncasecmp(haystack, needle, strlen(needle)) == 0)
 
-		if(startsWith(left, "Content-Type")) {
-			str_append(&grow, left);
-		}
+		#define appendIfMatch(haystack, needle) \
+			if(startsWith(haystack, needle)) { \
+				str_append(&grow, left); \
+				str_append(&grow, "\r\n"); \
+			}
 
-		if(startsWith(left, "Content-Length")) {
-			str_append(&grow, left);
-		}
+		appendIfMatch(left, "Content-Type");
 
-		if(startsWith(left, "Content-Encoding")) {
-			str_append(&grow, left);
-		}
+		appendIfMatch(left, "Content-Length");
+
+		appendIfMatch(left, "Content-Encoding");
+
+		#undef startsWith
+		#undef appendIfMatch
 
 		/* Find the next left */
 		for(; p && *p && isspace(*p); p++);
