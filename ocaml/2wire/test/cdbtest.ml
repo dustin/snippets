@@ -48,7 +48,7 @@ let main() =
 		try
 			print_endline("*** Searching x ***");
 			print_endline("ERROR:  " ^ find cdf "x");
-		with Stream.Failure ->
+		with Not_found ->
 			print_endline("failed as expected")
 	);
 	close_cdb_in cdf;
