@@ -10,9 +10,17 @@ feature {ANY} -- Constructors
    make is
       -- Initialization
       local
-         s, d: STRING;
+         e, d: STRING;
       do
          init_const;
+		 io.put_string("Encoded:%N");
+		 e:=encode(argument(1));
+		 io.put_string(e);
+		 io.put_string("%N");
+		 io.put_string("Decoded:%N");
+		 d:=decode(e);
+		 io.put_string(d);
+		 io.put_string("%N");
       end -- make
 
 feature {ANY} -- Actual encode/decode stuff
