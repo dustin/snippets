@@ -8,12 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface Item : NSObject {
 
     NSString *description;
     float price;
     NSString *itemId;
+
+	NSMutableData *responseData;
 
 }
 

@@ -46,6 +46,12 @@
     [contents addObject: item];
 }
 
+-(void)removeItem: (int)which
+{
+	NSLog(@"Removing %d", which);
+	[contents removeObjectAtIndex: which];
+}
+
 -(NSEnumerator *)objectEnumerator
 {
     return([contents objectEnumerator]);

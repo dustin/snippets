@@ -7,7 +7,7 @@
 //
 
 #import "Item.h"
-
+#import "Controller.h"
 
 @implementation Item
 
@@ -41,6 +41,14 @@
     return(itemId);
 }
 
+-(void)dealloc
+{
+	NSLog(@"Killing an item:  %@", self);
+	[description release];
+	[itemId release];
+	[super dealloc];
+}
+
 -(void)update
 {
     NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
@@ -51,8 +59,30 @@
     NSURL *url=[[NSURL alloc] initWithString: s];
     NSLog(@"Fetching from %@", url);
 
-    NSString *data=[[NSString alloc] initWithContentsOfURL:url];
+	NSURLRequest *theRequest=[NSURLRequest requestWithURL:url
+                        cachePolicy:NSURLRequestUseProtocolCachePolicy
+                    timeoutInterval:60.0];
+	// create the connection with the request
+	// and start loading the data
+	NSURLConnection *theConnection=[[NSURLConnection alloc]
+		initWithRequest:theRequest delegate:self];
+	if (theConnection != nil) {
+		// Create the NSMutableData that will hold
+		// the received data
+		responseData=[[NSMutableData data] retain];
+	} else {
+		NSLog(@"Couldn't make connection for %@", url);
+	}
 
+	[s release];
+    [url release];
+    [pool release];
+}
+
+-(void)parseData
+{
+	NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+	NSString *data=[[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
     NSRange r=[data rangeOfString: @"Current bid"];
     if(r.location == NSNotFound) {
         NSLog(@"NOT FOUND!");
@@ -89,11 +119,47 @@
             }
         }
     }
-
-    [s release];
-    [url release];
-    [data release];
+	[data release];
     [pool release];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    // it can be called multiple times, for example in the case of a
+    // redirect, so each time we reset the data.
+	// NSLog(@"Truncating");
+    [responseData setLength:0];
+}
+
+- (void)connection:(NSURLConnection *)connection
+  didFailWithError:(NSError *)error
+{
+    // release the connection, and the data object
+    [connection release];
+    [responseData release];
+
+    // inform the user
+    NSLog(@"Connection failed! Error - %@ %@",
+          [error localizedDescription],
+          [[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+	// NSLog(@"Got data");
+	[responseData appendData: data];
+}
+
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+	NSLog(@"Response complete");
+	[self parseData];
+
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:DATA_UPDATED object:nil];
+
+	[connection release];
+    [responseData release];
 }
 
 @end

@@ -23,6 +23,7 @@
 
 // Managing the contents
 -(void)addItem: (Item *)item;
+-(void)removeItem: (int)which;
 
 // Getting the stuff
 -(NSEnumerator *)objectEnumerator;

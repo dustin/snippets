@@ -44,17 +44,28 @@
     [self setBusy: false];
 }
 
+-(void)updateDefaults
+{
+	NSMutableArray *allObjs=[[NSMutableArray alloc] initWithCapacity:16];
+	NSEnumerator *e=[watching objectEnumerator];
+	id object=nil;
+	while(object = [e nextObject]) {
+		NSArray *a=[[NSArray alloc] initWithObjects:
+			[object itemId], [object description], nil];
+		[allObjs addObject: a];
+		[a release];
+	}
+	[defaults setObject: allObjs forKey: @"watching"];
+	[allObjs release];
+}
+
 - (IBAction)addItem:(id)sender
 {
     NSString *inum=[itemNumber stringValue];
     NSString *desc=[itemDescription stringValue];
 
 	[self addItem: inum withDescription: desc];
-    // Update the defaults.
-    NSArray *a=[[NSArray alloc] initWithObjects: inum, desc, nil];
-    [saved addObject: a];
-    [defaults setObject: saved forKey: @"watching"];
-    [a release];
+	[self updateDefaults];
 }
 
 - (IBAction)openAddWindow:(id)sender
@@ -63,11 +74,30 @@
     [addWindow makeKeyAndOrderFront: self];
 }
 
--(void)setStatus: (NSString *)to
+- (IBAction)removeItem:(id)sender
 {
-    NSLog(@"Setting status to %@", to);
-    [status setStringValue: to];
-    [status display];
+	NSLog(@"We want to delete one:  %d", [table selectedRow]);
+	if([table selectedRow] >= 0) {
+		[watching removeItem: [table selectedRow]];
+		[self updateDefaults];
+		[table reloadData];
+	}
+}
+
+-(void)dataUpdated:(id)notification
+{
+	NSLog(@"Something was updated");
+    // Update the sum and other UI elements.
+    float t=0.0;
+    NSEnumerator *enumerator = [watching objectEnumerator];
+    id object;
+    while (object = [enumerator nextObject]) {
+        t+=[object price];
+    }
+
+    [table reloadData];
+    [total setFloatValue: t];
+    [total setNeedsDisplay: true];
 }
 
 -(IBAction)update:(id)sender
@@ -79,36 +109,22 @@
     NSEnumerator *enumerator = [watching objectEnumerator];
     id object;
     while (object = [enumerator nextObject]) {
-        [self setStatus: [NSString stringWithFormat: @"Updating: %@",
-                                        [object description]]];
         [object update];
         t+=[object price];
     }
-    // Update the status and other UI elements.
-    [table setNeedsDisplay: true];
-    [total setFloatValue: t];
-    [total setNeedsDisplay: true];
     [self setBusy: false];
-    // Clear the status
-    [self setStatus: @""];
     [pool release];
 }
 
 -(void)initSaved: (id)savedIn
 {
-    saved=[[NSMutableArray alloc] initWithCapacity: 10];
-    if(savedIn != nil) {
-        [saved addObjectsFromArray: savedIn];
-    }
-
     // Now initialize the list
-    NSEnumerator *e=[saved objectEnumerator];
+    NSEnumerator *e=[savedIn objectEnumerator];
     id ob=nil;
     while(ob = [e nextObject]) {
         [self addItem: [ob objectAtIndex: 0]
             withDescription: [ob objectAtIndex: 1]];
     }
-	[table reloadData];
 }
 
 // this is performed after awakeFromNib...gives us time to get the UI up
@@ -116,7 +132,6 @@
 -(void)awakeInitialization
 {
     howBusy=0;
-    [self setStatus: @"Initializing"];
     // [busySignal setUsesThreadedAnimation: true];
     [busySignal setHidden: true];
     [busySignal setStyle: NSProgressIndicatorSpinningStyle];
@@ -124,7 +139,6 @@
     defaults=[NSUserDefaults standardUserDefaults];
     id savedWatching=[defaults objectForKey:@"watching"];
     [self initSaved: savedWatching];
-    [self setStatus: @""];
 }
 
 - (void)awakeFromNib
@@ -144,6 +158,12 @@
         target: self
         selector: @selector(update:)
         userInfo:nil repeats:true];
+
+	[[NSNotificationCenter defaultCenter]
+		addObserver:self
+		selector:@selector(dataUpdated:)
+		name:DATA_UPDATED
+		object:nil];
 }
 
 @end

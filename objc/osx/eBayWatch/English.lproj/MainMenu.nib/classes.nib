@@ -1,12 +1,12 @@
 {
     IBClasses = (
         {
-            ACTIONS = {addItem = id; openAddWindow = id; update = id; };
+            ACTIONS = {addItem = id; openAddWindow = id; removeItem = id; update = id; };
             CLASS = Controller;
             LANGUAGE = ObjC;
             OUTLETS = {
                 addWindow = NSWindow;
-                busySignal = HideableProgressIndicator;
+                busySignal = NSProgressIndicator;
                 itemDescription = NSTextField;
                 itemNumber = NSTextField;
                 status = NSTextField;

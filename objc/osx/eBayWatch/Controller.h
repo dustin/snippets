@@ -3,6 +3,8 @@
 #import <Cocoa/Cocoa.h>
 #import "Watching.h"
 
+#define DATA_UPDATED @"DATA_UPDATED"
+
 @interface Controller : NSObject
 {
     IBOutlet NSWindow *addWindow;
@@ -15,10 +17,10 @@
 
     Watching *watching;
     NSUserDefaults *defaults;
-    NSMutableArray *saved;
     int howBusy;
 }
 - (IBAction)addItem:(id)sender;
+- (IBAction)removeItem:(id)sender;
 - (IBAction)openAddWindow:(id)sender;
 
 -(IBAction)update:(id)sender;
