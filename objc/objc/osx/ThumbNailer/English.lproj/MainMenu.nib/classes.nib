@@ -1,11 +1,14 @@
 {
     IBClasses = (
+        {CLASS = DumpBox; LANGUAGE = ObjC; SUPERCLASS = NSBox; },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
         {
             ACTIONS = {processFiles = id; };
             CLASS = MainController;
             LANGUAGE = ObjC;
             OUTLETS = {
+                dragWindow = NSWindow;
+                dumpBox = DumpBox;
                 mainWindow = NSWindow;
                 processingText = NSTextField;
                 progressBar = NSProgressIndicator;

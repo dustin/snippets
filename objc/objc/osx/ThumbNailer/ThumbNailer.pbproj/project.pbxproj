@@ -19,6 +19,10 @@
 				F56DB244034FBE5C01A801C4,
 				F56DB249034FBFB801A801C4,
 				F56DB24A034FBFB801A801C4,
+				F54ECEBC0352B88F01A801C4,
+				F54ECEBD0352B88F01A801C4,
+				F5DA525A0352BB8701A801C4,
+				F5DA525B0352BB8701A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -275,6 +279,8 @@
 				F56DB245034FBE5C01A801C4,
 				F56DB247034FBE5C01A801C4,
 				F56DB24C034FBFB801A801C4,
+				F54ECEC00352B88F01A801C4,
+				F5DA525C0352BB8701A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,6 +302,8 @@
 				F56DB246034FBE5C01A801C4,
 				F56DB248034FBE5C01A801C4,
 				F56DB24B034FBFB801A801C4,
+				F54ECEC10352B88F01A801C4,
+				F5DA525D0352BB8701A801C4,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -356,6 +364,28 @@
 //F52
 //F53
 //F54
+		F54ECEBC0352B88F01A801C4 = {
+			isa = PBXFileReference;
+			path = DumpBox.h;
+			refType = 4;
+		};
+		F54ECEBD0352B88F01A801C4 = {
+			isa = PBXFileReference;
+			path = DumpBox.m;
+			refType = 4;
+		};
+		F54ECEC00352B88F01A801C4 = {
+			fileRef = F54ECEBC0352B88F01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F54ECEC10352B88F01A801C4 = {
+			fileRef = F54ECEBD0352B88F01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F56DB241034FBE5C01A801C4 = {
 			isa = PBXFileReference;
 			path = IconFamily.h;
@@ -430,6 +460,28 @@
 		};
 		F56DB2E7034FC0E201A801C4 = {
 			fileRef = F56DB24D034FC0E101A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5DA525A0352BB8701A801C4 = {
+			isa = PBXFileReference;
+			path = ThumbNailer.h;
+			refType = 4;
+		};
+		F5DA525B0352BB8701A801C4 = {
+			isa = PBXFileReference;
+			path = ThumbNailer.m;
+			refType = 4;
+		};
+		F5DA525C0352BB8701A801C4 = {
+			fileRef = F5DA525A0352BB8701A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5DA525D0352BB8701A801C4 = {
+			fileRef = F5DA525B0352BB8701A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
