@@ -116,6 +116,7 @@ attemptConnection(char *host, char *svc)
 			break;
 		}
 	}
+	freeaddrinfo(res0);
 
 	/* If we got this far, wait for data */
 	if(success) {
