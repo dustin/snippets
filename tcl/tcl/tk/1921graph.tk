@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.1 2000/07/18 09:02:13 dustin Exp $
+# $Id: 1921graph.tk,v 1.2 2000/07/18 09:03:58 dustin Exp $
 
 set width 640
 set height 480
@@ -9,9 +9,8 @@ proc ctof { c } {
 	return [expr ($c*9/5)+32]
 }
 
-proc showGraph { } {
+proc showGraph { width height } {
 	global dumpData
-	global width height
 
 	set input {}
 	set items 0
@@ -59,9 +58,8 @@ proc showGraph { } {
 	}
 }
 
-proc showHistogram { } {
+proc showHistogram { width height } {
 	global dumpData
-	global width height
 
 	set input {}
 	# Find the histogram entries.
@@ -159,5 +157,5 @@ canvas .c -relief raised -width $width -height $height
 pack .c -side top -fill x
 
 readDump /tmp/dump
-showHistogram
-showGraph
+showHistogram $width $height
+showGraph $width $height
