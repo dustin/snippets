@@ -16,6 +16,8 @@ echo() ->
 		stop ->
 			io:format("Stopping ~p\n", [self()]),
 			true;
+		error ->
+			exit("Got an error");
 		Unknown ->
 			error_logger:error_msg("~p exiting due to unhandled message:  ~p\n",
 				[self(), Unknown])
@@ -119,10 +121,10 @@ mcpLoop(Procs) ->
 			mcpLoop(Procs)
 	end.
 
-mcpMonitor(Procs) ->
+mcpMonitor(N) ->
+	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, N, []),
 	lists:foreach(fun (P) -> erlang:monitor(process, P) end, Procs),
 	mcpLoop(Procs).
 
 mcp(N) ->
-	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, N, []),
-	spawn_link(coursemp, mcpMonitor, [Procs]).
+	spawn_link(coursemp, mcpMonitor, [N]).
