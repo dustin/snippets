@@ -1,10 +1,11 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.3 2000/01/24 06:40:38 dustin Exp $
+// $Id: SpyUtil.java,v 1.4 2000/01/24 06:57:09 dustin Exp $
 
 package net.spy;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * Miscellaneous utilities.
@@ -62,4 +63,27 @@ public class SpyUtil {
 
 		return(ret);
 	}
+
+	/**
+	 * Return the contents of a file as a string.
+	 *
+	 * @param file Path to filename.
+	 *
+	 * @exception IOException Thrown if the file cannot be opened.
+	 */
+	 public static String getFileData(String file)
+		throws IOException {
+		byte b[]=new byte[8192];
+		FileInputStream f = new FileInputStream(file);
+		String input="", tmp;
+		int size;
+
+		while( (size=f.read(b)) >=0 ) {
+			tmp = new String(b);
+			// Substring to get rid of all the damned nulls
+			input += tmp.substring(0, size);
+
+		}
+		return(input);
+	 }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyToker.java,v 1.2 2000/01/24 06:40:37 dustin Exp $
+ * $Id: SpyToker.java,v 1.3 2000/01/24 06:57:08 dustin Exp $
  */
 
 package net.spy;
@@ -11,6 +11,10 @@ import java.io.*;
 
 /**
  * A simple token in-plugger.
+ * <p>
+ * Input files are in any textual format, with tokens in the format of
+ * %TOKEN% where TOKEN is a valid token that can be found in the hash
+ * passed in to the tokenizer.
  */
 
 public class SpyToker extends Object {
@@ -30,7 +34,7 @@ public class SpyToker extends Object {
 
 		// Get our mofo data.
 		try {
-			input=getfiledata(file);
+			input=SpyUtil.getFileData(file);
 		} catch (IOException e) {
 			return(null);
 		}
@@ -57,22 +61,4 @@ public class SpyToker extends Object {
 		output += input;
 		return(output);
 	}
-
-	// Get the shite out of the file.
-	private String getfiledata(String file)
-		throws IOException {
-		byte b[]=new byte[8192];
-		FileInputStream f = new FileInputStream(file);
-		String input="", tmp;
-		int size;
-
-		while( (size=f.read(b)) >=0 ) {
-			tmp = new String(b);
-			// Substring to get rid of all the damned nulls
-			input += tmp.substring(0, size);
-		}
-
-		return(input);
-	}
-
 }
