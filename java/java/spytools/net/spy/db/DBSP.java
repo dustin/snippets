@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.1 2001/03/27 09:30:51 dustin Exp $
+// $Id: DBSP.java,v 1.2 2001/04/03 08:18:08 dustin Exp $
 
 package net.spy.db;
 
@@ -77,26 +77,6 @@ public abstract class DBSP extends SpyCacheDB {
 		this.optional=new Hashtable();
 		this.required_inorder=new Vector();
 		this.optional_inorder=new Vector();
-	}
-
-	/**
-	 * Execute the query.
-	 *
-	 * @deprecated use executeQuery instead
-	 */
-	public ResultSet execute() throws SQLException {
-		prepare();
-
-		ResultSet rs=null;
-		try {
-			rs=pst.executeQuery();
-		} catch (SQLException se) {
-			SQLException de=new SQLException("Could not execute");
-			de.setNextException(se);
-			throw de;
-		}
-
-		return(rs);
 	}
 
 	/**
@@ -542,102 +522,6 @@ public abstract class DBSP extends SpyCacheDB {
 		setArg(which, a1, Types.TIMESTAMP);
 	}
 
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setBigDecimal(String which,java.math.BigDecimal a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setBoolean(String which,boolean a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setDate(String which,java.sql.Date a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setDouble(String which,double a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setFloat(String which,float a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setInt(String which,int a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setLong(String which,long a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setObject(String which,java.lang.Object a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setShort(String which,short a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setString(String which,java.lang.String a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setTime(String which,Time a1)
-		throws SQLException {
-		set(which, a1);
-	}
-
-	/**
-	 * @deprecated use the set() methods instead
-	 */
-	public void setTimestamp(String which,Timestamp a1)
-		throws SQLException {
-		set(which, a1);
-	}
 
 	/**
 	 * Get the type (java.sql.Types) of the given variable.
