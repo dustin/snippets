@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.3 1998/06/21 21:38:57 dustin Exp $
+ * $Id: radius.c,v 1.4 1998/06/21 21:56:44 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -30,7 +30,7 @@ static int getudpsocket(void)
     return(s);
 }
 
-int radius_send(radius *r)
+int rad_send(radius *r)
 {
     struct hostent *hp;
     struct sockaddr_in sin;
@@ -53,7 +53,7 @@ int radius_send(radius *r)
     return(0);
 }
 
-int radius_recv(radius *r)
+int rad_recv(radius *r)
 {
     struct sockaddr sa;
     int salen;
@@ -79,8 +79,7 @@ int radius_recv(radius *r)
  * This routine was basically stolen from mod_auth_radius
  */
 
-static void add_attribute(radius *r, int type,
-			  unsigned char *data, int length)
+void rad_add_att(radius *r, int type, unsigned char *data, int length)
 {
     attribute_t *p;
     radius_packet *rad;
@@ -100,7 +99,7 @@ static unsigned char *xor(unsigned char *p, unsigned char *q, int len)
     return(p);
 }
 
-int addpassword(radius *r, char *password)
+int rad_addpass(radius *r, char *password)
 {
     MD5_CTX md5, tmpmd5;
     unsigned char misc[1024];
@@ -135,12 +134,12 @@ int addpassword(radius *r, char *password)
 	xor(&pass[i*RADIUS_PASS_LENGTH], misc, RADIUS_PASS_LENGTH);
     }
 
-    add_attribute(r, RADIUS_PASSWORD, pass, 16);
+    rad_add_att(r, RADIUS_PASSWORD, pass, 16);
 
     return(0);
 }
 
-int simpleauth(char *username, char *password)
+int rad_simpleauth(char *username, char *password)
 {
     MD5_CTX md5;
     int s, i, service, ret;
@@ -165,41 +164,20 @@ int simpleauth(char *username, char *password)
     MD5Final(&(r.rad->vector),&md5);
 
     /* Username */
-    add_attribute(&r, RADIUS_USERNAME, username, strlen(username));
-    if(addpassword(&r, password)<0)
+    rad_add_att(&r, RADIUS_USERNAME, username, strlen(username));
+    if(rad_addpass(&r, password)<0)
 	return(-1);
 
     service=RADIUS_AUTH_ONLY;
-    add_attribute(&r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
+    rad_add_att(&r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
 
     r.s=getudpsocket();
-    radius_send(&r);
+    rad_send(&r);
 
-    ret=radius_recv(&r);
+    ret=rad_recv(&r);
 
     if(ret<0)
        return(ret);
     else
         return(r.rad->code);
-}
-
-int main(int argc, char **argv)
-{
-    int r;
-    char *codes[]={
-	0,
-	"Request",
-	"Accept",
-	"Reject",
-	0,0,0,0,0,0,0,
-	"Challenge",
-    };
-
-    r=simpleauth(argv[1], argv[2]);
-
-    if(r<0) {
-        printf("Timeout\n");
-    } else {
-        printf("Server returned:  %d (%s)\n", r, codes[r]);
-    }
 }

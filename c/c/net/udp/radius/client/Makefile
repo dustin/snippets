@@ -1,4 +1,8 @@
 CFLAGS=-g
+RM=rm -f
 
-radius: radius.o md5.o
-	$(CC) -o $@ radius.o md5.o
+test: radius.o md5.o test.o
+	$(CC) -o $@ radius.o md5.o test.o
+
+clean:
+	$(RM) test radius.o md5.o test.o
