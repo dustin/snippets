@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: rstat.c,v 1.4 1998/05/14 17:00:02 dustin Exp $
+ * $Id: rstat.c,v 1.5 1998/05/15 07:37:26 dustin Exp $
  */
 
 #include <stdio.h>
@@ -183,11 +183,6 @@ int main(int argc, char **argv)
     int flags=0, c;
     extern int optind;
 
-    if(argc < 2) {
-	usage(argv[0]);
-	exit(1);
-    }
-
     while( (c=getopt(argc, argv, "acdpsinvlbtu")) != -1) {
 	switch(c) {
 	    case 'a': flags|=DO_ALL; break;
@@ -204,6 +199,11 @@ int main(int argc, char **argv)
 	    case 'u': flags|=DO_UPTIME; break;
 	    case '?': usage(argv[0]); exit(1);
 	}
+    }
+
+    if(optind >= argc) {
+	usage(argv[0]);
+	exit(1);
     }
 
     while(optind<argc) {
