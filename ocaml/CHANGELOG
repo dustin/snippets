@@ -2,6 +2,21 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-08-02 06:29:50 GMT	Dustin Sallings <dustin@spy.net>	patch-76
+
+    Summary:
+      Added the multimatcher.
+    Revision:
+      snippets--ocaml--1.0--patch-76
+
+
+    new files:
+     misc/multimatch.ml
+
+    modified files:
+     CHANGELOG misc/Makefile
+
+
 2004-08-02 05:08:28 GMT	Dustin Sallings <dustin@spy.net>	patch-75
 
     Summary:

@@ -52,6 +52,10 @@ digestfiles: digestfiles.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa digestfiles.ml
 
+multimatch: multimatch.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa multimatch.ml
+
 missingNumbers: missingNumbers.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		missingNumbers.ml
