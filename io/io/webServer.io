@@ -1,12 +1,25 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.10 2003/08/22 01:05:37 dustin Exp $
+# $Id: webServer.io,v 1.11 2003/08/22 03:53:01 dustin Exp $
+
+// Object definitions
+
+// The web server
+WebServer = Object clone
+// Request
+WebRequest = Object clone
+// Response
+WebResponse = Object clone
+// Content handlers
+WebUrlHandler = Object clone
+WebUrlStdHandler = WebUrlHandler clone
+WebUrlDebugHandler = WebUrlStdHandler clone
+WebErrorHandler = WebUrlHandler clone
+WebUrlTimeHandler = WebUrlHandler clone
 
 //
 // Web request
 //
-
-WebRequest = Object clone
 
 WebRequest headers = Nil
 WebRequest reqMethod = Nil
@@ -53,12 +66,199 @@ WebRequest parseRequest = method(buf,
 )
 
 //
+// Web server response socket
+//
+// this is a proxy object that wraps a socket and provides some niceities
+//
+
+WebResponse bytesWritten = 0
+WebResponse socket = Nil
+
+// Additional headers
+WebResponse headers = Map clone
+WebResponse headers atPut("Connection", "close")
+// Response status
+WebResponse status = "200"
+// protocol version
+WebResponse httpVersion = "HTTP/1.0"
+WebResponse beginning = 1
+
+WebResponse addHeader = method(k, v,
+	self headers atPut(k, v)
+	self
+)
+WebResponse setStatus = method(status,
+	self status = status
+	self
+)
+WebResponse setHttpVersion = method(v,
+	self httpVersion = v
+	self
+)
+WebResponse setSocket = method(s,
+	self socket = s
+	self
+)
+
+WebResponse writeHeaders = method(
+	statusName = WebServer responseStatusCodes at(status)
+	statusString = String join(list(httpVersion, status, statusName), " ")
+	lheaders = list(statusString)
+	headers foreach(hk, hv, lheaders add(hk .. ": " .. hv))
+	internalWriteString(String join(lheaders, "\r\n"))
+	internalWriteString("\r\n\r\n")
+	self
+)
+
+WebResponse write = method(
+	if(beginning,
+		writeHeaders
+		self beginning = Nil
+	)
+	internalWriteList(thisMessage argsEvaluatedIn(sender))
+	self
+)
+
+WebResponse internalWriteList = method(l,
+	l foreach(t, internalWriteString(t))
+	self
+)
+
+WebResponse internalWriteString = method(s,
+	self bytesWritten +=(s length)
+	self socket write(s)
+	self
+)
+
+WebResponse forward = method(
+	methodName = thisMessage name
+	// write("Performing ", methodName, " via the proxy\n")
+	args = thisMessage argsEvaluatedIn(sender)
+	socket performWithArgList(methodName, args)
+)
+
+// These would be processed by the proxy, but I'd rather avoid it
+WebResponse readBuffer = method(socket readBuffer)
+
+//
+// Begin the web server itself
+//
+
+
+WebServer handlers = Map clone
+
+WebServer responseStatusCodes = Map clone
+
+// Begin status codes
+WebServer responseStatusCodes atPut("100", "Continue")
+WebServer responseStatusCodes atPut("101", "Switching Protocols")
+WebServer responseStatusCodes atPut("200", "OK")
+WebServer responseStatusCodes atPut("201", "Created")
+WebServer responseStatusCodes atPut("202", "Accepted")
+WebServer responseStatusCodes atPut("203", "Non-Authoritative Information")
+WebServer responseStatusCodes atPut("204", "No Content")
+WebServer responseStatusCodes atPut("205", "Reset Content")
+WebServer responseStatusCodes atPut("206", "partial Content")
+WebServer responseStatusCodes atPut("300", "Multiple Choices")
+WebServer responseStatusCodes atPut("301", "Moved Permanently")
+WebServer responseStatusCodes atPut("302", "Found")
+WebServer responseStatusCodes atPut("303", "See Other")
+WebServer responseStatusCodes atPut("304", "Not Modified")
+WebServer responseStatusCodes atPut("305", "use Proxy")
+WebServer responseStatusCodes atPut("307", "Temporary Redirect")
+WebServer responseStatusCodes atPut("400", "Bad Request")
+WebServer responseStatusCodes atPut("401", "Unauthorized")
+WebServer responseStatusCodes atPut("402", "Payment Required")
+WebServer responseStatusCodes atPut("403", "Forbidden")
+WebServer responseStatusCodes atPut("404", "Not Found")
+WebServer responseStatusCodes atPut("405", "Method Not Allowed")
+WebServer responseStatusCodes atPut("406", "Not Acceptable")
+WebServer responseStatusCodes atPut("407", "Proxy Authentication Required")
+WebServer responseStatusCodes atPut("408", "Request Time-out")
+WebServer responseStatusCodes atPut("409", "Conflict")
+WebServer responseStatusCodes atPut("410", "Gone")
+WebServer responseStatusCodes atPut("411", "Length Required")
+WebServer responseStatusCodes atPut("412", "Precondition Failed")
+WebServer responseStatusCodes atPut("413", "Request Entity Too Large")
+WebServer responseStatusCodes atPut("414", "Request-URI Too Large")
+WebServer responseStatusCodes atPut("415", "Unsupported Media Type")
+WebServer responseStatusCodes atPut("416", "Request range not satisfiable")
+WebServer responseStatusCodes atPut("417", "Expectation Failed")
+WebServer responseStatusCodes atPut("500", "Internal Server Error")
+WebServer responseStatusCodes atPut("501", "Not Implemented")
+WebServer responseStatusCodes atPut("502", "Bad Gateway")
+WebServer responseStatusCodes atPut("503", "Service Unavailable")
+WebServer responseStatusCodes atPut("504", "Gateway Time-out")
+WebServer responseStatusCodes atPut("505", "HTTP Version not supported")
+// End status codes
+
+WebServer defaultHandler = WebUrlHandler clone
+WebServer errorHandler = WebErrorHandler clone
+
+WebServer setDefaultHandler = method(handler,
+	self defaultHandler = handler
+)
+
+WebServer setErrorHandler = method(handler,
+	self errorHandler = handler
+)
+
+WebServer addHandler = method(path, handler,
+	self handlers atPut(path, handler)
+)
+
+WebServer getHandlerFor = method(path,
+	handlers at(path)
+)
+
+WebServer hasRequest = method(buf,
+	buf find("\r\n\r\n")
+)
+
+// Main loop that processes request
+WebServer processRequest = method(aSocket, aServer,
+	request = WebRequest clone parseRequest(aSocket readBuffer)
+	handler = getHandlerFor(request path)
+	if(handler == Nil, handler = self defaultHandler)
+
+	catchException("WebServer.ProtocolError",
+		handler handleRequest(request, aSocket),
+		errorHandler handleError(request, aSocket,
+			exceptionName, exceptionDescription))
+	ds = Date clone now asString("[%d/%b/%Y:%X %Z]")
+	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
+		request path, " ", request httpVersion, "\" ", aSocket status, " ",
+		aSocket bytesWritten, "\n")
+	aSocket close
+)
+
+WebServer handleSocketFromServer = method(aSocket, aServer,
+	// write("[New Request ", aSocket host, "]\n")
+	sock = WebResponse clone setSocket(aSocket)
+
+	while(aSocket isOpen,
+		if(aSocket read,
+			if(hasRequest(sock readBuffer),
+				processRequest(sock, aServer)
+				aSocket readBuffer empty
+			)
+		)
+	)
+	// write("[Closed ", aSocket host, "]\n")
+)
+
+//
+// End of WebServer implementation
+//
+
+// ----------------------------------------------------------------------
+//
 // URL Handlers
 //
+// ----------------------------------------------------------------------
 
 // The default handler provides functionality for sending responses, but
 // just issues 404s
-WebUrlHandler = Object clone
 
 WebUrlHandler handleRequest = method(req, socket,
 	raiseException("WebServer.ProtocolError.404",
@@ -66,8 +266,6 @@ WebUrlHandler handleRequest = method(req, socket,
 )
 
 // Error handler
-
-WebErrorHandler = WebUrlHandler clone
 
 WebErrorHandler handleRequest = method(req, socket,
 	raiseException("WebServer.ProtocolError.405",
@@ -81,12 +279,9 @@ WebErrorHandler handleError = method(request, aSocket, eName, eDescription,
 	// Send the error
 	aSocket write(status, " - ", statusName, "\r\n")
 	aSocket write(eDescription .. "\n")
-	status
 )
 
 // A happier handler
-
-WebUrlTimeHandler = WebUrlHandler clone
 
 WebUrlTimeHandler handleRequest = method(req, socket,
 	socket addHeader("Content-type", "text/plain")
@@ -96,13 +291,13 @@ WebUrlTimeHandler handleRequest = method(req, socket,
 )
 
 // Standard web handling
-WebUrlStdHandler = WebUrlHandler clone
 
 WebUrlStdHandler parseGet = method(req, socket,
 	// write("Parsing GET from ", req queryString, "\n")
 	CGI clone parseString(req queryString)
 )
 
+// Grab a chunk of the body
 WebUrlStdHandler readFromBody = method(req, socket, length,
 	while(socket readBuffer length < length,
 		socket read)
@@ -135,7 +330,6 @@ WebUrlStdHandler getParameters = method(req, socket,
 
 // Print out debug stuff
 
-WebUrlDebugHandler = WebUrlStdHandler clone
 WebUrlDebugHandler handleRequest = method(req, socket,
 	socket addHeader("Content-type", "text/plain")
 	socket write("Method is ", req reqMethod, "\n")
@@ -149,197 +343,15 @@ WebUrlDebugHandler handleRequest = method(req, socket,
 )
 
 //
-// Web server response socket
-//
-
-// this is a proxy object that wraps a socket and provides some niceities
-WebResponseSocket = Object clone
-
-WebResponseSocket bytesWritten = 0
-WebResponseSocket socket = Nil
-
-// Additional headers
-WebResponseSocket headers = Map clone
-WebResponseSocket headers atPut("Connection", "close")
-// Response status
-WebResponseSocket status = "200"
-// protocol version
-WebResponseSocket httpVersion = "HTTP/1.0"
-WebResponseSocket beginning = 1
-
-WebResponseSocket addHeader = method(k, v,
-	self headers atPut(k, v)
-	self
-)
-WebResponseSocket setStatus = method(status,
-	self status = status
-	self
-)
-WebResponseSocket setHttpVersion = method(v,
-	self httpVersion = v
-	self
-)
-WebResponseSocket setSocket = method(s,
-	self socket = s
-	self
-)
-
-WebResponseSocket writeHeaders = method(
-	statusName = WebServer responseStatusCodes at(status)
-	write("Joining ", httpVersion, " ", status, " ", statusName, "\n")
-	statusString = String join(list(httpVersion, status, statusName), " ")
-	lheaders = list(statusString)
-	headers foreach(hk, hv, lheaders add(hk .. ": " .. hv))
-	internalWriteString(String join(lheaders, "\r\n"))
-	internalWriteString("\r\n\r\n")
-	self
-)
-
-WebResponseSocket write = method(
-	if(beginning,
-		writeHeaders
-		self beginning = Nil
-	)
-	internalWriteList(thisMessage argsEvaluatedIn(sender))
-	self
-)
-
-WebResponseSocket internalWriteList = method(l,
-	l foreach(t, internalWriteString(t))
-	self
-)
-
-WebResponseSocket internalWriteString = method(s,
-	bytesWritten +=(s length)
-	socket write(s)
-	self
-)
-
-WebResponseSocket forward = method(
-	methodName = thisMessage name
-	args = thisMessage argsEvaluatedIn(sender)
-	socket performWithArgList(methodName, args)
-)
-
-//
-// Begin the web server itself
-//
-
-WebServer = Object clone
-
-WebServer handlers = Map clone
-
-WebServer responseStatusCodes = Map clone
-
-WebServer initialize = method(
-	self responseStatusCodes atPut("100", "Continue")
-	self responseStatusCodes atPut("101", "Switching Protocols")
-	self responseStatusCodes atPut("200", "OK")
-	self responseStatusCodes atPut("201", "Created")
-	self responseStatusCodes atPut("202", "Accepted")
-	self responseStatusCodes atPut("203", "Non-Authoritative Information")
-	self responseStatusCodes atPut("204", "No Content")
-	self responseStatusCodes atPut("205", "Reset Content")
-	self responseStatusCodes atPut("206", "partial Content")
-	self responseStatusCodes atPut("300", "Multiple Choices")
-	self responseStatusCodes atPut("301", "Moved Permanently")
-	self responseStatusCodes atPut("302", "Found")
-	self responseStatusCodes atPut("303", "See Other")
-	self responseStatusCodes atPut("304", "Not Modified")
-	self responseStatusCodes atPut("305", "use Proxy")
-	self responseStatusCodes atPut("307", "Temporary Redirect")
-	self responseStatusCodes atPut("400", "Bad Request")
-	self responseStatusCodes atPut("401", "Unauthorized")
-	self responseStatusCodes atPut("402", "Payment Required")
-	self responseStatusCodes atPut("403", "Forbidden")
-	self responseStatusCodes atPut("404", "Not Found")
-	self responseStatusCodes atPut("405", "Method Not Allowed")
-	self responseStatusCodes atPut("406", "Not Acceptable")
-	self responseStatusCodes atPut("407", "Proxy Authentication Required")
-	self responseStatusCodes atPut("408", "Request Time-out")
-	self responseStatusCodes atPut("409", "Conflict")
-	self responseStatusCodes atPut("410", "Gone")
-	self responseStatusCodes atPut("411", "Length Required")
-	self responseStatusCodes atPut("412", "Precondition Failed")
-	self responseStatusCodes atPut("413", "Request Entity Too Large")
-	self responseStatusCodes atPut("414", "Request-URI Too Large")
-	self responseStatusCodes atPut("415", "Unsupported Media Type")
-	self responseStatusCodes atPut("416", "Request range not satisfiable")
-	self responseStatusCodes atPut("417", "Expectation Failed")
-	self responseStatusCodes atPut("500", "Internal Server Error")
-	self responseStatusCodes atPut("501", "Not Implemented")
-	self responseStatusCodes atPut("502", "Bad Gateway")
-	self responseStatusCodes atPut("503", "Service Unavailable")
-	self responseStatusCodes atPut("504", "Gateway Time-out")
-	self responseStatusCodes atPut("505", "HTTP Version not supported")
-	self
-)
-
-WebServer defaultHandler = WebUrlHandler clone
-WebServer errorHandler = WebErrorHandler clone
-
-WebServer setDefaultHandler = method(handler,
-	self defaultHandler = handler
-)
-
-WebServer setErrorHandler = method(handler,
-	self errorHandler = handler
-)
-
-WebServer setHandler = method(path, handler,
-	self handlers atPut(path, handler)
-)
-
-WebServer hasRequest = method(buf,
-	buf find("\r\n\r\n")
-)
-
-// Main loop that processes request
-WebServer processRequest = method(aSocket, aServer,
-	request = WebRequest clone parseRequest(aSocket readBuffer)
-	handler = self handlers at(request path)
-	if(handler == Nil, handler = self defaultHandler)
-
-	catchException("WebServer.ProtocolError",
-		handler handleRequest(request, aSocket),
-		errorHandler handleError(request, aSocket,
-			exceptionName, exceptionDescription))
-	ds = Date clone now asString("[%d/%b/%Y:%X %Z]")
-	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
-		request path, " ", request httpVersion, "\" ", aSocket status, " ",
-		aSocket bytesWritten, "\n")
-	aSocket close
-)
-
-WebServer handleSocketFromServer = method(aSocket, aServer,
-	// write("[New Request ", aSocket host, "]\n")
-	sock = WebResponseSocket clone setSocket(aSocket)
-
-	while(aSocket isOpen,
-		if(aSocket read,
-			if(hasRequest(sock readBuffer),
-				processRequest(sock, aServer)
-				aSocket readBuffer empty
-			)
-		)
-	)
-	// write("[Closed ", aSocket host, "]\n")
-)
-
-//
-// End of WebServer implementation
-//
-
-
-//
 // -- The beginning --
 //
 
 write("[Starting web server on port 8456]\n")
 server = Server clone setPort(8456)
-ws = WebServer clone initialize
-ws setHandler("/time", WebUrlTimeHandler clone)
-ws setHandler("/debug", WebUrlDebugHandler clone)
+ws = WebServer clone
+ws addHandler("/time", WebUrlTimeHandler clone)
+ws addHandler("/debug", WebUrlDebugHandler clone)
+ws addHandler("/debug/*", WebUrlDebugHandler clone)
 server handleSocket = method(aSocket,
 	ws @handleSocketFromServer(aSocket, self)
 )
