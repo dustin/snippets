@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #
-# $Id: gettemp.py,v 1.2 2002/12/06 05:32:28 dustin Exp $
+# $Id: gettemp.py,v 1.3 2002/12/06 07:15:57 dustin Exp $
 
 import xmlrpclib
 import smtplib
 import nntplib
 import time
+import sys
 import fpformat
 from email.MIMEText import MIMEText
 
@@ -39,7 +40,7 @@ class Alerts:
 		if len(self.alerts) > 0:
 			self.__real_alert()
 
-	def __real_alert(self):
+	def sendMessage(self, subject, body):
 		"""Alert on the set of alerts provided."""
 		emails=(
 			'dustin@spy.net',
@@ -48,6 +49,20 @@ class Alerts:
 			'4087681988@mobile.mycingular.com',)
 		sender='dustin+temperature@spy.net'
 
+		# Construct a MIME message.
+		msg=MIMEText(body)
+		msg['From'] = sender
+		msg['Subject'] = subject
+
+		# Send to each recipient
+		for addr in emails:
+			msg['To'] = addr
+			# Send the mail
+			server = smtplib.SMTP('mail')
+			server.sendmail(sender, addr, msg.as_string())
+			server.quit()
+
+	def __real_alert(self):
 		# Get a useful message body
 		body=''
 		for k,v in self.alerts:
@@ -58,20 +73,10 @@ class Alerts:
 				body = body + fpformat.fix(v, 2)
 			body = body + '\n'
 
-		# Construct a MIME message.
-		msg=MIMEText(body)
-		msg['From'] = sender
-		msg['Subject'] = 'Temperature Alert - ' \
+		subj='Temperature Alert - ' \
 			+ time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
 
-		# Send to each recipient
-		for addr in emails:
-			msg['To'] = addr
-
-			# Send the mail
-			server = smtplib.SMTP('mail')
-			server.sendmail(sender, addr, msg.as_string())
-			server.quit()
+		self.sendMessage(subj, body)
 
 def reportNNTP(vals):
 	# Get a useful message body
@@ -90,15 +95,8 @@ def reportNNTP(vals):
 	server.post(ReadableString(msg.as_string()))
 	server.quit()
 
-
-if __name__ == '__main__':
-
-	# Get the proxy to XML-RPC
-	server=xmlrpclib.Server(
-		"http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC")
-
-	# Get all of the thermometers
-	vals=server.therm.getTemperatures()
+def report(vals):
+	"""Report on the name dictionary of thermometers."""
 
 	# These are the ranges we care about:
 	normal = {
@@ -131,3 +129,21 @@ if __name__ == '__main__':
 
 	# Report normally
 	reportNNTP(vals)
+
+if __name__ == '__main__':
+
+	try:
+		# Get the proxy to XML-RPC
+		server=xmlrpclib.Server(
+			"http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC")
+
+		# Get all of the thermometers
+		vals=server.therm.getTemperatures()
+
+		report(vals)
+	except:
+		e=sys.exc_info()
+		alert=Alerts()
+		subj='TEMPERATURE PROBLEM'
+		msg="Could not read temperatures!\n\n" + `e[0]` + ': ' + `e[1]`
+		alert.sendMessage(subj, msg)
