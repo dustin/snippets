@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.10 2000/03/03 21:05:14 dustin Exp $
+# $Id: ldap_audit,v 1.11 2000/03/03 23:16:15 dustin Exp $
 
 use strict;
 
@@ -10,6 +10,8 @@ use LDAPSlave;
 
 # Where to put the configuration
 my(%config)=();
+# Ignore patterns (if available)
+my(@ignore);
 
 my($configfile);
 if(@ARGV) {
@@ -97,7 +99,13 @@ sub audit {
 					if($config{'fixit'}==1) {
 						# find and fix the differences
 						print "Fixing\n";
-						fixRecord($slave->ldap(), \%master_data, \%slave_data);
+						eval {
+							fixRecord($slave->ldap(),
+								\%master_data, \%slave_data);
+						};
+						if($@) {
+							print "Failed to fix record:  $@\n";
+						}
 					}
 					if($config{'debug'}>0) {
 						print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
@@ -106,7 +114,7 @@ sub audit {
 			};
 
 			if($@) {
-				print "Failed for $dn on $t, missing ($@)?\n";
+				print "Failed for $dn on $t, missing? ($@)\n";
 			}
 		}
 	}
@@ -169,10 +177,13 @@ sub fixRecord {
 
 	my $dn = $master{'dn'};
 
-	my @atts=();
+	my @add=();
 	my @deletes=();
 
 	my $key;
+	my(@replace) = ();
+
+	# Flip through the master and verify attributes here.
 	for $key (keys(%master)) {
 		# skip the DN
 		next if($key eq "dn");
@@ -181,20 +192,45 @@ sub fixRecord {
 		# Only do this if it's defined, else it'll get added anyway
 		if(defined($slave{$key})) {
 			@s=@{$slave{$key}};
-		}
-
-		if($#m!=$#s) {
-			print "Different number of $key on master and slave:  $#m:$#s\n";
-			push(@atts, $key);
 		} else {
-			for(0..$#m) {
-				my $mval=$m[$_];
-				my $sval=$s[$_];
-				if($mval ne $sval) {
-					print "Attribute $key is different:\n";
-					print "MASTER:\n$mval\nSLAVE:\n$sval\nWill adjust.\n";
-					push(@atts, $key);
+			# Skip the ``always'' ones.
+			next if($_ eq "creatorsname");
+			next if($_ eq "createtimestamp");
+			next if($_ eq "modifytimestamp");
+			next if($_ eq "modifiersname");
+
+			# The attribute was not defined, so we need to add the whole thing.
+			push(@replace, [ $key, $master{$key} ] );
+			next;
+		}
+		my %mh=map { $_, 1}@m;
+		my %sh=map { $_, 1}@s;
+		# First, check for values that're in the master, but not the slave.
+		for(keys %mh) {
+			if(!defined($sh{$_})) {
+				print "Attribute $key with $_ is not in the slave:\n";
+				my $patcheck="attribute=$key=$_";
+				for(@ignore) {
+					if($patcheck=~/$_/) {
+						print "Matched pattern $_, ignoring\n";
+						next;
+					}
 				}
+				push(@add, [$key, $_ ]);
+			}
+		}
+		# Now do it the other way around
+		for(keys %sh) {
+			if(!defined($mh{$_})) {
+				print "Attribute $key with $_ is not in the master:\n";
+				my $patcheck="attribute=$key=$_";
+				for(@ignore) {
+					if($patcheck=~/$_/) {
+						print "Matched pattern $_, ignoring\n";
+						next;
+					}
+				}
+				push(@deletes, [$key, [$_] ]);
 			}
 		}
 	}
@@ -202,11 +238,10 @@ sub fixRecord {
 	# Get rid of stuff that's on the slave, but not in the master.
 	for $key (keys(%slave)) {
 		if(!defined($master{$key})) {
-			push(@deletes, $key);
+			push(@deletes, [ $key, [] ]);
 		}
 	}
 
-	my(@replace) = ();
 	# we always have to modify these.
 	for('creatorsname', 'createtimestamp', 'modifiersname', 'modifytimestamp'){
 		if(defined($master{$_})) {
@@ -214,27 +249,19 @@ sub fixRecord {
 		}
 	}
 
-	# make sure we only get one of any given attribute.
-	my %atts=map { $_, 1 } @atts;
-	for(keys %atts) {
-		# Skip over the ``always'' ones.
-		next if($_ eq "creatorsname");
-		next if($_ eq "createtimestamp");
-		next if($_ eq "modifiersname");
-		next if($_ eq "modifytimestamp");
-
-		push(@replace, [ $_, $master{$_} ]);
-	}
-
 	my @mods=();
 	for(@replace) {
 		push(@mods, 'replace', $_);
 	}
 	for(@deletes) {
-		push(@mods, 'delete', [ $_, [] ] );
+		push(@mods, 'delete', $_);
+	}
+	for(@add) {
+		push(@mods, 'add', $_);
 	}
 
 	# do the modify
+	print Dumper(\@mods);
 	my $res=$slave_ldap->modify($dn, 'changes' => \@mods );
 	if($res->code()!=0) {
 		print "WARNING!  Modify of $dn failed:  " . $res->code() . "\n";
@@ -285,7 +312,7 @@ sub get_slaves {
 			$bindpw=$config{'bindpw'};
 		}
 
-		my $tmp=Net::LDAP->new($hostname);
+		my $tmp=Net::LDAP->new($hostname, 'Debug' => 3);
 		if(!$tmp) {
 			print "WARNING!  Failed to connect to $hostname, ignoring.\n";
 			next;
@@ -314,4 +341,16 @@ sub read_config {
 		$config{$a[0]}=$a[1];
 	}
 	close(IN);
+
+	if(defined($config{'ignore_pat'})) {
+		open(IN, "<$config{'ignore_pat'}")
+			|| print "WARNING:  Can't open ignore file.\n";
+		while(<IN>) {
+			chomp;
+			push(@ignore, $_);
+		}
+		close(IN);
+	}
+
+	print "Loaded " . @ignore . " ignore patterns.\n" if($config{'debug'});
 }
