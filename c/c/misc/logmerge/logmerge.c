@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.5 2002/06/05 19:51:52 dustin Exp $
+ * $Id: logmerge.c,v 1.6 2002/06/06 01:03:56 dustin Exp $
  */
 
 #include <stdio.h>
@@ -73,6 +73,92 @@ static int parseMonth(char *s)
 	return(rv);
 }
 
+static int unfsckLine(struct logfile *lf)
+{
+	char *start=NULL, *end=NULL;
+	char *line=NULL;
+	char *timestamp=NULL, *ip=NULL, *request=NULL, *status=NULL,
+		*size=NULL, *refer=NULL, *ua=NULL;
+	int rv=ERROR;
+
+	assert(lf != NULL);
+	assert(lf->line != NULL);
+
+	line=strdup(lf->line);
+	assert(line!=NULL);
+
+	/* Start at the timestamp */
+	start=line;
+	end=index(start, ' ');
+	assert(end != NULL);
+
+	/* Seek to the IP address */
+	start=end+1;
+	end=index(start, ' ');
+	assert(end != NULL);
+
+	/* Seek to the - */
+	start=end+1;
+	assert(start[0] == '-');
+	end=index(start, ' ');
+	assert(end != NULL);
+
+	/* Seek to the request */
+	start=end+1;
+	assert(start[0] == '"');
+	assert(end != NULL);
+
+	/* Seek to the status */
+	/* XXX */
+
+	/* Seek to the size */
+	/* XXX */
+
+	/* Seek to the referer */
+	/* XXX */
+
+	/* Seek to the user agent */
+	/* XXX */
+
+	/*
+	finished:
+	*/
+
+	if(line!=NULL) {
+		free(line);
+	}
+
+	if(timestamp!=NULL) {
+		free(timestamp);
+	}
+
+	if(ip!=NULL) {
+		free(ip);
+	}
+
+	if(request!=NULL) {
+		free(request);
+	}
+
+	if(status!=NULL) {
+		free(status);
+	}
+
+	if(size!=NULL) {
+		free(size);
+	}
+
+	if(refer!=NULL) {
+		free(refer);
+	}
+
+	if(ua!=NULL) {
+		free(ua);
+	}
+
+	return(rv);
+}
+
 static time_t parseTimestamp(struct logfile *lf)
 {
 	char *p;
@@ -106,6 +192,8 @@ static time_t parseTimestamp(struct logfile *lf)
 		tm.tm_mon--;
 
 		lf->timestamp=mktime(&tm);
+
+		unfsckLine(lf);
 	} else if(index(p, '[') != NULL) {
 
 		p=index(p, '[');
