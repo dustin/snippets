@@ -29,7 +29,7 @@ docs: $(PARTS)
 	ocamldoc -d doc -html *.ml
 
 clean:
-	rm -f testtop *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
+	rm -rf testtop *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o doc
 
 .ml.mli:
 	$(OCAMLOPT) -i $< > $@

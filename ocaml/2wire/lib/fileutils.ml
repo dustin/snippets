@@ -37,6 +37,31 @@ let conditional_iter_lines f c ch =
 	iter_lines (function x -> if c x then f x) ch;
 ;;
 
+(** Open a file for reading, and perform the given operation on it, closing on
+  failure.
+
+ @param f the function to perform with the input channel
+ @param fn the name of the file to open
+*)
+let operate_on_file f fn =
+	let ch = open_in fn in
+	try
+		f ch;
+		close_in ch;
+	with x ->
+		close_in ch;
+		raise x
+;;
+
+(** Open a file for reading and iterate the lines.
+
+  @param a function to be called on each line
+  @param fn the name of the file to operate on
+*)
+let iter_file_lines f fn =
+	operate_on_file (iter_lines f) fn
+;;
+
 (** {1 Functions for processing directories} *)
 
 (**
