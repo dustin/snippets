@@ -28,7 +28,7 @@ shellLock() {
 		return 0
 	fi
 
-	kill -s 0 "$PID"
+	/bin/kill -s 0 "$PID"
 	RV=$?
 	if [ $RV -eq 0 ]
 	then
