@@ -1,11 +1,13 @@
 // Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MakeZipFile.java,v 1.1 2003/06/11 01:01:24 dustin Exp $
+// $Id: MakeZipFile.java,v 1.2 2003/06/11 08:06:23 dustin Exp $
 
 import java.io.*;
 import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import net.spy.util.ProgressStats;
 
 /**
  * Make a big zipfile.
@@ -40,11 +42,14 @@ public class MakeZipFile extends Object {
 	}
 
 	private void populate(ZipOutputStream zos) throws Exception {
+		ProgressStats ps=new ProgressStats(HOWMANY);
 		for(int i=0; i<HOWMANY; i++) {
+			ps.start();
 			if(i%100 == 0) {
-				System.out.println("On " + i + " of " + HOWMANY);
+				System.out.println(ps.getStats());
 			}
 			populateOne(zos);
+			ps.stop();
 		}
 	}
 
