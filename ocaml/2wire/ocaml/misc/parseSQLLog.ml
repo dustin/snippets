@@ -1,8 +1,9 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.3 2002/12/11 06:03:20 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.4 2002/12/11 08:21:03 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
+open Stringutils;;
 
 (** Log entry representing a single line from the file *)
 type log_entry = {
@@ -19,8 +20,6 @@ type stats = {
 
 (* Global regexes that will be used *)
 let g_timesep = Str.regexp "[-: ]";;
-let g_spacesep = Str.regexp "[ ]+";;
-let g_slashsep = Str.regexp "[/]";;
 
 (* True if the line looks like a SQL log entry *)
 let is_log_entry(l: string): bool =
@@ -48,8 +47,8 @@ let parse_time(l: string): int =
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
 
-	let parts = Str.split g_spacesep l in
-	let tparts = Str.split g_slashsep (List.nth parts 10) in
+	let parts = split(l, ' ') in
+	let tparts = split((List.nth parts 10), '/') in
 		{
 			(* line[0:19] *)
 			time = parse_time(String.sub l 0 19);
