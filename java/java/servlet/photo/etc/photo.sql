@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.4 1998/04/26 05:31:50 dustin Exp $
+-- $Id: photo.sql,v 1.5 1998/04/30 07:08:23 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -60,7 +60,8 @@ create table wwwusers(
     username varchar(16),
     password char(13),
     email    varchar,
-    realname varchar
+    realname varchar,
+    canadd   bool
 );
 
 create index user_byname on wwwusers(username);
