@@ -62,6 +62,9 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	'net/spy/util/SPGen$$Parameter.class' \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
+	net/spy/util/NestedException.class \
+	net/spy/util/BrokenPromiseException.class \
+	net/spy/util/Promise.class \
 	net/spy/pool/PoolAble.class \
 	net/spy/pool/PoolContainer.class \
 	net/spy/pool/PoolException.class \
