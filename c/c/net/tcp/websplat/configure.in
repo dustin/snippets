@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.1 1998/06/27 04:08:36 dustin Exp $
+dnl $Id: configure.in,v 1.2 1999/06/16 06:33:26 dustin Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(main.c)
 AC_CONFIG_HEADER(config.h)
@@ -9,6 +9,16 @@ AC_PROGRAM_CHECK(UNAMEPROG, uname, uname, )
 AC_PROGRAM_CHECK(TRPROG, tr, tr, )
 AC_PROGRAM_CHECK(SEDPROG, sed, sed, )
 AC_PROGRAM_CHECK(CUTPROG, cut, cut, )
+
+AC_MSG_CHECKING(for ssleay)
+if test -d /usr/local/ssl
+then
+	CFLAGS="${CFLAGS} -DUSE_SSLEAY -I/usr/local/ssl/include"
+	LIBS="${LIBS} -L/usr/local/ssl/lib -lssl -lcrypto"
+	AC_MSG_RESULT(found in /usr/local/ssl)
+else
+	AC_MSG_RESULT(not found)
+fi
 
 dnl What we on, boys?
 echo "Checking out your OS..."

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.14 1999/06/16 00:22:58 dustin Exp $
+ * $Id: main.c,v 1.15 1999/06/16 06:33:27 dustin Exp $
  */
 
 #include <config.h>
@@ -274,6 +274,49 @@ str_append(struct growstring *s, char *buf)
 }
 
 int
+send_data(struct host_ret conn, struct url u, char *data)
+{
+	int	r = 0;
+	if (u.ssl) {
+#ifdef USE_SSLEAY
+		r = SSL_write(conn.ssl, data, strlen(data));
+#else
+		assert(u.ssl == 0);
+#endif
+	} else {
+		r = send(conn.s, data, strlen(data), 0);
+	}
+	return(r);
+}
+
+int
+recv_data(struct host_ret conn, struct url u, char *buf, size_t len)
+{
+	int	size=0;
+	if (u.ssl) {
+#ifdef USE_SSLEAY
+		size = SSL_read(conn.ssl, buf, len);
+#else
+		assert(u.ssl == 0);
+#endif
+	} else {
+		size = recv(conn.s, buf, len, 0);
+	}
+	return(size);
+}
+
+void
+close_conn(struct url u, struct host_ret conn)
+{
+	assert(conn.s>=0);
+	close(conn.s);
+	if(u.ssl) {
+		SSL_free(conn.ssl);
+		SSL_CTX_free(conn.ctx);
+	}
+}
+
+int
 main(int argc, char **argv)
 {
 	int     s, selected, size, c, i, maxhits = 65535, totalhits = 0,
@@ -284,6 +327,7 @@ main(int argc, char **argv)
 	struct timeval tmptime;
 	char    buf[8192];
 	struct url req;
+	struct host_ret conn, conns[MAXSEL];
 	void   *tzp;
 	struct growstring strings[MAXSEL];
 
@@ -358,7 +402,8 @@ main(int argc, char **argv)
 			if (flags & DO_STATS)
 				gettimeofday(&tmptime, tzp);
 
-			s = getclientsocket(req.host, req.port, sock_flags);
+			conn = getclientsocket(req, sock_flags);
+			s=conn.s;
 
 			if (flags & DO_STATS) {
 				gettimeofday(&timers[s][1], tzp);
@@ -376,7 +421,7 @@ main(int argc, char **argv)
 				strings[s].string[0] = 0x00;
 
 				/* Sending */
-				i = send(s, req.httpreq, strlen(req.httpreq), 0);
+				i = send_data(conn, req, req.httpreq);
 				_ndebug(2, ("Sent %d out of %d bytes\n",
 					i, strlen(req.httpreq)));
 				n++;
@@ -395,11 +440,11 @@ main(int argc, char **argv)
 				if (FD_ISSET(i, &fdset)) {
 					_ndebug(3, ("Caught %d\n", i));
 					selected--;
-					size = recv(i, buf, 8192, 0);
+					size = recv_data(conns[i], req, buf, 8192);
 					if (size == 0) {
 						_ndebug(2, ("Lost %d\n", i));
 						hit++;
-						close(i);
+						close_conn(req, conns[i]);
 
 						if (flags & DO_STATS) {
 							gettimeofday(&timers[i][2], tzp);

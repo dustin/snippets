@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.5 1999/06/16 00:22:59 dustin Exp $
+ * $Id: splat.h,v 1.6 1999/06/16 06:33:30 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -27,6 +27,31 @@
 
 /* Socket options */
 #define DO_NAGLE 1
+
+#ifdef USE_SSLEAY
+#include <rsa.h>
+#include <crypto.h>
+#include <x509.h>
+#include <pem.h>
+#include <ssl.h>
+#include <err.h>
+
+
+#define CHK_NULL(x) if ((x)==NULL) {printf("Got NULL\n"); exit (1);}
+#define CHK_ERR(err,s) if ((err)==-1) { perror(s); exit(1); }
+#define CHK_SSL(err) if ((err)==-1) { ERR_print_errors_fp(stderr); exit(2); }
+#endif /* USE_SSLEAY */
+
+/*
+ * Host return thing
+ */
+struct host_ret {
+	int	s;
+#ifdef USE_SSLEAY
+	SSL    *ssl;
+	SSL_CTX *ctx;
+#endif /* USE_SSLEAY */
+};
 
 /*
  * URL request holder.
@@ -58,6 +83,6 @@ struct http_status {
 	char *string;
 };
 
-int     getclientsocket(char *host, int port, int flags);
+struct host_ret getclientsocket(struct url u, int flags);
 
 #endif
