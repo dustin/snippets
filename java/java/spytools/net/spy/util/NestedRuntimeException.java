@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NestedException.java,v 1.3 2001/07/11 09:30:55 dustin Exp $
+// $Id: NestedRuntimeException.java,v 1.1 2001/07/11 09:30:56 dustin Exp $
 
 package net.spy.util;
 
@@ -10,21 +10,22 @@ import java.io.PrintStream;
 /**
  * An Exception that will allow chaining of another Throwable.
  */
-public class NestedException extends Exception {
+public class NestedRuntimeException extends RuntimeException {
 
 	private Throwable root=null;
 
 	/**
-	 * Get an instance of NestedException with a given message.
+	 * Get an instance of NestedRuntimeException with a given message.
 	 */
-	public NestedException(String msg) {
+	public NestedRuntimeException(String msg) {
 		super(msg);
 	}
 
 	/**
-	 * Get a NestedException with a given message and root cause throwable.
+	 * Get a NestedRuntimeException with a given message and root cause
+	 * throwable.
 	 */
-	public NestedException(String msg, Throwable t) {
+	public NestedRuntimeException(String msg, Throwable t) {
 		super(msg);
 		root=t;
 	}

@@ -64,6 +64,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/util/NestedException.class \
+	net/spy/util/NestedRuntimeException.class \
 	net/spy/util/BrokenPromiseException.class \
 	net/spy/util/Promise.class \
 	net/spy/pool/PoolAble.class \
@@ -94,11 +95,19 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/cron/Cron.class \
 	net/spy/cron/MainJob.class \
 	net/spy/cron/FileJobQueue.class \
-	net/spy/aaa/SpyPrincipal.class \
-	net/spy/aaa/SimpleCallbackHandler.class \
-	net/spy/aaa/User.class \
-	net/spy/aaa/SimpleLoginModule.class \
-	net/spy/aaa/AAATest.class
+	net/spy/aaa/AuthException.class \
+	net/spy/aaa/AuthUser.class \
+	net/spy/aaa/Authable.class \
+	net/spy/aaa/AuthableImpl.class \
+	net/spy/aaa/Authenticator.class \
+	net/spy/aaa/SimpleAuthUser.class \
+	net/spy/aaa/SpyPermission.class \
+	net/spy/aaa/SpyPermissionCollection.class \
+	net/spy/aaa/SpyPolicy.class \
+	net/spy/aaa/SpySecurityException.class \
+	net/spy/aaa/Token.class \
+	net/spy/aaa/SpySecurityManager.class \
+	net/spy/aaa/SpySecurityPermissionException.class
 
 	# net/spy/loader/ClassReLoader.class
 

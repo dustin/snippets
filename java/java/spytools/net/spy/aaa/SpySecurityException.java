@@ -1,30 +1,40 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NestedException.java,v 1.3 2001/07/11 09:30:55 dustin Exp $
+// $Id: SpySecurityException.java,v 1.1 2001/07/11 09:30:53 dustin Exp $
 
-package net.spy.util;
+package net.spy.aaa;
 
 import java.io.PrintWriter;
 import java.io.PrintStream;
 
+// Yet another copy of Nested*Exception.java :(
+
 /**
  * An Exception that will allow chaining of another Throwable.
  */
-public class NestedException extends Exception {
+public class SpySecurityException extends RuntimeException {
 
 	private Throwable root=null;
 
 	/**
-	 * Get an instance of NestedException with a given message.
+	 * Allow subclasses to get an exception without a message.
 	 */
-	public NestedException(String msg) {
+	protected SpySecurityException() {
+		super();
+	}
+
+	/**
+	 * Get an instance of SpySecurityException with a given message.
+	 */
+	public SpySecurityException(String msg) {
 		super(msg);
 	}
 
 	/**
-	 * Get a NestedException with a given message and root cause throwable.
+	 * Get a SpySecurityException with a given message and root cause
+	 * throwable.
 	 */
-	public NestedException(String msg, Throwable t) {
+	public SpySecurityException(String msg, Throwable t) {
 		super(msg);
 		root=t;
 	}
