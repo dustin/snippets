@@ -1,5 +1,5 @@
 <center>
-<img src="%ITOP%/%IMAGE%"><br>
+<img src="%CGIDIR%/img.cgi/%IMAGE%"><br>
 </center>
 <form method="POST" action="%CGIDIR%/admin/admin.cgi">
 <input type="hidden" name="func" value="edittext">
