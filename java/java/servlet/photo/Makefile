@@ -4,9 +4,10 @@ JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
-C1=/home/dustin/lib/java/jsdk.jar:/home/dustin/lib/java/DBCB.jar
-C2=/home/dustin/lib/java/RHash.jar:/home/dustin/lib/java/cos.jar
-C3=/home/dustin/lib/java/spy.jar:/home/dustin/lib/java/postgresql.jar
+MYLIB=/home/dustin/lib/java
+C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar
+C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
+C3=$(MYLIB)/spy.jar:$(MYLIB)/postgresql.jar:$(MYLIB)/xml4j.jar
 CLASSPATH=$(C1):$(C2):$(C3):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
