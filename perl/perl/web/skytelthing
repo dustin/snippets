@@ -1,0 +1,61 @@
+#!/usr/pkg/bin/perl
+
+use LWP::UserAgent;
+use HTTP::Cookies;
+use HTTP::Request::Common;
+use Data::Dumper;
+
+$ua=LWP::UserAgent->new();
+$url='http://www.skytel.com/cs-tmex.nsf/Inbox?OpenForm&err=0';
+$cookies=HTTP::Cookies::Netscape->new(
+		File => 'cookies',
+		AutoSave => 0,
+	);
+$req=HTTP::Request->new('GET', $url);
+$ua->cookie_jar($cookies);
+$res=$ua->request($req);
+
+open(OUT, ">/tmp/skytel.html");
+print OUT $res->content;
+close(OUT);
+
+# OK, now let's parse that...
+@a=split("\n", $res->content);
+$i=0;
+for (0..$#a) {
+	$i=$_;
+	$_=$a[$i];
+	last if(/MsgIDs/);
+}
+
+# OK, we've got our line, let's parse it.
+$_=$a[$i];
+s/(.*?)VALUE=.([-0-9,]+).*/$2/g;
+chomp();chomp();chomp();
+@post_data=();
+@ids=split(',', $_);
+
+push(@post_data, 'MsgIDs', join(',', @ids));
+for(@ids) {
+	push(@post_data, 'msgnum', $_);
+}
+
+push(@post_data, 'delall2', 'Delete Selected Messages');
+push(@post_data, '__Click',
+	'23c408f97b77b8c28625678a0076e9a0/$Body/0.10ba');
+push(@post_data, 'DefaultURL', 'Inbox?OpenForm');
+push(@post_data, 'msgtotal', scalar(@ids));
+
+print "Cleaning up " . scalar(@ids) . " pages.\n";
+
+$url="http://www.skytel.com/cs-tmex.nsf/Inbox";
+$req=HTTP::Request::Common::POST($url, \@post_data);
+$res=$ua->request($req);
+
+open(OUT, ">/tmp/skytel2.html");
+print OUT $res->content;
+close(OUT);
+
+__END__
+__Click=23c408f97b77b8c28625678a0076e9a0%2F%24Body%2F0.10ba&DefaultURL=Inbox%3FOpenForm&msgtotal=2&MsgIDs=3424878240-1418745231%2C3424878240-1418737564&delall2=Delete+Selected+Messages
+
