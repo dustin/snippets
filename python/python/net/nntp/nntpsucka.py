@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.17 2002/03/21 04:45:38 dustin Exp $
+# $Id: nntpsucka.py,v 1.18 2002/03/21 04:53:52 dustin Exp $
 
 import nntplib
 import time
@@ -74,14 +74,15 @@ class NNTPClient(nntplib.NNTP):
 
 	def __init__(self, host, port=119,user=None,password=None,readermode=None):
 		nntplib.NNTP.__init__(self, host, port, user, password, readermode)
-		self.currentmode='poster'
+		self.checkMode()
 		# self.debugging=1
 
 	def checkMode(self):
 		try:
-			self.dest.group(groupname)
-		except nntplib.NNTPTemporaryError:
+			self.group('control')
 			self.currentmode='reader'
+		except nntplib.NNTPPermanentError:
+			self.currentmode='poster'
 
 	def __headerMatches(self, h):
 		rv=None
