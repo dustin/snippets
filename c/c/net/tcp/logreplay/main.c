@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.4 1998/12/07 19:51:51 dustin Exp $
+ * $Id: main.c,v 1.5 1998/12/07 20:00:29 dustin Exp $
  */
 
 #include <config.h>
@@ -145,6 +145,9 @@ getstatus(char *response, char *IP)
 	char *p, *p2, *in;
 	struct http_status status;
 
+	status.status=-1;
+	status.string=NULL;
+
 	in=strdup(response);
 
 	p=strchr(in, ' ');
@@ -240,6 +243,9 @@ dostats(int i, char *request, struct timeval timers[3],
 
 	if (flags & FLUSH_OUT)
 		fflush(stdout);
+
+	if(status.string)
+		free(status.string);
 }
 
 int
