@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.3 2002/03/20 11:02:08 dustin Exp $
+# $Id: nntpsucka.py,v 1.4 2002/03/20 11:17:10 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -67,18 +67,20 @@ class NNTPSucka:
 		for i in range(int(first), int(last)):
 			try:
 				messid="*empty*"
-				try:
-					messid=ids[str(i)]
-					if self.db.has_key(messid):
-						print "Already seen " + messid
-					else:
-						self.moveArticle(groupname, i)
-						self.db[messid]=str(time.time())
-				except KeyError, e:
-					# Couldn't find the header, article probably doesn't
-					# exist anymore.
-					pass
+				messid=ids[str(i)]
+				if self.db.has_key(messid):
+					print "Already seen " + messid
+				else:
+					self.moveArticle(groupname, i)
+					self.db[messid]=str(time.time())
+			except KeyError, e:
+				# Couldn't find the header, article probably doesn't
+				# exist anymore.
+				pass
 			except nntplib.NNTPTemporaryError, e:
+				# Save it if it's duplicate
+				if str(e).find("Duplicate"):
+					self.db[messid]=str(time.time())
 				print "Failed:  " + str(e)
 
 	def copyServer(self):
@@ -86,11 +88,8 @@ class NNTPSucka:
 		for l in list:
 			group=l[0]
 			try:
-				if group.find("binaries") >= 0:
-					print "Skipping " + group
-				else:
-					print "Copying " + group
-					self.copyGroup(group)
+				print "Copying " + group
+				self.copyGroup(group)
 			except nntplib.NNTPTemporaryError, e:
 				print "Error on group " + group + ":  " + str(e)
 
