@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.4 2000/07/26 10:24:26 dustin Exp $
+ * $Id: Debug.java,v 1.5 2000/10/13 04:55:29 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -88,7 +88,10 @@ public class Debug extends HttpServlet
 
 			String names[]=s.getValueNames();
 			for(int i=0; i<names.length; i++) {
-				ret+="  " + names[i] + "\n";
+				ret+="  " + names[i] + " - ";
+				Object o=s.getValue(names[i]);
+				Class c=o.getClass();
+				ret+=c.getName() + "\n";
 			}
 		}
 
@@ -100,6 +103,7 @@ public class Debug extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 		String stuff="";
+		response.setContentType("text/plain");
 		PrintWriter out = response.getWriter();
 		ObjectPool op=new ObjectPool(new SpyConfig());
 		stuff+="ObjectPool dump:\n" + op;
