@@ -153,8 +153,10 @@
     NSString *thermsurls=[[NSString alloc]
         initWithFormat: [defaults objectForKey: @"url"]];
     NSURL *thermsurl=[[NSURL alloc] initWithString: thermsurls];
+	NSLog(@"Initializing list from %@", thermsurl);
     NSString *thermlist=[[NSString alloc] initWithContentsOfURL: thermsurl];
     NSArray *thermarray=[thermlist componentsSeparatedByString:@"\n"];
+	NSLog(@"List is (%@) %@", thermlist, thermarray);
     [thermsurl release];
     [thermlist release];
 
