@@ -17,19 +17,27 @@
 	NSArray *imageUrls;
 	int currentURLOffset;
     NSImage *currentImage;
+    bool blankOnDraw;
+    float opacity;
 
-    NSTimer *updateTimer;
+    NSRect screenFrame;
 
     IBOutlet NSSlider *intervalField;
-    IBOutlet NSTextField *updateLabel;
+    IBOutlet NSTextField *updateIntervalLabel;
+    IBOutlet NSSlider *opaqueField;
+    IBOutlet NSTextField *opaqueLabel;
     IBOutlet NSTextField *urlField;
     IBOutlet NSWindow *sheet;
+    IBOutlet NSButton *blankField;
 }
 
 - (void)fetchImage;
 - (void)setImageURLs;
+- (void)drawCurrentImage;
+- (void)updateDisplay;
 
 - (IBAction)cancelButton:(id)sender;
 - (IBAction)intervalChanged:(id)sender;
+- (IBAction)opacityChanged:(id)sender;
 - (IBAction)okButton:(id)sender;
 @end

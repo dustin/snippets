@@ -22,6 +22,8 @@
         [self setAnimationTimeInterval:5.0];
     }
 
+    screenFrame=frame;
+
     ScreenSaverDefaults *defaults =
         [ScreenSaverDefaults defaultsForModuleWithName:@"ImageSaver"];
     urlString = [defaults stringForKey:@"url"];
@@ -34,18 +36,14 @@
         updateInterval=5.0;
         [defaults setFloat: updateInterval forKey: @"interval"];
     }
+    blankOnDraw=[defaults boolForKey:@"blankOnDraw"];
+    [self setAnimationTimeInterval: updateInterval];
+    opacity=[defaults floatForKey:@"opacity"];
+    if(opacity <= 0.0 || opacity > 1.0) {
+        opacity=1.0;
+    }
 
 	[self setImageURLs];
-
-	// Update right away
-	[self performSelector: @selector(fetchImage)
-        withObject:nil afterDelay:1.0];
-
-    // Setting timer
-    updateTimer=[NSTimer scheduledTimerWithTimeInterval:updateInterval
-        target: self
-        selector: @selector(fetchImage)
-        userInfo:nil repeats:true];
 
     return self;
 }
@@ -78,19 +76,7 @@
 - (void)drawRect:(NSRect)rect
 {
     [super drawRect:rect];
-    if(currentImage != nil) {
-        // Make sure the image has been scaled.
-        NSSize imageSize=[currentImage size];
-        if(imageSize.width > rect.size.width || imageSize.height > rect.size.height) {
-            SizeScaler *ss=[[SizeScaler alloc] initWithSize: [currentImage size]];
-            imageSize=[ss scaleTo: rect.size];
-            [currentImage setSize: imageSize];
-        }
-        NSPoint p=[self getRandomPoint: rect.size inner: imageSize];
-        NSRect theRect=NSMakeRect(0, 0, imageSize.width, imageSize.height);
-        [currentImage drawAtPoint: p fromRect: theRect
-            operation: NSCompositeCopy fraction: 1.0];
-    }
+    [self drawCurrentImage];
 }
 
 - (void)shuffleArray: (NSMutableArray *)a
@@ -121,8 +107,10 @@
 	[data getBytes: &fourbytes length: 4];
 	fourbytes[4]=0x00;
 
+    /*
 	NSLog(@"First four bytes are %x.%x.%x.%x",
 		fourbytes[0], fourbytes[1], fourbytes[2], fourbytes[3]);
+    */
 
 	NSArray *newList=nil;
 	if(strcmp(fourbytes, "http") == 0) {
@@ -154,7 +142,7 @@
 	imageUrls=newList;
 	currentURLOffset=0;
 
-	NSLog(@"URL list:  %@", imageUrls);
+	// NSLog(@"URL list:  %@", imageUrls);
 
 	[pool release];
 }
@@ -166,7 +154,7 @@
 		NSLog(@"Resetting URL offset to 0");
 		currentURLOffset=0;
 	}
-	NSLog(@"URL offset is %d", currentURLOffset);
+	// NSLog(@"URL offset is %d", currentURLOffset);
 
     NSURL *u=[[NSURL alloc]
 		initWithString: [imageUrls objectAtIndex: currentURLOffset]];
@@ -179,7 +167,7 @@
         if(tmpImage != nil) {
             [tmpImage setScalesWhenResized: TRUE];
             if(currentImage != nil) {
-                NSLog(@"Releasing old image");
+                // NSLog(@"Releasing old image");
                 [currentImage release];
             }
             currentImage=tmpImage;
@@ -188,16 +176,43 @@
 		NSLog(@"Failed to fetch image.");
 	}
 
-    [self setNeedsDisplay: TRUE];
+    [self updateDisplay];
     [u release];
     [pool release];
 }
 
-- (void)animateOneFrame
+- (void)drawCurrentImage
 {
     // NSLog(@"Animating");
-    [self setNeedsDisplay: YES];
-    return;
+    if(currentImage != nil) {
+        // Make sure the image has been scaled.
+        NSSize imageSize=[currentImage size];
+        if(imageSize.width > screenFrame.size.width
+                || imageSize.height > screenFrame.size.height) {
+            SizeScaler *ss=[[SizeScaler alloc] initWithSize: [currentImage size]];
+            imageSize=[ss scaleTo: screenFrame.size];
+            [currentImage setSize: imageSize];
+        }
+        NSPoint p=[self getRandomPoint: screenFrame.size inner: imageSize];
+        NSRect theRect=NSMakeRect(0, 0, imageSize.width, imageSize.height);
+        [currentImage drawAtPoint: p fromRect: theRect
+            operation: NSCompositeSourceOver fraction: opacity];
+    }
+}
+
+- (void)updateDisplay
+{
+    if(blankOnDraw) {
+        [self setNeedsDisplay: TRUE];
+    } else {
+        [self drawCurrentImage];
+    }
+}
+
+- (void)animateOneFrame
+{
+    [self fetchImage];
+    // [self updateDisplay];
 }
 
 - (BOOL)hasConfigureSheet
@@ -214,7 +229,10 @@
     [urlField setStringValue: urlString];
     // Update the interval display
     [intervalField setFloatValue: updateInterval];
-    [self intervalChanged: self];
+    [blankField setState: (blankOnDraw?NSOnState:NSOffState)];
+    [opaqueField setFloatValue: opacity];
+    [self intervalChanged: intervalField];
+    [self opacityChanged: opaqueField];
     return sheet;
 }
 
@@ -224,22 +242,20 @@
     ScreenSaverDefaults *defaults =
         [ScreenSaverDefaults defaultsForModuleWithName:@"ImageSaver"];
 
-    urlString=[urlField stringValue];
     float tmpF=[intervalField floatValue];
-    if(tmpF != updateInterval) {
-        [defaults setFloat: tmpF forKey:@"interval"];
-        if(updateTimer != nil) {
-            NSLog(@"Canceling old timer");
-            [updateTimer invalidate];
-        }
-        NSLog(@"Scheduling a new timer");
-        updateTimer=[NSTimer scheduledTimerWithTimeInterval:updateInterval
-            target: self
-            selector: @selector(fetchImage)
-            userInfo:nil repeats:true];
-    }
+    [self setAnimationTimeInterval: tmpF];
+    [defaults setFloat: tmpF forKey:@"interval"];
 
+    blankOnDraw=([blankField state] == NSOnState);
+    [defaults setBool:blankOnDraw forKey:@"blankOnDraw"];
+
+    urlString=[urlField stringValue];
     [defaults setObject: urlString forKey:@"url"];
+
+    opacity=[opaqueField floatValue];
+    NSLog(@"Opacity is now %0.2f", opacity);
+    [defaults setFloat:opacity forKey:@"opacity"];
+
     [defaults synchronize];
     [NSApp endSheet: sheet];
     [self setImageURLs];
@@ -254,7 +270,7 @@
 - (IBAction)intervalChanged:(id)sender
 {
     // NSLog(@"Interval changed.");
-    int secs=[intervalField intValue];
+    int secs=[sender intValue];
     int hours=0;
     int minutes=0;
     if(secs > 3600) {
@@ -289,8 +305,15 @@
             label=[label stringByAppendingFormat: @" %d seconds", secs];
         }
     }
-    [updateLabel setStringValue: label];
+    [updateIntervalLabel setStringValue: label];
     [pool release];
+}
+
+- (IBAction)opacityChanged:(id)sender
+{
+    NSString *label=[[NSString alloc] initWithFormat: @"%0.0f%%", (100.0*[sender floatValue])];
+    [opaqueLabel setStringValue: label];
+    [label release];
 }
 
 @end
