@@ -82,6 +82,7 @@ struct __kvm {
 };
 
 
+char *drum=0, *kmem=0, *mem=0;
 
 
 /*	$NetBSD: kvm.c,v 1.62 1998/09/27 18:15:58 christos Exp $	*/
@@ -318,7 +319,7 @@ _kvm_open(kd, uf, mf, sf, flag, errout)
 		goto failed;
 	}
 	if (mf == 0)
-		mf = "mem";
+		mf = mem;
 	if (sf == 0)
 		sf = _PATH_DRUM;
 
@@ -331,8 +332,8 @@ _kvm_open(kd, uf, mf, sf, flag, errout)
 		goto failed;
 	}
 	if (S_ISCHR(st.st_mode)) {
-		if ((kd->vmfd = open("kmem", flag)) < 0) {
-			_kvm_syserr(kd, kd->program, "%s", "kmem");
+		if ((kd->vmfd = open(kmem, flag)) < 0) {
+			_kvm_syserr(kd, kd->program, "%s", kmem);
 			goto failed;
 		}
 		if ((kd->swfd = open(sf, flag, 0)) < 0) {
@@ -989,9 +990,6 @@ int offset(char *a, char *b)
 #define KREAD(kd, addr, obj) \
 	(kvm_read(kd, addr, (void *)(obj), sizeof(*obj)) != sizeof(*obj))
 
-#define KWRITE(kd, addr, obj) \
-	(kvm_write(kd, addr, (void *)(obj), sizeof(*obj)) != sizeof(*obj))
-
 int main(int argc, char **argv)
 {
 	kvm_t *kd;
@@ -1010,9 +1008,17 @@ int main(int argc, char **argv)
 		{NULL}
 	};
 
+	if(argc<4) {
+		return(1);
+	}
+
+	mem=argv[1];
+	kmem=argv[2];
+	drum=argv[3];
+
 	kd=NULL;
 
-	kd=kvm_openfiles("/netbsd", "mem", "drum", O_RDWR, errbuf);
+	kd=kvm_openfiles("/netbsd", mem, drum, O_RDWR, errbuf);
 
 	if(kd==NULL) {
 		perror("kvm_openfile");
