@@ -15,6 +15,9 @@ class Stats:
 	def click(self):
 		self.left=self.left-1
 
+	def reduceWorkload(self, by):
+		self.left = self.left - by
+
 	def start(self):
 		self.lasttime = time.time()
 
@@ -30,17 +33,21 @@ class Stats:
 		self.statname=to
 
 	def getStats(self):
-		avgproctime= self.totaltime / self.done
-		estimate = avgproctime * self.left
+		rv=None
+		try:
+			avgproctime= self.totaltime / self.done
+			estimate = avgproctime * self.left
 
-		if self.statname == None:
-			rv=""
-		else:
-			rv=self.statname + " "
+			if self.statname == None:
+				rv=""
+			else:
+				rv=self.statname + " "
 
-		rv+="Avg=%.2fs, Remaining: %d, est %.2fs (%s)" % \
-			(avgproctime, self.left, estimate, \
-				time.ctime( time.time() + estimate ))
+			rv+="Avg=%.2fs, Remaining: %d, est %.2fs (%s)" % \
+				(avgproctime, self.left, estimate, \
+					time.ctime( time.time() + estimate ))
+		except ZeroDivisionError:
+			rv="No results yet, but " + str(self.left) + " to finish."
 		return(rv)
 
 def main():

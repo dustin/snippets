@@ -170,6 +170,12 @@ class TigerType:
 	def __len__(self):
 		return len(self.fields)
 
+	def recordSize(self):
+		rv=0
+		for f in self.fields:
+			rv= rv + len(f)
+		return rv
+
 	def __getitem__(self, i):
 		return self.fields[i]
 

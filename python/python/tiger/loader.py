@@ -8,6 +8,8 @@ import os
 import TigerTypes
 import Stats
 
+stats = None
+
 def parseDatum(input):
 	rv=None
 
@@ -20,7 +22,6 @@ def parseDatum(input):
 def load(c, zipfile, fn):
 	data=zipfile.read(fn).split('\r\n')
 	i=0
-	stats=Stats.Stats(len(data))
 	stats.setStatName(fn)
 	for line in data:
 		i=i+1
@@ -56,10 +57,29 @@ def loadAll(c, zfn, zipfile):
 			print "Rolling back."
 			c.execute('rollback')
 
+totalcount=0
+sizein=dict()
+
+for f in argv[1:]:
+	zf=zipfile.ZipFile(f)
+	for file in zf.namelist():
+		zi=zf.getinfo(file)
+		t=TigerTypes.getType(file[-1])
+		nr=zi.file_size/(t.recordSize()+2)
+		totalcount = totalcount + nr
+		if sizein.has_key(f):
+			sizein[f] = sizein[f] + nr
+		else:
+			sizein[f] = nr
+
+print "Need to load " + str(totalcount) + " records."
+
 dbconn=psycopg.connect('dbname=tiger host=disk port=2345 user=dustin ' \
 	+ 'password=blahblah')
 
 c=dbconn.cursor()
+
+stats=Stats.Stats(totalcount)
 
 for f in argv[1:]:
 	try:
@@ -68,6 +88,8 @@ for f in argv[1:]:
 	except psycopg.ProgrammingError, e:
 		if str(e).find("load_filesbyname"):
 			print "Aready did " + f
+			stats.reduceWorkload(sizein[f])
+			print stats.getStats()
 		else:
 			raise e
 
