@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.2 2001/03/30 09:34:23 dustin Exp $
+// $Id: Base64.java,v 1.3 2001/03/30 09:35:06 dustin Exp $
 
 package net.spy.util;
 
@@ -123,12 +123,9 @@ public class Base64 extends Object {
 
 		// If there were any invalid characters, our size was wrong.
 		if(invalid>0) {
-			System.err.println("There were invalid characters, copying");
 			byte tmp[]=new byte[pos];
 			System.arraycopy(rv, 0, tmp, 0, pos);
-			System.out.println("Old size:  " + rv.length);
 			rv=tmp;
-			System.out.println("New size:  " + rv.length);
 		}
 
 		return(rv);
