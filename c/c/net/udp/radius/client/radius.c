@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.1 1998/06/21 08:33:30 dustin Exp $
+ * $Id: radius.c,v 1.2 1998/06/21 21:25:01 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -131,7 +131,7 @@ int addpassword(radius_packet *rad, char *password)
 	xor(&pass[i*RADIUS_PASS_LENGTH], misc, RADIUS_PASS_LENGTH);
     }
 
-    add_attribute(rad, 2, pass, 16);
+    add_attribute(rad, RADIUS_PASSWORD, pass, 16);
 
     return(0);
 }
@@ -145,7 +145,7 @@ int simpleauth(char *username, char *password)
 
     rad=(radius_packet *)send_buffer;
 
-    rad->code=1;
+    rad->code=RADIUS_ACCESS_REQUEST;
     rad->id=getpid()&0xff;
     rad->length=RADIUS_HEADER_LENGTH;
 
@@ -157,12 +157,12 @@ int simpleauth(char *username, char *password)
     MD5Final(&rad->vector,&md5);
 
     /* Username */
-    add_attribute(rad, 1, username, strlen(username));
+    add_attribute(rad, RADIUS_USERNAME, username, strlen(username));
     if(addpassword(rad, password)<0)
 	return(-1);
 
-    service=8;
-    add_attribute(rad, 6, &service, 4);
+    service=RADIUS_AUTH_ONLY;
+    add_attribute(rad, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
 
     s=getudpsocket();
     radius_send(s, "bleu", 1645, rad);
@@ -192,6 +192,6 @@ int main(int argc, char **argv)
     if(r<0) {
         printf("Timeout\n");
     } else {
-        printf("Server returned:  ``%s''\n", codes[r]);
+        printf("Server returned:  %d (%s)\n", r, codes[r]);
     }
 }
