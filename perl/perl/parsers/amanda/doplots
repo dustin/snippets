@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1999  Dustin Sallings
-# $Id: doplots,v 1.1 1999/08/30 18:58:06 dustin Exp $
+# $Id: doplots,v 1.2 1999/08/30 19:19:52 dustin Exp $
 
 for i in *.dat
 do
@@ -16,5 +16,19 @@ do
 	rm -f $f.pbm
 
 	# Kill the tmp plot thingy
+	rm -f plot.amanda
+done
+
+for i in *.avg
+do
+	YEAR=`echo $i | sed 's/.avg//' `
+	f=$YEAR
+
+	sed -e "s,@YEAR@,$YEAR,g" -e "s/@FILE@/$i/g" plot.avg.generic > plot.amanda
+
+	gnuplot plot.amanda > $f.pbm
+	cjpeg $f.pbm > $f.jpg
+	rm -f $f.pbm
+
 	rm -f plot.amanda
 done
