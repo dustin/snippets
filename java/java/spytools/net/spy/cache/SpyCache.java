@@ -1,19 +1,20 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.13 2002/08/03 06:43:23 dustin Exp $
+ * $Id: SpyCache.java,v 1.14 2002/08/03 07:11:52 dustin Exp $
  */
 
 package net.spy.cache;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.lang.ref.ReferenceQueue;
 
 import java.io.IOException;
 
 import java.net.InetAddress;
 
-import java.util.Enumeration;
+import java.util.Iterator;
 
 import net.spy.util.TimeStampedHash;
 
@@ -30,6 +31,7 @@ import net.spy.util.TimeStampedHash;
 public class SpyCache extends Object {
 	private static TimeStampedHash cacheStore=null;
 	private static SpyCacheCleaner cacheCleaner=null;
+	private static ReferenceQueue refQueue=null;
 
 	/**
 	 * Get a new SpyCache object.
@@ -48,8 +50,8 @@ public class SpyCache extends Object {
 	 * @param cacheTime Amount of time (in milliseconds) to store object.
 	 */
 	public void store(String key, Object value, long cacheTime) {
-		SpyCacheItem i=new SpyCacheItem(key, new SoftReference(value),
-			cacheTime);
+		SpyCacheItem i=new SpyCacheItem(key,
+			new SoftReference(value, refQueue), cacheTime);
 		synchronized(cacheStore) {
 			cacheStore.put(key, i);
 		}
@@ -69,6 +71,11 @@ public class SpyCache extends Object {
 			if(i!=null && (!i.expired())) {
 				Reference ref=i.getObject();
 				ret=ref.get();
+				// If the reference returned a null object, remove this
+				// item from the cache.
+				if(ret==null) {
+					cacheStore.remove(key);
+				}
 			}
 		}
 		return(ret);
@@ -93,12 +100,12 @@ public class SpyCache extends Object {
 	 */
 	public void uncacheLike(String keystart) {
 		synchronized(cacheStore) {
-			for(Enumeration e=cacheStore.keys(); e.hasMoreElements(); ) {
-				String key=(String)e.nextElement();
+			for(Iterator i=cacheStore.keySet().iterator(); i.hasNext(); ) {
+				String key=(String)i.next();
 
 				// If this matches, kill it.
 				if(key.startsWith(keystart)) {
-					cacheStore.remove(key);
+					i.remove();
 				}
 			} // for loop
 		} // lock
@@ -106,15 +113,14 @@ public class SpyCache extends Object {
 
 	private synchronized void init() {
 		synchronized(SpyCache.class) {
+
 			if(cacheStore==null) {
 				cacheStore=new TimeStampedHash();
+				refQueue=new ReferenceQueue();
 			}
-		}
 
-		// start or restart the cache cleaner if needed.
-		synchronized(SpyCache.class) {
 			if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
-				cacheCleaner=new SpyCacheCleaner(cacheStore);
+				cacheCleaner=new SpyCacheCleaner(cacheStore, refQueue);
 			}
 		}
 	}
@@ -125,9 +131,13 @@ public class SpyCache extends Object {
 
 	private class SpyCacheCleaner extends Thread {
 		private TimeStampedHash cacheStore=null;
+		private ReferenceQueue refQueue=null;
 
 		// How many cleaning passes we've done.
 		private int passes=0;
+
+		// How many times were soft references dequeued.
+		private int refDequeued=0;
 
 		// This is so we can only report multicast security exceptions
 		// once.
@@ -136,9 +146,11 @@ public class SpyCache extends Object {
 		// Insert multicast listener here.
 		private CacheClearRequestListener listener=null;
 
-		public SpyCacheCleaner(TimeStampedHash cacheStore) {
+		public SpyCacheCleaner(TimeStampedHash cacheStore,
+			ReferenceQueue refQueue) {
 			super();
 			this.cacheStore=cacheStore;
+			this.refQueue=refQueue;
 			this.setName("SpyCacheCleaner");
 			this.setDaemon(true);
 			this.start();
@@ -152,16 +164,17 @@ public class SpyCache extends Object {
 				+ ", watermark:  " + cacheStore.getWatermark()
 				+ ", hits:  " + cacheStore.getHits()
 				+ ", misses:  " + cacheStore.getMisses()
+				+ ", ref dqed:  " + refDequeued
 				);
 		}
 
 		private void cleanup() throws Exception {
 			long now=System.currentTimeMillis();
 			synchronized(cacheStore) {
-				for(Enumeration e=cacheStore.elements(); e.hasMoreElements();){
-					SpyCacheItem i=(SpyCacheItem)e.nextElement();
-					if(i.expired()) {
-						cacheStore.remove(i.getKey());
+				for(Iterator i=cacheStore.keySet().iterator(); i.hasNext();){
+					SpyCacheItem it=(SpyCacheItem)i.next();
+					if(it.expired()) {
+						i.remove();
 					}
 				}
 			}
@@ -215,7 +228,13 @@ public class SpyCache extends Object {
 					if(listener==null || (!listener.isAlive())) {
 						checkMulticastThread();
 					}
-					sleep(300*1000);
+					Reference r=refQueue.remove(300*1000);
+					while(r!=null) {
+						refDequeued++;
+						r=refQueue.poll();
+					}
+					// Just for throttling, sleep a second.
+					sleep(1000);
 					cleanup();
 				} catch(Exception e) {
 					// Just try again.
@@ -270,6 +289,10 @@ public class SpyCache extends Object {
 			if(exptime>0) {
 				long t=System.currentTimeMillis();
 				ret=(t>exptime);
+			}
+			// If the reference is no longer valid, the object has expired
+			if(value.get()==null) {
+				ret=false;
 			}
 			return(ret);
 		}
