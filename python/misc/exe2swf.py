@@ -6,6 +6,7 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 This is a hacked up attempt to extract a swf from an exe file.  It doesn't work
 too well on the one file I had to test against.
 """
+# arch-tag: C4D48928-2713-11D9-BF48-000A957659CC
 
 import sys
 import struct
