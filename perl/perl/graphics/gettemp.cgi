@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: gettemp.cgi,v 1.2 1999/09/20 08:17:32 dustin Exp $
+# $Id: gettemp.cgi,v 1.3 1999/09/22 08:09:31 dustin Exp $
 
 use LWP::UserAgent;
 use CGI;
@@ -40,14 +40,25 @@ sub otherpoints
 	return($x, $y);
 }
 
-my($temp, $q, $img, $x, $y, $black);
+my($temp, $q, $img, $x, $y, $black, %whence, $place);
+
+%whence=(
+	'machineroom' => 'http://keyhole/~dustin/temp/current/1013A51E00000035',
+	'bedroom' => 'http://dhcp-104/~dustin/temp/current/1081841E000000DF',
+);
 
 if(@ARGV>0) {
-	$temp=$ARGV[0];
+	$place=$ARGV[0];
 } else {
-	$temp=getfile("http://keyhole/~dustin/temp/current/1013A51E00000035");
-	$temp+=0.0;
+	$place='machineroom';
 }
+
+if(!defined($whence{$place})) {
+	$place='machineroom';
+}
+
+$temp=getfile($whence{$place});
+$temp+=0.0;
 
 $q=CGI->new;
 
