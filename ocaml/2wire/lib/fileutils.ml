@@ -5,7 +5,6 @@
  *)
 
 open Unix;;
-open Filename;;
 
 (** Functions for processing files. *)
 
@@ -70,13 +69,19 @@ let lsdir dn =
 	rv
 ;;
 
+(** Stat cache *)
+let stat_func = ref Unix.stat;;
+
+(** Set the stat function (allowing for caching or whatever) *)
+let set_stat_func f = stat_func := f;;
+
 (**
  Is this path a directory?
 
  @param p the path to check
  *)
 let isdir p =
-	(stat p).st_kind = S_DIR
+	(!stat_func p).st_kind = S_DIR
 ;;
 
 (**

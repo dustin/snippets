@@ -4,12 +4,7 @@
  * arch-tag: E84FA9D5-102C-11D8-9148-000393CFE6B8
  *)
 
-open Fileutils;;
-open Filename;;
-open String;;
-open Stringutils;;
 open Unix;;
-open Gz;;
 
 let gz_magic="\031\139";;
 
@@ -32,6 +27,12 @@ let is_gzip fn =
 	rv
 ;;
 
+(* Stat caching
+let stat_cache = Lru.create_auto 8192 Unix.stat;;
+let stat = Lru.find stat_cache;;
+Fileutils.set_stat_func stat;;
+*)
+
 (* Get the age of the given file *)
 let age_of fn =
 	start_time -. (stat fn).st_mtime
@@ -44,7 +45,9 @@ let is_new_enough fn =
 
 let should_process fn =
 	try
-		(ends_with fn ".") && (is_new_enough fn) && (not (is_gzip fn))
+		(Stringutils.ends_with fn ".")
+			&& (is_new_enough fn)
+			&& (not (is_gzip fn))
 	with x ->
 		print_endline("Unknown error determining whether to process " ^ fn);
 		print_endline (Printexc.to_string x);
@@ -62,7 +65,7 @@ let rec copy_gzip infile gzfile buf =
 ;;
 
 let compress_file srcfile destfile =
-	let gzfile = Gz.open_out ~compression:9 ~strategy:Default destfile
+	let gzfile = Gz.open_out ~compression:9 ~strategy:Gz.Default destfile
 	and infile = open_in_bin srcfile
 	and buf = String.create buf_size in
 	copy_gzip infile gzfile buf;
@@ -104,7 +107,7 @@ let process_dir d l a =
 let walker dir =
 	print_endline("Processing " ^ dir ^ " with maxdays = "
 		^ (string_of_int !max_age_days));
-	walk_dir dir process_dir ();
+	Fileutils.walk_dir dir process_dir ();
 ;;
 
 (* Basically an argument parser. *)

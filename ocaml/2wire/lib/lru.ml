@@ -9,11 +9,6 @@
  *)
 
 (**
- The optional fetch function.
- *)
-type ('a, 'b) fetch_function = None | Func of ('a -> 'b);;
-
-(**
  The lru cache type.
  *)
 type ('a, 'b) t = {
@@ -22,7 +17,7 @@ type ('a, 'b) t = {
 	(* The sequences (for aging) *)
 	mutable seq: 'a list;
 	(* autofetch function *)
-	func: ('a, 'b) fetch_function;
+	func: ('a -> 'b);
 	(* The maximum size of this thing *)
 	size: int;
 };;
@@ -35,7 +30,7 @@ type ('a, 'b) t = {
 let create max_size = {
 	keys = Hashtbl.create 1;
 	seq = [];
-	func = None;
+	func = (fun x -> raise Not_found);
 	size = max_size;
 };;
 
@@ -48,7 +43,7 @@ let create max_size = {
 let create_auto max_size f = {
 	keys = Hashtbl.create 1;
 	seq = [];
-	func = Func f;
+	func = f;
 	size = max_size;
 };;
 
@@ -94,13 +89,13 @@ let remove lru k =
 let add lru k v =
 	(* If the cache is full, remove an item *)
 	if ( (List.length lru.seq) >= lru.size) then
-		remove lru (List.hd lru.seq);
+		remove lru (List.nth lru.seq (List.length lru.seq));
 	(* If this key already exists, remove it *)
 	if (mem lru k) then
 		(remove lru k);
 	(* Add it *)
 	Hashtbl.add lru.keys k v;
-	lru.seq <- List.append lru.seq [k];
+	lru.seq <- k :: lru.seq;
 	()
 ;;
 
@@ -113,16 +108,12 @@ let add lru k v =
 let find lru k =
 	try
 		let rv = Hashtbl.find lru.keys k in
-		(* Bring the key to the front *)
-		lru.seq <- List.append (List.filter (fun x -> not (x = k)) lru.seq) [k];
+		lru.seq <- k :: (List.filter (fun x -> not (x = k)) lru.seq);
 		rv
 	with Not_found ->
-		match lru.func with
-			| None -> raise Not_found
-			| Func x ->
-				let rv = x k in
-				add lru k rv;
-				rv;
+		let rv = lru.func k in
+		add lru k rv;
+		rv;
 ;;
 
 (**

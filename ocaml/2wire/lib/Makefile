@@ -27,7 +27,7 @@ docs:
 	ocamldoc -d doc -html *.ml
 
 clean:
-	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
+	rm -f testtop *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
 
 .ml.mli:
 	$(OCAMLOPT) -i $< > $@
