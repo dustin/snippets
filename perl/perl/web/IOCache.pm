@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.1 1998/12/02 09:12:06 dustin Exp $
+# $Id: IOCache.pm,v 1.2 1998/12/02 09:21:46 dustin Exp $
 
 =pod
 
@@ -48,18 +48,27 @@ use DCache;
 
 		$self->{'key'}=$key;
 
+		$self->{'dcache'}=DCache->new;
+		if(defined($options{'cachedir'})) {
+			$self->{'dcache'}->cachedir($options{'cachedir'});
+		}
+
 		if(-f "/tmp/$key") {
 			$self->{'stat'}=[stat("/tmp/$key")];
 		}
 
+		# check for cache based on age if given, else, check for any cache,
+		# if valid cache is found, print it out, and exit
 		if(defined($options{'maxage'}) && defined($self->{'stat'})) {
-			if( (time()-$options{'maxage'}) <= $self->{'stat'}[9] ) {
-				open(__IOCACHE_READIN, "/tmp/$key");
-				print join('', <__IOCACHE_READIN>);
-				close(__IOCACHE_READIN);
+			if($self->{'dcache'}->checkcache($key, $options{'maxage'})) {
+				$self->{'dcache'}->printcache_only($key);
 				print "!!! This was straigt-outta cache !!!\n";
 				exit;
 			}
+		} elsif($self->{'dcache'}->checkcache($key)) {
+			$self->{'dcache'}->printcache_only($key);
+			print "!!! This was straigt-outta cache !!!\n";
+			exit;
 		}
 
 		open(__IOCACHE_SAVESTDOUT, ">&STDOUT");
@@ -84,15 +93,21 @@ use DCache;
 		close(STDOUT);
 		open(STDOUT, ">&$self->{'stdout'}");
 
+		# if we have any output, cache it.
 		if(-s "/tmp/iocache.$key.tmp.$$") {
-			rename("/tmp/iocache.$key.tmp.$$", "/tmp/$key");
-		} else {
+			# read it in
+			open(__IOCACHE_READIN, "/tmp/iocache.$key.tmp.$$");
+			# unlink here, just in case.
 			unlink("/tmp/iocache.$key.tmp.$$");
-		}
+			$stuff=join('', <__IOCACHE_READIN>);
+			close(__IOCACHE_READIN);
 
-		open(__IOCACHE_READIN, "/tmp/$key");
-		print join('', <__IOCACHE_READIN>);
-		close(__IOCACHE_READIN);
+			# and cache it.
+			$self->{'dcache'}->cache($key, "IOCache", $stuff);
+
+			# oh, and display it  :)
+			print $stuff;
+		}
 	}
 }
 
