@@ -1,3 +1,7 @@
+; Date calculation stuff.
+; Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
+; $Id: dates.el,v 1.3 2001/11/16 00:04:15 dustin Exp $
+
 ;
 ; Constants used to perform calculations
 ;
@@ -54,6 +58,8 @@
   "Get the epoch time for the given time."
   (+ (dates-seconds-for-minute year month day hour minute)
      second))
+
+(provide 'dates)
 
 ; Tests
 
