@@ -25,34 +25,33 @@ let try_connect h p =
 		| _ -> raise x
 ;;
 
-let main_loop h p =
-	let rec loop () =
-		let s = try_connect h p in
-		let r,w,e = select [s] [s] [s] 5.0 in
-		let connected = (
-			try
-				if (List.length r) > 0 then (
-					let buf = String.create 1 in
-					ignore(read s buf 0 1);
-					true
-				) else if (List.length w) > 0 then (
-					true
-				) else (
-					print_endline("Timed out");
-					false
-				)
-			with Unix_error(e,_,_) ->
-				print_endline(error_message e);
+let rec main_loop h p =
+	let s = try_connect h p in
+	let r,w,e = select [s] [s] [s] 5.0 in
+	let connected = (
+		try
+			if (List.length r) > 0 then (
+				let buf = String.create 1 in
+				ignore(read s buf 0 1);
+				true
+			) else if (List.length w) > 0 then (
+				true
+			) else (
+				print_endline("Timed out");
 				false
-		) in
-		close s;
-		if connected then () else (
-			print_endline("Trying again...");
-			sleep 1;
-			loop ();
-		)
-	in loop();
-	print_endline("Connected!")
+			)
+		with Unix_error(e,_,_) ->
+			print_endline(error_message e);
+			false
+	) in
+	close s;
+	if connected then (
+		print_endline "Connected"
+	) else (
+		print_endline("Trying again...");
+		sleep 1;
+		main_loop h p;
+	)
 ;;
 
 let main() =
