@@ -1,5 +1,5 @@
 #
-# $Id: Vitality.spt,v 1.1 2003/01/21 06:28:27 dustin Exp $
+# $Id: Vitality.spt,v 1.2 2003/01/21 06:32:25 dustin Exp $
 #
 
 @package
@@ -22,9 +22,9 @@ select
 	where
 		ts between ? and ?
 		and sensor_id = ?
-	order by
-		hour
 	group by
+		hour
+	order by
 		hour
 
 @params
