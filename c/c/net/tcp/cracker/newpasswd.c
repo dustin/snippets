@@ -1,5 +1,7 @@
 /*
  * This stuff was all written by James Lemley then stolen by me.
+ *
+ * $Id: newpasswd.c,v 1.2 1997/01/05 08:41:00 dustin Exp $
  */
 
 #include "cracker.h"

@@ -1,5 +1,7 @@
 /*
- * $Id: cracker.c,v 1.1 1997/01/05 08:36:36 dustin Exp $
+ * Copyright 1997 SPY Internetworking
+ *
+ * $Id: cracker.c,v 1.2 1997/01/05 08:41:00 dustin Exp $
  */
 
 #include <stdio.h>

@@ -1,3 +1,9 @@
+/*
+ * Copyright 1997 SPY Internetworking
+ *
+ * $id$
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

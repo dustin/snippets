@@ -1,3 +1,9 @@
+/*
+ * Copyright 1997 SPY Internetworking
+ *
+ * $Id: sockets.c,v 1.2 1997/01/05 08:41:00 dustin Exp $
+ */
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

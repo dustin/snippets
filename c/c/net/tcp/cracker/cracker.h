@@ -1,3 +1,9 @@
+/*
+ * Copyright 1997 SPY Internetworking
+ *
+ * $id*
+ */
+
 #include <sys/types.h>
 
 #define PORT 5342

@@ -1,3 +1,5 @@
+# Copyright 1997 SPY Internetworking
+# $Id: Makefile,v 1.2 1997/01/05 08:41:00 dustin Exp $
 INCLUDES=
 CFLAGS=-O2 $(INCLUDES)
 LDFLAGS=-s
