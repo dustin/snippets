@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: passwordhander.c,v 1.2 2002/07/09 00:19:23 dustin Exp $
+ * $Id: passwordhander.c,v 1.3 2002/07/09 00:33:12 dustin Exp $
  *
  * Read a file and copy it to a new file descriptor into a pipe so's that a
  * subprocess can read it on a specific file descriptor.  The subprocess
@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <assert.h>
 
+/* Exit with the child's exit status, if we got one */
 static void
 sigChildHandler(int sig)
 {
@@ -33,19 +34,23 @@ sigChildHandler(int sig)
 	exit(myexitcode);
 }
 
+/* Copy the contents of the src fd to the dest fd until no more bytes can
+ * be read from the src fd */
 static void
 copyFile(int src, int dest)
 {
 	char buf[4096];
-	size_t bytesW=0, bytesR;
+	size_t bytesW=0, bytesR=1;
 
-	while(bytesR>=0) {
+	while(bytesR>0) {
 		bytesR=read(src, &buf, sizeof(buf));
 		if(bytesR>0) {
 			bytesW=write(dest, buf, bytesR);
 			assert(bytesW == bytesR);
 		} else if(bytesR<0) {
 			perror("read");
+		} else {
+			/* Zero means we're done */
 		}
 	}
 }
