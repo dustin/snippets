@@ -406,9 +406,10 @@ public class InterfaceImplementor extends Object {
 			// Figure out if there's a package name, if so, make sure the
 			// dirs exist and all that.
 			if(op!=null) {
-				File packagepath= new File(op.replace('.', File.separatorChar));
+				File packagepath= new File(
+					fn + op.replace('.', File.separatorChar));
 				packagepath.mkdirs();
-				fn+=packagepath.toString() + File.separatorChar;
+				fn=packagepath.toString() + File.separatorChar;
 			}
 			// Stick the classname.java to the end
 			fn+=oc + ".java";
