@@ -22,10 +22,12 @@ class LogFile:
 		self.__close()
 
 	def __close(self):
+		sys.stderr.write("# Closing " + `self` + "\n")
 		self.__input.close()
 		self.__isOpen=None
 
 	def __open(self):
+		sys.stderr.write("# Opening " + `self` + "\n")
 		try:
 			self.__input=gzip.open(self.__filename)
 		except IOError, e:
@@ -43,12 +45,12 @@ class LogFile:
 
 		# Make sure the file's open
 		if self.__isOpen == None:
-			sys.stderr.write("# Reopening " + `self` + "\n")
 			self.__open()
 
 		self.__currentLine=self.__input.readline()
 		if self.__currentLine == '':
 			self.__timestamp=None
+			self.__close()
 		else:
 			self.__timestamp=self.__getTimestamp()
 
@@ -125,7 +127,6 @@ if __name__ == '__main__':
 
 	lm=LogMux()
 	for fn in sys.argv[2:]:
-		sys.stderr.write("Opening " + fn + "\n")
 		lm.addLogFile(LogFile(fn))
 
 	line=lm.next()
