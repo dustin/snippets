@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.3 2002/12/11 09:49:58 dustin Exp $
+ * $Id: stringutils.ml,v 1.4 2002/12/11 10:09:38 dustin Exp $
  *)
 
 (* Private function to skip the next n occurrences of this character in
@@ -18,33 +18,27 @@ let rec pvt_skip_char(s, c, i): int =
 ;;
 
 (* Private recursive function for splitting a stream in a buffer *)
-let rec pvt_rec_split(buf, rv, str, c, i): '_a list =
+let rec pvt_rec_split(rv, str, c, i): '_a list =
 	if i < String.length str then
 	begin
-		let ch = String.get str i in
-		if ch = c then
-			begin
-				let s = (Buffer.contents buf) in
-				Buffer.reset buf;
-				pvt_rec_split(buf, (rv @ [ s ]), str, c,
-					pvt_skip_char(str, c, i));
-			end
+		if String.contains_from str i c then
+		begin
+			let o = String.index_from str i c in
+			pvt_rec_split(
+				(rv @ [ String.sub str i (o - i)]),
+				str, c,
+				pvt_skip_char(str, c, o))
+		end
 		else
-			begin
-				Buffer.add_char buf ch;
-				pvt_rec_split(buf, rv, str, c, (i + 1));
-			end
+			rv @ [ String.sub str i ((String.length str) - i) ]
 	end
 	else
-		if String.length (Buffer.contents buf) > 0 then
-			rv @ [ Buffer.contents buf ]
-		else
-			rv
+		rv
 ;;
 
 (* Split a string into a list of Strings *)
 let split(s, c) =
-	pvt_rec_split((Buffer.create 128), [], s, c, 0)
+	pvt_rec_split([], s, c, 0)
 ;;
 
 (*
