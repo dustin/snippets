@@ -1,0 +1,36 @@
+AC_INIT(rrdrstat.c)
+
+dnl commands
+AC_PROG_CC(-g)
+AC_PATH_PROG(RPCGEN, rpcgen, /usr/bin/rpcgen, $PATH)
+
+AC_ARG_WITH(rrdtool, [  --with-rrdtool          path to rrdtool installation],
+	[if test -d $withval/include && test -d $withval/lib
+	then
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	fi])
+
+
+dnl libs
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_LIB(nsl, gethostbyname)
+
+RRDLIB=""
+AC_CHECK_LIB(rrd, rrd_update,
+	[RRDLIB="-lrrd"
+	AC_DEFINE_UNQUOTED(RRDLIB, $RRDLIB)])
+AC_SUBST(RRDLIB)
+
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
+AC_CHECK_HEADERS(rpc/rpc.h sys/time.h)
+AC_CHECK_HEADERS(rrd.h)
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(clnt_create snprintf vsnprintf)
+
+CFLAGS="$CFLAGS $CPPFLAGS"
+
+AC_OUTPUT(Makefile)

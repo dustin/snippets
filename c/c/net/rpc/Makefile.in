@@ -1,0 +1,22 @@
+CFLAGS=@CFLAGS@ @DEFS@
+LDFLAGS=@LDFLAGS@ @LIBS@
+RPCGEN=@RPCGEN@
+
+rrdrstat: rstat_clnt.o rstat_xdr.o rrdrstat.o
+	$(CC) -o $@ rrdrstat.o rstat_clnt.o rstat_xdr.o $(LDFLAGS)
+
+clean:
+	rm -f rstat_clnt.o rstat_xdr.o rrdrstat.o rstat.h \
+		rstat_clnt.c rstat_svc.c rstat_xdr.c rrdrstat
+
+distclean: clean
+	rm -f config.status config.log config.cache Makefile
+
+rstat_clnt.o: rstat_clnt.c
+
+rstat_xdr.o: rstat_xdr.c
+
+rstat_clnt.c: rstat.x
+	$(RPCGEN) rstat.x
+
+rstat_xdr.c: rstat_clnt.c
