@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.4 1998/12/02 09:37:06 dustin Exp $
+# $Id: IOCache.pm,v 1.5 1998/12/02 17:40:44 dustin Exp $
 
 =pod
 
@@ -39,13 +39,25 @@ cache.  For instance, you may want to do something like this for debugging:
  $cache=IOCache->new($key,
    cachetag => "<!-- This came from cache: $key -->\n");
 
+=head1 EXAMPLE
+
+  #!/usr/local/bin/perl
+
+  use IOCache;
+
+  my $cache=IOCache->new("test1", maxage => 5, cachedir => '/tmp/cache2',
+                                  cachetag => "!!! WOO !!!\n");
+
+  sleep 5;
+  print "This will be cached...\n";
+
 =head1 AUTHOR
 
 Dustin Sallings <dustin@spy.net>
 
 =head1 VERSION
 
-$Id: IOCache.pm,v 1.4 1998/12/02 09:37:06 dustin Exp $
+$Id: IOCache.pm,v 1.5 1998/12/02 17:40:44 dustin Exp $
 
 =cut
 
