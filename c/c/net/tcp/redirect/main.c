@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.7 1998/01/05 00:15:31 dustin Exp $
+ * $Id: main.c,v 1.8 1998/01/05 00:20:27 dustin Exp $
  */
 
 #include <config.h>
@@ -155,7 +155,7 @@ int mapcon(char *p, int stats)
     char **list=NULL;
     struct cluster **cluster;
     char *host;
-    int port, s, i, index, defalrm, alrm;
+    int port, s, i, defalrm, alrm;
 
     _ndebug(2, ("mapcon(\"%s\", %d)\n", p, stats));
 
@@ -199,7 +199,7 @@ int mapcon(char *p, int stats)
         if(alrm<1)
             alrm=defalrm;
 
-        _ndebug(2, ("%d seconds to connect\n"));
+        _ndebug(2, ("%d seconds to connect\n", alrm));
 
         alarm(alrm);
         s=getclientsocket(host, port);

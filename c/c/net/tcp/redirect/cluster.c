@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.1 1998/01/05 00:15:30 dustin Exp $
+ * $Id: cluster.c,v 1.2 1998/01/05 00:20:25 dustin Exp $
  */
 
 #include <config.h>
@@ -94,7 +94,6 @@ struct cluster **getcluster(char *p, int stats)
     char **list=NULL;
     char key[80];
     struct cluster **cluster=NULL;
-    struct cluster element;
     int i, index, defalrm, current=0, size=4;
 
     cluster=(struct cluster**)malloc(size*sizeof(struct cluster **));
