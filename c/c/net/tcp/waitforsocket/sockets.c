@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.3 2003/06/12 20:18:14 dustin Exp $
+ * $Id: sockets.c,v 1.4 2003/06/12 20:20:30 dustin Exp $
  */
 
 #include <stdio.h>
@@ -10,6 +10,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <time.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
