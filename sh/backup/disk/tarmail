@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# arch-tag: 2FC22C32-516A-11D8-B218-000A957659CC
+
+bak=/data/dustin/bak
+tars=$bak/tars
+mail=$bak/mail
+digests=$bak/digests
+
+blocksize=8388608
+blocksize=2097152
+# blocksize=1048576
+
+# blockDigest streamfn digestfile diffscript prevdir newdir [blocksize]
+
+process() {
+	srcdir="$1"
+	basename="$2"
+
+	mbname="$tars/mail/tars.0/$srcdir/$basename"
+	destdir=`dirname "$mbname"`
+	digest="$digests/$srcdir/$basename.digest"
+	mkdir -p "$digests/$srcdir/$basename"
+	touch "$digest"
+
+	cd "$mail/$srcdir"
+	echo "Doing $d as $mbname.tar"
+	# tar cf "$mbname.tar" "$basename"
+	mkdir -p "$destdir/$basename.tars"
+	tar cf - "$basename" \
+		| $HOME/bin/blockDigest - "$digest" $bak/tarmail.stream \
+			"$tars/mail/tars.1/$srcdir/$basename.tars" \
+			"$destdir/$basename.tars" $blocksize
+}
+
+tardir() {
+	while read cc
+	do
+		# mbname=`echo "$d" | sed s,/,.,g`
+		d=`dirname "$cc"`
+		cd $mail
+
+		srcdir=`dirname "$d"`
+		bn=`basename "$d"`
+		process "$srcdir" "$bn"
+	done
+}
+
+# Keep a few generations of the backups
+if [ -d $tars/mail/tars.10 ]
+then
+	rm -rf $tars/mail/tars.10
+fi
+for i in 9 8 7 6 5 4 3 2 1 0
+do
+	iplusone=`expr $i + 1`
+	if [ -d $tars/mail/tars.$i ]
+	then
+		mv $tars/mail/tars.$i $tars/mail/tars.$iplusone
+	fi
+done
+
+cd $mail
+find user stupid news -name cyrus.cache | tardir

@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# arch-tag: 542F725E-516E-11D8-A8C1-000A957659CC
+
+HOME=/home/dustin
+export HOME
+
+GPG=/usr/local/bin/gpg
+
+$HOME/bin/passwordhander $HOME/.sigpw $GPG -se --passphrase-fd 4 \
+	--batch -r primary > "$NEWPATH"
