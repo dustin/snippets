@@ -1,7 +1,6 @@
 /* Controller */
 
 #import <Cocoa/Cocoa.h>
-#import "ThermometerView.h"
 #import "LogOutline.h"
 // #import "TestController.h"
 

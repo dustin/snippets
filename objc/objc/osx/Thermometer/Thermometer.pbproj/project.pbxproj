@@ -13,18 +13,16 @@
 		};
 		080E96DDFE201D6D7F000001 = {
 			children = (
-				DA58D017042EF20000A80132,
 				DA58D018042EF20000A80132,
-				F54ADCEB0369034301A801C4,
-				F54ADCEC0369034301A801C4,
+				DA58D017042EF20000A80132,
 				DA7C50F9041C92D50018EE5C,
 				DA7C50FA041C92D50018EE5C,
-				F54D19D9040EA22A01BE144C,
 				DAE13580042D9F3D00A80132,
 				DAE13581042D9F3D00A80132,
-				F54D19DA040EA22A01BE144C,
 				DAB80BDC042D85D700A80132,
 				DAB80BDD042D85D700A80132,
+				DA641D0404301CF700A80132,
+				DA641D0504301CF700A80132,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -176,6 +174,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				DA641D0A04301FBA00A80132,
 				DAC72A7304108DB200A80132,
 				DAC72A7404108DB200A80132,
 				29B97318FDCFA39411CA2CEA,
@@ -279,12 +278,11 @@
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
 			files = (
-				F54ADCED0369034301A801C4,
-				F54D19DB040EA22A01BE144C,
 				DA7C50FB041C92D50018EE5C,
 				DAB80BDE042D85D700A80132,
 				DAE13582042D9F3D00A80132,
 				DA58D01A042EF20000A80132,
+				DA641D0604301CF700A80132,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,6 +294,7 @@
 				089C165EFE840E0CC02AAC07,
 				DAC72A7504108DB200A80132,
 				DAC72A7604108DB200A80132,
+				DA641D0B04301FBA00A80132,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -304,12 +303,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				29B9732CFDCFA39411CA2CEA,
-				F54ADCEE0369034301A801C4,
-				F54D19DC040EA22A01BE144C,
 				DA7C50FC041C92D50018EE5C,
 				DAB80BDF042D85D700A80132,
 				DAE13583042D9F3D00A80132,
 				DA58D019042EF20000A80132,
+				DA641D0704301CF700A80132,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,6 +387,50 @@
 		};
 		DA58D01A042EF20000A80132 = {
 			fileRef = DA58D018042EF20000A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA641D0404301CF700A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = PreferenceController.h;
+			refType = 4;
+		};
+		DA641D0504301CF700A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = PreferenceController.m;
+			refType = 4;
+		};
+		DA641D0604301CF700A80132 = {
+			fileRef = DA641D0404301CF700A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA641D0704301CF700A80132 = {
+			fileRef = DA641D0504301CF700A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA641D0804301F5800A80132 = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Preferences.nib;
+			refType = 4;
+		};
+		DA641D0A04301FBA00A80132 = {
+			children = (
+				DA641D0804301F5800A80132,
+			);
+			isa = PBXVariantGroup;
+			name = Preferences.nib;
+			refType = 4;
+		};
+		DA641D0B04301FBA00A80132 = {
+			fileRef = DA641D0A04301FBA00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -483,64 +525,6 @@
 		};
 		DAE13583042D9F3D00A80132 = {
 			fileRef = DAE13581042D9F3D00A80132;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-//DA0
-//DA1
-//DA2
-//DA3
-//DA4
-//F50
-//F51
-//F52
-//F53
-//F54
-		F54ADCEB0369034301A801C4 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = Controller.h;
-			refType = 4;
-		};
-		F54ADCEC0369034301A801C4 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = Controller.m;
-			refType = 4;
-		};
-		F54ADCED0369034301A801C4 = {
-			fileRef = F54ADCEB0369034301A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F54ADCEE0369034301A801C4 = {
-			fileRef = F54ADCEC0369034301A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F54D19D9040EA22A01BE144C = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = ThermometerView.h;
-			refType = 4;
-		};
-		F54D19DA040EA22A01BE144C = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = ThermometerView.m;
-			refType = 4;
-		};
-		F54D19DB040EA22A01BE144C = {
-			fileRef = F54D19D9040EA22A01BE144C;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F54D19DC040EA22A01BE144C = {
-			fileRef = F54D19DA040EA22A01BE144C;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -28,15 +28,42 @@
     [s release];
 }
 
+-(IBAction)launchPreferences:(id)sender
+{
+    id prefc=[[PreferenceController alloc] initWithWindowNibName: @"Preferences"];
+    [prefc startUp: defaults];
+    NSLog(@"Initialized Test");
+}
+
 // Updates from the UI
 -(IBAction)update:(id)sender
 {
     [self update];
 }
 
+-(void)initDefaults
+{
+    // Get the default defaults
+    NSMutableDictionary *dd=[[NSMutableDictionary alloc] initWithCapacity: 4];
+    [dd setObject: @"c" forKey: @"units"];
+    [dd setObject: @"http://bleu.west.spy.net/therm/Temperature" forKey: @"url"];
+    NSNumber *n=[[NSNumber alloc] initWithInt: 60];
+    [dd setObject: n forKey: @"frequency"];
+    [n release];
+
+    defaults=[NSUserDefaults standardUserDefaults];
+    // Add the default defaults
+    [defaults registerDefaults: dd];
+    // [self setUnits: [defaults objectForKey: @"units"]];
+    [dd release];
+}
+
 -(void)awakeFromNib
 {
     NSLog(@"Starting ThermController.");
+
+    // Initialize the defaults
+    [self initDefaults];
 
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *path = [mainBundle pathForResource:@"therm-c" ofType:@"png"];
@@ -50,17 +77,25 @@
     orow=r;
     ocol=c;
 
-    NSArray *array=[[NSArray alloc] initWithObjects:
-        @"bedroom", @"livingroom", @"guestroom",
-        @"garage", @"newmachineroom", @"backyard", nil];
+    // Grab the list.
+    NSString *thermsurls=[[NSString alloc]
+        initWithFormat: [defaults objectForKey: @"url"]];
+    NSURL *thermsurl=[[NSURL alloc] initWithString: thermsurls];
+    NSString *thermlist=[[NSString alloc] initWithContentsOfURL: thermsurl];
+    NSArray *thermarray=[thermlist componentsSeparatedByString:@"\n"];
+    [thermsurl release];
+    [thermlist release];
 
-    therms=[[NSMutableArray alloc] initWithCapacity: [array count]];
-    NSEnumerator *enumerator = [array objectEnumerator];
+    therms=[[NSMutableArray alloc] initWithCapacity: [thermarray count]];
+    NSEnumerator *enumerator = [thermarray objectEnumerator];
     id anObject;
     while (anObject = [enumerator nextObject]) {
-        Thermometer *t=[[Thermometer alloc] initWithName: anObject];
-        [therms addObject: t];
-        [t release];
+        if([anObject length] > 0) {
+            Thermometer *t=[[Thermometer alloc] initWithName: anObject
+                url:[defaults objectForKey: @"url"]];
+            [therms addObject: t];
+            [t release];
+        }
     }
 
     int i;
@@ -95,7 +130,7 @@
 
     NSRect newdims=[[self window] frame];
     newdims.size.width=318+(143*(r-orow));
-    newdims.size.height=233+(151*(c-ocol));
+    newdims.size.height=223+(151*(c-ocol));
     [[self window] setMinSize: newdims.size];
     [[self window] setMaxSize: newdims.size];
     [[self window] setFrame:newdims display:true];
@@ -106,13 +141,12 @@
         afterDelay:0];
 
     // Schedule updates
-    [NSTimer scheduledTimerWithTimeInterval:SAMPLE_RATE
+    int freq=[[defaults objectForKey: @"frequency"] intValue];
+    NSLog(@"Update frequency:  %d", freq);
+    [NSTimer scheduledTimerWithTimeInterval:freq
         target: self
         selector: @selector(update)
         userInfo:nil repeats:true];
-
-    // free stuff
-    [array release];
 }
 
 @end

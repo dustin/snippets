@@ -10,8 +10,7 @@
 #import <AppKit/AppKit.h>
 
 #import "ThermometerCell.h"
-
-#define SAMPLE_RATE 60
+#import "PreferenceController.h"
 
 @interface ThermController : NSWindowController {
     IBOutlet NSMatrix *thermMatrix;
@@ -19,9 +18,12 @@
     IBOutlet NSMenu *dockMenu;
 
     NSMutableArray *therms;
+
+    NSUserDefaults *defaults;
 }
 
 -(void)update;
 -(IBAction)update:(id)sender;
+-(IBAction)launchPreferences:(id)sender;
 
 @end

@@ -11,11 +11,13 @@
 
 @implementation Thermometer
 
--(id)initWithName: (NSString *)theName;
+-(id)initWithName:(NSString *)theName url:(NSString *)ustr;
 {
     id rv=[super init];
     name=theName;
     [name retain];
+    url=ustr;
+    [url retain];
     _t_delegate=nil;
     lastReadings=[[NSMutableArray alloc] initWithCapacity: 5];
     return(rv);
@@ -109,9 +111,7 @@
 
 -(void)update
 {
-    NSString *s=[[NSString alloc]
-        initWithFormat: @"http://bleu.west.spy.net/therm/Temperature?temp=%@",
-        name];
+    NSString *s=[[NSString alloc] initWithFormat: @"%@?temp=%@", url, name];
     NSURL *u=[[NSURL alloc] initWithString: s];
     NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
     [self setReading: [sr floatValue]];

@@ -20,7 +20,14 @@
         },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
         {
-            ACTIONS = {update = id; };
+            ACTIONS = {apply = id; cancel = id; ok = id; };
+            CLASS = PreferenceController;
+            LANGUAGE = ObjC;
+            OUTLETS = {frequency = NSTextField; url = NSTextField; };
+            SUPERCLASS = NSWindowController;
+        },
+        {
+            ACTIONS = {launchPreferences = id; update = id; };
             CLASS = ThermController;
             LANGUAGE = ObjC;
             OUTLETS = {dockMenu = NSMenu; status = NSTextField; thermMatrix = NSMatrix; };

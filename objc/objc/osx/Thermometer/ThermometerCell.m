@@ -93,7 +93,7 @@ static float ctof(float c)
     int up=bounds.origin.y + 69; // This is where the dot is
 
     angle=([self reading] * 1.8);
-    NSLog(@"Calculated angle:  %.2f", angle);
+    // NSLog(@"Calculated angle:  %.2f", angle);
     angle+=trans;
     rad=((angle/360)* 2 * 3.1415926535897932);
     x2=sin(rad)*39;
@@ -114,38 +114,10 @@ static float ctof(float c)
     return(rv);
 }
 
-//
-// Outline view stuff
-//
-
-- (id)outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
-{
-    NSLog(@"Asking for child %d of %@", index, item);
-    return(nil);
-}
-
-- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
-{
-    return(false);
-}
-
-- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
-{
-    NSLog(@"Asking for the number of children of %@", self);
-    return(0);
-}
-
-// Just get the name of the item
-- (id)outlineView:(NSOutlineView *)outlineView
-    objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-    NSLog(@"Getting the item from the view");
-    return(item);
-}
-
+// Delegate stuff indicating a new reading
 -(void)newReading:(float)r
 {
-    NSLog(@"Received delegate notification of new reading:  %.2f", r);
+    // NSLog(@"Received delegate notification of new reading:  %.2f", r);
     // [self setNeedsDisplay: true];
 }
 
@@ -157,9 +129,6 @@ static float ctof(float c)
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
     [super drawInteriorWithFrame: cellFrame inView: controlView];
-    NSLog(@"Drawing at %.0f,%0f (%.0fx%.0f)",
-        cellFrame.origin.x, cellFrame.origin.y,
-        cellFrame.size.width, cellFrame.size.height);
     // Draw the reading
     NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f",
         [self reading]];
