@@ -5,25 +5,33 @@ import time
 import exceptions
 
 class AlreadyLockedException(exceptions.Exception):
+	"""Exception raised when a resource is already locked."""
 	pass
 
 class CannotLockException(exceptions.Exception):
+	"""Exception raised when we can't lock a resource."""
 	pass
 
 class PidLock:
+	"""Basic resource locking based on PIDs."""
 
 	def __init__(self, pidfile):
+		"""Atomically obtain a lock using the given pidfile.
+
+		If the pidfile exists, verify the contents contain a valid PID.
+		"""
 		self.pidfile=pidfile
 		try:
-			self.doLock()
+			self.__doLock()
 		except OSError:
 			# If we failed to obtain a lock, verify it's still valid, and
 			# if not, reclaim it.
-			self.checkLock()
+			self.__checkLock()
 			os.unlink(self.pidfile)
-			self.doLock()
+			self.__doLock()
 
-	def doLock(self):
+	def __doLock(self):
+		"""Internal:  Store the lock."""
 		fd=None
 		f=None
 		self.locked=None
@@ -41,7 +49,10 @@ class PidLock:
 			if fd!=None:
 				os.close(fd)
 
-	def checkLock(self):
+	def __checkLock(self):
+		"""Internal:  Verify a lock and raise an exception if the resource
+		is truly locked.
+		"""
 		f=file(self.pidfile)
 		d=f.readline()
 		if d!='':
@@ -55,11 +66,15 @@ class PidLock:
 					raise AlreadyLockedException(pid)
 
 	def unlock(self):
+		"""Unlock the resource if it's not already unlocked (safe to call
+		more than once).
+		"""
 		if self.locked:
 			os.unlink(self.pidfile)
 			self.locked=None
 
 	def __del__(self):
+		"""Verify the resource is unlocked on object destruct."""
 		self.unlock()
 
 if __name__ == '__main__':
