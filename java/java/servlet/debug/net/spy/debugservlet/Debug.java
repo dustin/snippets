@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.8 2001/01/25 01:24:55 dustin Exp $
+ * $Id: Debug.java,v 1.9 2001/01/28 11:39:39 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -96,7 +96,17 @@ public class Debug extends HttpServlet
 		HttpSessionContext context=session.getSessionContext();
 
 		if(context==null) {
-			rv="You are " + myid + "<br>No others available.\n";
+			rv="Sessions not listable, only showing yours (" + myid + ").<br>";
+			rv+="<ul>\n";
+
+			String names[]=session.getValueNames();
+			for(int i=0; i<names.length; i++) {
+				rv+="<li>" + names[i] + " - ";
+				Object o=session.getValue(names[i]);
+				Class c=o.getClass();
+				rv+=c.getName() + "</li>\n";
+			}
+			rv+="</ul>\n";
 		} else {
 			rv=listSessions(myid, context);
 		}
@@ -195,7 +205,7 @@ public class Debug extends HttpServlet
 
 	}
 
-	// Call a method on an object that will return an int
+	// Call a method on an object that will return an Object to be Strung
 	protected String callMethod(Object o, String mname) throws Exception {
 		Class c=o.getClass();
 		Class paramtypes[]=new Class[0];
