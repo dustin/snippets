@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.3 2001/07/03 08:59:24 dustin Exp $
+// $Id: Debug.java,v 1.4 2001/07/03 09:07:23 dustin Exp $
 
 package net.spy.util;
 
@@ -64,10 +64,10 @@ public class Debug extends Object {
 	 * Log a debug message.
 	 */
 	public void debug(String msg) {
-		PrintWriter debugOut=(PrintWriter)debugs.get(propname);
-		if(debugOut!=null) {
-			String tmsg=getTimestamp() + " " + msg;
-			synchronized(debugOut) {
+		synchronized(debug_mutex) {
+			PrintWriter debugOut=(PrintWriter)debugs.get(propname);
+			if(debugOut!=null) {
+				String tmsg=getTimestamp() + " " + msg;
 				debugOut.println(tmsg);
 				debugOut.flush();
 			}
