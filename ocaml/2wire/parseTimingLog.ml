@@ -229,6 +229,6 @@ let main() =
 	print_entry rrd
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;
 

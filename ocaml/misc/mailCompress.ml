@@ -149,6 +149,6 @@ let main () =
 	print_stats();
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;
 

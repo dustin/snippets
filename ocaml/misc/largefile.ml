@@ -15,5 +15,5 @@ let main() =
 	ignore(Unix.write f "x" 0 1)
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;

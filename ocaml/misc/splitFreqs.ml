@@ -48,5 +48,5 @@ let main() =
 	Hashtbl.iter (fun k v -> close_out v) files;
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;
