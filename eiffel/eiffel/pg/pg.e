@@ -1,20 +1,20 @@
 indexing
    description: "Postgres database access...";
-   version: "$Revision: 1.13 $";
-   author: "Dustin Sallings <dustin@spy.net>";
-   copyright: "1999";
-   license: "See forum.txt.";
+version: "$Revision: 1.14 $";
+author: "Dustin Sallings <dustin@spy.net>";
+copyright: "1999";
+license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.13 1999/05/28 04:50:54 dustin Exp $
+-- $Id: pg.e,v 1.14 1999/06/02 01:33:56 dustin Exp $
 --
 class PG
 
-inherit MEMORY
-	redefine
-		dispose
-	end
+inherit
+   MEMORY
+      redefine dispose
+      end;
 
 creation {ANY}
    make
@@ -26,7 +26,7 @@ feature {ANY}
       do
          current_row := 0;
          !!last_row.make(0,16);
-		 last_row.clear;
+         last_row.clear;
       end -- make
 
    current_row: INTEGER;
@@ -35,10 +35,11 @@ feature {ANY}
    last_row: ARRAY[STRING];
       -- Last row retrieved.
 
-   connect: BOOLEAN is
+   connect is
       -- Make a database connection
       local
          h, p, o, t, d, u, pass: POINTER;
+         retry_attempts: INTEGER;
       do
          if host /= Void then
             h := host.to_external;
@@ -62,29 +63,35 @@ feature {ANY}
             pass := password.to_external;
          end;
          conn := pg_connect(h,p,o,t,d,u,pass);
-         if conn = Void then
-            Result := false;
-         else
-            Result := true;
+      ensure
+         is_connected;
+      rescue
+         if retry_attempts < max_retry_attempts then
+            retry_attempts := retry_attempts + 1;
+            retry;
          end;
       end -- connect
 
-   query(q: STRING): BOOLEAN is
+   query(q: STRING) is
       -- Query on an open database connection
       require
          is_connected;
+      local
+         retry_attempts: INTEGER;
       do
          current_row := 0;
          res := pg_query(conn,q.to_external);
-         if res = Void then
-            Result := false;
-         else
-            Result := true;
+      ensure
+         has_results;
+      rescue
+         if retry_attempts < max_retry_attempts then
+            retry_attempts := retry_attempts + 1;
+            retry;
          end;
       end -- query
 
    get_row: BOOLEAN is
-      -- Get the next row of data back
+      -- Get the next row of data back, returns false if there's no more data
       require
          has_results;
       local
@@ -93,12 +100,12 @@ feature {ANY}
          p: POINTER;
       do
          if current_row >= pg_ntuples(res) then
-			res := nullpointer; -- Clear out the results, so we'll know
+            res := nullpointer;
             Result := false;
          else
             from
                fields := pg_nfields(res);
-			   last_row.clear;
+               last_row.clear;
                i := 0;
             until
                i >= fields
@@ -202,6 +209,9 @@ feature {ANY} -- status
 
 feature {PG} -- Internal data stuff
 
+   max_retry_attempts: INTEGER is 3;
+      -- number of times to retry on exception
+
    conn: POINTER;
       -- Connection holder for C library.
 
@@ -232,8 +242,7 @@ feature {PG} -- Internal data stuff
    password: STRING;
       -- Database password
 
-feature {PG}
-   -- Destructor
+feature {PG} -- Destructor
 
    dispose is
       do
@@ -241,7 +250,7 @@ feature {PG}
          if conn /= Void then
             -- io.put_string("Closing database connection!%N");
             pg_finish(conn);
-			conn := nullpointer;
+            conn := nullpointer;
          end;
       end -- dispose
 

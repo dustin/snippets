@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pgtest.e,v 1.2 1999/05/25 07:42:31 dustin Exp $
+-- $Id: pgtest.e,v 1.3 1999/06/02 01:33:58 dustin Exp $
 --
 class PGTEST
 
@@ -20,29 +20,26 @@ feature {ANY}
          db: PG;
       do
          !!db.make;
-		 db.set_dbname("machine");
-         if not db.connect then
-            io.put_string("NOT Connected%N");
-         end;
-         if db.query("select * from oems order by name;") then
+         db.set_dbname("machine");
+         db.connect;
+         db.query("select * from oems order by name;");
+         from
+            b := db.get_row;
+         until
+            b = false
+         loop
+            a := db.last_row;
             from
-               b := db.get_row;
+               i := 0;
             until
-               b = false
+               i >= a.count
             loop
-               a := db.last_row;
-               from
-                  i := 0;
-               until
-                  i >= a.count
-               loop
-                  io.put_string(a @ i);
-                  io.put_string("%T");
-                  i := i + 1;
-               end;
-               io.put_string("%N");
-               b := db.get_row;
+               io.put_string(a @ i);
+               io.put_string("%T");
+               i := i + 1;
             end;
+            io.put_string("%N");
+            b := db.get_row;
          end;
       end -- make
 
