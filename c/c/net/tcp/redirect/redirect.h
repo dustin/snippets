@@ -1,19 +1,22 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: redirect.h,v 1.1 1998/01/02 02:49:51 dustin Exp $
+ * $Id: redirect.h,v 1.2 1998/01/02 05:40:34 dustin Exp $
  */
 
 #ifndef REDIRECT_H
 #define REDIRECT_H
 
 #define CONFFILE "redir.conf"
+#define DEFPIDFILE "/tmp/redirect.pid"
 
 #define MAPSIZE 1024
 #define BUFLEN 1024
 
-/* Undef this if you don't have herror, I'll switch to autoconf RSN */
-#define HAVE_HERROR
+/* PID returns */
+#define  PID_NOFILE 1
+#define  PID_STALE  2
+#define  PID_ACTIVE 3
 
 /* Debug stuff */
 #ifndef PDEBUG
@@ -22,7 +25,7 @@
 
 #if (PDEBUG>0)
 # ifndef _ndebug
-#  define _ndebug(a, b) if(PDEBUG > a ) printf b;
+#  define _ndebug(a, b) if(_debug > a ) printf b;
 # endif
 #endif
 

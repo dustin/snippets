@@ -1,40 +1,198 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.1 1998/01/02 02:49:48 dustin Exp $
+ * $Id: main.c,v 1.2 1998/01/02 05:40:33 dustin Exp $
  */
 
+#include <config.h>
 #include <redirect.h>
 #include <readconfig.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #include <assert.h>
 
 struct confType *cf;
+int _debug;
 
-int mapcon(char *p)
+RETSIGTYPE serv_sigint(int sig)
+{
+    char *pidfile;
+    _ndebug(0, ("Exit type signal caught, shutting down...\n"));
+
+    pidfile=rcfg_lookup(cf, "etc.pidfile");
+    if(pidfile==NULL)
+	pidfile=DEFPIDFILE;
+
+    unlink(pidfile);
+    exit(0);
+}
+
+void resettraps(void)
+{
+    signal(SIGINT, serv_sigint);
+    signal(SIGQUIT, serv_sigint);
+    signal(SIGTERM, serv_sigint);
+    signal(SIGHUP, serv_sigint);
+}
+
+int checkpidfile(char *filename)
+{
+    int pid, ret;
+    FILE *f;
+
+    if( (f=fopen(filename, "r")) == NULL)
+    {
+        return(PID_NOFILE);
+    }
+    else
+    {
+        fscanf(f, "%d", &pid);
+
+        _ndebug(2, ("Checking pid %d for life\n", pid));
+
+        if( kill(pid, 0) ==0)
+        {
+            ret=PID_ACTIVE;
+        }
+        else
+        {
+            ret=PID_STALE;
+        }
+    }
+
+    return(ret);
+}
+
+void writepid(int pid)
+{
+    FILE *f;
+    int r;
+    char *pidfile;
+
+    pidfile=rcfg_lookup(cf, "etc.pidfile");
+
+    if(pidfile==NULL)
+	pidfile=DEFPIDFILE;
+
+    r=checkpidfile(pidfile);
+
+    switch(r)
+    {
+        case PID_NOFILE:
+            break;
+        case PID_STALE:
+            puts("Stale PID file found, overriding.");
+            break;
+        case PID_ACTIVE:
+            puts("Active PID file found, exiting...");
+            kill(pid, SIGTERM);
+            exit(1);
+    }
+    if(NULL ==(f=fopen(pidfile, "w")) )
+    {
+        perror(pidfile);
+        return;
+    }
+
+    fprintf(f, "%d\n", pid);
+
+    fclose(f);
+}
+
+
+void detach(void)
+{
+   int pid, i;
+   char *tmp;
+
+   pid=fork();
+
+   if(pid>0)
+   {
+       printf("Running on PID %d\n", pid);
+       writepid(pid);
+       exit(0);
+   }
+
+   setsid();
+
+   /* close uneeded file descriptors */
+
+   for(i=0; i<256; i++)
+   {
+        close(i);
+   }
+
+   tmp=rcfg_lookup(cf, "etc.working_directory");
+   if(tmp==NULL)
+       tmp="/";
+
+   chdir(tmp);
+   umask(7);
+}
+
+int mapcon(char *p, int stats)
 {
      char key[80];
+     char **list=NULL;
      char *host;
-     int port;
+     int port, s, i, index;
 
-     _ndebug(2, ("mapcon(%s)\n", p));
+     _ndebug(2, ("mapcon(%s, %d)\n", p, stats));
 
-     sprintf(key, "ports.%s.remote_port", p);
-     _ndebug(5, ("Looking up ``%s''\n", key));
-     port=rcfg_lookupInt(cf, key);
-     sprintf(key, "ports.%s.remote_addr", p);
-     _ndebug(5, ("Looking up ``%s''\n", key));
-     host=rcfg_lookup(cf, key);
+     sprintf(key, "ports.%s.iscluster", p);
+     if(rcfg_lookupInt(cf, key))
+     {
+	 _ndebug(2, ("That's a cluster, do it.\n"));
+         sprintf(key, "ports.%s.cluster", p);
+	 list=rcfg_getSection(cf, key);
+	 for(i=0; list[i]!=NULL; i++);
+	 index=stats%i;
+	 _ndebug(2, ("Index got %d\n", index));
 
-     assert(host && port);
-     return(getclientsocket( rcfg_lookup(cf, key), port));
+	 s=-1;
+	 i=index;
+
+	 do
+	 {
+	     if(list[i]==NULL)
+		 i=0;
+
+             sprintf(key, "ports.%s.cluster.%s.remote_port", p, list[i]);
+             _ndebug(5, ("Looking up ``%s''\n", key));
+             port=rcfg_lookupInt(cf, key);
+
+             sprintf(key, "ports.%s.cluster.%s.remote_addr", p, list[i]);
+             _ndebug(5, ("Looking up ``%s''\n", key));
+             host=rcfg_lookup(cf, key);
+
+	     s=getclientsocket(rcfg_lookup(cf, key), port);
+
+	     ++i;
+	 } while(s==-1 && i!=index);
+     }
+     else
+     {
+         sprintf(key, "ports.%s.remote_port", p);
+         _ndebug(5, ("Looking up ``%s''\n", key));
+         port=rcfg_lookupInt(cf, key);
+         sprintf(key, "ports.%s.remote_addr", p);
+         _ndebug(5, ("Looking up ``%s''\n", key));
+         host=rcfg_lookup(cf, key);
+	 s=getclientsocket( rcfg_lookup(cf, key), port);
+     }
+
+     if(list!=NULL)
+         rcfg_freeSectionList(list);
+     return(s);
 }
 
 int listento(char *gimme)
@@ -73,7 +231,7 @@ void _main(void)
     int i, s, cs, os, fromlen, upper, size, selected;
     fd_set fdset, tfdset;
     struct timeval t;
-    int map[MAPSIZE];
+    int map[MAPSIZE], stats[MAPSIZE];
     char *portmap[MAPSIZE];
     char buf[BUFLEN];
 
@@ -90,7 +248,7 @@ void _main(void)
     ports=rcfg_getSection(cf, "ports");
     for(i=0; ports[i]; i++)
     {
-	printf("Initialize port %s\n", ports[i]);
+	_ndebug(0, ("Initialize port %s\n", ports[i]));
 	s=listento(ports[i]);
 	if(s>=0)
 	{
@@ -113,13 +271,15 @@ void _main(void)
 	 fromlen=sizeof(fsin);
 
 	 _ndebug(2, ("Selecting...\n"));
-#if(PDEBUG>5)
-         for(i=0; i<MAPSIZE; i++)
+	 if(_debug>5)
 	 {
-	     if(FD_ISSET(i, &fdset))
-		 printf("    ...on %d\n", i);
+             for(i=0; i<MAPSIZE; i++)
+	     {
+	         if(FD_ISSET(i, &fdset))
+		     printf("    ...on %d\n", i);
+	     }
 	 }
-#endif
+
 	 if( (selected=select(MAPSIZE, &fdset, NULL, NULL, NULL)) > 0)
 	 {
 	     for(i=0; i<MAPSIZE; i++)
@@ -136,7 +296,7 @@ void _main(void)
 			  if( (cs=accept(i, (struct sockaddr *)&fsin,
 			       &fromlen)) >= 0)
                           {
-			     if( (os=mapcon(portmap[i])) >= 0)
+			     if( (os=mapcon(portmap[i], ++stats[i])) >= 0)
 			     {
 				 _ndebug(2, ("Got new connection, %d<->%d\n",
 					     os, cs));
@@ -196,5 +356,8 @@ void _main(void)
 void main(void)
 {
     cf=rcfg_readconfig(CONFFILE);
+    _debug=rcfg_lookupInt(cf, "etc.debug");
+    if(_debug>=0)
+	detach();
     _main();
 }

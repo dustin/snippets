@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 1998/01/02 02:49:52 dustin Exp $
+ * $Id: sockets.c,v 1.2 1998/01/02 05:40:35 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,6 +19,8 @@
 #include <redirect.h>
 #include <nettools.h>
 #include <readconfig.h>
+
+extern int _debug;
 
 int getclientsocket(char *host, int port)
 {
@@ -56,7 +58,7 @@ int getclientsocket(char *host, int port)
 
         sin.sin_family = AF_INET;
         sin.sin_port=htons(port);
-        bcopy(hp->h_addr, &sin.sin_addr, hp->h_length);
+        memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
         l.l_onoff  = 1;
         l.l_linger = 60;
@@ -79,6 +81,9 @@ int getclientsocket(char *host, int port)
             break;
         }
     }
+
+    if(!success)
+       s=-1;
 
     return(s);
 }
