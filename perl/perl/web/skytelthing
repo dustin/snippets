@@ -5,10 +5,17 @@ use HTTP::Cookies;
 use HTTP::Request::Common;
 use Data::Dumper;
 
+my($cookies)=@ARGV;
+
+if(!defined($cookies)) {
+	print "Give me a cookie!.\n";
+	exit(1);
+}
+
 $ua=LWP::UserAgent->new();
 $url='http://www.skytel.com/cs-tmex.nsf/Inbox?OpenForm&err=0';
 $cookies=HTTP::Cookies::Netscape->new(
-		File => 'cookies',
+		File => $cookies,
 		AutoSave => 0,
 	);
 $req=HTTP::Request->new('GET', $url);
