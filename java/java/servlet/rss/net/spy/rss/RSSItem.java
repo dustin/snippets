@@ -1,9 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSItem.java,v 1.2 2001/04/26 21:02:12 dustin Exp $
+// $Id: RSSItem.java,v 1.3 2001/08/20 21:42:14 dustin Exp $
 
 package net.spy.rss;
 
+import java.util.Hashtable;
 import net.spy.net.*;
 
 /**
@@ -37,11 +38,14 @@ public class RSSItem extends Object {
 	public void update() {
 		long now=System.currentTimeMillis();
 		int timepassed=(int)((now-lastUpdate)/1000);
+		Hashtable headers=new Hashtable();
+		// Make sure we get good shit.
+		headers.put("Pragma", "no-cache");
 
 		// Only update if we need to
 		if(timepassed>erval) {
 			try {
-				HTTPFetch hf=new HTTPFetch(url);
+				HTTPFetch hf=new HTTPFetch(url, headers);
 				xml=hf.getData();
 				lastUpdate=now;
 			} catch(Exception e) {
