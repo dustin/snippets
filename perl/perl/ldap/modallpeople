@@ -1,0 +1,26 @@
+#!/usr/local/bin/perl
+# Modify all people
+
+use Net::LDAP;
+
+$|=1;
+print "Enter password:  ";
+$|=0;
+my $pass=<>;
+
+my $ldap=Net::LDAP->new("dhcp-104");
+$ldap->bind('uid=dustin,ou=agents,dc=spy,dc=net', 'password' => $pass);
+
+my(@dns)=();
+
+$result = $ldap->search ( 'base' => 'ou=agents,dc=spy,dc=net',
+	'scope' => 'sub', 'filter' => "(objectclass=*)", 'attrs' => [ 'uid' ]);
+
+for $entry ($result->all_entries()) {
+	push(@dns, $entry->dn());
+}
+
+for(@dns) {
+	print "Modifying $_\n";
+	$ldap->modify($_, "delete" => {'objectClass', 'account'});
+}
