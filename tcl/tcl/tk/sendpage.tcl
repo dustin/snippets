@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.12 2000/07/20 00:59:44 dustin Exp $
+# $Id: sendpage.tcl,v 1.13 2000/10/18 01:04:18 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -50,7 +50,7 @@ proc snpp_cmd { fd cmd } {
 proc snpp_sendpage { host port id msg } {
 
 	global snpp_error hold_state timezone twoway_state snpp_status fd
-	global twoway_waiting msta
+	global twoway_waiting message_queue
 
 	set err [catch {set fd [socket $host $port]}]
 
@@ -121,16 +121,8 @@ proc snpp_sendpage { host port id msg } {
 
 	if { $twoway_state == 1 } {
 		set msta "[lindex $snpp_error 1] [lindex $snpp_error 2]"
+		lappend message_queue $msta
 		setstatus "Waiting for response..."
-
-		set twoway_waiting 1
-
-		update
-		after 5000
-		while { [check_for_message] < 0 } {
-			update
-			after 5000
-		}
 	}
 
 	if { [snpp_cmd $fd "quit"] < 0 } {
@@ -144,31 +136,33 @@ proc snpp_sendpage { host port id msg } {
 }
 
 proc check_for_message { } {
-	global msta twoway_waiting fd twoway_state snpp_status snpp_error
-
+	global message_queue snpp_status snpp_error
+	global snpp_server snpp_port
 	set r -1
 
-	if { $twoway_state == 0 } {
-		return -1
+	set fd [socket $snpp_server $snpp_port]
+
+	foreach msta $message_queue {
+		puts "Checking $msta"
+
+		if { [string length $msta] > 0 } {
+
+			if { [snpp_cmd $fd "msta $msta"] < 0 } {
+				catch { close $fd }
+				return -1
+			}
+
+			set response [lrange $snpp_error 4 end]
+			if { $snpp_status == 889 } {
+				show_response $response
+				set r 0
+			} else {
+				setstatus $response
+			}
+		}
 	}
 
-	if { $twoway_waiting == 0 } {
-		return -1
-	}
-
-	if { [snpp_cmd $fd "msta $msta"] < 0 } {
-		catch { close $fd }
-		return -1
-	}
-
-	set response [lrange $snpp_error 4 end]
-	if { $snpp_status == 889 } {
-		set twoway_waiting 0
-		show_response $response
-		set r 0
-	} else {
-		setstatus $response
-	}
+	catch { close $fd }
 
 	return $r
 }
@@ -223,7 +217,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.12 $ }
+	set rev { $Revision: 1.13 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -398,6 +392,12 @@ proc write_config {} {
 	catch { [ close $fd ] }
 }
 
+proc checkForResponses { } {
+	puts "Checking for responses"
+	check_for_message
+	after 5000  checkForResponses
+}
+
 # START HERE
 
 # Globals, these are needed to ensure someone doesn't accidentally send the
@@ -410,6 +410,8 @@ set snpp_server "snpp.skytel.com"
 set snpp_port   444
 set timezone -8
 set enter_to_send 1
+
+set message_queue {}
 
 read_config
 
@@ -430,6 +432,8 @@ wm iconname . "Pager"
 
 # The width of a text entry thing.
 set entwidth 40
+
+after idle checkForResponses
 
 # Menus
 set m .menu
