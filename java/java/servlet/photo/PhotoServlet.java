@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.23 1999/10/04 06:52:38 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.24 1999/10/04 08:32:51 dustin Exp $
  */
 
 import java.io.*;
@@ -662,7 +662,7 @@ public class PhotoServlet extends HttpServlet
 			}
 			needao=true;
 
-			atmp = PhotoUtil.split(stmp, " ");
+			atmp = PhotoUtil.split(" ", stmp);
 
 			join = PhotoUtil.dbquote_str(request.getParameter("keyjoin"));
 			// Default
@@ -685,11 +685,11 @@ public class PhotoServlet extends HttpServlet
 					} else {
 						needjoin=true;
 					}
-					sub += "\n\t" + field + " ~* '" + atmp[i] + "'";
+					sub += "\n\t" + field + " ~* '" + atmp[i] + "' ";
 				}
 				sub += "\n     )";
 			} else {
-				sub += "\n    " + field + " ~* '" + stmp + "'";
+				sub += "\n    " + field + " ~* '" + stmp + "' ";
 			}
 		}
 
