@@ -26,7 +26,7 @@ process() {
 	cd "$mail/$srcdir"
 	echo "Doing $d as $mbname.tar"
 	mkdir -p "$destdir/$basename.tars"
-	tar cf - "$basename"/*. "$basename"/cyrus.* \
+	tar cf - "$basename"/*. \
 		| $HOME/bin/blockDigest - "$digest" $bak/tarmail.stream \
 			"$tars/mail/tars.1/$srcdir/$basename.tars" \
 			"$destdir/$basename.tars" $blocksize
