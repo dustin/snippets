@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.8 1999/09/19 07:29:25 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.9 1999/09/24 06:10:19 dustin Exp $
  */
 
 import java.io.*;
@@ -14,6 +14,7 @@ import sun.misc.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import com.oreilly.servlet.*;
 import com.javaexchange.dbConnectionBroker.*;
 
 
@@ -78,14 +79,19 @@ public class PhotoServlet extends HttpServlet
 
 		// Figure out what they want, default to index.
 		func=request.getParameter("func");
+		log("func is " + func);
 		if(func == null) {
 			doIndex(request, response);
 		} else if(func.equalsIgnoreCase("search")) {
 			doFind(request, response);
+		} else if(func.equalsIgnoreCase("addimage")) {
+			doAddPhoto(request, response);
 		} else if(func.equalsIgnoreCase("index")) {
 			doIndex(request, response);
 		} else if(func.equalsIgnoreCase("findform")) {
 			doFindForm(request, response);
+		} else if(func.equalsIgnoreCase("addform")) {
+			doAddForm(request, response);
 		} else if(func.equalsIgnoreCase("catview")) {
 			doCatView(request, response);
 		} else if(func.equalsIgnoreCase("setstyle")) {
@@ -119,23 +125,185 @@ public class PhotoServlet extends HttpServlet
 	private String showSaved() throws SQLException, IOException {
 		String query, out="";
 		BASE64Decoder base64 = new BASE64Decoder();
-		Connection photo;
+		Connection photo=null;
 
-		photo=getDBConn();
-		Statement st=photo.createStatement();
+		try {
+			photo=getDBConn();
+			Statement st=photo.createStatement();
 
-		query = "select * from searches order by name,addedby\n";
-		ResultSet rs = st.executeQuery(query);
-		while(rs.next()) {
-			byte data[];
-			String tmp;
-			data=base64.decodeBuffer(rs.getString(4));
-			tmp = new String(data);
-			out += "    <li><a href=\"" + self_uri + "?"
-				+ tmp + "\">" + rs.getString(2) + "</a></li>\n";
+			query = "select * from searches order by name,addedby\n";
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				byte data[];
+				String tmp;
+				data=base64.decodeBuffer(rs.getString(4));
+				tmp = new String(data);
+				out += "    <li><a href=\"" + self_uri + "?"
+					+ tmp + "\">" + rs.getString(2) + "</a></li>\n";
+			}
+		} finally {
+			if(photo != null) {
+				freeDBConn(photo);
+			}
 		}
-		freeDBConn(photo);
 		return(out);
+	}
+
+	private boolean canadd() {
+		String query;
+		boolean r=false;
+		Connection photo=null;
+
+		try{
+			photo=getDBConn();
+			Statement st=photo.createStatement();
+
+			query = "select canadd from wwwusers where username=" + remote_user;
+
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				String tmp;
+				tmp = rs.getString(1);
+				log("Canadd = " + tmp);
+				if(tmp == "t") {
+					r=true;
+				}
+			}
+		} catch(Exception e) {
+		} finally {
+			if(photo != null) {
+				freeDBConn(photo);
+			}
+		}
+
+		return(r);
+	}
+
+	private void doAddPhoto(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String category="", keywords="", picture="", info="", taken="";
+		String query="", out="", stmp, type;
+		int id;
+		Hashtable h = new Hashtable();
+		Connection photo=null;
+		MultipartRequest multi =null;
+		Statement st=null;
+
+		log("Adding image...");
+
+		try {
+			multi = new MultipartRequest(request, "/tmp");
+		} catch(IOException e) {
+			throw new ServletException(e.getMessage());
+		}
+
+		// Make sure the user can add.
+		if(!canadd()) {
+			send_response(response, tokenize("add_denied.inc", h));
+			return;
+		}
+
+		// Check that it's the right file type.
+		type = multi.getContentType("picture");
+		if(type != "image/jpeg") {
+			h.put("FILENAME", multi.getFilesystemName("picture"));
+			send_response(response, tokenize("add_badfiletype.inc", h));
+			return;
+		}
+
+		stmp=multi.getParameter("category");
+		if(stmp!=null) {
+			category=dbquote_str(stmp);
+		}
+
+		stmp=multi.getParameter("keywords");
+		if(stmp!=null) {
+			keywords=dbquote_str(stmp);
+		}
+
+		stmp=multi.getParameter("info");
+		if(stmp!=null) {
+			info=dbquote_str(stmp);
+		}
+
+		stmp=multi.getParameter("taken");
+		if(stmp!=null) {
+			taken=dbquote_str(stmp);
+		}
+
+		try {
+			File f;
+			FileInputStream in;
+			BASE64Encoder base64=new BASE64Encoder();
+			byte data[] = new byte[57];
+
+			photo=getDBConn();
+			st=photo.createStatement();
+			photo.setAutoCommit(false);
+			query = "insert into album(keywords,descr,cat,taken,addedby)\n"
+				  + "    values('" + keywords + "',\n\t'" + info + "',\n"
+				  + "    \t'" + category + "',\n\t'" + taken + "',\n"
+				  + "    '" + remote_user + "')\n";
+			st.executeQuery(query);
+			query = "select currval('album_id_seq')\n";
+			ResultSet rs = st.executeQuery(query);
+			rs.next();
+			id=rs.getInt(1);
+
+			// Encode the shit;
+			int i=0, size=0, length=0;
+			f = multi.getFile("picture");
+			in = new FileInputStream(f);
+
+			while( (length=in.read(data)) >=0 ) {
+				String tmp;
+
+				size+=length;
+				if(length == 57) {
+					tmp = base64.encodeBuffer(data);
+				} else {
+					byte tb[] = new byte[length];
+					int j;
+
+					for(j=0; j<length; j++) {
+						tb[j] = data[j];
+					}
+					tmp = base64.encodeBuffer(tb);
+				}
+
+				// OK, we have a base64 encoding.
+				query = "insert into image_store values(" + id + ", " + i
+					  + "'" + tmp + "')\n";
+				st.executeQuery(query);
+				i++;
+			}
+			query ="update album set size=" + size + "where id=" + id;
+			st.executeQuery(query);
+
+			h.put("ID", ""+id);
+			st.executeQuery("commit");
+			out += tokenize("add_success.inc", h);
+		} catch(Exception e) {
+			try {
+				st.executeQuery("rollback");
+				h.put("QUERY", query);
+				h.put("ERRSTR", e.getMessage());
+				out += tokenize("add_success.inc", h);
+			} catch(Exception e2) {
+				// Nothing to see here.
+			}
+		} finally {
+			if(photo != null) {
+				try {
+					photo.setAutoCommit(true);
+					freeDBConn(photo);
+				} catch(Exception e) {
+				}
+			}
+		}
+
+		send_response(response, out);
 	}
 
 	private String getCatList() throws SQLException, IOException {
@@ -249,6 +417,21 @@ public class PhotoServlet extends HttpServlet
 
 	private String http_encode(String what) {
 		return(URLEncoder.encode(what));
+	}
+
+	private void doAddForm(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output = new String("");
+		Hashtable h = new Hashtable();
+
+		try {
+			h.put("CAT_LIST", getCatList());
+		} catch(Exception e) {
+			h.put("CAT_LIST", "");
+		}
+		output += tokenize("addform.inc", h);
+		send_response(response, output);
 	}
 
 	private void doFindForm(
