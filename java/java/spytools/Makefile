@@ -13,10 +13,11 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
 	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
 	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
-	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class
+	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class \
+	net/spy/util/ImageData.class
 
 FDEST=/home/dustin/lib/java
-SCP=scp
+SCP=rcp
 SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 .SUFFIXES: .java .class .jar
@@ -28,7 +29,7 @@ spy.jar: $(CLASSES)
 
 install: all
 	cp spy.jar $(FDEST)
-	# $(SCP) spy.jar $(SDEST)
+	$(SCP) spy.jar $(SDEST)
 
 clean:
 	rm -f $(CLASSES) spy.jar
