@@ -1,9 +1,11 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: misclib.scm,v 1.3 2002/12/28 05:37:16 dustin Exp $
+; $Id: misclib.scm,v 1.4 2002/12/28 06:58:12 dustin Exp $
 
 (module misclib
-		(export input-loop))
+		(export
+		  input-loop
+		  conditional-input-loop))
 
 ; Loop on input, pass each line to function f.
 ; Optional argument should be either a port, or a filename.  If not
@@ -32,6 +34,19 @@
 		(begin
 		  (f line)
 		  (loop (read-line p)))))))
+
+; A conditional input loop (only loop on a line if (c line) is true)
+(define (conditional-input-loop c f . other)
+  (if (not (procedure? c))
+	(error "conditional-input-loop"
+		   "condition is not a function"
+		   c))
+  (let ((r (lambda (line)
+			 (if (c line)
+			   (f line)))))
+	(if (null? other)
+	  (input-loop r)
+	  (input-loop r (car other)))))
 
 ; Example
 (define (misclib-main args)
