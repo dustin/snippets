@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.13 2000/10/18 01:04:18 dustin Exp $
+# $Id: sendpage.tcl,v 1.14 2000/10/18 03:15:02 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -53,12 +53,10 @@ proc snpp_sendpage { host port id msg } {
 	global twoway_waiting message_queue
 
 	set err [catch {set fd [socket $host $port]}]
-
 	if { $err } {
 		set snpp_error "Unable to connect to SNPP server"
 		return -1;
 	}
-
 	set line [gets $fd]
 	set status [ snpp_status_ok $line ]
 	if { $status < 0 } {
@@ -121,7 +119,7 @@ proc snpp_sendpage { host port id msg } {
 
 	if { $twoway_state == 1 } {
 		set msta "[lindex $snpp_error 1] [lindex $snpp_error 2]"
-		lappend message_queue $msta
+		lappend message_queue [ list $msta $id $msg ]
 		setstatus "Waiting for response..."
 	}
 
@@ -140,29 +138,49 @@ proc check_for_message { } {
 	global snpp_server snpp_port
 	set r -1
 
-	set fd [socket $snpp_server $snpp_port]
+	if { [llength $message_queue] > 0 } {
+		set err [catch {set fd [socket $snpp_server $snpp_port]}]
+		if { $err } {
+			set snpp_error "Unable to connect to SNPP server"
+			return -1;
+		}
+		set line [gets $fd]
+		set status [ snpp_status_ok $line ]
+		if { $status < 0 } {
+			catch { close $fd }
+			return -1
+		}
 
-	foreach msta $message_queue {
-		puts "Checking $msta"
+		set tmplist {}
 
-		if { [string length $msta] > 0 } {
+		foreach msg $message_queue {
+			set msta [lindex $msg 0 ]
+			set to [lindex $msg 1 ]
+			set msg_text [lindex $msg 2 ]
+			# puts "Checking $msta ($msg_text) ($to)"
 
-			if { [snpp_cmd $fd "msta $msta"] < 0 } {
-				catch { close $fd }
-				return -1
-			}
-
-			set response [lrange $snpp_error 4 end]
-			if { $snpp_status == 889 } {
-				show_response $response
-				set r 0
-			} else {
-				setstatus $response
+			if { [string length $msta] > 0 } {
+				if { [snpp_cmd $fd "msta $msta"] >= 0 } {
+					# puts "Response:  $snpp_error, status:  $snpp_status"
+					set response [lrange $snpp_error 4 end]
+					if { $snpp_status == 889 } {
+						show_response "From $to\nRe: $msg_text\n---\n$response"
+						set r 0
+					} else {
+						setstatus $response
+						lappend tmplist $msg
+					}
+				}
 			}
 		}
-	}
 
-	catch { close $fd }
+		catch {
+			snpp_cmd $fd "quit"
+			close $fd
+		}
+
+		set message_queue $tmplist
+	}
 
 	return $r
 }
@@ -217,7 +235,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.13 $ }
+	set rev { $Revision: 1.14 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -227,8 +245,8 @@ proc about { } {
 
 # Show the response
 proc show_response { response } {
-	set button [tk_messageBox -icon info -type ok \
-		-title "SNPP Response" -parent . -message $response ]
+	tk_messageBox -icon info -type ok \
+		-title "SNPP Response" -parent . -message $response
 }
 
 # Preferences store
@@ -392,10 +410,11 @@ proc write_config {} {
 	catch { [ close $fd ] }
 }
 
+# This procedure is called periodically to check for responses to 2way
+# messages
 proc checkForResponses { } {
-	puts "Checking for responses"
 	check_for_message
-	after 5000  checkForResponses
+	after 5000 checkForResponses
 }
 
 # START HERE
