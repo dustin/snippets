@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.10 1999/09/24 06:44:35 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.11 1999/09/24 06:56:31 dustin Exp $
  */
 
 import java.io.*;
@@ -122,6 +122,7 @@ public class PhotoServlet extends HttpServlet
 
 	}
 
+	// Grab a connection from the pool.
 	private Connection getDBConn() throws SQLException {
 		Connection photo;
 
@@ -130,10 +131,12 @@ public class PhotoServlet extends HttpServlet
 		return(photo);
 	}
 
+	// Gotta free the connection
 	private void freeDBConn(Connection conn) {
 		dbs.freeConnection(conn);
 	}
 
+	// Get the saved searches.
 	private String showSaved() throws SQLException, IOException {
 		String query, out="";
 		BASE64Decoder base64 = new BASE64Decoder();
@@ -161,6 +164,7 @@ public class PhotoServlet extends HttpServlet
 		return(out);
 	}
 
+	// Find out if the authenticated user can add stuff.
 	private boolean canadd() {
 		String query;
 		boolean r=false;
@@ -192,6 +196,7 @@ public class PhotoServlet extends HttpServlet
 		return(r);
 	}
 
+	// Add an image
 	private void doAddPhoto(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -314,6 +319,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, out);
 	}
 
+	// Get a list of categories for a select list
 	private String getCatList() throws SQLException, IOException {
 		String query, out="";
 
@@ -334,6 +340,7 @@ public class PhotoServlet extends HttpServlet
 		return(out);
 	}
 
+	// Show the style form
 	private void doStyleForm (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -343,6 +350,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
+	// Get the stylesheet from the cookie, or the default.
 	private void doGetStylesheet (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -373,6 +381,7 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
+	// Set the style cookie from the POST data.
 	private void doSetStyle(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -423,10 +432,12 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, stmp);
 	}
 
+	// Quick wrapper for URLEncoder
 	private String http_encode(String what) {
 		return(URLEncoder.encode(what));
 	}
 
+	// Show the add an image form.
 	private void doAddForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -442,6 +453,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
+	// Show the search form.
 	private void doFindForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -457,6 +469,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
+	// View categories
 	private void doCatView(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -504,6 +517,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
+	// Display the index page.
 	private void doIndex(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -1013,6 +1027,7 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
+	// Make a strings safe for the database.
 	private String dbquote_str(String thing) {
 
 		// Quick...handle null
@@ -1038,6 +1053,7 @@ public class PhotoServlet extends HttpServlet
 		return(scopy);
 	}
 
+	// Tokenize a template file and return the tokenized stuff.
 	private String tokenize(String file, Hashtable vars) {
 		Toker t=new Toker();
 		String ret;
