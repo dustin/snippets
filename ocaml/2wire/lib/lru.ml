@@ -96,7 +96,7 @@ let remove_if_full lru =
 	match lru.seq with
 	None -> ()
 	| Some(ll) ->
-		if ((Linkedlist.size ll) >= lru.size) then
+		if ((Linkedlist.length ll) >= lru.size) then
 			let f = Linkedlist.pop_first ll in
 			Hashtbl.remove lru.keys f;
 		()
