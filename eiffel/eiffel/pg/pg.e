@@ -1,6 +1,6 @@
 indexing
    description: "Postgres database access..."
-   version: "$Revision: 1.24 $"
+   version: "$Revision: 1.25 $"
    author: "Dustin Sallings <dustin@spy.net>"
    copyright: "1999"
    license: "See forum.txt."
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.24 2002/11/23 09:40:05 dustin Exp $
+-- $Id: pg.e,v 1.25 2002/11/23 09:59:50 dustin Exp $
 --
 class PG
 
@@ -159,6 +159,10 @@ feature {ANY} -- Query features
       ensure
          query_is_successful: query_successful
       rescue
+		 -- Free the results
+		 if has_results then
+			clear_results
+		 end
          if retry_attempts < max_retry_attempts then
             retry_attempts := retry_attempts + 1
             retry
