@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 1997  Dustin Sallings
  *
- * $Id: eatcpu.c,v 1.3 1998/01/14 07:30:44 dustin Exp $
+ * $Id: eatcpu.c,v 1.4 1998/01/14 07:42:59 dustin Exp $
  */
 
 #include <stdio.h>
@@ -85,7 +85,10 @@ void main(int argc, char **argv)
 	else
 	{
 	    printf("Got child %d (%d)\n", i+1, pid);
-	    list[i]=pid;
+	    if(pid<0)
+		perror("ACK!  fork()");
+	    else
+	        list[i]=pid;
 	}
     }
 
