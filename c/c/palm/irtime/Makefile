@@ -1,9 +1,9 @@
-BIN=/emul/linux/usr/local/bin
+BIN=/usr/local/bin
 PILRC=pilrc
-CC=$(BIN)/m68k-palmos-coff-gcc
+CC=$(BIN)/m68k-palmos-gcc
 CFLAGS=-O1 #-DERROR_CHECK_LEVEL=2
-LD=$(BIN)/m68k-palmos-coff-gcc
-OBJRES=$(BIN)/m68k-palmos-coff-obj-res
+LD=$(BIN)/m68k-palmos-gcc
+OBJRES=$(BIN)/m68k-palmos-obj-res
 
 OBJS=irtime.o
 

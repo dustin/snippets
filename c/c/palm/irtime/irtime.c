@@ -1,21 +1,31 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.6 2000/08/22 16:56:53 dustin Exp $
+ * $Id: irtime.c,v 1.7 2003/03/12 09:02:40 dustin Exp $
  */
 
+#include <PalmOS.h>
+
+/*
 #include <Common.h>
 #include <System/SysAll.h>
 #include <System/ExgMgr.h>
 #include <System/ErrorMgr.h>
 #include <System/StringMgr.h>
 #include <UI/UIAll.h>
+*/
 
 #include "irtime.h"
 #include "callback.h"
 
 #define myAppId 'IRTM'
 #define TimeType "application/x-irtm-seconds"
+
+typedef char* CharPtr;
+typedef unsigned long ULong;
+typedef short Word;
+typedef int DWord;
+typedef void * Ptr;
 
 void alertPopup(CharPtr msg)
 {
@@ -153,8 +163,7 @@ void receiveData(ExgSocketType *exgsocket)
 	}
 }
 
-DWord
-PilotMain (Word cmd, Ptr cmdPBP, Word launchFlags)
+UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 {
   Err inErr;
   ExgAskParamType *askparam=NULL;
@@ -178,3 +187,4 @@ PilotMain (Word cmd, Ptr cmdPBP, Word launchFlags)
 
   return 0;
 }
+
