@@ -13,9 +13,11 @@
                 authenticate = id;
                 dateToToday = id;
                 openAuthWindow = id;
+                openBatch = id;
                 openUploadWindow = id;
                 removeAllFiles = id;
                 removeSelected = id;
+                saveBatch = id;
                 selectFiles = id;
                 showFiles = id;
                 showSelectedImages = id;

@@ -7,6 +7,7 @@
 #import "HideableProgressIndicator.h"
 #import "UploadParams.h"
 #import "DumpMatrix.h"
+#import "Batch.h"
 
 #define BUTTON_UPLOAD 1
 #define BUTTON_STOP 2
@@ -41,9 +42,11 @@
 - (IBAction)authenticate:(id)sender;
 - (IBAction)dateToToday:(id)sender;
 - (IBAction)openAuthWindow:(id)sender;
+- (IBAction)openBatch:(id)sender;
 - (IBAction)openUploadWindow:(id)sender;
 - (IBAction)removeAllFiles:(id)sender;
 - (IBAction)removeSelected:(id)sender;
+- (IBAction)saveBatch:(id)sender;
 - (IBAction)selectFiles:(id)sender;
 - (IBAction)showFiles:(id)sender;
 - (IBAction)showSelectedImages:(id)sender;

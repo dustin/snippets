@@ -5,6 +5,12 @@
 #import <EDCommon/EDCommon.h>
 #import <XMLRPC/XMLRPC.h>
 
+@interface UploadController (Private)
+
+- (void)setButtonAction: (int)to;
+
+@end
+
 @implementation UploadController
 
 - (void)alert:(id)title message:(id)msg
@@ -38,7 +44,8 @@
         [self openUploadWindow: self];
 
     NS_HANDLER
-        [self alert:@"Authentication Exception" message:[localException description]];
+        [self alert:@"Authentication Exception"
+			message:[localException description]];
     NS_ENDHANDLER
 
     [u release];
@@ -50,13 +57,19 @@
 - (IBAction)dateToToday:(id)sender
 {
     NSDate *today = [NSDate date];
-    [dateTaken setStringValue:[today descriptionWithCalendarFormat:@"%Y/%m/%d"
-                                                          timeZone:nil locale:nil]];
+    [dateTaken setStringValue:[today
+		descriptionWithCalendarFormat:@"%Y/%m/%d"
+		timeZone:nil locale:nil]];
 }
 
 - (IBAction)openAuthWindow:(id)sender
 {
     [authWindow makeKeyAndOrderFront: self];
+}
+
+- (IBAction)openBatch:(id)sender
+{
+    // XXX Open a batch
 }
 
 - (IBAction)openUploadWindow:(id)sender
@@ -78,6 +91,11 @@
         // NSLog(@"Removed image:  %@\n", [[a objectAtIndex: i] image]);
     }
     [imgMatrix update];
+}
+
+- (IBAction)saveBatch:(id)sender
+{
+
 }
 
 - (IBAction)selectFiles:(id)sender
@@ -115,6 +133,86 @@
     }
 }
 
+- (IBAction)stopUpload:(id)sender
+{
+    [params setFinished: TRUE];
+    [uploadButton setEnabled: FALSE];
+}
+
+- (IBAction)upload:(id)sender
+{
+    NSDate *date=[NSCalendarDate dateWithString: [dateTaken stringValue]
+                                 calendarFormat: @"%Y/%m/%d"];
+    NSString *k=[keywords stringValue];
+    if([k length] == 0) {
+        [self alert:@"Keywords not Given"
+            message:@"The keywords field must be filled in."];
+        return;
+    }
+    NSString *d=[description stringValue];
+    if([d length] == 0) {
+        [self alert:@"Description not Given"
+            message:@"The description field must be filled in."];
+        return;
+    }
+    NSString *cat=[categories titleOfSelectedItem];
+    NSString *u=[username stringValue];
+    NSString *p=[password stringValue];
+
+	Batch *batch=[[Batch alloc] init];
+
+    NSArray *files=[imgMatrix files];
+    [batch setUrl: [url stringValue]];
+    [batch setUsername: u];
+    [batch setPassword: p];
+    [batch setKeywords: k];
+    [batch setDescription: d];
+    [batch setCategory: cat];
+    [batch setTaken: date];
+    [batch setFiles: files];
+
+    if(params != nil) {
+        [params release];
+    }
+    params=[[UploadParams alloc] init];
+
+    [params setController: self];
+    [params setUploadErrorMethod: @selector(uploadError:)];
+    [params setUploadedFileMethod: @selector(uploadedFile)];
+    [params setUploadCompleteMethod: @selector(uploadComplete)];
+
+    // UI updates
+    // Fix up the progress bar
+    [progressBar setMinValue: 0];
+    [progressBar setMaxValue: [files count]];
+    [progressBar setDoubleValue: 0];
+    [progressBar setHidden: FALSE];
+    currentFile=1;
+    // And the uploading text
+    [self updateProgressText];
+    [uploadingText setHidden: FALSE];
+
+    UploadThread *ut=[[UploadThread alloc] init];
+	[ut setBatch: batch];
+    [NSThread detachNewThreadSelector: @selector(run:)
+                                         toTarget:ut withObject: params];
+
+    [self setButtonAction: BUTTON_STOP];
+    [addFilesButton setEnabled: FALSE];
+    [ut release];
+}
+
+- (void)updateProgressText
+{
+    if(currentFile <= [[imgMatrix files] count])
+    {
+        NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d",
+            currentFile, [[imgMatrix files] count]];
+        [uploadingText setStringValue: msg];
+        [uploadingText displayIfNeeded];
+    }
+}
+
 - (void)setButtonAction: (int)to
 {
     switch(to) {
@@ -130,12 +228,6 @@
             break;
     }
     [uploadButton setNeedsDisplay: TRUE];
-}
-
-- (IBAction)stopUpload:(id)sender
-{
-    [params setFinished: TRUE];
-    [uploadButton setEnabled: FALSE];
 }
 
 -(void)uploadError: (id)msg
@@ -163,78 +255,6 @@
     [progressBar displayIfNeeded];
     [self setButtonAction: BUTTON_UPLOAD];
     [uploadButton setEnabled: TRUE];
-}
-
-- (IBAction)upload:(id)sender
-{
-    NSDate *date=[NSCalendarDate dateWithString: [dateTaken stringValue]
-                                 calendarFormat: @"%Y/%m/%d"];
-    NSString *k=[keywords stringValue];
-    if([k length] == 0) {
-        [self alert:@"Keywords not Given"
-            message:@"The keywords field must be filled in."];
-        return;
-    }
-    NSString *d=[description stringValue];
-    if([d length] == 0) {
-        [self alert:@"Description not Given"
-            message:@"The description field must be filled in."];
-        return;
-    }
-    NSString *cat=[categories titleOfSelectedItem];
-    NSString *u=[username stringValue];
-    NSString *p=[password stringValue];
-
-    UploadThread *ut=[[UploadThread alloc] init];
-
-    NSArray *files=[imgMatrix files];
-    [ut setUrl: [url stringValue]];
-    [ut setUsername: u];
-    [ut setPassword: p];
-    [ut setKeywords: k];
-    [ut setDescription: d];
-    [ut setCategory: cat];
-    [ut setDateTaken: date];
-    [ut setFiles: files];
-
-    if(params != nil) {
-        [params release];
-    }
-    params=[[UploadParams alloc] init];
-
-    [params setController: self];
-    [params setUploadErrorMethod: @selector(uploadError:)];
-    [params setUploadedFileMethod: @selector(uploadedFile)];
-    [params setUploadCompleteMethod: @selector(uploadComplete)];
-
-    // UI updates
-    // Fix up the progress bar
-    [progressBar setMinValue: 0];
-    [progressBar setMaxValue: [files count]];
-    [progressBar setDoubleValue: 0];
-    [progressBar setHidden: FALSE];
-    currentFile=1;
-    // And the uploading text
-    [self updateProgressText];
-    [uploadingText setHidden: FALSE];
-
-    [NSThread detachNewThreadSelector: @selector(run:)
-                                         toTarget:ut withObject: params];
-
-    [self setButtonAction: BUTTON_STOP];
-    [addFilesButton setEnabled: FALSE];
-    [ut release];
-}
-
-- (void)updateProgressText
-{
-    if(currentFile <= [[imgMatrix files] count])
-    {
-        NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d",
-            currentFile, [[imgMatrix files] count]];
-        [uploadingText setStringValue: msg];
-        [uploadingText displayIfNeeded];
-    }
 }
 
 - (void)awakeFromNib

@@ -12,77 +12,14 @@
 
 @implementation UploadThread
 
-// Set the fields for the upload
--(void)setUrl: (NSString *)url
+-(void)setBatch:(Batch *)to
 {
-    if(_url != nil) {
-	[_url release];
+	id tmp=to;
+	_batch=to;
+	[_batch retain];
+	if(tmp != nil) {
+		[tmp release];
 	}
-    _url=url;
-    [_url retain];
-}
-
--(void)setUsername: (NSString *)username
-{
-    if(_username != nil) {
-	[_username release];
-	}
-    _username=username;
-    [_username retain];
-}
-
--(void)setPassword: (NSString *)password
-{
-    if(_password != nil) {
-	[_password release];
-	}
-    _password=password;
-    [_password retain];
-}
-
--(void)setCategory: (NSString *)category
-{
-    if(_category != nil) {
-	[_category release];
-	}
-    _category=category;
-    [_category retain];
-}
-
--(void)setKeywords: (NSString *)keywords
-{
-    if(_keywords != nil) {
-	[_keywords release];
-	}
-    _keywords=keywords;
-    [_keywords retain];
-}
-
--(void)setDescription: (NSString *)description
-{
-    if(_description != nil) {
-	[_description release];
-	}
-    _description=description;
-    [_description retain];
-}
-
--(void)setDateTaken: (NSDate *)taken
-{
-    if(_taken != nil) {
-	[_taken release];
-	}
-    _taken=taken;
-    [_taken retain];
-}
-
--(void)setFiles: (NSArray *)files
-{
-    if(_files != nil) {
-	[_files release];
-	}
-    _files=files;
-    [_files retain];
 }
 
 -(void)run: (id)object
@@ -98,19 +35,19 @@
     NSMutableDictionary *dict=[[NSMutableDictionary alloc] initWithCapacity:10];
 
 	// The arguments that are always the same
-    [dict setObject:_username forKey:@"username"];
-    [dict setObject:_password forKey:@"password"];
-    [dict setObject:_keywords forKey:@"keywords"];
-    [dict setObject:_description forKey:@"info"];
-    [dict setObject:_taken forKey:@"taken"];
-    [dict setObject:_category forKey:@"category"];
+    [dict setObject:[_batch username] forKey:@"username"];
+    [dict setObject:[_batch password] forKey:@"password"];
+    [dict setObject:[_batch keywords] forKey:@"keywords"];
+    [dict setObject:[_batch description] forKey:@"info"];
+    [dict setObject:[_batch taken] forKey:@"taken"];
+    [dict setObject:[_batch category] forKey:@"category"];
 
 	// URL for uploading
-    NSURL *url=[[NSURL alloc] initWithString: _url];
+    NSURL *url=[[NSURL alloc] initWithString: [_batch url]];
 
-    int i=0;
-    for(i=0; i<[_files count] && (! [params finished]); i++) {
-        id f=[_files objectAtIndex:i];
+	NSEnumerator *en=[[_batch files] objectEnumerator];
+	id f=nil;
+    while( (f = [en nextObject]) && (! [params finished])) {
         NSLog(@"Uploading %@.", f);
 
         // Get the file data
@@ -149,37 +86,9 @@
 
 -(void)dealloc
 {
-	if(_url!=nil) {
-		[_url release];
-		_url=nil;
-	}
-	if(_username!=nil) {
-		[_username release];
-		_username=nil;
-	}
-	if(_password!=nil) {
-		[_password release];
-		_password=nil;
-	}
-	if(_category!=nil) {
-		[_category release];
-		_category=nil;
-	}
-	if(_keywords!=nil) {
-		[_keywords release];
-		_keywords=nil;
-	}
-	if(_description!=nil) {
-		[_description release];
-		_description=nil;
-	}
-	if(_taken!=nil) {
-		[_taken release];
-		_taken=nil;
-	}
-	if(_files!=nil) {
-		[_files release];
-		_files=nil;
+	if(_batch!=nil) {
+		[_batch release];
+		_batch=nil;
 	}
 	if(params!=nil) {
 		[params release];

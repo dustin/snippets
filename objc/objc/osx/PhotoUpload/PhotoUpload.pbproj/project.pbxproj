@@ -21,6 +21,8 @@
 				F5601AFB0353732F0109FEFA,
 				F5601AFC0353732F0109FEFA,
 				F5601AFD0353732F0109FEFA,
+				F5BA4842035523AD01A801C4,
+				F5BA4843035523AD01A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -199,7 +201,6 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = PhotoUpload;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
@@ -249,6 +250,7 @@
 				F5601B070353732F0109FEFA,
 				F5601B090353732F0109FEFA,
 				F5601B0B0353732F0109FEFA,
+				F5BA4844035523AD01A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -275,6 +277,7 @@
 				F5601B080353732F0109FEFA,
 				F5601B0A0353732F0109FEFA,
 				F5601B0C0353732F0109FEFA,
+				F5BA4845035523AD01A801C4,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -617,6 +620,28 @@
 		};
 		F56F8F9D035410E801A801C4 = {
 			fileRef = F52C09B603540EAB01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BA4842035523AD01A801C4 = {
+			isa = PBXFileReference;
+			path = Batch.h;
+			refType = 4;
+		};
+		F5BA4843035523AD01A801C4 = {
+			isa = PBXFileReference;
+			path = Batch.m;
+			refType = 4;
+		};
+		F5BA4844035523AD01A801C4 = {
+			fileRef = F5BA4842035523AD01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BA4845035523AD01A801C4 = {
+			fileRef = F5BA4843035523AD01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
