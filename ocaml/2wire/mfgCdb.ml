@@ -88,7 +88,10 @@ let decode_record cdbi sn data =
 @param sn the serial number of the gateway
 *)
 let lookup cdbi sn =
-	decode_record cdbi sn (Cdb.find cdbi.cdb sn)
+	try
+		decode_record cdbi sn (Cdb.find cdbi.cdb sn)
+	with Stream.Failure ->
+		raise (No_such_gateway sn)
 ;;
 
 (** Iterate all of the manufacturing records in the cdb.
