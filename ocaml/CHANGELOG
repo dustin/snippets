@@ -2,6 +2,21 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-08-02 05:08:28 GMT	Dustin Sallings <dustin@spy.net>	patch-75
+
+    Summary:
+      Added my directory digester.
+    Revision:
+      snippets--ocaml--1.0--patch-75
+
+
+    new files:
+     misc/digestfiles.ml
+
+    modified files:
+     CHANGELOG misc/Makefile
+
+
 2004-07-31 00:14:50 GMT	Dustin Sallings <dustin@spy.net>	patch-74
 
     Summary:

@@ -48,6 +48,10 @@ digestline: digestline.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa fileutils.cmx digestline.ml
 
+digestfiles: digestfiles.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa digestfiles.ml
+
 missingNumbers: missingNumbers.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		missingNumbers.ml
