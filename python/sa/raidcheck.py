@@ -29,7 +29,7 @@ def checkStat(raidstat):
             raise BadDeviceState(state)
 
 if __name__ == '__main__':
-    f=posix.popen("sysctl hpt374.status")
+    f=posix.popen("/sbin/sysctl hpt374.status")
     raidstat=f.readlines()
     f.close()
 
