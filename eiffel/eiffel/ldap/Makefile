@@ -1,10 +1,13 @@
-# $Id: Makefile,v 1.4 1999/06/06 22:45:31 dustin Exp $
+# $Id: Makefile,v 1.5 1999/06/07 07:35:01 dustin Exp $
 #
 # Copyright (c) 1999 Dustin Sallings
 # See forum.txt for license
 
 E=smalleiffel
 EC=$(E) compile
+
+VERSION="1.0"
+FN="eiffeldap-$(VERSION)"
 
 RPATH=-rpath /usr/local/lib
 
@@ -26,11 +29,11 @@ short:
 dist: eiffeldap.tgz
 
 eiffeldap.tgz: $(FILES)
-	mkdir eiffeldap
-	cp ../forum.txt eiffeldap
-	cp $(FILES) eiffeldap
-	tar cvf - eiffeldap | gzip -9vc > $@
-	rm -rf eiffeldap
+	mkdir $(FN)
+	cp ../forum.txt $(FN)
+	cp $(FILES) $(FN)
+	tar cvf - $(FN) | gzip -9vc > $@
+	rm -rf $(FN)
 	cp eiffeldap.tgz $(DEST)
 	chmod 644 $(DEST)
 

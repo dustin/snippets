@@ -2,7 +2,7 @@ indexing
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "1997 Dustin Sallings <dustin@spy.net>";
 	license: "See forum.txt";
-	version: "$Revision: 1.7 $";
+	version: "$Revision: 1.8 $";
 
 class
 	LDAPTEST -- Test LDAP program
@@ -94,13 +94,42 @@ feature {NONE} -- make and data
 		require
 			ldap.connected;
 		do
-			ldap.add_mod("objectclass", "top");
-			ldap.add_mod("objectclass", "pageservuser");
-			ldap.add_mod("pageId", "123");
-			ldap.add_mod("pageStatId", "456");
+			ldap.mod_add("objectclass", "top");
+			ldap.mod_add("objectclass", "pageservuser");
+			ldap.mod_add("pageId", "123");
+			ldap.mod_add("pageStatId", "456");
 			io.put_string("What dn would you like to add?:  ");
 			io.read_line;
 			ldap.add(io.last_string);
+		end
+
+	do_modify is
+		require
+			ldap.connected
+		local
+			dn: STRING;
+		do
+			io.put_string("What dn would you like to modify?:  ");
+			io.read_line;
+			!!dn.copy(io.last_string);
+
+			ldap.mod_add("description", "Added a description");
+			ldap.modify(dn);
+
+			io.put_string("Press enter to change the description.");
+			io.read_line;
+
+			ldap.mod_replace("description", "Changed the description");
+			ldap.modify(dn);
+
+			io.put_string("Press enter to remove the description.");
+			io.read_line;
+
+			ldap.mod_delete("description");
+			ldap.modify(dn);
+
+			io.put_string("Modify operations done.%N");
+
 		end
 
 	do_delete is
@@ -114,7 +143,7 @@ feature {NONE} -- make and data
 
 	make is
 		local
-			bound: BOOLEAN;
+			bound, searched, compared, added, modified, deleted: BOOLEAN;
 			retries: INTEGER;
 		do
 			if not bound then
@@ -124,10 +153,32 @@ feature {NONE} -- make and data
 				io.put_string("Correct!%N");
 			end
 
-			do_search;
-			do_compare;
-			do_add;
-			do_delete;
+			if not searched then
+				do_search;
+				searched:=true;
+			end
+
+			if not compared then
+				do_compare;
+				compared:=true;
+			end
+
+			if not added then
+				do_add;
+				added:=true;
+			end
+
+			if not modified then
+				do_modify;
+				modified:=true;
+			end
+
+			if not deleted then
+				do_delete;
+				deleted:=true;
+			end
+
+			io.put_string("LDAP Testing complete.%N");
 
 		rescue
 			if not bound then
