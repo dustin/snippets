@@ -1,0 +1,42 @@
+#!/usr/local/bin/perl
+
+sub pom
+{
+	my($year, $month, $day)=@_;
+	my($century, $diff, $pom);
+
+	$century=1+int($year/100);
+	if($century==20) {
+		$diff=4;
+	} else {
+		$diff=8.3;
+	}
+
+	# Get the last two digits
+	$year=$year%100;
+
+	# Year mod 19
+	$year=$year%19;
+	if($year>9) {
+		$year-=19;
+	}
+
+	$year*=11;
+
+	if($month<3) {
+		$month+=2;
+	}
+	$pom=$year+$month+$day-$diff;
+	$pom=$pom%30;
+
+	return($pom);
+}
+
+$month=7;
+$day=10;
+for $year (1977..2038) {
+	my $pom=pom($year, $month, $day);
+	if($pom>13 && $pom<16) {
+		print "$year/$month/$day is $pom\n";
+	}
+}
