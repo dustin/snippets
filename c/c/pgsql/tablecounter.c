@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.6 2002/02/27 11:14:23 dustin Exp $
+ * $Id: tablecounter.c,v 1.7 2002/02/28 05:50:39 dustin Exp $
  */
 
 #include <stdio.h>
@@ -96,8 +96,8 @@ void backfill(time_t sincewhen, struct checkspec query)
 	PGconn *dbConn=NULL;
 	PGresult *res=NULL;
 	char querystr[8192];
-	int rv=0;
-	time_t now=0;
+	int count=0, rows=0;
+	time_t now=0, ts=0;
 
 	dbConn=getConn(query);
 	if(dbConn==NULL) {
@@ -106,21 +106,25 @@ void backfill(time_t sincewhen, struct checkspec query)
 
 	now=time(NULL);
 
-	for(; sincewhen<now; sincewhen+=INCREMENT) {
-		sprintf(querystr, "select count(*) from %s where %s<timestamp(%d)",
-			query.table, query.ts, sincewhen);
+	sprintf(querystr, "select date_part('epoch', %s) from %s order by ts",
+		query.ts, query.table);
 
-		res=PQexec(dbConn, querystr);
-		if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-			fprintf(stderr, "Query failed:  %s\n%s\n",
-				PQerrorMessage(dbConn), querystr);
-			goto finished;
+	res=PQexec(dbConn, querystr);
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		fprintf(stderr, "Query failed:  %s\n%s\n",
+			PQerrorMessage(dbConn), querystr);
+		goto finished;
+	}
+
+	rows=PQntuples(res);
+
+	for(count=0; count < rows && sincewhen<now; count++) {
+		ts=atoi(PQgetvalue(res, count, 0));
+
+		if(ts>sincewhen) {
+			printResults(query, sincewhen, count);
+			sincewhen+=INCREMENT;
 		}
-		rv=atoi(PQgetvalue(res, 0, 0));
-
-		printResults(query, sincewhen, rv);
-		PQclear(res);
-		res=NULL;
 	}
 
 	finished:
