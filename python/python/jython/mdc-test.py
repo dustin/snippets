@@ -37,6 +37,8 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 
 	def __init__(self):
 		net.spy.util.ThreadPoolObserver.__init__(self)
+		self.stats=net.spy.util.ProgressStats(100)
+		self.stats.start()
 
 		self.serQueues={}
 		for i in range(10):
@@ -73,6 +75,9 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 				self.errors.println("Exception:")
 				j.getException().printStackTrace(self.errors)
 		self.errors.flush()
+		self.stats.stop()
+		print "#", self.stats
+		self.stats.start()
 
 	def finished(self):
 		for v in self.serQueues.values():
@@ -100,24 +105,25 @@ Protocol.registerProtocol("https",
 # The pool monitor (that saves the stuff)
 recorder=Recorder()
 
-tp=net.spy.util.ThreadPool("Fetcher", 25)
-tp.setStartThreads(25)
+tp=net.spy.util.ThreadPool("Fetcher", 100)
+tp.setStartThreads(100)
 tp.setMinIdleThreads(5)
 tp.setMonitor(recorder)
 tp.start()
-stats=net.spy.util.ProgressStats(10000)
+
+pageList=java.util.ArrayList(2)
+pageList.add("network_device_list.html")
+pageList.add("link_summary.html")
+pageList.add("link_detailed_statistics.html")
+pageList.add("system_summary.html")
 
 l=sys.stdin.readline()
 while l != '':
 	(sn, vn, auth, url)=l.strip().split(" ")
 
-	stats.start()
 	# print "# ", sn, vn, auth, url
-	tp.addTask(MDCProcessor(sn, vn, auth, url))
+	tp.addTask(MDCProcessor(sn, vn, auth, url, pageList))
 	tp.waitForTaskCount(200)
-	stats.stop()
-
-	print "#", stats
 
 	l=sys.stdin.readline()
 tp.waitForCompletion()
