@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.13 2000/06/20 07:14:30 dustin Exp $
+ * $Id: SpyDB.java,v 1.14 2000/06/20 08:35:51 dustin Exp $
  */
 
 package net.spy;
@@ -63,37 +63,8 @@ public class SpyDB extends Object {
 		this.conf=conf;
 		String tmp=null;
 
-		log_file=conf.get("dbcbLogFilePath");
-		if(log_file==null) {
-			log_file="/tmp/pool.log";
-		}
-		tmp=conf.get("dbcbMinConns");
-		if(tmp!=null) {
-			min_conns=Integer.parseInt(tmp);
-		}
-		tmp=conf.get("dbcbMaxConns");
-		if(tmp!=null) {
-			max_conns=Integer.parseInt(tmp);
-		}
-		tmp=conf.get("dbcbMaxLifeTime");
-		if(tmp!=null) {
-			recycle_time=Double.valueOf(tmp).doubleValue();
-		}
-
 		// Do this here because it's a synchronized thing
 		initStuff();
-	}
-
-	// We need to synchronize this stuff because there are potential race
-	// conditions.
-	protected synchronized void initStuff() {
-		if(dbss==null) {
-			dbss=new Hashtable();
-		}
-		dbs=(DbConnectionBroker)dbss.get(log_file);
-		if(dbs==null) {
-			initDBS();
-		}
 	}
 
 	/**
@@ -110,23 +81,13 @@ public class SpyDB extends Object {
 		this.auto_free=auto_free;
 		String tmp=null;
 
-		log_file=conf.get("dbcbLogFilePath");
-		if(log_file==null) {
-			log_file="/tmp/pool.log";
-		}
-		tmp=conf.get("dbcbMinConns");
-		if(tmp!=null) {
-			min_conns=Integer.parseInt(tmp);
-		}
-		tmp=conf.get("dbcbMaxConns");
-		if(tmp!=null) {
-			max_conns=Integer.parseInt(tmp);
-		}
-		tmp=conf.get("dbcbMaxLifeTime");
-		if(tmp!=null) {
-			recycle_time=Double.valueOf(tmp).doubleValue();
-		}
+		// Synchronized initialization
+		initStuff();
+	}
 
+	// We need to synchronize this stuff because there are potential race
+	// conditions.
+	protected synchronized void initStuff() {
 		if(dbss==null) {
 			dbss=new Hashtable();
 		}
@@ -135,6 +96,13 @@ public class SpyDB extends Object {
 			initDBS();
 		}
 
+		log_file=conf.get("dbcbLogFilePath", "/tmp/pool.log");
+		min_conns=conf.getInt("dbcbMinConns", min_conns);
+		max_conns=conf.getInt("dbcbMaxConns", max_conns);
+		String tmp=conf.get("dbcbMaxLifeTime");
+		if(tmp!=null) {
+			recycle_time=Double.valueOf(tmp).doubleValue();
+		}
 	}
 
 	/**
