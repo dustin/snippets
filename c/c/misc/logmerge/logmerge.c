@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.4 2002/06/05 19:37:06 dustin Exp $
+ * $Id: logmerge.c,v 1.5 2002/06/05 19:51:52 dustin Exp $
  */
 
 #include <stdio.h>
@@ -75,7 +75,7 @@ static int parseMonth(char *s)
 
 static time_t parseTimestamp(struct logfile *lf)
 {
-	char *p, *tmp;
+	char *p;
 	struct tm tm;
 
 	assert(lf != NULL);
@@ -85,9 +85,7 @@ static time_t parseTimestamp(struct logfile *lf)
 
 	memset(&tm, 0x00, sizeof(tm));
 
-	tmp=strdup(lf->line);
-	assert(tmp!=NULL);
-	p=tmp;
+	p=lf->line;
 
 	if(p[10]=='T') {
 		/* fprintf("**** Parsing %s\n", p); */
@@ -149,10 +147,8 @@ static time_t parseTimestamp(struct logfile *lf)
 	*/
 
 	if(lf->timestamp < 0) {
-		fprintf(stderr, "* Error parsing timestamp from %s", tmp);
+		fprintf(stderr, "* Error parsing timestamp from %s", lf->line);
 	}
-
-	free(tmp);
 
 	return(lf->timestamp);
 }
