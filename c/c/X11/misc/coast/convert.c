@@ -87,9 +87,6 @@ main(int argc, char *argv[])
   header.lng_diff = header.max_lng - header.min_lng;
   header.lat_diff = header.max_lat - header.min_lat;
 
-  header.max_lat += header.lat_diff;
-  header.min_lat -= header.lat_diff;
-
   fwrite(&header, sizeof(header), 1, outfile);
 
   fprintf(stderr, "%d points found.\n", header.num_points);
