@@ -56,7 +56,7 @@ class PolicyEngine(object):
             else:
                 # Just another thing to parse
                 # self.log.debug("Read line:  %s", l)
-                parts=l.split('=', 2)
+                parts=l.split('=', 1)
                 if len(parts) != 2:
                     self.log.warn("Invalid/unexpected input line: %s", l)
                 else:
