@@ -2,7 +2,7 @@
 <tr>
 
     <td>
-	    <font face="Ariel,Helvetica">
+	    <font face="Arial,Helvetica">
         Keywords: %KEYWORDS%<br>
         Category:  %CAT%<br>
         Size:  %SIZE% bytes<br>

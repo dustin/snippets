@@ -1,7 +1,7 @@
 <html><head><title>Photo Album</title></head>
 <body bgcolor="fFfFfF">
 
-<font face="Ariel,Helvetica">
+<font face="Arial,Helvetica">
 
 <h2>Dustin's Photo Album</h2>
 

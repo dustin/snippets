@@ -6,7 +6,7 @@
 </center>
 <p>
 
-<font face="Ariel,Helvetica">
+<font face="Arial,Helvetica">
 Category: %CAT%
 <p>
 
