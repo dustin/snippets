@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Geo.java,v 1.1 2002/03/06 06:23:04 dustin Exp $
+// $Id: Geo.java,v 1.2 2002/03/06 06:43:04 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -44,6 +44,26 @@ public class Geo extends Object {
 			h.put("width", width);
 			h.put("height", height);
 			h.put("name", poly.getName());
+
+			// Boundary1 is minx, miny
+			// Boundary2 is maxx, maxy
+			Point boundary1=poly.getBoundary1();
+			Point boundary2=poly.getBoundary2();
+
+			double western=Math.min(boundary1.getLongitude(),
+				boundary2.getLongitude());
+			double eastern=Math.max(boundary1.getLongitude(),
+				boundary2.getLongitude());
+			double northern=Math.max(boundary1.getLatitude(),
+				boundary2.getLatitude());
+			double southern=Math.min(boundary1.getLatitude(),
+				boundary2.getLatitude());
+
+			h.put("eastern_border", new Double(eastern));
+			h.put("northern_border", new Double(northern));
+			h.put("western_border", new Double(western));
+			h.put("southern_border", new Double(southern));
+
 			h.put("center_longitude", new Double(center.getLongitude()));
 			h.put("center_latitude", new Double(center.getLatitude()));
 
