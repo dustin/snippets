@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/java
+JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
@@ -13,8 +13,11 @@ C3=$(MYLIB)/oromatcher.jar
 CLASSPATH=$(C1):$(C2):$(C3):.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
-	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
-	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
+	net/spy/log/SpyLog.class \
+	net/spy/log/SpyLogEntry.class \
+	net/spy/log/SpyLogFlusher.class \
+	net/spy/log/SpyLogQueue.class \
+	net/spy/SpyToker.class \
 	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
 	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
 	net/spy/rmi/RObject.class \

@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.6 2000/07/18 23:35:25 dustin Exp $
+ * $Id: SpyLog.java,v 1.1 2000/07/19 03:22:33 dustin Exp $
  */
 
-package net.spy;
+package net.spy.log;
+
+import net.spy.*;
 
 import java.lang.*;
 import java.util.*;
@@ -23,10 +25,10 @@ import java.util.*;
  */
 
 public class SpyLog extends Object {
-	protected static Vector log_buffer;
+	protected SpyLogQueue queue=null;
 	protected static boolean initialized = false;
-	protected static SpyLogFlusher flusher;
-	protected static int refcount;
+	protected static SpyLogFlusher flusher=null;
+	protected static int refcount=0;
 
 	/**
 	 * Instantiate a SpyLog entry.
@@ -38,6 +40,10 @@ public class SpyLog extends Object {
 		if(initialized == false) {
 			initialize();
 		}
+
+		// Grab a queue object
+		queue=new SpyLogQueue();
+
 		// Count of the number of objects out there, when there aren't any
 		// more, we stop the cleaner thread and force a shutdown.
 		refcount++;
@@ -59,6 +65,10 @@ public class SpyLog extends Object {
 		if(initialized == false) {
 			initialize();
 		}
+
+		// Grab a queue object
+		queue=new SpyLogQueue();
+
 		// Count of the number of objects out there, when there aren't any
 		// more, we stop the cleaner thread and force a shutdown.
 		refcount++;
@@ -70,53 +80,7 @@ public class SpyLog extends Object {
 	 * @param msg SpyLogEntry object to be logged.
 	 */
 	public void log(SpyLogEntry msg) {
-		synchronized(log_buffer) {
-			log_buffer.addElement(msg);
-			log_buffer.notify();
-		}
-	}
-
-	/**
-	 * Wait for the log buffer to have something in it.
-	 *
-	 * @exception Exception whenever the wait() fails
-	 */
-	public void waitForQueue() throws Exception {
-		synchronized(log_buffer) {
-			if(log_buffer.size()>0) {
-				return;
-			}
-			log_buffer.wait();
-		}
-	}
-
-	/**
-	 * Wait for the log buffer to have something in it (or a timeout)
-	 *
-	 * @param howlong How long do you want to wait?  (ms)
-	 *
-	 * @exception Exception whenever the wait() fails
-	 */
-	public void waitForQueue(long ms) throws Exception {
-		synchronized(log_buffer) {
-			if(log_buffer.size()>0) {
-				return;
-			}
-			log_buffer.wait(ms);
-		}
-	}
-
-	/**
-	 * Flush the current log entries -- DO NOT CALL THIS.  This is for
-	 * internal use only, and should only be called by a SpyLogFlusher.
-	 */
-	public Vector flush() {
-		Vector ret=null;
-		synchronized(log_buffer) {
-			ret=log_buffer;
-			log_buffer = new Vector();
-		}
-		return(ret);
+		queue.addToQueue(msg);
 	}
 
 	protected synchronized void initialize() {
@@ -128,17 +92,6 @@ public class SpyLog extends Object {
 			flusher = new SpyLogFlusher();
 		}
 		flusher.start();
-		// Sleep a tiny bit so the thread can get going, otherwise,
-		// finalization will cause all buffered logs to be lost if it's
-		// called before the thread officially starts.  This should be
-		// pretty damned rare (I forced it to happen in testing), but it is
-		// a possibility.
-		try {
-			Thread.sleep(10);
-		} catch(InterruptedException e) {
-		}
-
-		log_buffer=new Vector();
 
 		// Really need to make sure all finalization occurs.
 		System.runFinalizersOnExit(true);

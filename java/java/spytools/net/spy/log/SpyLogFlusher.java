@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.8 2000/07/18 22:56:13 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.1 2000/07/19 03:22:34 dustin Exp $
  */
 
-package net.spy;
+package net.spy.log;
+
+import net.spy.*;
 
 import java.sql.*;
 import java.lang.*;
@@ -29,7 +31,7 @@ import java.io.*;
 public class SpyLogFlusher extends Thread {
 
 	// private static BufferedWriter log_file=null;
-	protected static SpyLog log_object;
+	protected SpyLogQueue log_queue=null;
 
 	/**
 	 * Path to the logfile.  The default logfile is /tmp/spy.log, but this
@@ -56,7 +58,7 @@ public class SpyLogFlusher extends Thread {
 	}
 
 	protected void doFlush() {
-		Vector v = log_object.flush();
+		Vector v = log_queue.flush();
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
 			BufferedWriter log_file=null;
@@ -75,7 +77,7 @@ public class SpyLogFlusher extends Thread {
 	}
 
 	public void run() {
-		log_object = new SpyLog();
+		log_queue = new SpyLogQueue();
 
 		for(;;) {
 			try {
@@ -83,9 +85,7 @@ public class SpyLogFlusher extends Thread {
 				doFlush();
 
 				// Wait for something to get added...with timeout
-				synchronized(log_object) {
-					log_object.waitForQueue(60000);
-				}
+				log_queue.waitForQueue(60000);
 
 			} catch(Exception e) {
 				System.err.println("Error flushing logs:  " + e);

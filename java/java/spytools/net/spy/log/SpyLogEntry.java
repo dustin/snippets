@@ -1,8 +1,8 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SpyLogEntry.java,v 1.6 2000/04/22 10:29:14 dustin Exp $
+// $Id: SpyLogEntry.java,v 1.1 2000/07/19 03:22:33 dustin Exp $
 
-package net.spy;
+package net.spy.log;
 
 /**
  * An entry in the spy log.
