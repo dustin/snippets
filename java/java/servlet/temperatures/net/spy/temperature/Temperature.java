@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.2 2000/01/17 07:32:45 dustin Exp $
+ * $Id: Temperature.java,v 1.3 2000/03/16 06:20:10 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -20,22 +20,20 @@ import net.spy.net.*;
 // The class
 public class Temperature extends HttpServlet
 {
-	Hashtable temps = null;
+	Properties temps = null;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		temps=new Hashtable();
+		temps=new Properties();
+		try {
+			temps.load(new
+				FileInputStream("/usr/local/etc/temperature.properties"));
+		} catch(Exception e) {
+			throw new ServletException("Error loading properties:  " + e);
+		}
 
-		temps.put("machineroom",
-			"http://keyhole/~dustin/temp/current/1013A51E00000035");
-		temps.put("bedroom",
-			"http://dhcp-104/~dustin/temp/current/1081841E000000DF");
-		temps.put("backyard",
-			"http://dhcp-104/~dustin/temp/current/10E8C214000000E4");
-		temps.put("livingroom",
-			"http://butterfly/~dustin/temp/current/10C8892A00000096");
 	}
 
 	// Do a GET request
