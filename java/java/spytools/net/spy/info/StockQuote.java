@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.3 2000/03/21 19:06:35 dustin Exp $
+// $Id: StockQuote.java,v 1.4 2000/03/22 21:40:58 dustin Exp $
 
 package net.spy.info;
 
@@ -22,6 +22,8 @@ public class StockQuote extends Object {
 	protected double low=0.0;
 	protected int volume=0;
 
+	String error=null;
+
 	/**
 	 * Create a StockQuote object from a yahoo CSV output.
 	 *
@@ -41,6 +43,13 @@ public class StockQuote extends Object {
 		// Symbol
 		symbol=f[current]; current++;
 		symbol=symbol.substring(1, symbol.length()-1);
+
+		// Figure out real quick whether the stock is valid or not...
+		if(f[4].equals("N/A")) {
+			error="Could not stock info for "
+				+ symbol + ", sure this symbol is valid?";
+			return;
+		}
 
 		// price
 		tmp=f[current];    current++;
@@ -85,11 +94,15 @@ public class StockQuote extends Object {
 	 */
 	public String toString() {
 		String ret="";
-		ret=symbol + ": " + price + " ";
-		if(change>0.0) {
-			ret+="+";
+		if(error==null) {
+			ret=symbol + ": " + price + " ";
+			if(change>0.0) {
+				ret+="+";
+			}
+			ret+=change;
+		} else {
+			ret=error;
 		}
-		ret+=change;
 		return(ret);
 	}
 
