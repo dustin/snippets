@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.10 2000/07/07 06:42:41 dustin Exp $
+// $Id: PoolContainer.java,v 1.11 2000/07/24 07:46:51 dustin Exp $
 
 package net.spy.pool;
 
@@ -195,7 +195,7 @@ public class PoolContainer extends Object {
 
 		// Get the min and max args.
 		_min_objects=getPropertyInt("min", 1);
-		_max_objects=getPropertyInt("max", 10);
+		_max_objects=getPropertyInt("max", 5);
 
 		getMinObjects();
 	}
