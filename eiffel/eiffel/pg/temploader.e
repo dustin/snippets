@@ -3,13 +3,13 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: temploader.e,v 1.8 2002/11/25 07:20:28 dustin Exp $
+-- $Id: temploader.e,v 1.9 2002/12/08 10:46:37 dustin Exp $
 --
 class TEMPLOADER
 
-inherit LOGGER
-	redefine make
-	end
+inherit
+	LOGGER redefine make end
+	LINE_PROCESSOR
 
 creation {ANY}
    make
@@ -38,6 +38,8 @@ feature {ANY}
 			db.connect
 
 			init_sensors
+			-- Process the lines
+			set_input_stream(io)
 			process_input
 		end
 
@@ -77,31 +79,7 @@ feature{NONE}
 			end
 		end
 
-	process_input is
-		require
-			has_db_connection: db /= Void
-			has_serial_map: serials /= Void
-		local
-			line_number: INTEGER
-		do
-			from
-				-- Get the first line
-				io.read_line
-				line_number := 1
-			until
-				io.end_of_input
-			loop
-				-- Process the current line
-				process_line(io.last_string, line_number)
-				-- Get the next line
-				io.read_line
-				line_number := line_number + 1
-			end
-		end
-
-	process_line(line: STRING; line_number: INTEGER) is
-		require
-			has_line: line /= Void
+	process_line(line: STRING) is
 		local
 			done: BOOLEAN
 			string_utils: SPY_STRING_UTILS
