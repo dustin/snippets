@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.5 2000/05/01 04:32:39 dustin Exp $
+ * $Id: Temperature.java,v 1.6 2000/07/13 06:56:22 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -25,7 +25,7 @@ import com.mongus.servlet.GifServlet;
 // The class
 public class Temperature extends GifServlet implements ImageObserver
 {
-	Properties temps = null;
+	SpyConfig temps = null;
 
 	// Image stuff.
 	static Image baseImage=null;
@@ -36,16 +36,6 @@ public class Temperature extends GifServlet implements ImageObserver
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-
-		temps=new Properties();
-		try {
-			temps.load(new
-				FileInputStream("/afs/spy.net/misc/web/etc/temperature.properties"));
-		} catch(Exception e) {
-			throw new ServletException("Error loading properties:  " + e);
-		}
-
-		log("Loaded the following:\n" + listTemps());
 
 		try {
 			log("Getting the base image.");
@@ -59,13 +49,14 @@ public class Temperature extends GifServlet implements ImageObserver
 		black=new Color(0, 0, 0);
 		white=new Color(255, 255, 255);
 		font=new Font("SanSerif", Font.PLAIN, 10);
-
 	}
 
 	// Do a GET request
 	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
+		// Load the config...
+		temps=new SpyConfig("/afs/@cell/misc/web/etc/temperature.properties");
 		String which=request.getParameter("temp");
 		String therm=request.getParameter("therm");
 		String out="";
