@@ -14,29 +14,34 @@
 			F5601AEE035372CE0109FEFA,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 55927424;
+			PBXPerProjectTemplateStateSaveDate = 56009551;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F595BA950355633801A801C4;
+									bookmark = F5A4F4490356ACC601A801C4;
 									history = (
 										F5DA9BAA0353F87301A801C4,
 										F5DA9BAB0353F87301A801C4,
-										F5EC445E035404CC01A801C4,
 										F52C09B803540F7601A801C4,
-										F52C09B903540F7601A801C4,
 										F56F8F9E0354123C01A801C4,
 										F5BA4849035523ED01A801C4,
 										F5DBDA530355288201A801C4,
 										F51E260703552CF201A801C4,
-										F5AEE5920355325B01A801C4,
 										F5D283960355366401A801C4,
-										F595BA8F0355633801A801C4,
 										F595BA900355633801A801C4,
-										F595BA910355633801A801C4,
+										F5A4F4390356ACC601A801C4,
+										F5A4F43A0356ACC601A801C4,
+										F5A4F43B0356ACC601A801C4,
+										F5A4F43C0356ACC601A801C4,
+										F5A4F43D0356ACC601A801C4,
+										F5A4F43E0356ACC601A801C4,
+										F5A4F43F0356ACC601A801C4,
+									);
+									nextStack = (
+										F5A4F4480356ACC601A801C4,
 									);
 									prevStack = (
 										F5601BA40353748D0109FEFA,
@@ -80,11 +85,19 @@
 										F595BA920355633801A801C4,
 										F595BA930355633801A801C4,
 										F595BA940355633801A801C4,
+										F5A4F4400356ACC601A801C4,
+										F5A4F4410356ACC601A801C4,
+										F5A4F4420356ACC601A801C4,
+										F5A4F4430356ACC601A801C4,
+										F5A4F4440356ACC601A801C4,
+										F5A4F4450356ACC601A801C4,
+										F5A4F4460356ACC601A801C4,
+										F5A4F4470356ACC601A801C4,
 									);
 								};
 								NavCount = 1;
 								NavGeometry0 = {
-									Frame = "{{0, 0}, {541, 422}}";
+									Frame = "{{0, 0}, {560, 412}}";
 									NavBarVisible = YES;
 								};
 							};
@@ -116,17 +129,17 @@
 			);
 			PBXWorkspaceGeometries = (
 				{
-					ContentSize = "{825, 596}";
+					ContentSize = "{844, 584}";
 					LeftSlideOut = {
 						ActiveTab = 0;
 						Collapsed = NO;
-						Frame = "{{0, 23}, {825, 573}}";
+						Frame = "{{0, 23}, {844, 561}}";
 						Split0 = {
-							ActiveTab = 2;
+							ActiveTab = 1;
 							Collapsed = NO;
-							Frame = "{{284, 0}, {541, 573}}";
+							Frame = "{{284, 0}, {560, 561}}";
 							Split0 = {
-								Frame = "{{0, 151}, {541, 422}}";
+								Frame = "{{0, 149}, {560, 412}}";
 							};
 							SplitCount = 1;
 							Tab0 = {
@@ -165,16 +178,16 @@
 								LauncherConfigVersion = 7;
 							};
 							Tab1 = {
-								Frame = "{{0, 0}, {541, 125}}";
+								Frame = "{{0, 0}, {560, 125}}";
 								LauncherConfigVersion = 3;
 								Runner = {
-									Frame = "{{0, 0}, {541, 125}}";
+									Frame = "{{0, 0}, {560, 125}}";
 								};
 							};
 							Tab2 = {
-								BuildMessageFrame = "{{0, 0}, {543, 120}}";
-								BuildTranscriptFrame = "{{0, 129}, {543, 0}}";
-								Frame = "{{0, 0}, {541, 127}}";
+								BuildMessageFrame = "{{0, 0}, {562, 120}}";
+								BuildTranscriptFrame = "{{0, 129}, {562, 0}}";
+								Frame = "{{0, 0}, {560, 127}}";
 							};
 							Tab3 = {
 								Frame = "{{0, 0}, {572, 265}}";
@@ -184,7 +197,7 @@
 						};
 						SplitCount = 1;
 						Tab0 = {
-							Frame = "{{0, 0}, {260, 573}}";
+							Frame = "{{0, 0}, {260, 561}}";
 							GroupTreeTableConfiguration = (
 								TargetStatusColumn,
 								18,
@@ -236,10 +249,10 @@
 					StatusViewVisible = YES;
 					Template = F5F68CF101725D4C0D7A8F4C;
 					ToolbarVisible = YES;
-					WindowLocation = "{112, 173}";
+					WindowLocation = "{15, 178}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 55927424;
+			PBXWorkspaceStateSaveDate = 56009551;
 		};
 		perUserProjectItems = {
 			F51E260703552CF201A801C4 = F51E260703552CF201A801C4;
@@ -247,7 +260,6 @@
 			F51E260B03552CF201A801C4 = F51E260B03552CF201A801C4;
 			F51E260C03552CF201A801C4 = F51E260C03552CF201A801C4;
 			F52C09B803540F7601A801C4 = F52C09B803540F7601A801C4;
-			F52C09B903540F7601A801C4 = F52C09B903540F7601A801C4;
 			F52C09BC03540F7601A801C4 = F52C09BC03540F7601A801C4;
 			F52C09BD03540F7601A801C4 = F52C09BD03540F7601A801C4;
 			F52C09BE03540F7601A801C4 = F52C09BE03540F7601A801C4;
@@ -258,14 +270,27 @@
 			F5601BA40353748D0109FEFA = F5601BA40353748D0109FEFA;
 			F5601BA50353748D0109FEFA = F5601BA50353748D0109FEFA;
 			F56F8F9E0354123C01A801C4 = F56F8F9E0354123C01A801C4;
-			F595BA8F0355633801A801C4 = F595BA8F0355633801A801C4;
 			F595BA900355633801A801C4 = F595BA900355633801A801C4;
-			F595BA910355633801A801C4 = F595BA910355633801A801C4;
 			F595BA920355633801A801C4 = F595BA920355633801A801C4;
 			F595BA930355633801A801C4 = F595BA930355633801A801C4;
 			F595BA940355633801A801C4 = F595BA940355633801A801C4;
-			F595BA950355633801A801C4 = F595BA950355633801A801C4;
-			F5AEE5920355325B01A801C4 = F5AEE5920355325B01A801C4;
+			F5A4F4390356ACC601A801C4 = F5A4F4390356ACC601A801C4;
+			F5A4F43A0356ACC601A801C4 = F5A4F43A0356ACC601A801C4;
+			F5A4F43B0356ACC601A801C4 = F5A4F43B0356ACC601A801C4;
+			F5A4F43C0356ACC601A801C4 = F5A4F43C0356ACC601A801C4;
+			F5A4F43D0356ACC601A801C4 = F5A4F43D0356ACC601A801C4;
+			F5A4F43E0356ACC601A801C4 = F5A4F43E0356ACC601A801C4;
+			F5A4F43F0356ACC601A801C4 = F5A4F43F0356ACC601A801C4;
+			F5A4F4400356ACC601A801C4 = F5A4F4400356ACC601A801C4;
+			F5A4F4410356ACC601A801C4 = F5A4F4410356ACC601A801C4;
+			F5A4F4420356ACC601A801C4 = F5A4F4420356ACC601A801C4;
+			F5A4F4430356ACC601A801C4 = F5A4F4430356ACC601A801C4;
+			F5A4F4440356ACC601A801C4 = F5A4F4440356ACC601A801C4;
+			F5A4F4450356ACC601A801C4 = F5A4F4450356ACC601A801C4;
+			F5A4F4460356ACC601A801C4 = F5A4F4460356ACC601A801C4;
+			F5A4F4470356ACC601A801C4 = F5A4F4470356ACC601A801C4;
+			F5A4F4480356ACC601A801C4 = F5A4F4480356ACC601A801C4;
+			F5A4F4490356ACC601A801C4 = F5A4F4490356ACC601A801C4;
 			F5AEE5940355325B01A801C4 = F5AEE5940355325B01A801C4;
 			F5BA4849035523ED01A801C4 = F5BA4849035523ED01A801C4;
 			F5BA484B035523ED01A801C4 = F5BA484B035523ED01A801C4;
@@ -294,7 +319,6 @@
 			F5DBDA530355288201A801C4 = F5DBDA530355288201A801C4;
 			F5DBDA550355288201A801C4 = F5DBDA550355288201A801C4;
 			F5DBDA560355288201A801C4 = F5DBDA560355288201A801C4;
-			F5EC445E035404CC01A801C4 = F5EC445E035404CC01A801C4;
 			F5EC4461035404CC01A801C4 = F5EC4461035404CC01A801C4;
 			F5EC4462035404CC01A801C4 = F5EC4462035404CC01A801C4;
 			F5EC4463035404CC01A801C4 = F5EC4463035404CC01A801C4;
@@ -359,10 +383,6 @@
 		rType = 0;
 		vrLen = 674;
 		vrLoc = 1908;
-	};
-	F52C09B903540F7601A801C4 = {
-		exec = F5601AEE035372CE0109FEFA;
-		isa = PBXExecutableBookmark;
 	};
 	F52C09BC03540F7601A801C4 = {
 		fRef = F5601AF10353732F0109FEFA;
@@ -438,55 +458,13 @@
 		vrLen = 285;
 		vrLoc = 0;
 	};
-	F595BA8F0355633801A801C4 = {
-		isa = PBXTargetBookmark;
-		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {362, 233}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {140, 368}}";
-			TOCViewSelectedItems = (
-				PBXTargetSummarySettingsModule,
-			);
-		};
-	};
 	F595BA900355633801A801C4 = {
 		fRef = F52C09B603540EAB01A801C4;
 		isa = PBXBookmark;
 	};
-	F595BA910355633801A801C4 = {
-		fRef = F5601AEF0353732F0109FEFA;
-		isa = PBXTextBookmark;
-		name = "Credits.html: 3";
-		rLen = 0;
-		rLoc = 35;
-		rType = 0;
-		vrLen = 416;
-		vrLoc = 0;
-	};
 	F595BA920355633801A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {362, 233}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {140, 368}}";
-			TOCViewSelectedItems = (
-				PBXTargetSummarySettingsModule,
-			);
-		};
 	};
 	F595BA930355633801A801C4 = {
 		fRef = F5601AEF0353732F0109FEFA;
@@ -502,7 +480,7 @@
 		fRef = F52C09B603540EAB01A801C4;
 		isa = PBXBookmark;
 	};
-	F595BA950355633801A801C4 = {
+	F5A4F4390356ACC601A801C4 = {
 		fRef = F5601AEF0353732F0109FEFA;
 		isa = PBXTextBookmark;
 		name = "Credits.html: 21";
@@ -512,14 +490,187 @@
 		vrLen = 573;
 		vrLoc = 0;
 	};
-	F5AEE5920355325B01A801C4 = {
+	F5A4F43A0356ACC601A801C4 = {
+		fRef = F5601AF80353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: 11";
+		rLen = 0;
+		rLoc = 265;
+		rType = 0;
+		vrLen = 823;
+		vrLoc = 0;
+	};
+	F5A4F43B0356ACC601A801C4 = {
+		fRef = F5A4F41B0356A76901A801C4;
+		isa = PBXTextBookmark;
+		name = "BatchController.h: 4";
+		rLen = 0;
+		rLoc = 69;
+		rType = 0;
+		vrLen = 445;
+		vrLoc = 0;
+	};
+	F5A4F43C0356ACC601A801C4 = {
+		isa = PBXTargetBookmark;
+		trg = 29B97326FDCFA39411CA2CEA;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {382, 136}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+				"com.apple.target-editor-pane.settings.simple",
+				"com.apple.target-editor-pane.info-plist",
+				"com.apple.target-editor-pane.info-plist.simple",
+				"com.apple.target-editor-pane.buildphases",
+			);
+			TOCViewMasterVisibleRect = "{{0, 94}, {139, 358}}";
+			TOCViewSelectedItems = (
+				29B97328FDCFA39411CA2CEA,
+			);
+		};
+	};
+	F5A4F43D0356ACC601A801C4 = {
+		exec = F5601AEE035372CE0109FEFA;
+		isa = PBXExecutableBookmark;
+		uiCtxt = {
+			buildSettingsExpandedSubviews = (
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+			);
+			buildSettingsVisRect = "{{0, 150}, {545, 358}}";
+		};
+	};
+	F5A4F43E0356ACC601A801C4 = {
 		fRef = F5601AF90353732F0109FEFA;
 		isa = PBXTextBookmark;
-		name = "UploadController.m: __WINT_TYPE__";
-		rLen = 0;
-		rLoc = 196;
+		name = "UploadController.m: awakeFromNib";
+		rLen = 127;
+		rLoc = 7671;
 		rType = 0;
-		vrLen = 433;
+		vrLen = 774;
+		vrLoc = 7082;
+	};
+	F5A4F43F0356ACC601A801C4 = {
+		fRef = F5A4F41C0356A76901A801C4;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 14;
+		rType = 1;
+	};
+	F5A4F4400356ACC601A801C4 = {
+		fRef = F5601AEF0353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "Credits.html: 21";
+		rLen = 0;
+		rLoc = 564;
+		rType = 0;
+		vrLen = 573;
+		vrLoc = 0;
+	};
+	F5A4F4410356ACC601A801C4 = {
+		fRef = F5601AF80353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: openAuthWindow:";
+		rLen = 33;
+		rLoc = 1189;
+		rType = 0;
+		vrLen = 725;
+		vrLoc = 910;
+	};
+	F5A4F4420356ACC601A801C4 = {
+		fRef = F5601AF90353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: openAuthWindow:";
+		rLen = 0;
+		rLoc = 1899;
+		rType = 0;
+		vrLen = 557;
+		vrLoc = 1315;
+	};
+	F5A4F4430356ACC601A801C4 = {
+		fRef = F5A4F41B0356A76901A801C4;
+		isa = PBXTextBookmark;
+		name = "BatchController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 422;
+		vrLoc = 0;
+	};
+	F5A4F4440356ACC601A801C4 = {
+		fRef = F5A4F41C0356A76901A801C4;
+		isa = PBXTextBookmark;
+		name = "BatchController.m: 12";
+		rLen = 0;
+		rLoc = 204;
+		rType = 0;
+		vrLen = 213;
+		vrLoc = 0;
+	};
+	F5A4F4450356ACC601A801C4 = {
+		fRef = F5601AF90353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: newBatch:";
+		rLen = 0;
+		rLoc = 1858;
+		rType = 0;
+		vrLen = 633;
+		vrLoc = 1459;
+	};
+	F5A4F4460356ACC601A801C4 = {
+		isa = PBXTargetBookmark;
+		trg = 29B97326FDCFA39411CA2CEA;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {382, 136}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+				"com.apple.target-editor-pane.settings.simple",
+				"com.apple.target-editor-pane.info-plist",
+				"com.apple.target-editor-pane.info-plist.simple",
+				"com.apple.target-editor-pane.buildphases",
+			);
+			TOCViewMasterVisibleRect = "{{0, 94}, {139, 358}}";
+			TOCViewSelectedItems = (
+				29B97328FDCFA39411CA2CEA,
+			);
+		};
+	};
+	F5A4F4470356ACC601A801C4 = {
+		exec = F5601AEE035372CE0109FEFA;
+		isa = PBXExecutableBookmark;
+		uiCtxt = {
+			buildSettingsExpandedSubviews = (
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+			);
+			buildSettingsVisRect = "{{0, 150}, {545, 358}}";
+		};
+	};
+	F5A4F4480356ACC601A801C4 = {
+		fRef = F5601AF90353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: awakeFromNib";
+		rLen = 127;
+		rLoc = 7671;
+		rType = 0;
+		vrLen = 774;
+		vrLoc = 7082;
+	};
+	F5A4F4490356ACC601A801C4 = {
+		fRef = F5A4F41C0356A76901A801C4;
+		isa = PBXTextBookmark;
+		name = "BatchController.m: 15";
+		rLen = 0;
+		rLoc = 227;
+		rType = 0;
+		vrLen = 420;
 		vrLoc = 0;
 	};
 	F5AEE5940355325B01A801C4 = {
@@ -727,7 +878,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: rv";
 		rLen = 0;
-		rLoc = 2686;
+		rLoc = 2939;
 		rType = 0;
 		vrLen = 871;
 		vrLoc = 4899;
@@ -767,7 +918,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: upload:";
 		rLen = 26;
-		rLoc = 4269;
+		rLoc = 4522;
 		rType = 0;
 		vrLen = 853;
 		vrLoc = 4495;
@@ -802,16 +953,6 @@
 		vrLen = 798;
 		vrLoc = 1568;
 	};
-	F5EC445E035404CC01A801C4 = {
-		fRef = F5601AF80353732F0109FEFA;
-		isa = PBXTextBookmark;
-		name = "UploadController.h: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 861;
-		vrLoc = 0;
-	};
 	F5EC4461035404CC01A801C4 = {
 		fRef = F5601AF10353732F0109FEFA;
 		isa = PBXTextBookmark;
@@ -837,7 +978,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: removeAllFiles:";
 		rLen = 0;
-		rLoc = 2004;
+		rLoc = 2257;
 		rType = 0;
 		vrLen = 640;
 		vrLoc = 1528;

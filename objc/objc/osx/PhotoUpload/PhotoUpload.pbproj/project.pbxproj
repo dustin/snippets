@@ -23,6 +23,8 @@
 				F5601AFD0353732F0109FEFA,
 				F5BA4842035523AD01A801C4,
 				F5BA4843035523AD01A801C4,
+				F5A4F41B0356A76901A801C4,
+				F5A4F41C0356A76901A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -159,6 +161,7 @@
 				F5601B13035373480109FEFA,
 				F5601B15035373480109FEFA,
 				F5601AEF0353732F0109FEFA,
+				F5A4F4180356A6BE01A801C4,
 			);
 			isa = PBXGroup;
 			name = Resources;
@@ -251,6 +254,7 @@
 				F5601B090353732F0109FEFA,
 				F5601B0B0353732F0109FEFA,
 				F5BA4844035523AD01A801C4,
+				F5A4F41D0356A76901A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -260,8 +264,9 @@
 			files = (
 				F5601AFE0353732F0109FEFA,
 				F5601B17035373480109FEFA,
-				F5601B18035373480109FEFA,
 				F56F8F9D035410E801A801C4,
+				F5601B18035373480109FEFA,
+				F5A4F4380356ABE301A801C4,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +283,7 @@
 				F5601B0A0353732F0109FEFA,
 				F5601B0C0353732F0109FEFA,
 				F5BA4845035523AD01A801C4,
+				F5A4F41E0356A76901A801C4,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -620,6 +626,49 @@
 		};
 		F56F8F9D035410E801A801C4 = {
 			fileRef = F52C09B603540EAB01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5A4F4180356A6BE01A801C4 = {
+			children = (
+				F5A4F4190356A6BE01A801C4,
+			);
+			isa = PBXVariantGroup;
+			name = PhotoUploadBatch.nib;
+			path = "";
+			refType = 4;
+		};
+		F5A4F4190356A6BE01A801C4 = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/PhotoUploadBatch.nib;
+			refType = 4;
+		};
+		F5A4F41B0356A76901A801C4 = {
+			isa = PBXFileReference;
+			path = BatchController.h;
+			refType = 4;
+		};
+		F5A4F41C0356A76901A801C4 = {
+			isa = PBXFileReference;
+			path = BatchController.m;
+			refType = 4;
+		};
+		F5A4F41D0356A76901A801C4 = {
+			fileRef = F5A4F41B0356A76901A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5A4F41E0356A76901A801C4 = {
+			fileRef = F5A4F41C0356A76901A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5A4F4380356ABE301A801C4 = {
+			fileRef = F5A4F4180356A6BE01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};

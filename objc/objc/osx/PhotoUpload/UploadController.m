@@ -62,6 +62,18 @@
 		timeZone:nil locale:nil]];
 }
 
+- (IBAction)newBatch:(id)sender
+{
+	// Create a new batch controller if we don't have one.
+	if(_batchController == nil) {
+	NSLog(@"initializing controller.\n");
+	_batchController = [[BatchController alloc] initWithWindowNibName:
+		@"PhotoUploadBatch"];
+	NSLog(@"Opening window.\n");
+	}
+    [_batchController showWindow:self];
+}
+
 - (IBAction)openAuthWindow:(id)sender
 {
     [authWindow makeKeyAndOrderFront: self];

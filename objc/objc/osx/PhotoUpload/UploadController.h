@@ -8,6 +8,7 @@
 #import "UploadParams.h"
 #import "DumpMatrix.h"
 #import "Batch.h"
+#import "BatchController.h"
 
 #define BUTTON_UPLOAD 1
 #define BUTTON_STOP 2
@@ -34,6 +35,7 @@
     NSUserDefaults *defaults;
 
     UploadParams *params;
+    BatchController *_batchController;
 
     int buttonType;
 
@@ -41,6 +43,7 @@
 }
 - (IBAction)authenticate:(id)sender;
 - (IBAction)dateToToday:(id)sender;
+- (IBAction)newBatch:(id)sender;
 - (IBAction)openAuthWindow:(id)sender;
 - (IBAction)openBatch:(id)sender;
 - (IBAction)openUploadWindow:(id)sender;
