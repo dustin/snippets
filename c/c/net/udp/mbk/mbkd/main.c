@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.10 1998/10/03 08:20:20 dustin Exp $
+ * $Id: main.c,v 1.11 1998/10/04 09:43:57 dustin Exp $
  */
 
 #include <config.h>
@@ -119,9 +119,7 @@ process_main()
 		 */
 
 		mbk_packet->parse(mbk_packet);
-		/*
-		 * _hash_dump(mbk_packet->hash);
-		 */
+		_hash_dump(mbk_packet->hash);
 
 		if (mbk_packet->verify(mbk_packet) < 0) {
 			printf("Packet failed auth\n");
