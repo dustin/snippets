@@ -10,7 +10,7 @@ JAVADOC=$(JAVAHOME)/bin/javadoc
 COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
-C2=$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
+C2=$(MYLIB)/jndi.jar
 S=/System/Library/Frameworks/JavaVM.framework/Versions/1.3.1/Classes/classes.jar
 CLASSPATH=$(C1):$(C2):$S:.
 
