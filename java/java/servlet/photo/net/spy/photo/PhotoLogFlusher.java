@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.2 1999/10/20 08:41:21 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.3 2000/01/25 06:58:56 dustin Exp $
  */
 
 package net.spy.photo;
@@ -16,7 +16,7 @@ import net.spy.*;
 public class PhotoLogFlusher extends SpyLogFlusher {
 
 	public PhotoLogFlusher() {
-		super(new ThreadGroup(SpyLog.getSystemGroup(), "logging"));
+		super();
 	}
 
 	public synchronized void doFlush() {
