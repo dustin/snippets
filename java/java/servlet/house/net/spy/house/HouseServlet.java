@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.3 2001/12/21 06:06:27 dustin Exp $
+ * $Id: HouseServlet.java,v 1.4 2002/02/22 09:58:08 dustin Exp $
  */
 
 package net.spy.house;
@@ -21,10 +21,10 @@ import net.spy.temperature.*;
 import java.awt.*;
 import java.awt.image.*;
 
-import com.mongus.servlet.GifServlet;
+import net.spy.png.*;
 
 // The class
-public class HouseServlet extends GifServlet implements ImageObserver
+public class HouseServlet extends PngServlet implements ImageObserver
 {
 	// Colors we'll be using
 	private Color white=null;
@@ -53,7 +53,7 @@ public class HouseServlet extends GifServlet implements ImageObserver
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 		try {
-			writeGif(response, getHouseImage());
+			writePng(request, response, getHouseImage());
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw new ServletException("Error getting image", e);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.7 2001/12/21 05:56:57 dustin Exp $
+ * $Id: Temperature.java,v 1.8 2002/02/22 09:58:44 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -20,10 +20,10 @@ import net.spy.net.*;
 import java.awt.*;
 import java.awt.image.*;
 
-import com.mongus.servlet.GifServlet;
+import net.spy.png.*;
 
 // The class
-public class Temperature extends GifServlet implements ImageObserver
+public class Temperature extends PngServlet implements ImageObserver
 {
 	private SpyConfig temps = null;
 	boolean imageLoaded=false;
@@ -71,7 +71,7 @@ public class Temperature extends GifServlet implements ImageObserver
 				response.setDateHeader("Expires", l);
 				// Show the graphical representation of the temperature
 				try {
-					writeGif(response, getTherm(therm));
+					writePng(request, response, getTherm(therm));
 				} catch(Exception e) {
 					throw new ServletException("Error sending gif:  " + e);
 				}
