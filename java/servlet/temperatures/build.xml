@@ -7,7 +7,7 @@
 			<include name="jsdk.jar"/>
 			<include name="spy.jar"/>
 		</fileset>
-		<pathelement path="${user.home}/prog/java/servlet/png"/>
+		<pathelement path="${user.home}/prog/eprojects/snippets/java/servlet/png"/>
 		<pathelement path="."/>
 	</path>
 
