@@ -35,6 +35,8 @@ XFontStruct *font;
 
 #endif
 
+char rcsid[] = "$Id: plot.c,v 1.14 1995/08/02 18:23:50 dustin Exp $";
+
 char *filename;
 char *progname;
 

@@ -13,6 +13,8 @@
 #define safe_vga_drawpixel(x, y) \
 	if (x >= 0 && y >= 0 && x < MAX_X && y < MAX_Y) vga_drawpixel(x,y)
 
+char rcsid[] = "$Id: vga.c,v 1.6 1995/08/02 18:24:21 dustin Exp $";
+
 extern float max_lat, min_lat, max_lng, min_lng;
 extern int color;
 extern char *filename;
