@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.7 2001/02/07 06:31:27 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.8 2001/07/03 08:31:44 dustin Exp $
  */
 
 package net.spy.log;
@@ -13,22 +13,14 @@ import java.util.Hashtable;
  * This class performs the actual queue management for the SpyLog system.
  * It should probably not be referenced directly.
  */
-
 public class SpyLogQueue extends Object {
 	private static Hashtable queues=null;
 	private static String queue_mutex="Log Mutex";
 	private String queue_name=null;
 
 	/**
-	 * @deprecated Please specify a queue name.
+	 * Get a new SpyLogQueue with the given name.
 	 */
-	public SpyLogQueue() {
-		this("GenericSpyLogQueue");
-		Exception e=new Exception("Using deprecated API!");
-		System.err.println("Warning!  " + e);
-		e.printStackTrace();
-	}
-
 	public SpyLogQueue(String name) {
 		super();
 		this.queue_name=name;
@@ -63,11 +55,12 @@ public class SpyLogQueue extends Object {
 	 * @param e item to be added
 	 */
 	public void addToQueue(SpyLogEntry e) {
-		Vector v=getQueue();
-		synchronized(v) {
-			v.addElement(e);
-		}
 		synchronized(queue_mutex) {
+			Vector v=getQueue();
+			synchronized(v) {
+				v.addElement(e);
+				v.notify();
+			}
 			queue_mutex.notify();
 		}
 	}
@@ -78,15 +71,7 @@ public class SpyLogQueue extends Object {
 	 * @param ms The maximum number of milliseconds to wait.
 	 */
 	public void waitForQueue(long ms) {
-		int size=0;
-		Vector log_buffer=getQueue();
-
-		// Figure out the size first.
-		synchronized(queue_mutex) {
-			size=log_buffer.size();
-		}
-
-		if(size<=0) {
+		if(size()<=0) {
 			// Only do this if we don't already think we have data
 			try {
 				synchronized(queue_mutex) {
@@ -112,8 +97,8 @@ public class SpyLogQueue extends Object {
 	 */
 	public int size() {
 		int size=-1;
-		Vector log_buffer=getQueue();
 		synchronized(queue_mutex) {
+			Vector log_buffer=getQueue();
 			size=log_buffer.size();
 		}
 		return(size);
@@ -125,8 +110,8 @@ public class SpyLogQueue extends Object {
 	 */
 	public Vector flush() {
 		Vector ret=null;
-		Vector log_buffer=getQueue();
 		synchronized(queue_mutex) {
+			Vector log_buffer=getQueue();
 			ret=log_buffer;          // Copy the old vector's reference.
 			log_buffer=new Vector(); // Create a new one.
 			queues.put(queue_name, log_buffer);
