@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: cdda.c,v 1.2 1998/09/20 00:58:23 dustin Exp $
+ * $Id: cdda.c,v 1.3 1998/09/20 02:28:24 dustin Exp $
  */
 
 #include <stdio.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <dmedia/cdaudio.h>
+#include <dmedia/audiofile.h>
 
 int main(int argc, char **argv)
 {
@@ -15,8 +16,17 @@ int main(int argc, char **argv)
     CDSTATUS status;
     CDFRAME buf[12];
     CDTRACKINFO info;
+
     FILE *f;
     int i, n, pos, howfar;
+
+    /* Yeah, I know this is nasty, but it worksish */
+    unsigned char wavheader[]={
+        0x52, 0x49, 0x46, 0x46, 0x24, 0x40, 0x17, 0x00, 0x57, 0x41, 0x56,
+	0x45, 0x66, 0x6d, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, 0x01, 0x00,
+	0x02, 0x00, 0x44, 0xac, 0x00, 0x00, 0x10, 0xb1, 0x02, 0x00, 0x04,
+	0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x40, 0x17, 0x00,
+    };
 
     cd=CDopen(NULL, "r");
     if(cd==NULL) {
@@ -29,7 +39,7 @@ int main(int argc, char **argv)
     setuid(getuid());
 
     if(CDgettrackinfo(cd, atoi(argv[1]), &info)==0) {
-	printf("No such track, bitch.\n");
+	fprintf(stderr, "No such track, bitch.\n");
 	exit(1);
     }
 
@@ -37,14 +47,22 @@ int main(int argc, char **argv)
 			info.total_sec,
 			info.total_frame);
 
-    printf("Getting from %d for %d\n",
+    fprintf(stderr, "Getting from %d for %d\n",
 	     CDmsftoframe(info.start_min,
 			  info.start_sec,
 			  info.start_frame),
              howfar);
 
-    f=fopen(argv[2], "wb");
+    /* File or stdout? */
+    if(strcmp(argv[2], "-")==0) {
+        f=stdout;
+    } else {
+        f=fopen(argv[2], "wb");
+    }
     assert(f);
+
+    /* Nasty hack for file header */
+    fwrite(wavheader, sizeof(wavheader), 1, f);
 
     CDgetstatus(cd, &status);
     while(status.state!=CD_READY) {
@@ -75,12 +93,12 @@ int main(int argc, char **argv)
 	if(pos>howfar)
 	    break;
 
-	printf("Did %d      \r", pos);
-	fflush(stdout);
+	fprintf(stderr, " Did %d      \r", pos);
+	fflush(stderr);
     }
     puts("");
 
     CDclose(cd);
-    fclose(f);
+    close(f);
     exit(0);
 }
