@@ -11,6 +11,13 @@ val begins_with : string -> string -> bool
 val string_of_chars : char list -> string
 val string_of_char : char -> string
 
+val remove_front : char list -> string -> string
+val strip_front : string -> string
+val remove_end : char list -> string -> string
+val strip_end : string -> string
+
+val strip : string -> string
+
 (*
  * arch-tag: 55FCB2C6-2B50-11D8-B4D4-000393CFE6B8
  *)

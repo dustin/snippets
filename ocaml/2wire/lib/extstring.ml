@@ -125,6 +125,17 @@ let split_all s c limit =
 			[] s c 0 limit
 ;;
 
+(* skip characters in a string from the given list of characters *)
+let rec pvt_skip_chars s l i =
+	if (i >= String.length s ) then
+		String.length s
+	else
+		if is_my_letter l (String.get s i) then
+			pvt_skip_chars s l (i+1)
+		else
+			i
+;;
+
 (**
  Split a string into a list of Strings.
 
@@ -134,15 +145,6 @@ let split_all s c limit =
  @return an array of strings
 *)
 let split_chars s l limit =
-	let rec pvt_skip_chars s l i =
-		if (i >= String.length s ) then
-			String.length s
-		else
-			if is_my_letter l (String.get s i) then
-				pvt_skip_chars s l (i+1)
-			else
-				i
-		in
 	pvt_rec_split_chars pvt_skip_chars [] s l 0 limit
 ;;
 
@@ -263,6 +265,58 @@ let string_of_chars l =
 
  @param c the character
  *)
-let string_of_char c =
-	String.make 1 c
+let string_of_char =
+	String.make 1
+;;
+
+(**
+ Remove characters from the front of the given string.
+ *)
+let remove_front chars s =
+	let pos = pvt_skip_chars s chars 0 in
+	String.sub s pos ((String.length s) - pos)
+;;
+
+(* The whitespace characters *)
+let pvt_whitespace = [' '; Char.chr 10; Char.chr 13; Char.chr 9];;
+
+(**
+ Remove whitespace from the front of a string.
+ *)
+let strip_front =
+	remove_front pvt_whitespace
+;;
+
+(**
+ Remove characters from the end of a string.
+ *)
+let remove_end chars s =
+	let rec pvt_skip_chars_rev s i =
+		if (i < 1) then
+			0
+		else
+			if is_my_letter chars (String.get s i) then
+				pvt_skip_chars_rev s (i-1)
+			else
+				i
+		in
+	let pos = pvt_skip_chars_rev s ((String.length s) - 1) in
+	if pos > 0 then
+		String.sub s 0 (pos + 1)
+	else
+		""
+;;
+
+(**
+ Remove whitespace from the end of a string.
+ *)
+let strip_end =
+	remove_end pvt_whitespace
+;;
+
+(**
+ Remove whitespace from both ends of a string.
+ *)
+let strip s =
+	strip_front (strip_end s)
 ;;
