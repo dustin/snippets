@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: placement.tcl,v 1.2 2000/05/26 02:02:08 dustin Exp $
+# $Id: spyanimation.tcl,v 1.1 2000/05/27 01:24:54 dustin Exp $
 
 proc itemStartDrag {c x y} {
 	global lastX lastY
