@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.4 2000/07/01 11:28:32 dustin Exp $
+// $Id: ObjectPool.java,v 1.5 2000/07/01 11:53:58 dustin Exp $
 
 package net.spy.pool;
 
@@ -70,7 +70,7 @@ public class ObjectPool extends Object {
 	/**
 	 * Dump out the object pools.
 	 */
-	public synchronized void dumpPools() throws PoolException {
+	public void dumpPools() throws PoolException {
 		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
 			getPool(key).dumpPool();
@@ -80,11 +80,10 @@ public class ObjectPool extends Object {
 	/**
 	 * Dump out the object pools.
 	 */
-	public synchronized void prune() throws PoolException {
+	public void prune() throws PoolException {
 		for(Enumeration e=pools.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
-			PoolContainer pc=getPool(key);
-			pc.prune();
+			getPool(key).prune();
 		}
 	}
 

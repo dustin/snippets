@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.3 2000/07/01 11:28:34 dustin Exp $
+// $Id: PoolContainer.java,v 1.4 2000/07/01 11:54:00 dustin Exp $
 
 package net.spy.pool;
 
@@ -119,6 +119,9 @@ public class PoolContainer extends Object {
 	/**
 	 * Remove any object that is not checked out, as long as we stay above
 	 * our minimum object requirement.
+	 * <p>
+	 * This method should only be called from the ObjectPoolCleaner --
+	 * please don't call it directly.
 	 */
 	public synchronized void prune() {
 		for(Enumeration e=pool.elements(); e.hasMoreElements();) {
