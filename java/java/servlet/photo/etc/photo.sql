@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.13 1998/11/08 01:25:37 dustin Exp $
+-- $Id: photo.sql,v 1.14 1998/11/08 02:02:31 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -120,13 +120,6 @@ create function catsum (integer)
 	'select count(*) from album where cat = $1'
 	language 'SQL';
 
--- Quick lookup function for moving from a seperate map to a single image
--- source.  This will go away as soon as that map does.
-
--- create function getimageid(varchar) returns integer as
---	 'select id from image_map where name = $1'
---	 language 'sql';
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 -- MISC QUERIES
@@ -134,4 +127,4 @@ create function catsum (integer)
 -- Garbage collector, unfortunately, this will not work in a view.
 
 -- select distinct id from image_store where id not in
---	(select id from image_map);
+--	(select id from album);
