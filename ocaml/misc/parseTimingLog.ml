@@ -203,7 +203,7 @@ let get_log_entry l =
 (* do it *)
 let main() =
 	let rrd = (Array.get Sys.argv 1) in
-	conditional_fold_lines
+	conditional_iter_lines
 		(fun l ->
 			let le = get_log_entry l in
 			try
