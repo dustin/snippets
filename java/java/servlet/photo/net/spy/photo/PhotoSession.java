@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.4 1999/12/15 03:49:33 dustin Exp $
+ * $Id: PhotoSession.java,v 1.5 1999/12/15 04:18:56 dustin Exp $
  */
 
 package net.spy.photo;
@@ -72,16 +72,6 @@ public class PhotoSession extends Object
 		} else {
 			multi = null;
 		}
-
-/*
-		// Experimental session stuff
-		session = request.getSession(true);
-		if(session.isNew()) {
-			log(session.getId() + " is a new session");
-		} else {
-			log(session.getId() + " is an old session");
-		}
-*/
 
 		// Set the self_uri
 		self_uri = request.getRequestURI();

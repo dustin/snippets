@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.1 1999/12/15 03:49:33 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.2 1999/12/15 04:18:55 dustin Exp $
  */
 
 package net.spy.photo;
@@ -59,6 +59,7 @@ public class PhotoServlet extends HttpServlet
 		try {
 			rhash = new RHash(conf.get("objectserver"));
 		} catch(Exception e) {
+			log("Could not get rhash connection:  " + e);
 			rhash = null;
 		}
 
