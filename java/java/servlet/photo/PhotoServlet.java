@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.1 1999/09/15 07:57:05 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.2 1999/09/15 18:52:06 dustin Exp $
  */
 
 import java.io.*;
@@ -71,13 +71,16 @@ public class PhotoServlet extends HttpServlet
 		// connection.
 		getUid();
 
+		// Figure out what they want, default to index.
 		func=request.getParameter("func");
 		if(func == null) {
-			throw new ServletException("No function given.");
-		}
-
-		if(func.equalsIgnoreCase("search")) {
+			doIndex(request, response);
+		} else if(func.equalsIgnoreCase("search")) {
 			doFind(request, response);
+		} else if(func.equalsIgnoreCase("index")) {
+			doIndex(request, response);
+		} else if(func.equalsIgnoreCase("findform")) {
+			doFindForm(request, response);
 		} else if(func.equalsIgnoreCase("display")) {
 			doDisplay(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
@@ -86,6 +89,77 @@ public class PhotoServlet extends HttpServlet
 			throw new ServletException("No known function.");
 		}
 
+	}
+
+	private static String showSaved() throws SQLException, IOException {
+		Statement st;
+		String query, out="";
+		BASE64Decoder base64 = new BASE64Decoder();
+
+		st=photo.createStatement();
+
+		query = "select * from searches order by name,addedby\n";
+		ResultSet rs = st.executeQuery(query);
+		while(rs.next()) {
+			byte data[];
+			String tmp;
+			data=base64.decodeBuffer(rs.getString(4));
+			tmp = new String(data);
+			out += "    <li><a href=\"" + self_uri + "?"
+				+ tmp + "\">" + rs.getString(2) + "</a></li>\n";
+		}
+		return(out);
+	}
+
+	private static String getCatList() throws SQLException, IOException {
+		Statement st;
+		String query, out="";
+
+		st=photo.createStatement();
+
+		query = "select * from cat where id in\n"
+			  + "(select cat from wwwacl where\n"
+			  + "    userid=" + remote_uid + ")\n"
+			  + "order by name\n";
+
+		ResultSet rs = st.executeQuery(query);
+		while(rs.next()) {
+			out += "    <option value=\"" + rs.getString(1)
+				+ "\">" + rs.getString(2) + "\n";
+		}
+		return(out);
+	}
+
+	private static void doFindForm(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output = new String("");
+		Hashtable h = new Hashtable();
+
+		try {
+			h.put("CAT_LIST", getCatList());
+		} catch(Exception e) {
+			h.put("CAT_LIST", "");
+		}
+		output += tokenize("findform.inc", h);
+		output += tokenize("tail.inc", h);
+		send_response(response, output);
+	}
+
+	private static void doIndex(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output = new String("");;
+		Hashtable h = new Hashtable();
+
+		try {
+			h.put("SAVED", showSaved());
+		} catch(Exception e) {
+			h.put("SAVED", "");
+		}
+		output += tokenize("index.inc", h);
+		output += tokenize("tail.inc", h);
+		send_response(response, output);
 	}
 
 	// Get the UID
@@ -167,7 +241,7 @@ public class PhotoServlet extends HttpServlet
 
 		// OK, lets look for search strings now...
 		stmp = request.getParameter("what");
-		if(stmp != null) {
+		if(stmp != null && stmp.length() > 0) {
 			String a, b, field;
 			boolean needjoin=false;
 			a=b="";
@@ -212,7 +286,7 @@ public class PhotoServlet extends HttpServlet
 		// Starts and ends
 
 		stmp=dbquote_str(request.getParameter("tstart"));
-		if(stmp != null) {
+		if(stmp != null && stmp.length()>0) {
 			if(needao) {
 				join=dbquote_str(request.getParameter("tstartjoin"));
 				if(join==null) {
@@ -225,7 +299,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		stmp=dbquote_str(request.getParameter("tend"));
-		if(stmp != null) {
+		if(stmp != null && stmp.length()>0) {
 			if(needao) {
 				join=dbquote_str(request.getParameter("tendjoin"));
 				if(join==null) {
@@ -238,7 +312,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		stmp=dbquote_str(request.getParameter("start"));
-		if(stmp != null) {
+		if(stmp != null && stmp.length()>0) {
 			if(needao) {
 				join=dbquote_str(request.getParameter("startjoin"));
 				if(join==null) {
@@ -251,7 +325,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		stmp=dbquote_str(request.getParameter("end"));
-		if(stmp != null) {
+		if(stmp != null && stmp.length()>0) {
 			if(needao) {
 				join=dbquote_str(request.getParameter("endjoin"));
 				if(join==null) {
@@ -367,15 +441,20 @@ public class PhotoServlet extends HttpServlet
 
 		output += tokenize("tail.inc", new Hashtable());
 
+		send_response(response, output);
+	}
+
+	// Send the response text...
+	private static void send_response(HttpServletResponse response, String text)
+	{
 		// set content type and other response header fields first
 		response.setContentType("text/html");
 		try {
 			PrintWriter out = response.getWriter();
-			out.print(output);
+			out.print(text);
 			out.close();
-		} catch(IOException e) {
+		} catch(Exception e) {
 		}
-
 	}
 
 	// Find and display images.
@@ -438,7 +517,8 @@ public class PhotoServlet extends HttpServlet
 			}
 
 		} catch(SQLException e) {
-			throw new ServletException("Database problem: " + e.getSQLState());
+			throw new ServletException("Database problem: " + e.getMessage() +
+				"\n" + query);
 		}
 
 		output += "</tr></table>\n";
@@ -449,15 +529,7 @@ public class PhotoServlet extends HttpServlet
 
 		output += tokenize("tail.inc", new Hashtable());
 
-		// set content type and other response header fields first
-		response.setContentType("text/html");
-		try {
-			PrintWriter out = response.getWriter();
-			out.print(output);
-			out.close();
-		} catch(IOException e) {
-		}
-
+		send_response(response, output);
 	}
 
 	// Link to more search results
@@ -550,6 +622,11 @@ public class PhotoServlet extends HttpServlet
 		String ret;
 
 		vars.put("SELF_URI", self_uri);
+		vars.put("HTML_URI", "/~dustin/jphoto/");
+		vars.put("REMOTE_USER", remote_user);
+		vars.put("REMOTE_UID", remote_uid.toString());
+		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
+			+ "/perl/dustin/photo/style.cgi\">");
 
 		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
 
