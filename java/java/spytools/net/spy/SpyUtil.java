@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.11 2001/04/03 07:37:20 dustin Exp $
+// $Id: SpyUtil.java,v 1.12 2001/05/22 03:40:23 dustin Exp $
 
 package net.spy;
 
@@ -62,34 +62,42 @@ public class SpyUtil {
 	}
 
 	/**
+	 * @deprecated use getFileData(File)
+	 */
+	public static String getFileData(String file) throws IOException {
+		return(getFileData(file));
+	}
+
+	/**
 	 * Return the contents of a file as a string.
 	 *
-	 * @param file Path to filename.
+	 * @param file File to read.
 	 *
 	 * @exception IOException Thrown if the file cannot be opened.
 	 */
-	 public static String getFileData(String file)
-		throws IOException {
+	public static String getFileData(File file) throws IOException {
 		byte b[]=new byte[8192];
 		FileInputStream f = new FileInputStream(file);
-		String input="", tmp;
+		StringBuffer rv=new StringBuffer();
 		int size;
 
 		while( (size=f.read(b)) >=0 ) {
-			tmp = new String(b);
+			String tmp = new String(b);
 			// Substring to get rid of all the damned nulls
-			input += tmp.substring(0, size);
+			rv.append(tmp.substring(0, size));
 
 		}
-		return(input);
-	 }
 
-	 /**
-	  * Get a stack from an exception.
-	  *
-	  * @param e Exception from which we'll be extracting the stack.
-	  * @param skip Number of stack entries to skip (usually two or three)
-	  */
+		f.close();
+		return(rv.toString());
+	}
+
+	/**
+	 * Get a stack from an exception.
+	 *
+	 * @param e Exception from which we'll be extracting the stack.
+	 * @param skip Number of stack entries to skip (usually two or three)
+	 */
 	public static String getStack(Exception e, int skip) {
 		String r="";
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
