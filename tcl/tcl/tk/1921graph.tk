@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.7 2000/07/20 00:04:07 dustin Exp $
+# $Id: 1921graph.tk,v 1.8 2000/07/20 05:36:09 dustin Exp $
 
 set width 640
 set height 480
@@ -17,8 +17,9 @@ proc showGraph { width height } {
 	canvas .g -relief raised -width $width -height $height
 	pack .g -side top -fill x
 
-	set min_t [expr $dumpData(mission_start)+($gmtoffset*3600)]
-	set max_t [expr $min_t+($dumpData(sample_rate)*60*$dumpData(mission_samples))]
+	set start_time [expr $dumpData(mission_start)+($gmtoffset*3600)]
+	set min_t [expr $dumpData(min_sample_time)+($gmtoffset*3600)]
+	set max_t [expr $start_time+($dumpData(sample_rate)*60*$dumpData(mission_samples))]
 	set items 0
 
 	set min_v  99999
@@ -28,9 +29,10 @@ proc showGraph { width height } {
 
 	set i 0
 	foreach key [lsort [array names dumpData sample_data_*]] {
-		set value [ctof $dumpData($key) ]
+		set itmp [split $dumpData($key) {, }]
 
-		set mykey [expr $min_t+($rate*$i*60)]
+		set value [ctof [lindex $itmp 2] ]
+		set mykey [expr $start_time+($rate*[lindex $itmp 0]*60)]
 
 		set input($mykey) $value
 
@@ -76,9 +78,15 @@ proc showGraph { width height } {
 	# Time lines
 	######################################################################
 
+	if { [expr $max_t-$min_t] < [expr 7*86400] } {
+		set dashwidth 3600
+	} else {
+		set dashwidth [expr 12*3600]
+	}
+
 	# Draw the hour lines.
-	set firstline [expr (($min_t / 3600)+1) * 3600 ]
-	for { set i $firstline } { $i < $max_t } { set i [expr $i + 3600 ] } {
+	set firstline [expr (($min_t / $dashwidth)+1) * $dashwidth ]
+	for { set i $firstline } { $i < $max_t } { set i [expr $i + $dashwidth] } {
 		set x [expr (($i-$min_t)/$xfactor)+$xleft]
 		.g create line $x $maxy $x $miny -dash . -fill grey
 	}
@@ -121,18 +129,20 @@ proc showGraph { width height } {
 	set lastx -1
 
 	for { set i $min_t } { $i < $max_t } { set i [expr $i + ($rate*60)] } {
-		set n $input($i)
+		catch {
+			set n $input($i)
 
-		set x [expr (($i-$min_t)/$xfactor)+$xleft]
-		set nadj [expr ($n-$min_v)]
-		set y [expr ($height-40)-($nadj*$yfactor)]
+			set x [expr (($i-$min_t)/$xfactor)+$xleft]
+			set nadj [expr ($n-$min_v)]
+			set y [expr ($height-40)-($nadj*$yfactor)]
 
-		if { $lastx >= 0 } {
-			.g create line $lastx $lasty $x $y -width 1
+			if { $lastx >= 0 } {
+				.g create line $lastx $lasty $x $y -width 1
+			}
+
+			set lastx $x
+			set lasty $y
 		}
-
-		set lastx $x
-		set lasty $y
 	}
 }
 
@@ -230,7 +240,7 @@ proc readDump { file } {
 			set dumpData([lindex $kv 0]) [lindex $kv 1]
 		} ]
 		if { $error } {
-			puts "Damnit:  $error"
+			puts stderr "Damnit:  $error"
 		}
 	}
 
@@ -242,5 +252,5 @@ wm iconname . "1921"
 
 readDump /tmp/dump
 showGraph $width $height
-toplevel .h -width 320 -height 200
-showHistogram 320 200
+toplevel .h -width 640 -height 480
+showHistogram 640 480
