@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  SPY Internetworking
  *
- * $Id: radius.h,v 1.6 1998/06/22 01:42:06 dustin Exp $
+ * $Id: radius.h,v 1.7 1998/08/04 20:15:58 dustin Exp $
  */
 
 #define RADIUS_VECTOR_LEN 16
@@ -105,8 +105,8 @@ void rad_dump_att(radius *r);
 #define RADIUS_DIALBACK_FRAMED_USER    4
 #define RADIUS_OUTBOUND_USER           5
 #define RADIUS_SHELL_USER              6
-#define RADIUS_CYRUS_USER              7
 #define RADIUS_AUTH_ONLY               8
+#define RADIUS_CYRUS_USER              13
 
 /* Framed Protocols */
 
