@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.7 1998/06/22 02:13:52 dustin Exp $
+ * $Id: radius.c,v 1.8 1998/08/04 20:15:57 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -213,12 +213,6 @@ int rad_simpleauth(radius *r, char *username, char *password)
     rad_add_att(r, RADIUS_USERNAME, username, strlen(username));
     if(rad_addpass(r, password)<0)
 	return(-1);
-
-/*
-    service=RADIUS_AUTH_ONLY;
-    service=RADIUS_SHELL_USER;
-    rad_add_att(r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
-*/
 
     r->s=getudpsocket();
     rad_send(r);
