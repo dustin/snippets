@@ -4,13 +4,18 @@
 int main (int argc, const char * argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
-    // insert code here...
-    NSLog(@"Hello, World!");
+	int thePort=3838;
+	NSSocketPort *myPort=[[NSSocketPort alloc] initWithTCPPort:thePort];
 
     id ro=[[RemoteObject alloc] init];
 
     // set up remote object
-    NSConnection *theConnection=[NSConnection defaultConnection];
+    NSConnection *theConnection=[NSConnection
+		connectionWithReceivePort:myPort sendPort:nil];
+
+    // insert code here...
+    NSLog(@"Connection is listening on %d", thePort);
+
     [theConnection setRootObject:ro];
     if ([theConnection registerName:@"RemoteObject"] == NO) {
         NSLog(@"Failed to initialize.\n");

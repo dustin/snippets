@@ -15,7 +15,7 @@
 {
     _access++;
     NSLog(@"Server access, returning %d\n", _access);
-	sleep(5);
+	// sleep(5);
     return(_access);
 }
 
