@@ -7,7 +7,7 @@ OCAMLC=ocamlc
 PROFILE=
 
 PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot \
-	mfgcdb mfgcdb.cmi extractAuthInfo snmap statRollup
+	mfgcdb mfgcdb.cmi extractAuthInfo snmap statutils statutils.cmi statRollup
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -45,9 +45,13 @@ snmap: snmap.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa snmap.ml
 
-statRollup: statRollup.ml
+statutils: statutils.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa statRollup.ml
+		unix.cmxa spy.cmxa statutils.ml
+
+statRollup: statRollup.ml statutils.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa statutils.cmx statRollup.ml
 
 extractAuthInfo: extractAuthInfo.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \

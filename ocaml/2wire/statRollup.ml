@@ -4,12 +4,7 @@
  * arch-tag: 7AEBB098-9EB2-11D8-AC70-000393CFE6B8
  *)
 
-(* Column type *)
-type 'a col_t = {
-	name: string;
-	avg: ('a list -> 'a);
-	aggtype: string;
-};;
+open Statutils;;
 
 (* Accumulator type *)
 type acct_t = {
@@ -20,33 +15,12 @@ type acct_t = {
 (* Set of strings *)
 module StringSet = Set.Make(String);;
 
-(* Get the sum of a list of numbers *)
-let sum l = List.fold_left (+.) 0.0 l ;;
-
-(* Get the average of the numbers in a list *)
-let simpleAvg l = (sum l) /. float_of_int(List.length l) ;;
-
-(* Get the average of the numbers in a list minus the highest and lowest *)
-let avg l =
-	(* Sort the list *)
-	let sl = List.sort compare l in
-	(* Remove the first and last elements *)
-	let tl = List.tl (List.rev (List.tl (List.rev sl))) in
-	simpleAvg tl
-;;
-
 (* All of the columns and their aggregation functions *)
 let columns =
-	List.concat (List.map (fun t ->
-		List.map (fun subt ->
-			let cname = t ^ subt in
-			{	name = cname;
-				avg = if (subt = "time") then avg else simpleAvg;
-				aggtype = if (subt = "time") then "avg" else "simpleAvg";
-			})
-			["time"; "count"; "start"; "end"])
-		["HB"; "BOOT"; "KICK"; "XMLRPC"])
+	columnMaker (fun t subt -> if (subt = "time") then avg else simpleAvg)
+		["HB"; "BOOT"; "KICK"; "XMLRPC"] ["time"; "count"; "start"; "end"]
 ;;
+
 
 (* Display the results *)
 let real_display ds cols =
