@@ -62,10 +62,9 @@
 		1058C7A0FEA54F0111CA2CBB = {
 			children = (
 				1058C7A1FEA54F0111CA2CBB,
-				F50C0DEA034023CC01A801C4,
-				F50C0E29034023D701A801C4,
-				F50C0E51034023E301A801C4,
-				F50C0E9A034025BE01A801C4,
+				F53B805203455CC001A801C4,
+				F53B809103455CD101A801C4,
+				F53B803103455CAB01A801C4,
 			);
 			isa = PBXGroup;
 			name = "Linked Frameworks";
@@ -317,10 +316,9 @@
 			files = (
 				F50C08A7034015CE01A801C4,
 				F50C08A8034015CE01A801C4,
-				F50C0E28034023CC01A801C4,
-				F50C0E50034023D701A801C4,
-				F50C0E6E034023E301A801C4,
-				F50C0EBA034025BE01A801C4,
+				F53B805103455CAB01A801C4,
+				F53B809003455CC001A801C4,
+				F53B80AE03455CD101A801C4,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,82 +379,63 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				F50C0E90034023F501A801C4,
-				F50C0E91034023F501A801C4,
-				F50C0E92034023F501A801C4,
-				F50C0EBB034025C301A801C4,
+				F53B80BC03455CFD01A801C4,
+				F53B80BD03455CFD01A801C4,
+				F53B80BE03455CFD01A801C4,
 			);
 			isa = PBXCopyFilesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F50C0DEA034023CC01A801C4 = {
-			isa = PBXFrameworkReference;
-			name = EDCommon.framework;
-			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDCommon/build/EDCommon.framework;
-			refType = 0;
-		};
-		F50C0E28034023CC01A801C4 = {
-			fileRef = F50C0DEA034023CC01A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E29034023D701A801C4 = {
-			isa = PBXFrameworkReference;
-			name = EDInternet.framework;
-			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDInternet/build/EDInternet.framework;
-			refType = 0;
-		};
-		F50C0E50034023D701A801C4 = {
-			fileRef = F50C0E29034023D701A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E51034023E301A801C4 = {
-			isa = PBXFrameworkReference;
-			name = EDMessage.framework;
-			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDMessage/build/EDMessage.framework;
-			refType = 0;
-		};
-		F50C0E6E034023E301A801C4 = {
-			fileRef = F50C0E51034023E301A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E90034023F501A801C4 = {
-			fileRef = F50C0DEA034023CC01A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E91034023F501A801C4 = {
-			fileRef = F50C0E29034023D701A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E92034023F501A801C4 = {
-			fileRef = F50C0E51034023E301A801C4;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F50C0E9A034025BE01A801C4 = {
+		F53B803103455CAB01A801C4 = {
 			isa = PBXFrameworkReference;
 			name = XMLRPC.framework;
 			path = /Users/dustin/prog/eprojects/objcxmlrpc/znek/XMLRPC/build/XMLRPC.framework;
 			refType = 0;
 		};
-		F50C0EBA034025BE01A801C4 = {
-			fileRef = F50C0E9A034025BE01A801C4;
+		F53B805103455CAB01A801C4 = {
+			fileRef = F53B803103455CAB01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		F50C0EBB034025C301A801C4 = {
-			fileRef = F50C0E9A034025BE01A801C4;
+		F53B805203455CC001A801C4 = {
+			isa = PBXFrameworkReference;
+			name = EDCommon.framework;
+			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDCommon/build/EDCommon.framework;
+			refType = 0;
+		};
+		F53B809003455CC001A801C4 = {
+			fileRef = F53B805203455CC001A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53B809103455CD101A801C4 = {
+			isa = PBXFrameworkReference;
+			name = EDMessage.framework;
+			path = /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDMessage/build/EDMessage.framework;
+			refType = 0;
+		};
+		F53B80AE03455CD101A801C4 = {
+			fileRef = F53B809103455CD101A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53B80BC03455CFD01A801C4 = {
+			fileRef = F53B805203455CC001A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53B80BD03455CFD01A801C4 = {
+			fileRef = F53B809103455CD101A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53B80BE03455CFD01A801C4 = {
+			fileRef = F53B803103455CAB01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
