@@ -1,5 +1,6 @@
 {
     IBClasses = (
+        {CLASS = DumpMatrix; LANGUAGE = ObjC; SUPERCLASS = NSMatrix; },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
         {
             CLASS = HideableProgressIndicator;

@@ -286,6 +286,9 @@
     // Fill in form entries with defaults
     [self dateToToday: self];
 
+    [imgMatrix registerForDraggedTypes:[NSArray arrayWithObjects:
+        NSFilenamesPboardType, nil]];
+
     [authWindow makeKeyAndOrderFront: self];
 }
 
