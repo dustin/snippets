@@ -1,0 +1,17 @@
+# This is a list of mime types we accept.
+
+application/mac-binhex40
+application/ms-tnef
+application/pdf
+application/pgp.*
+application/pkcs.*
+application/postscript
+application/rtf
+application/x-gtar
+application/x-gzip
+application/x-tar
+application/zip
+image/.*
+message/rfc822
+multipart/.*
+text/.*
