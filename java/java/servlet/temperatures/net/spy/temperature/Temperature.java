@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.15 2002/08/22 06:51:31 dustin Exp $
+ * $Id: Temperature.java,v 1.16 2002/08/22 07:37:54 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -24,9 +24,8 @@ import net.spy.cache.*;
 import net.spy.png.*;
 
 // The class
-public class Temperature extends PngServlet implements ImageObserver
-{
-	private boolean imageLoaded=false;
+public class Temperature extends PngServlet {
+
 	private SpyCache cache=null;
 	private File configFile=null;
 
@@ -172,7 +171,7 @@ public class Temperature extends PngServlet implements ImageObserver
 		g.setColor(black);
 
 		// Draw the base thermometer
-		g.drawImage(baseImage, 0, 0, this);
+		g.drawImage(baseImage, 0, 0, new StupidImageObserver());
 
 		// Translate the angle because we're a little crooked
 		trans=-90;
@@ -226,30 +225,9 @@ public class Temperature extends PngServlet implements ImageObserver
 			}
 			log("Getting image (" + url + ")");
 
-			baseImage=Toolkit.getDefaultToolkit().getImage(url);
-			Toolkit.getDefaultToolkit().prepareImage(baseImage, -1, -1, this);
-			if(!imageLoaded) {
-				synchronized(this) {
-					wait(15000);
-				}
-			}
-			log("Image completely loaded (or timed out).");
+			ImageLoader il=new ImageLoader(url);
+			baseImage=il.getImage();
 		}
 		return(baseImage);
-	}
-
-	// When imageUpdate is called...yeah, this sucks.
-	public boolean imageUpdate(Image img, int infoflags,
-		int x, int y, int width, int height) {
-
-		if( (infoflags&ALLBITS) != 0) {
-			imageLoaded=true;
-			log("Actually loaded.");
-			synchronized(this) {
-				notify();
-			}
-		}
-
-		return(!imageLoaded);
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.10 2002/05/04 08:50:07 dustin Exp $
+ * $Id: HouseServlet.java,v 1.11 2002/08/22 07:35:18 dustin Exp $
  */
 
 package net.spy.house;
@@ -23,8 +23,8 @@ import java.awt.image.*;
 import net.spy.png.*;
 
 // The class
-public class HouseServlet extends PngServlet implements ImageObserver
-{
+public class HouseServlet extends PngServlet {
+
 	// Colors we'll be using
 	private Color white=null;
 	private Color red=null;
@@ -63,7 +63,13 @@ public class HouseServlet extends PngServlet implements ImageObserver
 			}
 		}
 
-		getBaseImage(bi);
+		try {
+			getBaseImage(new URL(bi));
+		} catch(MalformedURLException e) {
+			throw new ServletException("Error making URL out of " + bi, e);
+		} catch(IOException e) {
+			throw new ServletException("Error getting image", e);
+		}
 
 		white=new Color(255, 255, 255);
 		red=new Color(255, 0, 0);
@@ -87,7 +93,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 	private Image getHouseImage() throws Exception {
 		Image img=createImage(307, 223);
 		Graphics g=img.getGraphics();
-		g.drawImage(baseImage, 0, 0, this);
+		g.drawImage(baseImage, 0, 0, new StupidImageObserver());
 
 		ServletConfig sconf=getServletConfig();
 
@@ -131,6 +137,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 				// Stick the color all up in there.
 				g.fillRect(x, y, w, h);
 			} catch(Exception e) {
+				e.printStackTrace();
 				rstring="??.??";
 			}
 			// Put the reading in there.
@@ -143,37 +150,8 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		return(img);
 	}
 
-	private void getBaseImage(String url) {
-		try {
-			if(baseImage==null) {
-				log("Loading image... (" + url + ")");
-				baseImage=Toolkit.getDefaultToolkit().getImage(new URL(url));
-				Toolkit.getDefaultToolkit().prepareImage(baseImage,-1,-1,this);
-				if(!imageLoaded) {
-					synchronized(this) {
-						wait(15000);
-					}
-				}
-				log("Image loaded (or timed out).");
-			}
-		} catch(Exception e) {
-			System.err.println("Error fetching base image:  " +e);
-			e.printStackTrace();
-		}
-	}
-
-	// When imageUpdate is called...yeah, this sucks.
-	public boolean imageUpdate(Image img, int infoflags,
-		int x, int y, int width, int height) {
-
-		if((infoflags&ALLBITS) != 0) {
-			imageLoaded=true;
-			log("Actually loaded.");
-			synchronized(this) {
-				notify();
-			}
-		}
-
-		return(!imageLoaded);
+	private void getBaseImage(URL url) throws IOException {
+		ImageLoader il=new ImageLoader(url);
+		baseImage=il.getImage();
 	}
 }
