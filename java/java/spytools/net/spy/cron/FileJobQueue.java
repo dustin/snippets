@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileJobQueue.java,v 1.4 2001/04/15 07:05:27 dustin Exp $
+// $Id: FileJobQueue.java,v 1.5 2001/10/09 18:40:23 dustin Exp $
 
 package net.spy.cron;
 
@@ -58,6 +58,7 @@ public class FileJobQueue extends JobQueue {
 			} catch(Exception e) {
 				System.err.println("Error parsing line "
 					+ lnr.getLineNumber() + ":  " + e);
+				e.printStackTrace();
 			}
 
 			line=lnr.readLine();
