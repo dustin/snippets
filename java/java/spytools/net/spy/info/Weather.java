@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.3 2000/03/22 07:49:34 dustin Exp $
+// $Id: Weather.java,v 1.4 2000/03/28 08:48:41 dustin Exp $
 
 package net.spy.info;
 
@@ -54,6 +54,7 @@ public class Weather extends Info {
 		if(hinfo==null) {
 			getInfo();
 			hinfo=new Hashtable();
+			hinfo.put("zip_code", zip_code);
 			String lines[]=SpyUtil.split("\n", info);
 			int section=0;
 			for(int i=0; i<lines.length; i++) {
@@ -75,6 +76,7 @@ public class Weather extends Info {
 					int sds=city.indexOf(" - ");
 					city=city.substring(sds+3, city.length());
 					shortWeather+=city + "\r\n";
+					hinfo.put("city", city);
 				} // Section zero
 				// Section two is the first information section...we're
 				// going to parse it into the hinfo hash, odd lines are
@@ -125,5 +127,6 @@ public class Weather extends Info {
 	public static void main(String args[]) throws Exception {
 		Weather w = new Weather(args[0]);
 		System.out.println("Info:\n" + w);
+		System.out.println("Info (XML):\n" + w.toXML());
 	}
 }

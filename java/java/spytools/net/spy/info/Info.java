@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.1 2000/03/22 07:49:32 dustin Exp $
+// $Id: Info.java,v 1.2 2000/03/28 08:48:39 dustin Exp $
 
 package net.spy.info;
 
@@ -44,6 +44,41 @@ public class Info extends Object {
 			}
 		} catch(Exception e) {
 			// Just let it return null
+		}
+		return(ret);
+	}
+
+	// Make sure we only have letters and numbers in the tag.
+	protected String xmlSafe(String key) {
+		String ret="";
+		key=key.toLowerCase();
+		char chars[]=key.toCharArray();
+
+		for(int i=0; i<chars.length; i++) {
+			if(Character.isLetterOrDigit(chars[i])) {
+				ret+=chars[i];
+			}
+		}
+		return(ret);
+	}
+
+	/**
+	 * Get an XML representation of the info object as a String.
+	 */
+	public String toXML() {
+		String ret="";
+		try {
+			parseInfo();
+			for(Enumeration e = hinfo.keys(); e.hasMoreElements(); ) {
+				String key=(String)e.nextElement();
+				String safekey=xmlSafe(key);
+				String data=(String)hinfo.get(key);
+				ret+="<" + safekey + ">\n"
+					+ "\t" + data + "\n"
+					+ "</" + safekey + ">\n";
+			}
+		} catch(Exception e) {
+			// Just return an empty string
 		}
 		return(ret);
 	}
