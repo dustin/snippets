@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcherTest.java,v 1.3 2002/08/21 02:03:13 dustin Exp $
+// $Id: URLWatcherTest.java,v 1.4 2002/08/21 07:09:05 dustin Exp $
 
 package net.spy.test;
 
@@ -10,6 +10,7 @@ import junit.framework.TestSuite;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 
 import net.spy.net.URLWatcher;
 import net.spy.net.URLItem;
@@ -96,4 +97,53 @@ public class URLWatcherTest extends TestCase {
 		uw.shutdown();
 	}
 
+	/**
+	 * Test with several URLs.
+	 */
+	public void testLotsOfURLs() throws IOException, InterruptedException {
+		String urls[]={"http://bleu.west.spy.net/",
+			"http://bleu.west.spy.net/~dustin/",
+			"http://bleu.west.spy.net/~dustin/music/",
+			"http://bleu.west.spy.net/~dustin/eiffel/",
+			"http://bleu.west.spy.net/~dustin/projects/",
+			"http://bleu.west.spy.net/~dustin/wa/bleu/",
+			"http://bleu.west.spy.net/~dustin/wa/prop/",
+			"http://bleu.west.spy.net/~dustin/projects/filemonitor.xtp",
+			"http://bleu.west.spy.net/~dustin/projects/spytest.xtp",
+			"http://bleu.west.spy.net/~dustin/projects/spyjar.xtp"};
+
+		URLWatcher uw=URLWatcher.getInstance();
+		HashMap content=new HashMap();
+
+		for(int i=0; i<urls.length; i++) {
+			URL u=new URL(urls[i]);
+			String s=uw.getContent(u);
+			assertNotNull("Didn't get content for " + u, s);
+			content.put(u, s);
+			// Sleep a bit after we get going.
+			if(i>5) {
+				Thread.sleep(500);
+			}
+		}
+
+		// Wait five seconds
+		Thread.sleep(5000);
+
+		for(int i=0; i<urls.length; i++) {
+			URL u=new URL(urls[i]);
+			assertTrue("Not watching " + u, uw.isWatching(u));
+
+			String s=uw.getContent(u);
+			assertNotNull("Didn't get content for " + u + " 2nd time", s);
+
+			// Verify it looks the same.
+			String s1=(String)content.get(u);
+			assertNotNull("Saved content was null for " + u, s1);
+
+			assertEquals("Second run was different for " + u, s1, s);
+			assertSame("Second run was a different instance for " + u, s1, s);
+		}
+
+		uw.shutdown();
+	}
 }

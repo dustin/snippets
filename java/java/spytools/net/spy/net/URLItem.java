@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLItem.java,v 1.4 2002/08/21 05:22:46 dustin Exp $
+// $Id: URLItem.java,v 1.5 2002/08/21 07:09:02 dustin Exp $
 
 package net.spy.net;
 
@@ -25,6 +25,8 @@ public class URLItem extends Job {
 	private int maxIdleTime=3600000;
 
 	private long lastRequest=0;
+
+	private int numUpdates=0;
 
 	private URL url=null;
 
@@ -71,6 +73,8 @@ public class URLItem extends Job {
 		HashMap headers=new HashMap();
 		// make sure the stuff isn't cached
 		headers.put("Pragma", "no-cache");
+
+		numUpdates++;
 
 		try {
 			HTTPFetch hf=new HTTPFetch(url, headers);

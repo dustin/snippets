@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Job.java,v 1.5 2002/08/21 05:22:44 dustin Exp $
+// $Id: Job.java,v 1.6 2002/08/21 07:08:59 dustin Exp $
 
 package net.spy.cron;
 
@@ -121,9 +121,18 @@ public abstract class Job extends Object implements Runnable {
 	}
 
 	/**
+	 * Get the current TimeIncrement object incrementing the time on this job.
+	 *
+	 * @return the TimeIncrement
+	 */
+	protected TimeIncrement getTimeIncrement() {
+		return(ti);
+	}
+
+	/**
 	 * Mark this job as having been started.
 	 */
-	protected void markStarted() {
+	protected synchronized void markStarted() {
 		hasrun=true;
 		if(ti==null) {
 			nextStart=null;
@@ -153,5 +162,8 @@ public abstract class Job extends Object implements Runnable {
 	 */
 	protected void markFinished() {
 		isrunning=false;
+		// Not sure, but if I don't slow down here, I start running into
+		// problems.
+		Thread.yield();
 	}
 }
