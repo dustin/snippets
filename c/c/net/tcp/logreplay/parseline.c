@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 1998  Dustin Sallings <dustin@spy.net>
  *
- * $Id: parseline.c,v 1.1 1998/12/07 08:32:52 dustin Exp $
+ * $Id: parseline.c,v 1.2 1998/12/07 08:34:17 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <time.h>
 
