@@ -20,7 +20,7 @@ function openWindow(URL,name) {
 <body bgcolor="#fFfFfF">
 
 <center>
-<img src="%CGIDIR%/img.cgi/%IMAGE%">
+<img src="%IMAGEDATA%">
 </center>
 <p>
 

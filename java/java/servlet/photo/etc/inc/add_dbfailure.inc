@@ -9,4 +9,6 @@ Query:  %QUERY%
 
 errstr: %ERRSTR%
 
+Dump:  %DUMP%
+
 -->

@@ -11,7 +11,7 @@
 
     <td>
 	<a href="%SELF_URI%?func=display&id=%IMAGE%">
-        <img border="0" src="%CGIDIR%/img.cgi/tn/%IMAGE%"></a>
+        <img border="0" src="%IMAGEDATA%"></a>
     </td>
 
 </tr>
