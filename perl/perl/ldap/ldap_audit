@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.4 2000/02/10 21:21:37 dustin Exp $
+# $Id: ldap_audit,v 1.5 2000/02/10 21:58:54 dustin Exp $
 
 use strict;
 
@@ -8,38 +8,25 @@ use Net::LDAP;
 use Data::Dumper;
 use LDAPSlave;
 
-# Do want want to print too much info?
-my $debug=0;
+# Where to put the configuration
+my(%config)=();
 
-# Do we want to try to fix it?
-my $fixit=0;
-
-# enter master LDAP server hostname here
-my $ldap_server = "";
-my @slave_servers=(
-	# enter hostnames of slave servers here.
-);
-# Enter the base you want to verify here
-my $base = "";
-
-# Enter binddn here
-my $binddn='';
-# enter that dn's password here
-my $bindpw='';
-
-my @slaves=();
-
-my $master = Net::LDAP->new("$ldap_server") or die "$@";
-
-$master->bind ( dn => $binddn, password => $bindpw);
-
-for(@slave_servers) {
-	my $tmp=Net::LDAP->new("$_") or die "$@";
-	$tmp->bind( dn => $binddn, password => $bindpw);
-	push(@slaves, new LDAPSlave($_, $tmp));
+my($configfile);
+if(@ARGV) {
+	$configfile=$ARGV[0];
+} else {
+	$configfile='audit.conf';
 }
 
-audit($base, $master, @slaves);
+read_config($configfile);
+
+my $master = Net::LDAP->new($config{'ldap_server'}) or die "$@";
+
+$master->bind ( dn => $config{'binddn'}, password => $config{'bindpw'});
+
+my @slaves=get_slaves();
+
+audit($config{'base'}, $master, @slaves);
 
 $master->unbind;
 for(@slaves) { $_->ldap()->unbind };
@@ -59,7 +46,7 @@ sub audit {
 		for(keys(%h)) {
 			if(!defined($master_hash{$_})) {
 				print "!!! $_ is not in the master !!!\n";
-				if($fixit==1) {
+				if($config{'fixit'}==1) {
 					print "Fixing.\n";
 					$slave->ldap()->delete($_);
 				}
@@ -69,7 +56,7 @@ sub audit {
 			if(!defined($h{$_})) {
 				my $t=$slave->name();
 				print "!!! $_ is not in the slave ($t) !!!\n";
-				if($fixit==1) {
+				if($config{'fixit'}==1) {
 					print "Fixing\n";
 					addEntry($slave->ldap(), gettree($master, $_));
 				}
@@ -99,12 +86,12 @@ sub audit {
 
 				if($master_data ne $slave_data) {
 					print "!!! $dn is not the same on $t !!!\n";
-					if($fixit==1) {
+					if($config{'fixit'}==1) {
 						# find and fix the differences
 						print "Fixing\n";
 						fixRecord($slave->ldap(), \%master_data, \%slave_data);
 					}
-					if($debug>0) {
+					if($config{'debug'}>0) {
 						print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
 					}
 				}
@@ -152,7 +139,11 @@ sub getDns {
 		'filter' => '(objectclass=*)', 'attrs' => ['dn']
 	);
 
-	$result->code && die $result->error;
+	if($result->code) {
+		print STDERR "Error getting DNs: " . $result->error . "\n";
+		print Dumper($result);
+		die $result->error;
+	}
 
 	for $entry ($result->all_entries()) {
 		push(@ret, $entry->dn());
@@ -251,4 +242,52 @@ sub addEntry {
 	}
 
 	$slave_ldap->add('dn' => $dn, 'attr' => \@attr);
+}
+
+sub get_slaves {
+	my(@slaves);
+	for(split(/,/, $config{'slave_servers'})) {
+		my($hostname, $binddn, $bindpw);
+
+		if(defined($config{'slave.' . $_ . '.hostname'})) {
+			$hostname=$config{'slave.' . $_ . '.hostname'};
+		} else {
+			$hostname=$_;
+		}
+
+		if(defined($config{'slave.' . $_ . '.binddn'})) {
+			$binddn=$config{'slave.' . $_ . '.binddn'};
+		} else {
+			$binddn=$config{'binddn'};
+		}
+
+		if(defined($config{'slave.' . $_ . '.bindpw'})) {
+			$bindpw=$config{'slave.' . $_ . '.bindpw'};
+		} else {
+			$bindpw=$config{'bindpw'};
+		}
+
+		print "Opening $hostname $binddn/$bindpw\n";
+		my $tmp=Net::LDAP->new($hostname) or die "$@";
+		$tmp->bind( dn => $binddn, password => $bindpw);
+		push(@slaves, new LDAPSlave($_, $tmp));
+	}
+	return(@slaves);
+}
+
+sub read_config {
+	my($file)=@_;
+
+	print "Reading $file\n";
+
+	open(IN, $file) || die("Can't open $file:  $!\n");
+	while(<IN>) {
+		next if(/^#/);
+		next unless(/\w/);
+		chomp;
+		my(@a)=split(/\s*=\s*/, $_, 2);
+
+		$config{$a[0]}=$a[1];
+	}
+	close(IN);
 }
