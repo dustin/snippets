@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /usr/local/bin/perl
 #
 # Perl radiusd, version 1.6
 # By Michael O'Reilly (michael@iinet.net.au)
@@ -8,8 +8,7 @@
 #
 use RADIUS::Dictionary;
 use RADIUS::Packet;
-use Net::Inet;
-use Net::UDP;
+use IO::Socket::INET;
 use Fcntl;
 use strict;
 
@@ -67,7 +66,7 @@ if ( -f "$opt_d/radiuslocal.pl") {
 }
 
 #
-# set current dir..
+# set current dir.. "
 #
 
 chdir($opt_d);
@@ -83,15 +82,23 @@ read_users('users');
 
 # Set up the network socket.
 
-my $s = new Net::UDP { thisport => $opt_p } or die($!);
-$s->bind(0, $opt_p) or die("Couldn't bind: $!");
-$s->fcntl(F_SETFL, $s->fcntl(F_GETFL,0) | O_NONBLOCK)
-    or die("Couldn't make socket non-blocking: $!");
+print "Port is $opt_p\n";
+my $s = IO::Socket::INET->new(
+	# 'LocalPort' => $opt_p,
+	'LocalAddr' => "0.0.0.0:$opt_p",
+	'Proto' => 'udp',
+	'Type' => SOCK_DGRAM,
+	'Debug' => $opt_x,
+	) or die($!);
+$s->blocking(0) or die("Couldn't make socket non-blocking: $!");
 
-my $a = new Net::UDP { thisport => $opt_p } or die($!);
-$a->bind(0, $opt_p + 1) or die("Couldn't bind: $!");
-$a->fcntl(F_SETFL, $s->fcntl(F_GETFL,0) | O_NONBLOCK)
-    or die("Couldn't make socket non-blocking: $!");
+$opt_p++;
+my $a = IO::Socket::INET->new(
+	'LocalAddr' => "0.0.0.0:$opt_p",
+	'Proto' => 'udp',
+	'Debug' => $opt_x
+	) or die($!);
+$a->blocking(0) or die("Couldn't make socket non-blocking: $!");
 
 #
 # Clean zombies..
@@ -130,18 +137,20 @@ while (1) {
 
 				# Check for a packet on the accounting
 				# socket.
-    $rec = $a->recv(undef, undef, $whence);
+    $whence = $a->recv($rec, 1550);
     if( ! length($rec)) {	# Not ready. Try the other socket.
 
 				# Check for a packet on the
 				# authentication socket.
-	$rec = $s->recv(undef, undef, $whence);
+    $whence = $s->recv($rec, 1550);
 	next if ! length($rec);	# if no packet, wait for another one.
     }
 
 				# Log the packet. Is this too verbose?
 
-    my $from = $s->format_addr($whence, 1); # Ouch. this is very
+	# FIXME
+	my $from="localhost";
+    # my $from = $s->format_addr($whence, 1); # Ouch. this is very
 				# expensive. get protobynum!
 				# gethostbyaddr! Even with numeric, it
 				# calculates the info, and throws it
@@ -191,8 +200,8 @@ while (1) {
 				# Build a return packet.
 	my $rp = handle_authentication($p, $client, $secrets{$client});
 
-	$s->sendto(auth_resp($rp->pack, $secrets{$client})
-		   , $whence);
+	# $s->sendto(auth_resp($rp->pack, $secrets{$client}) , $whence);
+	$s->send(auth_resp($rp->pack, $secrets{$client}), 0, $whence);
 	mlog("Reply sent\n") if $opt_x;
 	$rp->dump if $opt_x;
 
@@ -748,9 +757,9 @@ sub radius_is_valid {
 	if $nfound <= 0;	# timeout
 
     # Get the data
-    my($whence);
+    my($whence, $rec);
 
-    my $rec = $s->recv(undef, undef, $whence);
+    $whence = $s->recv($rec, 1550);
     return undef if ! length($rec);
 
     $p = new RADIUS::Packet $dict, $rec;
