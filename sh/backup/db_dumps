@@ -34,7 +34,7 @@ do
 		PSQL="$PSQL -h $host"
 		PDUMP="/usr/local/pgsql/bin/pg_dump -h $host"
 	fi
-	W="where datname not in ('template0', 'template1', 'photo')"
+	W="where datname not in ('template0', 'template1')"
 	# W="where datname in('spyshop', 'money')"
 
 	for i in `$PSQL -t -c "select datname from pg_database $W" template1`
