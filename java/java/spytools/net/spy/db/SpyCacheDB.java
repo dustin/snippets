@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.1 2000/11/05 08:27:36 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.2 2001/01/27 09:01:14 dustin Exp $
  */
 
 package net.spy.db;
@@ -20,6 +20,8 @@ public class SpyCacheDB extends SpyDB {
 	 * Get a SpyCacheDB object as specified in the passed in config file.
 	 *
 	 * @see SpyConfig
+	 *
+	 * @exception Exception never, but it might someday.
 	 */
 	public SpyCacheDB(SpyConfig conf) throws Exception {
 		super(conf);

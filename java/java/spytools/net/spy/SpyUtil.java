@@ -1,10 +1,11 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.7 2000/11/05 07:23:31 dustin Exp $
+// $Id: SpyUtil.java,v 1.8 2001/01/27 09:01:13 dustin Exp $
 
 package net.spy;
 
 import java.util.*;
+import java.security.*;
 import java.io.*;
 
 /**
@@ -20,7 +21,7 @@ public class SpyUtil {
 	public static Object[] shuffle(Object in[]) {
 		Object tmp;
 		Object ret[] = in;
-		Random r = new Random();
+		SecureRandom r = new SecureRandom();
 		int size, i;
 
 		size=ret.length-1;
