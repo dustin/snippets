@@ -24,21 +24,17 @@ feature {ANY}
 	encode(in: STRING): STRING is
 		local
 			ab, bb, cb, db, tmpa, tmpb, lasttwo,
-				lastfour, lastsix, firsttwo: BIT 32;
-			outa, outb, outc, outd: BIT 8;
+				lastfour, lastsix, firsttwo, outa, outb, outc, outd: BIT 8;
 			i: INTEGER;
 			a, b, c: CHARACTER;
 		do
 			!!Result.make(0);
 			Result.clear;
 
-			lasttwo:=(("00000011").binary_to_integer).to_bit;
-			lastfour:=(("00001111").binary_to_integer).to_bit;
-			lastsix:=(("00111111").binary_to_integer).to_bit;
-			firsttwo:=(("11000000").binary_to_integer).to_bit;
-
-			io.put_string(firsttwo.to_string);
-			io.put_string("%N");
+			lasttwo:= truncate ((("00000011").binary_to_integer).to_bit);
+			lastfour:= truncate ((("00001111").binary_to_integer).to_bit);
+			lastsix:= truncate((("00111111").binary_to_integer).to_bit);
+			firsttwo:= truncate((("11000000").binary_to_integer).to_bit);
 
 			from
 				i:=1;
@@ -53,31 +49,14 @@ feature {ANY}
 				bb:=b.to_bit;
 				cb:=c.to_bit;
 
-				io.put_string(ab.to_string);
-				io.put_string("%N");
-				io.put_string(bb.to_string);
-				io.put_string("%N");
-				io.put_string(cb.to_string);
-				io.put_string("%N------------%N");
-
 				-- start on first byte
 				tmpa:=ab;
-				outa:= truncate (tmpa @>> 2);
-
-				io.put_string(outa.to_string);
-				io.put_string("%N");
+				outa:= (tmpa @>> 2);
 
 				-- start on second byte
-				tmpb:=ab and lasttwo;
-				tmpb:= tmpb @<< 6;
-
-				tmpa:=bb;
-				tmpb:= tmpb @>> 4;
-
-				outb:= truncate (tmpb or tmpa);
-
-				io.put_string(outb.to_string);
-				io.put_string("%N");
+				tmpa:= (ab and lasttwo) @<< 4;
+				tmpb:= bb @>> 4;
+				outb:= (tmpb or tmpa);
 
 				-- start on third byte
 				tmpa:=bb and lastfour;
@@ -86,16 +65,10 @@ feature {ANY}
 				tmpb:=cb and firsttwo;
 				tmpb:= tmpb @>> 6;
 
-				outc:= truncate (tmpa or tmpb);
-
-				io.put_string(outc.to_string);
-				io.put_string("%N");
+				outc:= (tmpa or tmpb);
 
 				-- start on fourth byte
-				outd:= truncate (cb and lastsix) ;
-
-				io.put_string(outd.to_string);
-				io.put_string("%N");
+				outd:= (cb and lastsix) ;
 
 				display(outa, outb, outc, outd);
 
@@ -116,14 +89,14 @@ feature {NONE}
 			i:=a.to_integer;
 			io.put_character(charmap.item(i+1));
 
-			-- i:=b.to_integer;
-			-- io.put_character(charmap.item(i+1));
+			i:=b.to_integer;
+			io.put_character(charmap.item(i+1));
 
 			i:=c.to_integer;
 			io.put_character(charmap.item(i+1));
 
-			-- i:=d.to_integer;
-			-- io.put_character(charmap.item(i+1));
+			i:=d.to_integer;
+			io.put_character(charmap.item(i+1));
 
 			io.put_string("%N");
 		end
