@@ -32,12 +32,16 @@ int screen;
 
 #endif
 
+char *filename;
+char *progname;
+
 float min_lat;
 float max_lat;
 
 float min_lng;
 float max_lng;
 int color = 101;
+int verbose=0;
 
 void
 define_bounds()
@@ -47,7 +51,7 @@ define_bounds()
 
   float lat, lng;
 
-  if (NULL == (infile = fopen("coast.dat", "r")))
+  if (NULL == (infile = fopen(filename, "r")))
     exit(12);
 
   min_lat = 9999999.0;
@@ -143,7 +147,7 @@ factor_bounds(long x, long y, float factor)
 int
 main(int argc, char *argv[])
 {
-#ifndef X11COMPILE
+#ifdef VGACOMPILE
   long c;
   long x = MAX_X / 2;
   long y = MAX_Y / 2;
@@ -151,18 +155,32 @@ main(int argc, char *argv[])
 
 #ifdef X11COMPILE
   XEvent event;
+#endif
 
 /*
  * It looks faster if I open the window before I define_bounds()
  */
 
+	if(argc < 2)
+		filename=DEFAULTFILENAME;
+	else
+		filename=argv[1];
+
+
+	if((access(filename, R_OK)) != 0)
+	{
+		fprintf(stderr, "Can't open file %s for reading.\n", filename);
+		exit(1);
+	}
+
+#ifdef X11COMPILE
   init_window();
   puts("X11 conversion by Dustin Sallings.");
 #endif
 
   define_bounds();
 
-#ifndef X11COMPILE
+#ifdef VGACOMPILE
   init_vga();
   vga_plot();
 #endif
