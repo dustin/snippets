@@ -2,7 +2,7 @@
 <body bgcolor="#fFfFfF">
 
 <center>
-<img src="%ITOP%/%IMAGE%">
+<img src="%CGIDIR%/img.cgi/%IMAGE%">
 </center>
 <p>
 
