@@ -19,7 +19,7 @@ int IsAltiVecAvailable( void )
 
 - (IBAction)quit:(id)sender
 {
-    exit(0);
+    [NSApp terminate: sender];
 }
 
 -(void)awakeFromNib

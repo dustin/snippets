@@ -13,6 +13,8 @@
 		};
 		080E96DDFE201D6D7F000001 = {
 			children = (
+				F5DB57D8034AD4F401A801C4,
+				F5DB57D9034AD4F401A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -149,8 +151,6 @@
 		29B97315FDCFA39411CA2CEA = {
 			children = (
 				29B97316FDCFA39411CA2CEA,
-				F5DB57D8034AD4F401A801C4,
-				F5DB57D9034AD4F401A801C4,
 			);
 			isa = PBXGroup;
 			name = "Other Sources";
