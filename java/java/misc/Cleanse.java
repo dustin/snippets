@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.4 2001/03/16 09:31:37 dustin Exp $
+// $Id: Cleanse.java,v 1.5 2001/03/16 10:24:50 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
@@ -25,14 +25,14 @@ public class Cleanse extends Object {
 		this.removed=new Hashtable(100000);
 	}
 
-	private void remove(String a, String b) {
+	private void remove(Word a, Word b) {
 		System.out.println("Removing " + a + " and " + b);
 		wordList.removeElement(a);
 		wordList.removeElement(b);
 		toremove.addElement(a);
 		toremove.addElement(b);
-		removed.put(a, REMOVE);
-		removed.put(b, REMOVE);
+		removed.put(a.getWord(), REMOVE);
+		removed.put(b.getWord(), REMOVE);
 	}
 
 	// Save the state permanently
@@ -44,11 +44,13 @@ public class Cleanse extends Object {
 			Connection conn=DriverManager.getConnection(SOURCE, "dustin", "");
 			// Get rid of all the stuff we don't want anymore.
 			PreparedStatement pst=conn.prepareStatement(
-				"insert into badwords(badword) values(?)"
+				"insert into badwords(celeb_key, badword) values(?, ?)"
 				);
 			for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
-				String s=(String)e.nextElement() + ":";
-				pst.setString(1, s);
+				Word w=(Word)e.nextElement();
+				String s=w.getWord() + ":";
+				pst.setInt(1, w.getKey());
+				pst.setString(2, s);
 				pst.executeUpdate();
 			}
 			nremoved+=toremove.size();
@@ -61,7 +63,8 @@ public class Cleanse extends Object {
 	private void killWords() throws Exception {
 		CleanseStats stats=new CleanseStats(wordList.size());
 		for(Enumeration e=wordList.elements(); e.hasMoreElements(); ) {
-			String current=(String)e.nextElement();
+			Word current=(Word)e.nextElement();
+			String current_s=current.getWord();
 
 			System.out.println("Examining " + current);
 
@@ -69,26 +72,35 @@ public class Cleanse extends Object {
 			stats.start();
 			int i=0;
 			for(Enumeration e2=wordList.elements(); e2.hasMoreElements(); ) {
-				String checking=(String)e2.nextElement();
+				Word checking=(Word)e2.nextElement();
 
 				// Make sure it's not the word we're looking at, and that
 				// the words both still exist (haven't been added to the
 				// removed hash)
-				if(! current.equals(checking)
-					&& (removed.get(current)==null)
-					&& (removed.get(checking)==null) ) {
-					if(current.indexOf(checking)>0 ||
-						checking.indexOf(current)>0) {
+				if((current.getKey() != checking.getKey() )
+					&& (removed.get(current_s)==null)
+					&& (removed.get(checking.getWord())==null) ) {
+
+					String checking_s=checking.getWord();
+
+					/*
+					System.out.println("Comparing " + current_s
+						+ " to " + checking_s);
+					*/
+
+					if( (current_s.indexOf(checking_s)>=0)
+						|| (checking_s.indexOf(current_s)>=0) ) {
 						remove(current, checking);
 					}
 
-					i++;
-
-					if( (i % BATCHSIZE) == 0) {
-						flush();
-					}
 				}
 			} // inner loop
+
+			i++;
+			if( (i % BATCHSIZE) == 0) {
+				flush();
+			}
+
 			stats.stop();
 			System.out.println("Processed in " + stats.getLastTime()
 				+ " - " + stats.getStats());
@@ -103,13 +115,15 @@ public class Cleanse extends Object {
 		Statement st=conn.createStatement();
 		System.out.println("Executing query.");
 		ResultSet rs=st.executeQuery(
-			"select word from wordlist\n"
+			"select celeb_key, word from wordlist\n"
 			+ "  order by word");
 		System.out.println("Fetching results.");
 		int i=0;
 		while(rs.next()) {
+			int key=rs.getInt("celeb_key");
 			String tmp=rs.getString("word");
-			wordList.addElement(tmp.substring(0, tmp.indexOf(':')));
+			String word=tmp.substring(0, tmp.indexOf(':'));
+			wordList.addElement(new Word(key, word));
 			if(i % 100 == 0) {
 				System.out.println("Read " + i + " thingies.");
 			}
@@ -181,6 +195,28 @@ public class Cleanse extends Object {
 				+ ")");
 		}
 
+	}
+
+	private class Word extends Object {
+		private int key=0;
+		private String word=null;
+
+		public Word(int key, String word) {
+			this.key=key;
+			this.word=word;
+		}
+
+		public int getKey() {
+			return(key);
+		}
+
+		public String getWord() {
+			return(word);
+		}
+
+		public String toString() {
+			return(word + "@" + key);
+		}
 	}
 
 	public static void main(String args[]) throws Exception {
