@@ -106,25 +106,29 @@ let parse_time l =
 let approx_time t = 60 * ((int_of_float t) / 60) ;;
 
 (* Print the header for a block *)
-let print_block_header filename =
-	print_string("update " ^ filename ^ " -t ");
-	print_string(String.concat ":" extended_log_types);
-	print_string(" ");
+let make_block_header filename =
+	"update " ^ filename ^ " -t "
+	^ (String.concat ":" extended_log_types)
+	^ " "
 ;;
 
-(* Output the current data *)
-let print_entry fn =
-    print_block_header fn;
-    print_int(global_state.g_last_ts);
-    print_string(":");
-    print_string(String.concat ":"
+let make_entry fn =
+	(make_block_header fn)
+	^ (string_of_int global_state.g_last_ts)
+	^ ":"
+    ^ (String.concat ":"
         (List.concat
             (List.map (fun (_, pb) ->
                 [string_of_float pb.pb_time;
                 string_of_int pb.pb_count;
                 string_of_int pb.pb_start;
-                string_of_int pb.pb_end; ]) global_state.g_blocks)));
-    print_newline()
+                string_of_int pb.pb_end; ]) global_state.g_blocks)))
+;;
+
+(* Output the current data *)
+let print_entry fn =
+	print_endline(make_entry fn);
+	(* prerr_endline(make_entry fn); *)
 ;;
 
 (* Get a log timing record for recording the state between the two entries *)
@@ -214,8 +218,8 @@ let main() =
 						^ le.le_ttype);
 			with
 				| x ->
-					print_endline("Unknown error on " ^ l);
-					print_endline (Printexc.to_string x);
+					prerr_endline("Unknown error on " ^ l);
+					prerr_endline(Printexc.to_string x);
 			)
 		(fun l -> (strstr l "TransactionTiming" 40) >= 40)
 		Pervasives.stdin;
