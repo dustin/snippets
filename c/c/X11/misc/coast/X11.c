@@ -66,7 +66,7 @@ init_window(void)
  * but they are supposed to return different colors.
  */
 
-  event_mask = ButtonPressMask | ExposureMask | ResizeRedirectMask |
+  event_mask = ButtonPressMask | ExposureMask | KeyPressMask |
     PointerMotionMask;
 
   attributes.event_mask = event_mask;
@@ -305,6 +305,38 @@ xplot()
  */
 
   XFlush(display);
+}
+
+/*
+This is where I process button presses.
+*/
+
+void keyevent(XKeyEvent *event)
+{
+KeySym keysym;
+XComposeStatus cs;
+int x, y;
+char whatkey[70];
+
+	keysym=0x0;
+	whatkey[0]='\0';
+	x=event->x, y=event->y;
+	XLookupString(event, whatkey, 1, &keysym, &cs);
+#ifdef DEBUG
+	printf("%d (%c) x:%d y:%d\n", whatkey[0], whatkey[0], x, y);
+#endif
+	switch(whatkey[0])
+	{
+		case '\r':
+		case ' ':
+			factor_bounds(x, y, 1.0);
+			xplot();
+			break;
+		case 'q':
+			XCloseDisplay(display);
+			exit(0);
+			break;
+	}
 }
 
 /*
