@@ -193,8 +193,19 @@ void parse_request(char *data, struct http_param *param)
  */
 void next_request(struct http_param *param)
 {
+	char *p=NULL;
 	if(param->extra!=NULL) {
 		parse_request(param->extra, param);
+		if( (p=strstr(param->extra, "\r\n\r\n"))!=NULL) {
+			*p=0x00;
+			p++;
+			if(strlen(p)>3) {
+				while(*p && (*p=='\r' || *p=='\n')) { p++; }
+				p=strdup(p);
+				free(param->extra);
+				param->extra=p;
+			}
+		}
 	}
 }
 
@@ -219,7 +230,7 @@ int processRequest(char *data, int length, struct http_param *param)
 		*p=0x00;
 		p++;
 		if(strlen(p)>3) {
-			p+=3;
+			while(*p && (*p=='\r' || *p=='\n')) { p++; }
 			param->extra=strdup(p);
 		}
 
@@ -290,7 +301,8 @@ int processResponse(char *data, int length, struct http_param *param)
 			while(*end && isxdigit(*end)) { end++; }
 			/* Figure out what the value of that hex string is */
 			param->response.remaining=strtoul(start, &end, 16);
-			printf("Chunk size is %d\n", param->response.remaining);
+			fprintf(stderr, "*** Chunk size is %d\n",
+				param->response.remaining);
 			/* Skip to the newline */
 			while(*end!='\r' && *end!='\n') { end++; }
 			/* and then past it */
@@ -303,7 +315,7 @@ int processResponse(char *data, int length, struct http_param *param)
 			param->response.remaining-=(length-(end-data));
 			assert(param->response.remaining>=0);
 			assert(param->response.remaining < old_remaining);
-			printf("Remaining size is %d, current length is %d\n",
+			fprintf(stderr, "*** Remaining size is %d, current length is %d\n",
 				param->response.remaining, param->response.length);
 		}
 	} else { /* This is not the first packet */
@@ -324,14 +336,18 @@ int processResponse(char *data, int length, struct http_param *param)
 				while(*end!='\r' && *end!='\n') { end++; }
 				while(*end=='\r' || *end=='\n') { end++; }
 
+				fprintf(stderr, "*** New remaining is %d\n",
+					param->response.remaining);
 				if(param->response.remaining>0) {
-					printf("New remaining is %d\n", param->response.remaining);
 					param->response.length-=(end-start);
 					param->response.remaining-=(length-(end-data));
 					assert(param->response.remaining>=0);
 				} else {
 					/* Log here, we're done for a while */
 					log_request(param);
+
+					/* OK, let's drop off some of the ``processed'' data.  */
+					processed=(end-data);
 
 					/* If this was a keepalive connection, see if we have
 					 * another request in there. */
@@ -344,6 +360,7 @@ int processResponse(char *data, int length, struct http_param *param)
 				/* This is part of our current chunk */
 				param->response.remaining-=length;
 				param->response.length+=length;
+				fprintf(stderr, "%d bytes of the same chunk.\n", length);
 			}
 		} else {
 			param->response.length+=length;
@@ -369,10 +386,10 @@ int process(struct tcp_stream *ts, int which,
 	switch(which) {
 		case SERVER_STREAM:
 			/* rv=processRequest(hs.data, hs.count_new, param); */
-			rv=processRequest(hs.data, hs.count-hs.offset, param);
+			rv=processRequest(hs.data, hs.count_new, param);
 			break;
 		case CLIENT_STREAM:
-			rv=processResponse(hs.data, hs.count-hs.offset, param);
+			rv=processResponse(hs.data, hs.count_new, param);
 			break;
 	}
 
