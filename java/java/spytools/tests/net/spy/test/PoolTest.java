@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PoolTest.java,v 1.1 2002/07/10 07:36:09 dustin Exp $
+// $Id: PoolTest.java,v 1.2 2002/07/10 07:39:34 dustin Exp $
 
 package net.spy.test;
 
@@ -57,6 +57,14 @@ public class PoolTest extends TestCase {
 
 	public void testFetch1000WithClosing() {
 		mtTest("testFetch1000WithClosing", true, 10, 100, 10);
+	}
+
+	public void testFetch2500BigWithoutClosing() {
+		mtTest("testFetch1000WithClosing", false, 250, 250, 10);
+	}
+
+	public void testFetch10000BigWithClosing() {
+		mtTest("testFetch1000WithClosing", true, 250, 1000, 10);
 	}
 
 	private void mtTest(String name, boolean close,
