@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.5 2002/07/10 05:42:21 dustin Exp $
+// $Id: SPGen.java,v 1.6 2002/08/05 17:19:45 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.5 $";
+	private String version="$Revision: 1.6 $";
 	private long cachetime=0;
 	private Vector sqlquery=null;
 	private Vector required=null;
@@ -101,7 +101,7 @@ public class SPGen extends Object {
 
 		// Required parameters
 		out.println(" *\n"
-			+ " * <b>Required Parameters</b>"
+			+ " * <b>Required Parameters</b>\n"
 			+ " * <ul>");
 		if(required.size()==0) {
 			out.println(" *  <li><i>none</i></li>");
@@ -119,7 +119,7 @@ public class SPGen extends Object {
 
 		// Optional parameters
 		out.println(" *\n"
-			+ " * <b>Optional Parameters</b>"
+			+ " * <b>Optional Parameters</b>\n"
 			+ " * <ul>");
 		if(optional.size()==0) {
 			out.println(" *  <li><i>none</i></li>");
