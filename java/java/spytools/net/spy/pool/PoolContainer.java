@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.5 2000/07/03 07:12:17 dustin Exp $
+// $Id: PoolContainer.java,v 1.6 2000/07/03 07:23:24 dustin Exp $
 
 package net.spy.pool;
 
@@ -15,10 +15,9 @@ public class PoolContainer extends Object {
 	protected PoolFiller filler=null;
 	protected int _min_objects=-1;
 	protected int _max_objects=-1;
-	protected int _current_objects=0;
 	protected int _object_id=0;
 
-	protected boolean _debug=true;
+	protected boolean _debug=false;
 
 	public PoolContainer(String name, PoolFiller pf, SpyConfig conf)
 		throws PoolException {
@@ -133,10 +132,9 @@ public class PoolContainer extends Object {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
 				// Don't remove too many objects.
-				if(_current_objects>_min_objects) {
+				if(currentObjects()>_min_objects) {
 					if(!p.checkedOut()) {
 						pool.removeElement(p);
-						_current_objects--;
 					}
 				}
 			}
@@ -159,12 +157,11 @@ public class PoolContainer extends Object {
 	protected PoolAble getNewObject() throws PoolException {
 		PoolAble p=null;
 		// Don't add an object if we're at capacity.
-		if(_current_objects<_max_objects) {
+		if(currentObjects()<_max_objects) {
 			debug("*** Getting a new object in the "
-				+ name + " pool, currently have " + _current_objects
+				+ name + " pool, currently have " + currentObjects()
 				+ ". ***");
 			p=filler.getObject();
-			_current_objects++;
 			p.setObjectID(_object_id);
 			_object_id++;
 			synchronized(pool) {
@@ -174,6 +171,14 @@ public class PoolContainer extends Object {
 			throw new PoolException("Cannot create another object in the pool");
 		}
 		return(p);
+	}
+
+	protected int currentObjects() {
+		int ret=-1;
+		synchronized(pool) {
+			ret=pool.size();
+		}
+		return(ret);
 	}
 
 	protected int getPropertyInt(String what, int def) {

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolCleaner.java,v 1.3 2000/07/03 07:12:14 dustin Exp $
+// $Id: ObjectPoolCleaner.java,v 1.4 2000/07/03 07:23:23 dustin Exp $
 
 package net.spy.pool;
 
@@ -30,11 +30,8 @@ public class ObjectPoolCleaner extends Thread {
 		while(true) {
 			try {
 				// Prune every once in a while.
-				sleep(10*1000);
-
-				System.out.println("@@@ Cleaner ready @@@");
+				sleep(10*60*1000);
 				doPrune();
-				System.out.println("@@@ Completed pruning @@@");
 			} catch(Exception e) {
 				System.err.println("Cleaner got an exception:  " + e);
 			}

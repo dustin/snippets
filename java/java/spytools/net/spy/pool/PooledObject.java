@@ -1,11 +1,13 @@
 //
-// $Id: PooledObject.java,v 1.1 2000/07/01 11:05:58 dustin Exp $
+// $Id: PooledObject.java,v 1.2 2000/07/03 07:23:26 dustin Exp $
 
 package net.spy.pool;
 
 public class PooledObject extends Object {
 
 	protected PoolAble p=null;
+
+	protected boolean _debug=false;
 
 	public PooledObject(PoolAble p) {
 		super();
@@ -51,9 +53,14 @@ public class PooledObject extends Object {
 	// Auto-checkin
 	public void finalize() {
 		if(p!=null) {
-			System.out.println("###### Finalization checking in object "
-				+ p.getObjectID());
+			debug("###### Finalization checking in object " + p.getObjectID());
 			p.checkIn();
+		}
+	}
+
+	protected void debug(String what) {
+		if(_debug) {
+			System.out.println(what);
 		}
 	}
 }
