@@ -1,7 +1,8 @@
+
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: mymalloc.h,v 1.1 1998/10/02 07:02:31 dustin Exp $
+ * $Id: mymalloc.h,v 1.2 1998/10/03 08:20:28 dustin Exp $
  */
 
 #ifndef _MYMALLOC_H
@@ -12,13 +13,13 @@
 
 /* My memory management stuff */
 #ifdef MYMALLOC
-void _mdebug_dump(void);
-void *_my_malloc(size_t size, char *file, int line);
-void *_my_calloc(size_t n, size_t size, char *file, int line);
-void *_my_realloc(void *p, size_t size, char *file, int line);
-void _my_free(void *p, char *file, int line);
-void *_mem_lookup(void *p, char *file, int line);
-char *_my_strdup(char *str, char *file, int line);
+void    _mdebug_dump(void);
+void   *_my_malloc(size_t size, char *file, int line);
+void   *_my_calloc(size_t n, size_t size, char *file, int line);
+void   *_my_realloc(void *p, size_t size, char *file, int line);
+void    _my_free(void *p, char *file, int line);
+void   *_mem_lookup(void *p, char *file, int line);
+char   *_my_strdup(char *str, char *file, int line);
 
 #define malloc(a) _my_malloc(a, __FILE__, __LINE__)
 #define calloc(a,b) _my_calloc(a, b, __FILE__, __LINE__);

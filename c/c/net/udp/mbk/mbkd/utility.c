@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.6 1998/10/03 08:11:18 dustin Exp $
+ * $Id: utility.c,v 1.7 1998/10/03 08:20:31 dustin Exp $
  */
 
 #include <config.h>
@@ -49,9 +49,9 @@ snprintf(char *s, size_t n, const char *format,...)
 void
 _do_log(int level, char *msg)
 {
-    openlog("mbkd", LOG_PID | LOG_NDELAY, LOG_AUTH);
-    syslog(LOG_AUTH | level, msg);
-    closelog();
+	openlog("mbkd", LOG_PID | LOG_NDELAY, LOG_AUTH);
+	syslog(LOG_AUTH | level, msg);
+	closelog();
 }
 
 void
@@ -62,7 +62,7 @@ log_msg(char *format,...)
 	va_start(ap, format);
 	vsnprintf(buf, BUFLEN - 1, format, ap);
 	va_end(ap);
-    _do_log(LOG_INFO, buf);
+	_do_log(LOG_INFO, buf);
 }
 
 void
@@ -73,18 +73,18 @@ log_debug(char *format,...)
 	va_start(ap, format);
 	vsnprintf(buf, BUFLEN - 1, format, ap);
 	va_end(ap);
-    _do_log(LOG_DEBUG, buf);
+	_do_log(LOG_DEBUG, buf);
 }
 
 void
-log_misc(int level, char *format, ...)
+log_misc(int level, char *format,...)
 {
 	va_list ap;
 	char    buf[BUFLEN];
 	va_start(ap, format);
 	vsnprintf(buf, BUFLEN - 1, format, ap);
 	va_end(ap);
-    _do_log(level, buf);
+	_do_log(level, buf);
 }
 
 int
@@ -416,8 +416,8 @@ unhexprint(int size, char *buf)
 	}
 
 	for (i = 0; i < size * 2; i += 2) {
-		assert(map[(int)buf[i]] >= 0 && map[(int)buf[i + 1]] >= 0);
-		r[j++] = (map[(int)buf[i]] << 4 | map[(int)buf[i + 1]]);
+		assert(map[(int) buf[i]] >= 0 && map[(int) buf[i + 1]] >= 0);
+		r[j++] = (map[(int) buf[i]] << 4 | map[(int) buf[i + 1]]);
 	}
 
 	return (r);

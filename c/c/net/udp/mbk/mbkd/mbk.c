@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: mbk.c,v 1.3 1998/10/03 08:02:28 dustin Exp $
+ * $Id: mbk.c,v 1.4 1998/10/03 08:20:21 dustin Exp $
  */
 
 #include <config.h>
@@ -35,7 +35,7 @@
 #define AUTHDATA "630712e3e78e9ac261f13b8918c1dbdc"
 
 static struct hashtable *
-_mbk_parsepacket(MBK *mbk_packet)
+_mbk_parsepacket(MBK * mbk_packet)
 {
 	char    buf[MAXPACKETLEN];
 	char  **stuff, **kv;
@@ -65,7 +65,7 @@ _mbk_parsepacket(MBK *mbk_packet)
 }
 
 static int
-_mbk_verify_auth(MBK *mbk_packet)
+_mbk_verify_auth(MBK * mbk_packet)
 {
 	MD5_CTX md5;
 	char    calc[16], buf[MAXPACKETLEN];
@@ -104,15 +104,14 @@ _mbk_verify_auth(MBK *mbk_packet)
 }
 
 static void
-_mbk_sign_data(MBK *mbk_packet)
+_mbk_sign_data(MBK * mbk_packet)
 {
 	MD5_CTX md5;
 	char    calc[16], buf[16];
 
-	if( strlen(mbk_packet->pkt.data) >= (MAXPACKETLEN-40)) {
-	    return;
+	if (strlen(mbk_packet->pkt.data) >= (MAXPACKETLEN - 40)) {
+		return;
 	}
-
 	sprintf(buf, "%d", time(NULL));
 
 	mbk_packet->append(mbk_packet, "time", buf);
@@ -126,16 +125,16 @@ _mbk_sign_data(MBK *mbk_packet)
 	strcat(mbk_packet->pkt.data, hexprint(16, calc));
 
 	mbk_packet->pkt.len = 2 * (sizeof mbk_packet->pkt.len) +
-	                      strlen(mbk_packet->pkt.data);
+	    strlen(mbk_packet->pkt.data);
 }
 
 static int
-_mbk_append_data(MBK *mbk_packet, char *key, char *value)
+_mbk_append_data(MBK * mbk_packet, char *key, char *value)
 {
 	int     ret = 0;
 
 	if ((strlen(mbk_packet->pkt.data) + strlen(key) +
-	     strlen(value)) > (MAXPACKETLEN-64)) {
+		strlen(value)) > (MAXPACKETLEN - 64)) {
 		ret = -1;
 	} else {
 		if ((strlen(mbk_packet->pkt.data) > 0) &&
@@ -151,70 +150,70 @@ _mbk_append_data(MBK *mbk_packet, char *key, char *value)
 }
 
 static int
-_mbk_send_pkt(MBK *mbk_packet)
+_mbk_send_pkt(MBK * mbk_packet)
 {
-    struct hostent *hp;
+	struct hostent *hp;
 	struct sockaddr_in sin;
 	register int s;
 
-    if ((hp = gethostbyname(mbk_packet->host)) == NULL) {
-        herror("gethostbyname");
-        exit(1);
-    }
-    if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("client: socket");
-        exit(1);
-    }
+	if ((hp = gethostbyname(mbk_packet->host)) == NULL) {
+		herror("gethostbyname");
+		exit(1);
+	}
+	if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		perror("client: socket");
+		exit(1);
+	}
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(mbk_packet->port);
+	bcopy(hp->h_addr, &sin.sin_addr, hp->h_length);
 
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(mbk_packet->port);
-    bcopy(hp->h_addr, &sin.sin_addr, hp->h_length);
+	mbk_packet->sign(mbk_packet);
 
-    mbk_packet->sign(mbk_packet);
-
-    if (sendto(s, &(mbk_packet->pkt), mbk_packet->pkt.len,
-        0, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-        perror("sendto");
-    }
+	if (sendto(s, &(mbk_packet->pkt), mbk_packet->pkt.len,
+		0, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		perror("sendto");
+	}
 }
 
 static void
-_mbk_destroy(MBK *mbk)
+_mbk_destroy(MBK * mbk)
 {
-    if(!mbk)
-	    return;
+	if (!mbk)
+		return;
 
-    if(mbk->host)
-	    free(mbk->host);
-    if(mbk->auth)
-	    free(mbk->auth);
-    if(mbk->hash)
-	    hash_destroy(mbk->hash);
+	if (mbk->host)
+		free(mbk->host);
+	if (mbk->auth)
+		free(mbk->auth);
+	if (mbk->hash)
+		hash_destroy(mbk->hash);
 
-    free(mbk);
+	free(mbk);
 }
 
-MBK *mbk_new(char *host, int port, char *auth)
+MBK    *
+mbk_new(char *host, int port, char *auth)
 {
-    MBK *mbk_packet;
+	MBK    *mbk_packet;
 
-	mbk_packet=calloc(sizeof(MBK), 1);
+	mbk_packet = calloc(sizeof(MBK), 1);
 	assert(mbk_packet);
 
-	if(host)
-	    mbk_packet->host=strdup(host);
+	if (host)
+		mbk_packet->host = strdup(host);
 
-	mbk_packet->port=port;
+	mbk_packet->port = port;
 
-	if(auth)
-	    mbk_packet->auth=strdup(auth);
+	if (auth)
+		mbk_packet->auth = strdup(auth);
 
-	mbk_packet->append=_mbk_append_data;
-	mbk_packet->destroy=_mbk_destroy;
-	mbk_packet->parse=_mbk_parsepacket;
-	mbk_packet->send=_mbk_send_pkt;
-	mbk_packet->sign=_mbk_sign_data;
-	mbk_packet->verify=_mbk_verify_auth;
+	mbk_packet->append = _mbk_append_data;
+	mbk_packet->destroy = _mbk_destroy;
+	mbk_packet->parse = _mbk_parsepacket;
+	mbk_packet->send = _mbk_send_pkt;
+	mbk_packet->sign = _mbk_sign_data;
+	mbk_packet->verify = _mbk_verify_auth;
 
-	return(mbk_packet);
+	return (mbk_packet);
 }

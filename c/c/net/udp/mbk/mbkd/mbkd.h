@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.8 1998/10/03 08:13:33 dustin Exp $
+ * $Id: mbkd.h,v 1.9 1998/10/03 08:20:23 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -13,9 +13,9 @@
 #endif
 
 #if (PDEBUG>0)
-# ifndef _ndebug
-#  define _ndebug(a, b) if(conf.debug > a ) printf b;
-# endif
+#ifndef _ndebug
+#define _ndebug(a, b) if(conf.debug > a ) printf b;
+#endif
 #endif
 
 /* In case it didn't make it */
@@ -46,44 +46,44 @@
 #define MAXPACKETLEN 1024
 
 struct namedfunc {
-    char *name;
-    void (*func)(void);
+	char   *name;
+	void    (*func) (void);
 };
 
 typedef struct __mbk MBK;
 
 struct __mbk {
-    struct {
-        int  len;
-	    char data[MAXPACKETLEN];
+	struct {
+		int     len;
+		char    data[MAXPACKETLEN];
 	} pkt;
 
 	struct hashtable *hash;
 
-    char *host;
-	int port;
-	char *auth;
+	char   *host;
+	int     port;
+	char   *auth;
 
-	int (*append)(MBK*mbk, char *key, char *value);
-	int (*send)(MBK *mbk);
-	int (*verify)(MBK *mbk);
-	struct hashtable *(*parse)(MBK *mbk);
-	void (*destroy)(MBK *mbk);
-	void (*sign)(MBK *mbk);
+	int     (*append) (MBK * mbk, char *key, char *value);
+	int     (*send) (MBK * mbk);
+	int     (*verify) (MBK * mbk);
+	struct hashtable *(*parse) (MBK * mbk);
+	void    (*destroy) (MBK * mbk);
+	void    (*sign) (MBK * mbk);
 
 };
 
-MBK *mbk_new(char *host, int port, char *auth);
-char **split(char c, char *string);
-char *hexprint(int size, char *buf);
-char *kw(char *in);
-char *unhexprint(int size, char *buf);
-int checkpidfile(char *pidfile);
-int getservsocket_udp(int);
-void _do_log(int level, char *msg);
-void freeptrlist(char **list);
-void log_debug(char *format,...);
-void log_misc(int level, char *format, ...);
-void log_msg(char *format,...);
+MBK    *mbk_new(char *host, int port, char *auth);
+char  **split(char c, char *string);
+char   *hexprint(int size, char *buf);
+char   *kw(char *in);
+char   *unhexprint(int size, char *buf);
+int     checkpidfile(char *pidfile);
+int     getservsocket_udp(int);
+void    _do_log(int level, char *msg);
+void    freeptrlist(char **list);
+void    log_debug(char *format,...);
+void    log_misc(int level, char *format,...);
+void    log_msg(char *format,...);
 
 #endif /* MBKD_H */
