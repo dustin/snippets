@@ -1,5 +1,5 @@
 #
-# $Id: SelectPrimaryKey.spt,v 1.1 2002/08/23 07:46:24 dustin Exp $
+# $Id: SelectPrimaryKey.spt,v 1.2 2002/08/23 07:48:29 dustin Exp $
 #
 
 @package
@@ -12,7 +12,7 @@ Select the current value from the primary key table.
 select
 	table_name, primary_key
 from
-	primary_key
+	primary_keys
 where
 	table_name=?
 
