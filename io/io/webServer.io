@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.8 2003/08/21 21:09:52 dustin Exp $
+# $Id: webServer.io,v 1.9 2003/08/21 22:45:44 dustin Exp $
 
 //
 // Web request
@@ -117,13 +117,21 @@ WebUrlStdHandler parseGet = method(req, socket,
 	CGI clone parseString(req queryString)
 )
 
-WebUrlStdHandler parsePost = method(req, socket,
-	// write("Parsing POST\n")
-	length = req headers at("Content-Length")
-	// write("Post length is ", length, "\n")
+WebUrlStdHandler readFromBody = method(req, socket, length,
 	while(socket readBuffer length < length,
 		socket read)
 	btmp = socket readBuffer fromTo(0, length - 1)
+	btmp
+)
+
+WebUrlStdHandler parsePost = method(req, socket,
+	// write("Parsing POST\n")
+	formType = req headers at("Content-Type")
+	if(formType != "application/x-www-form-urlencoded",
+		raiseException("WebServer.ProtocolError.500",
+			"Cannot handle form of type " .. formType))
+	length = req headers at("Content-Length") asNumber
+	btmp = readFromBody(req, socket, length)
 	// write("Read length:  ", btmp length, "\n")
 	s = String clone append(btmp asString)
 	CGI clone parseString(s)
@@ -239,11 +247,10 @@ WebServer processRequest = method(aSocket, aServer,
 		status = handler handleRequest(request, aSocket),
 		status = errorHandler handleError(request, aSocket,
 			exceptionName, exceptionDescription))
-	/*
 	ds = Date clone now asString("[%d/%b/%Y:%X %Z]")
 	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
-		request path, " ", request version, "\" ", status, " 0\n")
-	*/
+		request path, " ", request version, "\" ", status, " ",
+		aSocket bytesWritten, "\n")
 	aSocket close
 )
 
@@ -252,16 +259,33 @@ WebServer processRequest = method(aSocket, aServer,
 //
 
 WebServer handleSocketFromServer = method(aSocket, aServer,
-	write("[New Request ", aSocket host, "]\n")
+	// write("[New Request ", aSocket host, "]\n")
+	countingSocket = Object clone
+	countingSocket socket = aSocket
+	countingSocket bytesWritten = 0
+
+	countingSocket write = method(
+		thisMessage argsEvaluatedIn(sender) foreach(t,
+			bytesWritten +=(t length)
+			socket write(t)
+		)
+	)
+
+	countingSocket forward = method(
+		methodName = thisMessage name
+		args = thisMessage argsEvaluatedIn(sender)
+		socket performWithArgList(methodName, args)
+	)
+
 	while(aSocket isOpen,
 		if(aSocket read,
-			if(hasRequest(aSocket readBuffer),
-				processRequest(aSocket, aServer)
+			if(hasRequest(countingSocket readBuffer),
+				processRequest(countingSocket, aServer)
 				aSocket readBuffer empty
 			)
 		)
 	)
-	write("[Closed ", aSocket host, "]\n")
+	// write("[Closed ", aSocket host, "]\n")
 )
 
 //
