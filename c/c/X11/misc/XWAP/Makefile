@@ -1,6 +1,6 @@
-CFLAGS=-O6 -m486 -s -Wall
+CFLAGS=-O6 -m486 -s -Wall -I/usr/X11R6/include
 LDFLAGS=-s -L/usr/X11R6/lib
-CC=gcc
+CC=cc
 LIBS= $(LDFLAGS) -lX11
 ATHENA_LIBS=lXaw3d -lXmu -lXt -lXext -lX11
 MOTIF_LIBS=-lXm -lXt -lX11
@@ -77,4 +77,4 @@ tgz:
 
 clean:
 	@echo Cleaning up...
-	@rm -fv *.o core chap? chap1?
+	@rm -f *.o core chap? chap1?
