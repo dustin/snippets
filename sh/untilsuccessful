@@ -7,7 +7,7 @@
 $@
 while [ $? -ne 0 ]
 do
-	echo Retrying...
+	echo "Retrying at `date`..."
 	sleep 1
 	$@
 done
