@@ -68,6 +68,7 @@ attemptConnection(char *host, char *svc)
 	struct linger l;
 	int fflags =0;
 	char *cause=NULL;
+	int err=0;
 
 	if (host == NULL || svc == NULL) {
 		return (0);
@@ -76,8 +77,10 @@ attemptConnection(char *host, char *svc)
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	if(getaddrinfo(host, svc, &hints, &res0) != 0) {
-		perror(host);
+	err=getaddrinfo(host, svc, &hints, &res0);
+	if(err != 0) {
+		fprintf(stderr, "Error looking up %s:%s:  %s\n",
+			host, svc, gai_strerror(err));
 		return(0);
 	}
 
