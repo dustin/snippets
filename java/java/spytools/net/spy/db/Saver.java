@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Saver.java,v 1.1 2002/07/22 06:11:46 dustin Exp $
+// $Id: Saver.java,v 1.2 2002/07/22 06:45:49 dustin Exp $
 
 package net.spy.db;
 
@@ -98,7 +98,7 @@ public class Saver extends Object {
 	}
 
 	// Deal with individual saves.
-	private void rsave(Savable o) throws SaveException {
+	private void rsave(Savable o) throws SaveException, SQLException {
 		rdepth++;
 
 		// watch recursion depth
