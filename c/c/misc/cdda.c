@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: cdda.c,v 1.1 1998/03/10 02:49:19 dustin Exp $
+ * $Id: cdda.c,v 1.2 1998/09/20 00:58:23 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,8 +19,7 @@ int main(int argc, char **argv)
     int i, n, pos, howfar;
 
     cd=CDopen(NULL, "r");
-    if(cd==NULL)
-    {
+    if(cd==NULL) {
 	perror("CDopen");
 	exit(1);
     }
@@ -29,8 +28,7 @@ int main(int argc, char **argv)
     seteuid(getuid());
     setuid(getuid());
 
-    if(CDgettrackinfo(cd, atoi(argv[1]), &info)==0)
-    {
+    if(CDgettrackinfo(cd, atoi(argv[1]), &info)==0) {
 	printf("No such track, bitch.\n");
 	exit(1);
     }
@@ -49,8 +47,7 @@ int main(int argc, char **argv)
     assert(f);
 
     CDgetstatus(cd, &status);
-    while(status.state!=CD_READY)
-    {
+    while(status.state!=CD_READY) {
 	sleep(5);
 	CDgetstatus(cd, &status);
     }
@@ -58,19 +55,16 @@ int main(int argc, char **argv)
     CDseektrack(cd, atoi(argv[1]));
     pos=0;
 
-    for(;;)
-    {
+    for(;;) {
 	n=CDreadda(cd, buf, 12);
-	if(n<0)
-	{
+	if(n<0) {
 	    perror("CDreadda");
 	    exit(1);
 	}
 	if(n==0)
 	    break;
 
-	for(i=0; i<12; i++)
-	{
+	for(i=0; i<12; i++) {
 	    /* Break if we're at the end */
 	    if(++pos>howfar)
 		break;
