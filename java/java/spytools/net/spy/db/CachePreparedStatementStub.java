@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachePreparedStatementStub.java,v 1.1 2000/11/05 08:27:33 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.2 2000/11/09 08:21:06 dustin Exp $
  */
 
 package net.spy.db;
@@ -41,9 +41,24 @@ public class CachePreparedStatementStub extends Object {
 		this.cacheTime=cacheTime;
 
 		// Figure out how many arguments may be used.
-		StringTokenizer tok=new StringTokenizer(query, "?");
-		args=new Object[tok.countTokens()];
-		types=new int[tok.countTokens()];
+		int ntokens=countQs(query);
+		args=new Object[ntokens];
+		types=new int[ntokens];
+	}
+
+	// Count the number of question marks
+	protected int countQs(String query) {
+		int qs=0;
+		int currentIndex=-1;
+
+		do {
+			currentIndex=query.indexOf("?", currentIndex+1);
+			if(currentIndex>=0) {
+				qs++;
+			}
+		} while(currentIndex>=0);
+
+		return(qs);
 	}
 
 	// Set a given argument

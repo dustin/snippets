@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachedResultSetStub.java,v 1.3 2000/11/07 04:12:17 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.4 2000/11/09 08:21:07 dustin Exp $
  */
 
 package net.spy.db;
@@ -82,12 +82,29 @@ public class CachedResultSetStub extends Object implements Cloneable {
 
 			// Flip through the columns
 			for(int i=1; i<=ncolumns; i++) {
+				String tmp=null;
+
+				// Default to null
+				result[i-1]=null;
+
 				// Now, figure out what type of data this column is...
 				switch(metadata.getColumnType(i)) {
 					case Types.DOUBLE:
 					case Types.REAL:
-					case Types.DECIMAL:
 						result[i-1]=new Double(rs.getDouble(i));
+						break;
+					case Types.DECIMAL:
+						tmp=rs.getString(i);
+						if(tmp!=null) {
+							result[i-1]=new BigDecimal(tmp);
+						}
+						break;
+					case Types.NUMERIC:
+					case Types.BIGINT:
+						tmp=rs.getString(i);
+						if(tmp!=null) {
+							result[i-1]=new BigInteger(tmp);
+						}
 						break;
 					case Types.FLOAT:
 						result[i-1]=new Float(rs.getFloat(i));
@@ -123,7 +140,14 @@ public class CachedResultSetStub extends Object implements Cloneable {
 					default:
 						throw new SQLException("Unhandled data type:  "
 							+ metadata.getColumnType(i));
+
 				}
+
+				// If we did a numeric thingy
+				if(rs.wasNull()) {
+					result[i-1]=null;
+				}
+
 			} // columns
 
 			// Stick it in our resultset.
@@ -155,6 +179,30 @@ public class CachedResultSetStub extends Object implements Cloneable {
 
 		// OK, return the column
 		return(result[index]);
+	}
+
+	/**
+	 * Debug routine for displaying the current row of the ResultSet.
+	 */
+	public String toString() {
+		String ret="Result row:\n";
+		int ncolumns=0;
+		try {
+			ncolumns=metadata.getColumnCount();
+		} catch(Exception e) {
+			ncolumns=0;
+		}
+		for(int i=1; i<=ncolumns; i++) {
+			try {
+				Object o=getResultColumn(i);
+				if(o!=null) {
+					ret+="\t" + metadata.getColumnName(i) + "=" + o + "\n";
+				}
+			} catch(Exception e) {
+				// Ignore this columns, it's apparently broken
+			}
+		}
+		return(ret);
 	}
 
 	// OK, begin disgustingly long stream of interface implementation
@@ -208,53 +256,41 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	}
 
 	public short getShort(int index) throws SQLException {
-		return((short)getLong(index));
+		Number n=getNumber(index);
+		return(n.shortValue());
 	}
 
 	public int getInt(int index) throws SQLException {
-		return((int)getLong(index));
+		Number n=getNumber(index);
+		return(n.intValue());
 	}
 
 	public long getLong(int index) throws SQLException {
-		long rv=0;
-		Object o=getResultColumn(index);
-		if(o!=null) {
-			try {
-				Long l=(Long)o;
-				rv=l.longValue();
-			} catch(Exception e) {
-				throw new SQLException("Error getting long value:  " + e);
-			}
-		}
-		return(rv);
+		Number n=getNumber(index);
+		return(n.longValue());
 	}
 
 	public float getFloat(int index) throws SQLException {
-		float rv=0;
-		Object o=getResultColumn(index);
-		if(o!=null) {
-			try {
-				Float f=(Float)o;
-				rv=f.floatValue();
-			} catch(Exception e) {
-				throw new SQLException("Error getting float value:  " + e);
-			}
-		}
-		return(rv);
+		Number n=getNumber(index);
+		return(n.floatValue());
 	}
 
 	public double getDouble(int index) throws SQLException {
-		double rv=0;
+		Number n=getNumber(index);
+		return(n.doubleValue());
+	}
+
+	protected Number getNumber(int index) throws SQLException {
+		Number n=null;
 		Object o=getResultColumn(index);
 		if(o!=null) {
 			try {
-				Double d=(Double)o;
-				rv=d.floatValue();
+				n=(Number)o;
 			} catch(Exception e) {
-				throw new SQLException("Error getting double value:  " + e);
+				throw new SQLException("Error getting Number value:  " + e);
 			}
 		}
-		return(rv);
+		return(n);
 	}
 
 	public java.sql.Date getDate(int index) throws SQLException {
