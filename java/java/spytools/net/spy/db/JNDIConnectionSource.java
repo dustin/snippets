@@ -1,8 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: JNDIConnectionSource.java,v 1.1 2002/08/03 06:07:05 dustin Exp $
+// $Id: JNDIConnectionSource.java,v 1.2 2002/08/23 00:13:16 dustin Exp $
 
 package net.spy.db;
+
+import java.util.Hashtable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,6 +30,12 @@ public class JNDIConnectionSource extends Object implements ConnectionSource {
 	}
 
 	/**
+	 * This will get a connection to the JNDI resource.
+	 *
+	 * @param conf  The configuration to use for getting the database
+	 * source
+	 * @return A connection to the JNDI datasource
+	 * @throws SQLException
 	 * @see ConnectionSource
 	 */
 	public Connection getConnection(SpyConfig conf) throws SQLException {
@@ -35,7 +43,13 @@ public class JNDIConnectionSource extends Object implements ConnectionSource {
 
 		Connection conn=null;
 		try {
-			Context initial = new InitialContext();
+			// we need to convert the SpyConfig to a Hashtable since
+			// the receiving end may not know what a SpyConfig is, but it
+			// should surely know what a Hashtable is as that's what it's
+			// expecting per the javadocs.
+			Hashtable env=new Hashtable(conf);
+
+			Context initial = new InitialContext(env);
 			DataSource dsrc = (DataSource)initial.lookup(source);
 			conn = dsrc.getConnection();
 		} catch(NamingException e) {
@@ -50,8 +64,7 @@ public class JNDIConnectionSource extends Object implements ConnectionSource {
 	 * @see ConnectionSource
 	 */
 	public void returnConnection(Connection conn) throws SQLException {
-		// XXX  I suppose there's something I should use to return this
-		// stuff.
+		conn.close();
 	}
 
 }

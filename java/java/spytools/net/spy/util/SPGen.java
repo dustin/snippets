@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.9 2002/08/21 00:53:20 dustin Exp $
+// $Id: SPGen.java,v 1.10 2002/08/23 00:13:17 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.9 $";
+	private String version="$Revision: 1.10 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
@@ -296,8 +296,27 @@ public class SPGen extends Object {
 			super();
 
 			StringTokenizer st=new StringTokenizer(line, " \t");
-			name=st.nextToken();
-			String tmp=st.nextToken();
+			try {
+				name=st.nextToken();
+			} catch (java.util.NoSuchElementException ex) {
+				// ASSERT: this theoretically should never happen,
+				// otherwise how did we end up here in the first place?
+				throw new Exception ("Missing parameter name! "
+					+ex.toString());
+			}
+
+			String tmp=null;
+			try {
+				tmp=st.nextToken();
+			} catch (java.util.NoSuchElementException ex) {
+				// at this point you have forgotten to add in the parameter
+				// of whether or not the parameter is required/optional.  I
+				// guess a default could be applied here, but I'm just
+				// gonna throw an Exception.
+				throw new Exception ("Missing parameter requirement! "
+					+ex.toString());
+			}
+
 			if(tmp.equals("required")) {
 				required=true;
 			} else if(tmp.equals("optional")) {
@@ -307,9 +326,26 @@ public class SPGen extends Object {
 					"Parameter must be required or optional, not "
 					+ tmp + " like in " + line);
 			}
-			type=st.nextToken();
-			// This character pretty much can't be in the line.
-			description=st.nextToken("\n");
+
+			try {
+				type=st.nextToken();
+			} catch (java.util.NoSuchElementException ex) {
+				// now the variable type is missing  That's no good, you
+				// need a speficic type ya know.
+				throw new Exception ("Missing parameter type! "
+					+ex.toString());
+			}
+
+			try {
+				// This character pretty much can't be in the line.
+				description=st.nextToken("\n");
+			} catch (java.util.NoSuchElementException ex) {
+				// I don't think we cre if it's documented or not!  But
+				// honestly I don't think this should ever happen cause you
+				// need a newline.  Well, I guess if you ended the file odd
+				// enough, and without a EOL before the EOF...very odd case
+				description="";
+			}
 		}
 
 		public String getName() {
