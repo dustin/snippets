@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Temperatures.java,v 1.2 2002/11/11 09:41:51 dustin Exp $
+// $Id: Temperatures.java,v 1.3 2002/11/11 18:22:22 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -11,7 +11,7 @@ import net.spy.temperature.*;
 /**
  * XML RPC Interface to temperature gettin'
  */
-public class Temperatures extends Object {
+public class Temperatures extends Remote {
 
 	/**
 	 * Get an instance of Temperatures.

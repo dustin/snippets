@@ -6,10 +6,12 @@
 		<fileset dir="${user.home}/lib/java">
 			<include name="jsdk.jar"/>
 			<include name="spy.jar"/>
+			<include name="xmlrpc.jar"/>
 		</fileset>
 		<pathelement path="${user.home}/prog/java/servlet/png"/>
 		<pathelement
 			path="/afs/@cell/home/dustin/public_html/webapp/WEB-INF/classes"/>
+		<pathelement path="${user.home}/prog/projects/geo"/>
 		<pathelement path="."/>
 	</path>
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ZipCode.java,v 1.3 2002/03/05 10:42:50 dustin Exp $
+// $Id: ZipCode.java,v 1.4 2002/11/11 18:22:23 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -13,7 +13,7 @@ import net.spy.db.*;
 /**
  * Get zipcode information.
  */
-public class ZipCode extends Object {
+public class ZipCode extends Remote {
 
 	/**
 	 * Get an instance of ZipCode.

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Geo.java,v 1.3 2002/03/06 06:45:53 dustin Exp $
+// $Id: Geo.java,v 1.4 2002/11/11 18:22:20 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -11,7 +11,7 @@ import net.spy.geo.*;
 /**
  * XML RPC services for geography data.
  */
-public class Geo extends Object {
+public class Geo extends Remote {
 
 	/**
 	 * Get an instance of Geo.
