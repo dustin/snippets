@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.1 2000/03/21 20:24:13 dustin Exp $
+// $Id: UPS.java,v 1.2 2000/03/21 20:51:05 dustin Exp $
 
 package net.spy.info;
 
@@ -20,6 +20,8 @@ public class UPS extends Object {
 
 	Hashtable hinfo=null;
 
+	boolean error=true;
+
 	/**
 	 * Get a UPS info object.
 	 *
@@ -37,9 +39,14 @@ public class UPS extends Object {
 		String ret="";
 		try {
 			parseInfo();
-			ret+="Status:  " + get("Package Status") + ", ";
-			ret+="Location:  " + get("Last Scanned at") + ", ";
-			ret+="When:  " + get("Last Scanned on");
+			// Deal with not getting our data.
+			if(error) {
+				ret+=get("ERROR", "An unknown error has occurred");
+			} else {
+				ret+="Status:  " + get("Package Status", "unknown") + ", ";
+				ret+="Location:  " + get("Last Scanned at", "unknown") + ", ";
+				ret+="When:  " + get("Last Scanned on", "unknown");
+			}
 		} catch(Exception e) {
 			// Just let it return null
 		}
@@ -48,6 +55,8 @@ public class UPS extends Object {
 
 	/**
 	 * gets the value of a variable from the tracking info
+	 *
+	 * @param what variable to get
 	 * <p>
 	 * The following variables are available as of this writing:
 	 * <p>
@@ -65,7 +74,24 @@ public class UPS extends Object {
 	 */
 	public String get(String what) throws Exception {
 		parseInfo();
-		return( (String) hinfo.get(what));
+		String ret=(String) hinfo.get(what);
+		return(ret);
+	}
+
+	/**
+	 * Same as the above, but allows a default to use when the variable
+	 * does not exist.
+	 *
+	 * @param what which variable to get
+	 * @param def default value
+	 */
+	public String get(String what, String def) throws Exception {
+		parseInfo();
+		String ret=(String) hinfo.get(what);
+		if(ret==null) {
+			ret=def;
+		}
+		return(ret);
 	}
 
 	protected void parseInfo() throws Exception {
@@ -93,6 +119,12 @@ public class UPS extends Object {
 					} // Sep index
 				} // Section one
 			} // For loop through lines
+			if(info.indexOf("Unable to track shipment") >= 0) {
+				hinfo.put("ERROR", "Unable to track shipment.  "
+					+ "Invalid tracking number?");
+			} else {
+				error=false;
+			}
 		} // if there's a need to find it at all.
 	}
 

@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.8 2000/01/30 22:36:11 dustin Exp $
+// $Id: SNPP.java,v 1.9 2000/03/21 20:51:08 dustin Exp $
 
 package net.spy.net;
 
@@ -253,16 +253,27 @@ public class SNPP {
 		}
 	}
 
+	/**
+	 * close the connection to the SNPP server
+	 */
+	public void close() {
+		if(s!=null) {
+			try {
+				cmd("quit");
+				s.close();
+			} catch(Exception e) {
+				// Don't care, we tried...
+			}
+			// Go ahead and set s to null anyway.
+			s=null;
+		}
+	}
+
 	protected void finalize() throws Throwable {
 		if(debug) {
 			System.out.println("Finalizing...");
 		}
-		try {
-			cmd("quit");
-			s.close();
-		} catch(Exception e) {
-		}
-		s=null;
+		close();
 		super.finalize();
 	}
 
