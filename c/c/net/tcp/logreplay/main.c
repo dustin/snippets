@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.1 1998/12/06 09:35:34 dustin Exp $
+ * $Id: main.c,v 1.2 1998/12/06 19:58:59 dustin Exp $
  */
 
 #include <config.h>
@@ -69,7 +69,7 @@ parseurl(char *url)
 {
 	char   *tmp;
 	struct url u;
-	int     i, port;
+	int     port=0;
 
 	u.host = NULL;
 	u.req = NULL;
@@ -170,9 +170,9 @@ dostats(int i, char *request, struct timeval timers[3],
 
 	/* timestamps */
 	if (flags & MACHINE_STATS) {
-		printf("%d:", timers[0].tv_sec);
+		printf("%ld:", timers[0].tv_sec);
 	} else {
-		printf("\t%d/%u %s\t%d/%u %s\t%d/%u %s",
+		printf("\t%ld/%lu %s\t%ld/%lu %s\t%ld/%lu %s",
 		    timers[0].tv_usec, timers[0].tv_sec, times[0],
 		    timers[1].tv_usec, timers[1].tv_sec, times[1],
 		    timers[2].tv_usec, timers[2].tv_sec, times[2]);
@@ -271,7 +271,7 @@ print_conf(struct log_entry **logs)
 	}
 }
 
-int
+void
 freelogs(struct log_entry **logs)
 {
 	int     i;
@@ -287,7 +287,6 @@ int
 open_connection(char *host, int port, struct log_entry *log)
 {
 	int     s, i;
-	char   *p, *p2;
 
 	s = getclientsocket(host, port);
 	if (s < 0)
@@ -310,7 +309,7 @@ process(char *host, int port, struct log_entry **logs, int flags)
 	int     bytes[MAXSEL];
 	char   *requests[MAXSEL];
 	int    delays[MAXSEL];
-	void   *tzp;
+	void   *tzp=NULL;
 
 	start_time = time(NULL);
 
@@ -390,4 +389,5 @@ main(int argc, char **argv)
 	}
 	process("bleu.west.spy.net", 80, logs, 0xffffffff);
 	freelogs(logs);
+	return(0);
 }
