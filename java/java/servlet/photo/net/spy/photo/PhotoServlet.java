@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.6 2000/03/08 07:18:13 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.7 2000/03/09 04:31:30 dustin Exp $
  */
 
 package net.spy.photo;
@@ -24,8 +24,6 @@ public class PhotoServlet extends HttpServlet
 	public String self_uri=null;
 	public RHash rhash=null;
 	public PhotoSecurity security = null;
-
-	protected PhotoStorerThread storer_thread = null;
 
 	public SpyLog logger = null;
 
@@ -60,14 +58,6 @@ public class PhotoServlet extends HttpServlet
 		} catch(Exception e) {
 			log("Could not get rhash connection:  " + e);
 			rhash = null;
-		}
-
-		try {
-			storer_thread = new PhotoStorerThread();
-			storer_thread.setPriority(storer_thread.getPriority()-2);
-			storer_thread.start();
-		} catch(Exception e) {
-			throw new ServletException("Can't get storer thread");
 		}
 
 		logger = new SpyLog(new PhotoLogFlusher());
