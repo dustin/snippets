@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.12 2002/03/15 01:31:59 dustin Exp $
+ * $Id: tablecounter.c,v 1.13 2002/03/15 01:43:36 dustin Exp $
  */
 
 #include <stdio.h>
@@ -112,6 +112,7 @@ void process(struct checkspec query)
 	for(i=0; i<strlen(query.query); i++) {
 		switch(query.query[i]) {
 			case '%':
+				/* Skip the percent */
 				i++;
 				switch(query.query[i]) {
 					case 't':
@@ -127,6 +128,9 @@ void process(struct checkspec query)
 							query.query[i], query.query);
 
 				} /* inner switch */
+				/* Skip the %ed character */
+				i++;
+				break;
 			default:
 				querystr[j++]=query.query[i];
 		} /* Outer switch */
@@ -134,7 +138,7 @@ void process(struct checkspec query)
 	assert(strlen(querystr) < sizeof(querystr));
 
 	/*
-	sprintf(querystr, "select count(*) from %s", query.table);
+	fprintf(stderr, "Issuing the following query:\n%s\n", querystr);
 	*/
 
 	res=PQexec(dbConn, querystr);
@@ -208,8 +212,10 @@ void realmain(time_t backfill_time)
 	struct checkspec queries[]={
 		MAKEDBSPEC4("photo", "photo_logs", "ts",
 			"select last_value from photo_logs_log_id_seq"),
-		MAKEDBSPEC3("music", "music_download_log", "timestamp"),
-		MAKEDBSPEC("music", "music_mp3_downloads"),
+		MAKEDBSPEC4("music", "music_download_log", "timestamp",
+			"select last_value from music_download_log_log_id_seq"),
+		MAKEDBSPEC4("music", "music_mp3_downloads", "ts",
+			"select last_value from music_mp3_downl_download_id_seq"),
 		MAKEDBSPEC("music", "music_subscribers"),
 		MAKEDBSPEC("temperature", "samples"),
 		TIGERDB("loaded_files"),
@@ -248,6 +254,13 @@ void realmain(time_t backfill_time)
 			/* I want to run every hour, so take into consideration the amount
 			   of time it took to query all those tables. */
 			naptime=INCREMENT - (stopped-started);
+			if(naptime < 1) {
+				fprintf(stderr, "Took longer than an hour to run (leftover is "
+					"%d), finding next run.\n", naptime);
+				while(naptime < 1) {
+					naptime+=3600;
+				}
+			}
 			fprintf(stderr, "Sleeping %d seconds\n", naptime);
 			sleep(naptime);
 		}
