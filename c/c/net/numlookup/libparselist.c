@@ -197,7 +197,7 @@ search(struct config_t config, unsigned int ip)
 	return (NULL);
 }
 
-static int
+int
 main(int argc, char **argv)
 {
 	struct config_t config;
