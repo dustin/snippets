@@ -8,6 +8,21 @@
 #define ACCT_FILE "/var/adm/pacct"
 #endif /* ACCT_FILE */
 
+time_t
+comp_t_expand(comp_t t)
+{
+	time_t rv=0;
+
+	rv=t & 017777;
+	t>>=13;
+	while(t) {
+		t--;
+		rv <<= 3;
+	}
+
+	return(rv);
+}
+
 int main(int argc, char **argv)
 {
 	struct acct astruct;
@@ -23,9 +38,9 @@ int main(int argc, char **argv)
 		printf("%-8s(%d)\tuid=%d\tt=%.02fr,%.02fu,%.02fs\t%s",
 			astruct.ac_comm, astruct.ac_stat,
 			astruct.ac_uid,
-			(double)astruct.ac_etime/stick,
-			(double)astruct.ac_utime/stick,
-			(double)astruct.ac_stime/stick,
+			(double)comp_t_expand(astruct.ac_etime)/stick,
+			(double)comp_t_expand(astruct.ac_utime)/stick,
+			(double)comp_t_expand(astruct.ac_stime)/stick,
 			ctime(&astruct.ac_btime));
 	}
 
