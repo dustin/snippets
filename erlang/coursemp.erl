@@ -44,11 +44,11 @@ twoprocess(N) ->
 ringProcess(S) ->
 	receive
 		{From, N} ->
-			io:format("Sending ~p from ~p to ~p\n", [N, self(), S]),
+			% io:format("Sending ~p from ~p to ~p\n", [N, self(), S]),
 			S ! {self(), N},
 			ringProcess(S);
 		stop ->
-			io:format("Shutting down ~p\n", [self()]),
+			% io:format("Shutting down ~p\n", [self()]),
 			S ! stop,
 			true
 	end.
