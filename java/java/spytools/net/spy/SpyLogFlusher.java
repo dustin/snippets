@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.2 1999/10/20 08:40:34 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.3 1999/12/15 03:58:15 dustin Exp $
  */
 
 package net.spy;
@@ -37,7 +37,7 @@ public class SpyLogFlusher extends Thread {
 				}
 				log_file.flush();
 			} catch(Exception e) {
-				System.err.println("BAD LOG ERRROR!  " + e.getMessage());
+				System.err.println("BAD LOG ERRROR!  " + e);
 			}
 		}
 	}

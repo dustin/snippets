@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.3 1999/11/18 23:16:59 dustin Exp $
+ * $Id: SpyDB.java,v 1.4 1999/12/15 03:58:14 dustin Exp $
  */
 
 package net.spy;
@@ -106,7 +106,7 @@ public class SpyDB extends Object {
 			Class.forName(conf.get("dbDriverName"));
 			dbs = new DbConnectionBroker(conf.get("dbDriverName"),
 				conf.get("dbSource"), conf.get("dbUser"), conf.get("dbPass"),
-				3, 6, log_file, 0.01);
+				3, 20, log_file, 0.01);
 		} catch(Exception e) {
 			// Do nothing
 			// throw new Exception("dbs broke:  " + e);
