@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.8 1998/11/11 07:26:13 dustin Exp $
+ * $Id: post.c,v 1.9 1998/11/11 08:05:30 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,7 +16,7 @@
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.8 $"
+#define USERAGENT "DUpload/$Revision: 1.9 $"
 
 void
 _gendelimit(char *d, size_t len)
@@ -76,6 +76,12 @@ postfile(char *url, char *path)
 	snprintf(line, 1024, "Content-type: multipart/form-data; boundary=%s\r\n",
 			delimit);
 	send_data(conn, u, line);
+	if(u.port==80) {
+		snprintf(line, 1024, "Host: %s\r\n", u.host);
+	} else {
+		snprintf(line, 1024, "Host: %s:%d\r\n", u.host, u.port);
+	}
+	send_data(conn, u, line);
 
 	/* Write out tmp file */
 	fprintf(tmp, "--%s\r\n", delimit);
@@ -128,16 +134,17 @@ int main(int argc, char **argv)
 	signal(SIGALRM, timeout);
 
 	if(argc<3) {
-		printf("Usage:  %s url filename [filename...]\n", argv[0]);
+		printf("Usage:  %s filename [filename...] desturl\n", argv[0]);
 		exit(1);
 	}
 
-	for(i=2; i<argc; i++) {
+	for(i=1; i<(argc-1); i++) {
 		printf("Sending %s\n", argv[i]);
-		st=postfile(argv[1], argv[i]);
+		st=postfile(argv[argc-1], argv[i]);
 		printf("Status for %s was %d (%s)\n", argv[i], st.status, st.message);
 		if(st.status!=200)
 			ret++;
+		freestatus(st);
 	}
 	return(ret);
 }
