@@ -16,24 +16,40 @@ public class InterfaceImplementor extends Object {
 		int modifiers=method.getModifiers();
 		// Clear the abstract flag
 		modifiers&=~(Modifier.ABSTRACT);
+		// Add the modifiers to our string
+		ret=Modifier.toString(modifiers);
 
 		// Get the return type
 		Class rt=method.getReturnType();
+		ret+=" " + rt.getName() + " ";
 
+		// Add the method name
 		String name=method.getName();
 
+		// OK, now deal with parameters
 		Class types[]=method.getParameterTypes();
 
-		ret=Modifier.toString(modifiers);
-		ret+=" " + rt.getName() + " " + name + "(";
+		ret+=name + "(";
 		if(types.length > 0) {
 			for(int i=0; i<types.length; i++) {
 				ret+=types[i].getName() + " a" + i + ",";
 			}
+			// Strip off the last comma
 			ret=ret.substring(0, ret.length()-1);
 		}
 		// Get rid of the last comma and add a paren
-		ret+=")";
+		ret+=") ";
+
+		// Now flip through the exceptions
+		Class e[]=method.getExceptionTypes();
+		if(e.length>0) {
+			ret+="\n\t\tthrows ";
+			for(int i=0; i<e.length; i++) {
+				ret+=e[i].getName() + ",";
+			}
+			// Strip off the last comma
+			ret=ret.substring(0, ret.length()-1);
+		}
 
 		return(ret);
 	}
