@@ -15,7 +15,7 @@ all: $(PROGS)
 mailCompress: mailCompress.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib -I /usr/local/lib/ocaml/site-lib \
 		unix.cmxa \
-		extstring.cmx fileutils.cmx linkedlist.cmx lru.cmx gz.cmxa \
+		spy.cmxa lru.cmx gz.cmxa \
 		mailCompress.ml
 
 hlgrep: hlgrep.ml

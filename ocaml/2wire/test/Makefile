@@ -14,11 +14,11 @@ all: $(PROGS)
 
 b64test: b64test.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa fileutils.cmx extstream.cmx base64.cmx b64test.ml
+		unix.cmxa spy.cmxa b64test.ml
 
 cdbtest: cdbtest.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		extoption.cmx cdb.cmx cdbtest.ml
+		spy.cmxa cdbtest.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
