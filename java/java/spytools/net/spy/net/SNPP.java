@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.7 2000/01/28 19:14:46 dustin Exp $
+// $Id: SNPP.java,v 1.8 2000/01/30 22:36:11 dustin Exp $
 
 package net.spy.net;
 
@@ -91,12 +91,36 @@ public class SNPP {
 	/**
 	 * sets the message to send
 	 *
-	 * @param msg snpp msg
+	 * @param msg snpp message
 	 *
 	 * @exception Exception when the command fails
 	 */
 	public void message(String msg) throws Exception {
-		cmd("mess " + msg);
+		String tmp="";
+		String atmp[]=SpyUtil.split("\r\n", msg);
+		for(int i=0; i<atmp.length; i++) {
+			tmp+=atmp[i] + " ";
+		}
+		cmd("mess " + tmp);
+	}
+
+	/**
+	 * sets the message to send, keeps newlines and all that
+	 *
+	 * @param msg snpp message
+	 *
+	 * @exception Exception when the command fails, possibly because DATA
+	 * is not supported
+	 */
+	public void data(String msg) throws Exception {
+		try {
+			cmd("data");
+		} catch(Exception e) {
+			if(currentstatus != 354) {
+				throw e;
+			}
+		}
+		cmd(msg + "\r\n.");
 	}
 
 	/**
