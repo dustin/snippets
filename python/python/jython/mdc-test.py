@@ -37,18 +37,16 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 
 	def __init__(self):
 		net.spy.util.ThreadPoolObserver.__init__(self)
-		self.stats=net.spy.util.ProgressStats(100)
+		self.stats=net.spy.util.ProgressStats(4430)
 		self.stats.start()
 
-		self.serQueues={}
-		for i in range(10):
-			os=java.io.FileOutputStream("results_" + `i` + ".srz")
-			gos=java.util.zip.GZIPOutputStream(os)
-			oos=java.io.ObjectOutputStream(gos);
-			self.serQueues[i]=SerializationQueue("Serializer#" + `i`, oos)
-			# Slightly higher than normal priority for these
-			self.serQueues[i].setPriority(java.lang.Thread.NORM_PRIORITY + 1)
-			self.serQueues[i].start()
+		os=java.io.FileOutputStream("results.srz")
+		gos=java.util.zip.GZIPOutputStream(os)
+		oos=java.io.ObjectOutputStream(gos);
+		self.serQueue=SerializationQueue("Serializer", oos)
+		# Slightly higher than normal priority for these
+		self.serQueue.setPriority(java.lang.Thread.NORM_PRIORITY + 1)
+		self.serQueue.start()
 
 		self.errors=java.io.PrintWriter(java.io.FileWriter("error.log"))
 
@@ -56,8 +54,7 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 		if j.wasSuccessful():
 			sn=j.getSerialNumber()
 			self.errors.println("Successful:  " + j.getSerialNumber());
-			snf=int(sn[0])
-			q=self.serQueues[snf]
+			q=self.serQueue
 			o=java.util.ArrayList()
 			o.add(sn)
 			o.add(j.getResults())
@@ -80,8 +77,7 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 		self.stats.start()
 
 	def finished(self):
-		for v in self.serQueues.values():
-			v.close()
+		self.serQueue.close()
 		self.errors.close()
 
 # Start registering handlers and stuff
@@ -105,8 +101,8 @@ Protocol.registerProtocol("https",
 # The pool monitor (that saves the stuff)
 recorder=Recorder()
 
-tp=net.spy.util.ThreadPool("Fetcher", 100)
-tp.setStartThreads(100)
+tp=net.spy.util.ThreadPool("Fetcher", 50)
+tp.setStartThreads(50)
 tp.setMinIdleThreads(5)
 tp.setMonitor(recorder)
 tp.start()
