@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 1998/06/27 04:08:38 dustin Exp $
+ * $Id: sockets.c,v 1.2 1998/08/26 01:59:08 dustin Exp $
  */
 
 #include <stdio.h>
@@ -20,68 +20,59 @@
 
 extern int _debug;
 
-int getclientsocket(char *host, int port)
+int
+getclientsocket(char *host, int port)
 {
-    struct hostent *hp;
-    int success, i, flag;
-    register int s=-1;
-    struct linger l;
-    struct sockaddr_in sin;
+	struct hostent *hp;
+	int     success, i, flag;
+	register int s = -1;
+	struct linger l;
+	struct sockaddr_in sin;
 
-    _ndebug(2, ("Building client socket for %s:%d\n", host, port));
+	_ndebug(2, ("Building client socket for %s:%d\n", host, port));
 
-    if(host==NULL || port==0)
-	return(-1);
+	if (host == NULL || port == 0)
+		return (-1);
 
-    if((hp=gethostbyname(host)) == NULL)
-    {
+	if ((hp = gethostbyname(host)) == NULL) {
 #ifdef HAVE_HERROR
-        herror("gethostbyname");
+		herror("gethostbyname");
 #else
-        fprintf(stderr, "Error looking up %s\n", host);
+		fprintf(stderr, "Error looking up %s\n", host);
 #endif
-        return(-1);
-    }
+		return (-1);
+	}
+	success = 0;
 
-    success=0;
+	/* of course, replace that 1 with the max number of con attempts */
+	for (i = 0; i < 1; i++) {
+		if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			perror("socket");
+			return (-1);
+		}
+		sin.sin_family = AF_INET;
+		sin.sin_port = htons(port);
+		memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
-    /* of course, replace that 1 with the max number of con attempts */
-    for(i=0; i<1; i++)
-    {
-        if((s=socket(AF_INET, SOCK_STREAM, 0))<0)
-        {
-            perror("socket");
-            return(-1);
-        }
+		l.l_onoff = 1;
+		l.l_linger = 60;
+		setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &l, sizeof(l));
 
-        sin.sin_family = AF_INET;
-        sin.sin_port=htons(port);
-        memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
+		flag = 1;
+		if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
+			sizeof(int)) < 0) {
+			puts("Nagle algorithm not dislabled.");
+		}
+		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+			sleep(1);
+		} else {
+			success = 1;
+			break;
+		}
+	}
 
-        l.l_onoff  = 1;
-        l.l_linger = 60;
-        setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&l, sizeof(l));
+	if (!success)
+		s = -1;
 
-        flag=1;
-        if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *)&flag,
-            sizeof(int)) <0)
-        {
-            puts("Nagle algorithm not dislabled.");
-        }
-
-        if(connect(s, (struct sockaddr *)&sin, sizeof(sin))<0)
-        {
-            sleep(1);
-        }
-        else
-        {
-            success=1;
-            break;
-        }
-    }
-
-    if(!success)
-       s=-1;
-
-    return(s);
+	return (s);
 }

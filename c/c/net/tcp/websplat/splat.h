@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.1 1998/06/27 04:08:39 dustin Exp $
+ * $Id: splat.h,v 1.2 1998/08/26 01:59:10 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -13,9 +13,9 @@
 #endif
 
 #if (PDEBUG>0)
-# ifndef _ndebug
-#  define _ndebug(a, b) if(_debug > a ) printf b;
-# endif
+#ifndef _ndebug
+#define _ndebug(a, b) if(_debug > a ) printf b;
+#endif
 #endif
 
 /* In case it didn't make it */
@@ -29,22 +29,22 @@
  * URL request holder.
  */
 struct url {
-    char *host;
-    int port;
-    char *req;
-    char httpreq[REQ_LEN];
-    int ssl;
+	char   *host;
+	int     port;
+	char   *req;
+	char    httpreq[REQ_LEN];
+	int     ssl;
 };
 
 /*
  * Status return.
  */
 struct status {
-    int status;
-    int bytesread;
-    char *message;
+	int     status;
+	int     bytesread;
+	char   *message;
 };
 
-int getclientsocket(char *host, int port);
+int     getclientsocket(char *host, int port);
 
 #endif
