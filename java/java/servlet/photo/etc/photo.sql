@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.23 1999/10/10 08:47:06 dustin Exp $
+-- $Id: photo.sql,v 1.24 1999/10/19 04:25:33 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -191,6 +191,18 @@ grant all on photo_log to nobody;
 create index photo_log_photo_id on photo_log(photo_id);
 create index photo_log_wwwuser_id on photo_log(wwwuser_id);
 create index photo_log_remote_addr on photo_log(remote_addr);
+
+-- Log of uploaded images.
+
+create table upload_log (
+	photo_id integer not null,
+	wwwuser_id integer not null,
+	stored datetime,
+	ts datetime default(datetime(now()))
+);
+
+grant all on upload_log to nobody;
+create unique index upload_log_photo on upload_log(photo_id);
 
 create view log_user_ip_agent as
 	select wwwusers.username, photo_log.remote_addr, user_agent.user_agent
