@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.6 2000/01/10 09:04:29 dustin Exp $
+ * $Id: PhotoSession.java,v 1.7 2000/03/08 07:14:13 dustin Exp $
  */
 
 package net.spy.photo;
@@ -30,6 +30,7 @@ public class PhotoSession extends Object
 	protected MultipartRequest multi=null;
 	protected SpyLog logger=null;
 	protected PhotoSecurity security = null;
+	protected HttpSession session=null;
 
 	protected PhotoStorerThread storer_thread = null;
 
@@ -48,6 +49,11 @@ public class PhotoSession extends Object
 		photo_servlet=p;
 		this.request=request;
 		this.response=response;
+		this.session=request.getSession(true);
+		// Guest by default.
+		if(this.session.isNew()) {
+			this.session.putValue("username", "guest");
+		}
 
 		logger=p.logger;
 
@@ -76,7 +82,7 @@ public class PhotoSession extends Object
 		// Set the self_uri
 		self_uri = request.getRequestURI();
 
-		getCreds(request);
+		getCreds();
 
 		// Figure out what they want, default to index.
 		if(multi==null) {
@@ -141,28 +147,8 @@ public class PhotoSession extends Object
 		send_response(response, output);
 	}
 
-	protected void getCreds(HttpServletRequest request)
-		throws ServletException {
-		Cookie cookies[];
-		String auth_cookie = null;
-		int i;
-
-		cookies = request.getCookies();
-
-		if(cookies != null) {
-			for(i=0; i<cookies.length && auth_cookie == null; i++) {
-				String s = cookies[i].getName();
-				if(s.equalsIgnoreCase("photo_auth")) {
-					auth_cookie = cookies[i].getValue();
-				}
-			}
-		}
-
-		log("Got cookie:  " + auth_cookie);
-
-		remote_user = security.getAuthUser(auth_cookie);
+	protected void getCreds() throws ServletException {
 		getUid();
-
 		log("Authenticated as " + remote_user);
 	}
 
@@ -186,9 +172,7 @@ public class PhotoSession extends Object
 
 		log("Verifying password for " + username);
 		if(security.checkPW(username, pass)) {
-			Cookie c = new Cookie("photo_auth",security.setAuthUser(username));
-			c.setPath(self_uri);
-			response.addCookie(c);
+			session.putValue("username", username);
 			// Make it valid immediately
 			remote_user = "dustin";
 			getUid();
@@ -639,6 +623,7 @@ public class PhotoSession extends Object
 		String query;
 
 		try {
+			remote_user=(String)session.getValue("username");
 			PhotoUser p=(PhotoUser)userdb.get(remote_user);
 			remote_uid = p.id;
 		} catch(Exception e) {
