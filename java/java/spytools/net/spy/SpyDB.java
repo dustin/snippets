@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.31 2001/05/21 23:05:42 dustin Exp $
+ * $Id: SpyDB.java,v 1.32 2001/05/25 00:21:17 dustin Exp $
  */
 
 package net.spy;
@@ -43,13 +43,6 @@ public class SpyDB extends Object {
 	// Pool name.
 	private String name=null;
 
-	// Number of connections to start with.
-	private int min_conns = 1;
-	// Maximum number of connections to open.
-	private int max_conns = 5;
-	// How long (in milliseconds) to keep a connection open.
-	private long recycle_time = 6 * 3600 * 60 * 1000;
-
 	// Whether we want the object to free stuff or not.
 	private boolean auto_free=true;
 
@@ -76,6 +69,9 @@ public class SpyDB extends Object {
 	 *      - default SpyPool</li>
 	 *  <li>dbPoolName - default db</li>
 	 *  <li>dbMinConns - minimum number of connections - default 1</li>
+	 *  <li>dbStartConns - minimum number of connections - default 1</li>
+	 *  <li>dbYellowLine - the pool's ``yellow line'' percentage
+	 *      - default 75</li>
 	 *  <li>dbMaxConns - maximum number of connections - default 5</li>
 	 *  <li>dbMaxLifeTime - maximum connection lifetime in milliseconds -
 	 *      default 6 hours</li>
@@ -183,14 +179,24 @@ public class SpyDB extends Object {
 		}
 
 		// Minimum connections in the pool.
-		min_conns=conf.getInt("dbMinConns", -1);
+		int min_conns=conf.getInt("dbMinConns", -1);
 		if(min_conns==-1) {
 			min_conns=conf.getInt("dbcbMinConns", 1);
 		}
 		tmpconf.put(prefix + "min", "" + min_conns);
 
+		// Start this many connections in the pool.
+		int start_conns=conf.getInt("dbStartConns", min_conns);
+		tmpconf.put(prefix + "start", "" + start_conns);
+
+		// Yellow line percentage
+		int yellow_line=conf.getInt("dbYellowLine", -1);
+		if(yellow_line>0) {
+			tmpconf.put(prefix + "yellow_line", "" + yellow_line);
+		}
+
 		// maximum connections in the pool.
-		max_conns=conf.getInt("dbMaxConns", -1);
+		int max_conns=conf.getInt("dbMaxConns", -1);
 		if(max_conns==-1) {
 			max_conns=conf.getInt("dbcbMaxConns", 5);
 		}
@@ -203,7 +209,7 @@ public class SpyDB extends Object {
 			if(tmp!=null) {
 				double tmpd=Double.valueOf(tmp).doubleValue();
 				tmpd*=86400;
-				recycle_time=(long)tmpd;
+				long recycle_time=(long)tmpd;
 				tmpconf.put(prefix + "max_age", "" + recycle_time*1000);
 			}
 		} else {
@@ -426,6 +432,7 @@ public class SpyDB extends Object {
 				connections.put(conn, object);
 			}
 		} catch(Exception e) {
+			e.printStackTrace();
 			throw new SQLException(
 				"Unable to get database connection:  " + e);
 		}

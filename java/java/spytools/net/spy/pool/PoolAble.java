@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.13 2001/03/19 20:27:32 dustin Exp $
+// $Id: PoolAble.java,v 1.14 2001/05/25 00:21:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -25,6 +25,15 @@ public abstract class PoolAble extends Object {
 	private long start_time=0;
 	private String pool_name=null;
 	private PoolDebug pooldebug=null;
+
+	/**
+	 * Minimum value returned from pruneStatus() if we may clean the object.
+	 */
+	public static final int MAY_CLEAN=1;
+	/**
+	 * Minimum value returned from pruneStatus() if we must clean the object.
+	 */
+	public static final int MUST_CLEAN=2;
 
 	/**
 	 * Availability flag.
@@ -183,8 +192,8 @@ public abstract class PoolAble extends Object {
 	/**
 	 * Find out if an object is prunable
 	 *
-	 * @return 0 if not available, 1 if prunable, and 2 if a pruning is
-	 * required.
+	 * @return 0 if not available, 1 if we may clean, greater than one if
+	 * we must clean.
 	 */
 	public synchronized int pruneStatus() {
 		int ret=0;
@@ -195,6 +204,11 @@ public abstract class PoolAble extends Object {
 			// If it's not checked out, and it's not available, we *need*
 			// to prune it.
 			if(available) {
+				ret++;
+			}
+
+			// If it's not alive, we don't want it.
+			if(!isAlive()) {
 				ret++;
 			}
 		}

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.23 2001/05/23 23:13:24 dustin Exp $
+// $Id: PoolContainer.java,v 1.24 2001/05/25 00:21:21 dustin Exp $
 
 package net.spy.pool;
 
@@ -17,7 +17,12 @@ public class PoolContainer extends Object {
 	private String name=null;
 	private PoolFiller filler=null;
 	private int _min_objects=-1;
+	private int _init_objects=-1;
 	private int _max_objects=-1;
+
+	// The percentage at which we start making people wait before giving
+	// them new connections.
+	private int _yellow_line=-1;
 
 	private static int _object_id=0;
 
@@ -29,6 +34,9 @@ public class PoolContainer extends Object {
 	 * The following optional config parameters will be used:
 	 * <ul>
 	 *  <li>&lt;poolname&gt;.min - minimum number of items in the pool</li>
+	 *  <li>&lt;poolname&gt;.start - initial number of objects in the pool</li>
+	 *  <li>&lt;poolname&gt;.yellow - when the pool is this percent full,
+	 *      we hesitate more before giving out connections.</li>
 	 *  <li>&lt;poolname&gt;.max - maximum number of items in the pool</li>
 	 * </li>
 	 *
@@ -55,6 +63,9 @@ public class PoolContainer extends Object {
 	 * The following optional config parameters will be used:
 	 * <ul>
 	 *  <li>&lt;poolname&gt;.min - minimum number of items in the pool</li>
+	 *  <li>&lt;poolname&gt;.start - initial number of objects in the pool</li>
+	 *  <li>&lt;poolname&gt;.yellow - when the pool is this percent full,
+	 *      we hesitate more before giving out connections.</li>
 	 *  <li>&lt;poolname&gt;.max - maximum number of items in the pool</li>
 	 * </li>
 	 *
@@ -113,9 +124,8 @@ public class PoolContainer extends Object {
 				} // Flipping through the current pool
 
 				// If we didn't get anything, and we're not at least
-				// half-way through our max object size, open a new
-				// connection
-				if(poolable==null && totalObjects()<(_max_objects/2) ) {
+				// to our yellow line, open a new connection
+				if(poolable==null && totalObjects()<_yellow_line) {
 					poolable=getNewObject();
 				}
 
@@ -141,7 +151,9 @@ public class PoolContainer extends Object {
 			}// Retries for an object in the existing pool.
 
 			// Check it out right now.
-			rv=new PooledObject(poolable);
+			if(poolable!=null) {
+				rv=new PooledObject(poolable);
+			}
 
 		} // End of pool synchronization
 
@@ -171,7 +183,8 @@ public class PoolContainer extends Object {
 	 * debugging tool, dump out the current state of the pool
 	 */
 	public String toString() {
-		String out="Pool " + name + "\n";
+		String out="Pool " + name + " - total Objects:  " + totalObjects()
+			+ ", available objects:  " + avaliableObjects() + "\n";
 		synchronized (pool) {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				out+="    " + e.nextElement() + "\n";
@@ -218,7 +231,7 @@ public class PoolContainer extends Object {
 			// can.
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
-				if(p.pruneStatus()==2) {
+				if(p.pruneStatus()>=PoolAble.MUST_CLEAN) {
 					// Tell it that it can go away now.
 					debug("Removing " + p);
 					p.discard();
@@ -228,7 +241,7 @@ public class PoolContainer extends Object {
 			// OK, now let's get rid of the ones we can.
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
-				if(p.pruneStatus()==1) {
+				if(p.pruneStatus()>=PoolAble.MAY_CLEAN) {
 					if(totalObjects()>_min_objects) {
 						// Tell it that it can go away now.
 						debug("Removing " + p);
@@ -250,18 +263,32 @@ public class PoolContainer extends Object {
 
 		// Get the min and max args.
 		_min_objects=getPropertyInt("min", 0);
+		_init_objects=getPropertyInt("start", _min_objects);
 		_max_objects=getPropertyInt("max", 5);
+		// The yellow line is the number of connections before we start to
+		// slow it down...
+		_yellow_line=(int)((float)_max_objects*
+			(float)getPropertyInt("yellow_line", 75)/100.0);
 
 		debug("Pool " + name + " wants a min of " + _min_objects
-			+ " and a max of " + _max_objects);
+			+ " and a max of " + _max_objects
+			+ " with a yellow line at " + _yellow_line);
 
-		getMinObjects();
+		getStartObjects();
 	}
 
 	// Populate with the minimum number of objects.
 	private void getMinObjects() throws PoolException{
 		debug("Pool " + name + " wants at least " + _min_objects +" objects.");
 		for(int i=totalObjects(); i<_min_objects; i++) {
+			getNewObject();
+		}
+	}
+
+	// Populate with the number of objects we need at start.
+	private void getStartObjects() throws PoolException{
+		debug("Pool " + name + " starting with " + _init_objects +" objects.");
+		for(int i=totalObjects(); i<_init_objects; i++) {
 			getNewObject();
 		}
 	}

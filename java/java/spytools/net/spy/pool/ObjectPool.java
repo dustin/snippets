@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.22 2001/05/22 06:18:59 dustin Exp $
+// $Id: ObjectPool.java,v 1.23 2001/05/25 00:21:18 dustin Exp $
 
 package net.spy.pool;
 
@@ -219,6 +219,9 @@ public class ObjectPool extends Object {
 		// How many times we've cleaned so far.
 		private int numCleans=0;
 
+		// Last time we cleaned.
+		private Date lastClean=null;
+
 		// Create (and start) the ObjectPoolCleaner.
 		public ObjectPoolCleaner(ObjectPool op) {
 			super();
@@ -231,7 +234,18 @@ public class ObjectPool extends Object {
 		// Look like a normal thread, but report number of times the thing's
 		// cleaned.
 		public String toString() {
-			return(super.toString() + " - " + numCleans + " served.");
+			StringBuffer sb=new StringBuffer();
+			sb.append(super.toString());
+			sb.append(" - ");
+			sb.append(numCleans);
+			sb.append(" served");
+
+			if(lastClean!=null) {
+				sb.append(".  Most recent cleaning:  ");
+				sb.append(lastClean);
+			}
+
+			return(sb.toString());
 		}
 
 		private void doPrune() throws Exception {
@@ -248,6 +262,7 @@ public class ObjectPool extends Object {
 				try {
 					// Prune every once in a while.
 					sleep(5*60*1000);
+					lastClean=new Date();
 					doPrune();
 				} catch(Exception e) {
 					System.err.println("***\nCleaner got an exception:  "
