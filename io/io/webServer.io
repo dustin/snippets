@@ -1,14 +1,16 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.2 2003/08/20 08:20:20 dustin Exp $
+# $Id: webServer.io,v 1.3 2003/08/20 17:33:12 dustin Exp $
 
 WebServer = Object clone
 
 WebServer buf = Buffer clone
 
 WebServer hasRequest = method(
+	/*
 	"Checking to see if we have a request in\n" print
 	buf print
+	*/
 	buf find("\r\n\r\n")
 )
 
@@ -25,7 +27,8 @@ WebServer processRequest = method(aSocket, aServer,
 		"Connection: close")
 	aSocket write(String join(rv, "\r\n"))
 	aSocket write("\r\n\r\n")
-	aSocket write("Here's your content, mofo")
+	aSocket write("Here's your content, mofo.\n")
+	aSocket write("BTW, you requested " .. query)
 	aSocket close
 	buf empty
 )
