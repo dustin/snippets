@@ -12,7 +12,8 @@ CLASSPATH=$(C1):$(C2):$(C3):/home/dustin/lib/java/postgresql.jar:.
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
 	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
-	net/spy/SpyConfigReader.class
+	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
+	net/spy/net/HTTPFetch.class
 
 FDEST=/home/dustin/lib/java
 SCP=scp

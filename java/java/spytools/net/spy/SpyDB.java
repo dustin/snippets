@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.2 1999/10/20 07:41:20 dustin Exp $
+ * $Id: SpyDB.java,v 1.3 1999/11/18 23:16:59 dustin Exp $
  */
 
 package net.spy;
@@ -97,16 +97,44 @@ public class SpyDB extends Object {
 		// Get rid of garbage.
 		System.runFinalization();
 		System.gc();
+		String log_file = conf.get("dbcbLogFilePath");
+		if(log_file == null) {
+			log_file = "/tmp/pool.log";
+		}
 		// Load the db driver
 		try {
 			Class.forName(conf.get("dbDriverName"));
 			dbs = new DbConnectionBroker(conf.get("dbDriverName"),
 				conf.get("dbSource"), conf.get("dbUser"), conf.get("dbPass"),
-				3, 6, "/tmp/pool.log", 0.01);
+				3, 6, log_file, 0.01);
 		} catch(Exception e) {
 			// Do nothing
 			// throw new Exception("dbs broke:  " + e);
 		}
+	}
+
+	public static String dbquote_str(String thing) {
+		// Quick...handle null
+		if(thing == null) {
+			return(null);
+		}
+
+		String scopy = new String(thing);
+		if(scopy.indexOf('\'') >= 0) {
+			String sout = new String("");
+			StringTokenizer st = new StringTokenizer(scopy, "\'");
+			while(st.hasMoreTokens()) {
+				String part = st.nextToken();
+
+				if(st.hasMoreTokens()) {
+					sout += part + "\'\'";
+				} else {
+					sout += part;
+				}
+			}
+			scopy=sout;
+		}
+		return(scopy);
 	}
 
 	// Free!
