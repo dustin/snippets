@@ -64,7 +64,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/CachedResultSetStub.class \
 	net/spy/db/CachePreparedStatement.class \
 	net/spy/db/CachedResultSet.class \
-	net/spy/db/SpyCacheDB.class
+	net/spy/db/SpyCacheDB.class \
+	net/spy/db/TypeNames.class
 
 	# net/spy/loader/ClassReLoader.class
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachePreparedStatementStub.java,v 1.5 2001/03/10 22:42:14 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.6 2001/03/11 11:51:00 dustin Exp $
  */
 
 package net.spy.db;
@@ -251,8 +251,9 @@ public class CachePreparedStatementStub extends Object {
 
 	// Implemented
 	public void close() throws SQLException {
-	    query_str=null;
-		args=null;
-		types=null;
+	db=null;
+	query_str=null;
+	args=null;
+	types=null;
 	}
 }
