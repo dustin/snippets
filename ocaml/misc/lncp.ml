@@ -6,6 +6,7 @@
 
 (** Produce a hardlink copy of a tree. *)
 
+(* Chop out the source dir part *)
 let rel fn a =
 	String.sub fn (String.length a) (String.length fn - String.length a)
 ;;
@@ -20,9 +21,10 @@ let linkto basedir d l a =
 	) l
 ;;
 
-let main() =
+let main =
+	(* This will return a (unit -> unit) *)
 	Unix.handle_unix_error (fun () ->
-		Fileutils.walk_dir Sys.argv.(1) (linkto Sys.argv.(2)) Sys.argv.(1)) ()
+		Fileutils.walk_dir Sys.argv.(1) (linkto Sys.argv.(2)) Sys.argv.(1))
 ;;
 
 (* Start main if we're interactive. *)
