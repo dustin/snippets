@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.17 1999/09/29 07:37:25 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.18 1999/09/30 06:09:28 dustin Exp $
  */
 
 import java.io.*;
@@ -20,8 +20,8 @@ import com.javaexchange.dbConnectionBroker.*;
 // The class
 public class PhotoServlet extends HttpServlet
 {
-	Integer remote_uid;
-	String remote_user, self_uri;
+	public Integer remote_uid;
+	public String remote_user, self_uri;
 	DbConnectionBroker dbs;
 	RHash rhash;
 	MultipartRequest multi;
@@ -116,6 +116,8 @@ public class PhotoServlet extends HttpServlet
 			doGetStylesheet(request, response);
 		} else if(func.equalsIgnoreCase("display")) {
 			doDisplay(request, response);
+		} else if(func.equalsIgnoreCase("logview")) {
+			doLogView(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
 			showImage(request, response);
 		} else {
@@ -966,21 +968,34 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
+	private void doLogView(HttpServletRequest request,
+		HttpServletResponse response) throws ServletException {
+		String view, out="";
+
+		PhotoLogView logview=new PhotoLogView(dbs, this);
+
+		view=request.getParameter("view");
+		if(view==null) {
+			throw new ServletException("LogView without view");
+		}
+
+		if(view.equalsIgnoreCase("viewers")) {
+			String which;
+			which=request.getParameter("which");
+			if(which==null) {
+				throw new ServletException("LogView/viewers without which");
+			}
+			try {
+				out=logview.getViewersOf(Integer.valueOf(which));
+			} catch(Exception e) {
+				throw new ServletException(e.getMessage());
+			}
+		}
+		send_response(response, out);
+	}
+
 	// Tokenize a template file and return the tokenized stuff.
 	private String tokenize(String file, Hashtable vars) {
-		Toker t=new Toker();
-		String ret;
-
-		vars.put("SELF_URI", self_uri);
-		vars.put("HTML_URI", "/~dustin/jphoto/");
-		vars.put("REMOTE_USER", remote_user);
-		vars.put("REMOTE_UID", remote_uid.toString());
-		vars.put("LAST_MODIFIED", "recently");
-		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
-			+ "/servlet/root/PhotoServlet?func=getstylesheet\">");
-
-		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
-
-		return(ret);
+		return(PhotoUtil.tokenize(this, file, vars));
 	}
 }

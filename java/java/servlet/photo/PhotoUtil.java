@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.2 1999/09/28 06:51:40 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.3 1999/09/30 06:09:30 dustin Exp $
  */
 
 import java.lang.*;
@@ -54,5 +54,22 @@ public class PhotoUtil
 			scopy=sout;
 		}
 		return(scopy);
+	}
+
+	// Tokenize a template file and return the tokenized stuff.
+	public static String tokenize(PhotoServlet p, String file, Hashtable vars) {
+		Toker t=new Toker();
+		String ret;
+
+		vars.put("SELF_URI", p.self_uri);
+		vars.put("HTML_URI", "/~dustin/jphoto/");
+		vars.put("REMOTE_USER", p.remote_user);
+		vars.put("REMOTE_UID", p.remote_uid.toString());
+		vars.put("LAST_MODIFIED", "recently");
+		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
+			+ "/servlet/root/PhotoServlet?func=getstylesheet\">");
+
+		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
+		return(ret);
 	}
 }
