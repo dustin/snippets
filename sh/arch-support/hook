@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# For commits
+if [ "$1" == "commit" ]
+then
+	# If this is my default archive, let's do a local push replication.  My
+	# mirror will never be out of date.
+	if [ "$ARCH_ARCHIVE" = "dustin@spy.net--projects-2004" ]
+	then
+		lim="${ARCH_CATEGORY}-${ARCH_BRANCH}"
+		tla archive-mirror -s $ARCH_ARCHIVE $lim
+	fi
+fi
