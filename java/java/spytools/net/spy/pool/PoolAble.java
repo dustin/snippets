@@ -1,10 +1,15 @@
 //
-// $Id: PoolAble.java,v 1.3 2000/07/03 07:57:20 dustin Exp $
+// $Id: PoolAble.java,v 1.4 2000/07/04 05:40:41 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.*;
 import net.spy.SpyConfig;
+
+/**
+ * PoolAble is the object container that is used to store objects in the
+ * pool.
+ */
 
 public class PoolAble extends Object {
 	protected int object_id=-1;
@@ -14,12 +19,23 @@ public class PoolAble extends Object {
 	protected long max_age=0;
 	protected long start_time=0;
 
+	/**
+	 * Get a PoolAble representation for an object.
+	 */
 	public PoolAble(Object the_object) {
 		super(); // thanks for asking.
 		this.the_object=the_object;
 		start_time=System.currentTimeMillis();
 	}
 
+	/**
+	 * Get a PoolAble representation for an object, including a given
+	 * maximum lifetime the object can have.
+	 *
+	 * @param max_age the amount of time, in milliseconds, that the object
+	 * will be valid.  Objects will not be checked out if they are older
+	 * than their maximum lifetime.
+	 */
 	public PoolAble(Object the_object, long max_age) {
 		super(); // thanks for asking.
 		this.the_object=the_object;
@@ -29,12 +45,15 @@ public class PoolAble extends Object {
 
 	/**
 	 * Find out of the PoolAble represents a usable object.  Objects
-	 * extending PoolAble should implement alive() methods for their
+	 * extending PoolAble should implement isAlive() methods for their
 	 * particular needs.
+	 * <p>
+	 * Objects implementing isAlive() <i>should</i> turn off object
+	 * availability if they determine the object no longer isAlive().
 	 *
 	 * @return true if the object will be usable
 	 */
-	public boolean alive() {
+	public boolean isAlive() {
 		return(true);
 	}
 
@@ -75,6 +94,9 @@ public class PoolAble extends Object {
 	/**
 	 * Check the object back in.  The PoolAble will not be usable again
 	 * until it's checked back out from the pooler.
+	 * <p>
+	 * checkIn also does some checks such as making sure the item is not
+	 * too old, and that it is still alive.
 	 */
 	public synchronized void checkIn() {
 		checked_out=false;
@@ -89,11 +111,15 @@ public class PoolAble extends Object {
 				available=false;
 			}
 		}
+
+		// Also, make sure the thing's alive.
+		if(!isAlive()) {
+			available=false;
+		}
 	}
 
 	/**
-	 * Check the object out.  Do *NOT* call this directly, bad things will
-	 * happen.
+	 * Check the object out.  Called from the PoolContainer
 	 */
 	public synchronized void checkOut() {
 		checked_out=true;

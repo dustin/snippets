@@ -1,11 +1,33 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.7 2000/07/03 07:57:18 dustin Exp $
+// $Id: ObjectPool.java,v 1.8 2000/07/04 05:40:38 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.*;
 import net.spy.SpyConfig;
+
+/**
+ * ObjectPool is the entry point for all object pooling facilities in
+ * net.spy.pool.*.  ObjectPools have a shared reference to a pool, so there
+ * is exactly one set of pools per JVM.  This can be very useful in
+ * consolidating applications' pools into one.
+ * <p>
+ * Pools are referenced by name, so as long as two pools have two different
+ * names, they will be used independently.
+ * <p>
+ * When creating a pool, you must have a PoolFiller that will populate the
+ * pool with objects when it needs them.
+ * <p>
+ * The following is an example demonstrating how to instantiate a JDBC pool
+ * using JDBCPoolFiller:
+ * <pre>
+ * SpyConfig conf=new SpyConfig("pool.conf");
+ * ObjectPool op=new ObjectPool(conf);
+ * JDBCPoolFiller pf=new JDBCPoolFiller("db", conf);
+ * op.createPool("db", pf);
+ * </pre>
+ */
 
 public class ObjectPool extends Object {
 	protected static Hashtable pools=null;
@@ -97,7 +119,8 @@ public class ObjectPool extends Object {
 	}
 
 	/**
-	 * Prune the object pools.
+	 * Prune the object pools.  This method requests that each individual
+	 * pool prune itself, removing unusable or unnecessary PoolAbles.
 	 */
 	public void prune() throws PoolException {
 		synchronized (pools) {

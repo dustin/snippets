@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.7 2000/07/03 07:57:22 dustin Exp $
+// $Id: PoolContainer.java,v 1.8 2000/07/04 05:40:42 dustin Exp $
 
 package net.spy.pool;
 
@@ -8,6 +8,9 @@ import net.spy.SpyConfig;
 
 import net.spy.SpyConfig;
 
+/**
+ * PoolContainer is the storage for a given pool.
+ */
 public class PoolContainer extends Object {
 	protected Vector pool=null;
 	protected SpyConfig conf=null;
@@ -19,6 +22,20 @@ public class PoolContainer extends Object {
 
 	protected boolean _debug=false;
 
+	/**
+	 * Create a new PoolContainer for a pool with a given name, and filler.
+	 *
+	 * The following optional config parameters will be used:
+	 * <ul>
+	 *  <li>&lt;poolname&gt;.min - minimum number of items in the pool</li>
+	 *  <li>&lt;poolname&gt;.max - maximum number of items in the pool</li>
+	 * </li>
+	 *
+	 * @param name name of the pool
+	 * @param pf the PoolFiller to use
+	 * @param conf a SpyConfig object that should describe the pool
+	 * parameters.
+	 */
 	public PoolContainer(String name, PoolFiller pf, SpyConfig conf)
 		throws PoolException {
 		super();
@@ -29,6 +46,10 @@ public class PoolContainer extends Object {
 		initialize();
 	}
 
+	/**
+	 * Get an object from the pool.  It could take up to about three
+	 * seconds to get an object from the pool.
+	 */
 	public synchronized PooledObject getObject() throws PoolException {
 		PoolAble ret=null;
 
@@ -44,10 +65,10 @@ public class PoolContainer extends Object {
 
 				PoolAble p=(PoolAble)e.nextElement();
 
-				// If it's not checked out, we have our man!
-				if(p.isAvailable()) {
+				// If it's not checked out, and it works, we have our man!
+				if(p.isAvailable() && (p.isAlive())) {
 					// Since we got one from the pool, we want to move it
-				// to the end of the vector.
+					// to the end of the vector.
 					ret=p;
 				}
 			} // Flipping through the current pool
@@ -88,7 +109,7 @@ public class PoolContainer extends Object {
 	}
 
 	/**
-	 * debugging tool, dump out the current state of the pool to System.out
+	 * debugging tool, dump out the current state of the pool
 	 */
 	public String toString() {
 		String out="Pool " + name + "\n";
@@ -167,12 +188,14 @@ public class PoolContainer extends Object {
 	}
 
 	// Populate with the minimum number of objects.
-	void getMinObjects() throws PoolException{
+	protected void getMinObjects() throws PoolException{
 		for(int i=currentObjects(); i<_min_objects; i++) {
 			getNewObject();
 		}
 	}
 
+	// Fetch a new object from the poolfiller, the pool is exhausted and we
+	// need more objects.
 	protected PoolAble getNewObject() throws PoolException {
 		PoolAble p=null;
 		// Don't add an object if we're at capacity.
@@ -192,6 +215,7 @@ public class PoolContainer extends Object {
 		return(p);
 	}
 
+	// Find out how many objects we currently have.
 	protected int currentObjects() {
 		int ret=-1;
 		synchronized(pool) {

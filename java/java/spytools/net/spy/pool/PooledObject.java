@@ -1,14 +1,24 @@
 //
-// $Id: PooledObject.java,v 1.2 2000/07/03 07:23:26 dustin Exp $
+// $Id: PooledObject.java,v 1.3 2000/07/04 05:40:45 dustin Exp $
 
 package net.spy.pool;
 
+/**
+ * Pooled object return package.  This object primarily exists as a means
+ * for having a safe way to have access to PoolAble objects.  Anyone using
+ * a PooledObject will not be able to retrieve the object that was pooled
+ * after checking it back in, and it makes it safe to forget to check an
+ * object back in on occasion.
+ */
 public class PooledObject extends Object {
 
 	protected PoolAble p=null;
 
 	protected boolean _debug=false;
 
+	/**
+	 * Get a new PooledObject containing the given PoolAble
+	 */
 	public PooledObject(PoolAble p) {
 		super();
 		this.p=p;
@@ -50,7 +60,10 @@ public class PooledObject extends Object {
 		return(p.getObjectID());
 	}
 
-	// Auto-checkin
+	/**
+	 * Finalization will check-in any checked-out object that has not
+	 * already been checked in.
+	 */
 	public void finalize() {
 		if(p!=null) {
 			debug("###### Finalization checking in object " + p.getObjectID());
