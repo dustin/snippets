@@ -13,6 +13,8 @@ feature {NONE} -- make and data
 
 	ldap_bindpw: STRING;
 
+	ldap_got_entry: BOOLEAN;
+
 feature {ANY} -- Initialization stuff
 
 	set_host(to: STRING) is
@@ -88,16 +90,69 @@ feature {ANY} -- Initialization stuff
 			Result:=c_ldap_nresults(ldap_handle);
 		end
 
-	first_entry: BOOLEAN is
+	list_attributes: ARRAY[STRING] is
+		require
+			got_entry;
+		local
+			s: STRING;
+			p: POINTER;
+		do
+			!!Result.with_capacity(16, 16);
+			Result.clear;
+
+			from
+				p:=c_ldap_first_attribute(ldap_handle);
+			until
+				p.is_null
+			loop
+				!!s.from_external_copy(p);
+				Result.add_last(s);
+				p:=c_ldap_next_attribute(ldap_handle);
+			end
+		end
+
+	get_values(att: STRING): ARRAY[STRING] is
+		-- Get the values for a given attribute in an existing entry.
+		require
+			got_entry;
+		local
+			s: STRING;
+			p: POINTER;
+			i: INTEGER;
+		do
+			!!Result.with_capacity(16, 16);
+			Result.clear;
+
+			from
+				i:=0;
+				p:=c_ldap_get_value(ldap_handle, att.to_external, i);
+			until
+				p.is_null
+			loop
+				!!s.from_external(p);
+				Result.add_last(s);
+				i:=i+1;
+				p:=c_ldap_get_value(ldap_handle, att.to_external, i);
+			end
+		end
+
+	first_entry is
 		-- Get the first entry
 		do
-			Result:=c_ldap_first_entry(ldap_handle);
+			ldap_got_entry:=c_ldap_first_entry(ldap_handle);
 		end
 
 	dispose is
 		-- go away
 		do
 			c_ldap_destroy(ldap_handle);
+		end
+
+feature {ANY} -- Status
+
+	got_entry: BOOLEAN is
+		do
+			Result:=ldap_got_entry;
 		end
 
 feature {NONE} -- C functions
@@ -139,6 +194,21 @@ feature {NONE} -- C functions
 
 	c_ldap_first_entry(ld: POINTER): BOOLEAN is
 		-- Get the first entry
+		external "C"
+		end
+
+	c_ldap_first_attribute(ld: POINTER): POINTER is
+		-- Get the first entry
+		external "C"
+		end
+
+	c_ldap_next_attribute(ld: POINTER): POINTER is
+		-- Get the first entry
+		external "C"
+		end
+
+	c_ldap_get_value(ld, attribute: POINTER; index: INTEGER): POINTER is
+		-- Get a specific value from an entry
 		external "C"
 		end
 
