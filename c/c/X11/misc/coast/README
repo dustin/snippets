@@ -1,0 +1,8 @@
+This isn't quite where I want it yet even for what it does.  I have
+decided against the X11 and SVGALIB binary because I don't like SVGALIB
+that much.  I'm going to spend more time trying to make the X11 version
+where I want it, if I can find out where that is anyway.
+
+I kind of got the aspect ratio to do something that looks like it's
+working properly.  That's a start.  Now there's a bug in the zoom-in
+thingy.  Gotta work on that...
