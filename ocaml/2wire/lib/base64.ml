@@ -68,8 +68,11 @@ let encode_chunk chars =
 	);
 ;;
 
-(** Stream chunk encoder. *)
-let stream_encode data_stream cnt =
+(** Stream chunk encoder.
+
+ Use ``Stream.from'' to produce a stream of encoded data from a data stream.
+ *)
+let encode_stream_chunk data_stream cnt =
 	let stream_empty s =
 		try
 			Stream.empty s;
@@ -87,28 +90,23 @@ let stream_encode data_stream cnt =
 ;;
 
 (**
- Base64 encode the string data into a base64 encoded string.
+ Get a Stream of encoded data from the given stream of data.
  *)
 let encode data_stream =
-	let stream_empty s =
-		try
-			Stream.empty s;
-			true
-		with Stream.Failure -> false in
-	let rec coder cnt rv =
-		if (stream_empty data_stream) then (
-			rv
-		) else (
-			let next = Stream.npeek 3 data_stream in
-			List.iter (fun x -> Stream.junk data_stream) next;
-			coder (cnt + 4) (rv ^ encode_chunk next ^
-				(if (((cnt + 4) mod 76) = 0) then "\r\n" else ""))
-		) in
-	coder 0 ""
+	Stream.from (encode_stream_chunk data_stream)
+;;
+
+(**
+ Base64 encode the string data into a base64 encoded string.
+ *)
+let encode_to_string data_stream =
+	let buf = Buffer.create 512 in
+	Stream.iter (fun c -> Buffer.add_string buf c) (encode data_stream);
+	Buffer.contents buf
 ;;
 
 (** Base64 encode a string *)
-let encode_string s = encode (Stream.of_string s);;
+let encode_string s = encode_to_string (Stream.of_string s);;
 
 (** Simple test function. *)
 let test() =
@@ -118,8 +116,7 @@ let test() =
 		wordlist;
 	print_endline("Stream:");
 	List.iter (fun x ->
-			Stream.iter print_string
-				(Stream.from (stream_encode (Stream.of_string x)));
+			Stream.iter print_string (encode (Stream.of_string x));
 			print_newline()
 		) wordlist;
 ;;
