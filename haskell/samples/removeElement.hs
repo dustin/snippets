@@ -1,2 +1,2 @@
 -- removeAnElement :: Integer -> [Integer] -> [Integer]
-removeAnElement i a = [ x | x <- a , not(x == i) ]
+removeAnElement i a = [ x | x <- a , x /= i ]
