@@ -1,7 +1,7 @@
 class
 	LDAP
 
-feature {NONE} -- make and data
+feature {NONE} -- data and destruction
 
 	ldap_handle: POINTER;
 
@@ -14,6 +14,14 @@ feature {NONE} -- make and data
 	ldap_bindpw: STRING;
 
 	ldap_got_entry: BOOLEAN;
+
+	ldap_got_search: BOOLEAN;
+
+	dispose is
+		-- go away
+		do
+			c_ldap_destroy(ldap_handle);
+		end
 
 feature {ANY} -- Initialization stuff
 
@@ -57,11 +65,13 @@ feature {ANY} -- Initialization stuff
 			end
 			ldap_handle:=c_ldap_init(host, ldap_port);
 		ensure
-			ldap_handle.is_not_null;
+			connected;
 		end
 
 	bind is
-		-- Bind to an LDAP server
+		-- Bind to an LDAP server, otherwise, we're anonymous
+		require
+			connected;
 		local
 			binddn, bindpw: POINTER;
 		do
@@ -76,21 +86,47 @@ feature {ANY} -- Initialization stuff
 			end;
 		end
 
+feature {ANY} -- Searching
+
 	search(filter: STRING; scope: INTEGER) is
-		-- Execute a search
+		-- Execute a search on a filter
+		require
+			connected;
 		do
-			check
-				c_ldap_search(ldap_handle, filter.to_external, scope);
-			end
+			ldap_got_entry:=false;
+			ldap_got_search:=c_ldap_search(ldap_handle,
+				filter.to_external, scope);
+		ensure
+			got_search;
 		end
 
 	nresults: INTEGER is
 		-- Find out how many entries we found
+		require
+			got_search;
 		do
 			Result:=c_ldap_nresults(ldap_handle);
 		end
 
+	first_entry is
+		-- Get the first entry
+		require
+			got_search;
+		do
+			ldap_got_entry:=c_ldap_first_entry(ldap_handle);
+		end
+
+	next_entry is
+		-- Get the next entry
+		require
+			got_search;
+		do
+			ldap_got_entry:=c_ldap_next_entry(ldap_handle);
+		end
+
 	list_attributes: ARRAY[STRING] is
+		-- List all attributes in the current entry.
+		-- NOTE: You must call first_entry before you call this.
 		require
 			got_entry;
 		local
@@ -113,6 +149,7 @@ feature {ANY} -- Initialization stuff
 
 	get_values(att: STRING): ARRAY[STRING] is
 		-- Get the values for a given attribute in an existing entry.
+		-- NOTE: You must call first_entry before you call this.
 		require
 			got_entry;
 		local
@@ -136,23 +173,24 @@ feature {ANY} -- Initialization stuff
 			end
 		end
 
-	first_entry is
-		-- Get the first entry
-		do
-			ldap_got_entry:=c_ldap_first_entry(ldap_handle);
-		end
-
-	dispose is
-		-- go away
-		do
-			c_ldap_destroy(ldap_handle);
-		end
-
 feature {ANY} -- Status
 
 	got_entry: BOOLEAN is
+		-- Have we done a search and got an entry?
 		do
-			Result:=ldap_got_entry;
+			Result:=ldap_got_search and ldap_got_entry;
+		end
+
+	got_search: BOOLEAN is
+		-- Have we succesfully done a search?
+		do
+			Result:=ldap_got_search;
+		end
+
+	connected: BOOLEAN is
+		-- Are we connected to an LDAP server?
+		do
+			Result:=ldap_handle.is_not_null;
 		end
 
 feature {NONE} -- C functions
@@ -194,6 +232,11 @@ feature {NONE} -- C functions
 
 	c_ldap_first_entry(ld: POINTER): BOOLEAN is
 		-- Get the first entry
+		external "C"
+		end
+
+	c_ldap_next_entry(ld: POINTER): BOOLEAN is
+		-- Get the next entry
 		external "C"
 		end
 

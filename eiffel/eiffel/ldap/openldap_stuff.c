@@ -149,6 +149,17 @@ c_ldap_first_entry(LDAP_HANDLE * ldap)
 	return (ldap->entry != NULL);
 }
 
+int
+c_ldap_next_entry(LDAP_HANDLE * ldap)
+{
+	assert(ldap);
+	assert(ldap->ld);
+	assert(ldap->entry);
+
+	ldap->entry = ldap_next_entry(ldap->ld, ldap->entry);
+	return (ldap->entry != NULL);
+}
+
 char   *
 c_ldap_first_attribute(LDAP_HANDLE * ldap)
 {

@@ -31,7 +31,7 @@ feature {NONE} -- make and data
 			ldap.set_searchbase("dc=spy,dc=net");
 
 			io.put_string("Doing search.%N");
-			ldap.search("uid=sidney", 2);
+			ldap.search("uid=dustin", 2);
 			io.put_string("Search was successful, found ");
 			io.put_integer(ldap.nresults);
 			io.put_string(" matches.%NAttributes:%N");
