@@ -1,8 +1,10 @@
-// Copyright (c) 2000  Dustin Sallings <dustin@spy.net> // $Id: SpyLDIF.java,v 1.4 2000/07/26 08:49:59 dustin Exp $
+// Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+// $Id: SpyLDIF.java,v 1.5 2000/08/17 23:37:18 dustin Exp $
 
 package net.spy.util;
 
 import java.util.*;
+import java.io.*;
 import sun.misc.*;
 
 public class SpyLDIF extends Hashtable {
@@ -19,29 +21,19 @@ public class SpyLDIF extends Hashtable {
 	/**
 	 * Parse the data from an LDIF file, may include multiple entries.
 	 */
-	public static Vector parseLDIF(String ldifdata) {
+	public static Vector parseLDIF(Reader r) {
 		Vector v=new Vector();
+		SpyLDIFReader slr=new SpyLDIFReader(r);
+		SpyLDIF ld=null;
+		boolean done=false;
 
-		String chunk=ldifdata;
-		int mark=chunk.indexOf("\r\n\r\n");
-		if(mark<0) {
-			mark=chunk.indexOf("\n\n");
-		}
-		while(mark>=0) {
-			SpyLDIF ldif=new SpyLDIF(chunk.substring(0, mark).trim());
-			v.addElement(ldif);
-
-			chunk=chunk.substring(mark+1).trim();
-
-			mark=chunk.indexOf("\r\n\r\n");
-			if(mark<0) {
-				mark=chunk.indexOf("\n\n");
+		while(!done) {
+			ld=slr.readLDIF();
+			if(ld!=null) {
+				v.addElement(ld);
+			} else {
+				done=true;
 			}
-
-		}
-		if(chunk.length() > 0) {
-			SpyLDIF ldif=new SpyLDIF(chunk);
-			v.addElement(ldif);
 		}
 
 		return(v);
