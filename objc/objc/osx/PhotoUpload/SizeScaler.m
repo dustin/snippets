@@ -23,24 +23,21 @@
     float x=(float)baseSize.width;
     float y=(float)baseSize.height;
     float aspect=x/y;
-    int newx=(int)x;
-    int newy=(int)y;
+	NSSize rv;
+	rv.width=x;
+	rv.height=y;
 
-    if(size.width <= newx || size.height <= newy) {
+    if(size.width <= rv.width || size.height <= rv.height) {
 
-        newx=size.width;
-        newy=(int)((float)newx/aspect);
+        rv.width=size.width;
+        rv.height=(int)((float)rv.width/aspect);
 
         // If it exceeds the boundaries, do it the other way.
-        if(newx > size.width || newy > size.height) {
-            newy=size.height;
-            newx=(int)((float)newy*aspect);
+        if(rv.width > size.width || rv.height > size.height) {
+            rv.height=size.height;
+            rv.width=(int)((float)rv.height*aspect);
         }
     }
-
-    NSSize rv;
-    rv.width=newx;
-    rv.height=newy;
 
     return(rv);
 }
