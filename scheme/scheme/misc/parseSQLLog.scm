@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseSQLLog.scm,v 1.6 2002/12/28 11:47:58 dustin Exp $
+; $Id: parseSQLLog.scm,v 1.7 2003/01/01 09:18:20 dustin Exp $
 
 (module parse-sql-log
 	(import
@@ -30,18 +30,20 @@
 												 2))))))
 	rv))
 
+(define (myfloat->string f)
+  (llong->string (flonum->llong f)))
+
 (define (print-update rrdfile last-time total-calls total-time)
   (print "update " rrdfile " "
 		 ; (car (string-split (real->string last-time) #\. 2))
-		 last-time
+		 ; last-time
+		 (myfloat->string last-time)
 		 ":" total-calls ":" (flonum->fixnum total-time)))
 
 (define (print-log-entry e)
   (display "Log entry:  ")
   (print (log-entry-time e)
-		 " (" (car (string-split
-					 (real->string (approx-time (log-entry-time e)))
-					 #\. 2))
+		 " (" (myfloat->string (approx-time (log-entry-time e)))
 		 ") " (log-entry-calls e) "/" (log-entry-calltime e)))
 
 ; Grab each line from stdin, pass it to process-line-to-rrd
