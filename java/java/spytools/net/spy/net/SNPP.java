@@ -2,12 +2,14 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.4 2000/01/24 10:11:26 dustin Exp $
+// $Id: SNPP.java,v 1.5 2000/01/27 05:43:47 dustin Exp $
 
 package net.spy.net;
 
 import java.io.*;
 import java.net.*;
+
+import net.spy.*;
 
 /**
  * SNPP client.
@@ -19,6 +21,10 @@ public class SNPP {
 	protected OutputStream out;
 	protected BufferedReader din;
 	protected PrintWriter prout;
+
+	// 2way support
+	protected boolean goes_both_ways=true;
+	protected String msg_tag=null;
 
 	/**
 	 * Current full line received from the SNPP server.
@@ -62,6 +68,38 @@ public class SNPP {
 	}
 
 	/**
+	 * Put this into 2way mode.
+	 *
+	 * @exception Exception when the 2way command fails
+	 */
+	public void twoWay() throws Exception {
+		cmd("2way");
+		goes_both_ways=true;
+	}
+
+	/**
+	 * sets the pager ID
+	 *
+	 * @param id snpp pager id
+	 *
+	 * @exception Exception when the page command fails
+	 */
+	public void pagerID(String id) throws Exception {
+		cmd("page " + id);
+	}
+
+	/**
+	 * sets the message to send
+	 *
+	 * @param msg snpp msg
+	 *
+	 * @exception Exception when the command fails
+	 */
+	public void message(String msg) throws Exception {
+		cmd("mess " + msg);
+	}
+
+	/**
 	 * Send a simple page.
 	 *
 	 * @param id SNPP recipient ID.
@@ -73,15 +111,78 @@ public class SNPP {
 	public void sendpage(String id, String msg) throws Exception {
 		// Reset so this thing can be called more than once.
 		cmd("rese");
-		cmd("page " + id);
-		cmd("mess " + msg);
+		if(goes_both_ways) {
+			twoWay();
+		}
+		pagerID(id);
+		message(msg);
 		// My pager server supports priority, so we'll ignore any errors
 		// with this one.
 		try {
 			cmd("priority high");
 		} catch(Exception e) {
 		}
+		send();
+	}
+
+	/**
+	 * send is handled separately in case it's a two-way transaction.
+	 *
+	 * @exception Exception Thrown if the send command fails.
+	 */
+	public void send() throws Exception {
 		cmd("send");
+		if(goes_both_ways) {
+			// If it looks 2way, we get the stuff
+			if(currentstatus >= 860) {
+				String a[]=SpyUtil.split(" ", currentmessage);
+				msg_tag=a[0] + " " + a[1];
+			}
+		}
+	}
+
+	/**
+	 * Check for a response from a 2way message.
+	 *
+	 * @return the response message, or NULL if it's not ready
+	 *
+	 * @exception Exception when the msta command fails, or we're not doing
+	 * 2way.
+	 */
+	public String getResponse() throws Exception {
+		String ret=null;
+		if(goes_both_ways) {
+			if(msg_tag == null) {
+				throw new Exception("No msg tag received, have you done a "
+					+ "2way page yet?");
+			}
+			cmd("msta " + msg_tag);
+			if(currentstatus == 889) {
+				String tmp=new String(currentmessage);
+				tmp=tmp.substring(tmp.indexOf(" ")).trim();
+				tmp=tmp.substring(tmp.indexOf(" ")).trim();
+				tmp=tmp.substring(tmp.indexOf(" ")).trim();
+				ret=tmp;
+			}
+		} else {
+			throw new Exception("I don't go both ways.");
+		}
+		return(ret);
+	}
+
+	/**
+	 * adds a response to the SNPP message.
+	 *
+	 * @param response the canned response to add
+	 *
+	 * @exception Exception when we're not in a 2way transaction, or the
+	 * command fails.
+	 */
+	public void addResponse(String response) throws Exception {
+		if(!goes_both_ways) {
+			throw new Exception("I don't go both ways.");
+		}
+		cmd("mcre " + response);
 	}
 
 	/**
@@ -122,6 +223,16 @@ public class SNPP {
 		if(currentstatus < 300 ) {
 			if(currentstatus >= 200) {
 				r = true;
+			}
+		}
+		// Specific stuff for two-way
+		if(goes_both_ways && r == false) {
+			if(currentstatus < 890 && currentstatus >= 860) {
+				// delivered, processing or final
+				r=true;
+			} else if(currentstatus < 970 && currentstatus >= 960) {
+				// Queued transaction
+				r=true;
 			}
 		}
 		return(r);
