@@ -1,0 +1,55 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: msgscore,v 1.1 1997/10/17 05:43:24 dustin Exp $
+#
+# Use customer mappings to figure out who pays for a given message.
+
+use Postgres;
+
+sub scoremsg
+{
+    my($infile)=@_;
+    my($dbh, $query, $s, @r, @scores, %score, %custs);
+
+    $dbh=db_connect("spam");
+
+    if(!$dbh)
+    {
+        print "Couldn't connect to database\n$Postgres::error\n";
+        exit(1);
+    }
+
+    $query="select domain, spam_id, score from custmap\n";
+
+    if(!($s=$dbh->execute($query)))
+    {
+        print "Error in query:\n$query\n$Postgres::error\n";
+        exit(1);
+    }
+
+    while(@r=$s->fetchrow())
+    {
+        $custs{$r[0]}=$r[1];
+        $score{$r[0]}=$r[2];
+    }
+
+    open(IN, $infile) || die("Can't open $infile: $!\n");
+    while(<IN>)
+    {
+        foreach $key (keys(%custs))
+        {
+            $scores[$custs{$key}]+=$score{$key} if(/$key/);
+        }
+    }
+    close(IN);
+
+    $i=-1;
+    for(0..$#scores)
+    {
+       $i=$_ if($scores[$_]>$i);
+    }
+
+    return($i);
+}
+
+print "Looks like that belongs to " . &scoremsg($ARGV[0]) . ".\n";
