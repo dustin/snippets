@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapParser.java,v 1.1 2000/01/26 21:38:09 dustin Exp $
+// $Id: NmapParser.java,v 1.2 2000/01/26 22:08:50 dustin Exp $
 
 package net.spy.nmap;
 
@@ -51,6 +51,25 @@ public class NmapParser extends Object {
 	 */
 	public NmapEntry entry(String ip) {
 		return( (NmapEntry)entries_byip.get(ip));
+	}
+
+	/**
+	 * gets a list of NmapEntries for hosts listening on a given port.
+	 *
+	 * @param port port number we're looking for
+	 */
+	public Vector listeningOn(int port) {
+		Vector ret=new Vector();
+
+		// Flip through the entries, look at the ports.
+		for(Enumeration e = entries(); e.hasMoreElements(); ) {
+			NmapEntry ne=(NmapEntry)e.nextElement();
+			if(ne.port(port)!=null) {
+				ret.addElement(ne);
+			}
+		}
+
+		return(ret);
 	}
 
 	public String toString() {
