@@ -143,21 +143,22 @@ extracols=[
 	('uptime', ('system_summary.html', 'uptime'))
 ]
 
-fis=java.io.FileInputStream(sys.argv[1])
-gis=java.util.zip.GZIPInputStream(fis)
-ois=java.io.ObjectInputStream(gis)
+for f in sys.argv[1:]:
+	fis=java.io.FileInputStream(f)
+	gis=java.util.zip.GZIPInputStream(fis)
+	ois=java.io.ObjectInputStream(gis)
 
-# Print the report column headers
-print "#" + "\t".join(colnames) + "\t" \
-	+ "\t".join(map(lambda x: x[0], extracols))
+	# Print the report column headers
+	print "#" + "\t".join(colnames) + "\t" \
+		+ "\t".join(map(lambda x: x[0], extracols))
 
-try:
-	sn=ois.readObject()
-	while sn != None:
-		data=ois.readObject()
-
-		report(sn, data, extracols)
-
+	try:
 		sn=ois.readObject()
-except java.io.EOFException:
-	sys.stderr.write("Finished!\n")
+		while sn != None:
+			data=ois.readObject()
+
+			report(sn, data, extracols)
+
+			sn=ois.readObject()
+	except java.io.EOFException:
+		sys.stderr.write("Finished " + f + "!\n")
