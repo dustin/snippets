@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 1997  Dustin Sallings
+ *
+ * $Id: libparselist.c,v 1.13 1999/05/10 05:07:29 dustin Exp $
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
