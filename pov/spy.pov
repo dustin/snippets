@@ -84,6 +84,9 @@ object {
 plane {
   <0, 2, 0>, -2
   texture { Water scale 15 }
+  #if(clock_on)
+  normal { phase clock }
+  #end
   pigment { color red 0.5 green 0.5 blue 0.9}
   finish  { ambient .2 diffuse .4 reflection .8}
 }
