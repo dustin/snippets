@@ -3,7 +3,6 @@
  *
  * $Id: sockets.c,v 1.4 2003/06/12 20:20:30 dustin Exp $
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -63,46 +62,45 @@ static int waitForConnect(int s)
 int
 attemptConnection(char *host, int port)
 {
-	struct hostent *hp;
+	struct addrinfo hints, *res, *res0;
 	int     success, i, flag;
 	register int s = -1;
 	struct linger l;
-	struct sockaddr_in sin;
 	int fflags =0;
+	char portstring[8];
+	char *cause=NULL;
 
-	if (host == NULL || port == 0) {
+	if (host == NULL || port < 1 || port > 65535) {
 		return (0);
 	}
 
-	if ((hp = gethostbyname(host)) == NULL) {
-#ifdef HAVE_HERROR
-		herror("gethostbyname");
-#else
-		fprintf(stderr, "Error looking up %s\n", host);
-#endif
-		return (0);
+	memset(&portstring, 0x00, sizeof(portstring));
+	snprintf(portstring, sizeof(portstring)-1, "%d", port);
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	if(getaddrinfo(host, portstring, &hints, &res0) != 0) {
+		perror(host);
+		return(0);
 	}
+
 	success = 0;
 
 	/* of course, replace that 1 with the max number of con attempts */
-	for (i = 0; i < 1; i++) {
-		if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			perror("socket");
-			return (0);
+	cause="no addresses";
+	for (res = res0; res; res = res->ai_next) {
+
+		if ((s = socket(res->ai_family, res->ai_socktype,
+			res->ai_protocol)) < 0) {
+
+			cause="socket";
+			continue;
 		}
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(port);
-		memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
 		l.l_onoff = 1;
 		l.l_linger = 60;
 		setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &l, sizeof(l));
-
-		flag = 1;
-		if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
-			sizeof(int)) < 0) {
-			puts("Nagle algorithm not dislabled.");
-		}
 
 		/* Configure non-blocking IO */
 		fflags = fcntl(s, F_GETFL);
@@ -110,11 +108,12 @@ attemptConnection(char *host, int port)
 			perror("fcntl");
 		}
 
-		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		if (connect(s, res->ai_addr, res->ai_addrlen) < 0) {
 			if(errno==EINPROGRESS) {
 				success = 1;
+				break;
 			} else {
-				perror("connect");
+				cause="connect";
 			}
 		} else {
 			success = 1;
@@ -125,6 +124,8 @@ attemptConnection(char *host, int port)
 	/* If we got this far, wait for data */
 	if(success) {
 		success=waitForConnect(s);
+	} else {
+		perror(cause);
 	}
 
 	if(s>=0) {
