@@ -34,6 +34,9 @@ let version = "3";;
 (* The mapping of seen IDs *)
 let seenIds = Hashtbl.create 1;;
 
+(* Reserved keys *)
+let reservedKeys = ref None;;
+
 (* The meta_inf is the version number followed by a netstring containing the
 	list of fields as netstrings *)
 let makeMetaInf () =
@@ -50,6 +53,22 @@ let makeOutRecord product_line sn ht =
 		ht
 ;;
 
+(* Check to see if this is a reserved number.  This will only be called for
+   a generated number, so if it's in the reserve DB, it's wrong *)
+let checkReservedDup n plsn =
+	match !reservedKeys with
+		  None -> false
+		| Some(cdb) ->
+			try
+				let found = Cdb.find cdb (string_of_int n) in
+				Printf.eprintf "DUPLICATE (reserved) AT %d (old: %s, new: %s)\n"
+					n found plsn;
+				true
+			with Stream.Failure ->
+				false
+;;
+
+(* Check for a duplicate generated key, and resolve it to a non-duplicate key *)
 let rec checkDup n plsn =
 	try
 		let found = Hashtbl.find seenIds n in
@@ -60,8 +79,12 @@ let rec checkDup n plsn =
 			checkDup (n + 1) plsn
 		)
 	with Not_found ->
-		Hashtbl.add seenIds n plsn;
-		n
+		if checkReservedDup n plsn then (
+			checkDup (n + 1) plsn
+		) else (
+			Hashtbl.add seenIds n plsn;
+			n
+		)
 ;;
 
 (* Generate a box number from a productline/sn pair *)
@@ -71,6 +94,23 @@ let genBoxNum product_line sn =
 	let a,b,c,d =	(Char.code (dig 0)), (Char.code (dig 1)),
 					(Char.code (dig 2)), (Char.code (dig 3)) in
 	checkDup (abs(a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24))) plsn
+;;
+
+(* Get the box number for the given productline/serial number.  This will
+   either be pulled from the reserve DB (if specified), or will be generated.
+ *)
+let getBoxNum product_line sn =
+	match !reservedKeys with
+		  None ->
+			(* If we don't have a reserved db, don't use it *)
+			genBoxNum product_line sn
+		| Some(cdb) ->
+			try
+				(* Try to get it from the reserved key cdb *)
+				int_of_string (Cdb.find cdb (product_line ^ "," ^ sn))
+			with Stream.Failure ->
+				(* If it's not there, generate one *)
+				genBoxNum product_line sn
 ;;
 
 (* Like List.nth, but with a default *)
@@ -107,7 +147,7 @@ let makeRecord modelMap ts l =
 		(* Convenience function for updating the hashtable *)
 		let htr = Hashtbl.replace ht in
 		htr "boxnum" (string_of_int
-						(genBoxNum mr_rec.mr_product_line record.in_sn));
+						(getBoxNum mr_rec.mr_product_line record.in_sn));
 		htr "modelnum" mr_rec.mr_id;
 		htr "pca" mr_rec.mr_id;
 		htr "version" record.in_version;
@@ -137,13 +177,7 @@ let parseModelMap ht l =
 		Printf.eprintf "Error on model map line:  ``%s''\n" l
 ;;
 
-let loadMfgKeys from =
-	Fileutils.iter_file_lines (fun l ->
-			let parts = List.nth (Extstring.split_all l '|' 3) in
-			Hashtbl.add seenIds (int_of_string (parts 0)) (parts 1)
-		) from
-;;
-
+(* Process a specific file *)
 let processFile destcdb modelMap filename =
 	let tm = Unix.gmtime (Unix.stat filename).st_mtime in
 	let ts = Printf.sprintf "%04d%02d%02dT%02d%02d%02d"
@@ -153,7 +187,8 @@ let processFile destcdb modelMap filename =
 
 ;;
 
-let processArgs destcdb modelMap paths =
+(* Process the files and directories passed in as anonymous arguments *)
+let processPaths destcdb modelMap paths =
 	List.iter (fun path ->
 			if Fileutils.isdir path then (
 				Fileutils.walk_dir path (fun d files arg ->
@@ -167,22 +202,47 @@ let processArgs destcdb modelMap paths =
 
 let usage() =
 	prerr_endline("Usage:  " ^ Sys.argv.(0)
-		^ " destcdb mfgkeys modelmap inputpath [inputpath ...]");
+		^ " -d destcdb -m modelmap [-k mfgkeys] inputpath [inputpath ...]");
 	exit(1)
 ;;
 
+(* If the user wants to use a reserved path DB, this will set it up *)
+let setupReserved path =
+	reservedKeys := Some(Cdb.open_cdb_in path)
+;;
+
+(* This is where all the work's done, main *)
 let main () =
-	try
-		let destcdb = Cdb.open_out Sys.argv.(1) in
-		loadMfgKeys Sys.argv.(2);
-		let modelMap = Hashtbl.create 1 in
-		Cdb.add destcdb magic_key (makeMetaInf());
-		Fileutils.iter_file_lines (parseModelMap modelMap) Sys.argv.(3);
-		processArgs destcdb modelMap
-			(Extlist.nthtail (Array.to_list Sys.argv) 4);
-		Cdb.close_cdb_out destcdb
-	with Invalid_argument("out-of-bound array or string access") ->
-		usage()
+	let destpath = ref "" in
+	let modelpath = ref "" in
+	let anon = ref [] in
+	Arg.parse [
+			("-d", Arg.Set_string(destpath), "Location of the destination cdb");
+			("-m", Arg.Set_string(modelpath), "Location of the model map");
+			("-k", Arg.String(setupReserved),
+					"Location of the reserved mfg keys cdb")
+		] (fun s -> anon := s :: !anon)  "Build manufacturing cache";
+	Printf.eprintf "destpath is %s, modelpath is %s\n" !destpath !modelpath;
+	Printf.eprintf "%d anonymous args:\n" (List.length !anon);
+	List.iter (fun s -> Printf.eprintf "\t%s\n" s) (List.rev !anon);
+	if("" = !destpath) then
+		usage();
+	if("" = !modelpath) then
+		usage();
+	if([] = !anon) then
+		usage();
+
+	(* Open the destination cdb *)
+	let destcdb = Cdb.open_out !destpath in
+	(* add the meta_inf *)
+	Cdb.add destcdb magic_key (makeMetaInf());
+	(* Initialize the model map *)
+	let modelMap = Hashtbl.create 1 in
+	Fileutils.iter_file_lines (parseModelMap modelMap) !modelpath;
+	(* process records *)
+	processPaths destcdb modelMap (List.rev !anon);
+	(* Close and cleanup *)
+	Cdb.close_cdb_out destcdb
 ;;
 
 (* Start main unless we're interactive. *)
