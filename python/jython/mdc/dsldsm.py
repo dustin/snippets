@@ -10,9 +10,10 @@ import java
 
 def report(sn, data):
 	x = data["dsl_dsm_diags.txt"]
-	for k in x.keySet():
-		for v in x[k]:
-			print sn, k, v
+	if x is not None:
+		for k in x.keySet():
+			for v in x[k]:
+				print sn, k, v
 
 for f in sys.argv[1:]:
 	fis=java.io.FileInputStream(f)
