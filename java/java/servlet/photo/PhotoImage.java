@@ -1,22 +1,15 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.2 1999/09/28 05:46:07 dustin Exp $
+ * $Id: PhotoImage.java,v 1.3 1999/09/28 06:37:17 dustin Exp $
  */
 
 import java.io.*;
 import java.sql.*;
-import java.text.*;
 import java.util.*;
-import java.net.*;
 import sun.misc.*;
 
-// import javax.servlet.*;
-// import javax.servlet.http.*;
-
-import com.oreilly.servlet.*;
 import com.javaexchange.dbConnectionBroker.*;
-
 
 // The class
 public class PhotoImage extends PhotoHelper

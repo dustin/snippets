@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.13 1999/09/28 04:47:02 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.14 1999/09/28 06:37:19 dustin Exp $
  */
 
 import java.io.*;
@@ -233,22 +233,22 @@ public class PhotoServlet extends HttpServlet
 
 		stmp=multi.getParameter("category");
 		if(stmp!=null) {
-			category=dbquote_str(stmp);
+			category=PhotoUtil.dbquote_str(stmp);
 		}
 
 		stmp=multi.getParameter("keywords");
 		if(stmp!=null) {
-			keywords=dbquote_str(stmp);
+			keywords=PhotoUtil.dbquote_str(stmp);
 		}
 
 		stmp=multi.getParameter("info");
 		if(stmp!=null) {
-			info=dbquote_str(stmp);
+			info=PhotoUtil.dbquote_str(stmp);
 		}
 
 		stmp=multi.getParameter("taken");
 		if(stmp!=null) {
-			taken=dbquote_str(stmp);
+			taken=PhotoUtil.dbquote_str(stmp);
 		}
 
 		try {
@@ -425,7 +425,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		// Create the cookie
-		c = new Cookie("photo_style", http_encode(c_text));
+		c = new Cookie("photo_style", URLEncoder.encode(c_text));
 		// 30 days of cookie
 		c.setMaxAge( (30 * 86400) );
 		// Describe why we're doing this.
@@ -442,11 +442,6 @@ public class PhotoServlet extends HttpServlet
 
 		stmp = tokenize("setstyle.inc", h);
 		send_response(response, stmp);
-	}
-
-	// Quick wrapper for URLEncoder
-	private String http_encode(String what) {
-		return(URLEncoder.encode(what));
 	}
 
 	// Show the add an image form.
@@ -597,7 +592,7 @@ public class PhotoServlet extends HttpServlet
 		if(stmp == null) {
 			fieldjoin="and";
 		} else {
-			fieldjoin=dbquote_str(stmp);
+			fieldjoin=PhotoUtil.dbquote_str(stmp);
 		}
 
 		// Start with categories.
@@ -643,15 +638,15 @@ public class PhotoServlet extends HttpServlet
 			}
 			needao=true;
 
-			atmp = split(' ', stmp);
+			atmp = PhotoUtil.split(stmp, " ");
 
-			join = dbquote_str(request.getParameter("keyjoin"));
+			join = PhotoUtil.dbquote_str(request.getParameter("keyjoin"));
 			// Default
 			if(join == null) {
 				join = "or";
 			}
 
-			field = dbquote_str(request.getParameter("field"));
+			field = PhotoUtil.dbquote_str(request.getParameter("field"));
 			// Default
 			if(field == null) {
 				throw new ServletException("No field");
@@ -676,10 +671,10 @@ public class PhotoServlet extends HttpServlet
 
 		// Starts and ends
 
-		stmp=dbquote_str(request.getParameter("tstart"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("tstart"));
 		if(stmp != null && stmp.length()>0) {
 			if(needao) {
-				join=dbquote_str(request.getParameter("tstartjoin"));
+				join=PhotoUtil.dbquote_str(request.getParameter("tstartjoin"));
 				if(join==null) {
 					join="and";
 				}
@@ -689,10 +684,10 @@ public class PhotoServlet extends HttpServlet
 			sub += "\n    a.taken>='" + stmp + "'";
 		}
 
-		stmp=dbquote_str(request.getParameter("tend"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("tend"));
 		if(stmp != null && stmp.length()>0) {
 			if(needao) {
-				join=dbquote_str(request.getParameter("tendjoin"));
+				join=PhotoUtil.dbquote_str(request.getParameter("tendjoin"));
 				if(join==null) {
 					join="and";
 				}
@@ -702,10 +697,10 @@ public class PhotoServlet extends HttpServlet
 			sub += "\n    a.taken<='" + stmp + "'";
 		}
 
-		stmp=dbquote_str(request.getParameter("start"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("start"));
 		if(stmp != null && stmp.length()>0) {
 			if(needao) {
-				join=dbquote_str(request.getParameter("startjoin"));
+				join=PhotoUtil.dbquote_str(request.getParameter("startjoin"));
 				if(join==null) {
 					join="and";
 				}
@@ -715,10 +710,10 @@ public class PhotoServlet extends HttpServlet
 			sub += "\n    a.ts>='" + stmp + "'";
 		}
 
-		stmp=dbquote_str(request.getParameter("end"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("end"));
 		if(stmp != null && stmp.length()>0) {
 			if(needao) {
-				join=dbquote_str(request.getParameter("endjoin"));
+				join=PhotoUtil.dbquote_str(request.getParameter("endjoin"));
 				if(join==null) {
 					join="and";
 				}
@@ -734,7 +729,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		// Stick the order under the subquery.
-		stmp=dbquote_str(request.getParameter("order"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("order"));
 		if(stmp != null) {
 			order = stmp;
 		} else {
@@ -742,7 +737,7 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		// Figure out the direction...
-		stmp=dbquote_str(request.getParameter("sdirection"));
+		stmp=PhotoUtil.dbquote_str(request.getParameter("sdirection"));
 		if(stmp != null) {
 			odirection=stmp;
 		} else {
@@ -754,26 +749,6 @@ public class PhotoServlet extends HttpServlet
 		return(query);
 	}
 
-
-	// Split that shit
-	private String[] split(char on, String input) {
-		Vector v = new Vector();
-		StringTokenizer st = new StringTokenizer(input);
-		String ret[];
-		int i;
-
-		while( st.hasMoreTokens() ) {
-			v.addElement(st.nextToken());
-		}
-
-		ret=new String[v.size()];
-
-		for(i=0; i<v.size(); i++) {
-			ret[i]=(String)v.elementAt(i);
-		}
-
-		return(ret);
-	}
 
 	// Find and display images.
 	private void doDisplay(
@@ -984,32 +959,6 @@ public class PhotoServlet extends HttpServlet
 		} catch(Exception e) {
 			throw new ServletException("IOException:  " + e.getMessage());
 		}
-	}
-
-	// Make a strings safe for the database.
-	private String dbquote_str(String thing) {
-
-		// Quick...handle null
-		if(thing == null) {
-			return(null);
-		}
-
-		String scopy = new String(thing);
-		if(scopy.indexOf('\'') >= 0) {
-			String sout = new String("");
-			StringTokenizer st = new StringTokenizer(scopy, "\'");
-			while(st.hasMoreTokens()) {
-				String part = st.nextToken();
-
-				if(st.hasMoreTokens()) {
-					sout += part + "\'\'";
-				} else {
-					sout += part;
-				}
-			}
-			scopy=sout;
-		}
-		return(scopy);
 	}
 
 	// Tokenize a template file and return the tokenized stuff.
