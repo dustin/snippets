@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-# $Id: checkntp,v 1.1 2000/05/18 09:27:30 dustin Exp $ \
+# $Id: checkntp,v 1.2 2000/09/12 03:24:42 dustin Exp $ \
 exec scotty "$0" "$@"
 
 proc checkNTPInfo { host } {
@@ -8,10 +8,24 @@ proc checkNTPInfo { host } {
 	set ok 0
 
 	ntp $host vars
+	# Debug info
+	puts "Here's what we got:"
+	foreach k [ array names vars ] {
+		puts "\t$k: $vars($k)"
+	}
 
 	catch {
+
+		if { ! [info exists vars(peer.dispersion)] } {
+			set vars(peer.dispersion) 0.0
+		} else {
+			# puts "$host dispersion is $vars(peer.dispersion)"
+		}
+
 		if { ! [info exists vars(peer.offset)] } {
-			error "Did not get offset information from $host"
+			# error "Did not get offset information from $host"
+			# If we don't have it, could it be that it's zero?
+			set vars(peer.offset) $vars(peer.dispersion)
 		}
 
 		if { $vars(peer.offset) > 50 } {
@@ -23,10 +37,6 @@ proc checkNTPInfo { host } {
 
 	if { $ok == 0 } {
 		# puts "Got an error:  $e"
-		# puts "Here's what we got:"
-		# foreach k [ array names vars ] {
-			# puts "\t$k: $vars($k)"
-		# }
 		error $e
 	}
 }

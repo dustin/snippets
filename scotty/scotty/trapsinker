@@ -1,0 +1,26 @@
+#!/bin/sh
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+# $Id: trapsinker,v 1.1 2000/09/12 03:24:46 dustin Exp $
+# the next line restarts using scotty \
+exec scotty "$0" "$@"
+
+mib load ucd-snmp.mib
+
+proc alertOn { t } {
+	puts "Trap:\n$t"
+}
+
+proc GotTrap { s src vbl } {
+	set t ""
+	set t "[clock format [clock seconds]] [$s cget -version] trap from \[$src\]:\n"
+	foreach vb $vbl {
+		set t "$t  [mib name [lindex $vb 0]] = [lindex $vb 2]\n"
+	}
+
+	alertOn $t
+}
+
+set ts [snmp session -port 162]
+$ts bind "" trap {
+	GotTrap %S %A "%V"
+	}

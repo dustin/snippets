@@ -11,7 +11,7 @@ proc usage {} {
     error "usage: watchvar host var"
 }
 
-if {[llength $argv] != 2} { usage }
+if {[llength $argv] < 2} { usage }
 
 # Try to every mib I've ever cared about.
 foreach mib { rfc1493.mib rfc1525.mib rfc1213.mib rfc1515.mib rfc1516.mib
@@ -22,7 +22,11 @@ foreach mib { rfc1493.mib rfc1525.mib rfc1213.mib rfc1515.mib rfc1516.mib
 }
 
 set host [lindex $argv 0]
-set var [lindex $argv 1]
+
+set vars {}
+for { set i 1 } { $i < [llength $argv] } { incr i } {
+	lappend vars [lindex $argv $i]
+}
 
 if {[lsearch [snmp alias] $host] >= 0} {
 	set s [snmp session -alias $host]
@@ -36,10 +40,14 @@ if {[lsearch [snmp alias] $host] >= 0} {
 }
 
 while { 1 } {
-	set blah [lindex [lindex [ $s get $var] 0 ] 2]
-
-	puts "$var: $blah"
+	catch {
+		foreach var $vars {
+			set blah [lindex [lindex [ $s get $var] 0 ] 2]
+			puts "$var: $blah"
+		}
+	}
 	sleep 1
 }
 
+# Unreachable
 exit
