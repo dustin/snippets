@@ -1,0 +1,163 @@
+#!/usr/local/bin/wish8.3
+# Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
+# $Id: 1921graph.tk,v 1.1 2000/07/18 09:02:13 dustin Exp $
+
+set width 640
+set height 480
+
+proc ctof { c } {
+	return [expr ($c*9/5)+32]
+}
+
+proc showGraph { } {
+	global dumpData
+	global width height
+
+	set input {}
+	set items 0
+	set max 0
+	set min 9999
+
+	foreach key [lsort [array names dumpData sample_data_*]] {
+		set value $dumpData($key)
+		lappend input $value
+
+		# Find the max temperature
+		if { $value > $max } {
+			set max $value
+		}
+
+		# Find the min temperature
+		if { $value < $min } {
+			set min $value
+		}
+
+		incr items
+	}
+
+	# the y factor
+	set yfactor [expr ($height-40)/($max-$min)]
+	# the x factor
+	set xfactor [expr ($width-20)/$items]
+
+	set lastx -1
+
+	for { set i 0 } { $i < $items } { incr i } {
+		set n [lindex $input $i]
+
+		set x [expr ($i+1) * $xfactor ]
+		set nadj [expr ($n-$min)]
+		set y [expr ($height-40)-($nadj*$yfactor)]
+
+		if { $lastx >= 0 } {
+			.c create line $lastx $lasty $x $y \
+				-width 1
+		}
+
+		set lastx $x
+		set lasty $y
+	}
+}
+
+proc showHistogram { } {
+	global dumpData
+	global width height
+
+	set input {}
+	# Find the histogram entries.
+	foreach key [lsort [array names dumpData histogram_*]] {
+		set itmp [split $dumpData($key) {, }]
+		set i [list [lindex $itmp 0 ] [ lindex $itmp 2 ] [ lindex $itmp 4] ]
+		lappend input $i
+	}
+
+	set max 0
+	set i 0
+	set firsttemp 0
+	set lasttemp 0
+	set items 0
+	foreach datum $input {
+		set n [lindex $datum 2]
+		# Set the max
+		if {$n > $max} {
+			set max $n
+		}
+		# Find the first temp
+		if { ($firsttemp == 0) && ($n > 0) } {
+			set firsttemp $i
+		}
+		# find the last temp
+		if { $n > 0 } {
+			set lasttemp $i
+		}
+		# If it's valid, count it
+		if { $n>0 } {
+			incr items
+		}
+		incr i
+	}
+
+	# The yfactor varies by the maximum value in the histogram
+	set yfactor [expr ($height-20)/$max]
+	# The xfactor varies by the number of valid data points in the histogram
+	set xfactor [expr ($width-20)/$items]
+	# The width varies by the number of items
+	set bwidth [expr ($xfactor/2)-($xfactor*.10)]
+	for { set i $firsttemp } { $i < $lasttemp } { incr i } {
+
+		set datum [lindex $input $i ]
+
+		set min [lindex $datum 0]
+		set max [lindex $datum 1]
+		set n [lindex $datum 2]
+
+		set x [ expr ($i-$firsttemp+1) * $xfactor ]
+		set y [expr ($height-20)-($n*$yfactor)]
+
+		set color white
+		if { $min < $dumpData(low_alarm) } {
+			set color blue
+		}
+		if { $max > $dumpData(high_alarm) } {
+			set color red
+		}
+
+		.c create rectangle [expr $x-$bwidth] [expr $height-20] \
+			[expr $x+$bwidth] $y \
+			-fill $color -width 1 -outline black
+
+		.c addtag text withtag [.c create text $x [expr ($height-10)] \
+			-text [ctof $min]]
+		.c addtag text withtag [.c create text $x [expr ($y+10)] \
+			-text $n]
+	}
+}
+
+proc readDump { file } {
+	global dumpData
+
+	set fd [ open $file r ]
+
+	catch { unset dumpData }
+
+	while { [ gets $fd line ] != -1 } {
+		set error [ catch {
+			set kv [split $line =]
+			set dumpData([lindex $kv 0]) [lindex $kv 1]
+		} ]
+		if { $error } {
+			puts "Damnit:  $error"
+		}
+	}
+
+	close $fd
+}
+
+wm title . "Temperature Graph"
+wm iconname . "1921"
+canvas .c -relief raised -width $width -height $height
+pack .c -side top -fill x
+
+readDump /tmp/dump
+showHistogram
+showGraph
