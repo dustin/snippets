@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.2 1998/01/02 05:40:33 dustin Exp $
+ * $Id: main.c,v 1.3 1998/01/02 05:56:43 dustin Exp $
  */
 
 #include <config.h>
@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -356,8 +357,9 @@ void _main(void)
 void main(void)
 {
     cf=rcfg_readconfig(CONFFILE);
+    assert(cf);
     _debug=rcfg_lookupInt(cf, "etc.debug");
-    if(_debug>=0)
+    if(_debug==0)
 	detach();
     _main();
 }

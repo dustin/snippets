@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.2 1998/01/02 05:40:35 dustin Exp $
+ * $Id: sockets.c,v 1.3 1998/01/02 05:56:47 dustin Exp $
  */
 
 #include <stdio.h>
@@ -17,7 +17,6 @@
 #include <netinet/tcp.h>
 
 #include <redirect.h>
-#include <nettools.h>
 #include <readconfig.h>
 
 extern int _debug;
