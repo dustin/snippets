@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PackageTracker.java,v 1.5 2001/03/01 09:56:19 dustin Exp $
+// $Id: PackageTracker.java,v 1.6 2001/10/11 19:39:30 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -166,9 +166,9 @@ public class PackageTracker extends Object {
 			Statement st = conn.createStatement();
 			String query=null;
 			query="delete from packages\n"
-				+ " where carrier_id = 2 and exists\n"
+				+ " where exists\n"
 				+ "  (select carrier_id from package_status s\n"
-				+ "   where status='Delivered' and carrier_id=2\n"
+				+ "   where status='Delivered'\n"
 				+ "    and packages.tracking_number=s.tracking_number)";
 			st.executeUpdate(query);
 			query="delete from package_status where status='Delivered'";
@@ -202,24 +202,16 @@ public class PackageTracker extends Object {
 	// Below this line is application-mode stuff
 	// /////////////////////////////////////////////////////////////////////
 
-	public static void run(int naptime) {
-		// Loop forever
-		for(;;) {
-			for(Enumeration en=trackers.elements(); en.hasMoreElements(); ) {
-				PackageTracker pt=(PackageTracker)en.nextElement();
-				try {
-					pt.process();
-				} catch(Exception e) {
-					System.err.println("PackageTracker exception:  " + e);
-					e.printStackTrace();
-				}
-			} // package loop
+	public static void run() {
+		for(Enumeration en=trackers.elements(); en.hasMoreElements(); ) {
+			PackageTracker pt=(PackageTracker)en.nextElement();
 			try {
-				Thread.sleep(naptime);
+				pt.process();
 			} catch(Exception e) {
-				// Ignore, we'll just go faster
+				System.err.println("PackageTracker exception:  " + e);
+				e.printStackTrace();
 			}
-		} // Infinite loop
+		} // package loop
 	}
 
 	public static void getObjs() {
@@ -249,14 +241,7 @@ public class PackageTracker extends Object {
 
 	public static void main(String args[]) throws Exception {
 		conf=new SpyConfig(args[0]);
-		int naptime=0;
-
 		getObjs();
-		try {
-			naptime=Integer.parseInt(conf.get("naptime"));
-		} catch(Exception e) {
-			naptime=3600000;
-		}
-		run(naptime);
+		run();
 	}
 }
