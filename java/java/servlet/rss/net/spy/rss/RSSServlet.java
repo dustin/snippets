@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.4 2001/04/26 21:02:13 dustin Exp $
+// $Id: RSSServlet.java,v 1.5 2001/09/21 07:48:05 dustin Exp $
 
 package net.spy.rss;
 
@@ -54,15 +54,20 @@ public class RSSServlet extends HttpServlet {
 			l+=900000L;
 			response.setDateHeader("Expires", l);
 
-			// Give it
-			response.setContentType("text/html");
-			PrintWriter out = response.getWriter();
-			out.print(html);
-			out.close();
+			sendOutput(response, "text/html", html);
 		} catch(Exception e) {
 			e.printStackTrace();
-			throw new ServletException("Error processing RSS:  " + e);
+			sendOutput(response, "text/html", "<!-- " + e + "-->");
 		}
+	}
+
+	// Send the response
+	private void sendOutput(HttpServletResponse response,
+		String type, String data) throws IOException {
+		response.setContentType(type);
+		PrintWriter out = response.getWriter();
+		out.print(data);
+		out.close();
 	}
 
 	/**
