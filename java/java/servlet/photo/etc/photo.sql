@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.21 1999/10/05 20:10:00 dustin Exp $
+-- $Id: photo.sql,v 1.22 1999/10/05 21:36:31 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -24,7 +24,7 @@ create table album(
 	cat      integer,
 	taken    date,
 	size     integer,
-	addedby  varchar(16),
+	addedby  integer,
 	ts       datetime default datetime(now()),
 	id       serial
 );
