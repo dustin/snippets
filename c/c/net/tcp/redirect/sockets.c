@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.3 1998/01/02 05:56:47 dustin Exp $
+ * $Id: sockets.c,v 1.4 1998/01/02 06:20:29 dustin Exp $
  */
 
 #include <stdio.h>
@@ -128,7 +128,7 @@ int getservsocket(char *host, int port)
     memset((char *) &sin, 0x00, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_port = htons(port);
-    sin.sin_addr.s_addr = htonl(bindaddr);
+    sin.sin_addr.s_addr = bindaddr;
 
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
         (char *)&reuse, sizeof(int));
