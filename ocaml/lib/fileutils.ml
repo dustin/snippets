@@ -26,6 +26,24 @@ let iter_lines f ch =
 ;;
 
 (**
+ Return the value of f called on each line of input along with the current
+ value (calculated from init).  (... (f input (f input init) ...) until EOF.
+
+ @param f the function to call on each line with the current fold value
+ @param ch the channel to read
+ @param init_value the initial value for the fold
+ *)
+let rec fold_lines f init_value ch =
+	let line,eof = try (input_line ch), false
+		with End_of_file -> "", true
+	in
+	if eof then
+		init_value
+	else
+		fold_lines f (f line init_value) ch
+;;
+
+(**
  Apply the given function to each line in the giving channel if the function
  c returns true for the line.
 
@@ -46,8 +64,9 @@ let conditional_iter_lines f c ch =
 let operate_on_file f fn =
 	let ch = open_in fn in
 	try
-		f ch;
+		let rv = f ch in
 		close_in ch;
+		rv
 	with x ->
 		close_in ch;
 		raise x
@@ -60,6 +79,15 @@ let operate_on_file f fn =
 *)
 let iter_file_lines f fn =
 	operate_on_file (iter_lines f) fn
+;;
+
+(** Open a file for reading and iterate the lines.
+
+  @param f the function to be called on each line
+  @param fn the name of the file to operate on
+*)
+let fold_file_lines f init_value fn =
+	operate_on_file (fold_lines f init_value) fn
 ;;
 
 (** {1 Functions for processing directories} *)
