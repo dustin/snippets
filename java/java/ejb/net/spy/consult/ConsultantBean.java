@@ -1,29 +1,62 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ConsultantBean.java,v 1.1 2000/01/22 09:45:17 dustin Exp $
+// $Id: ConsultantBean.java,v 1.2 2000/01/22 11:42:51 dustin Exp $
 
 package net.spy.consult;
 
 import javax.ejb.*;
 import java.lang.*;
+import java.util.*;
+import java.sql.*;
+import java.rmi.*;
+import javax.sql.*;
+import javax.naming.*;
 
 public class ConsultantBean implements EntityBean {
+	protected ConsultantPK pk = null;
+
 	public int id;
 	public String fn=null;
 	public String ln=null;
 	public String ssn=null;
 	public Address address=null;
 
-	public EntityContext context=null;
+	protected EntityContext context=null;
+	protected DataSource dataSource=null;
 
-	public void ejbCreate(int id, String fn, String ln) {
-		this.id=id;
+	public ConsultantPK ejbCreate(String fn, String ln)
+		throws CreateException, RemoteException {
 		this.fn=fn;
 		this.ln=ln;
+
+		Connection con=null;
+		PreparedStatement ps=null;
+
+		try {
+			con=getConnection();
+			ps=con.prepareStatement(
+				"select nextval('consultant_consultant_id_seq')");
+			ResultSet rs = ps.executeQuery();
+			rs.next();
+			pk=new ConsultantPK();
+			pk.id=rs.getInt(1);
+			id=pk.id;
+		} catch(SQLException e) {
+			throw new CreateException("Error creating Consultant:  " + e);
+		} finally {
+			try {
+				if(ps!=null) ps.close();
+				if(con!=null) con.close();
+			} catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return(pk);
 	}
 
-	public void ejbPostCreate(int id, String fn, String ln) {
-		ConsultantPK pk=(ConsultantPK)context.getPrimaryKey();
+	public void ejbPostCreate(String fn, String ln) {
+		// ConsultantPK pk=(ConsultantPK)context.getPrimaryKey();
+		id=pk.id;
 	}
 
 	public void setEntityContext(EntityContext ctx) {
@@ -70,5 +103,21 @@ public class ConsultantBean implements EntityBean {
 
 	public void setAddress(Address to) {
 		address=to;
+	}
+
+	protected Connection getConnection()
+		throws SQLException, RemoteException {
+		Properties p=context.getEnvironment();
+		Context initialContext = null;
+		if(dataSource==null) {
+			String dataSourceName = p.getProperty("datasource.name");
+			try {
+				initialContext = new InitialContext(p);
+				dataSource = (DataSource)initialContext.lookup(dataSourceName);
+			} catch(Exception e) {
+				throw new RemoteException("Can't get a context:  " + e);
+			}
+		}
+		return(dataSource.getConnection());
 	}
 }

@@ -40,7 +40,7 @@ GENCLASSES=BullConsultantBeanConsultantHome_Skel.class \
 all: $(CLASSES) $(SER) $(GENCLASSES)
 
 genic: Consultant.ser
-	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) -d ../../.. Consultant.ser
+	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) -keepgenerated -d ../../.. Consultant.ser
 
 $(GENCLASSES): genic
 
@@ -50,7 +50,7 @@ test: all
 clean:
 	rm -f $(CLASSES) $(SER) $(GENCLASSES)
 
-Consultant.ser: Consultant.txt Consultant.properties
+Consultant.ser: $(CLASSES) Consultant.txt Consultant.properties
 
 .java.class:
 	env CLASSPATH=$(CLASSPATH) $(JAVAC) -d ../../.. $<

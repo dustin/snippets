@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ConsultantClient.java,v 1.1 2000/01/22 10:25:18 dustin Exp $
+// $Id: ConsultantClient.java,v 1.2 2000/01/22 11:42:52 dustin Exp $
 
 package net.spy.consult;
 
@@ -10,12 +10,20 @@ import javax.naming.*;
 
 public class ConsultantClient {
 	public static void main(String args[]) throws Exception {
+		Consultant c=null;
 		Context ctx=getInitialContext();
 		ConsultantHome h = (ConsultantHome)ctx.lookup("ConsultantHome");
 
-		Consultant c=h.findByPrimaryKey(new ConsultantPK(1));
+		try {
+			c=h.findByPrimaryKey(new ConsultantPK(1));
+			System.out.println(c.firstName() + " " + c.lastName());
+		} catch(Exception e) {
+			System.err.println("Error finding by primary key:  " + e);
+		}
 
-		System.out.println(c.firstName() + " " + c.lastName());
+		if(args.length>1) {
+			c=h.create(args[0], args[1]);
+		}
 	}
 
 	protected static Context getInitialContext() throws Exception {
