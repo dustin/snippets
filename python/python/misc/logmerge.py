@@ -4,6 +4,7 @@ import gzip
 import time
 import string
 import sys
+import os
 # In-place sorting
 import bisect
 
@@ -14,18 +15,37 @@ class LogFile:
 		"""Initialize a new logfile object."""
 
 		self.__filename=filename
+		self.__isOpen=None
+		# Open the file to read the initial data
+		self.__open()
+		# Close it again so we don't have the FD sitting open
+		self.__close()
+
+	def __close(self):
+		self.__input.close()
+		self.__isOpen=None
+
+	def __open(self):
 		try:
-			self.__input=gzip.open(filename)
-			# Get the next line
-			self.next()
+			self.__input=gzip.open(self.__filename)
 		except IOError, e:
 			if e[0] == 'Not a gzipped file':
-				self.__input=open(filename)
-				# Get the next line
-				self.next()
+				self.__input=open(self.__filename)
+			else:
+				raise e
+		# Mark it as open
+		self.__isOpen=1
+		# Get the next line
+		self.next()
 
 	def next(self):
 		"""Get the next line in this file."""
+
+		# Make sure the file's open
+		if self.__isOpen == None:
+			sys.stderr.write("# Reopening " + `self` + "\n")
+			self.__open()
+
 		self.__currentLine=self.__input.readline()
 		if self.__currentLine == '':
 			self.__timestamp=None
@@ -96,11 +116,16 @@ class LogMux:
 
 if __name__ == '__main__':
 
-	outfile=gzip.GzipFile(sys.argv[1], 'w')
+	if sys.argv[1] == '-':
+		outfile=sys.stdout
+	else:
+		if os.path.exists(sys.argv[1]):
+			raise sys.argv[1] + " already exists."
+		outfile=gzip.GzipFile(sys.argv[1], 'w', 3)
 
 	lm=LogMux()
 	for fn in sys.argv[2:]:
-		print "Opening " + fn
+		sys.stderr.write("Opening " + fn + "\n")
 		lm.addLogFile(LogFile(fn))
 
 	line=lm.next()
