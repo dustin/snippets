@@ -27,9 +27,21 @@ let is_gzip fn =
 	rv
 ;;
 
-(* Stat caching
+(* LRU cache based stat
 let stat_cache = Lru.create_auto 8192 Unix.stat;;
 let stat = Lru.find stat_cache;;
+Fileutils.set_stat_func stat;;
+*)
+(* hashtable based stat
+let stat_cache = Hashtbl.create 1;;
+let stat p =
+	try
+		Hashtbl.find stat_cache p
+	with Not_found ->
+		let rv = Unix.stat p in
+		Hashtbl.add stat_cache p rv;
+		rv
+;;
 Fileutils.set_stat_func stat;;
 *)
 
