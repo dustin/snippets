@@ -1,0 +1,129 @@
+# Format of this file is as follows:
+# public_server [mutual_exclusion ...]
+
+ntp-0.cso.uiuc.edu ntp-1.cso.uiuc.edu ntp-2.cso.uiuc.edu
+ntp-1.cso.uiuc.edu ntp-2.cso.uiuc.edu ntp-0.cso.uiuc.edu
+ntp-2.cso.uiuc.edu ntp-1.cso.uiuc.edu ntp-0.cso.uiuc.edu
+
+gilbreth.ecn.purdue.edu harbor.ecn.purdue.edu molecule.ecn.purdue.edu
+harbor.ecn.purdue.edu molecule.ecn.purdue.edu gilbreth.ecn.purdue.edu
+molecule.ecn.purdue.edu gilbreth.ecn.purdue.edu harbor.ecn.purdue.edu
+
+ntp1.kansas.net ntp2.kansas.net
+ntp2.kansas.net ntp1.kansas.net
+
+ntp.ourconcord.net
+
+clock.linuxshell.net
+
+clock.nyc.he.net
+
+reva.sixgirls.org
+
+sundial.columbia.edu
+
+timex.cs.columbia.edu
+
+clock.psu.edu
+
+ntp-1.ece.cmu.edu ntp-2.ece.cmu.edu
+ntp-2.ece.cmu.edu ntp-1.ece.cmu.edu
+
+ntppub.tamu.edu
+
+ntp-1.vt.edu ntp-2.vt.edu
+ntp-2.vt.edu ntp-1.vt.edu
+
+ntp.cmr.gov
+
+ntp1.cs.wisc.edu ntp2.cs.wisc.edu ntp3.cs.wisc.edu
+ntp2.cs.wisc.edu ntp1.cs.wisc.edu ntp3.cs.wisc.edu
+ntp3.cs.wisc.edu ntp1.cs.wisc.edu ntp2.cs.wisc.edu
+
+tock.nml.csir.co.za
+
+#
+# Stratum 1
+#
+
+swisstime.ethz.ch
+
+ntp.shoa.cl
+
+ntp0.fau.de ntp1.fau.de ntp2.fau.de ntp3.fau.de
+ntp1.fau.de ntp2.fau.de ntp3.fau.de ntp0.fau.de
+ntp2.fau.de ntp3.fau.de ntp0.fau.de ntp1.fau.de
+ntp3.fau.de ntp0.fau.de ntp1.fau.de ntp2.fau.de
+
+ntps1-0.cs.tu-berlin.de ntps1-1.cs.tu-berlin.de
+ntps1-1.cs.tu-berlin.de ntps1-0.cs.tu-berlin.de
+
+clock.cuhk.edu.hk
+
+tempo.cstv.to.cnr.it
+
+clock.nc.fukuoka-u.ac.jp clock.tl.fukuoka-u.ac.jp
+clock.tl.fukuoka-u.ac.jp clock.nc.fukuoka-u.ac.jp
+
+cronos.cenam.mx
+
+ntp0.nl.net ntp1.nl.net ntp2.nl.net
+ntp1.nl.net ntp2.nl.net ntp0.nl.net
+ntp2.nl.net ntp0.nl.net ntp1.nl.net
+
+ntp.certum.pl
+
+vega.cbk.poznan.pl
+
+ntp1.gbg.netnod.se ntp2.gbg.netnod.se
+ntp2.gbg.netnod.se ntp1.gbg.netnod.se
+
+ntp1.mmo.netnod.se ntp2.mmo.netnod.se
+ntp2.mmo.netnod.se ntp1.mmo.netnod.se
+
+ntp1.sp.se ntp2.sp.se
+ntp2.sp.se ntp1.sp.se
+
+ntp1.sth.netnod.se ntp2.sth.netnod.se
+ntp2.sth.netnod.se ntp1.sth.netnod.se
+
+time1.stupi.se time2.stupi.se
+time2.stupi.se time1.stupi.se
+
+chronos.csr.net
+
+clepsydra.dec.com
+
+clock.isc.org
+
+clock.via.net
+
+ntp-cup.external.hp.com
+
+timekeeper.isi.edu
+
+usno.pa-x.dec.com
+
+navobs1.usnogps.navy.mil navobs2.usnogps.navy.mil
+navobs2.usnogps.navy.mil navobs1.usnogps.navy.mil
+
+tick.usno.navy.mil tock.usno.navy.mil
+tock.usno.navy.mil tick.usno.navy.mil
+
+ntp1.connectiv.com
+
+bonehed.lcs.mit.edu
+
+navobs1.wustl.edu
+
+terrapin.csc.ncsu.edu
+
+lerc-dns.lerc.nasa.gov
+
+now.okstate.edu
+
+otc1.psu.edu
+
+wwv.otc.psu.edu
+
+time.xmission.com
