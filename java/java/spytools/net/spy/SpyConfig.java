@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.8 2000/06/20 08:35:50 dustin Exp $
+ * $Id: SpyConfig.java,v 1.9 2000/06/27 08:00:21 dustin Exp $
  */
 
 package net.spy;
@@ -18,8 +18,8 @@ import java.io.*;
  */
 
 public class SpyConfig extends Hashtable {
-	protected static Hashtable ConfigStore=null;
-	protected static Hashtable ConfigTimeStamps=null;
+	protected static Hashtable configStore=null;
+	protected static Hashtable configTimeStamps=null;
 
 	/**
 	 * Construct a new SpyConfig object describing a config file.
@@ -28,35 +28,55 @@ public class SpyConfig extends Hashtable {
 	 */
 	public SpyConfig(String conffile) {
 		super();
-		if(ConfigStore==null) {
-			ConfigStore=new Hashtable();
-			ConfigTimeStamps=new Hashtable();
+
+		confInit();
+		loadConfig(conffile);
+	}
+
+	/**
+	 * Construct a new SpyConfig object without a config file.
+	 */
+	public SpyConfig() {
+		super();
+
+		confInit();
+	}
+
+	protected synchronized void confInit() {
+		if(configStore==null) {
+			configStore=new Hashtable();
+			configTimeStamps=new Hashtable();
 		}
+	}
+
+	public boolean loadConfig(String conffile) {
+		boolean loaded=false;
 
 		// See whether we've cached the config file or not.
 		if(isUpToDate(conffile)) {
 			// We've already generated this, set it here.
-			set( (Hashtable) ConfigStore.get(conffile) );
+			set( (Hashtable) configStore.get(conffile) );
+			loaded=true;
 		} else {
 			try {
 				SpyConfigReader r = new SpyConfigReader();
 				Hashtable h = r.hashConfig(conffile);
 				record(conffile, h);
 				set(h);
+				loaded=true;
 			} catch(Exception e) {
-				// Not necessary
-				// System.err.println("Got exception:  " + e);
-				// e.printStackTrace();
 			}
 		}
+
+		return(loaded);
 	}
 
 	// Check to see if we have current data on this file.
 	protected boolean isUpToDate(String file) {
 		boolean r = false;
 		try {
-			if(ConfigStore.containsKey(file)) {
-				long ts=(long)((Long)ConfigTimeStamps.get(file)).longValue();
+			if(configStore.containsKey(file)) {
+				long ts=(long)((Long)configTimeStamps.get(file)).longValue();
 				File f = new File(file);
 				if(ts == f.lastModified()) {
 					r=true;
@@ -74,8 +94,8 @@ public class SpyConfig extends Hashtable {
 			File f = new File(file);
 			Long l = new Long(f.lastModified());
 
-			ConfigStore.put(file, h);
-			ConfigTimeStamps.put(file, l);
+			configStore.put(file, h);
+			configTimeStamps.put(file, l);
 		} catch(Exception e) {
 			// Whatever
 		}
