@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.16 2002/08/22 07:37:54 dustin Exp $
+ * $Id: Temperature.java,v 1.17 2002/11/24 09:17:59 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -123,8 +123,11 @@ public class Temperature extends PngServlet {
 			try {
 				URLWatcher uw=URLWatcher.getInstance();
 				String s=uw.getContent(new URL(url));
+				if(s==null) {
+					throw new NullPointerException("Received content is null");
+				}
 				int temptmp;
-				t=Double.valueOf(s).doubleValue();
+				t=Double.parseDouble(s);
 				temptmp=(int)(t*100.0);
 				t=(double)temptmp/100;
 				// log("Fetching " + which + " from " + url);
