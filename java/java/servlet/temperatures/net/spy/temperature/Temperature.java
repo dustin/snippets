@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.6 2000/07/13 06:56:22 dustin Exp $
+ * $Id: Temperature.java,v 1.7 2001/12/21 05:56:57 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -25,13 +25,14 @@ import com.mongus.servlet.GifServlet;
 // The class
 public class Temperature extends GifServlet implements ImageObserver
 {
-	SpyConfig temps = null;
+	private SpyConfig temps = null;
+	boolean imageLoaded=false;
 
 	// Image stuff.
-	static Image baseImage=null;
-	Color black=null;
-	Color white=null;
-	Font font=null;
+	private static Image baseImage=null;
+	private Color black=null;
+	private Color white=null;
+	private Font font=null;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
@@ -56,7 +57,8 @@ public class Temperature extends GifServlet implements ImageObserver
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
 		// Load the config...
-		temps=new SpyConfig("/afs/@cell/misc/web/etc/temperature.properties");
+		temps=new SpyConfig(
+			new File("/afs/@cell/misc/web/etc/temperature.properties"));
 		String which=request.getParameter("temp");
 		String therm=request.getParameter("therm");
 		String out="";
@@ -85,7 +87,7 @@ public class Temperature extends GifServlet implements ImageObserver
 		}
 	}
 
-	protected String listTemps() {
+	private String listTemps() {
 		String ret="";
 
 		for(Enumeration e = temps.keys(); e.hasMoreElements();) {
@@ -95,7 +97,7 @@ public class Temperature extends GifServlet implements ImageObserver
 		return(ret);
 	}
 
-	protected String getTemp(String which) throws ServletException {
+	private String getTemp(String which) throws ServletException {
 		String url=(String)temps.get(which);
 		double t;
 		if(url==null) {
@@ -116,7 +118,7 @@ public class Temperature extends GifServlet implements ImageObserver
 		return("" + t);
 	}
 
-	protected void send_response(HttpServletResponse response, String o) {
+	private void send_response(HttpServletResponse response, String o) {
 		try {
 			response.setContentType("text/plain");
 			PrintWriter out=response.getWriter();
@@ -128,7 +130,7 @@ public class Temperature extends GifServlet implements ImageObserver
 	}
 
 	// Graphical representation of the image.
-	protected Image getTherm(String which) throws ServletException {
+	private Image getTherm(String which) throws ServletException {
 		int width=133;
 		int height=132;
 
@@ -173,7 +175,7 @@ public class Temperature extends GifServlet implements ImageObserver
 	}
 
 	// Get the temperature as a double (For the image)
-	protected double getTempD(String which) throws ServletException {
+	private double getTempD(String which) throws ServletException {
 		double t = 0.0;
 		// Get the temperature, make it a double.
 		String s=getTemp(which) + "d";
@@ -182,13 +184,20 @@ public class Temperature extends GifServlet implements ImageObserver
 	}
 
 	// Get the base image loaded
-	protected Image getBaseImage() throws Exception {
+	private Image getBaseImage() throws Exception {
 		if(baseImage==null) {
 			String therm=
 				"http://bleu.west.spy.net/~dustin/images/therm.gif";
 			URL url=new URL(therm);
 			baseImage=Toolkit.getDefaultToolkit().getImage(url);
 			log("Getting image...");
+			Toolkit.getDefaultToolkit().prepareImage(baseImage, -1, -1, this);
+			if(!imageLoaded) {
+				synchronized(this) {
+					wait();
+				}
+			}
+			log("Image completely loaded.");
 		}
 		return(baseImage);
 	}
@@ -196,7 +205,14 @@ public class Temperature extends GifServlet implements ImageObserver
 	// When imageUpdate is called...yeah, this sucks.
 	public boolean imageUpdate(Image img, int infoflags,
 		int x, int y, int width, int height) {
-		log("imageUpdate called");
-		return(true);
+
+		if( (infoflags&ALLBITS) != 0) {
+			imageLoaded=true;
+			synchronized(this) {
+				notify();
+			}
+		}
+
+		return(!imageLoaded);
 	}
 }

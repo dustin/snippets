@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/java
+JAVAHOME=/usr
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac -deprecation
 JAVA=$(JAVAHOME)/bin/java
@@ -8,11 +8,6 @@ MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/gifservlet.jar
 C2=$(MYLIB)/spy.jar
 CLASSPATH=$(C1):$(C2):.
-SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
-
-SCP=rcp
-DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/temperature/
-# DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=net/spy/temperature/Temperature.class
 
@@ -30,4 +25,4 @@ clean:
 	rm -f $(CLASSES)
 
 .java.class:
-	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
+	env CLASSPATH=$(CLASSPATH) $(JAVAC) -deprecation $<
