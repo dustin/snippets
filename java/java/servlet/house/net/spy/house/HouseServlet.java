@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.4 2002/02/22 09:58:08 dustin Exp $
+ * $Id: HouseServlet.java,v 1.5 2002/04/12 08:54:27 dustin Exp $
  */
 
 package net.spy.house;
@@ -53,7 +53,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 		try {
-			writePng(request, response, getHouseImage());
+			writeImage(request, response, getHouseImage());
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw new ServletException("Error getting image", e);
