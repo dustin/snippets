@@ -6,7 +6,7 @@
 
 (** Netstring implementation.
 
- http://cr.yp.to/proto/netstrings.txt
+ {{:http://cr.yp.to/proto/netstrings.txt} http://cr.yp.to/proto/netstrings.txt}
  *)
 
 val encode : string -> string

@@ -5,7 +5,7 @@
  *)
 
 (** CDB Implementation.
- http://cr.yp.to/cdb/cdb.txt
+ {{:http://cr.yp.to/cdb/cdb.txt} http://cr.yp.to/cdb/cdb.txt}
  *)
 
 (* The cdb hash function is ``h = ((h << 5) + h) ^ c'', with a starting

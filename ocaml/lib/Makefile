@@ -33,7 +33,7 @@ testtop: $(PARTS)
 
 docs: $(PARTS)
 	mkdir -p doc
-	ocamldoc -d doc -html *.mli *.ml
+	ocamldoc -keep-code -colorize-code -d doc -html *.mli *.ml
 
 clean:
 	rm -rf testtop *.a *.cma *.cmxa *.cmx *.cmi *.cmo *.o doc
