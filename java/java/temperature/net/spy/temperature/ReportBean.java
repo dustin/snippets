@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ReportBean.java,v 1.1 2000/10/15 10:04:46 dustin Exp $
+// $Id: ReportBean.java,v 1.2 2000/10/15 10:09:12 dustin Exp $
 
 package net.spy.temperature;
 
@@ -30,6 +30,10 @@ public class ReportBean extends Object {
 	 * Hourly maximums
 	 */
 	public final static int MAX_HOUR=4;
+	/**
+	 * Hourly stuff (min, avg, and max)
+	 */
+	public final static int HOURLY_VITALITY=5;
 
 	// The start and stop dates for our report
 	protected String start_date=null;
@@ -123,7 +127,7 @@ public class ReportBean extends Object {
 
 	// Is the report number valid?
 	protected boolean invalidReportNum(int num) {
-		return(num < 1 || num > 4);
+		return(num < 1 || num > 5);
 	}
 
 	/**
@@ -189,6 +193,19 @@ public class ReportBean extends Object {
 					+ "  group by hour\n"
 					+ "  order by hour\n";
 				break;
+
+			case HOURLY_VITALITY:
+				query="select date_part('hour',ts) as hour,\n"
+					+ " min(sample) as min_temp,\n"
+					+ " avg(sample) as avg_temp,\n"
+					+ " max(sample) as max_temp\n"
+					+ "  from samples"
+					+ "  where ts between ? and ?\n"
+					+ "  and sensor_id = ?\n"
+					+ "  group by hour\n"
+					+ "  order by hour\n";
+				break;
+
 			default:
 				throw new Exception("Impossible!  No such report");
 		}
