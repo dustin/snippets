@@ -2,8 +2,8 @@ CFLAGS=@CFLAGS@ @DEFS@
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 
-httppost: http.o post.o
+hcp: http.o post.o
 	$(CC) -o $@ http.o post.o $(LDFLAGS)
 
 clean:
-	rm -f http.o post.o httppost
+	rm -f http.o post.o hcp
