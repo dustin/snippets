@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #
-# $Id: pytest.py,v 1.3 2002/04/05 03:27:01 dustin Exp $
+# $Id: pytest.py,v 1.4 2002/12/03 17:49:03 dustin Exp $
 
 from sys import argv
 import xmlrpclib
 import time
 
-server=xmlrpclib.Server('http://localhost:' + argv[1] + '/RPC2')
+server=xmlrpclib.Server(argv[1])
 
 method = getattr(server, argv[2])
 if len(argv)>2:
