@@ -41,3 +41,14 @@ let zip l =
 		(List.map (fun i -> [i]) (List.hd l)) (List.tl l)
 ;;
 
+
+(**
+ Get the sublist of the given list starting at position n.
+
+ @param l the list
+ @param n the position at which to begin the sublist
+ *)
+let rec nthtail l = function
+	  0 -> l
+	| n -> nthtail (List.tl l) (n - 1)
+;;
