@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.7 2002/07/10 05:41:20 dustin Exp $
+// $Id: DBSP.java,v 1.8 2002/08/15 07:29:08 dustin Exp $
 
 package net.spy.db;
 
@@ -18,9 +18,10 @@ import java.sql.Types;
 
 import java.math.BigDecimal;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import net.spy.SpyConfig;
 
@@ -30,26 +31,26 @@ import net.spy.SpyConfig;
 public abstract class DBSP extends SpyCacheDB {
 
 	// The arguments themselves
-	private Hashtable args=null;
+	private HashMap args=null;
 	// The data type of this argument
-	private Hashtable types=null;
+	private HashMap types=null;
 
 	/**
 	 * Required fields and their types.
 	 */
-	private Hashtable required=null;
+	private HashMap required=null;
 	/**
 	 * Required fields in order.
 	 */
-	private Vector requiredInorder=null;
+	private ArrayList requiredInorder=null;
 	/**
 	 * Optional fields and their types.
 	 */
-	private Hashtable optional=null;
+	private HashMap optional=null;
 	/**
 	 * Optional fields in order.
 	 */
-	private Vector optionalInorder=null;
+	private ArrayList optionalInorder=null;
 
 	// SP name
 	private String spname=null;
@@ -83,25 +84,25 @@ public abstract class DBSP extends SpyCacheDB {
 
 	// Initialize hashtables
 	private void initsp() {
-		this.args=new Hashtable();
-		this.types=new Hashtable();
-		this.required=new Hashtable();
-		this.optional=new Hashtable();
-		this.requiredInorder=new Vector();
-		this.optionalInorder=new Vector();
+		this.args=new HashMap();
+		this.types=new HashMap();
+		this.required=new HashMap();
+		this.optional=new HashMap();
+		this.requiredInorder=new ArrayList();
+		this.optionalInorder=new ArrayList();
 	}
 
 	/**
 	 * Get the required arguments, in order.
 	 */
-	protected Vector getRequiredInorder() {
+	protected Collection getRequiredInorder() {
 		return(requiredInorder);
 	}
 
 	/**
 	 * Get the optional arguments, in order.
 	 */
-	protected Vector getOptionalInorder() {
+	protected Collection getOptionalInorder() {
 		return(optionalInorder);
 	}
 
@@ -184,7 +185,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	protected void setRequired(String name, int type) {
 		required.put(name, new Integer(type));
-		requiredInorder.addElement(name);
+		requiredInorder.add(name);
 	}
 
 	/**
@@ -192,7 +193,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	protected void setOptional(String name, int type) {
 		optional.put(name, new Integer(type));
-		optionalInorder.addElement(name);
+		optionalInorder.add(name);
 	}
 
 	/**
@@ -235,8 +236,8 @@ public abstract class DBSP extends SpyCacheDB {
 		}
 
 		// First, verify all of the arguments we have are correctly typed.
-		for(Enumeration e=args.keys(); e.hasMoreElements(); ) {
-			String key=(String)e.nextElement();
+		for(Iterator e=args.keySet().iterator(); e.hasNext(); ) {
+			String key=(String)e.next();
 
 			boolean checked=false;
 
@@ -278,8 +279,8 @@ public abstract class DBSP extends SpyCacheDB {
 		}
 
 		// Next, verify all of the required arguments are there.
-		for(Enumeration e=required.keys(); e.hasMoreElements(); ) {
-			String key=(String)e.nextElement();
+		for(Iterator e=required.keySet().iterator(); e.hasNext(); ) {
+			String key=(String)e.next();
 
 			if(args.get(key) == null) {
 				throw new SQLException("Required argument "
@@ -311,10 +312,10 @@ public abstract class DBSP extends SpyCacheDB {
 
 		// Get the keys in a vector so we can make sure they come out in
 		// the right order.
-		Vector v=new Vector();
-		for(Enumeration e=args.keys(); e.hasMoreElements(); ) {
-			String param=(String)e.nextElement();
-			v.addElement(param);
+		ArrayList v=new ArrayList();
+		for(Iterator e=args.keySet().iterator(); e.hasNext(); ) {
+			String param=(String)e.next();
+			v.add(param);
 
 			querySb.append("\t@");
 			querySb.append(param);
@@ -362,16 +363,14 @@ public abstract class DBSP extends SpyCacheDB {
 			System.err.println("DBSP Query:  " + query);
 			System.err.println("\t-");
 
-			for(Enumeration e=requiredInorder.elements();
-				e.hasMoreElements(); ) {
-				String key=(String)e.nextElement();
+			for(Iterator e=requiredInorder.iterator(); e.hasNext(); ) {
+				String key=(String)e.next();
 				String val=args.get(key).toString();
 				System.err.println("\t" + key + "=" + val);
 			}
 
-			for(Enumeration e=optionalInorder.elements();
-				e.hasMoreElements(); ) {
-				String key=(String)e.nextElement();
+			for(Iterator e=optionalInorder.iterator(); e.hasNext(); ) {
+				String key=(String)e.next();
 				Object o=args.get(key);
 				if(o!=null) {
 					String val=o.toString();
@@ -388,7 +387,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 * @param query the query we'll be calling
 	 * @param v the list of named parameters we need to add, in order
 	 */
-	protected void applyArgs(Vector v) throws SQLException {
+	protected void applyArgs(Collection v) throws SQLException {
 
 		// Get the statement
 		if(cachetime>0) {
@@ -404,8 +403,8 @@ public abstract class DBSP extends SpyCacheDB {
 
 		// Use this iterator for the now positional arguments
 		int i=1;
-		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
-			String key=(String)e.nextElement();
+		for(Iterator e=v.iterator(); e.hasNext(); ) {
+			String key=(String)e.next();
 			Object o=args.get(key);
 
 			Integer typeInt=(Integer)types.get(key);

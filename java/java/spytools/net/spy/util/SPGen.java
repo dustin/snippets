@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.6 2002/08/05 17:19:45 dustin Exp $
+// $Id: SPGen.java,v 1.7 2002/08/15 07:29:10 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.6 $";
+	private String version="$Revision: 1.7 $";
 	private long cachetime=0;
 	private Vector sqlquery=null;
 	private Vector required=null;
@@ -165,9 +165,8 @@ public class SPGen extends Object {
 				+ "\t\tsetSPName(\"" + procname + "\");");
 		} else {
 			out.println("\t\t// Set the SQL\n"
-				+ "\t\tsetQuery(\"\"\n\t\t\t"
-				+ getJavaQuery()
-				+ "\n\t\t\t);");
+				+ "\t\t" + getJavaQuery()
+				+ "\n\t\tsetQuery(query.toString());");
 		}
 		// Set the required parameters
 		if(required.size() > 0) {
@@ -216,9 +215,11 @@ public class SPGen extends Object {
 	private String getJavaQuery() {
 		StringBuffer sb=new StringBuffer();
 
+		sb.append("\n\t\tStringBuffer query=new StringBuffer();");
+
 		for(Enumeration e=sqlquery.elements(); e.hasMoreElements(); ) {
 			String part=(String)e.nextElement();
-			sb.append("\n\t\t\t+ \"");
+			sb.append("\n\t\tquery.append(\"");
 
 			for(StringTokenizer st=new StringTokenizer(part, "\"", true);
 				st.hasMoreTokens(); ) {
@@ -230,7 +231,7 @@ public class SPGen extends Object {
 				sb.append(tmp);
 			}
 
-			sb.append("\\n\"");
+			sb.append("\\n\");");
 		}
 
 		return(sb.toString().trim());
