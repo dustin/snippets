@@ -1,5 +1,5 @@
 -- Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
--- $Id: package.sql,v 1.1 2000/06/15 22:14:09 dustin Exp $
+-- $Id: package.sql,v 1.2 2001/11/06 01:38:43 dustin Exp $
 
 create table package_carrier (
 	carrier_id serial primary key,
@@ -13,7 +13,9 @@ create table packages (
 	descr text,
 	foreign key (carrier_id) references package_carrier(carrier_id)
 );
-create unique index packages_byid on packages(tracking_number, carrier_id);
+create index packages_byid on packages(tracking_number, carrier_id);
+create unique index packages_byidpager
+	on packages(tracking_number, carrier_id, pager_id);
 
 create table package_status (
 	tracking_number varchar(40),
