@@ -1,7 +1,7 @@
 indexing
    description: "Base64 stuff.";
    author: "Dustin Sallings <dustin@spy.net>";
-   version: "$Revision: 1.12 $";
+   version: "$Revision: 1.13 $";
    copyright: "1999";
    licensing: "EFLL <see forum.txt>";
 class BASE64
@@ -22,6 +22,8 @@ feature {ANY} -- Actual encode/decode stuff
 
    encode(in: STRING): STRING is
       -- Base64 Encode.
+	  require
+		base64_initialized;
       local
          ab, bb, cb, db, tmpa, tmpb: BIT 8;
          i, o: INTEGER;
@@ -84,6 +86,8 @@ feature {ANY} -- Actual encode/decode stuff
 
    decode(in: STRING): STRING is
       -- Base64 Decode.
+	  require
+		base64_initialized;
       local
          ab, bb, cb, db, tmpa, tmpb: BIT 8;
          a, b, c: CHARACTER;
@@ -140,6 +144,11 @@ feature {ANY} -- Actual encode/decode stuff
             end;
          end;
       end -- decode
+
+	base64_initialized: BOOLEAN is
+		do
+			Result:=base64_isinitialized;
+		end
 
 feature {NONE}
 
@@ -198,6 +207,7 @@ feature {NONE}
 		 lastfour:= ("00001111").binary_to_integer.to_character.to_bit;
 		 lastsix:= ("00111111").binary_to_integer.to_character.to_bit;
 		 firsttwo:= ("11000000").binary_to_integer.to_character.to_bit;
+		 base64_isinitialized:=true;
       end -- init_const
 
    lasttwo: BIT 8;
@@ -209,6 +219,8 @@ feature {NONE}
    firsttwo: BIT 8;
 
    current_char: INTEGER;
+
+   base64_isinitialized: BOOLEAN;
 
    charmap: STRING is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
