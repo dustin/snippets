@@ -15,7 +15,7 @@ Size: %SIZE% bytes
 Taken: %TAKEN%
 <p>
 
-Added: %TIMESTAMP%
+Added: %TIMESTAMP% by %ADDEDBY%
 <p>
 
 Keywords:<br>

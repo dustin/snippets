@@ -6,7 +6,7 @@
         Category:  %CAT%<br>
         Size:  %SIZE% bytes<br>
         Taken:  %TAKEN%<br>
-        Added:  %TS%<br>
+        Added:  %TS% by %ADDEDBY%<br>
     </td>
 
     <td>
