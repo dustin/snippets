@@ -1,22 +1,15 @@
 #!/usr/bin/env python
 #
-# $Id: pytest.py,v 1.2 2002/03/26 11:10:05 dustin Exp $
+# $Id: pytest.py,v 1.3 2002/04/05 03:27:01 dustin Exp $
 
 from sys import argv
 import xmlrpclib
 import time
 
-server=xmlrpclib.Server('http://localhost:8000/RPC2')
+server=xmlrpclib.Server('http://localhost:' + argv[1] + '/RPC2')
 
-totaltime=0
-runs=100
-
-method = getattr(server, argv[1])
-for i in range(runs):
-	starttime=time.time()
-	print method('other arg call #' + str(i))
-	stoptime=time.time()
-	print "RTT:  " + str(stoptime-starttime)
-	totaltime = totaltime + (stoptime-starttime)
-
-print "Average RTT:  " + str(totaltime/runs)
+method = getattr(server, argv[2])
+if len(argv)>2:
+	print apply(method, argv[3:])
+else:
+	print method()
