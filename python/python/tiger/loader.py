@@ -21,6 +21,7 @@ def load(c, zipfile, fn):
 	data=zipfile.read(fn).split('\r\n')
 	i=0
 	stats=Stats.Stats(len(data))
+	stats.setStatName(fn)
 	for line in data:
 		i=i+1
 		datum=parseDatum(line)
