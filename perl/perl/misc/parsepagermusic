@@ -18,7 +18,7 @@ while(<>) {
 
 	# Check to see if it's a CRN thing
 	if(/^From/) {
-		if(/^From.*(mrdizco\@my2way.com\|8777585855\@worldcom.com)/) {
+		if(/^From.*(mrdizco\@my2way.com|8777585855\@worldcom.com)/oi) {
 			$wascrn=1;
 		} else {
 			$wascrn=0;
