@@ -1,6 +1,6 @@
 indexing
 	description: "A message to be logged.";
-	version: "$Revision: 1.1 $";
+	version: "$Revision: 1.2 $";
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "2002";
 	license: "See forum.txt.";
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: log_msg.e,v 1.1 2002/11/14 08:37:23 dustin Exp $
+-- $Id: log_msg.e,v 1.2 2002/11/25 07:19:15 dustin Exp $
 --
 class LOG_MSG
 
@@ -56,13 +56,29 @@ feature {ANY}
 feature {LOGGER}
 	-- Printing out
 
-	get_string: STRING is
-		local
-			tie: TIME_IN_ENGLISH
+	two_digit_number(n: INTEGER): STRING is
+		require
+			non_void_int: n /= Void
+			non_negative: n >= 0
+			less_than_100: n < 100
 		do
-			!!tie
-			tie.set_time(timestamp)
-			Result := tie.to_string + " "
+			if n < 10 then
+				Result := "0" + n.to_string
+			else
+				Result := n.to_string
+			end
+		end
+
+	get_string: STRING is
+		do
+			Result :=
+				timestamp.year.to_string + "-"
+				+ two_digit_number(timestamp.month) + "-"
+				+ two_digit_number(timestamp.day) + "T"
+				+ two_digit_number(timestamp.hour) + ":"
+				+ two_digit_number(timestamp.minute) + ":"
+				+ two_digit_number(timestamp.second)
+				+ " "
 				+ level_name(level) + ":  "
 				+ msg
 				+ "%N"
