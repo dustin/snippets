@@ -1,7 +1,7 @@
 /*
  * Copyright (c)  2001 Dustin Sallings <dustin@spy.net>
  *
- * $Id: xsentry.h,v 1.1 2001/01/09 08:05:21 dustin Exp $
+ * $Id: xsentry.h,v 1.2 2001/01/09 08:11:22 dustin Exp $
  */
 
 #ifndef SIMPLEDEFINES
@@ -16,7 +16,7 @@
 #ifdef DEBUG
 #define FONT "variable"
 #else
-#define FONT "-adobe-new century schoolbook-bold-r-normal--24-20-*-*-p-*-iso8859-1"
+#define FONT "-adobe-new century schoolbook-bold-r-normal--15-20-*-*-p-*-iso8859-1"
 #endif
 
 #define BACKFONT "variable"

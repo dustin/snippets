@@ -1,7 +1,7 @@
 # Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 
-DEFINES=-DDEBUG -DALARMLENGTHDEFAULT=5
-CFLAGS=-g -Wall -pipe $(DEFINES) -I/usr/X11R6/include
+DEFINES=#-DDEBUG
+CFLAGS=-g $(DEFINES) -I/usr/X11R6/include
 LIBS=-L/usr/X11R6/lib -lX11
 LDFLAGS=-g $(LIBS)
 OBJS=X11.o main.o
