@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Job.java,v 1.3 2002/07/10 04:25:07 dustin Exp $
+// $Id: Job.java,v 1.4 2002/08/20 08:04:36 dustin Exp $
 
 package net.spy.cron;
 
@@ -100,9 +100,9 @@ public abstract class Job extends Object implements Runnable {
 	}
 
 	/**
-	 * What to do when we run.
+	 * Mark started, call runJob, then mark finished.
 	 */
-	public void run() {
+	public final void run() {
 		markStarted();
 		runJob();
 		markFinished();
@@ -133,6 +133,14 @@ public abstract class Job extends Object implements Runnable {
 			nextStart=ti.nextDate(nextStart);
 		}
 		isrunning=true;
+	}
+
+	/**
+	 * Stop this job from running.
+	 */
+	protected void stopRunning() {
+		nextStart=null;
+		ti=null;
 	}
 
 	/**

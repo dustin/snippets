@@ -1,28 +1,29 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLItem.java,v 1.2 2002/08/19 07:11:17 dustin Exp $
+// $Id: URLItem.java,v 1.3 2002/08/20 08:04:38 dustin Exp $
 
 package net.spy.net;
 
 import java.util.HashMap;
+import java.util.Date;
 
 import java.io.IOException;
 
 import java.net.URL;
 
+import net.spy.cron.Job;
+import net.spy.cron.TimeIncrement;
+import net.spy.cron.SimpleTimeIncrement;
+
 /**
  * A particular URL that's being watched.
  */
-public class URLItem extends Object {
+public class URLItem extends Job {
 
-	// How often to update.
-	private int erval=1800;
 	// How long a URL will be watched if nobody wants it (defaults to an
 	// hour).
 	private int maxIdleTime=3600000;
 
-	// Last update
-	private long lastUpdate=0;
 	private long lastRequest=0;
 
 	private URL url=null;
@@ -32,32 +33,49 @@ public class URLItem extends Object {
 	private IOException lastError=null;
 
 	/**
-	 * Get an instance of URLItem.
+	 * Get a new URLItem at the default interval.
+	 *
+	 * @param u URL to watch
 	 */
 	public URLItem(URL u) {
-		super();
+		this(u, new Date(), new SimpleTimeIncrement(300000));
+	}
+
+	/**
+	 * Get a new URLItem with the given interval.
+	 *
+	 * @param u URL to watch
+	 * @param ti the increment
+	 */
+	public URLItem(URL u, TimeIncrement ti) {
+		this(u, new Date(), ti);
+	}
+
+	/**
+	 * Get an instance of URLItem.
+	 *
+	 * @param u URL to watch
+	 * @param startDate time to start
+	 * @param ti the increment
+	 */
+	public URLItem(URL u, Date startDate, TimeIncrement ti) {
+		super(u.toString(), startDate, ti);
 		this.url=u;
 	}
 
 	/**
 	 * Ask the URL to update itself if it needs to.
 	 */
-	public void update() {
-		long now=System.currentTimeMillis();
-		int timepassed=(int)((now-lastUpdate)/1000);
+	public void runJob() {
 		HashMap headers=new HashMap();
 		// make sure the stuff isn't cached
 		headers.put("Pragma", "no-cache");
 
-		// Don't update unless we need to
-		if(timepassed > erval) {
-			try {
-				HTTPFetch hf=new HTTPFetch(url, headers);
-				content=hf.getData();
-				lastUpdate=now;
-			} catch(IOException e) {
-				lastError=e;
-			}
+		try {
+			HTTPFetch hf=new HTTPFetch(url, headers);
+			content=hf.getData();
+		} catch(IOException e) {
+			lastError=e;
 		}
 	}
 
@@ -91,12 +109,16 @@ public class URLItem extends Object {
 	}
 
 	/**
-	 * Set the update frequency.
-	 *
-	 * @param to the number of seconds between updates
+	 * Override the finished mark to also stop this job if it hasn't been
+	 * touched recently enough.
 	 */
-	public void setInterval(int to) {
-		erval=to;
+	protected void markFinished() {
+		long now=System.currentTimeMillis();
+		// If it's been too long since this thing was touched, toss it.
+		if( (now-lastRequest) > maxIdleTime) {
+			stopRunning();
+		}
+		super.markFinished();
 	}
 
 	/**
