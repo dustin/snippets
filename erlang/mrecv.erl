@@ -3,17 +3,24 @@
 %%
 
 -module(mrecv).
--export([start/0, getdict/0, getval/1]).
+-export([start/0, start_linked/0, start_forsup/0, getdict/0, getval/1]).
 -export([init/0]).
 
 % Spawn the process.
 start() ->
 	spawn(?MODULE, init, []).
 
+% Spawn the process linked
+start_linked() ->
+	spawn_link(?MODULE, init, []).
+
+% Spawn in an OTP/supervisor compliant way
+start_forsup() ->
+	{ok, start_linked()}.
+
 % Initialize the multicast group and start the loop
 init() ->
 	register(mrecv, self()),
-	process_flag(trap_exit, true),
 	{ok, GAddr}=inet:getaddr("225.0.0.37", inet),
 	{ok, LAddr}=inet:getaddr("0.0.0.0", inet),
 	{ok, Port} = gen_udp:open(6789, [{add_membership,{GAddr,LAddr}}]),
@@ -44,6 +51,13 @@ loop(Port, Dict) ->
 			error_logger:error_msg("mrecv: Unhandled message:  ~p\n",
 				[Unhandled]),
 			loop(Port, Dict)
+		% If I don't get a message from anything in 3 minutes, something's
+		% wrong.  I should see a message at least once a minute when things are
+		% working properly.
+		after 180000 ->
+			Reason = "Been too long since I've heard from a thermometer.",
+			error_logger:error_msg("mrecv: Exiting:  ~p\n", [Reason]),
+			exit(Reason)
 	end.
 
 % Get the dict from the mrecv
