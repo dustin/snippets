@@ -205,11 +205,14 @@ let main() =
 	let rrd = (Array.get Sys.argv 1) in
 	conditional_iter_lines
 		(fun l ->
-			let le = get_log_entry l in
 			try
-				process le rrd;
+				let le = get_log_entry l in
+				try
+					process le rrd;
+				with
+					Not_found -> prerr_endline("Type not found:  "
+						^ le.le_ttype);
 			with
-				Not_found -> prerr_endline("Type not found:  " ^ le.le_ttype);
 				| x ->
 					print_endline("Unknown error on " ^ l);
 					print_endline (Printexc.to_string x);
