@@ -113,6 +113,10 @@ mcpLoop(Procs) ->
 		{sendto, N, Msg} ->
 			lists:nth(N, Procs) ! Msg,
 			mcpLoop(Procs);
+		{'EXIT', Pid, Reason} ->
+			io:format("MCP just discovered ~p died because of ~p\n",
+				[Pid, Reason]),
+			mcpLoop(mcpReplaceProcess(Pid, Procs));
 		{'DOWN', _Ref, process, Pid, _Flag} ->
 			io:format("MCP got down message for ~p\n", [Pid]),
 			mcpLoop(mcpReplaceProcess(Pid, Procs));
@@ -124,6 +128,7 @@ mcpLoop(Procs) ->
 mcpMonitor(N) ->
 	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, N, []),
 	lists:foreach(fun (P) -> erlang:monitor(process, P) end, Procs),
+	process_flag(trap_exit, true),
 	mcpLoop(Procs).
 
 mcp(N) ->
