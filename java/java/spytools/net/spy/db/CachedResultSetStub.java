@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachedResultSetStub.java,v 1.2 2000/11/05 09:19:17 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.3 2000/11/07 04:12:17 dustin Exp $
  */
 
 package net.spy.db;
@@ -86,6 +86,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 				switch(metadata.getColumnType(i)) {
 					case Types.DOUBLE:
 					case Types.REAL:
+					case Types.DECIMAL:
 						result[i-1]=new Double(rs.getDouble(i));
 						break;
 					case Types.FLOAT:
@@ -166,9 +167,9 @@ public class CachedResultSetStub extends Object implements Cloneable {
 			resultEnum=results.elements();
 		}
 
-		result=(Object[])resultEnum.nextElement();
-		if(result==null) {
-			resultEnum=null;
+		if(resultEnum.hasMoreElements()) {
+			result=(Object[])resultEnum.nextElement();
+		} else {
 			rv=false;
 		}
 
