@@ -1,17 +1,22 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.7 2002/06/06 04:01:25 dustin Exp $
+ * $Id: logmerge.c,v 1.8 2002/06/06 05:49:33 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
+
+#ifdef USE_ASSERT
+# include <assert.h>
+#else
+# define assert(a)
+#endif
 
 #include <zlib.h>
 
@@ -295,7 +300,13 @@ static char *nextLine(struct logfile *lf)
 
 	if(lf->isOpen == 0) {
 		int logfileOpened=openLogfile(lf);
-		assert(logfileOpened == OK);
+		/* This looks a little awkward, but it's the only way I can both
+		 * avoid the side effect of having assert perform the task and
+		 * not leave the variable unreferenced when assertions are off.
+		 */
+		if(logfileOpened != OK) {
+			assert(logfileOpened == OK);
+		}
 		/* Recurse to skip a line */
 		p=nextLine(lf);
 		assert(p!=NULL);
