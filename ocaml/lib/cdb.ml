@@ -56,7 +56,7 @@ let open_out fn =
 let add cdc k v =
 	(* Add the hash to the list *)
 	let h = hash k in
-	cdc.pointers <- cdc.pointers @ [(h, pos_out cdc.out)];
+	cdc.pointers <- (h, pos_out cdc.out) :: cdc.pointers;
 	cdc.table_count.(h land 0xff) <- cdc.table_count.(h land 0xff) + 1;
 
 	(* Add the data to the file *)
@@ -72,7 +72,7 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Length of the table *)
 	let len = tc * 2 in
 	(* Store the table position *)
-	slot_table := !slot_table @ [(pos_out cdc.out, len)];
+	slot_table := (pos_out cdc.out, len) :: !slot_table;
 	(* Build the hash table *)
 	let ht = Array.make len None in
 	let cur_p = ref table_start.(i) in
@@ -129,7 +129,7 @@ let close_cdb_out cdc =
 	(* write out the pointer sets *)
 	seek_out cdc.out 0;
 	List.iter (fun x -> write_le cdc (fst x); write_le cdc (snd x))
-		!slot_table;
+		(List.rev !slot_table);
 	close_out cdc.out
 ;;
 

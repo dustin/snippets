@@ -27,6 +27,7 @@ libspy: $(PARTS)
 		fileutils.cmx extstring.cmx extlist.cmx extoption.cmx \
 		extstream.cmx linkedlist.cmx lru.cmx base64.cmx \
 		cdb.cmx netstring.cmx math.cmx
+	rm -f libspy.a
 	ln spy.a libspy.a
 
 
