@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: temploader.e,v 1.1 2002/11/23 08:31:39 dustin Exp $
+-- $Id: temploader.e,v 1.2 2002/11/23 09:13:18 dustin Exp $
 --
 class TEMPLOADER
 
@@ -93,6 +93,7 @@ feature{NONE}
 			done: BOOLEAN
 			string_utils: SPY_STRING_UTILS
 			a: ARRAY[STRING]
+			tsa: ARRAY[STRING]
 			query: STRING
 		do
 			-- This allows failures to pass
@@ -101,14 +102,15 @@ feature{NONE}
 
 				!!string_utils
 				a := string_utils.split_on(io.last_string, '%T')
+				tsa := string_utils.split_on( (a @ 1), '.')
 
 				-- Print a message
 				io.put_string(line_number.to_string
-					+ ": " + (a @ 1) + "%T" + (a @ 2) + "=" + (a @ 3) + "%N")
+					+ ": " + (tsa @ 1) + "%T" + (a @ 2) + "=" + (a @ 3) + "%N")
 
 				-- Build the query string
 				query := "insert into samples(ts, sensor_id, sample) "
-					+ "values('" + (a @ 1) + "', "
+					+ "values('" + (tsa @ 1) + "', "
 					+ (serials @ (a @ 2)).to_string
 					+ ", " + (a @ 3) + ")%N"
 
