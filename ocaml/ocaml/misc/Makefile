@@ -11,7 +11,8 @@ PROGS=parseSQLLog
 all: $(PROGS)
 
 parseSQLLog: parseSQLLog.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa stringutils.cmx parseSQLLog.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa stringutils.cmx parseSQLLog.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
