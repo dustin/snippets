@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.13 2000/07/25 18:55:03 dustin Exp $
+// $Id: PoolContainer.java,v 1.14 2000/07/26 09:41:01 dustin Exp $
 
 package net.spy.pool;
 
@@ -103,20 +103,33 @@ public class PoolContainer extends Object {
 					}
 				} // Flipping through the current pool
 
-				try {
-					debug("*** No free entries in pool, sleeping ***");
+				// If we didn't get anything, and we're at our minimum
+				// object count, go ahead and grab a new object.
+				if(ret==null
+					&& currentObjects()==_min_objects
+					&& currentObjects()+1<_max_objects) {
 
-					// We're halfway through, or more!  Desperate measures!
-					if(retry==retries/2) {
-						debug("!!! Trying to force cleanup!");
-						System.gc();
-						System.runFinalization();
+					ret=getNewObject();
+				}
+
+				// If we didn't get anything, deal with that situation.
+				if(ret==null) {
+
+					try {
+						debug("*** No free entries in pool, sleeping ***");
+
+						// We're halfway through, or more!  Desperate measures!
+						if(retry==retries/2) {
+							debug("!!! Trying to force cleanup!");
+							System.gc();
+							System.runFinalization();
+						}
+						// Wait a half a second if the pool is full, in case
+						// something gets checked in
+						Thread.sleep(500);
+					} catch(Exception e) {
+						// Things just go faster.
 					}
-					// Wait a half a second if the pool is full, in case
-					// something gets checked in
-					Thread.sleep(500);
-				} catch(Exception e) {
-					// Things just go faster.
 				}
 			}// Retries for an object in the existing pool.
 		} // End of pool synchronization
