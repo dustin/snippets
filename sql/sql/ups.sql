@@ -1,6 +1,6 @@
 -- Copyright (c) 2000  SPY Internetworking
 --
--- $Id: ups.sql,v 1.1 2000/03/21 09:18:15 dustin Exp $
+-- $Id: ups.sql,v 1.2 2000/10/10 09:02:46 dustin Exp $
 
 -- Packages to watch, and whom to report to
 create table ups_packages (
@@ -13,6 +13,8 @@ create table ups_packages (
 
 grant all on ups_packages to nobody;
 create index ups_packages_bytracking on ups_packages(tracking_number);
+create unique index ups_packages_bytwo on
+	ups_packages(tracking_number, pager_id);
 
 -- Current status
 create table ups_status (
