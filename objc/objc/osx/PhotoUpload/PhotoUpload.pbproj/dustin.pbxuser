@@ -13,17 +13,17 @@
 			F5601AEE035372CE0109FEFA,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 55823884;
+			PBXPerProjectTemplateStateSaveDate = 55834980;
 			"PBXTemplateGeometry-F5CA7ECB015C094F0DCA290F" = {
-				ContentSize = "{588, 619}";
+				ContentSize = "{668, 621}";
 				LeftSlideOut = {
 					Collapsed = NO;
-					Frame = "{{0, 0}, {588, 619}}";
+					Frame = "{{0, 0}, {668, 621}}";
 					Split0 = {
 						Collapsed = NO;
-						Frame = "{{0, 0}, {588, 619}}";
+						Frame = "{{0, 0}, {668, 621}}";
 						Split0 = {
-							Frame = "{{0, 0}, {588, 619}}";
+							Frame = "{{0, 0}, {668, 621}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -133,7 +133,7 @@
 				StatusViewVisible = NO;
 				Template = F5CA7ECB015C094F0DCA290F;
 				ToolbarVisible = NO;
-				WindowLocation = "{31, 191}";
+				WindowLocation = "{48, 189}";
 			};
 			PBXWorkspaceContents = (
 				{
@@ -141,15 +141,16 @@
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F5DA9BB80353F87301A801C4;
+									bookmark = F5EC4464035404CC01A801C4;
 									history = (
 										F5601BA10353748D0109FEFA,
 										F5601BA20353748D0109FEFA,
 										F5DA9BA90353F87301A801C4,
 										F5DA9BAA0353F87301A801C4,
 										F5DA9BAB0353F87301A801C4,
-										F5DA9BAC0353F87301A801C4,
-										F5DA9BAD0353F87301A801C4,
+										F5EC445E035404CC01A801C4,
+										F5EC445F035404CC01A801C4,
+										F5EC4460035404CC01A801C4,
 									);
 									prevStack = (
 										F5601BA40353748D0109FEFA,
@@ -164,6 +165,9 @@
 										F5DA9BB50353F87301A801C4,
 										F5DA9BB60353F87301A801C4,
 										F5DA9BB70353F87301A801C4,
+										F5EC4461035404CC01A801C4,
+										F5EC4462035404CC01A801C4,
+										F5EC4463035404CC01A801C4,
 									);
 								};
 								NavCount = 1;
@@ -323,7 +327,7 @@
 					WindowLocation = "{11, 58}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 55823884;
+			PBXWorkspaceStateSaveDate = 55834980;
 		};
 		perUserProjectItems = {
 			F5601BA10353748D0109FEFA = F5601BA10353748D0109FEFA;
@@ -333,8 +337,6 @@
 			F5DA9BA90353F87301A801C4 = F5DA9BA90353F87301A801C4;
 			F5DA9BAA0353F87301A801C4 = F5DA9BAA0353F87301A801C4;
 			F5DA9BAB0353F87301A801C4 = F5DA9BAB0353F87301A801C4;
-			F5DA9BAC0353F87301A801C4 = F5DA9BAC0353F87301A801C4;
-			F5DA9BAD0353F87301A801C4 = F5DA9BAD0353F87301A801C4;
 			F5DA9BAE0353F87301A801C4 = F5DA9BAE0353F87301A801C4;
 			F5DA9BAF0353F87301A801C4 = F5DA9BAF0353F87301A801C4;
 			F5DA9BB00353F87301A801C4 = F5DA9BB00353F87301A801C4;
@@ -345,7 +347,13 @@
 			F5DA9BB50353F87301A801C4 = F5DA9BB50353F87301A801C4;
 			F5DA9BB60353F87301A801C4 = F5DA9BB60353F87301A801C4;
 			F5DA9BB70353F87301A801C4 = F5DA9BB70353F87301A801C4;
-			F5DA9BB80353F87301A801C4 = F5DA9BB80353F87301A801C4;
+			F5EC445E035404CC01A801C4 = F5EC445E035404CC01A801C4;
+			F5EC445F035404CC01A801C4 = F5EC445F035404CC01A801C4;
+			F5EC4460035404CC01A801C4 = F5EC4460035404CC01A801C4;
+			F5EC4461035404CC01A801C4 = F5EC4461035404CC01A801C4;
+			F5EC4462035404CC01A801C4 = F5EC4462035404CC01A801C4;
+			F5EC4463035404CC01A801C4 = F5EC4463035404CC01A801C4;
+			F5EC4464035404CC01A801C4 = F5EC4464035404CC01A801C4;
 		};
 		projectwideBuildSettings = {
 		};
@@ -432,23 +440,6 @@
 		vrLen = 321;
 		vrLoc = 0;
 	};
-	F5DA9BAC0353F87301A801C4 = {
-		fRef = F5601AF90353732F0109FEFA;
-		isa = PBXTextBookmark;
-		name = "UploadController.m: upload:";
-		rLen = 26;
-		rLoc = 5202;
-		rType = 0;
-		vrLen = 853;
-		vrLoc = 4495;
-	};
-	F5DA9BAD0353F87301A801C4 = {
-		fRef = F5601AF10353732F0109FEFA;
-		isa = PBXTextBookmark;
-		rLen = 1;
-		rLoc = 92;
-		rType = 1;
-	};
 	F5DA9BAE0353F87301A801C4 = {
 		fRef = F5601AEF0353732F0109FEFA;
 		isa = PBXTextBookmark;
@@ -474,7 +465,7 @@
 		isa = PBXTextBookmark;
 		name = "DumpMatrix.m: 34";
 		rLen = 0;
-		rLoc = 840;
+		rLoc = 881;
 		rType = 0;
 		vrLen = 523;
 		vrLoc = 483;
@@ -494,7 +485,7 @@
 		isa = PBXTextBookmark;
 		name = "DumpMatrix.m: update";
 		rLen = 0;
-		rLoc = 1887;
+		rLoc = 1928;
 		rType = 0;
 		vrLen = 818;
 		vrLoc = 1174;
@@ -504,7 +495,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: rv";
 		rLen = 0;
-		rLoc = 2439;
+		rLoc = 2505;
 		rType = 0;
 		vrLen = 871;
 		vrLoc = 4899;
@@ -514,7 +505,7 @@
 		isa = PBXTextBookmark;
 		name = "DumpMatrix.m: update";
 		rLen = 0;
-		rLoc = 1233;
+		rLoc = 1274;
 		rType = 0;
 		vrLen = 654;
 		vrLoc = 771;
@@ -534,7 +525,7 @@
 		isa = PBXTextBookmark;
 		name = "DumpMatrix.m: files";
 		rLen = 0;
-		rLoc = 990;
+		rLoc = 1031;
 		rType = 0;
 		vrLen = 516;
 		vrLoc = 734;
@@ -544,19 +535,79 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: upload:";
 		rLen = 26;
-		rLoc = 5202;
+		rLoc = 5268;
 		rType = 0;
 		vrLen = 853;
 		vrLoc = 4495;
 	};
-	F5DA9BB80353F87301A801C4 = {
+	F5EC445E035404CC01A801C4 = {
+		fRef = F5601AF80353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 861;
+		vrLoc = 0;
+	};
+	F5EC445F035404CC01A801C4 = {
+		fRef = F5601AF90353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: removeAllFiles:";
+		rLen = 0;
+		rLoc = 1862;
+		rType = 0;
+		vrLen = 640;
+		vrLoc = 1528;
+	};
+	F5EC4460035404CC01A801C4 = {
 		fRef = F5601AF10353732F0109FEFA;
 		isa = PBXTextBookmark;
 		name = "DumpMatrix.m: update";
 		rLen = 0;
-		rLoc = 1247;
+		rLoc = 1288;
 		rType = 0;
-		vrLen = 756;
-		vrLoc = 937;
+		vrLen = 705;
+		vrLoc = 916;
+	};
+	F5EC4461035404CC01A801C4 = {
+		fRef = F5601AF10353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "DumpMatrix.m: update";
+		rLen = 0;
+		rLoc = 1288;
+		rType = 0;
+		vrLen = 705;
+		vrLoc = 916;
+	};
+	F5EC4462035404CC01A801C4 = {
+		fRef = F5601AF80353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 861;
+		vrLoc = 0;
+	};
+	F5EC4463035404CC01A801C4 = {
+		fRef = F5601AF90353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: removeAllFiles:";
+		rLen = 0;
+		rLoc = 1862;
+		rType = 0;
+		vrLen = 640;
+		vrLoc = 1528;
+	};
+	F5EC4464035404CC01A801C4 = {
+		fRef = F5601AF10353732F0109FEFA;
+		isa = PBXTextBookmark;
+		name = "DumpMatrix.m: addFile:";
+		rLen = 0;
+		rLoc = 2354;
+		rType = 0;
+		vrLen = 714;
+		vrLoc = 1908;
 	};
 }

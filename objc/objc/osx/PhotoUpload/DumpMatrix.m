@@ -6,6 +6,7 @@
 {
     [super init];
     _storage=[[NSMutableDictionary alloc] init];
+
     return(self);
 }
 
@@ -32,6 +33,7 @@
     NSString *ext=[[file pathExtension] lowercaseString];
 
     rv|=[ext isEqualToString: @"jpg"];
+    rv|=[ext isEqualToString: @"jpeg"];
     rv|=[ext isEqualToString: @"gif"];
     rv|=[ext isEqualToString: @"png"];
 
@@ -91,6 +93,8 @@
     [img setSize: [sc scaleTo: [self cellSize]]];
     NSButtonCell *cell=[[NSButtonCell alloc] init];
     [cell setImage: img];
+    // Get rid of the current cache
+    [img recache];
 
     [_storage setObject: cell forKey:filename];
 

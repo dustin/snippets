@@ -64,6 +64,11 @@
     [uploadWindow makeKeyAndOrderFront: self];
 }
 
+- (IBAction)removeAllFiles:(id)sender
+{
+    [imgMatrix clear];
+}
+
 - (IBAction)removeSelected:(id)sender
 {
     NSArray *a=[imgMatrix selectedCells];
