@@ -1,0 +1,1 @@
+// Copyright (c) 2003  Dustin Sallings <dustin@spy.net>Filter "Progressive Blur";Group "Dustin's Filters";FullFrame;input beginR, "Begin Radius", Slider, 15, 0, 100;input endR, "End Radius", Slider, 15, 0, 100;Codefloat radius;radius = beginR + ((endR - beginR) * ratio)Blur(src1, dest, radius, 1);

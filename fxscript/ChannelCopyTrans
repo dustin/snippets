@@ -1,0 +1,1 @@
+// Copyright (c) 2003  Dustin Sallings <dustin@spy.net>Transition "Channel Copy";Group "Dustin's Transitions";FullFrame;Codedest = src1channelCopy(src2, dest, knone, kred, knone, knone)if(ratio > 0.50)	channelCopy(src2, dest, knone, kred, kgreen, knone)end if
