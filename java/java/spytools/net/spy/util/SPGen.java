@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.7 2002/08/15 07:29:10 dustin Exp $
+// $Id: SPGen.java,v 1.8 2002/08/17 04:14:16 dustin Exp $
 
 package net.spy.util;
 
@@ -10,9 +10,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Generator for .spt-&gt;.java.
@@ -28,12 +28,12 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.7 $";
+	private String version="$Revision: 1.8 $";
 	private long cachetime=0;
-	private Vector sqlquery=null;
-	private Vector required=null;
-	private Vector optional=null;
-	private Vector results=null;
+	private ArrayList sqlquery=null;
+	private ArrayList required=null;
+	private ArrayList optional=null;
+	private ArrayList results=null;
 
 	/**
 	 * Get a new SPGen from the given BufferedReader.
@@ -43,10 +43,10 @@ public class SPGen extends Object {
 		this.in=in;
 		this.out=out;
 		this.classname=classname;
-		sqlquery=new Vector();
-		required=new Vector();
-		optional=new Vector();
-		results=new Vector();
+		sqlquery=new ArrayList();
+		required=new ArrayList();
+		optional=new ArrayList();
+		results=new ArrayList();
 	}
 
 	public void generate() throws Exception {
@@ -106,8 +106,8 @@ public class SPGen extends Object {
 		if(required.size()==0) {
 			out.println(" *  <li><i>none</i></li>");
 		} else {
-			for(Enumeration e=required.elements(); e.hasMoreElements(); ) {
-				Parameter p=(Parameter)e.nextElement();
+			for(Iterator i=required.iterator(); i.hasNext(); ) {
+				Parameter p=(Parameter)i.next();
 				out.println(" * <li>" + p.getName() + " - "
 					+ p.getType() + " - " + p.getDescription() + "</li>");
 			}
@@ -124,8 +124,8 @@ public class SPGen extends Object {
 		if(optional.size()==0) {
 			out.println(" *  <li><i>none</i></li>");
 		} else {
-			for(Enumeration e=optional.elements(); e.hasMoreElements(); ) {
-				Parameter p=(Parameter)e.nextElement();
+			for(Iterator i=optional.iterator(); i.hasNext(); ) {
+				Parameter p=(Parameter)i.next();
 				out.println(" * <li>" + p.getName() + " - "
 					+ p.getType() + " - " + p.getDescription() + "</li>");
 			}
@@ -171,8 +171,8 @@ public class SPGen extends Object {
 		// Set the required parameters
 		if(required.size() > 0) {
 			out.println("\n\t\t// Set the required parameters.");
-			for(Enumeration e=required.elements(); e.hasMoreElements(); ) {
-				Parameter p=(Parameter)e.nextElement();
+			for(Iterator i=required.iterator(); i.hasNext(); ) {
+				Parameter p=(Parameter)i.next();
 				out.println("\t\tsetRequired(\"" + p.getName() + "\", "
 					+ "Types." + p.getType() + ");");
 			}
@@ -180,8 +180,8 @@ public class SPGen extends Object {
 		// Set the optional parameters
 		if(optional.size() > 0) {
 			out.println("\n\t\t// Set the optional parameters.");
-			for(Enumeration e=required.elements(); e.hasMoreElements(); ) {
-				Parameter p=(Parameter)e.nextElement();
+			for(Iterator i=required.iterator(); i.hasNext(); ) {
+				Parameter p=(Parameter)i.next();
 				out.println("\t\tsetOptional(\"" + p.getName() + "\", "
 					+ "Types." + p.getType() + ");");
 			}
@@ -201,8 +201,8 @@ public class SPGen extends Object {
 		StringBuffer sb=new StringBuffer();
 
 		sb.append(" * <pre>\n");
-		for(Enumeration e=sqlquery.elements(); e.hasMoreElements(); ) {
-			String part=(String)e.nextElement();
+		for(Iterator i=sqlquery.iterator(); i.hasNext(); ) {
+			String part=(String)i.next();
 			sb.append(" * ");
 			sb.append(part);
 			sb.append("\n");
@@ -217,8 +217,8 @@ public class SPGen extends Object {
 
 		sb.append("\n\t\tStringBuffer query=new StringBuffer();");
 
-		for(Enumeration e=sqlquery.elements(); e.hasMoreElements(); ) {
-			String part=(String)e.nextElement();
+		for(Iterator i=sqlquery.iterator(); i.hasNext(); ) {
+			String part=(String)i.next();
 			sb.append("\n\t\tquery.append(\"");
 
 			for(StringTokenizer st=new StringTokenizer(part, "\"", true);
@@ -256,7 +256,7 @@ public class SPGen extends Object {
 					if(section.equals("description")) {
 						description+=tmp;
 					} else if(section.equals("sql")) {
-						sqlquery.addElement(tmp);
+						sqlquery.add(tmp);
 						superclass="DBSQL";
 					} else if(section.equals("procname")) {
 						procname+=tmp;
@@ -264,9 +264,9 @@ public class SPGen extends Object {
 					} else if(section.equals("params")) {
 						Parameter param=new Parameter(tmp);
 						if(param.isRequired()) {
-							required.addElement(param);
+							required.add(param);
 						} else {
-							optional.addElement(param);
+							optional.add(param);
 						}
 					} else if(section.equals("results")) {
 					} else if(section.equals("package")) {
