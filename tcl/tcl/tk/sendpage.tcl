@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.15 2000/10/20 08:48:08 dustin Exp $
+# $Id: sendpage.tcl,v 1.16 2000/10/20 21:58:34 dustin Exp $
 # This software is free for non-commercial use.  Any modifications of this
 # software should be sent back to me.
 
@@ -202,11 +202,13 @@ proc sendpage { } {
 	global snpp_error
 	global last_msg last_uid
 	global snpp_server snpp_port
+	global msg_append
 
 	set snpp_error "Unknown error"
 
 	set whom [ .whom.whom get ]
 	set msg [ .message.what get ]
+	append msg " " $msg_append
 
 	if { [ string compare $last_msg $msg ] == 0 &&
 		[ string compare $last_uid $whom ] == 0 } {
@@ -237,7 +239,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.15 $ }
+	set rev { $Revision: 1.16 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -254,12 +256,14 @@ proc show_response { response } {
 # Preferences store
 
 proc preferences_store { p } {
-	global snpp_server snpp_port timezone enter_to_send
+	global snpp_server snpp_port timezone enter_to_send msg_append
 
 	set snpp_server [ $p.server.server get ]
 	set snpp_port [ $p.port.port get ]
 	set timezone [ $p.timezone.timezone get ]
+	set msg_append [ $p.msg.append get ]
 	write_config
+	catch { destroy $p }
 }
 
 # Enter to send
@@ -277,10 +281,10 @@ proc toggle_ets { } {
 # Preferences window.
 
 proc preferences { } {
-	global snpp_server snpp_port timezone enter_to_send
+	global snpp_server snpp_port timezone enter_to_send msg_append
 
 	set p .preferences
-	catch { $p destroy }
+	catch { destroy $p }
 	toplevel $p
 
 	# The server field.
@@ -309,6 +313,15 @@ proc preferences { } {
 	pack $p.timezone.msg -side left -expand 1
 	pack $p.timezone.timezone -side right -expand 1
 	pack $p.timezone -side top -expand 1 -fill x
+
+	# The msg append thingy
+	frame $p.msg
+	label $p.msg.msg -text "Msg Append"
+	entry $p.msg.append
+	$p.msg.append insert 0 $msg_append
+	pack $p.msg.msg -side left -expand 1
+	pack $p.msg.append -side right -expand 1
+	pack $p.msg -side top -expand 1 -fill x
 
 	# The Enter to send field.
 	frame $p.ets
@@ -375,7 +388,7 @@ proc toggle_hold { } {
 }
 
 proc read_config {} {
-	global snpp_server snpp_port timezone enter_to_send
+	global snpp_server snpp_port timezone enter_to_send msg_append
 
 	set err [ catch { set fd [ open "sendpage.cnf" r ] } ]
 
@@ -392,7 +405,7 @@ proc read_config {} {
 
 # Save the running config to disk.
 proc write_config {} {
-	global snpp_server snpp_port timezone enter_to_send
+	global snpp_server snpp_port timezone enter_to_send msg_append
 
 	set err [ catch { set fd [ open "sendpage.cnf" w ] } ]
 
@@ -403,10 +416,14 @@ proc write_config {} {
 	# write out all necessary variables.
 	puts $fd "# DO NOT EDIT THIS!"
 
-	foreach var {snpp_server snpp_port timezone enter_to_send} {
+	set vars_to_save {
+		snpp_server snpp_port timezone enter_to_send msg_append
+	}
+
+	foreach var $vars_to_save {
 		set value ""
 		eval append value $$var
-		puts $fd "set $var $value"
+		puts $fd "set $var {$value}"
 	}
 
 	catch { [ close $fd ] }
@@ -427,10 +444,11 @@ set last_msg ""
 set last_uid ""
 
 # Defaults
-set snpp_server "snpp.skytel.com"
-set snpp_port   444
-set timezone -8
-set enter_to_send 1
+set snpp_server    "snpp.skytel.com"
+set snpp_port      444
+set timezone       -8
+set enter_to_send  1
+set msg_append     "- from sendpage.tcl"
 
 set message_queue {}
 
