@@ -1,8 +1,18 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.6 2002/12/11 23:02:45 dustin Exp $
+ * $Id: stringutils.ml,v 1.7 2002/12/12 01:04:09 dustin Exp $
  *)
+
+let rec is_my_letter(l, c): bool =
+	if l = [] then
+		false
+	else
+		if (List.hd l) == c then
+			true
+		else
+			is_my_letter(List.tl l, c)
+;;
 
 (* Private function to skip the next n occurrences of any character in this
  * list in this string.  Return the new offset.
@@ -11,41 +21,21 @@ let rec pvt_skip_chars(s, l, i): int =
 	if (i >= String.length s ) then
 		String.length s
 	else
-		if (List.mem (String.get s i) l) then
+		if is_my_letter(l, String.get s i) then
 			pvt_skip_chars(s, l, i+1)
 		else
 			i
 ;;
 
-(* Get the position of the given character in the given string, or -1 *)
-let str_index_of_char(str, c, i): int =
-	if String.contains_from str i c then
-		String.index_from str i c
+(* Find the index of one of these characters, or -1 if it doesn't exist *)
+let rec str_index_of_one(str, l, i): int =
+	if i < String.length str then
+		if is_my_letter(l, String.get str i) then
+			i
+		else
+			str_index_of_one(str, l, (i + 1))
 	else
 		-1
-;;
-
-(* Get the first non-negative number from this list *)
-(* test:  pvt_min([-1; 8; 3; 2; -1], -1);; *)
-let rec pvt_min(l, minsaw): int =
-	if l = [] then
-		minsaw
-	else
-		if (List.hd l = -1) then
-			pvt_min(List.tl l, minsaw)
-		else
-			if minsaw < 0 then
-				pvt_min(List.tl l, List.hd l)
-			else
-				if (List.hd l >= 0) && (List.hd l < minsaw) then
-					pvt_min(List.tl l, List.hd l)
-				else
-					pvt_min(List.tl l, minsaw)
-;;
-
-(* Find the index of one of these characters, or -1 if it doesn't exist *)
-let str_index_of_one(str, l, i): int =
-	pvt_min((List.map (function x -> str_index_of_char(str, x, i)) l), -1)
 ;;
 
 (* Private recursive function for splitting a stream in a buffer *)
@@ -75,7 +65,7 @@ let rec pvt_skip_char(s, c, i): int =
 	if (i >= String.length s ) then
 		String.length s
 	else
-		if ((String.get s i) = c) then
+		if ((String.get s i) == c) then
 			pvt_skip_char(s, c, i+1)
 		else
 			i
