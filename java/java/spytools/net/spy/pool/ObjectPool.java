@@ -1,16 +1,17 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.27 2002/08/04 01:08:05 dustin Exp $
+// $Id: ObjectPool.java,v 1.28 2002/08/16 07:27:07 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import net.spy.SpyConfig;
 
-import net.spy.util.TimeStampedHash;
+import net.spy.util.TimeStampedHashMap;
 
 /**
  * ObjectPool is the entry point for all object pooling facilities in
@@ -41,7 +42,7 @@ public class ObjectPool extends Object {
 	private static ObjectPoolCleaner cleaner=null;
 	// This is static because we want everyone to see the same pools, of
 	// course.
-	private static TimeStampedHash pools=null;
+	private static TimeStampedHashMap pools=null;
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -141,18 +142,18 @@ public class ObjectPool extends Object {
 	 * Dump out the object pools.
 	 */
 	public String toString() {
-		String out="";
-		Vector v=new Vector();
+		StringBuffer out=new StringBuffer();
+		ArrayList a=new ArrayList();
 		synchronized (pools) {
-			for(Enumeration e=pools.elements(); e.hasMoreElements(); ) {
-				v.addElement(e.nextElement());
+			for(Iterator i=pools.values().iterator(); i.hasNext(); ) {
+				a.add(i.next());
 			}
 		}
 		// This is broken out to get out of the lock fast...
-		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
-			out+=e.nextElement();
+		for(Iterator i=a.iterator(); i.hasNext(); ) {
+			out.append(i.next());
 		}
-		return(out);
+		return(out.toString());
 	}
 
 	/**
@@ -162,21 +163,21 @@ public class ObjectPool extends Object {
 	 * @exception PoolException if something bad happens
 	 */
 	public void prune() throws PoolException {
-		Vector v=new Vector();
+		ArrayList a=new ArrayList();
 		synchronized (pools) {
-			for(Enumeration e=pools.elements(); e.hasMoreElements(); ) {
-				PoolContainer pc=(PoolContainer)e.nextElement();
+			for(Iterator i=pools.values().iterator(); i.hasNext(); ) {
+				PoolContainer pc=(PoolContainer)i.next();
 
 				// If it's empty, remove it.
 				if(pc.totalObjects()==0) {
 					destroyPool(pc.getName());
 				} else {
-					v.addElement(pc);
+					a.add(pc);
 				}
 			}
 		}
-		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
-			PoolContainer pc=(PoolContainer)e.nextElement();
+		for(Iterator i=a.iterator(); i.hasNext(); ) {
+			PoolContainer pc=(PoolContainer)i.next();
 			pc.prune();
 		}
 	}
@@ -199,7 +200,7 @@ public class ObjectPool extends Object {
 		// Do we have a pool?
 		synchronized(ObjectPool.class) {
 			if(pools==null) {
-				pools=new TimeStampedHash();
+				pools=new TimeStampedHashMap();
 			}
 		}
 

@@ -1,11 +1,13 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Stocks.java,v 1.5 2002/07/10 04:25:37 dustin Exp $
+// $Id: Stocks.java,v 1.6 2002/08/16 07:27:04 dustin Exp $
 
 package net.spy.info;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Iterator;
 
 import net.spy.net.HTTPFetch;
 
@@ -15,14 +17,14 @@ import net.spy.net.HTTPFetch;
 
 public class Stocks extends Object {
 
-	private Hashtable quotes=null;
+	private HashMap quotes=null;
 
 	/**
 	 * Get a stock quote gettin' object.
 	 */
 	public Stocks() {
 		super();
-		quotes=new Hashtable();
+		quotes=new HashMap();
 	}
 
 	/**
@@ -36,8 +38,8 @@ public class Stocks extends Object {
 		String url="http://quote.yahoo.com/d/quotes.csv?s="
 			+ symbol + "&f=sl1d1t1c1ohgv&e=.csv";
 		HTTPFetch f = new HTTPFetch(url);
-		Vector v = f.getLines();
-		StockQuote sq=new StockQuote((String)v.elementAt(0));
+		List l = f.getLines();
+		StockQuote sq=new StockQuote((String)l.get(0));
 		return(sq);
 	}
 
@@ -48,8 +50,8 @@ public class Stocks extends Object {
 	 *
 	 * @exception Exception when there's a problem looking up symbols
 	 */
-	public Hashtable getQuotes(String symbols[]) throws Exception {
-		quotes=new Hashtable();
+	public Map getQuotes(String symbols[]) throws Exception {
+		quotes=new HashMap();
 		String sym="";
 
 		for(int i=0; i<symbols.length; i++) {
@@ -76,9 +78,9 @@ public class Stocks extends Object {
 		String url="http://quote.yahoo.com/d/quotes.csv?s="
 			+ sym + "&f=sl1d1t1c1ohgv&e=.csv";
 		HTTPFetch f = new HTTPFetch(url);
-		Vector v = f.getLines();
-		for(int j=0; j<v.size(); j++) {
-			StockQuote sq=new StockQuote( (String)v.elementAt(j));
+		List l = f.getLines();
+		for(Iterator i=l.iterator(); i.hasNext();) {
+			StockQuote sq=new StockQuote( (String)i.next());
 			quotes.put(sq.getSymbol(), sq);
 		}
 	}
@@ -90,7 +92,7 @@ public class Stocks extends Object {
 	 */
 	public static void main(String args[]) throws Exception {
 		Stocks s=new Stocks();
-		Hashtable q = s.getQuotes(args);
+		Map q = s.getQuotes(args);
 		System.out.println("Quotes:  " + q);
 	}
 }

@@ -1,11 +1,12 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Saver.java,v 1.3 2002/08/15 04:20:46 dustin Exp $
+// $Id: Saver.java,v 1.4 2002/08/16 07:27:03 dustin Exp $
 
 package net.spy.db;
 
+import java.util.Iterator;
 import java.util.HashSet;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -119,15 +120,15 @@ public class Saver extends Object {
 			listedObjects.add(o);
 
 			// Get the savables
-			Enumeration e=o.getSavables(context);
-			if(e==null) {
+			Collection c=o.getSavables(context);
+			if(c==null) {
 				throw new NullPointerException(
 					"Got a null savable list from " + o.getClass().getName());
 			}
 
 			// Deal with the savables
-			while(e.hasMoreElements()) {
-				Savable s=(Savable)e.nextElement();
+			for(Iterator i=c.iterator(); i.hasNext(); ) {
+				Savable s=(Savable)i.next();
 				// verify the object isn't null, if it is, report it here
 				// so we can figure out what gave it to us
 				if(s==null) {

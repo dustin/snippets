@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.7 2002/07/10 04:25:04 dustin Exp $
+// $Id: Cron.java,v 1.8 2002/08/16 07:26:57 dustin Exp $
 
 package net.spy.cron;
 
@@ -8,7 +8,7 @@ import java.io.File;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.Iterator;
 
 /**
  * Watches a JobQueue and invokes the Jobs when they're ready.
@@ -39,8 +39,8 @@ public class Cron extends Thread {
 	public void run() {
 		while(stillRunning) {
 			// Check all the running jobs.
-			for(Enumeration e=jq.getReadyJobs(); e.hasMoreElements(); ) {
-				Job j=(Job)e.nextElement();
+			for(Iterator i=jq.getReadyJobs(); i.hasNext(); ) {
+				Job j=(Job)i.next();
 				System.err.println("CRON: Starting job " + j);
 				Thread t=new Thread(j);
 				t.setName(j.getName());

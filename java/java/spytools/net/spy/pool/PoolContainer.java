@@ -1,10 +1,10 @@
 //
-// $Id: PoolContainer.java,v 1.36 2002/07/10 20:00:28 dustin Exp $
+// $Id: PoolContainer.java,v 1.37 2002/08/16 07:27:08 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 import net.spy.SpyConfig;
 
@@ -12,7 +12,7 @@ import net.spy.SpyConfig;
  * PoolContainer is the storage for a given pool.
  */
 public class PoolContainer extends Object {
-	private Vector pool=null;
+	private ArrayList pool=null;
 	private SpyConfig conf=null;
 	private String name=null;
 	private PoolFiller filler=null;
@@ -110,10 +110,10 @@ public class PoolContainer extends Object {
 			for(int retry=0; poolable==null && retry<retries; retry++) {
 
 				// Find the next available object.
-				for(Enumeration e=pool.elements();
-					poolable==null && e.hasMoreElements(); ) {
+				for(Iterator e=pool.iterator();
+					poolable==null && e.hasNext(); ) {
 
-					PoolAble p=(PoolAble)e.nextElement();
+					PoolAble p=(PoolAble)e.next();
 
 					// If it's not checked out, and it works, we have our man!
 					if(p.isAvailable() && (p.isAlive())) {
@@ -173,8 +173,8 @@ public class PoolContainer extends Object {
 		// Hold it still whlie we do this...
 		synchronized(pool) {
 			debug("Moving " + poolable);
-			pool.removeElement(poolable);
-			pool.addElement(poolable);
+			pool.remove(poolable);
+			pool.add(poolable);
 		}
 
 		return(rv);
@@ -204,9 +204,9 @@ public class PoolContainer extends Object {
 		sb.append('\n');
 
 		synchronized (pool) {
-			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+			for(Iterator i=pool.iterator(); i.hasNext();) {
 				sb.append("    ");
-				sb.append(e.nextElement());
+				sb.append(i.next());
 				sb.append("\n");
 			}
 		}
@@ -222,8 +222,8 @@ public class PoolContainer extends Object {
 		int ret=0;
 
 		synchronized (pool) {
-			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				PoolAble p=(PoolAble)e.nextElement();
+			for(Iterator i=pool.iterator(); i.hasNext();) {
+				PoolAble p=(PoolAble)i.next();
 				if(p.isAvailable()) {
 					ret++;
 				}
@@ -246,20 +246,15 @@ public class PoolContainer extends Object {
 		debug("Beginning prune.");
 		synchronized (pool) {
 			int i=0;
-			Vector toDelete=new Vector();
 			// Get rid of expired things
-			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				PoolAble p=(PoolAble)e.nextElement();
+			for(Iterator it=pool.iterator(); it.hasNext();) {
+				PoolAble p=(PoolAble)it.next();
 				if(p.pruneStatus()>=PoolAble.MUST_CLEAN) {
 					// Tell it that it can go away now.
 					debug("Removing " + p);
 					p.discard();
-					toDelete.addElement(p);
+					it.remove();
 				}
-			}
-			// Remove them from the pool now
-			for(Enumeration e=toDelete.elements(); e.hasMoreElements();) {
-				pool.removeElement(e.nextElement());
 			}
 
 			// If we don't have enough objects, go get more!  They're cheap!
@@ -270,7 +265,7 @@ public class PoolContainer extends Object {
 	}
 
 	private void initialize() throws PoolException {
-		pool=new Vector();
+		pool=new ArrayList();
 
 		// Get the min and max args.
 		minObjects=getPropertyInt("min", 0);
@@ -293,8 +288,8 @@ public class PoolContainer extends Object {
 		} catch(PoolException e) {
 			// If there was a problem initializing the pool, throw away
 			// what we've got.
-			for(Enumeration en=pool.elements(); en.hasMoreElements(); ) {
-				PoolAble p=(PoolAble)en.nextElement();
+			for(Iterator i=pool.iterator(); i.hasNext(); ) {
+				PoolAble p=(PoolAble)i.next();
 				p.discard();
 			}
 			throw e;
@@ -340,7 +335,7 @@ public class PoolContainer extends Object {
 			p.setMaxAge(calculateMaxAge());
 			p.activate();
 			synchronized(pool) {
-				pool.addElement(p);
+				pool.add(p);
 			}
 			debug("Added the object to the pool, now have "
 				+ totalObjects());

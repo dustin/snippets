@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.13 2002/08/15 20:37:16 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.14 2002/08/16 07:27:00 dustin Exp $
  */
 
 package net.spy.db;
@@ -22,8 +22,7 @@ import java.util.ArrayList;
  * This object represents a cached java.sql.ResultSet.  It will hopefully
  * only contain small results.
  */
-public class CachedResultSetStub extends GenericResultSetStub
-    implements Cloneable {
+public class CachedResultSetStub extends GenericResultSetStub {
 
 	/**
 	 * Magically transform the passed in ResultSet to a CachedResultSet

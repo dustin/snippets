@@ -1,10 +1,10 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.7 2002/07/10 05:42:12 dustin Exp $
+// $Id: SpyTemp.java,v 1.8 2002/08/16 07:27:10 dustin Exp $
 
 package net.spy.temperature;
 
-import java.util.Vector;
+import java.util.List;
 
 import net.spy.net.HTTPFetch;
 
@@ -46,15 +46,11 @@ public class SpyTemp extends Object {
 	 */
 	public String[] listTherms() throws Exception {
 		String ret[]=null;
-		try {
-			HTTPFetch f = new HTTPFetch(tempBase);
-			Vector v=f.getLines();
-			ret=new String[v.size()];
-			for(int i=0; i<v.size(); i++) {
-				ret[i]=(String)v.elementAt(i);
-			}
-		} catch(Exception e) {
-			throw new Exception("Error listing therms:  " + e);
+		HTTPFetch f = new HTTPFetch(tempBase);
+		List v=f.getLines();
+		ret=new String[v.size()];
+		for(int i=0; i<v.size(); i++) {
+			ret[i]=(String)v.get(i);
 		}
 		return(ret);
 	}

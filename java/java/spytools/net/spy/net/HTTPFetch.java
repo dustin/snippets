@@ -10,11 +10,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import net.spy.SpyUtil;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Oversimplified HTTP document fetcher.
@@ -27,7 +28,7 @@ public class HTTPFetch {
 	private String contents=null;
 	private String stripped=null;
 
-	private Hashtable headers=null;
+	private Map headers=null;
 
 	/**
 	 * Create a new HTTPFetch object for a given string representation of a
@@ -46,11 +47,11 @@ public class HTTPFetch {
 	 * URL, including a hash describing extra headers to add.
 	 *
 	 * @param u String representation of the URL we'll be connecting to.
-	 * @param head Hashtable containing headers to set.
+	 * @param head Map containing headers to set.
 	 *
 	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
 	 */
-	public HTTPFetch(String u, Hashtable head) throws MalformedURLException {
+	public HTTPFetch(String u, Map head) throws MalformedURLException {
 		super();
 		url=new URL(u);
 		headers=head;
@@ -62,16 +63,16 @@ public class HTTPFetch {
 	 *
 	 * @exception Exception thrown when something fails.
 	 */
-	public Vector getLines() throws Exception {
-		Vector v = new Vector();
+	public List getLines() throws Exception {
+		ArrayList a = new ArrayList();
 		getData();
 
-		String lines[]=SpyUtil.split("\r\n", contents);
-		for(int i=0; i<lines.length; i++) {
-			v.addElement(lines[i]);
+		StringTokenizer st=new StringTokenizer(contents, "\r\n");
+		while(st.hasMoreTokens()) {
+			a.add(st.nextToken());
 		}
 
-		return(v);
+		return(a);
 	}
 
 	/**
@@ -129,8 +130,8 @@ public class HTTPFetch {
 	private BufferedReader getReader() throws Exception {
 		URLConnection uc = url.openConnection();
 		if(headers!=null) {
-			for(Enumeration e=headers.keys(); e.hasMoreElements(); ) {
-				String key=(String)e.nextElement();
+			for(Iterator i=headers.keySet().iterator(); i.hasNext(); ) {
+				String key=(String)i.next();
 				String value=(String)headers.get(key);
 
 				uc.setRequestProperty(key, value);

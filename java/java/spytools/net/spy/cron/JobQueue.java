@@ -1,17 +1,17 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: JobQueue.java,v 1.5 2002/07/10 04:25:09 dustin Exp $
+// $Id: JobQueue.java,v 1.6 2002/08/16 07:26:58 dustin Exp $
 
 package net.spy.cron;
 
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
  * This is where all the jobs go.
  */
-public class JobQueue extends Vector {
+public class JobQueue extends ArrayList {
 
 	/**
 	 * Get a new job queue.
@@ -24,31 +24,31 @@ public class JobQueue extends Vector {
 	 * Add a job.
 	 */
 	public synchronized void addJob(Job j) {
-		addElement(j);
+		add(j);
 		synchronized(this) {
 			notifyAll();
 		}
 	}
 
 	/**
-	 * Get an Enumeration of Jobs that are ready to run.
+	 * Get an Iterator of Jobs that are ready to run.
 	 */
-	public synchronized Enumeration getReadyJobs() {
-		Vector v=new Vector();
+	public synchronized Iterator getReadyJobs() {
+		ArrayList v=new ArrayList();
 
 		// Flip through all of the jobs and see what we've got to do.
-		for(Enumeration e=elements(); e.hasMoreElements(); ) {
-			Job j=(Job)e.nextElement();
+		for(Iterator i=iterator(); i.hasNext(); ) {
+			Job j=(Job)i.next();
 
 			// Add a job if it's ready.
 			if(j.isReady()) {
-				v.addElement(j);
+				v.add(j);
 			} else if(j.isTrash()) {
-				v.removeElement(j);
+				i.remove();
 			}
 		}
 
-		return(v.elements());
+		return(v.iterator());
 	}
 
 	/**
@@ -58,8 +58,8 @@ public class JobQueue extends Vector {
 		Date next=null;
 		long soonestJob=86400*1000;
 		long now=System.currentTimeMillis();
-		for(Enumeration e=elements(); e.hasMoreElements(); ) {
-			Job j=(Job)e.nextElement();
+		for(Iterator i=iterator(); i.hasNext(); ) {
+			Job j=(Job)i.next();
 			Date jdate=j.getStartTime();
 			if(jdate!=null) {
 				long t=jdate.getTime()-now;
