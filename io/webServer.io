@@ -5,61 +5,61 @@
 // Object definitions
 
 // The web server
-WebServer = Object clone
+WebServer := Object clone
 // Request
-WebRequest = Object clone
+WebRequest := Object clone
 // Response
-WebResponse = Object clone
+WebResponse := Object clone
 // Content handlers
-WebUrlHandler = Object clone
-WebUrlStdHandler = WebUrlHandler clone
-WebUrlDebugHandler = WebUrlStdHandler clone
-WebErrorHandler = WebUrlHandler clone
-WebUrlTimeHandler = WebUrlHandler clone
+WebUrlHandler := Object clone
+WebUrlStdHandler := WebUrlHandler clone
+WebUrlDebugHandler := WebUrlStdHandler clone
+WebErrorHandler := WebUrlHandler clone
+WebUrlTimeHandler := WebUrlHandler clone
 
 //
 // Web request
 //
 
-WebRequest headers = Nil
-WebRequest reqMethod = Nil
-WebRequest path = Nil
-WebRequest queryString = Nil
-WebRequest httpVersion = Nil
+WebRequest headers := Nil
+WebRequest reqMethod := Nil
+WebRequest path := Nil
+WebRequest queryString := Nil
+WebRequest httpVersion := Nil
 
 // This not only parses the request, but modifies the buffer to remove all
 // of the non-header information
-WebRequest parseRequest = method(buf,
+WebRequest parseRequest := method(buf,
 	// Copy the buffer and remove everything after the end of the headers
-	btmp = buf fromTo(0, buf find("\r\n\r\n") - 1)
-	bextra = buf fromTo(buf find("\r\n\r\n") + 4, buf length - 1)
+	btmp := buf fromTo(0, buf find("\r\n\r\n") - 1)
+	bextra := buf fromTo(buf find("\r\n\r\n") + 4, buf length - 1)
 	buf empty
 	buf .. bextra
-	lines = btmp asString split("\r\n")
+	lines := btmp asString split("\r\n")
 	// The first line is the query
-	self path = lines at(0)
-	self reqMethod = path substring(0, path find(" ") - 1)
-	self httpVersion = path substring(path reverseFind(" ") + 1)
-	self path = path substring(path find(" ") + 1,
+	self path := lines at(0)
+	self reqMethod := path substring(0, path find(" ") - 1)
+	self httpVersion := path substring(path reverseFind(" ") + 1)
+	self path := path substring(path find(" ") + 1,
 		path reverseFind(" ") - 1)
 	// Check for a query string
 	if(self path find("?"),
-		self queryString = path substring(path find("?") + 1)
-		self path = path substring(0, path find("?") - 1),
-		self queryString = ""
+		self queryString := path substring(path find("?") + 1)
+		self path := path substring(0, path find("?") - 1),
+		self queryString := ""
 	)
 
 	lines removeAt(0)
 	// Parse the headers
-	self headers = Map clone
+	self headers := Map clone
 	lines doBlock(block(s,
-		idx = s find(": ", 0)
+		idx := s find(": ", 0)
 		if(idx == Nil,
 			write("No colon in " .. s .. "\n")
 			lines print
 			headers print)
-		k = s substring(0, idx-1)
-		v = s substring(idx + 2)
+		k := s substring(0, idx-1)
+		v := s substring(idx + 2)
 		self headers atPut(k, v)
 		))
 	self
@@ -71,91 +71,91 @@ WebRequest parseRequest = method(buf,
 // this is a proxy object that wraps a socket and provides some niceities
 //
 
-WebResponse bytesWritten = 0
-WebResponse socket = Nil
+WebResponse bytesWritten := 0
+WebResponse socket := Nil
 
 // Additional headers
-WebResponse headers = Nil
+WebResponse headers := Nil
 // Response status
-WebResponse status = Nil
+WebResponse status := Nil
 // protocol version
-WebResponse httpVersion = Nil
-WebResponse beginning = 1
+WebResponse httpVersion := Nil
+WebResponse beginning := 1
 
-WebResponse init = method(
-	self bytesWritten = 0
-	self headers = Map clone
+WebResponse init := method(
+	self bytesWritten := 0
+	self headers := Map clone
 	self headers atPut("Connection", "close")
-	self status = "200"
-	self httpVersion = "HTTP/1.0"
+	self status := "200"
+	self httpVersion := "HTTP/1.0"
 	self
 )
 
-WebResponse addHeader = method(k, v,
+WebResponse addHeader := method(k, v,
 	self headers atPut(k, v)
 	self
 )
-WebResponse setStatus = method(status,
-	self status = status
+WebResponse setStatus := method(status,
+	self status := status
 	self
 )
-WebResponse setHttpVersion = method(v,
-	self httpVersion = v
+WebResponse setHttpVersion := method(v,
+	self httpVersion := v
 	self
 )
-WebResponse setSocket = method(s,
-	self socket = s
+WebResponse setSocket := method(s,
+	self socket := s
 	self
 )
 
-WebResponse writeHeaders = method(
-	statusName = WebServer responseStatusCodes at(status)
-	statusString = String join(list(httpVersion, status, statusName), " ")
-	lheaders = list(statusString)
+WebResponse writeHeaders := method(
+	statusName := WebServer responseStatusCodes at(status)
+	statusString := String join(list(httpVersion, status, statusName), " ")
+	lheaders := list(statusString)
 	headers foreach(hk, hv, lheaders add(hk .. ": " .. hv))
 	internalWriteString(String join(lheaders, "\r\n"))
 	internalWriteString("\r\n\r\n")
 	self
 )
 
-WebResponse write = method(
+WebResponse write := method(
 	if(beginning,
 		writeHeaders
-		self beginning = Nil
+		self beginning := Nil
 	)
 	internalWriteList(thisMessage argsEvaluatedIn(sender))
 	self
 )
 
-WebResponse internalWriteList = method(l,
+WebResponse internalWriteList := method(l,
 	l foreach(t, internalWriteString(t))
 	self
 )
 
-WebResponse internalWriteString = method(s,
+WebResponse internalWriteString := method(s,
 	self bytesWritten +=(s length)
 	self socket write(s)
 	self
 )
 
-WebResponse forward = method(
-	methodName = thisMessage name
+WebResponse forward := method(
+	methodName := thisMessage name
 	// write("Performing ", methodName, " via the proxy\n")
-	args = thisMessage argsEvaluatedIn(sender)
+	args := thisMessage argsEvaluatedIn(sender)
 	socket performWithArgList(methodName, args)
 )
 
 // These would be processed by the proxy, but I'd rather avoid it
-WebResponse readBuffer = method(socket readBuffer)
+WebResponse readBuffer := method(socket readBuffer)
 
 //
 // Begin the web server itself
 //
 
 
-WebServer handlers = Nil
+WebServer handlers := Nil
 
-WebServer responseStatusCodes = Map clone
+WebServer responseStatusCodes := Map clone
 // Begin status codes
 WebServer responseStatusCodes atPut("100", "Continue")
 WebServer responseStatusCodes atPut("101", "Switching Protocols")
@@ -200,53 +200,53 @@ WebServer responseStatusCodes atPut("505", "HTTP Version not supported")
 // End status codes
 
 // Initialize the headers
-WebServer init = method(
-	self handlers = Map clone
+WebServer init := method(
+	self handlers := Map clone
 )
 
-WebServer defaultHandler = WebUrlHandler clone
-WebServer errorHandler = WebErrorHandler clone
+WebServer defaultHandler := WebUrlHandler clone
+WebServer errorHandler := WebErrorHandler clone
 
-WebServer setDefaultHandler = method(handler,
-	self defaultHandler = handler
+WebServer setDefaultHandler := method(handler,
+	self defaultHandler := handler
 )
 
-WebServer setErrorHandler = method(handler,
-	self errorHandler = handler
+WebServer setErrorHandler := method(handler,
+	self errorHandler := handler
 )
 
-WebServer addHandler = method(path, handler,
+WebServer addHandler := method(path, handler,
 	self handlers atPut(path, handler)
 )
 
-WebServer getHandlerFor = method(path,
+WebServer getHandlerFor := method(path,
 	handlers at(path)
 )
 
-WebServer hasRequest = method(buf,
+WebServer hasRequest := method(buf,
 	buf find("\r\n\r\n")
 )
 
 // Main loop that processes request
-WebServer processRequest = method(aSocket, aServer,
-	request = WebRequest clone parseRequest(aSocket readBuffer)
-	handler = getHandlerFor(request path)
-	if(handler == Nil, handler = self defaultHandler)
+WebServer processRequest := method(aSocket, aServer,
+	request := WebRequest clone parseRequest(aSocket readBuffer)
+	handler := getHandlerFor(request path)
+	if(handler == Nil, handler := self defaultHandler)
 
 	catchException("WebServer.ProtocolError",
 		handler handleRequest(request, aSocket),
 		errorHandler handleError(request, aSocket,
 			exceptionName, exceptionDescription))
-	ds = Date clone now asString("[%d/%b/%Y:%X %Z]")
+	ds := Date clone now asString("[%d/%b/%Y:%X %Z]")
 	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
 		request path, " ", request httpVersion, "\" ", aSocket status, " ",
 		aSocket bytesWritten, "\n")
 	aSocket close
 )
 
-WebServer handleSocketFromServer = method(aSocket, aServer,
+WebServer handleSocketFromServer := method(aSocket, aServer,
 	// write("[New Request ", aSocket host, "]\n")
-	sock = WebResponse clone setSocket(aSocket)
+	sock := WebResponse clone setSocket(aSocket)
 
 	while(aSocket isOpen,
 		if(aSocket read,
@@ -272,21 +272,21 @@ WebServer handleSocketFromServer = method(aSocket, aServer,
 // The default handler provides functionality for sending responses, but
 // just issues 404s
 
-WebUrlHandler handleRequest = method(req, socket,
+WebUrlHandler handleRequest := method(req, socket,
 	raiseException("WebServer.ProtocolError.404",
 		"No handler for " ..(req path))
 )
 
 // Error handler
 
-WebErrorHandler handleRequest = method(req, socket,
+WebErrorHandler handleRequest := method(req, socket,
 	raiseException("WebServer.ProtocolError.405",
 		"Error handlers don't provide content")
 )
 
-WebErrorHandler handleError = method(request, aSocket, eName, eDescription,
-	status = eName substring(24)
-	statusName = WebServer responseStatusCodes at(status)
+WebErrorHandler handleError := method(request, aSocket, eName, eDescription,
+	status := eName substring(24)
+	statusName := WebServer responseStatusCodes at(status)
 	aSocket setStatus(status)
 	// Send the error
 	aSocket write(status, " - ", statusName, "\r\n")
@@ -295,7 +295,7 @@ WebErrorHandler handleError = method(request, aSocket, eName, eDescription,
 
 // A happier handler
 
-WebUrlTimeHandler handleRequest = method(req, socket,
+WebUrlTimeHandler handleRequest := method(req, socket,
 	socket addHeader("Content-type", "text/plain")
 	d = Date clone now
 	ds = d asString("%Y/%m/%d %X")
@@ -304,35 +304,35 @@ WebUrlTimeHandler handleRequest = method(req, socket,
 
 // Standard web handling
 
-WebUrlStdHandler parseGet = method(req, socket,
+WebUrlStdHandler parseGet := method(req, socket,
 	// write("Parsing GET from ", req queryString, "\n")
 	CGI clone parseString(req queryString)
 )
 
 // Grab a chunk of the body
-WebUrlStdHandler readFromBody = method(req, socket, length,
+WebUrlStdHandler readFromBody := method(req, socket, length,
 	while(socket readBuffer length < length,
 		socket read)
-	btmp = socket readBuffer fromTo(0, length - 1)
+	btmp := socket readBuffer fromTo(0, length - 1)
 	btmp
 )
 
-WebUrlStdHandler parsePost = method(req, socket,
+WebUrlStdHandler parsePost := method(req, socket,
 	// write("Parsing POST\n")
-	formType = req headers at("Content-Type")
+	formType := req headers at("Content-Type")
 	if(formType != "application/x-www-form-urlencoded",
 		raiseException("WebServer.ProtocolError.500",
 			"Cannot handle form of type " .. formType))
-	length = req headers at("Content-Length") asNumber
-	btmp = readFromBody(req, socket, length)
+	length := req headers at("Content-Length") asNumber
+	btmp := readFromBody(req, socket, length)
 	// write("Read length:  ", btmp length, "\n")
-	s = String clone append(btmp asString)
+	s := String clone append(btmp asString)
 	CGI clone parseString(s)
 )
 
-WebUrlStdHandler getParameters = method(req, socket,
-	rv = Nil
-	m = req reqMethod
+WebUrlStdHandler getParameters := method(req, socket,
+	rv := Nil
+	m := req reqMethod
 	if(m == "GET", rv = parseGet(req, socket))
 	if(m == "POST", rv = parsePost(req, socket))
 	rv
@@ -340,12 +340,12 @@ WebUrlStdHandler getParameters = method(req, socket,
 
 // Print out debug stuff
 
-WebUrlDebugHandler handleRequest = method(req, socket,
+WebUrlDebugHandler handleRequest := method(req, socket,
 	socket addHeader("Content-type", "text/plain")
 	socket write("Method is ", req reqMethod, "\n")
 	socket write("Path is ", req path, "\n")
 	socket write("Query string is ", req queryString, "\n")
-	cgi = getParameters(req, socket)
+	cgi := getParameters(req, socket)
 	if(cgi count > 0,
 		cgi foreach(k, v, socket write("\t", k, " = ", v, "\n")))
 	socket write("Headers:\n")
