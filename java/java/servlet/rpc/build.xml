@@ -45,4 +45,12 @@
 		</copy>
 	</target>
 
+	<target name="jar" depends="all">
+		<jar jarfile="rpc.jar">
+			<fileset dir=".">
+				<include name="net/spy/**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
+
 </project>
