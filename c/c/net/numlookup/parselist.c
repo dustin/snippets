@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.10 1999/05/10 18:20:51 dustin Exp $
+ * $Id: parselist.c,v 1.11 1999/05/10 21:19:37 dustin Exp $
  */
 
 #include <stdio.h>
@@ -60,6 +60,7 @@ static void emergency(void)
 	while( (time(0)-t)<EMERGENCY_TIME ) {
 		tmp=fgets(buf, 79, stdin);
 		puts("");
+		fflush(stdout);
 	}
 }
 
@@ -72,17 +73,17 @@ main(int argc, char **argv)
 
 	mod = lastmod(THELIB);
 	if (mod > 0) {
-		printf("Last modified: %s", ctime(&mod));
+		_log("Last modified: %s", ctime(&mod));
 	}
 	/* initial dl opening */
 	lib = dlopen(THELIB, RTLD_LAZY);
 	if (lib == NULL) {
-		puts(dlerror());
+		_log("Error opening %s:  %s", THELIB, dlerror());
 	}
 	for (;;) {
 		/* If it's been modified since we last recorded mod date... */
 		if (lastmod(THELIB) > mod) {
-			printf("Last modified: %s", ctime(&mod));
+			_log("Last modified: %s", ctime(&mod));
 			/* record a new mod date */
 			mod = lastmod(THELIB);
 			/* close the library */

@@ -1,13 +1,12 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.14 1999/05/10 18:20:50 dustin Exp $
+ * $Id: libparselist.c,v 1.15 1999/05/10 21:19:35 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <syslog.h>
 #include <stdarg.h>
 #include <string.h>
 #include <strings.h>
@@ -18,51 +17,6 @@
 #include "mymalloc.h"
 #include "hash.h"
 #include "parselist.h"
-
-/* Logging code */
-#if !defined(HAVE_SNPRINTF)
-/*
- * snprintf for those that don't have it. * More that likely, it'll overrun
- * buffers, because they
- * probably don't have vsnprintf either.
- */
-int
-snprintf(char *s, size_t n, const char *format,...)
-{
-	int r;
-	va_list ap;
-
-	va_start(ap, format);
-	r=vsnprintf(s, n - 1, format, ap);
-	va_end(ap);
-	return(r);
-}
-
-#endif
-
-static void
-_do_log(int level, char *msg)
-{
-	static int open=0;
-
-	if(open==0) {
-		open=1;
-		openlog("testip", LOG_PID | LOG_NDELAY, LOG_LOCAL0);
-	}
-	syslog(LOG_LOCAL0 | level, msg);
-}
-
-static void
-_log(char *format,...)
-{
-	va_list ap;
-	char    buf[LINELEN];
-
-	va_start(ap, format);
-	(void)vsnprintf(buf, LINELEN - 1, format, ap);
-	va_end(ap);
-	_do_log(LOG_INFO, buf);
-}
 
 /* Initialize a config structure */
 static struct config_t
@@ -156,7 +110,7 @@ readconfig(void)
 		}
 
 		if (mask < 0 || mask > 32) {
-			fprintf(stderr, "ERROR, netmask is invalid:  %s\n", line);
+			_log("ERROR, netmask is invalid:  %s\n", line);
 			continue;
 		}
 
@@ -230,6 +184,7 @@ main(int argc, char **argv)
 		if (val) {
 			_log("Received [%s] Sent [%s]", buf, val);
 			puts(val);
+			fflush(stdout);
 		} else {
 			_log("AHH!!!!  Nothing found for %s", buf);
 		}

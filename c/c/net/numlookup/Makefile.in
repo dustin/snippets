@@ -13,13 +13,13 @@ LINTS=parselist.ln libparselist.ln mymalloc.ln hash.ln parselist.ln
 
 all: parselist libparselist.so
 
-parselist: parselist.o parselist.h
+parselist: parselist.o log.o parselist.h
 	rm -f parselist
-	$(CC) -o parselist parselist.o $(LDFLAGS)
+	$(CC) -o parselist parselist.o log.o $(LDFLAGS)
 
-libparselist.so: libparselist.o mymalloc.o hash.o parselist.h
+libparselist.so: libparselist.o mymalloc.o hash.o log.o parselist.h
 	rm -f libparselist.so
-	$(MAKESO) -o libparselist.so libparselist.o mymalloc.o hash.o
+	$(MAKESO) -o libparselist.so libparselist.o mymalloc.o hash.o log.o
 
 clean:
 	rm -f $(EXES) $(MYLIBS) $(OBJS) $(LINTS)
