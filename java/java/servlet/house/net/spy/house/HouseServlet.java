@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.5 2002/04/12 08:54:27 dustin Exp $
+ * $Id: HouseServlet.java,v 1.6 2002/04/24 07:47:01 dustin Exp $
  */
 
 package net.spy.house;
@@ -90,6 +90,11 @@ public class HouseServlet extends PngServlet implements ImageObserver
 				double reading=spytemp.getTemp(things[i]);
 				rstring="" + reading;
 
+				// Draw a black border
+				g.setColor(black);
+				g.fillRect(x-1, y-1, w+2, h+2);
+				g.setColor(white);
+
 				// Set the color based on the temperature reading.
 				if(reading< conf.getInt(things[i] + ".min", 0)) {
 					g.setColor(blue);
@@ -104,7 +109,9 @@ public class HouseServlet extends PngServlet implements ImageObserver
 			}
 			// Put the reading in there.
 			g.setColor(black);
-			g.drawString(rstring, (x+(w/2)-18), (y+(h/2)+4));
+			int stringx=conf.getInt(things[i] + ".reading.x", (x+(w/2)-18));
+			int stringy=conf.getInt(things[i] + ".reading.y", (y+(h/2)+4));
+			g.drawString(rstring, stringx, stringy);
 		}
 
 		return(img);
