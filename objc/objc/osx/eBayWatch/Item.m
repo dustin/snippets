@@ -17,6 +17,7 @@
     [description retain];
     price=p;
     itemId=i;
+    [itemId retain];
     return(self);
 }
 
@@ -42,6 +43,8 @@
 
 -(void)update
 {
+    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+
     NSString *s=[[NSString alloc]
         initWithFormat: @"http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=%@",
         itemId];
@@ -80,6 +83,7 @@
     [s release];
     [url release];
     [data release];
+    [pool release];
 }
 
 @end

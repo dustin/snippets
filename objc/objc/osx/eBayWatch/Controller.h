@@ -12,6 +12,7 @@
     IBOutlet NSTextField *itemNumber;
     IBOutlet NSTableView *table;
     IBOutlet NSTextField *total;
+    IBOutlet NSTextField *status;
 
     Watching *watching;
     NSUserDefaults *defaults;
@@ -20,4 +21,6 @@
 }
 - (IBAction)addItem:(id)sender;
 - (IBAction)openAddWindow:(id)sender;
+
+-(IBAction)update:(id)sender;
 @end

@@ -1,14 +1,15 @@
 {
     IBClasses = (
         {
-            ACTIONS = {addItem = id; openAddWindow = id; };
+            ACTIONS = {addItem = id; openAddWindow = id; update = id; };
             CLASS = Controller;
             LANGUAGE = ObjC;
             OUTLETS = {
                 addWindow = NSWindow;
-                busySignal = NSProgressIndicator;
+                busySignal = HideableProgressIndicator;
                 itemDescription = NSTextField;
                 itemNumber = NSTextField;
+                status = NSTextField;
                 table = NSTableView;
                 total = NSTextField;
             };

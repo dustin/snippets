@@ -63,21 +63,35 @@
     [addWindow makeKeyAndOrderFront: self];
 }
 
--(void)update
+-(void)setStatus: (NSString *)to
+{
+    NSLog(@"Setting status to %@", to);
+    [status setStringValue: to];
+    [status display];
+}
+
+-(IBAction)update:(id)sender
 {
     NSLog(@"Updating...");
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self setBusy: true];
     float t=0.0;
     NSEnumerator *enumerator = [watching objectEnumerator];
     id object;
     while (object = [enumerator nextObject]) {
+        [self setStatus: [NSString stringWithFormat: @"Updating: %@",
+                                        [object description]]];
         [object update];
         t+=[object price];
     }
+    // Update the status and other UI elements.
     [table setNeedsDisplay: true];
     [total setFloatValue: t];
     [total setNeedsDisplay: true];
     [self setBusy: false];
+    // Clear the status
+    [self setStatus: @""];
+    [pool release];
 }
 
 -(void)initSaved: (id)savedIn
@@ -96,16 +110,20 @@
     }
 }
 
+// this is performed after awakeFromNib...gives us time to get the UI up
+// before hanging on an update.
 -(void)awakeInitialization
 {
     howBusy=0;
-    [busySignal setUsesThreadedAnimation: true];
+    [self setStatus: @"Initializing"];
+    // [busySignal setUsesThreadedAnimation: true];
     [busySignal setHidden: true];
     [busySignal setStyle: NSProgressIndicatorSpinningStyle];
 
     defaults=[NSUserDefaults standardUserDefaults];
     id savedWatching=[defaults objectForKey:@"watching"];
     [self initSaved: savedWatching];
+    [self setStatus: @""];
 }
 
 - (void)awakeFromNib
@@ -117,18 +135,15 @@
     [total setFloatValue: 0.0];
 
     // one-off timer to initialize after this window loads.
-    [NSTimer scheduledTimerWithTimeInterval:.01
-        target: self
-        selector: @selector(awakeInitialization)
-        userInfo: nil
-        repeats: false];
+    [self performSelector: @selector(awakeInitialization)
+        withObject:nil
+        afterDelay:0];
 
     // Schedule the timer
     [NSTimer scheduledTimerWithTimeInterval:60
         target: self
-        selector: @selector(update)
+        selector: @selector(update:)
         userInfo:nil repeats:true];
-
 }
 
 @end
