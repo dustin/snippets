@@ -165,6 +165,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				F5552E34034C0C5D01A801C4,
 				29B97318FDCFA39411CA2CEA,
 				089C165CFE840E0CC02AAC07,
 			);
@@ -276,6 +277,7 @@
 			files = (
 				080E96DCFE201CFB7F000001,
 				089C165EFE840E0CC02AAC07,
+				F5552E36034C0C5D01A801C4,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,6 +346,27 @@
 //F52
 //F53
 //F54
+		F5552E34034C0C5D01A801C4 = {
+			children = (
+				F5552E35034C0C5D01A801C4,
+			);
+			isa = PBXVariantGroup;
+			name = Localizable.strings;
+			path = "";
+			refType = 4;
+		};
+		F5552E35034C0C5D01A801C4 = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Localizable.strings;
+			refType = 4;
+		};
+		F5552E36034C0C5D01A801C4 = {
+			fileRef = F5552E34034C0C5D01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F5DB57D8034AD4F401A801C4 = {
 			isa = PBXFileReference;
 			path = AVTestController.h;

@@ -1,0 +1,2 @@
+Text.HasAV = "AltiVec is available.";
+Text.HasNotAV = "AltiVec is not available.";

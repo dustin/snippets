@@ -24,10 +24,10 @@ int IsAltiVecAvailable( void )
 
 -(void)awakeFromNib
 {
-    if(!IsAltiVecAvailable()) {
-        [text setStringValue: @"Altivec is not available."];
+    if(IsAltiVecAvailable()) {
+        [text setStringValue: NSLocalizedString(@"Text.HasAV", @"AV present")];
     } else {
-        [text setStringValue: @"Altivec is available."];
+        [text setStringValue: NSLocalizedString(@"Text.HasNotAV", @"No AV present")];
     }
 }
 
