@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.1 1998/10/24 21:30:21 dustin Exp $
+ * $Id: main.c,v 1.2 2001/07/05 08:33:50 dustin Exp $
  */
 
 #include <stdio.h>
@@ -10,29 +10,81 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <limits.h>
+#include <assert.h>
+
+static char* md5dump(const unsigned char *md5)
+{
+	static char data[(16*2)+1];
+	static char *map="0123456789abcdef";
+	int i=0, j=0;
+
+	for(i=0; i<16; i++) {
+		data[j++]=map[((md5[i]&0xf0)>>4)];
+		data[j++]=map[(md5[i]&0x0f)];
+	}
+	data[j]=0x00;
+	return(data);
+}
 
 /* print a stat structure */
-
-void printstat(char *path, struct stat s)
+static void printstat(const char *path, const unsigned char *md5,
+	const struct stat s)
 {
-	printf("%s=%s:%s=%d:%s=%d:%s=0%o:%s=%d:%s=%d:%s=%d:%s=%d:%s=%d:%s=%d\n",
-		"path", path,
-		"dev", s.st_dev, "inode", s.st_ino, "mode", s.st_mode&0777,
-		"nlink", s.st_nlink, "uid", s.st_uid, "gid", s.st_gid,
-		"rdev", s.st_rdev, "size", s.st_size, "blocks", s.st_blocks
+	assert(path);
+	assert(md5);
+
+	printf("%s:" /* path */
+		"md5=%s:" /* MD5 */
+		"%s=%d:" /* dev */
+		"%s=%d:" /* inode */
+		"%s=0%o:" /* mode */
+		"%s=%d:" /* nlink */
+		"%s=%d:" /* uid */
+		"%s=%d:" /* gid */
+		"%s=%d:" /* rdev */
+		"%s=%d:" /* size */
+		"%s=%d\n", /* blocks */
+		path,
+		md5dump(md5),
+		"dev", (long)s.st_dev,
+		"inode", (long)s.st_ino,
+		"mode", (long)s.st_mode&0777,
+		"nlink", (long)s.st_nlink,
+		"uid", (long)s.st_uid,
+		"gid", (long)s.st_gid,
+		"rdev", (long)s.st_rdev,
+		"size", (long)s.st_size,
+		"blocks", (long)s.st_blocks
 	);
 }
 
-/* The recursive routine, dirty talker, directory walker */
-void dowork(char *path)
+static void check(const char *path, const struct stat s)
 {
-	DIR *dir;
-	struct dirent *d;
+	MD5_CTX ctx;
+	unsigned char md5sig[16];
+
+	assert(path);
+
+	MD5Init(&ctx);
+	MD5Update(&ctx, path, strlen(path));
+	MD5Update(&ctx, (unsigned char *)&s, sizeof(s));
+	MD5Final(&md5sig, &ctx);
+
+	printstat(path, md5sig, s);
+}
+
+/* The recursive routine, dirty talker, directory walker */
+static void dowork(const char *path)
+{
+	DIR *dir=NULL;
+	struct dirent *d=NULL;
 	struct stat s;
 	char buf[PATH_MAX];
 
+	assert(path);
+
 	/* See what the thing passed in is */
-	if(stat(path, &s)<0) {
+	if(lstat(path, &s)<0) {
 		perror(path);
 		return;
 	}
@@ -44,7 +96,7 @@ void dowork(char *path)
 			perror(path);
 		    return;
 		}
-		while(d=readdir(dir)) {
+		while((d=readdir(dir)) != NULL) {
 			if(! (strcmp(d->d_name, ".")==0||strcmp(d->d_name, "..")==0) ) {
 				if(strlen(path)+strlen(d->d_name)+2<PATH_MAX) {
 					if(path[strlen(path)-1]=='/') {
@@ -61,7 +113,7 @@ void dowork(char *path)
 		}
 		closedir(dir);
 	} else {
-		printstat(path, s);
+		check(path, s);
 	}
 }
 
