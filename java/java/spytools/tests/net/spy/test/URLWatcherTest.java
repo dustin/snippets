@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcherTest.java,v 1.1 2002/08/20 08:04:41 dustin Exp $
+// $Id: URLWatcherTest.java,v 1.2 2002/08/21 00:56:44 dustin Exp $
 
 package net.spy.test;
 
@@ -91,6 +91,8 @@ public class URLWatcherTest extends TestCase {
 		String s3=uw.getContent(u);
 		assertNotNull("Third content not returned", s3);
 		assertTrue("Expected different results on third run", (!s2.equals(s3)));
+
+		uw.shutdown();
 	}
 
 }
