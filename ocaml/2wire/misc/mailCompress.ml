@@ -13,7 +13,9 @@ open Gz;;
 
 let gz_magic="\031\139";;
 
-let max_age = 2.0 *. 86400.0;;
+let max_age_days = ref 2;;
+
+let max_age () = (float_of_int !max_age_days) *. 86400.0;;
 
 let buf_size = 8192;;
 
@@ -37,7 +39,7 @@ let age_of fn =
 
 (* True if this file is new enough for processing *)
 let is_new_enough fn =
-	(age_of fn) < max_age
+	(age_of fn) < max_age()
 ;;
 
 let should_process fn =
@@ -95,9 +97,21 @@ let process_dir d l a =
 		(List.map (fun x -> Filename.concat d x) l)
 ;;
 
+(* This will walk any anonymous arguments. *)
+let walker dir =
+	print_endline("Processing " ^ dir ^ " with maxdays = "
+		^ (string_of_int !max_age_days));
+	walk_dir dir process_dir ();
+;;
+
+(* Basically an argument parser. *)
 let main () =
-	List.iter (fun d -> walk_dir d process_dir () )
-		(List.tl (Array.to_list Sys.argv))
+	Arg.parse [
+		"-d", Arg.Set_int max_age_days,
+			"Process files that are not older than this age in days (def: 2)";
+		]
+		walker
+		"Walk the given directories looking for files to compress.";
 ;;
 
 (* Start main if we're interactive. *)
