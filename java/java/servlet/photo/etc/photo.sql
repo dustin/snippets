@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.9 1998/07/19 20:26:15 dustin Exp $
+-- $Id: photo.sql,v 1.10 1998/10/20 01:54:07 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -107,6 +107,7 @@ create table image_map (
     name    varchar
 );
 
+grant all on image_map to nobody;
 create unique index image_map_name on image_map(name);
 
 create table image_store (
