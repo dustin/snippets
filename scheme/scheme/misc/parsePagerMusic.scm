@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parsePagerMusic.scm,v 1.1 2002/12/28 07:02:14 dustin Exp $
+; $Id: parsePagerMusic.scm,v 1.2 2002/12/28 11:47:34 dustin Exp $
 
 (module parse-pager-music
 		(import
@@ -8,20 +8,9 @@
 		  (stringlib "../stringlib.scm"))
 		(main main))
 
-; Take lists of lists of lists and make them into a single flat list
-(define (flatten l)
-  (let ((rv '()))
-	(for-each (lambda (x)
-				(set! rv (append rv
-						 (if (pair? x)
-						   (flatten x)
-						   (list x)))))
-			  l)
-	rv))
-
 ; Quote something for database use.
 (define (dbquote s)
-	(list->string (flatten
+	(list->string (flatten-list
 					(map (lambda (x)
 						   (if (char=? #\' x)
 							 '(#\' #\')
