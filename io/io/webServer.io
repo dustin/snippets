@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.9 2003/08/21 22:45:44 dustin Exp $
+# $Id: webServer.io,v 1.10 2003/08/22 01:05:37 dustin Exp $
 
 //
 // Web request
@@ -12,7 +12,7 @@ WebRequest headers = Nil
 WebRequest reqMethod = Nil
 WebRequest path = Nil
 WebRequest queryString = Nil
-WebRequest version = Nil
+WebRequest httpVersion = Nil
 
 // This not only parses the request, but modifies the buffer to remove all
 // of the non-header information
@@ -26,7 +26,7 @@ WebRequest parseRequest = method(buf,
 	// The first line is the query
 	self path = lines at(0)
 	self reqMethod = path substring(0, path find(" ") - 1)
-	self version = path substring(path reverseFind(" ") + 1)
+	self httpVersion = path substring(path reverseFind(" ") + 1)
 	self path = path substring(path find(" ") + 1,
 		path reverseFind(" ") - 1)
 	// Check for a query string
@@ -60,19 +60,6 @@ WebRequest parseRequest = method(buf,
 // just issues 404s
 WebUrlHandler = Object clone
 
-WebUrlHandler setResponseHeaders = method(request, aSocket, status, headers,
-	v = request version
-	statusName = WebServer responseStatusCodes at(status)
-	statusString = String join(list(v, status, statusName), " ")
-	lheaders = list(statusString,
-		"Connection: close")
-	if(headers != Nil,
-		headers foreach(hk, hv, lheaders add(hk .. ": " hv)),
-		lheaders add("Content-type: text/plain"))
-	aSocket write(String join(lheaders, "\r\n"))
-	aSocket write("\r\n\r\n")
-)
-
 WebUrlHandler handleRequest = method(req, socket,
 	raiseException("WebServer.ProtocolError.404",
 		"No handler for " ..(req path))
@@ -90,7 +77,7 @@ WebErrorHandler handleRequest = method(req, socket,
 WebErrorHandler handleError = method(request, aSocket, eName, eDescription,
 	status = eName substring(24)
 	statusName = WebServer responseStatusCodes at(status)
-	setResponseHeaders(request, aSocket, status, Nil)
+	aSocket setStatus(status)
 	// Send the error
 	aSocket write(status, " - ", statusName, "\r\n")
 	aSocket write(eDescription .. "\n")
@@ -102,11 +89,10 @@ WebErrorHandler handleError = method(request, aSocket, eName, eDescription,
 WebUrlTimeHandler = WebUrlHandler clone
 
 WebUrlTimeHandler handleRequest = method(req, socket,
-	setResponseHeaders(req, socket, "200", Nil)
+	socket addHeader("Content-type", "text/plain")
 	d = Date clone now
 	ds = d asString("%Y/%m/%d %X")
 	socket write("The current time is ", ds)
-	"200"
 )
 
 // Standard web handling
@@ -151,7 +137,7 @@ WebUrlStdHandler getParameters = method(req, socket,
 
 WebUrlDebugHandler = WebUrlStdHandler clone
 WebUrlDebugHandler handleRequest = method(req, socket,
-	setResponseHeaders(req, socket, "200", Nil)
+	socket addHeader("Content-type", "text/plain")
 	socket write("Method is ", req reqMethod, "\n")
 	socket write("Path is ", req path, "\n")
 	socket write("Query string is ", req queryString, "\n")
@@ -160,7 +146,79 @@ WebUrlDebugHandler handleRequest = method(req, socket,
 		cgi foreach(k, v, socket write("\t", k, " = ", v, "\n")))
 	socket write("Headers:\n")
 	req headers foreach(k, v, socket write("\t", k, " = ", v, "\n"))
-	"200"
+)
+
+//
+// Web server response socket
+//
+
+// this is a proxy object that wraps a socket and provides some niceities
+WebResponseSocket = Object clone
+
+WebResponseSocket bytesWritten = 0
+WebResponseSocket socket = Nil
+
+// Additional headers
+WebResponseSocket headers = Map clone
+WebResponseSocket headers atPut("Connection", "close")
+// Response status
+WebResponseSocket status = "200"
+// protocol version
+WebResponseSocket httpVersion = "HTTP/1.0"
+WebResponseSocket beginning = 1
+
+WebResponseSocket addHeader = method(k, v,
+	self headers atPut(k, v)
+	self
+)
+WebResponseSocket setStatus = method(status,
+	self status = status
+	self
+)
+WebResponseSocket setHttpVersion = method(v,
+	self httpVersion = v
+	self
+)
+WebResponseSocket setSocket = method(s,
+	self socket = s
+	self
+)
+
+WebResponseSocket writeHeaders = method(
+	statusName = WebServer responseStatusCodes at(status)
+	write("Joining ", httpVersion, " ", status, " ", statusName, "\n")
+	statusString = String join(list(httpVersion, status, statusName), " ")
+	lheaders = list(statusString)
+	headers foreach(hk, hv, lheaders add(hk .. ": " .. hv))
+	internalWriteString(String join(lheaders, "\r\n"))
+	internalWriteString("\r\n\r\n")
+	self
+)
+
+WebResponseSocket write = method(
+	if(beginning,
+		writeHeaders
+		self beginning = Nil
+	)
+	internalWriteList(thisMessage argsEvaluatedIn(sender))
+	self
+)
+
+WebResponseSocket internalWriteList = method(l,
+	l foreach(t, internalWriteString(t))
+	self
+)
+
+WebResponseSocket internalWriteString = method(s,
+	bytesWritten +=(s length)
+	socket write(s)
+	self
+)
+
+WebResponseSocket forward = method(
+	methodName = thisMessage name
+	args = thisMessage argsEvaluatedIn(sender)
+	socket performWithArgList(methodName, args)
 )
 
 //
@@ -242,51 +300,36 @@ WebServer processRequest = method(aSocket, aServer,
 	handler = self handlers at(request path)
 	if(handler == Nil, handler = self defaultHandler)
 
-	status = Nil
 	catchException("WebServer.ProtocolError",
-		status = handler handleRequest(request, aSocket),
-		status = errorHandler handleError(request, aSocket,
+		handler handleRequest(request, aSocket),
+		errorHandler handleError(request, aSocket,
 			exceptionName, exceptionDescription))
 	ds = Date clone now asString("[%d/%b/%Y:%X %Z]")
 	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
-		request path, " ", request version, "\" ", status, " ",
+		request path, " ", request httpVersion, "\" ", aSocket status, " ",
 		aSocket bytesWritten, "\n")
 	aSocket close
 )
 
-//
-// End of WebServer implementation
-//
-
 WebServer handleSocketFromServer = method(aSocket, aServer,
 	// write("[New Request ", aSocket host, "]\n")
-	countingSocket = Object clone
-	countingSocket socket = aSocket
-	countingSocket bytesWritten = 0
-
-	countingSocket write = method(
-		thisMessage argsEvaluatedIn(sender) foreach(t,
-			bytesWritten +=(t length)
-			socket write(t)
-		)
-	)
-
-	countingSocket forward = method(
-		methodName = thisMessage name
-		args = thisMessage argsEvaluatedIn(sender)
-		socket performWithArgList(methodName, args)
-	)
+	sock = WebResponseSocket clone setSocket(aSocket)
 
 	while(aSocket isOpen,
 		if(aSocket read,
-			if(hasRequest(countingSocket readBuffer),
-				processRequest(countingSocket, aServer)
+			if(hasRequest(sock readBuffer),
+				processRequest(sock, aServer)
 				aSocket readBuffer empty
 			)
 		)
 	)
 	// write("[Closed ", aSocket host, "]\n")
 )
+
+//
+// End of WebServer implementation
+//
+
 
 //
 // -- The beginning --
