@@ -7,7 +7,7 @@ JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/spy.jar
-C2=$(MYLIB)/resin-xsl.jar:$(MYLIB)/sax.jar:$(MYLIB)/dom.jar
+C2=$(MYLIB)/resin.jar:$(MYLIB)/sax.jar:$(MYLIB)/dom.jar:$(MYLIB)/jaxp.jar
 CLASSPATH=$(C1):$(C2):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 

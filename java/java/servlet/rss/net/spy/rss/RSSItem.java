@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSItem.java,v 1.3 2001/08/20 21:42:14 dustin Exp $
+// $Id: RSSItem.java,v 1.4 2001/09/07 08:56:36 dustin Exp $
 
 package net.spy.rss;
 
@@ -48,6 +48,8 @@ public class RSSItem extends Object {
 				HTTPFetch hf=new HTTPFetch(url, headers);
 				xml=hf.getData();
 				lastUpdate=now;
+				System.err.println("RSSServlet updated " + url + " at "
+					+ new java.util.Date(lastUpdate));
 			} catch(Exception e) {
 				lastError=e;
 			}
