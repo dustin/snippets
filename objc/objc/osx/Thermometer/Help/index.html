@@ -1,0 +1,54 @@
+<!--
+  Copyright (c) 2003  Dustin Sallings <dustin+html@spy.net>
+  -->
+<html>
+	<head>
+		<title>Thermometer Help</title>
+		<meta name="AppleTitle" content="Thermometer Help">
+	</head>
+
+	<body bgcolor="#fFfFfF">
+		<h1>Using Thermometer</h1>
+
+		<p>
+			For the most part, this app can be used without modification.
+			However, if you would like it to display your own thermometers, you
+			can do this by providing a URL that provides temperatures.
+		</p>
+
+		<p>
+			By default, the app displays temperatures at my house via the
+			following URL:
+
+			<blockquote>
+				<code>http://bleu.west.spy.net/therm/Temperature</code>
+			</blockquote>
+
+			This URL is expected to provided a textual list of results where each
+			line is the name of a thermometer.  For example, consider the
+			following output from mine:
+
+<pre>bedroom
+garage
+livingroom
+guestroom
+newmachineroom
+backyard
+			</pre>
+
+			That creates six individual cells for the display.  Each cell is
+			queried via the following URL:
+
+			<blockquote>
+				<code>http://bleu.west.spy.net/therm/Temperature?temp=<i>name</i></code>
+			</blockquote>
+
+			Where <i>name</i> is replaced with the name of the thermometer.  This
+			URL is expected to return the current reading of the given
+			thermometer in celsius.  For example:
+
+			<code>16.86</code>
+		</p>
+	</body>
+</html>
+
