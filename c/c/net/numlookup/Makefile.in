@@ -15,7 +15,7 @@ all: parselist libparselist.so
 
 parselist: parselist.o parselist.h
 	rm -f parselist
-	$(CC) -o parselist parselist.o
+	$(CC) -o parselist parselist.o $(LDFLAGS)
 
 libparselist.so: libparselist.o mymalloc.o hash.o parselist.h
 	rm -f libparselist.so
