@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.34 2001/08/06 21:35:00 dustin Exp $
+ * $Id: SpyDB.java,v 1.35 2001/08/18 00:47:30 dustin Exp $
  */
 
 package net.spy;
@@ -36,6 +36,9 @@ public class SpyDB extends Object {
 
 	// The actual database connection from the PooledObject.
 	private Connection conn=null;
+
+	// If there's an exception at initialization time, store it here.
+	private Exception initializationException=null;
 
 	// Our configuration.
 	private SpyConfig conf = null;
@@ -108,6 +111,7 @@ public class SpyDB extends Object {
 		try {
 			initStuff();
 		} catch(Exception e) {
+			initializationException=e;
 			log("Error initializing SpyDB:  " + e);
 			e.printStackTrace();
 		}
@@ -428,12 +432,16 @@ public class SpyDB extends Object {
 
 	private void getDBConnFromSpyPool() throws SQLException {
 		try {
-			synchronized(POOL_MUTEX) {
-				object=pool.getObject(name);
-			}
-			conn=(Connection)object.getObject();
-			if(!auto_free) {
-				connections.put(conn, object);
+			if(initializationException==null) {
+				synchronized(POOL_MUTEX) {
+					object=pool.getObject(name);
+				}
+				conn=(Connection)object.getObject();
+				if(!auto_free) {
+					connections.put(conn, object);
+				}
+			} else {
+				throw initializationException;
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
