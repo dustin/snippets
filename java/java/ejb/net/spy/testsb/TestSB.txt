@@ -1,0 +1,16 @@
+// Copyright (C) BULL S.A. 1998, 1999.
+
+SessionDescriptor {
+	BeanHomeName			= "TestSBHome";
+	EnterpriseBeanClassName		= net.spy.testsb.TestSBBean;
+	HomeInterfaceClassName		= net.spy.testsb.TestSBHome;
+	RemoteInterfaceClassName	= net.spy.testsb.TestSB;
+
+	ControlDescriptors = {
+		{
+			TransactionAttribute	= TX_REQUIRED;
+		};
+	};
+
+	StateManagementType = STATEFUL_SESSION;
+}
