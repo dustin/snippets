@@ -8,7 +8,7 @@ PROFILE=
 
 PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
 	builddict cipher splitFreqs lncp resolver ager blockDigest blockDigest.cmi \
-	digestline
+	digestline cdbcat
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -23,6 +23,10 @@ mailCompress: mailCompress.ml
 hlgrep: hlgrep.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa str.cmxa fileutils.cmx hlgrep.ml
+
+cdbcat: cdbcat.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa str.cmxa spy.cmxa cdbcat.ml
 
 digestline: digestline.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
