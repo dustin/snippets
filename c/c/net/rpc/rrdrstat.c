@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.7 2002/03/15 19:45:34 dustin Exp $
+ * $Id: rrdrstat.c,v 1.8 2002/03/15 19:48:39 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,6 +19,7 @@
 #include "array.h"
 #include "rstat.h"
 
+#ifdef HAVE_RRD_H
 static void
 rrdErrorPrint(char *buf, char **args)
 {
@@ -31,6 +32,7 @@ rrdErrorPrint(char *buf, char **args)
 	}
 	rrd_clear_error();
 }
+#endif /* HAVE_RRD_H */
 
 static void
 process(const char *host, statstime *stat)
