@@ -19,7 +19,8 @@
     (save-buffer inf)))
 
 ; Do the work
-(defun blog-new-entry () "Make a new blog entry."
+(defun blog-new-entry ()
+  "Make a new blog entry."
    (let* ((thedate (format-time-string blog-ddateformat))
 	 (newfile (concat (format-time-string blog-fndateformat) ".shtml"))
 	 (inf (find-file blog-index))
@@ -38,5 +39,5 @@
 
 (defun blog-make-entry ()
   "Make a new blog entry."
-  (interactive
-   (blog-new-entry)))
+  (interactive)
+   (blog-new-entry))
