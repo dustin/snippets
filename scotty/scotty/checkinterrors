@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: checkinterrors,v 1.3 2000/05/10 20:20:27 dustin Exp $
+# $Id: checkinterrors,v 1.4 2000/05/10 21:14:30 dustin Exp $
 
 set kludge { $*
 	shift
@@ -22,7 +22,7 @@ set exit_code 0
 set problems {}
 
 if [catch {open $file} input] {
-	puts "Cannot open input file:  $file"
+	# puts "Cannot open input file:  $file"
 	exit 1
 }
 
@@ -45,7 +45,7 @@ while {[gets $input line] != -1} {
 		set sizes() ()
 		set rfile "/tmp/echeck.$host"
 		if [catch {open $rfile} rinput] {
-			puts "Error opening input file for $host"
+			# puts "Error opening input file for $host"
 		} else {
 			while {[gets $rinput line] != -1} {
 				set n [lindex $line 0]
@@ -59,7 +59,7 @@ while {[gets $input line] != -1} {
 		}
 
 		if [catch {open $rfile w} routput] {
-			puts "Cannot open save file for $host!"
+			# puts "Cannot open save file for $host!"
 			exit 1
 		}
 
@@ -89,7 +89,7 @@ while {[gets $input line] != -1} {
 			if {$ierrors > $old_ierrors || $oerrors > $old_oerrors} {
 				set idiff [ expr $ierrors - $old_ierrors ]
 				set odiff [ expr $oerrors - $old_oerrors ]
-				puts "$host:$desc:$idiff:$odiff"
+				# puts "$host:$desc:$idiff:$odiff"
 				lappend problems "$host:$desc"
 
 				# Something more intelligent should happen here
