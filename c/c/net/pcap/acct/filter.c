@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.3 2000/07/30 03:01:47 dustin Exp $
+ * $Id: filter.c,v 1.4 2000/07/30 04:05:39 dustin Exp $
  */
 
 #include <stdio.h>
@@ -22,6 +22,7 @@
 #include <pcap.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
 
 #include "mymalloc.h"
 #include "acct.h"
@@ -37,6 +38,13 @@ static void     showStats();
 static void     signal_handler(int);
 static char    *itoa(int in);
 
+void *statusPrinter(void *data)
+{
+	for(;;) {
+		sleep(5);
+		showStats();
+	}
+}
 
 void
 process(int flags, char *filter)
@@ -46,7 +54,7 @@ process(int flags, char *filter)
 	struct bpf_program prog;
 	bpf_u_int32     network, netmask;
 	int             flagdef;
-	time_t			last_time=0;
+	pthread_t		sp;
 
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, signal_handler);
@@ -69,7 +77,7 @@ process(int flags, char *filter)
 	else
 		flagdef = 0;
 
-	pcap_socket = pcap_open_live(interface, 768, flagdef, 1000, errbuf);
+	pcap_socket = pcap_open_live(interface, 768, flagdef, 10, errbuf);
 
 	if (pcap_socket == NULL) {
 		fprintf(stderr, "pcap_open_live: %s\n", errbuf);
@@ -101,21 +109,18 @@ process(int flags, char *filter)
 		fprintf(stderr, "pcap_setfilter: %s\n", errbuf);
 		signal_handler(-1);
 	}
+	hash=hash_init(637);
+
+	/* OK, create the status printer thread */
+	pthread_create(&sp, NULL, statusPrinter, NULL);
+
 	fprintf(stderr, "interface: %s, filter: %s, promiscuous: %s\n",
 	interface, filter, (flags & FLAG_BIT(FLAG_PROMISC)) ? "yes" : "no");
 
-	hash=hash_init(637453);
-
-	last_time=time(NULL);
 	for (;;) {
-		time_t t;
 		pcap_loop(pcap_socket, 100, (pcap_handler) filter_packet, NULL);
-		/* Show results every 60 seconds */
-		t=time(NULL);
-		if((t-last_time)>60) {
-			showStats();
-			last_time=t;
-		}
+		/* This is for bad pthread implementations */
+		usleep(1);
 	}
 }
 
@@ -140,6 +145,7 @@ showStats()
 		p=hash->buckets[i];
 
 		if(p) {
+			pthread_mutex_lock(&(hash->mutexen[i]));
 			lastp=NULL;
 			for(; p; p=p->next) {
 				char buf[8192];
@@ -158,6 +164,7 @@ showStats()
 			}
 			free(lastp);
 			hash->buckets[i]=0;
+			pthread_mutex_unlock(&(hash->mutexen[i]));
 		}
 	}
 	fflush(stdout);
@@ -199,33 +206,6 @@ filter_packet(u_char * u, struct pcap_pkthdr * p, u_char * packet)
 
 	hash_add(hash, ntohl(ip->ip_src.s_addr), ntohs(ip->ip_len));
 	hash_add(hash, ntohl(ip->ip_dst.s_addr), ntohs(ip->ip_len));
-
-	/*
-	switch (ip->ip_p) {
-	case IPPROTO_TCP:{
-			struct tcphdr  *tcp;
-			tcp = (struct tcphdr *) ((char *) ip + IP_SIZE + ip_options);
-			strcat(out_buf,
-			       log_pkt(ip, "TCP",
-			       ntohs(tcp->th_sport), ntohs(tcp->th_dport)));
-			break;
-		}
-	case IPPROTO_UDP:{
-			struct udphdr  *udp;
-			udp = (struct udphdr *) ((char *) ip + IP_SIZE + ip_options);
-			strcat(out_buf,
-			       log_pkt(ip, "UDP",
-			       ntohs(udp->uh_sport), ntohs(udp->uh_dport)));
-			break;
-		}
-	default:{
-			strcat(out_buf, log_pkt(ip, itoa(ip->ip_p), -1, -1));
-			break;
-		}
-	}
-	assert(strlen(out_buf) < sizeof(out_buf));
-	fputs(out_buf, stdout);
-	*/
 }
 
 static char    *

@@ -1,13 +1,16 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.2 2000/07/30 03:01:48 dustin Exp $
+ * $Id: hash.c,v 1.3 2000/07/30 04:05:41 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#ifdef HAVE_LIBPTHREAD
+#include <pthread.h>
+#endif /* HAVE_LIBPTHREAD */
 
 #include "mymalloc.h"
 #include "acct.h"
@@ -15,11 +18,26 @@
 
 #define _do_hash(a, b) (b%a->hashsize)
 
+#ifdef HAVE_LIBPTHREAD
+#define lock(a) { \
+	pthread_mutex_lock(&(hash->mutexen[a])); \
+}
+#define unlock(a) { \
+	pthread_mutex_unlock(&(hash->mutexen[a])); \
+}
+#else
+#define lock(a)
+#define unlock(a)
+#endif /* HAVE_LIBPTHREAD */
+
 /* Initialize a hash table */
 struct hashtable *
 hash_init(int size)
 {
 	struct hashtable *hash;
+#ifdef HAVE_LIBPTHREAD
+	int i;
+#endif /* HAVE_LIBPTHREAD */
 
 	hash = calloc(1, sizeof(struct hashtable));
 	assert(hash);
@@ -28,6 +46,15 @@ hash_init(int size)
 
 	hash->buckets = calloc(hash->hashsize, sizeof(struct hash_container *));
 	assert(hash->buckets);
+
+#ifdef HAVE_LIBPTHREAD
+	hash->mutexen = calloc(hash->hashsize, sizeof(pthread_mutex_t));
+	assert(hash->mutexen);
+
+	for(i=0; i<hash->hashsize; i++) {
+		pthread_mutex_init(&(hash->mutexen[i]), NULL);
+	}
+#endif /* HAVE_LIBPTHREAD */
 
 	return (hash);
 }
@@ -49,6 +76,8 @@ hash_store(struct hashtable *hash, unsigned int key)
 
 	hashval = _do_hash(hash, key);
 
+	lock(hashval);
+
 	p = hash->buckets[hashval];
 
 	if (p) {
@@ -57,6 +86,8 @@ hash_store(struct hashtable *hash, unsigned int key)
 	} else {
 		hash->buckets[hashval] = c;
 	}
+
+	unlock(hashval);
 
 	return (c);
 }
@@ -71,7 +102,10 @@ struct hash_container *hash_add(struct hashtable *hash,
 		c=hash_store(hash, key);
 	}
 
+	lock(_do_hash(hash, key));
 	c->value+=value;
+	unlock(_do_hash(hash, key));
+
 	return(c);
 }
 
@@ -90,12 +124,16 @@ hash_find(struct hashtable *hash, unsigned int key)
 	assert(hashval >= 0);
 	assert(hashval < hash->hashsize);
 
+	lock(hashval);
+
 	p = hash->buckets[hashval];
 
 	for (; p; p = p->next) {
 		if (p->key==key)
 			break;
 	}
+
+	unlock(hashval);
 
 	return (p);
 }
@@ -108,6 +146,9 @@ hash_delete(struct hashtable *hash, unsigned int key)
 	int     hashval;
 
 	hashval = _do_hash(hash, key);
+
+	lock(hashval);
+
 	p = hash->buckets[hashval];
 
 	for (; p->next; p = p->next) {
@@ -132,6 +173,8 @@ hash_delete(struct hashtable *hash, unsigned int key)
 		free(deleteme);
 		deleteme = NULL;
 	}
+
+	unlock(hashval);
 }
 
 /* Destroy a hash */
@@ -176,11 +219,14 @@ struct hash_keylist hash_keys(struct hashtable *hash)
 	for (i = 0; i < hash->hashsize; i++) {
 		p = hash->buckets[i];
 
+		lock(i);
+
 		if (p) {
 			for (; p; p = p->next) {
 				LAPPEND(p->key);
 			}
 		}
+		unlock(i);
 	}
 	return (list);
 }
@@ -198,6 +244,7 @@ _hash_dump(struct hashtable *hash)
 		p = hash->buckets[i];
 
 		if (p) {
+			lock(i);
 			printf("\tMatches at %d\n", i);
 			for (; p; p = p->next) {
 #ifdef MYMALLOC
@@ -208,6 +255,7 @@ _hash_dump(struct hashtable *hash)
 #endif
 				printf("\t\t%s=%d\n", ntoa(p->key), p->value);
 			}
+			unlock(i);
 		}
 	}
 }

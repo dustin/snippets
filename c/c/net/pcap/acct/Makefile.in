@@ -1,7 +1,7 @@
 # Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 
-CFLAGS=-O2 -Wall -I/usr/local/include
-LIBS=@LIBS@
+CFLAGS=-O2 -Wall @DEFS@ @CPPFLAGS@ @CFLAGS@ -I/usr/local/include
+LIBS=@LDFLAGS@ @LIBS@
 acct: filter.o main.o hash.o mymalloc.o
 	$(CC) -o $@ filter.o main.o hash.o mymalloc.o $(LIBS)
 
