@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.5 2001/03/16 10:24:50 dustin Exp $
+// $Id: Cleanse.java,v 1.6 2001/03/16 11:23:17 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
@@ -25,14 +25,20 @@ public class Cleanse extends Object {
 		this.removed=new Hashtable(100000);
 	}
 
+	private void remove(Word w) {
+		wordList.removeElement(w);
+		toremove.addElement(w);
+		removed.put(w.getWord(), REMOVE);
+	}
+
 	private void remove(Word a, Word b) {
-		System.out.println("Removing " + a + " and " + b);
-		wordList.removeElement(a);
-		wordList.removeElement(b);
-		toremove.addElement(a);
-		toremove.addElement(b);
-		removed.put(a.getWord(), REMOVE);
-		removed.put(b.getWord(), REMOVE);
+		if(a.getWord().length() > b.getWord().length()) {
+			System.out.println("Removing " + b + " because of " + a);
+			remove(b);
+		} else {
+			System.out.println("Removing " + a + " because of " + b);
+			remove(a);
+		}
 	}
 
 	// Save the state permanently
@@ -62,6 +68,8 @@ public class Cleanse extends Object {
 
 	private void killWords() throws Exception {
 		CleanseStats stats=new CleanseStats(wordList.size());
+		System.out.println("Operating on " + wordList.size() + " words.");
+		int i=0;
 		for(Enumeration e=wordList.elements(); e.hasMoreElements(); ) {
 			Word current=(Word)e.nextElement();
 			String current_s=current.getWord();
@@ -70,7 +78,6 @@ public class Cleanse extends Object {
 
 			stats.click();
 			stats.start();
-			int i=0;
 			for(Enumeration e2=wordList.elements(); e2.hasMoreElements(); ) {
 				Word checking=(Word)e2.nextElement();
 
@@ -114,9 +121,16 @@ public class Cleanse extends Object {
 		Connection conn=DriverManager.getConnection(SOURCE, "dustin", "");
 		Statement st=conn.createStatement();
 		System.out.println("Executing query.");
+
 		ResultSet rs=st.executeQuery(
-			"select celeb_key, word from wordlist\n"
-			+ "  order by word");
+			"select celeb_key, word\n"
+			+ " from wordlist\n"
+			+ " where not exists (\n"
+			+ "  select badword from badwords\n"
+			+ "   where badwords.badword=wordlist.word\n"
+			+ " )\n"
+			+ " order by word\n"
+			);
 		System.out.println("Fetching results.");
 		int i=0;
 		while(rs.next()) {
