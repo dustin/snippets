@@ -6,11 +6,13 @@ JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 C1=/home/dustin/lib/java/jsdk.jar:/home/dustin/lib/java/DBCB.jar
 C2=/home/dustin/lib/java/RHash.jar:/home/dustin/lib/java/cos.jar
-CLASSPATH=$(C1):$(C2):/home/dustin/lib/java/postgresql.jar:.
+C3=/home/dustin/lib/java/xml4j.jar
+CLASSPATH=$(C1):$(C2):$(C3):/home/dustin/lib/java/postgresql.jar:.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
-	net/spy/SpyToker.class net/spy/SpyLogFlusher.class
+	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
+	net/spy/SpyConfigReader.class
 
 FDEST=/home/dustin/lib/java
 SCP=scp

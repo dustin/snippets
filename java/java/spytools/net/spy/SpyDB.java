@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.1 1999/10/20 02:25:35 dustin Exp $
+ * $Id: SpyDB.java,v 1.2 1999/10/20 07:41:20 dustin Exp $
  */
 
 package net.spy;
@@ -16,9 +16,18 @@ public class SpyDB extends Object {
 	protected static DbConnectionBroker dbs=null;
 	Connection conn=null;
 	SpyConfig conf = null;
+	boolean auto_free = true;
 
 	public SpyDB(SpyConfig conf) {
 		this.conf=conf;
+		if(dbs==null) {
+			initDBS();
+		}
+	}
+
+	public SpyDB(SpyConfig conf, boolean auto_free) {
+		this.conf=conf;
+		this.auto_free=auto_free;
 		if(dbs==null) {
 			initDBS();
 		}
@@ -63,12 +72,17 @@ public class SpyDB extends Object {
 		conn=dbs.getConnection();
 		// Make sure we got one, *and* it's open.
 		if(conn==null || conn.isClosed()) {
-			log("conn is null, need to reinit");
-			initDBS();
+			log("conn is null, trying to run finalization");
+			System.runFinalization();
 			conn=dbs.getConnection();
 			if(conn==null || conn.isClosed()) {
-				log("conn is *still* null, need to reinit");
+				log("conn is null again, reinitializing");
 				initDBS();
+				conn=dbs.getConnection();
+				if(conn==null || conn.isClosed()) {
+					log("conn is *still* null, need to reinit");
+					initDBS();
+				}
 			}
 		}
 	}
@@ -93,5 +107,17 @@ public class SpyDB extends Object {
 			// Do nothing
 			// throw new Exception("dbs broke:  " + e);
 		}
+	}
+
+	// Free!
+	public void finalize() throws Throwable {
+		if(auto_free && conn!=null) {
+			try {
+				freeDBConn();
+			} catch(Exception e) {
+				// Nothin'
+			}
+		}
+		super.finalize();
 	}
 }
