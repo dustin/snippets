@@ -1,0 +1,17 @@
+CPPFLAGS=@CPPFLAGS@
+CFLAGS=@CFLAGS@
+LDFLAGS=@LDFLAGS@
+CXX=@CXX@
+
+OBJS=LogFile.o
+
+CONFIGSTUFF=config.log config.cache config.status Makefile
+
+test: $(OBJS) test.o
+	$(CXX) $(LDFLAGS) -o $@ test.o $(OBJS)
+
+clean:
+	rm -f $(OBJS) test.o test
+
+distclean: clean
+	rm -f $(CONFIGSTUFF)
