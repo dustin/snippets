@@ -1,10 +1,11 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseSQLLog.scm,v 1.2 2002/12/28 00:57:09 dustin Exp $
+; $Id: parseSQLLog.scm,v 1.3 2002/12/28 03:33:30 dustin Exp $
 
 (module parse-sql-log
 	(import
 	  (dates "../dates.scm")
+	  (misclib "../misclib.scm")
 	  (stringlib "../stringlib.scm"))
 	(main main))
 
@@ -59,32 +60,30 @@
 ; Grab each line from stdin, pass it to process-line-to-rrd
 (define (process-to-rrd rrdfile)
   (let ( (last-time 0) (total-calls 0) (total-time 0))
-	(let loop ((line (read-line (current-input-port))))
-		(if (not (eof-object? line))
-			(begin
-				; If this line looks like what we want, process it
-				(if (strstr line "database.DBManager.sql" 20)
-				  (let ((le (get-log-entry line)))
-					; (print-log-entry le)
-					(let ((t (approx-time (log-entry-time le))))
-					  (if (and
-							(not (= t last-time))
-							(not (zero? last-time))
-							(> total-calls 0))
-						(begin
-						  (print-update rrdfile last-time total-calls
-										total-time)
-						  (set! total-calls 0)
-						  (set! total-time 0)))
-					  (if (> (log-entry-calls le) 0)
-						(begin
-						  (set! last-time t)
-						  (set! total-calls (+ 1 total-calls))
-						  (set! total-time (+ total-time
-											  (truncate
-												(/ (log-entry-calltime le)
-												 (log-entry-calls le))))))))))
-				(loop (read-line (current-input-port))))))))
+	(input-loop
+	  (lambda (line)
+		; If this line looks like what we want, process it
+		(if (strstr line "database.DBManager.sql" 20)
+		  (let ((le (get-log-entry line)))
+			; (print-log-entry le)
+			(let ((t (approx-time (log-entry-time le))))
+			  (if (and
+					(not (= t last-time))
+					(not (zero? last-time))
+					(> total-calls 0))
+				(begin
+				  (print-update rrdfile last-time total-calls total-time)
+				  (set! total-calls 0)
+				  (set! total-time 0)))
+			  (if (> (log-entry-calls le) 0)
+				(begin
+				  (set! last-time t)
+				  (set! total-calls (+ 1 total-calls))
+				  (set! total-time
+					(+ total-time (truncate
+									(/ (log-entry-calltime le)
+									   (log-entry-calls le)))))))))))
+	  (current-input-port))))
 
 ; main, get the rrd file, and start processing stdin
 (define (main args)
