@@ -133,6 +133,12 @@ class PolicyTest(unittest.TestCase):
         gp.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DUNNO)
 
+        # Do another test with a shorter wait and make sure it passes, too
+        time.sleep(0.5)
+        del l[0]
+        gp.run(input=IterReader(iter(self.lines)), output=l)
+        self.assertMessage(l[0], postfix.PolicyResponse.DUNNO)
+
     def testChain(self):
         l=WriteCapture()
 

@@ -108,14 +108,14 @@ class GreylistPolicyEngine(PolicyEngine):
         if key in self.db:
             vs=self.db[key]
             sa=vs.split(' ')
-            rv=(float(sa[0]), int(sa[1]))
+            rv=(float(sa[0]), float(sa[1]), int(sa[2]))
         else:
-            rv = (time.time(), 0)
+            rv = (time.time(), time.time(), 0)
         return rv
 
-    def storeKey(self, key, count):
+    def storeKey(self, key, ftime, count):
         """Store the given key."""
-        self.db[key] = " ".join([str(time.time()), str(count+1)])
+        self.db[key] = " ".join([str(x) for x in [ftime, time.time(), count+1]])
 
     def process(self, attributes):
         rv = None
@@ -127,16 +127,17 @@ class GreylistPolicyEngine(PolicyEngine):
             recip=attributes['recipient']
             key = "/".join([subnet, sender, recip])
 
-            (t, count) = self.getRecord(key)
-            age = time.time() - t
+            (ftime, t, count) = self.getRecord(key)
+            now = time.time()
+            age = now - ftime
 
             if age < self.delay:
                 self.log.info("Deferring %s: (age: %.2fs)", key, age)
                 rv = PolicyResponse.DEFER_IF_PERMIT
             else:
-                self.log.info("Permitting %s (age %.2f, count=%d)",
-                    key, age, count)
-            self.storeKey(key, count)
+                self.log.info("Permitting %s (age %.2f, last %.2f, count=%d)",
+                    key, age, (now - t), count)
+            self.storeKey(key, ftime, count)
         except KeyError:
             self.log.exception("Could not process %s", attributes)
 
