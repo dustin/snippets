@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.8 2001/05/07 07:46:07 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.9 2001/05/07 07:52:11 dustin Exp $
  */
 
 package net.spy.db;
@@ -164,9 +164,13 @@ public class CachePreparedStatementStub extends Object {
 				case Types.TIMESTAMP:
 					pst.setTimestamp(i+1, (Timestamp)args[i]);
 					break;
+				case Types.DECIMAL:
+					pst.setBigDecimal(i+1, (BigDecimal)args[i]);
+					break;
 				default:
-					throw new SQLException("Whoops, type " + types[i]
-						+ " seems to have been overlooked.");
+					throw new SQLException("Whoops, type "
+						+ types[i] + " (" + TypeNames.getTypeName(types[i])
+						+ ") seems to have been overlooked.");
 			}
 		}
 
