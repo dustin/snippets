@@ -14,7 +14,7 @@ class OidResolve:
 		parts=name.split('.')
 		if self.mib2oids.has_key(parts[0]):
 			parts[0]=self.mib2oids[parts[0]]
-		rv='.'.join(parts)
+		rv='.'+'.'.join(parts)
 		return(rv)
 
 	mib2oids={
