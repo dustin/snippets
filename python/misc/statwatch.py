@@ -46,7 +46,11 @@ except ImportError:
 class Host:
     """A host to watch"""
 
-    def __init__(self, url):
+    def __init__(self, url, shortName=None):
+        if shortName is None:
+            self.shortName=url
+        else:
+            self.shortName=shortName
         self.url=url
         self.vals={}
         self.exception=None
@@ -79,7 +83,7 @@ class Host:
             self.exception=None
 
     def __repr__(self):
-        return "<Host: " + self.url + ">"
+        return "<Host: " + self.shortName + " - " + self.url + ">"
 
     # Alias str() to ``
     __str__ = __repr__
@@ -174,8 +178,7 @@ def showTimes(times, readings):
             # No data found for this key
             pass
 
-if __name__ == '__main__':
-
+def getServers():
     # Build the list of servers
     servers={}
 
@@ -191,7 +194,7 @@ if __name__ == '__main__':
             parts=s.split(".")
             url="http://" + parts[0] + ".diag." + parts[1] \
                 + ".2wire.com:8080/admin/monitor/stat"
-            tmp.append(url)
+            tmp.append(Host(url, parts[0]))
         servers[cluster] = tmp
 
     # Production aliases
@@ -203,10 +206,16 @@ if __name__ == '__main__':
     except KeyError:
         pass
     # Farooq
-    servers['noc5']=['http://noc.noc5.2wire.com/admin/monitor/stat']
+    servers['noc5']=[Host('http://noc.noc5.2wire.com/admin/monitor/stat',
+        'noc5')]
     # Dustin
     servers['noc13']=\
-        ['http://desktop.dsallings.eng.2wire.com/admin/monitor/stat']
+        [Host('http://desktop.dsallings.eng.2wire.com/admin/monitor/stat',
+            'noc13')]
+
+    return servers
+
+if __name__ == '__main__':
 
     # Time calculation stuff
     timeCalcs=( ('Heartbeat', 'rpc.time.HB', 'rpc.success.CMS_HEARTBEAT'),
@@ -220,11 +229,11 @@ if __name__ == '__main__':
         hparam=sys.argv[1]
 
     # Get the server list
-    u=servers.get(hparam, None)
-    hosts=None
+    servers=getServers()
+    hosts=servers.get(hparam, None)
 
     # If we didn't get one, print a nice happy error
-    if u is None:
+    if hosts is None:
         snames=servers.keys()
         snames.sort()
         print ""
@@ -233,10 +242,7 @@ if __name__ == '__main__':
             print "\t" + s
         print ""
         raise "Invalid cluster:  " + sys.argv[1]
-    else:
-        # Construct a host object for each URL
-        hosts=map(Host, u)
-    print "Using the following URLs:  " + `u`
+    print "Using the following URLs:  " + `hosts`
 
     # Check to see if a prefix was applied
     prefix=""
