@@ -1,53 +1,7 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: kittycode.js,v 1.1 2000/09/19 20:47:38 dustin Exp $
+// $Id: kittycode.js,v 1.2 2000/09/20 03:42:24 dustin Exp $
 // Any work derived from this code must retain the above copyright.
 // Please send all modifications of this script to me.
-
-// Someone just let me know if there's a hash in javascript...
-function lookupCode(input) {
-
-	var done=false;
-	var retval=' > ' + input + ' < ';
-
-	var keys = new Array('b','D','f','j','Ch','Dh','n','P','0','1','CN',
-					'r','DN','2','EN','3','T','6','v','C3','7','W','D3',
-					'E3','X','Y','Z','z','Cx','Dx','CG');
-	var vals = new Array('3','4','2','1','3','7','0','9','7','6','1','7',
-					'5','5','9','4','8','9','6','0','8','3','4','8','2',
-					'1','0','5','2','6','1');
-
-	for(i=0; i<keys.length && !done; i++) {
-		if(keys[i] == input) {
-			retval=vals[i];
-			done=true;
-		}
-	}
-
-	return retval;
-}
-
-function decodeChunk(input, chunk) {
-
-	if(chunk.length==2) {
-		input += lookupCode(chunk);
-	} else if(chunk.length==3) {
-		input += lookupCode(chunk.substring(0, 2));
-		input += lookupCode(chunk.substring(2, 3));
-	} else if(chunk.length>=4) {
-		input += lookupCode(chunk.substring(0, 2));
-		input += lookupCode(chunk.substring(2, 3));
-		input += lookupCode(chunk.substring(3, 4));
-		// We need to go again if the input was greater than six
-		input=decodeChunk(input, chunk.substring(4));
-	} else if(chunk.length==0) {
-		return input;
-	} else {
-		return "INVALID CHUNK!";
-	}
-
-
-	return(input);
-}
 
 function kittyCode() {
 	// Make sure there's something in there before we do this.
@@ -62,7 +16,50 @@ function kittyCode() {
 		// 4 = empty
 		if(parts.length == 5) {
 			// We just care about the actual scanned code right now
-			document.form.kittyinput.value=decodeChunk("", parts[3]);
+			document.form.kittyinput.value=decodePart(parts[3]);
 		}
 	}
+}
+
+function decodePart(str) {
+	var m = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+	var result = "";
+	var packer = 0;
+	var count = 0;
+
+	var i = 0;
+	for (i=0; i < str.length; i++) {
+		// Get the offset to the current character in our map
+		var x = m.indexOf(str.charAt(i));
+
+		// For invalid characters, point them out really well!
+		if(x<0) {
+			result += " > " + str.charAt(i) + " < ";
+			continue;
+		}
+
+		// only count valid characters...why not?
+		count++;
+
+		// Pack them bits.
+		packer = packer << 6 | x
+
+		// every four bytes, we have three valid characters.
+		if (count == 4) {
+			result += String.fromCharCode((packer >> 16) ^ 67);
+			result += String.fromCharCode((packer >> 8 & 255) ^ 67);
+			result += String.fromCharCode((packer & 255) ^ 67);
+			count=0; packer=0;
+		}
+
+	}
+
+	// Now, deal with the remainders
+	if(count==2) {
+		result += String.fromCharCode((( (packer << 12) >> 16) ^ 67));
+	} else if(count == 3) {
+		result += String.fromCharCode(( (packer << 6) >> 16) ^ 67);
+		result += String.fromCharCode(( (packer << 6) >> 8 & 255) ^ 67);
+	}
+	return result;
 }
