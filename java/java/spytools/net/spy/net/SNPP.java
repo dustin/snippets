@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.11 2001/02/07 06:31:30 dustin Exp $
+// $Id: SNPP.java,v 1.12 2001/02/08 21:28:49 dustin Exp $
 
 package net.spy.net;
 
@@ -271,7 +271,7 @@ public class SNPP {
 		prout.flush();
 		getaline();
 		if(!ok()) {
-			throw new Exception(currentmessage);
+			throw new Exception(currentmessage + " (" + command + ")");
 		}
 	}
 

@@ -66,6 +66,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/CachedResultSet.class \
 	net/spy/db/SpyCacheDB.class
 
+	# net/spy/loader/ClassReLoader.class
+
 # Extra stuff to be cleaned
 GENERATED=net/spy/db/CachePreparedStatement.java \
 	net/spy/db/CachedResultSet.java
