@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.3 1998/04/25 09:15:03 dustin Exp $
+-- $Id: photo.sql,v 1.4 1998/04/26 05:31:50 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -18,6 +18,7 @@ create table album(
 );
 
 create unique index album_byoid on album(oid);
+create index album_bycat on album(cat);
 grant all on album to nobody;
 
 -- A sequence for generating categories
