@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.13 2002/03/15 01:43:36 dustin Exp $
+ * $Id: tablecounter.c,v 1.14 2002/03/15 09:52:46 dustin Exp $
  */
 
 #include <stdio.h>
@@ -28,9 +28,13 @@
 	MAKEDBSPEC4(dbname, table, tscolumn, "select count(*) from " #table)
 #define MAKEDBSPEC(dbname, table) MAKEDBSPEC3(dbname, table, "ts")
 
+#define TIGERDBOLD(table) \
+	{ "disk", DBUSER, DBPASS, NULL, "tiger", "2345", table, "ts", \
+		"select count(*) from %t" }
+
 #define TIGERDB(table) \
 	{ "disk", DBUSER, DBPASS, NULL, "tiger", "2345", table, "ts", \
-		"select count(*) from " #table }
+		"select rows from counts where tablename='%t'" }
 
 #define INCREMENT 3600
 
@@ -128,8 +132,6 @@ void process(struct checkspec query)
 							query.query[i], query.query);
 
 				} /* inner switch */
-				/* Skip the %ed character */
-				i++;
 				break;
 			default:
 				querystr[j++]=query.query[i];
@@ -137,14 +139,16 @@ void process(struct checkspec query)
 	}
 	assert(strlen(querystr) < sizeof(querystr));
 
-	/*
-	fprintf(stderr, "Issuing the following query:\n%s\n", querystr);
-	*/
-
 	res=PQexec(dbConn, querystr);
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "Query failed:  %s\n%s\n",
 			PQerrorMessage(dbConn), querystr);
+		goto finished;
+	}
+
+	if(PQntuples(res) != 1) {
+		fprintf(stderr, "Returned %d rows from the count query:  %s\n",
+			PQntuples(res), querystr);
 		goto finished;
 	}
 
@@ -218,7 +222,7 @@ void realmain(time_t backfill_time)
 			"select last_value from music_mp3_downl_download_id_seq"),
 		MAKEDBSPEC("music", "music_subscribers"),
 		MAKEDBSPEC("temperature", "samples"),
-		TIGERDB("loaded_files"),
+		TIGERDBOLD("loaded_files"),
 		TIGERDB("type_1"),
 		TIGERDB("type_2"),
 		TIGERDB("type_3"),
