@@ -306,8 +306,6 @@ public class InterfaceImplementor extends Object {
 
 	/**
 	 * Generate the source code for the class this object represents.
-	 *
-	 * @exception Exception now and then
 	 */
 	public String makeSource() {
 		String ret="";

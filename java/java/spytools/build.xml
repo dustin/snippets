@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.26 2002/08/16 05:45:21 dustin Exp $
+	$Id: build.xml,v 1.27 2002/08/16 06:03:43 dustin Exp $
 
 	-->
 
@@ -65,15 +65,17 @@
 		</delete>
 	</target>
 
-	<target name="docs" depends="all" unless="docs.upToDate">
+	<target name="docs" depends="all,properties" unless="docs.upToDate">
 		<mkdir dir="docs"/>
 		<javadoc destdir="${DOCDEST}"
 			author="true"
 			version="true"
 			use="true"
 			sourcePath="${SRCDIR}"
+			protected="true"
 			packagenames="net.spy.*"
-			windowtitle="Spy.jar Documentation">
+			windowtitle="Spy.jar Documentation - build ${build.number} from ${build.date}"
+			doctitle="Spy.jar Documentation - build ${build.number} from ${build.date}">
 			<link href="http://java.sun.com/j2se/1.3/docs/api/"/>
 		</javadoc>
 		<property name="docs.upToDate" value="true"/>
