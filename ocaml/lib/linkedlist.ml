@@ -13,7 +13,7 @@ type 'a node = {
 	data: 'a;
 	mutable prev: 'a node;
 	mutable next: 'a node;
-} and 'a t = { mutable l: 'a node; mutable cnt: int }
+} and 'a t = { mutable l: 'a node option; mutable cnt: int }
 ;;
 
 (** Exception thrown when certain operations are attempted on an empty list. *)
@@ -29,8 +29,10 @@ let create_node x =
 
 (** Get the head node of the given list. *)
 let head_node l =
-	if (l.cnt = 0) then raise Empty_list
-	else l.l
+	match l.l with
+	None -> raise Empty_list
+	| Some el ->
+		el
 ;;
 
 (** Get the size of the given linked list. *)
@@ -40,8 +42,15 @@ let length l =
 
 (** Create a linked list. *)
 let create x =
-	{ l = create_node x; cnt=1 }
+	{ l = Some (create_node x); cnt=1 }
 ;;
+
+(*
+** Create an empty linked list. *
+let create_empty =
+	{ l = None; cnt=0; }
+;;
+*)
 
 (** Append to this list.
 
@@ -49,37 +58,33 @@ let create x =
 @param l the list to which to append
 *)
 let append x l =
-	if l.cnt = 0 then
-	begin
-		l.l <- create_node x;
+	match l.l with
+	None ->
+		let n = (create_node x) in
+		l.l <- Some n;
 		l.cnt <- 1;
-		l.l;
-	end
-	else
-	begin
+		n;
+	| Some el ->
 		let tmp = create_node x in
-		tmp.prev <- l.l.prev;
-		tmp.next <- l.l;
-		l.l.prev.next <- tmp;
-		l.l.prev <- tmp;
+		tmp.prev <- el.prev;
+		tmp.next <- el;
+		el.prev.next <- tmp;
+		el.prev <- tmp;
 		l.cnt <- l.cnt + 1;
 		tmp;
-	end
 ;;
 
 (** Iterate the given linked list. *)
 let iter f l =
-	if l.cnt = 0 then
-		()
-	else
-	begin
+	match l.l with
+	None -> ()
+	| Some el ->
 		let rec rec_iter ltmp =
 			f ltmp.data;
-			if ltmp.next != l.l then
+			if ltmp.next != el then
 				rec_iter ltmp.next;
 			in
-		rec_iter l.l
-	end
+		rec_iter el
 ;;
 
 (** Create a linked list from a list. *)
@@ -91,18 +96,16 @@ let create_from_list l =
 
 (** Convert this linked list into a regular list. *)
 let to_list l =
-	if l.cnt = 0 then
-		[]
-	else
-	begin
+	match l.l with
+	None -> []
+	| Some el ->
 		let rec rec_to_list lcur rv =
-			if lcur.next != l.l then
+			if lcur.next != el then
 				lcur.data :: (rec_to_list lcur.next rv)
 			else
 				[lcur.data]
 			in
-		rec_to_list l.l []
-	end
+		rec_to_list el []
 ;;
 
 (** Delete this item from the list it contains. *)
@@ -110,21 +113,30 @@ let remove l it =
 	if l.cnt = 0 then raise Empty_list;
 	it.next.prev <- it.prev;
 	it.prev.next <- it.next;
-	if l.l = it then l.l <- l.l.next;
-	l.cnt <- l.cnt - 1;
-	()
+	match l.l with
+	None -> ()
+	| Some el ->
+		if el = it then l.l <- Some el.next;
+		l.cnt <- l.cnt - 1;
+		()
 ;;
 
 (** Pop the last item off the list. *)
 let pop_last l =
-	let last = l.l.prev.data in
-	remove l l.l.prev;
-	last
+	match l.l with
+	None -> raise Empty_list
+	| Some el ->
+		let last = el.prev.data in
+		remove l el.prev;
+		last
 ;;
 
 (** Pop the first item off the list. *)
 let pop_first l =
-	let first = l.l.data in
-	remove l l.l;
-	first
+	match l.l with
+	None -> raise Empty_list
+	| Some el ->
+		let first = el.data in
+		remove l el;
+		first
 ;;
