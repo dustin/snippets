@@ -1,46 +1,65 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.11 1998/11/02 08:38:52 dustin Exp $
+-- $Id: photo.sql,v 1.12 1998/11/08 01:17:40 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
 
+-- add support for PL/pgsql
+
+CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
+        '/usr/local/pgsql/lib/plpgsql.so' LANGUAGE 'C';
+
+CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
+        HANDLER plpgsql_call_handler
+        LANCOMPILER 'PL/pgSQL';
+
 -- Where the picture info is stored.
 
 create table album(
-    fn       varchar(32),
-    keywords varchar(50),
-    descr    text,
-    ts       timestamp default now(),
-    cat      int,
-    taken    date,
-    size     int,
-    addedby  varchar(16)
+	keywords varchar(50),
+	descr    text,
+	cat      int,
+	taken    date,
+	size     int,
+	addedby  varchar(16),
+	ts       datetime default datetime(now()),
+	id       serial
 );
 
-create unique index album_byoid on album(oid);
 create index album_bycat on album(cat);
 grant all on album to nobody;
+-- implicit sequence
+grant all on album_id_seq to nobody;
 
--- A sequence for generating categories
+-- Get rid of all image_store data when an album entry is deleted:
 
-create sequence cat_seq;
-grant all on cat_seq to nobody;
+create function tg_album_delete() returns opaque as
+	'begin
+		delete from image_store where id = OLD.id;
+		return OLD;
+	 end;'
+	language 'plpgsql';
+
+create trigger album_cleanup_tg before delete on album
+	for each row execute procedure tg_album_delete();
 
 -- The categories
 
 create table cat(
-    id       int default nextval('cat_seq'),
-    name     varchar
+	id   serial,
+	name text
 );
 
 grant all on cat to nobody;
+-- implicit sequence
+grant all on cat_id_seq to nobody;
 
 -- The ACLs for the categories
 
 create table wwwacl(
-    username varchar(16),
-    cat      int
+	username varchar(16),
+	cat      int
 );
 
 create index acl_byname on wwwacl(username);
@@ -49,8 +68,8 @@ grant all on wwwacl to nobody;
 -- The group file for the Web server's ACL crap.
 
 create table wwwgroup(
-    username varchar(16),
-    groupname varchar(16)
+	username  varchar(16),
+	groupname varchar(16)
 );
 
 grant all on wwwgroup to nobody;
@@ -58,62 +77,37 @@ grant all on wwwgroup to nobody;
 -- The passwd file for the Web server's ACL crap.
 
 create table wwwusers(
-    username varchar(16),
-    password char(13),
-    email    varchar,
-    realname varchar,
-    canadd   bool
+	username varchar(16),
+	password char(13),
+	email    text,
+	realname text,
+	canadd   bool
 );
 
-create index user_byname on wwwusers(username);
+create unique index user_byname on wwwusers(username);
 grant all on wwwusers to nobody;
-
--- Blobs for images
-
-create sequence img_seq;
-grant all on img_seq to nobody;
-
-create table images (
-    id       int default nextval('img_seq'),
-    loid     oid
-);
-
-create unique index img_byid on images(id);
-grant all on images to nobody;
 
 -- Search saves
 
-create sequence search_seq;
-grant all on search_seq to nobody;
-
 create table searches (
-    id      int default nextval('search_seq'),
-    name    varchar,
-    addedby varchar,
-    search  varchar,
-    ts      datetime default('now')
+	id      serial,
+	name    text,
+	addedby text,
+	search  text,
+	ts      datetime default('now')
 );
 
-create unique index search_byid on searches(id);
 grant all on searches to nobody;
+-- implicit seqeunce
+grant all on searches_id_seq to nobody;
 
 -- Hmm...  Store images in text?  OK, sure...
-
-create sequence image_store_seq;
-grant all on image_store_seq to nobody;
-
-create table image_map (
-    id      int default nextval('image_store_seq'),
-    name    varchar
-);
-
-grant all on image_map to nobody;
-create unique index image_map_name on image_map(name);
+-- This is keyed of the id in the album table
 
 create table image_store (
-    id      int,
-    line    int,
-    data    varchar(76)
+	id   int,
+	line int,
+	data varchar(76)
 );
 
 grant all on image_store to nobody;
@@ -122,16 +116,16 @@ create index images_id on image_store(id);
 -- A SQL function to return the count of elements in a category.
 
 create function catsum (int4 )
-    returns int4 AS
+	returns int4 AS
 	'select count(*) from album where cat = $1'
-    language 'SQL';
+	language 'SQL';
 
 -- Quick lookup function for moving from a seperate map to a single image
 -- source.  This will go away as soon as that map does.
 
-create function getimageid(varchar) returns integer as
-       'select id from image_map where name = $1'
-       language 'sql';
+-- create function getimageid(varchar) returns integer as
+--	 'select id from image_map where name = $1'
+--	 language 'sql';
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -140,4 +134,4 @@ create function getimageid(varchar) returns integer as
 -- Garbage collector, unfortunately, this will not work in a view.
 
 -- select distinct id from image_store where id not in
---    (select id from image_map);
+--	(select id from image_map);
