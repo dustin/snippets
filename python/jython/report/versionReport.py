@@ -1,6 +1,5 @@
 #!/usr/bin/env jython
 
-import getdb
 import sys
 import os
 import net
@@ -73,6 +72,8 @@ def dotifyMappings(compatibilities, vc, tofile=sys.stdout):
 
     tofile.write('\t"' + vc.getName() + '";')
 
+    seen={}
+
     for ovc in compatibilities.values():
         if vc.getName() != ovc.getName():
             nh=vc.getNextHop(ovc)
@@ -80,8 +81,11 @@ def dotifyMappings(compatibilities, vc, tofile=sys.stdout):
                 sp=net.spy.util.ShortestPath(vc, ovc)
                 op=vc
                 for p in sp:
-                    tofile.write('\t"' + op.getName() + '" -> "' \
-                        + p.getName() + '";\n')
+                    k=`op.getName()` + "-to-" + `p.getName()`
+                    if not seen.has_key(k):
+                        tofile.write('\t"' + op.getName() + '" -> "' \
+                            + p.getName() + '";\n')
+                        seen[k]=1
                     op=p
 
     tofile.write("}\n")
@@ -94,6 +98,8 @@ def dotifyRevMap(compatibilities, vc, tofile=sys.stdout):
 
     tofile.write('\t"' + vc.getName() + '";')
 
+    seen={}
+
     for ovc in compatibilities.values():
         if vc.getName() != ovc.getName():
             # Figure out if we can get to the one destination from here
@@ -103,8 +109,11 @@ def dotifyRevMap(compatibilities, vc, tofile=sys.stdout):
                 sp=net.spy.util.ShortestPath(ovc, vc)
                 op=ovc
                 for p in sp:
-                    tofile.write('\t"' + op.getName() + '" -> "' \
-                        + p.getName() + '";\n')
+                    k=`op.getName()` + "-to-" + `p.getName()`
+                    if not seen.has_key(k):
+                        tofile.write('\t"' + op.getName() + '" -> "' \
+                            + p.getName() + '";\n')
+                        seen[k]=1
                     op=p
 
     tofile.write("}\n")
