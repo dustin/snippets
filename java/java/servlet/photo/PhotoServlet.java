@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.12 1999/09/24 18:58:07 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.13 1999/09/28 04:47:02 dustin Exp $
  */
 
 import java.io.*;
@@ -961,81 +961,28 @@ public class PhotoServlet extends HttpServlet
 	private void showImage(HttpServletRequest request,
 		HttpServletResponse response) throws ServletException {
 
-		String query, key;
-		ServletOutputStream		out;
-		Vector v = null;
-		BASE64Decoder base64 = new BASE64Decoder();
+		Vector v;
+		int i, which;
+		ServletOutputStream out;
+
+		// The new swank image extraction object.
+		PhotoImage p = new PhotoImage(dbs, rhash);
 
 		response.setContentType("image/jpeg");
 		String s = request.getParameter("photo_id");
-		Integer which = Integer.valueOf(s);
+		which = Integer.valueOf(s).intValue();
 
 		try {
 			// Need a binary output thingy.
 			out = response.getOutputStream();
-		} catch(IOException e) {
+
+			v=p.fetchImage(which);
+			for(i = 0; i<v.size(); i++) {
+				out.write( (byte[])v.elementAt(i));
+			}
+
+		} catch(Exception e) {
 			throw new ServletException("IOException:  " + e.getMessage());
-		}
-
-		key = "photo_" + which.toString();
-
-		if(rhash!=null) {
-			v = (Vector)rhash.get(key);
-		} else {
-			log("No rhash for image cache, must use database directly");
-		}
-
-		if(v==null) {
-
-			v = new Vector();
-			Connection photo;
-			try {
-				photo=getDBConn();
-			} catch(Exception e) {
-				throw new ServletException("Can't get database connection: "
-					+ e.getMessage());
-			}
-			query = "select * from image_store where id = " + which +
-				" order by line";
-
-			System.out.print("Doing query:  " + query + "\n");
-
-			try {
-
-				Statement st = photo.createStatement();
-				ResultSet rs = st.executeQuery(query);
-
-				log("Getting image " + which + " from database.");
-
-				while(rs.next()) {
-					byte data[];
-					data=base64.decodeBuffer(rs.getString(3));
-					v.addElement(data);
-					out.write(data);
-				}
-				if(rhash != null) {
-					log("Storing " + key + " in RHash");
-					rhash.put(key, v);
-				} else {
-					log("No RHash, can't cache data.");
-				}
-			} catch(Exception e) {
-				throw new ServletException("Problem getting image: " +
-					e.getMessage());
-			}
-			finally { freeDBConn(photo); }
-		} else {
-			int i;
-
-			log("Getting image " + which + " from RHash.");
-
-			try {
-				for( i = 0 ; i < v.size(); i++) {
-					out.write( (byte[])v.elementAt(i));
-				}
-			} catch(IOException e) {
-				throw new ServletException("IOException:  " + e.getMessage());
-			}
 		}
 	}
 
