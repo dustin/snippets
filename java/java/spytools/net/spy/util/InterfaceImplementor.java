@@ -300,7 +300,7 @@ public class InterfaceImplementor extends Object {
 		}
 
 		// Now, implement the methods of the interface
-		Method methods[]=interfaceClass.getDeclaredMethods();
+		Method methods[]=interfaceClass.getMethods();
 		for(int i=0; i<methods.length; i++) {
 			String sig=getSignature(methods[i]);
 			if(!definedFunctions.containsKey(sig)) {

@@ -57,7 +57,12 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/SNPPPoolAble.class \
 	net/spy/cache/SpyCache.class \
 	'net/spy/cache/SpyCache$$SpyCacheCleaner.class' \
-	'net/spy/cache/SpyCache$$SpyCacheItem.class'
+	'net/spy/cache/SpyCache$$SpyCacheItem.class' \
+	net/spy/db/CachePreparedStatementStub.class \
+	net/spy/db/CachedResultSetStub.class \
+	net/spy/db/CachePreparedStatement.class \
+	net/spy/db/CachedResultSet.class \
+	net/spy/db/SpyCacheDB.class
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
 	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util
@@ -100,6 +105,26 @@ net/spy/rmi/RObjectImpl_Stub.class: \
 	net/spy/pool/ObjectPool.class
 
 'net/spy/SpyConfig$$SpyConfigReader.class': net/spy/SpyConfig.class
+
+# Generated CachedResultSet.java (to class)
+net/spy/db/CachedResultSet.java: \
+	net/spy/util/InterfaceImplementor.class \
+	net/spy/db/CachedResultSetStub.class
+	$(JAVA) net.spy.util.InterfaceImplementor \
+		-interface java.sql.ResultSet \
+		-superclass net.spy.db.CachedResultSetStub \
+		-outputclass net.spy.db.CachedResultSet
+
+net/spy/db/CachePreparedStatementStub.class: net/spy/db/CachedResultSet.class
+
+# Generated CachePreparedStatement.java (to class)
+net/spy/db/CachePreparedStatement.java: \
+	net/spy/util/InterfaceImplementor.class \
+	net/spy/db/CachePreparedStatementStub.class
+	$(JAVA) net.spy.util.InterfaceImplementor \
+		-interface java.sql.PreparedStatement \
+		-superclass net.spy.db.CachePreparedStatementStub \
+		-outputclass net.spy.db.CachePreparedStatement
 
 .java.class:
 	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
