@@ -1,11 +1,10 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.4 2001/02/07 06:31:43 dustin Exp $
+// $Id: SpyTemp.java,v 1.5 2002/05/04 05:45:08 dustin Exp $
 
 package net.spy.temperature;
 
 import java.util.*;
-import java.lang.*;
 
 import net.spy.net.*;
 
@@ -15,11 +14,27 @@ import net.spy.net.*;
 
 public class SpyTemp extends Object {
 
-	private static String temp_base=
+	private static final String DEFAULT_TEMP_BASE=
 		"http://bleu.west.spy.net/servlet/Temperature";
 
+	private String temp_base=null;
+
+	/**
+	 * Get a SpyTemp object reading from the default temperature base.
+	 */
 	public SpyTemp() {
+		this(DEFAULT_TEMP_BASE);
+	}
+
+	/**
+	 * Get a SpyTemp object reading from the default temperature base.
+	 *
+	 * @param tempBase URL to the net.spy.temperature.Temperature servlet
+	 * that will be answering temperature requests.
+	 */
+	public SpyTemp(String tempBase) {
 		super();
+		this.temp_base=tempBase;
 	}
 
 	/**
