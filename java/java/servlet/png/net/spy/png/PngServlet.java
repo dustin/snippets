@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PngServlet.java,v 1.2 2002/04/12 08:32:22 dustin Exp $
+// $Id: PngServlet.java,v 1.3 2002/04/12 08:52:15 dustin Exp $
 
 package net.spy.png;
 
@@ -52,10 +52,13 @@ public class PngServlet extends HttpServlet {
 	protected void writeImage(HttpServletRequest request,
 		HttpServletResponse response, Image image) throws IOException {
 
-		String encodings=request.getHeader("Accept-Encoding");
+		String encodings=request.getHeader("Accept");
+		// log("Encodings:  " + encodings);
 		if(encodings != null && encodings.indexOf("png")>=0) {
+			log("Sending PNG");
 			writePng(request, response, image);
 		} else {
+			log("Sending GIF");
 			writeGif(request, response, image);
 		}
 	}
