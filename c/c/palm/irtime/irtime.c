@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.5 2000/08/22 16:52:19 dustin Exp $
+ * $Id: irtime.c,v 1.6 2000/08/22 16:56:53 dustin Exp $
  */
 
 #include <Common.h>
@@ -138,10 +138,10 @@ void receiveData(ExgSocketType *exgsocket)
 			 * if he wants the time set...but for now, calculate the new
 			 * time and diff it. */
 
-			tdiff=(myt-t);
+			tdiff=(long)(myt-t);
 
 			myt=TimGetSeconds();
-			myt+=tdiff;
+			myt-=tdiff;
 			TimSetSeconds(myt);
 			infoPopup("Set time!");
 		}
