@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-//$Id: Loader.java,v 1.1 2001/01/27 09:14:04 dustin Exp $
+//$Id: Loader.java,v 1.2 2001/08/15 09:05:24 dustin Exp $
 
 package net.spy.test;
 
@@ -32,12 +32,15 @@ public class Loader extends Object {
 
 	public static SpyDB db=null;
 
+	// Gotta stick the test ID here.
+	private static final int TEST_ID=2;
+
 	public static void store(String question, Vector answers, int correct)
 		throws Exception {
 
 		PreparedStatement pst=db.prepareStatement(
 			"insert into test_questions(test_id, question) values(?,?)");
-		pst.setInt(1, 1);
+		pst.setInt(1, TEST_ID);
 		pst.setString(2, question);
 		System.out.println("Inserting the following:\n" + pst);
 		pst.executeUpdate();
@@ -65,6 +68,8 @@ public class Loader extends Object {
 
 	public static void main(String args[]) throws Exception {
 		db=new SpyDB(new TestConfig());
+		Connection conn=db.getConn();
+		conn.setAutoCommit(false);
 		BufferedReader bin =
 			new BufferedReader(new InputStreamReader(System.in));
 		String in=null;
@@ -108,6 +113,9 @@ public class Loader extends Object {
 
 		} // while
 
+		conn.commit();
+		conn.setAutoCommit(true);
+		db.close();
 	}
 
 }

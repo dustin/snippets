@@ -1,22 +1,20 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
-MYLIB=/home/dustin/lib/java
+MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
 C3=$(MYLIB)/spy.jar:$(MYLIB)/postgresql.jar:$(MYLIB)/xml4j.jar
 CLASSPATH=$(C1):$(C2):$(C3):.
-SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
 SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/test/
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=net/spy/test/TestTaker.class net/spy/test/TestSession.class \
-	net/spy/test/TestConfig.class \
+CLASSES=net/spy/test/TestConfig.class \
 	net/spy/test/TestUser.class net/spy/test/TestTest.class \
 	net/spy/test/TestQuestion.class net/spy/test/TestAnswer.class \
 	net/spy/test/Loader.class
