@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogImageEntry.java,v 1.1 1999/09/30 06:53:05 dustin Exp $
+ * $Id: PhotoLogImageEntry.java,v 1.2 1999/09/30 17:37:14 dustin Exp $
  */
 
 
@@ -30,7 +30,6 @@ public class PhotoLogImageEntry extends PhotoLogEntry {
 		cached=c;
 		remote_addr=request.getRemoteAddr();
 		server_host=request.getServerName();
-		// user_agent=getAttribute("org.apache.jserv.USER_AGENT");
 		user_agent=request.getHeader("User-Agent");
 		timestamp = new Date();
 	}
@@ -42,8 +41,9 @@ public class PhotoLogImageEntry extends PhotoLogEntry {
 		r="insert into photo_log(photo_id, wwwuser_id, remote_addr, "
 			+ "server_host, user_agent, cached, ts) values("
 			+ photo_id + ", " + wwwuser_id + ", '" + remote_addr
-			+ "', '" + server_host + "', '" + PhotoUtil.dbquote_str(user_agent)
-			+ "', '" + cached + "', '" + f.format(timestamp) + " GMT')";
+			+ "', '" + server_host
+			+ "', get_agent('" + PhotoUtil.dbquote_str(user_agent) + "'), '"
+			+ cached + "', '" + f.format(timestamp) + " GMT')";
 
 		return(r);
 	}

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.2 1999/09/30 06:53:06 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.3 1999/09/30 17:37:15 dustin Exp $
  */
 
 import java.io.*;
@@ -33,11 +33,12 @@ public class PhotoLogView extends PhotoHelper
 				+ e.getMessage());
 		}
 
-		query = "select wwwusers.username, log.remote_addr, log.user_agent,\n"
-			  + "    log.cached, log.ts\n"
-			  + "  from wwwusers, photo_log log\n"
+		query = "select wwwusers.username, log.remote_addr,\n"
+			  + "   user_agent.user_agent, log.cached, log.ts\n"
+			  + "  from wwwusers, photo_log log, user_agent\n"
 			  + "  where log.wwwuser_id = wwwusers.id and\n"
-			  + "    log.photo_id = " + photo_id + "\n"
+			  + "    log.photo_id = " + photo_id + " and\n"
+			  + "    user_agent.user_agent_id = log.user_agent\n"
 			  + "  order by log.ts\n";
 		try {
 			st = db.createStatement();
