@@ -1,5 +1,5 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTaskFactory.java,v 1.1 2002/07/11 20:58:40 dustin Exp $
+// $Id: MTTaskFactory.java,v 1.2 2002/07/11 21:38:03 dustin Exp $
 
 package net.spy.test;
 
@@ -8,6 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Factory for creating MTTask instances.
+ *
+ * Due to the way inner classes are constructed, the MTTaskFactory may not
+ * be used to construct inner classes at this time.
  */
 public class MTTaskFactory extends Object {
 
@@ -39,10 +42,11 @@ public class MTTaskFactory extends Object {
 
 		if(!MTTask.class.isAssignableFrom(mtTaskClass)) {
 			throw new IllegalArgumentException(
-				"mtTaskClass must be a subclass of MTTask");
+				"mtTaskClass must be a subclass of MTTask "
+                + mtTaskClass.getName() + " is not");
 		}
 
-		if(!MTTask.class.equals(mtTaskClass)) {
+		if(MTTask.class.equals(mtTaskClass)) {
 			throw new IllegalArgumentException(
 				"mtTaskClass must be a subclass of MTTask");
 		}
@@ -57,6 +61,11 @@ public class MTTaskFactory extends Object {
 			cons=mtTaskClass.getConstructor(argTypes);
 		} catch(NoSuchMethodException nsme) {
 			nsme.printStackTrace();
+            // Find constructors:
+            Constructor list[]=mtTaskClass.getConstructors();
+            for(int i=0; i<list.length; i++) {
+                System.err.println("Constructor:  " + list[i]);
+            }
 			throw new Error(mtTaskClass.getName()
 				+ " appears to be a subclass of " + MTTask.class.getName()
 				+ " but couldn't find a valid constructor.");
