@@ -1,10 +1,11 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Collapse.pm,v 1.2 1997/12/31 08:52:42 dustin Exp $
+# $Id: Collapse.pm,v 1.3 1997/12/31 09:45:24 dustin Exp $
 
 package Collapse;
 
 use strict;
+use CGI;
 
 sub new
 {
@@ -14,6 +15,8 @@ sub new
 
     $self->{ary}=[$a];
     $self->{expand}=$h;
+    $self->{html_expand}="Expand";
+    $self->{html_collapse}="Collapse";
 
     # foreach (keys(%{$self->{expand}}))
     # {
@@ -30,6 +33,18 @@ sub get_ary
 {
     my($self)=shift;
     return($self->{ary});
+}
+
+sub set_html_expand
+{
+    my($self)=shift;
+    $self->{html_expand}=shift;
+}
+
+sub set_html_collapse
+{
+    my($self)=shift;
+    $self->{html_collapse}=shift;
 }
 
 sub print_text
@@ -49,110 +64,131 @@ sub print_html
 sub _show_array_html
 {
     my($self, $prepend, $depth, $ary)=@_;
-    my($test, $label, $pad);
+    my($test, $label, $pad, $url, $q);
     my(%expand)=%{$self->{expand}};
+
+    $q=CGI->new;
 
     if(ref($ary))
     {
-	$test=$prepend;
-	if( ( $test eq "" ) || defined($expand{$test}))
-	{
-            $pad="";
-	    if($depth>=0)
-	    {
-	        for(1..$depth)
-	        {
-		    $pad.="    ";
-	        }
-		if(ref($ary->[0]))
-		{
-		    $label="";
-		}
-		else
-		{
-	            $label=shift(@{$ary});
-		}
-                print "$pad<li>$label<br>\n$pad<ul>\n";
-	    }
+        $test=$prepend;
+        $pad="";
+        if($depth>=0)
+        {
+            for(1..$depth)
+            {
+                $pad.="    ";
+            }
+            if(ref($ary->[0]))
+            {
+                $label="";
+            }
+            else
+            {
+                $label=shift(@{$ary});
+            }
+        }
 
-	    foreach(0..@{$ary}-1)
-	    {
-	        _show_array_html($self, ($prepend eq "" ? $_ : "$prepend:$_"),
-		    $depth+1, @{$ary}[$_]);
-	    }
+        if( ( $test eq "" ) || defined($expand{$test}))
+        {
+	    delete($expand{$test});
+	    $url =$q->url . "?expand=" . join(',', keys(%expand));
+	    $expand{$test}=1;
+	    $url="<a href=\"$url\">$self->{html_collapse}</a>";
+            print "$pad<li>$url \&nbsp; $label<br>\n" if($depth>=0);
 
-            print "$pad</ul></li>\n";
-	}
-	else
-	{
-	    print "<!-- Not expanding $test -->\n";
-	}
+	    print "$pad<ul>\n" if($depth>=0);
+            foreach(0..@{$ary}-1)
+            {
+		if((ref($ary->[$_]) eq "ARRAY") || length($ary->[$_]))
+		{
+                    _show_array_html($self,
+			($prepend eq "" ? $_ : "$prepend:$_"),
+                        $depth+1, @{$ary}[$_]);
+		}
+            }
+	    print "$pad</ul>\n" if($depth>=0);
+        }
+        else
+        {
+	    $url =$q->url . "?expand=" . join(',', keys(%expand), $test);
+	    $url="<a href=\"$url\">$self->{html_expand}</a>";
+            print "$pad<li>$url \&nbsp; $label<br>\n" if($depth>=0);
+        }
+	print "$pad</li>\n" if($depth>=0);
     }
     else
     {
-	for(1..$depth)
-	{
-	    print "    ";
-	}
-	print "<li>$ary</li>\n";
+        for(1..$depth)
+        {
+            print "    ";
+        }
+        print "<li>$ary</li>\n";
     }
 }
 
 sub _show_array_text
 {
     my($self, $prepend, $depth, $ary)=@_;
-    my($test, $label);
+    my($test, $label, $tmp);
     my(%expand)=%{$self->{expand}};
 
     if(ref($ary))
     {
-	$test=$prepend;
-	if( ( $test eq "" ) || defined($expand{$test}))
-	{
-	    if($depth>=0)
-	    {
-	        for(1..$depth)
-	        {
-	            print "    ";
-	        }
-		if(ref($ary->[0]))
+        $test=$prepend;
+        if( ( $test eq "" ) || defined($expand{$test}))
+        {
+            if($depth>0)
+            {
+                for(1..$depth)
+                {
+                    print "    ";
+                }
+                if(ref($ary->[0]))
+                {
+                    $label="Unknown";
+                }
+                else
+                {
+                    $label=shift(@{$ary});
+                }
+                print "** $label **\n";
+            }
+
+            foreach(0..@{$ary}-1)
+            {
+		if($depth>0)
 		{
-		    $label="Unknown";
+		    $tmp=($prepend eq "" ? $_ : "$prepend:$_");
 		}
 		else
 		{
-	            $label=shift(@{$ary});
+		    $tmp="";
 		}
-                print "** $label **\n";
-	    }
+                _show_array_text($self, $tmp, $depth+1, @{$ary}[$_]);
+            }
 
-	    foreach(0..@{$ary}-1)
-	    {
-	        _show_array_text($self, ($prepend eq "" ? $_ : "$prepend:$_"),
-		    $depth+1, @{$ary}[$_]);
-	    }
-
-	    if($depth>=0)
-	    {
-	        for(1..$depth)
-	        {
-	            print "    ";
-	        }
+            if($depth>=0)
+            {
+                for(1..$depth)
+                {
+                    print "    ";
+                }
                 print "**close**\n";
-	    }
-	}
-	else
-	{
-	    print "Not expanding $test\n";
-	}
+            }
+        }
+        else
+        {
+            print "Not expanding $test\n";
+        }
     }
     else
     {
-	for(1..$depth)
-	{
-	    print "    ";
-	}
-	print "$ary";
+        for(1..$depth)
+        {
+            print "    ";
+        }
+        print "$ary";
     }
 }
 
