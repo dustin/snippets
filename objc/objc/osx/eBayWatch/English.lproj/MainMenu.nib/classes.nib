@@ -1,0 +1,25 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {addItem = id; openAddWindow = id; };
+            CLASS = Controller;
+            LANGUAGE = ObjC;
+            OUTLETS = {
+                addWindow = NSWindow;
+                busySignal = NSProgressIndicator;
+                itemDescription = NSTextField;
+                itemNumber = NSTextField;
+                table = NSTableView;
+                total = NSTextField;
+            };
+            SUPERCLASS = NSObject;
+        },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {
+            CLASS = HideableProgressIndicator;
+            LANGUAGE = ObjC;
+            SUPERCLASS = NSProgressIndicator;
+        }
+    );
+    IBVersion = 1;
+}
