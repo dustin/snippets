@@ -1,4 +1,6 @@
-// $Id: spy.pov,v 1.1 2003/04/20 06:30:21 dustin Exp $
+// Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+//
+// $Id: spy.pov,v 1.2 2003/04/20 08:19:04 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -6,89 +8,95 @@
 #include "chars.inc"
 #include "skies.inc"
 
+#include "spy_words.inc"
+
 camera {
-/*
-  location <0, 4, -10>
-  look_at <0, 0, 0>
-*/
   location <0, -1.8, -10>
   look_at <0, 0, 0>
 }
 
-light_source {
-   <3.3, 1, -4>
-   color Gray75
-   looks_like { sphere { <0, 0, 0>, .3 pigment { White } }}
-}
-
-light_source {
-   <-3.3, 1, -4>
-   color Gray75
-   looks_like { sphere { <0, 0, 0>, .3 pigment { White } }}
-}
-
 sky_sphere { S_Cloud5 }
 
-cylinder {
-   <3.3, .9, -4>, <3.3, -2, -4>, .1
-   pigment { White }
+// Light on the right
+
+light_source {
+	<3.3, 1, -4>
+	color Gray75
+	looks_like {
+		sphere { <0, 0, 0>, .3
+			texture {
+				Chrome_Texture
+				pigment { White }
+				normal { bumps 0.4 scale 0.2 }
+			}
+		}
+	}
 }
 
 cylinder {
-   <-3.3, .9, -4>, <-3.3, -2, -4>, .1
-   pigment { White }
+	<3.3, .9, -4>, <3.3, -2, -4>, .1
+	texture {
+		Chrome_Texture
+		pigment { White }
+		normal { bumps 0.2 scale 0.2 }
+	}
 }
 
-/*
-sphere {
-   <0, 0, 0>, 50
-   // pigment { Apocalypse }
-   pigment {
-   image_map {
-      gif "smallspy1.gif"
-      map_type 0
-      interpolate 2
-   }
-   }
+// Light on the left
+
+light_source {
+	<-3.3, 1, -4>
+	color Gray75
+	looks_like {
+		sphere { <0, 0, 0>, .3
+			texture {
+				Chrome_Texture
+				pigment { White }
+				normal { bumps 0.4 scale 0.2 }
+			}
+		}
+	}
 }
-*/
+
+cylinder {
+	<-3.3, .9, -4>, <-3.3, -2, -4>, .1
+	texture {
+		Chrome_Texture
+		pigment { White }
+		normal { bumps 0.2 scale 0.2 }
+	}
+}
+
+// The water
 
 plane {
   <0, 2, 0>, -2
-  texture { Water scale 10 }
-  pigment { color red .6 green .6 blue 1}
-  finish  { ambient .2 diffuse .4 reflection .9}
+  texture { Water scale 15 }
+  pigment { color red 0.5 green 0.5 blue 0.9}
+  finish  { ambient .2 diffuse .4 reflection .8}
 }
 
-#declare lettering1 =
-texture {
-	pigment {
-		image_map {
-		gif "smallspy1.gif"
-		map_type 0
-		interpolate 2
-		}
-	}
-	finish { Shiny }
-	normal {dents 0.8}
-}
+// Letter textures
 
 #declare lettering = Brushed_Aluminum
 
-object {
-	char_S
-	translate <-5, -2, 0>
-	texture { lettering }
+#declare small_lettering =
+texture {
+	lettering
+	pigment { rgb <0.15, 0.15, 0.4> }
 }
 
+// SPY
 object {
-	char_P
+	word_spy
 	translate <0, -2, 0>
 	texture { lettering }
 }
 
+// INTERNETWORKING
 object {
-	char_Y
-	translate <5, -2, 0>
-	texture { lettering }
+	word_internetworking
+	translate <0, -15.5, -2>
+	texture { small_lettering }
+	scale 0.13
 }
