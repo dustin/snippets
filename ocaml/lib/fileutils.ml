@@ -44,7 +44,8 @@ let conditional_iter_lines f c ch =
  Debug routine to pass to a directory folding routine.
  *)
 let debug_dir_print d l a =
-	List.iter (fun x -> print_endline(Filename.concat d x)) l
+	print_endline("Iterating " ^ d);
+	List.iter (fun x -> print_endline("\t" ^ (Filename.concat d x))) l
 ;;
 
 (**
