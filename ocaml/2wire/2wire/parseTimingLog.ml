@@ -38,7 +38,7 @@ type per_block = {
 };;
 
 type global_state_t = {
-	mutable g_last_ts: int;
+	mutable g_last_ts: Nativeint.t;
 	mutable g_blocks: (string * per_block) list;
 };;
 
@@ -71,7 +71,7 @@ let empty_block =
 					})) log_types
 ;;
 
-let global_state = {g_last_ts = 0; g_blocks = empty_block };;
+let global_state = {g_last_ts = Nativeint.zero; g_blocks = empty_block };;
 
 (* Reset all of the globals for a new timestamp *)
 let reset_global ts =
@@ -103,7 +103,10 @@ let parse_time l =
 ;;
 
 (* Time approximation function *)
-let approx_time t = 60 * ((int_of_float t) / 60) ;;
+let approx_time t =
+	let sixty = Nativeint.of_int 60 in
+	Nativeint.mul sixty (Nativeint.div (Nativeint.of_float t) sixty)
+;;
 
 (* Print the header for a block *)
 let make_block_header filename =
@@ -114,7 +117,7 @@ let make_block_header filename =
 
 let make_entry fn =
 	(make_block_header fn)
-	^ (string_of_int global_state.g_last_ts)
+	^ (Nativeint.to_string global_state.g_last_ts)
 	^ ":"
     ^ (String.concat ":"
         (List.concat
@@ -160,7 +163,7 @@ let process le rrd =
 			if at < global_state.g_last_ts then
 				raise (Back_in_time (string_of_log_entry le));
 			(* If this is not the first one, print it out *)
-			if global_state.g_last_ts != 0 then
+			if global_state.g_last_ts <> Nativeint.zero then
 				print_entry rrd;
 			(* Adjust all of the global params *)
 			reset_global at
