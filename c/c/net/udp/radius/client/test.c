@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: test.c,v 1.3 1998/06/22 01:42:08 dustin Exp $
+ * $Id: test.c,v 1.4 1998/12/26 05:06:01 dustin Exp $
  */
 
 #include <stdio.h>
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	exit(1);
     }
 
-    rad=rad_init("bleu.west.spy.net", 1645, "no");
+    rad=rad_init("localhost", 1645, "no");
     r=rad_simpleauth(rad, argv[1], argv[2]);
     rad_dump_att(rad);
     rad_destroy(rad);

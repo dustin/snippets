@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.9 1998/08/06 06:29:48 dustin Exp $
+ * $Id: radius.c,v 1.10 1998/12/26 05:06:00 dustin Exp $
  */
 
 #include <sys/time.h>
@@ -47,7 +47,9 @@ int rad_send(radius *r)
     sin.sin_port=r->port;
     memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
-    if( sendto(r->s, r->rad, r->rad->length, 0,
+	r->rad->length=htons(r->rad->length);
+
+    if( sendto(r->s, r->rad, ntohs(r->rad->length), 0,
 	(struct sockaddr *)&sin, sizeof(sin)) <0) {
 	perror("sendto");
 	return(-1);
@@ -134,6 +136,9 @@ void rad_dump_att(radius *r)
 	       att->attribute, att->length,
 	       ntohl(value)
 	      );
+	if(att->length==0) {
+		break;
+	}
 	len-=att->length;
 	att=(attribute_t *) ((char *)att+att->length);
     }
