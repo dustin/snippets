@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: GetPK.java,v 1.3 2002/08/24 08:01:19 dustin Exp $
+// $Id: GetPK.java,v 1.4 2002/08/24 08:11:25 dustin Exp $
 
 package net.spy.db;
 
@@ -24,13 +24,16 @@ import net.spy.db.sp.SelectPrimaryKey;
  *
  * <p>
  *
- * The default implementation assumes you have the following table in the
- * database the configuration gets you into:
+ * The default implementation assumes you have the following table
+ * (<code>primary_keys</code>) in the database the configuration defines:
  *
  * </p>
  * <p>
  *
  * <table border="1">
+ *  <tr>
+ *    <th colspan="3"><font size="+1">primary_keys</font></th>
+ *  </tr>
  *  <tr>
  *    <th>Column Name</th>
  *    <th>Column Type</th>
