@@ -1,16 +1,16 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1997/04/15 21:49:38 dustin Exp $
+# $Id: Makefile.in,v 1.2 1998/01/22 07:27:56 dustin Exp $
 
 .SUFFIXES: .m .o
 
 CFLAGS=-I../include -g
-AR=ar cr
-RANLIB=ranlib
-OBJC=gcc
-LIBS=../misc/misc.a -lobjc -lnsl -lsocket
+AR=@AR@ cr
+RANLIB=@RANLIB@
+OBJC=@CC@
+LIBS=../misc/misc.a @LIBS@
 LDFLAGS=$(LIBS)
 EXES=httpd
-HTTPD_OBJS=httpd.o process.o
+HTTPD_OBJS=httpd.o
 SOURCE=httpd.m process.m
 JUNK=$(EXES) *.o *.a
 

@@ -1,5 +1,7 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1997/04/15 21:49:30 dustin Exp $
+# $Id: Makefile.in,v 1.2 1998/01/22 07:27:54 dustin Exp $
+
+SHELL=/bin/sh
 
 DIRS=misc httpd
 AUTOCRAP=Makefile httpd/Makefile misc/Makefile include/config.h config.status \

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: httpd.m,v 1.2 1997/04/15 21:49:39 dustin Exp $
+ * $Id: httpd.m,v 1.3 1998/01/22 07:27:57 dustin Exp $
  */
 
 #include <dString.h>
@@ -14,7 +14,7 @@
 
 void main(void)
 {
-    id socket=[[[dSocket alloc] init] listento: 8080];
+    id socket=[[[dSocket alloc] init] listento: 8088];
     id ns, req;
     id string;
 
