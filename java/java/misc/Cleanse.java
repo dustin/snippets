@@ -1,11 +1,9 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.1 2001/03/15 11:24:28 dustin Exp $
+// $Id: Cleanse.java,v 1.2 2001/03/15 11:28:52 dustin Exp $
 
-import java.io.*;
 import java.util.*;
 import java.sql.*;
-import java.util.zip.*;
 
 public class Cleanse extends Object {
 
@@ -61,7 +59,6 @@ public class Cleanse extends Object {
 		ResultSet rs=st.executeQuery(
 			"select celeb_key, item2 from celeb_parse\n"
 			+ "  where item2 is not null order by item2");
-		// A dummy object to store.
 		System.out.println("Fetching results.");
 		int i=0;
 		while(rs.next()) {
@@ -83,6 +80,7 @@ public class Cleanse extends Object {
 		// OK, need it again
 		conn=DriverManager.getConnection(source, "dustin", "");
 
+		// Get rid of all the stuff we don't want anymore.
 		PreparedStatement pst=conn.prepareStatement(
 			"update celeb_parse set item2=null where item2=?"
 			);
@@ -96,6 +94,7 @@ public class Cleanse extends Object {
 		return(toremove);
 	}
 
+	// Private inner class used for managing statistics.
 	private class CleanseStats extends Object {
 		private int done=0;
 		private int left=0;
@@ -155,7 +154,7 @@ public class Cleanse extends Object {
 		Cleanse c=new Cleanse();
 		Vector r=c.cleanse();
 
-		System.out.println("The following thingies need to be removed:");
+		System.out.println("The following thingies needed to be removed:");
 		for(Enumeration e=r.elements(); e.hasMoreElements(); ) {
 			String s=(String)e.nextElement();
 			System.out.println("\t" + s);
