@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: msgscore,v 1.1 1997/10/17 05:43:24 dustin Exp $
+# $Id: msgscore,v 1.2 1997/10/19 08:26:35 dustin Exp $
 #
 # Use customer mappings to figure out who pays for a given message.
 
@@ -38,7 +38,7 @@ sub scoremsg
     {
         foreach $key (keys(%custs))
         {
-            $scores[$custs{$key}]+=$score{$key} if(/$key/);
+            $scores[$custs{$key}]+=$score{$key} if(/$key/i);
         }
     }
     close(IN);
