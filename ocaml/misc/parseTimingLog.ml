@@ -35,6 +35,13 @@ type per_block = {
 (* The types of logs we consider *)
 let logTypes = ["HB"; "BOOT"; "KICK"; "XMLRPC";];;
 
+(* Log times with time/count/start/end appended *)
+let extended_log_types =
+	List.concat (List.map (function x ->
+		(List.map (function y -> x ^ y) ["time";"count";"start";"end"]))
+		logTypes)
+;;
+
 (* This is the hashtable that will hold the state and stuff *)
 let eventCache=Hashtbl.create 1;;
 let perBlock=Hashtbl.create 1;;
@@ -146,10 +153,7 @@ let hashtbl_keys h = Hashtbl.fold (fun key _ l -> key :: l) h [];;
 
 let print_block_header filename =
 	print_string("update " ^ filename ^ " -t ");
-	print_string(String.concat ":" (List.concat
-		(List.map (function x ->
-			(List.map (function y -> x ^ y) ["time";"count";"start";"end"]))
-			logTypes)));
+	print_string(String.concat ":" extended_log_types);
 	print_string(" ");
 ;;
 
