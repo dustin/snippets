@@ -13,14 +13,21 @@
  *)
 type ('a, 'b) t = {
 	(* The keys -> value mappings *)
-	keys: ('a, 'b) Hashtbl.t;
+	keys: ('a, ('a, 'b) hval) Hashtbl.t;
 	(* The sequences (for aging) *)
-	mutable seq: 'a list;
+	mutable seq: 'a Linkedlist.t option;
 	(* autofetch function *)
 	func: ('a -> 'b);
 	(* The maximum size of this thing *)
 	size: int;
-};;
+} and ('a, 'b) hval = {
+	v: 'b;
+	n: 'a Linkedlist.node;
+}
+;;
+
+(** Illegal state exceptions. *)
+exception Illegal_state;;
 
 (**
  Create an LRU cache with the given maximum size.
@@ -29,7 +36,7 @@ type ('a, 'b) t = {
  *)
 let create max_size = {
 	keys = Hashtbl.create 1;
-	seq = [];
+	seq = None;
 	func = (fun x -> raise Not_found);
 	size = max_size;
 };;
@@ -42,7 +49,7 @@ let create max_size = {
  *)
 let create_auto max_size f = {
 	keys = Hashtbl.create 1;
-	seq = [];
+	seq = None;
 	func = f;
 	size = max_size;
 };;
@@ -54,7 +61,7 @@ let create_auto max_size f = {
  *)
 let empty lru =
 	Hashtbl.clear lru.keys;
-	lru.seq = [];
+	lru.seq = None;
 ;;
 
 (**
@@ -74,9 +81,25 @@ let mem lru k =
  @param k the key of the item to remove
  *)
 let remove lru k =
-	Hashtbl.remove lru.keys k;
-	lru.seq <- List.filter (fun x -> x != k) lru.seq;
-	()
+	try
+		match lru.seq with
+			None -> ()
+			| Some(ll) ->
+				let it = Hashtbl.find lru.keys k in
+				Hashtbl.remove lru.keys k;
+				Linkedlist.remove ll it.n;
+				()
+	with Not_found -> ()
+;;
+
+let remove_if_full lru =
+	match lru.seq with
+	None -> ()
+	| Some(ll) ->
+		if ((Linkedlist.size ll) >= lru.size) then
+			let f = Linkedlist.pop_first ll in
+			Hashtbl.remove lru.keys f;
+		()
 ;;
 
 (**
@@ -87,16 +110,17 @@ let remove lru k =
  @param v the value of the item
  *)
 let add lru k v =
-	(* If the cache is full, remove an item *)
-	if ( (List.length lru.seq) >= lru.size) then
-		remove lru (List.nth lru.seq ((List.length lru.seq) - 1));
-	(* If this key already exists, remove it *)
-	if (mem lru k) then
-		(remove lru k);
-	(* Add it *)
-	Hashtbl.add lru.keys k v;
-	lru.seq <- k :: lru.seq;
-	()
+	match lru.seq with
+		None ->
+			let tmpseq = Linkedlist.create k in
+			let head = Linkedlist.head_node tmpseq in
+				lru.seq <- Some tmpseq;
+				Hashtbl.add lru.keys k {n=head; v=v};
+		| Some(ll) ->
+			remove lru k;
+			remove_if_full lru;
+			let node = Linkedlist.append k ll in
+			Hashtbl.add lru.keys k {n=node; v=v};
 ;;
 
 (**
@@ -108,8 +132,12 @@ let add lru k v =
 let find lru k =
 	try
 		let rv = Hashtbl.find lru.keys k in
-		lru.seq <- k :: (List.filter (fun x -> not (x = k)) lru.seq);
-		rv
+		(* Move it to the front *)
+		match lru.seq with
+			None -> raise Illegal_state
+			| Some(ll) ->
+				add lru k rv.v;
+				rv.v
 	with Not_found ->
 		let rv = lru.func k in
 		add lru k rv;
@@ -120,5 +148,7 @@ let find lru k =
  Apply the given function all keys in this cache.
  *)
 let iter_keys lru f =
-	List.iter f lru.seq
+	match lru.seq with
+	None -> ()
+	| Some(ll) -> Linkedlist.iter f ll
 ;;
