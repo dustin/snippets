@@ -4,7 +4,7 @@ OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
-PARTS=stringutils fileutils lru
+PARTS=stringutils fileutils lru linkedlist
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -16,11 +16,13 @@ fileutils: fileutils.cmi fileutils.mli
 
 stringutils: stringutils.cmi stringutils.mli
 
+linkedlist: linkedlist.cmi linkedlist.mli
+
 lru: lru.cmi lru.mli
 
 testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
-		fileutils.cmo stringutils.cmo lru.cmo
+		fileutils.cmo stringutils.cmo lru.cmo linkedlist.cmo
 
 docs:
 	mkdir -p doc
