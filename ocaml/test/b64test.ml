@@ -6,8 +6,7 @@
 
 let main() =
 	Fileutils.operate_on_file (fun f ->
-			Stream.iter print_string
-				(Stream.from (Base64.stream_encode (Stream.of_channel f))))
+			Stream.iter print_string (Base64.encode (Stream.of_channel f)))
 		Sys.argv.(1);
 	print_newline()
 ;;
