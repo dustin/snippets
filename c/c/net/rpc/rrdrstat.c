@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.2 2002/02/01 10:32:28 dustin Exp $
+ * $Id: rrdrstat.c,v 1.3 2002/02/01 10:38:21 dustin Exp $
  */
 
 #include <rpcsvc/rstat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
 
 #include <rrd.h>
@@ -18,7 +19,7 @@ process(const char *host, statstime *stat)
 
 	/* usr wio sys idl pgin pgout intr ipkts opkts coll errors cs load */
 	snprintf(buf, sizeof(buf),
-		"update %s.rrd N:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%f:%f:%f",
+		"update %s.rrd N:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%f:%f:%f",
 		host,
 		stat->cp_time[0], stat->cp_time[1],
 		stat->cp_time[2], stat->cp_time[3],
