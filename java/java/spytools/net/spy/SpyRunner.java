@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.1 2000/01/23 10:34:49 dustin Exp $
+// $Id: SpyRunner.java,v 1.2 2000/01/23 10:36:31 dustin Exp $
 
 package net.spy;
 
@@ -31,7 +31,6 @@ public class SpyRunner extends Thread {
 			Class paramtypes[] = new Class[1];
 			String tmp[]=new String[0];
 			paramtypes[0]=tmp.getClass();
-			System.out.println("Looking up the method main in " + tclass);
 			Method m = tclass.getMethod("main", paramtypes);
 
 			// Object list to invoke the method
@@ -51,16 +50,16 @@ public class SpyRunner extends Thread {
 
 		String a[]=SpyUtil.split(" ", prop.getProperty("apps"));
 		for(int i=0; i<a.length; i++) {
-			System.out.println("Got app:  " + a[i]);
+			// System.out.println("Got app:  " + a[i]);
 
 			String classname=prop.getProperty(a[i] + ".class");
 			String argstring=prop.getProperty(a[i] + ".args");
 			String cargs[]=null;
 			if(argstring!=null && argstring.length() > 0) {
-				System.out.println("Got an argstring:  " + argstring);
+				// System.out.println("Got an argstring:  " + argstring);
 				cargs=SpyUtil.split(" ", argstring);
 			} else {
-				System.out.println("No argstring, using an empty one");
+				// System.out.println("No argstring, using an empty one");
 				cargs=new String[0];
 			}
 			Thread t = new SpyRunner(classname, cargs);
