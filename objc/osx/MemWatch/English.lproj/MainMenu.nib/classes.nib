@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {
+            CLASS = Controller;
+            LANGUAGE = ObjC;
+            OUTLETS = {plot = Plot; srcUrl = NSTextField; status = NSTextField; };
+            SUPERCLASS = NSWindowController;
+        },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {CLASS = Plot; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    );
+    IBVersion = 1;
+}
