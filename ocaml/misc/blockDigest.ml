@@ -117,7 +117,7 @@ let main() =
 	(* Arg checking *)
 	if (Array.length Sys.argv) < 6 then (
 		prerr_endline("Usage:  " ^ Sys.argv.(0)
-			^ " streamfn digestfile diffscript prevdir newdir");
+			^ " streamfn digestfile diffscript prevdir newdir [blocksize]");
 		exit(1)
 	);
 	let blocksize = ref (8 * 1024 * 1024) in
