@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.14 2002/07/12 08:10:33 dustin Exp $
+	$Id: build.xml,v 1.15 2002/07/22 06:59:32 dustin Exp $
 
 	-->
 
@@ -53,7 +53,10 @@
 		</javadoc>
 	</target>
 
-	<target name="install" depends="spy.jar,install-docs">
+	<target name="install" depends="install-jar,install-docs"/>
+
+	<target name="install-jar" depends="spy.jar">
+		<delete file="/afs/spy.net/home/dustin/public_html/soft/spy.jar"/>
 		<copy file="spy.jar"
 			tofile="/afs/spy.net/home/dustin/public_html/soft/spy.jar"/>
 		<copy file="spy.jar" tofile="${user.home}/lib/spy.jar"/>
