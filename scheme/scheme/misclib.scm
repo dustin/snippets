@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: misclib.scm,v 1.6 2003/01/01 09:17:19 dustin Exp $
+; $Id: misclib.scm,v 1.7 2003/01/02 08:44:25 dustin Exp $
 
 (module misclib
 		(export
@@ -60,6 +60,41 @@
 	(else
 	  (cons (car l)
 			(flatten-list (cdr l))))))
+
+; Create a list of numbers from from to to
+(define (range from to)
+  (if (> from to)
+	'()
+	(cons from (range (+ 1 from) to))))
+
+; Get a list of all of the numbers between from and to (inclusive) where
+; (proc n) is true
+(define (filtered-range from to proc)
+  (if (> from to)
+	'()
+	(if (proc from)
+	  (cons from (filtered-range (+ 1 from) to proc))
+	  (filtered-range (+ 1 from) to proc))))
+
+; Perform the given procedure for every value from from to to
+(define (do-range proc from to)
+  (let loop ((i from))
+			 (if (<= i to)
+				(begin
+				  (proc i)
+				  (loop (+ 1 i)))
+				#unspecified)))
+
+; Perform the given operation on all of the numbers between from and to
+; (inclusive) where (fproc n) is true
+(define (do-filtered-range proc from to fproc)
+  (let loop ((i from))
+			 (if (<= i to)
+				(begin
+				  (if (fproc i)
+					(proc i))
+				  (loop (+ 1 i)))
+				#unspecified)))
 
 ; Example
 (define (misclib-main args)
