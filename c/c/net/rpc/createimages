@@ -1,0 +1,141 @@
+#!/bin/sh
+
+DIR=/home/dustin/stuff/rstat
+IMGDIR=/afs/@cell/home/dustin/public_html/public/rstat
+
+PATH=$PATH:/home/dustin/bin
+
+makeNetImage()
+{
+	FILE="$1"
+	HOST="$2"
+	IMG="$3"
+	SPEC="$4"
+
+	OUTFILE=$IMGDIR/net_${HOST}_${IMG}.png
+
+	/usr/local/rrdtool-1.0.33/bin/rrdtool graph \
+		$OUTFILE \
+		-v "Packets per Second" \
+		--lazy -s "$SPEC" \
+		-w 400 -h 200 \
+		-a PNG \
+		-t "Network from $HOST" \
+		"DEF:ipkt=$FILE:ipkts:AVERAGE" \
+		"DEF:opkt=$FILE:opkts:AVERAGE" \
+		"COMMENT:Packets\n" \
+		'AREA:ipkt#0c249c:In' \
+		'STACK:opkt#d82614:Out' \
+		COMMENT:"\n" \
+		COMMENT:"Graph updated: `date`\r"
+
+	# nice pngcrush -m 113 -q /tmp/tmp.$$.png $OUTFILE
+	# rm -f /tmp/tmp.$$.png
+}
+
+makeMemImage()
+{
+	FILE="$1"
+	HOST="$2"
+	IMG="$3"
+	SPEC="$4"
+
+	OUTFILE=$IMGDIR/mem_${HOST}_${IMG}.png
+
+	/usr/local/rrdtool-1.0.33/bin/rrdtool graph \
+		$OUTFILE \
+		-v "Paging" \
+		--lazy -s "$SPEC" \
+		-w 400 -h 200 \
+		-a PNG \
+		-t "Memory from $HOST" \
+		"DEF:pgin=$FILE:pgin:AVERAGE" \
+		"DEF:pgout=$FILE:pgout:AVERAGE" \
+		"COMMENT:Paging\n" \
+		'AREA:pgin#0c249c:In' \
+		'STACK:pgout#d82614:Out' \
+		COMMENT:"\n" \
+		COMMENT:"Graph updated: `date`\r"
+
+	# nice pngcrush -m 113 -q /tmp/tmp.$$.png $OUTFILE
+	# rm -f /tmp/tmp.$$.png
+}
+
+makeCPUImage()
+{
+	FILE="$1"
+	HOST="$2"
+	IMG="$3"
+	SPEC="$4"
+
+	OUTFILE=$IMGDIR/cpu_${HOST}_${IMG}.png
+
+	/usr/local/rrdtool-1.0.33/bin/rrdtool graph \
+		$OUTFILE \
+		-v "CPU Percentage" \
+		--lazy -s "$SPEC" \
+		--lower-limit 0 \
+		--upper-limit 100 --rigid \
+		-w 400 -h 200 \
+		-a PNG \
+		-t "CPU from $HOST" \
+		"DEF:user=$FILE:cpu_user:AVERAGE" \
+		"DEF:iow=$FILE:cpu_iow:AVERAGE" \
+		"DEF:sys=$FILE:cpu_sys:AVERAGE" \
+		"DEF:idl=$FILE:cpu_idl:AVERAGE" \
+		"CDEF:sum=user,iow,sys,idl,+,+,+" \
+		"CDEF:scale=sum,100,/" \
+		"CDEF:cuser=user,scale,/" \
+		"CDEF:ciow=iow,scale,/" \
+		"CDEF:csys=sys,scale,/" \
+		"CDEF:cidl=idl,scale,/" \
+		'CDEF:rest=100,cuser,ciow,csys,cidl,+,+,+,-' \
+		"COMMENT:Averages\n" \
+		'AREA:cuser#0000ff:User' \
+		GPRINT:cuser:AVERAGE:"Average\: %0.2lf\n" \
+		'STACK:csys#00ffff:System' \
+		GPRINT:csys:AVERAGE:"Average\: %0.2lf\n" \
+		'STACK:ciow#ff0000:IO Wait' \
+		GPRINT:ciow:AVERAGE:"Average\: %0.2lf\n" \
+		'STACK:cidl#00ff00:Idle' \
+		GPRINT:cidl:AVERAGE:"Average\: %0.2lf\n" \
+		'STACK:rest#00ff00' \
+		COMMENT:"Graph updated: `date`\r"
+
+	# nice pngcrush -m 113 -q /tmp/tmp.$$.png $OUTFILE
+	# rm -f /tmp/tmp.$$.png
+}
+
+echo "Doing rstat graphs."
+
+cd $DIR
+for FILE in *.rrd
+do
+
+	if [ -f $FILE ]
+	then
+		HOST=`basename $FILE .rrd`
+
+		echo "Doing $FILE"
+
+		# Various images.
+		makeCPUImage "$FILE" "$HOST" "day" "now - 26 hours"
+		makeCPUImage "$FILE" "$HOST" "month" "now - 6 days"
+		makeCPUImage "$FILE" "$HOST" "year" "now - 14 months"
+
+		makeMemImage "$FILE" "$HOST" "day" "now - 26 hours"
+		makeMemImage "$FILE" "$HOST" "month" "now - 6 days"
+		makeMemImage "$FILE" "$HOST" "year" "now - 14 months"
+
+		makeNetImage "$FILE" "$HOST" "day" "now - 26 hours"
+		makeNetImage "$FILE" "$HOST" "month" "now - 6 days"
+		makeNetImage "$FILE" "$HOST" "year" "now - 14 months"
+
+	fi
+done
+
+cd $IMGDIR
+if [ -x makeindex ]
+then
+	./makeindex > index.html
+fi
