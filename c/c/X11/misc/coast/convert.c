@@ -7,102 +7,105 @@
 
 char newname[61];
 
-char *getfilename(char *infilename)
+char *
+getfilename(char *infilename)
 {
-int i;
+  int i;
 
-	for(i=0; i<strlen(infilename); i++)
-	{
-		if(infilename[i]=='.')
-			break;
-	}
+  for (i = 0; i < strlen(infilename); i++)
+    {
+      if (infilename[i] == '.')
+	break;
+    }
 
-	strncpy(newname, infilename, i);
+  strncpy(newname, infilename, i);
 
-	strcat(newname, ".bin");
+  strcat(newname, ".bin");
 
-	return(newname);
+  return (newname);
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-char *infilename, line[81];
-FILE *infile, *outfile;
-Head header;
-Point point;
+  char *infilename, line[81];
+  FILE *infile, *outfile;
+  Head header;
+  Point point;
 
-	if(argc < 2)
-		infilename=DEFAULTFILENAME;
-	else
-		infilename=argv[1];
+  if (argc < 2)
+    infilename = DEFAULTFILENAME;
+  else
+    infilename = argv[1];
 
-	if(NULL == (infile=fopen(infilename, "r")) )
-	{
-		perror(infilename);
-		exit(1);
-	}
+  if (NULL == (infile = fopen(infilename, "r")))
+    {
+      perror(infilename);
+      exit(1);
+    }
 
-	if(NULL == (outfile=fopen(getfilename(infilename), "wb")) )
-	{
-		perror(getfilename(infilename));
-		exit(1);
-	}
+  if (NULL == (outfile = fopen(getfilename(infilename), "wb")))
+    {
+      perror(getfilename(infilename));
+      exit(1);
+    }
 
-	strcpy(header.magic, BINMAGIC);
+  strcpy(header.magic, BINMAGIC);
 
-	header.min_lat=9999999.0;
-	header.max_lat=-999999.0;
-	header.min_lng=9999999.0;
-	header.max_lng=-999999.0;
+  header.min_lat = 9999999.0;
+  header.max_lat = -999999.0;
+  header.min_lng = 9999999.0;
+  header.max_lng = -999999.0;
+  header.num_points = 0;
 
-	while (!feof(infile))
-	{
-		fgets(line, 80, infile);
+  while (!feof(infile))
+    {
+      fgets(line, 80, infile);
 
-		if(feof(infile))
-			continue;
+      if (feof(infile))
+	continue;
 
-		point.lat=atof(line);
-		point.lng=atof(line + 12);
+      point.lat = atof(line);
+      point.lng = atof(line + 12);
 
-		if(point.lat > -70)
-			continue;
+      if (point.lat > -70)
+	continue;
 
-		if(point.lat < header.min_lat)
-			header.min_lat=point.lat;
-		if(point.lat > header.max_lat)
-			header.max_lat=point.lat;
+      if (point.lat < header.min_lat)
+	header.min_lat = point.lat;
+      if (point.lat > header.max_lat)
+	header.max_lat = point.lat;
 
-		if(point.lng < header.min_lng)
-			header.min_lng=point.lng;
-		if(point.lng > header.max_lng)
-			header.max_lng=point.lng;
+      if (point.lng < header.min_lng)
+	header.min_lng = point.lng;
+      if (point.lng > header.max_lng)
+	header.max_lng = point.lng;
 
-		header.num_points++;
-	}
+      header.num_points++;
+    }
 
-	header.lng_diff=header.max_lng-header.min_lng;
-	header.lat_diff=header.max_lat-header.min_lat;
+  header.lng_diff = header.max_lng - header.min_lng;
+  header.lat_diff = header.max_lat - header.min_lat;
 
-	header.max_lat += header.lat_diff;
-	header.min_lat -= header.lat_diff;
+  header.max_lat += header.lat_diff;
+  header.min_lat -= header.lat_diff;
 
-	fwrite(&header, sizeof(header), 1, outfile);
+  fwrite(&header, sizeof(header), 1, outfile);
 
-	rewind(infile);
+  rewind(infile);
 
-	while(!feof(infile))
-	{
-		fgets(line, 80, infile);
+  while (!feof(infile))
+    {
+      fgets(line, 80, infile);
 
-		if(feof(infile))
-			continue;
+      if (feof(infile))
+	continue;
 
-		point.lat=atof(line);
-		point.lng=atof(line + 12);
+      point.lat = atof(line);
+      point.lng = atof(line + 12);
 
-		fwrite(&point, sizeof(point), 1, outfile);
-	}
+      fwrite(&point, sizeof(point), 1, outfile);
+    }
 
-	exit(0);
+  exit(0);
 }
