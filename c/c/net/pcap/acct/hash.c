@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.4 2000/07/30 04:58:06 dustin Exp $
+ * $Id: hash.c,v 1.5 2000/07/30 07:41:54 dustin Exp $
  */
 
 #include <stdio.h>
@@ -71,7 +71,8 @@ hash_store(struct hashtable *hash, unsigned int key)
 
 	c->key = key;
 
-	c->value = 0;
+	c->in = 0;
+	c->out = 0;
 	c->next = NULL;
 
 	hashval = _do_hash(hash, key);
@@ -93,7 +94,7 @@ hash_store(struct hashtable *hash, unsigned int key)
 }
 
 struct hash_container *hash_add(struct hashtable *hash,
-	unsigned int key, int value)
+	unsigned int key, int in, int out)
 {
 	struct hash_container *c;
 
@@ -103,7 +104,8 @@ struct hash_container *hash_add(struct hashtable *hash,
 	}
 
 	lock(_do_hash(hash, key));
-	c->value+=value;
+	c->in+=in;
+	c->out+=out;
 	unlock(_do_hash(hash, key));
 
 	return(c);
@@ -253,7 +255,7 @@ _hash_dump(struct hashtable *hash)
 					_mdebug_dump();
 				}
 #endif
-				printf("\t\t%s=%d\n", ntoa(p->key), p->value);
+				printf("\t\t%s -> i=%d, o=%d\n", ntoa(p->key), p->in, p->out);
 			}
 			unlock(i);
 		}

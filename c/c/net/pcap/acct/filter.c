@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.5 2000/07/30 04:58:04 dustin Exp $
+ * $Id: filter.c,v 1.6 2000/07/30 07:41:53 dustin Exp $
  */
 
 #include <stdio.h>
@@ -191,8 +191,10 @@ showStats()
 				char buf[8192];
 
 				strcpy(buf, ntoa(p->key));
-				strcat(buf, "=");
-				strcat(buf, itoa(p->value));
+				strcat(buf, ": i=");
+				strcat(buf, itoa(p->in));
+				strcat(buf, ", o=");
+				strcat(buf, itoa(p->out));
 				strcat(buf, "\n");
 				fputs(buf, stdout);
 
@@ -244,8 +246,8 @@ filter_packet(u_char * u, struct pcap_pkthdr * p, u_char * packet)
 	/* Null the out_buf */
 	out_buf[0] = 0x00;
 
-	hash_add(hash, ntohl(ip->ip_src.s_addr), ntohs(ip->ip_len));
-	hash_add(hash, ntohl(ip->ip_dst.s_addr), ntohs(ip->ip_len));
+	hash_add(hash, ntohl(ip->ip_src.s_addr), 0, ntohs(ip->ip_len));
+	hash_add(hash, ntohl(ip->ip_dst.s_addr), ntohs(ip->ip_len), 0);
 }
 
 static char    *
