@@ -4,14 +4,19 @@
  * arch-tag: C15A67EC-9CC0-11D8-B65C-000A957659CC
  *)
 
+let lookup ht s =
+	try Hashtbl.find ht s
+	with Not_found -> "Not_found"
+;;
+
 let main() =
 	let ht = Hashtbl.create 500000 in
 	Fileutils.iter_file_lines (fun l ->
 		let parts = Extstring.split l ' ' 2 in
 		Hashtbl.replace ht (List.nth parts 0) (List.nth parts 1)) Sys.argv.(1);
 	Fileutils.iter_lines (fun l ->
-		let ser = String.sub l 0 10 in
-		print_endline( (Hashtbl.find ht ser) ^ " " ^ l)) stdin;
+		let ser = String.sub l 0 12 in
+		print_endline( (lookup ht ser) ^ " " ^ l)) stdin;
 ;;
 
 (* Start main unless we're interactive. *)
