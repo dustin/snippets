@@ -1,6 +1,6 @@
 indexing
    description: "Prime number stuff.";
-class PRIME
+class ISPRIME
 
 creation {ANY}
    make
@@ -56,4 +56,4 @@ feature {ANY}
          end;
       end -- make
 
-end -- class PRIME
+end -- class ISPRIME
