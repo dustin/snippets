@@ -1,0 +1,18 @@
+# Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
+#
+# $Id: Makefile.in,v 1.1 2001/02/25 06:29:16 dustin Exp $
+
+DEFS=@DEFS@
+CFLAGS=@CFLAGS@ @CPPFLAGS@ $(DEFS) -DMYMALLOC
+LDFLAGS=@LDFLAGS@ @LIBS@
+
+OBJS=antinap.o
+
+antinap: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+clean:
+	rm -f antinap $(OBJS)
+
+distclean: clean
+	rm -f config.log config.cache config.status Makefile
