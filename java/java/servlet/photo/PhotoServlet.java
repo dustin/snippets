@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.3 1999/09/15 19:21:17 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.4 1999/09/15 22:46:54 dustin Exp $
  */
 
 import java.io.*;
 import java.sql.*;
 import java.text.*;
 import java.util.*;
+import java.net.*;
 import sun.misc.*;
 
 import javax.servlet.*;
@@ -83,6 +84,12 @@ public class PhotoServlet extends HttpServlet
 			doFindForm(request, response);
 		} else if(func.equalsIgnoreCase("catview")) {
 			doCatView(request, response);
+		} else if(func.equalsIgnoreCase("setstyle")) {
+			doSetStyle(request, response);
+		} else if(func.equalsIgnoreCase("styleform")) {
+			doStyleForm(request, response);
+		} else if(func.equalsIgnoreCase("getstylesheet")) {
+			doGetStylesheet(request, response);
 		} else if(func.equalsIgnoreCase("display")) {
 			doDisplay(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
@@ -132,6 +139,99 @@ public class PhotoServlet extends HttpServlet
 		return(out);
 	}
 
+	private static void doStyleForm (
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output;
+
+		output = tokenize("presetstyle.inc", new Hashtable());
+		send_response(response, output);
+	}
+
+	private static void doGetStylesheet (
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		Cookie cookies[];
+		String output = null;
+		int i;
+
+		cookies = request.getCookies();
+
+		for(i=0; i<cookies.length && output == null; i++) {
+			String s = cookies[i].getName();
+			if(s.equalsIgnoreCase("photo_style")) {
+				output = cookies[i].getValue();
+			}
+		}
+
+		if(output == null) {
+			output = tokenize("style.css", new Hashtable());
+		}
+
+		// This is a little different, so we won't use send_response()
+		response.setContentType("text/css");
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(output);
+			out.close();
+		} catch(Exception e) {
+		}
+	}
+
+	private static void doSetStyle(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		Cookie c;
+		String stmp="", font="", bgcolor="", c_text="";
+		Hashtable h = new Hashtable();
+
+		stmp = request.getParameter("font");
+		if(stmp != null && stmp.length() > 1) {
+			font = stmp;
+		}
+
+		stmp = request.getParameter("bgcolor");
+		if(stmp != null && stmp.length() > 1) {
+			bgcolor = stmp;
+		}
+
+		c_text = "body,td {font-family: " + font + ", Arial; "
+			   + "background-color: " + bgcolor + ";}\n";
+
+		stmp = request.getParameter("d_transform");
+		if(stmp != null && stmp.length() > 1) {
+			c_text += "blockquote {text-transform: " + stmp + ";};\n";
+		}
+
+		stmp = request.getParameter("d_transform");
+		if(stmp != null && stmp.length() > 1) {
+			c_text += "h1,h2,h3,h4,h5 {text-transform: " + stmp + ";};\n";
+		}
+
+		// Create the cookie
+		c = new Cookie("photo_style", http_encode(c_text));
+		// 30 days of cookie
+		c.setMaxAge( (30 * 86400) );
+		// Describe why we're doing this.
+		c.setComment("Your style preferences for the photo album.");
+		// Where we'll be using it.
+		c.setPath(self_uri);
+
+		// Add it to the responses.
+		response.addCookie(c);
+
+		// Prepare output.
+		stmp = "";
+		h.put("STYLE", c_text);
+
+		stmp = tokenize("setstyle.inc", h);
+		send_response(response, stmp);
+	}
+
+	private static String http_encode(String what) {
+		return(URLEncoder.encode(what));
+	}
+
 	private static void doFindForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -144,7 +244,6 @@ public class PhotoServlet extends HttpServlet
 			h.put("CAT_LIST", "");
 		}
 		output += tokenize("findform.inc", h);
-		output += tokenize("tail.inc", h);
 		send_response(response, output);
 	}
 
@@ -185,7 +284,6 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		output += "</ul>\n";
-		output += tokenize("tail.inc", new Hashtable());
 		send_response(response, output);
 	}
 
@@ -201,7 +299,6 @@ public class PhotoServlet extends HttpServlet
 			h.put("SAVED", "");
 		}
 		output += tokenize("index.inc", h);
-		output += tokenize("tail.inc", h);
 		send_response(response, output);
 	}
 
@@ -482,8 +579,6 @@ public class PhotoServlet extends HttpServlet
 		}
 		output += tokenize("display.inc", h);
 
-		output += tokenize("tail.inc", new Hashtable());
-
 		send_response(response, output);
 	}
 
@@ -495,6 +590,7 @@ public class PhotoServlet extends HttpServlet
 		try {
 			PrintWriter out = response.getWriter();
 			out.print(text);
+			out.print(tokenize("tail.inc", new Hashtable()));
 			out.close();
 		} catch(Exception e) {
 		}
@@ -569,8 +665,6 @@ public class PhotoServlet extends HttpServlet
 		if(i > max+start && max > 0) {
 			output += linktomore(request, start, max);
 		}
-
-		output += tokenize("tail.inc", new Hashtable());
 
 		send_response(response, output);
 	}
@@ -668,8 +762,9 @@ public class PhotoServlet extends HttpServlet
 		vars.put("HTML_URI", "/~dustin/jphoto/");
 		vars.put("REMOTE_USER", remote_user);
 		vars.put("REMOTE_UID", remote_uid.toString());
+		vars.put("LAST_MODIFIED", "recently");
 		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
-			+ "/perl/dustin/photo/style.cgi\">");
+			+ "/servlet/root/PhotoServlet?func=getstylesheet\">");
 
 		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
 
