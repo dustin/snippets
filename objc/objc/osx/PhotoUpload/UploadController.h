@@ -9,6 +9,7 @@
 #import "DumpMatrix.h"
 #import "Batch.h"
 #import "BatchController.h"
+#import "BatchUploadController.h"
 #import "PhotoUpload.h"
 
 #define BUTTON_UPLOAD 1
@@ -37,6 +38,7 @@
 
     UploadParams *params;
     BatchController *_batchController;
+    BatchUploadController *_batchUploadController;
 
     int buttonType;
 
@@ -56,6 +58,7 @@
 - (IBAction)showSelectedImages:(id)sender;
 - (IBAction)stopUpload:(id)sender;
 - (IBAction)upload:(id)sender;
+- (IBAction)uploadBatches:(id)sender;
 
 - (void)alert:(id)title message:(id)msg;
 - (void)updateProgressText;

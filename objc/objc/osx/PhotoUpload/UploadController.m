@@ -256,6 +256,30 @@
     [ut release];
 }
 
+- (IBAction)uploadBatches:(id)sender
+{
+    id filePanel=[NSOpenPanel openPanel];
+    [filePanel setAllowsMultipleSelection: TRUE];
+    [filePanel setCanChooseDirectories: FALSE];
+
+    id types=[NSArray arrayWithObjects:@"pbatch", nil];
+    int rv = [filePanel runModalForTypes:types];
+
+    if (rv == NSOKButton) {
+
+        // Create a new batch controller if we don't have one.
+        if(_batchUploadController == nil) {
+            _batchUploadController=[[BatchUploadController alloc] initWithWindowNibName:
+                @"BatchUpload"];
+        }
+        [_batchUploadController setUrl: [url stringValue]];
+        [_batchUploadController setUsername: [username stringValue]];
+        [_batchUploadController setPassword: [password stringValue]];
+
+        [_batchUploadController processFiles: [filePanel filenames]];
+    }
+}
+
 - (void)updateProgressText
 {
     if(currentFile <= [[imgMatrix files] count])

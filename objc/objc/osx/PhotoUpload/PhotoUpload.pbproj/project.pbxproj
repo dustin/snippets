@@ -281,6 +281,7 @@
 				F56F8F9D035410E801A801C4,
 				F5601B18035373480109FEFA,
 				F5A4F4380356ABE301A801C4,
+				F52A7F15036D1F28014A3929,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,6 +363,12 @@
 //F52
 //F53
 //F54
+		F52A7F15036D1F28014A3929 = {
+			fileRef = F5BAF2CF036CDA2401ED6A41;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F52C09B603540EAB01A801C4 = {
 			isa = PBXFileReference;
 			path = PhotoUpload.icns;

@@ -24,6 +24,7 @@
                 showSelectedImages = id;
                 stopUpload = id;
                 upload = id;
+                uploadBatches = id;
             };
             CLASS = UploadController;
             LANGUAGE = ObjC;
