@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: google.py,v 1.3 2002/04/16 03:04:44 dustin Exp $
+# $Id: google.py,v 1.4 2002/04/16 05:30:22 dustin Exp $
 
 from __future__ import generators
 
@@ -68,6 +68,7 @@ class GoogleSearch:
 		self.__checkResults()
 
 		lastId=0
+		count=0
 		while 1:
 			currentId=self['startIndex']
 			startId=currentId
@@ -81,6 +82,12 @@ class GoogleSearch:
 			if startId == lastId or (not startId == (lastId+10)):
 				raise StopIteration
 			lastId=startId
+
+			# Safety check, make sure we don't do more than 100 calls ever
+			count+=1
+			if count>100:
+				print "TOO MANY QUERIES!"
+				raise StopIteration
 
 			# Reperform query
 			self._performQuery(startId)
