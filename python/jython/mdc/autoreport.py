@@ -141,7 +141,8 @@ extracols=[
 	('protocol', ('link_summary.html', 'protocol')),
 	('systime', ('system_summary.html', 'systime')),
 	('uptime', ('system_summary.html', 'uptime')),
-	('dslLine', ('link_summary.html', 'dslLine'))
+	('dslLine', ('link_summary.html', 'dslLine')),
+	('username', ('link_summary.html', 'username'))
 ]
 
 for f in sys.argv[1:]:
