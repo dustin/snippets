@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.5 1999/09/15 23:36:25 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.6 1999/09/16 01:07:27 dustin Exp $
  */
 
 import java.io.*;
@@ -14,14 +14,30 @@ import sun.misc.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import com.javaexchange.dbConnectionBroker.*;
+
 
 // The class
 public class PhotoServlet extends HttpServlet
 {
-	Connection photo;
-	Statement st;
 	Integer remote_uid;
 	String remote_user, self_uri;
+	DbConnectionBroker dbs;
+
+	// The once only init thingy.
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		// Load a postgres driver.
+		try {
+			Class.forName("postgresql.Driver");
+			String source="jdbc:postgresql://dhcp-104/photo";
+			dbs = new DbConnectionBroker("postgresql.Driver",
+				source, "dustin", "", 2, 10, "/tmp/pool.log", 0.1);
+		} catch(Exception e) {
+			// System.err.println("dbs broke:  " + e.getMessage());
+			throw new ServletException ("dbs broke: " + e.getMessage());
+		}
+	}
 
 	// Do a GET request (just call doPost)
 	public void doGet (
@@ -35,7 +51,7 @@ public class PhotoServlet extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 
-		String source, func;
+		String func;
 
 		// Set the self_uri
 		self_uri = request.getRequestURI();
@@ -46,26 +62,6 @@ public class PhotoServlet extends HttpServlet
 		if(remote_user == null) {
 			// throw new ServletException("Not authenticated...");
 			remote_user = "guest";
-		}
-
-		System.out.println("Authenticated as " + remote_user);
-
-		// Load a postgres driver.
-		try {
-			Class.forName("postgresql.Driver");
-		} catch(ClassNotFoundException e) {
-			throw new ServletException ("Can't load Postgres " +
-				"driver, shit...");
-		}
-
-		// The path to the database...
-		source="jdbc:postgresql://dhcp-104/photo";
-
-		// Get an actual database connection.
-		try {
-			photo = DriverManager.getConnection(source, "dustin", "");
-		} catch(SQLException e) {
-			throw new ServletException ("Can't connect to database, shit...");
 		}
 
 		// Get the UID for the username now that we have a database
@@ -100,12 +96,25 @@ public class PhotoServlet extends HttpServlet
 
 	}
 
+	private Connection getDBConn() throws SQLException {
+		Connection photo;
+
+		// The path to the database...
+		photo = dbs.getConnection();
+		return(photo);
+	}
+
+	private void freeDBConn(Connection conn) {
+		dbs.freeConnection(conn);
+	}
+
 	private String showSaved() throws SQLException, IOException {
-		Statement st;
 		String query, out="";
 		BASE64Decoder base64 = new BASE64Decoder();
+		Connection photo;
 
-		st=photo.createStatement();
+		photo=getDBConn();
+		Statement st=photo.createStatement();
 
 		query = "select * from searches order by name,addedby\n";
 		ResultSet rs = st.executeQuery(query);
@@ -117,14 +126,15 @@ public class PhotoServlet extends HttpServlet
 			out += "    <li><a href=\"" + self_uri + "?"
 				+ tmp + "\">" + rs.getString(2) + "</a></li>\n";
 		}
+		freeDBConn(photo);
 		return(out);
 	}
 
 	private String getCatList() throws SQLException, IOException {
-		Statement st;
 		String query, out="";
 
-		st=photo.createStatement();
+		Connection photo=getDBConn();
+		Statement st=photo.createStatement();
 
 		query = "select * from cat where id in\n"
 			  + "(select cat from wwwacl where\n"
@@ -136,6 +146,7 @@ public class PhotoServlet extends HttpServlet
 			out += "    <option value=\"" + rs.getString(1)
 				+ "\">" + rs.getString(2) + "\n";
 		}
+		freeDBConn(photo);
 		return(out);
 	}
 
@@ -266,6 +277,8 @@ public class PhotoServlet extends HttpServlet
 		output += "<ul>\n";
 
 		try {
+			Connection photo = getDBConn();
+			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
 				String t;
@@ -280,6 +293,7 @@ public class PhotoServlet extends HttpServlet
 					+ rs.getString(2) + "&maxret=5\">"
 					+ rs.getString(3) + t + "</a></li>\n";
 			}
+			freeDBConn(photo);
 		} catch(Exception e) {
 		}
 
@@ -311,13 +325,15 @@ public class PhotoServlet extends HttpServlet
 
 		query = "select getwwwuser('" + remote_user + "')";
 		try {
-			st = photo.createStatement();
+			Connection photo=getDBConn();
+			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			if(rs.next()) {
 				remote_uid=Integer.valueOf(rs.getString(1));
 			} else {
 				throw x;
 			}
+			freeDBConn(photo);
 		} catch(SQLException e) {
 			System.out.println(e.getSQLState());
 			throw x;
@@ -558,7 +574,8 @@ public class PhotoServlet extends HttpServlet
 		output += "<!-- Query:\n" + query + "\n-->\n";
 
 		try {
-			st = photo.createStatement();
+			Connection photo=getDBConn();
+			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
 			if(rs.next() == false) {
@@ -574,6 +591,7 @@ public class PhotoServlet extends HttpServlet
 			h.put("CAT",       rs.getString(7));
 			h.put("CATNUM",    rs.getString(8));
 			h.put("ADDEDBY",   rs.getString(9));
+			freeDBConn(photo);
 		} catch(SQLException e) {
 			throw new ServletException("Some kinda SQL problem.");
 		}
@@ -628,7 +646,8 @@ public class PhotoServlet extends HttpServlet
 
 		try {
 			// Go through the matches.
-			st = photo.createStatement();
+			Connection photo=getDBConn();
+			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			i = 0;
 			while(rs.next()) {
@@ -655,6 +674,8 @@ public class PhotoServlet extends HttpServlet
 				}
 				i++;
 			}
+
+			freeDBConn(photo);
 
 		} catch(SQLException e) {
 			throw new ServletException("Database problem: " + e.getMessage() +
@@ -716,13 +737,15 @@ public class PhotoServlet extends HttpServlet
 			// Need a binary output thingy.
 			out = response.getOutputStream();
 
-			st = photo.createStatement();
+			Connection photo=getDBConn();
+			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
 				byte data[];
 				data=base64.decodeBuffer(rs.getString(3));
 				out.write(data);
 			}
+			freeDBConn(photo);
 		} catch(Exception e) {
 			throw new ServletException("Problem getting image.");
 		}
