@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.2 2001/12/21 05:53:12 dustin Exp $
+ * $Id: HouseServlet.java,v 1.3 2001/12/21 06:06:27 dustin Exp $
  */
 
 package net.spy.house;
@@ -39,6 +39,9 @@ public class HouseServlet extends GifServlet implements ImageObserver
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
+		getBaseImage();
+
 		white=new Color(255, 255, 255);
 		red=new Color(255, 0, 0);
 		blue=new Color(0, 0, 255);
@@ -53,7 +56,7 @@ public class HouseServlet extends GifServlet implements ImageObserver
 			writeGif(response, getHouseImage());
 		} catch(Exception e) {
 			e.printStackTrace();
-			throw new ServletException("Error getting image:  " + e);
+			throw new ServletException("Error getting image", e);
 		}
 	}
 
