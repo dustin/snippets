@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.6 2000/10/13 06:50:17 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.7 2000/10/13 19:30:43 dustin Exp $
  */
 
 package net.spy.log;
@@ -107,6 +107,8 @@ public class SpyLogFlusher extends Thread {
 		Vector v = flush();
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
+			// The logfile is only open long enough for us to write our log
+			// entries to it.
 			BufferedWriter log_file=null;
 			try {
 				log_file=new BufferedWriter(
@@ -116,6 +118,7 @@ public class SpyLogFlusher extends Thread {
 					log_file.write(l.toString() + "\n");
 				}
 				log_file.flush();
+				log_file.close(); // Close it, we're done!
 			} catch(Exception e) {
 				System.err.println("BAD LOG ERRROR!  " + e);
 			}
