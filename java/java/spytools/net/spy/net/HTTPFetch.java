@@ -58,14 +58,10 @@ public class HTTPFetch {
 	public String getData() throws Exception {
 		if(contents==null) {
 			contents="";
-			try {
-				BufferedReader br = getReader();
-				String line;
-				while( (line=br.readLine()) != null) {
-					contents+=line + "\n";
-				}
-			} catch(Exception e) {
-				throw new Exception(e.getMessage());
+			BufferedReader br = getReader();
+			String line;
+			while( (line=br.readLine()) != null) {
+				contents+=line + "\n";
 			}
 		}
 		return(contents);

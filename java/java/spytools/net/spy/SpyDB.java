@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.10 2000/04/17 18:48:56 dustin Exp $
+ * $Id: SpyDB.java,v 1.11 2000/04/30 08:01:08 dustin Exp $
  */
 
 package net.spy;
@@ -184,8 +184,8 @@ public class SpyDB extends Object {
 	 * connection cannot be obtained.
 	 */
 	public Connection getConn() throws Exception {
-		log("New connection");
 		if(conn==null) {
+			log("New connection");
 			getDBConn();
 		}
 		return(conn);
@@ -285,8 +285,8 @@ public class SpyDB extends Object {
 			dbss.put(log_file, dbs);
 			log("Got a new DBCB object logging to " + log_file);
 		} catch(Exception e) {
-			// Do nothing
-			// throw new Exception("dbs broke:  " + e);
+			System.err.println("Error initializing dbs! " + e);
+			e.printStackTrace();
 		}
 	}
 
