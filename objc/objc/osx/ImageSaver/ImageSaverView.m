@@ -184,7 +184,9 @@
             }
             currentImage=tmpImage;
         }
-    }
+    } else {
+		NSLog(@"Failed to fetch image.");
+	}
 
     [self setNeedsDisplay: TRUE];
     [u release];
