@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.17 2002/11/24 09:17:59 dustin Exp $
+ * $Id: Temperature.java,v 1.18 2002/11/25 01:48:12 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -27,7 +27,7 @@ import net.spy.png.*;
 public class Temperature extends PngServlet {
 
 	private SpyCache cache=null;
-	private File configFile=null;
+	private Gatherer gatherer=null;
 
 	// Image stuff.
 	private Image baseImage=null;
@@ -39,15 +39,15 @@ public class Temperature extends PngServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		// find the config file
-		String configFileS
-			=getServletConfig().getInitParameter("temperatureProps");
-		// If it's in WEB-INF, map it
-		if(configFileS.startsWith("/WEB-INF")) {
-			configFileS=getServletContext().getRealPath(configFileS);
+		try {
+			// TODO:  make this configurable
+			InetAddress ia=InetAddress.getByName("225.0.0.37");
+			int port=6789;
+			log("Initializing gatherer on " + ia + ":" + port);
+			gatherer=new Gatherer(ia, port);
+		} catch(IOException e) {
+			throw new ServletException("Could not initialize the gatherer.",e);
 		}
-		configFile=new File(configFileS);
-		log("Using the following config:  " +  configFile);
 
 		try {
 			log("Getting the base image.");
@@ -65,12 +65,20 @@ public class Temperature extends PngServlet {
 		font=new Font("SanSerif", Font.PLAIN, 10);
 	}
 
+	/**
+	 * Shut down the gatherer.
+	 */
+	public void destroy() {
+		log("Shutting down gatherer.");
+		gatherer.stopRunning();
+		super.destroy();
+	}
+
 	// Do a GET request
 	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
 
-		SpyConfig temps=new SpyConfig(configFile);
 		String which=request.getParameter("temp");
 		String therm=request.getParameter("therm");
 		String out="";
@@ -83,61 +91,40 @@ public class Temperature extends PngServlet {
 				response.setDateHeader("Expires", l);
 				// Show the graphical representation of the temperature
 				try {
-					writeImage(request, response, getTherm(temps, therm));
+					writeImage(request, response, getTherm(therm));
 				} catch(Exception e) {
 					throw new ServletException("Error sending gif", e);
 				}
 			} else {
 				// If there's no therm, and no out, list the temps
-				out=listTemps(temps);
+				out=listTemps();
 				send_response(response, out);
 			}
 		} else {
 			// Show the non-graphical representation of the temperature
-			out=getTemp(temps, which);
+			out=getTemp(which);
 			send_response(response, out);
 		}
 	}
 
-	private String listTemps(SpyConfig temps) {
+	private String listTemps() {
 		String ret="";
 
-		for(Enumeration e = temps.keys(); e.hasMoreElements();) {
-			ret+=e.nextElement() + "\n";
+		for(Iterator i=gatherer.getSeen().keySet().iterator(); i.hasNext();) {
+			ret+=i.next() + "\n";
 		}
 
 		return(ret);
 	}
 
-	private String getTemp(SpyConfig temps, String which)
+	private String getTemp(String which)
 		throws ServletException {
 
-		String key="therm_" + which;
-		Double rv=(Double)cache.get(key);
-		if(rv==null) {
-			String url=(String)temps.get(which);
-			double t;
-			if(url==null) {
-				throw new ServletException("Unknown location: " + which);
-			}
-			try {
-				URLWatcher uw=URLWatcher.getInstance();
-				String s=uw.getContent(new URL(url));
-				if(s==null) {
-					throw new NullPointerException("Received content is null");
-				}
-				int temptmp;
-				t=Double.parseDouble(s);
-				temptmp=(int)(t*100.0);
-				t=(double)temptmp/100;
-				// log("Fetching " + which + " from " + url);
-			} catch(Exception e) {
-				throw new ServletException("Error getting temperature", e);
-			}
-			rv=new Double(t);
-			cache.store(key, rv, 60000);
-		}
-		return(rv.toString());
+		Double dv=gatherer.getSeen(which);
+		double t=dv.doubleValue();
+		int temptmp=(int)(t*100.0);
+		t=(double)temptmp/100;
+		return("" + t);
 	}
 
 	private void send_response(HttpServletResponse response, String o) {
@@ -152,7 +139,7 @@ public class Temperature extends PngServlet {
 	}
 
 	// Graphical representation of the image.
-	private Image getTherm(SpyConfig temps, String which)
+	private Image getTherm(String which)
 		throws ServletException {
 
 		int width=133;
@@ -162,7 +149,7 @@ public class Temperature extends PngServlet {
 		double x2, y2;
 		int trans;
 		double rad, angle;
-		double temp=getTempD(temps, which);
+		double temp=getTempD(which);
 
 		// Create an image the size we want
 		Image image = createImage(width, height);
@@ -199,14 +186,15 @@ public class Temperature extends PngServlet {
 	}
 
 	// Get the temperature as a double (For the image)
-	private double getTempD(SpyConfig temps, String which)
+	private double getTempD(String which)
 		throws ServletException {
 
-		double t = 0.0;
-		// Get the temperature, make it a double.
-		String s=getTemp(temps, which) + "d";
-		t=Double.valueOf(s).doubleValue();
-		return(t);
+		Double d=gatherer.getSeen(which);
+		if(d == null) {
+			throw new ServletException("No value for " + which);
+		}
+		double rv = d.doubleValue();
+		return(rv);
 	}
 
 	// Get the base image loaded

@@ -35,8 +35,12 @@
 
 	<target name="install" description="Install the servlet" depends="all">
 		<copy
-			file="net/spy/temperature/Temperature.class"
-			tofile="/afs/.spy.net/misc/web/root/therm/WEB-INF/classes/net/spy/temperature/Temperature.class"/>
+			todir="/afs/.spy.net/misc/web/root/therm/WEB-INF/classes/">
+			<fileset dir="${BUILDDIR}">
+				<include name="net/**/*.class"/>
+				<include name="net/**/*.properties"/>
+			</fileset>
+		</copy>
 	</target>
 
 </project>
