@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.1 2000/01/16 04:37:13 dustin Exp $
+ * $Id: main.c,v 1.2 2000/01/16 06:19:17 dustin Exp $
  */
 
 #include <stdio.h>
@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
@@ -147,10 +148,90 @@ int start_request(struct ProxyStruct proxystruct)
 	return(s);
 }
 
+/* This will destroy the input as it replaces */
+int parse_headers(char *buf, int *size)
+{
+	int s=0, index=0, done;
+	char *p, *left, *end;
+	char outbuf[8192];
+	struct growstring grow;
+
+	/* Find the end of the headers string. */
+	index=4;
+	end=strstr(buf, "\r\n\r\n");
+	/* This is in the protocol spec, but I'm not taking chances */
+	if(end==NULL) {
+		index=2;
+		/* Try LFLF */
+		end=strstr(buf, "\n\n");
+		if(end==NULL) {
+			/* Try CRCR */
+			end=strstr(buf, "\r\r");
+			if(end==NULL) {
+				/* We didn't find the end, it's just not here */
+				return(-1);
+			}
+		}
+	}
+	*end=0x00;
+	end+=2;
+	s=*size-((int)end-(int)buf);
+
+	grow.size=1024*sizeof(char);
+	grow.string=calloc(sizeof(char), grow.size);
+
+	left=buf;
+	p=strchr(buf, '\n');
+	done=0;
+	while(!done) {
+		if(p) {
+			*p=NULL;
+			p++;
+		}
+		kw(left);
+
+		/* Find the stuff we want */
+		if(strncasecmp(left, "Content-Type", 12)==0) {
+			str_append(&grow, "Content-Type");
+			str_append(&grow, left+12);
+			str_append(&grow, "\r\n\r\n");
+		}
+
+		/* Find the next left */
+		for(; p && *p && isspace(*p); p++);
+		if(p && *p) {
+			left=p;
+			p=strchr(p, '\n');
+		} else {
+			/* Looks like we're done, do one more iteration */
+			p=NULL;
+			done=1;
+		}
+	}
+
+	/* Make sure we have enough room */
+	assert(sizeof(outbuf) > s);
+
+	/* Copy into our tmp buffer */
+	memcpy(outbuf, grow.string, strlen(grow.string));
+	memcpy(outbuf+strlen(grow.string), buf+(*size-s), s);
+
+	s+=strlen(grow.string);
+	*size=s;
+
+	/* Copy it back */
+	memcpy(buf, outbuf, s);
+
+	/* free the grow string */
+	free(grow.string);
+
+	return(1);
+}
+
 int main(int argc, char **argv)
 {
 	struct ProxyStruct proxystruct;
-	int s, f, size;
+	int s, f, size, rv, parsed_headers=0;
 	char recv_buf[8192];
 
 	proxystruct=parseuri(GETENV("REQUEST_URI"));
@@ -164,7 +245,6 @@ int main(int argc, char **argv)
 #endif /* UGLY_DEBUG */
 
 	ensurepath(proxystruct.file);
-	printf("Creating file:  %s\n", proxystruct.file);
 	f=open(proxystruct.file, O_WRONLY|O_CREAT|O_EXCL, 0755);
 	if(f<0) {
 		perror(proxystruct.file);
@@ -173,10 +253,16 @@ int main(int argc, char **argv)
 	s=start_request(proxystruct);
 
 	while( (size=recv(s, recv_buf, sizeof(recv_buf), 0)) > 0) {
-		write(1, recv_buf, size);
+		if(parsed_headers==0) {
+			parsed_headers=parse_headers(recv_buf, &size);
+		}
+
+		rv=write(1, recv_buf, size);
+		assert(rv=size);
 
 		if(f>=0) {
-			write(f, recv_buf, size);
+			rv=write(f, recv_buf, size);
+			assert(rv=size);
 		}
 	}
 

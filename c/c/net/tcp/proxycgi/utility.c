@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.1 2000/01/16 04:37:15 dustin Exp $
+ * $Id: utility.c,v 1.2 2000/01/16 06:19:18 dustin Exp $
  */
 
 #include <stdio.h>
@@ -33,6 +33,8 @@ str_append(struct growstring *s, char *buf)
 char   *
 kw(char *in)
 {
+	assert(in);
+
 	/* bounds checking */
 	if (strlen(in) == 0)
 		return (in);
