@@ -1,13 +1,15 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestAnswer.java,v 1.1 1999/11/19 07:29:20 dustin Exp $
+// $Id: TestAnswer.java,v 1.2 2001/01/28 08:16:03 dustin Exp $
 
 package net.spy.test;
+
+import java.io.Serializable;
 
 import net.spy.*;
 
 // This class implements the actual test that will be taken by people
-public class TestAnswer {
+public class TestAnswer extends Object implements Serializable{
 	protected String answer = null;
 	protected boolean correct=false;
 

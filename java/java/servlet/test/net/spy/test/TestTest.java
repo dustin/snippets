@@ -1,27 +1,57 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestTest.java,v 1.3 2001/01/27 23:24:58 dustin Exp $
+// $Id: TestTest.java,v 1.4 2001/01/28 08:16:06 dustin Exp $
 
 package net.spy.test;
 
 import java.sql.*;
 import java.util.*;
+import java.io.Serializable;
 import net.spy.*;
 
 /**
  * The actual test to be taken.
  */
-public class TestTest {
+public class TestTest extends Object implements Serializable{
 
 	private Vector questions=null;
 	private int test_id = -1;
-	private int num_questions = -1;
+	private int num_questions = 20;
 	private int current_question_i=0;
 	private TestQuestion current_question=null;
 
+	public TestTest() throws Exception {
+		super();
+	}
+
+	public TestTest(int test_id) throws Exception {
+		super();
+		this.test_id=test_id;
+	}
+
 	public TestTest(int test_id, int num_questions) throws Exception {
+		super();
 		this.test_id=test_id;
 		this.num_questions=num_questions;
+	}
+
+	public void setTestid(String test_ids) {
+		this.test_id=Integer.parseInt(test_ids);
+		reset();
+	}
+
+	public void reset() {
+		questions=null;
+		current_question_i=0;
+		current_question=null;
+	}
+
+	protected void initTest() throws Exception {
+
+		// If'n we already have questions, don't init again
+		if(questions!=null) {
+			return;
+		}
 
 		try {
 			SpyDB db = new SpyDB(new TestConfig());
@@ -76,8 +106,9 @@ public class TestTest {
 		current_question_i=c;
 	}
 
-	public boolean nextQuestion() {
+	public boolean nextQuestion() throws Exception {
 		boolean ret=false;
+		initTest();
 		try {
 			current_question=
 				(TestQuestion)questions.elementAt(current_question_i);
@@ -93,15 +124,27 @@ public class TestTest {
 		return(current_question);
 	}
 
-	public TestQuestion getQuestion(int i) {
+	public TestQuestion getQuestion(int i) throws Exception {
+		initTest();
 		return((TestQuestion)questions.elementAt(i));
 	}
 
-	public Enumeration getQuestions() {
+	public Enumeration getQuestions() throws Exception {
+		initTest();
 		return(questions.elements());
 	}
 
+	public int getNumQuestions() throws Exception {
+		initTest();
+		return(questions.size());
+	}
+
 	public String toString() {
+		try {
+			initTest();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		StringBuffer sb=new StringBuffer();
 
 		for(Enumeration e=questions.elements(); e.hasMoreElements(); ) {

@@ -1,15 +1,16 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestQuestion.java,v 1.4 2001/01/27 23:24:56 dustin Exp $
+// $Id: TestQuestion.java,v 1.5 2001/01/28 08:16:04 dustin Exp $
 
 package net.spy.test;
 
 import java.sql.*;
 import java.util.*;
+import java.io.Serializable;
 import net.spy.*;
 
 // This class implements the actual test that will be taken by people
-public class TestQuestion {
+public class TestQuestion extends Object implements Serializable{
 	protected String question = null;
 	protected Vector answers = null;
 
@@ -72,6 +73,10 @@ public class TestQuestion {
 
 	public String getQuestion() {
 		return(question);
+	}
+
+	public Enumeration getAnswers() {
+		return(answers.elements());
 	}
 
 	public TestAnswer getAnswer(int which) {
