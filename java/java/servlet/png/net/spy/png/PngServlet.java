@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PngServlet.java,v 1.3 2002/04/12 08:52:15 dustin Exp $
+// $Id: PngServlet.java,v 1.4 2002/05/06 19:48:07 dustin Exp $
 
 package net.spy.png;
 
@@ -19,16 +19,11 @@ import Acme.JPM.Encoders.GifEncoder;
  */
 public class PngServlet extends HttpServlet {
 
-	private Frame frame=null;
-
 	/**
-	 * Get the frame for making images and what-not.
+	 * Servlet initialization.
 	 */
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
-
-		frame=new Frame();
-		frame.addNotify();
 	}
 
 	/**
@@ -38,7 +33,9 @@ public class PngServlet extends HttpServlet {
 	 * @param height the height of the Image.
 	 */
 	protected Image createImage(int width, int height) {
-		return(frame.createImage(width, height));
+		BufferedImage bi=new BufferedImage(
+			width, height, BufferedImage.TYPE_INT_RGB);
+		return(bi);
 	}
 
 	/**
