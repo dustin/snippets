@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.2 1999/05/08 21:17:54 dustin Exp $
+ * $Id: parselist.h,v 1.3 1999/05/08 21:32:20 dustin Exp $
  */
 
 #include "hash.h"
@@ -17,7 +17,7 @@
 /* Length of a line */
 #define LINELEN 90
 #define CONFIGFILE "list"
-#define LIFETIME 10
+#define LIFETIME 11
 
 /* The config structure */
 struct config_t {

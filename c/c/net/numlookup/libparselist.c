@@ -215,6 +215,7 @@ main(int argc, char **argv)
 	return(0);
 
 #ifdef MYMALLOC
+	printf("*** Dumping memory crap ***\n");
 	_mdebug_dump();
 #endif
 }

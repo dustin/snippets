@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.1 1999/05/08 21:17:51 dustin Exp $
+ * $Id: hash.c,v 1.2 1999/05/08 21:32:17 dustin Exp $
  */
 
 #include <stdio.h>
@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include "hash.h"
+#include "mymalloc.h"
 
 /* We don't need a function for this */
 #define _do_hash(a, b) (b%a->hashsize)
