@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: nettools.c,v 1.1 1997/08/09 05:13:53 dustin Exp $
+ * $Id: nettools.c,v 1.2 1997/08/09 05:30:44 dustin Exp $
  */
 
 /*
@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 
 int nmc_bitsToN(unsigned int bits)
 {
@@ -33,6 +35,8 @@ char *nmc_intToDQ(unsigned int addr)
 {
   unsigned char a[4];
   static   char ret[16];
+
+  addr=ntohl(addr);
 
 /*
   a[0]=a[1]=a[2]=a[3]=addr;
