@@ -1,0 +1,22 @@
+#!/bin/sh
+
+FILEROOT=afsdumps
+
+echo "Moving old dumps out of the way."
+
+# Cleanup old dumps
+rm -rf $FILEROOT.old
+mv $FILEROOT $FILEROOT.old
+mkdir $FILEROOT
+
+# Get the list of things to back up
+thelist=`vos listvol ojo | egrep RW | egrep -v '^Total ' \
+	| awk '{print $4 " " $1}' | sort -rn | awk '{print $2}'`
+
+for v in $thelist
+do
+	d=$FILEROOT/$v
+	echo "Dumping $v to $d"
+	vos dump $v -file $d
+	gzip -3 $d &
+done
