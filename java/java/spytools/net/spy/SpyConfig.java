@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.11 2000/10/10 01:39:47 dustin Exp $
+ * $Id: SpyConfig.java,v 1.12 2000/10/18 22:37:54 dustin Exp $
  */
 
 package net.spy;
@@ -189,4 +189,15 @@ public class SpyConfig extends Hashtable {
 			put(key, value);
 		}
 	}
+
+	// The config reader class
+	private class SpyConfigReader {
+
+		public Hashtable hashConfig(String filename) throws Exception {
+			Properties p = new Properties();
+			p.load(new FileInputStream(filename));
+			return(p);
+		}
+	}
+
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.15 2000/10/18 19:52:28 dustin Exp $
+// $Id: ObjectPool.java,v 1.16 2000/10/18 22:37:57 dustin Exp $
 
 package net.spy.pool;
 
@@ -216,8 +216,8 @@ public class ObjectPool extends Object {
 			start();
 		}
 
-	// Look like a normal thread, but report number of times the thing's
-	// cleaned.
+		// Look like a normal thread, but report number of times the thing's
+		// cleaned.
 		public String toString() {
 			return(super.toString() + " - " + numCleans + " served.");
 		}

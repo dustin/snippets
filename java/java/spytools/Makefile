@@ -18,7 +18,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/log/SpyLogFlusher.class \
 	net/spy/log/SpyLogQueue.class \
 	net/spy/SpyToker.class \
-	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
+	'net/spy/SpyConfig$$SpyConfigReader.class' net/spy/net/SNPP.class \
 	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
 	net/spy/rmi/RObject.class \
 	net/spy/rmi/RObjectImpl.class \
@@ -97,6 +97,8 @@ net/spy/rmi/RObjectImpl_Stub.class: \
 
 'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class': \
 	net/spy/pool/ObjectPool.class
+
+'net/spy/SpyConfig$$SpyConfigReader.class': net/spy/SpyConfig.class
 
 .java.class:
 	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
