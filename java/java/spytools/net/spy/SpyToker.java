@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyToker.java,v 1.3 2000/01/24 06:57:08 dustin Exp $
+ * $Id: SpyToker.java,v 1.4 2001/05/22 03:57:34 dustin Exp $
  */
 
 package net.spy;
@@ -20,6 +20,13 @@ import java.io.*;
 public class SpyToker extends Object {
 
 	/**
+	 * @deprecated give it a File instead.
+	 */
+	public String tokenize(String file, Hashtable p) {
+		return(tokenize(new File(file), p));
+	}
+
+	/**
 	 * tokenize a file
 	 *
 	 * @param file file to tokenize
@@ -28,8 +35,9 @@ public class SpyToker extends Object {
 	 *
 	 * @return tokenized data from the file.
 	 */
-	public String tokenize(String file, Hashtable p) {
-		String input, output="";
+	public String tokenize(File file, Hashtable p) {
+		String input=null;
+		StringBuffer output=new StringBuffer();
 		int which;
 
 		// Get our mofo data.
@@ -40,25 +48,24 @@ public class SpyToker extends Object {
 		}
 
 		while( (which=input.indexOf('%')) >= 0) {
-			String tmp;
-			output += input.substring(0, which);
+			output.append(input.substring(0, which));
 			input=input.substring(which+1);
 
 			which=input.indexOf('%');
 			if(which>=0) {
-				String v;
-				tmp = input.substring(0, which);
+				String v=null;
+				String tmp = input.substring(0, which);
 				input = input.substring(which+1);
 				if( (v=(String)p.get(tmp)) != null) {
-					output += v;
+					output.append(v);
 				} else {
-					output += "%" + tmp + "%";
+					output.append("%" + tmp + "%");
 				}
 			} else {
-				output += "%";
+				output.append("%");
 			}
 		}
-		output += input;
-		return(output);
+		output.append(input);
+		return(output.toString());
 	}
 }
