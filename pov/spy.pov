@@ -18,13 +18,20 @@
 #else
 	#debug concat("\nClock is ", str(clock,5,5), "\n")
 
-	camera {
-		location <0, clock-1.8, -15*clock>
-		look_at <0, 0, 0>
-		#local r = 90-(90*clock);
-		#debug concat("Angle is ", str(r,2,2), " for ", str(clock,5,5), "\n")
-		rotate <0, 0, r>
-	}
+	#if(clock < 1.0)
+		camera {
+			location <0, clock-1.8, -15*clock>
+			look_at <0, 0, 0>
+			#local r = 90-(90*clock);
+			#debug concat("Angle is ", str(r,2,2), " for ", str(clock,5,5), "\n")
+			rotate <0, 0, r>
+		}
+	#else
+		camera {
+			location <0, 1.8, -15>
+			look_at <0, 0, 0>
+		}
+	#end
 #end
 
 // Declaration of a light
@@ -101,10 +108,30 @@ object {
 // productions
 #declare Font = "cyrvetic.ttf"
 
-text { ttf Font
-	"productions",.3,0
-	translate <-2.5, 0, -1.5>
-	rotate <0,0,15>
-	texture { small_lettering }
-	scale <1.5,1.5,1>
-}
+#declare final_productions =
+	text { ttf Font
+		"productions",.3,0
+		translate <-2.5, 0, -1.5>
+		rotate <0,0,15>
+		texture { small_lettering }
+		scale <1.5,1.5,1>
+	}
+
+#if(clock_on = 0)
+	final_productions
+#else
+	#if(clock > 1)
+		#local cl = (clock - 1.0);
+		#if(cl > 1)
+			final_productions
+		#else
+			text { ttf Font
+				"productions",.3,0
+				translate <-2.5, 0, 1+(-2.5*cl)>
+				rotate <0,0,10+(5*cl)>
+				texture { small_lettering }
+				scale <0.5+cl,0.5+cl,1>
+			}
+		#end
+	#end
+#end
