@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.8 2000/07/04 05:40:42 dustin Exp $
+// $Id: PoolContainer.java,v 1.9 2000/07/04 05:59:42 dustin Exp $
 
 package net.spy.pool;
 
@@ -35,6 +35,8 @@ public class PoolContainer extends Object {
 	 * @param pf the PoolFiller to use
 	 * @param conf a SpyConfig object that should describe the pool
 	 * parameters.
+	 *
+	 * @exception PoolException when something bad happens
 	 */
 	public PoolContainer(String name, PoolFiller pf, SpyConfig conf)
 		throws PoolException {
@@ -49,6 +51,8 @@ public class PoolContainer extends Object {
 	/**
 	 * Get an object from the pool.  It could take up to about three
 	 * seconds to get an object from the pool.
+	 *
+	 * @exception PoolException when something bad happens
 	 */
 	public synchronized PooledObject getObject() throws PoolException {
 		PoolAble ret=null;
@@ -147,6 +151,8 @@ public class PoolContainer extends Object {
 	 * <p>
 	 * This method should only be called from the ObjectPoolCleaner --
 	 * please don't call it directly.
+	 *
+	 * @exception PoolException when something bad happens
 	 */
 	public void prune() throws PoolException {
 		synchronized (pool) {

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.8 2000/07/04 05:40:38 dustin Exp $
+// $Id: ObjectPool.java,v 1.9 2000/07/04 05:59:39 dustin Exp $
 
 package net.spy.pool;
 
@@ -49,7 +49,7 @@ public class ObjectPool extends Object {
 	 * @param pf The PoolFiller object that will be used to create new
 	 * objects within the pool.
 	 *
-	 * @throws PoolException when bad things happen
+	 * @exception PoolException when bad things happen
 	 */
 	public void createPool(String name, PoolFiller pf)
 		throws PoolException {
@@ -73,6 +73,7 @@ public class ObjectPool extends Object {
 	 * Destory a pool.
 	 *
 	 * @param name The pool to destroy.
+	 * @exception PoolException if there's a problem removing the pool
 	 */
 	public void destroyPool(String name) throws PoolException {
 		synchronized (pools) {
@@ -88,7 +89,7 @@ public class ObjectPool extends Object {
 	 *
 	 * @return a PooledObject object.
 	 *
-	 * @throws PoolException if it can't get an object
+	 * @exception PoolException if it can't get an object
 	 */
 	public PooledObject getObject(String name) throws PoolException {
 		PooledObject ret=null;
@@ -121,6 +122,8 @@ public class ObjectPool extends Object {
 	/**
 	 * Prune the object pools.  This method requests that each individual
 	 * pool prune itself, removing unusable or unnecessary PoolAbles.
+	 *
+	 * @exception PoolException if something bad happens
 	 */
 	public void prune() throws PoolException {
 		synchronized (pools) {

@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.4 2000/07/04 05:40:41 dustin Exp $
+// $Id: PoolAble.java,v 1.5 2000/07/04 05:59:40 dustin Exp $
 
 package net.spy.pool;
 
@@ -62,7 +62,7 @@ public class PoolAble extends Object {
 	 *
 	 * @return the object.
 	 *
-	 * @throws PoolException if something bad happens (i.e. the object is
+	 * @exception PoolException if something bad happens (i.e. the object is
 	 * not checked out)
 	 */
 	public Object getObject() throws PoolException {

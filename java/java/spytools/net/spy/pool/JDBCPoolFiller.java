@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolFiller.java,v 1.3 2000/07/04 05:40:37 dustin Exp $
+// $Id: JDBCPoolFiller.java,v 1.4 2000/07/04 05:59:37 dustin Exp $
 
 package net.spy.pool;
 
@@ -34,7 +34,7 @@ public class JDBCPoolFiller extends PoolFiller {
 	 *      connection can live.  Default is forever</li>
 	 * </ul>
 	 *
-	 * @throws PoolException if a new connection could not be made.
+	 * @exception PoolException if a new connection could not be made.
 	 */
 	public PoolAble getObject() throws PoolException {
 		JDBCPoolAble p = null;

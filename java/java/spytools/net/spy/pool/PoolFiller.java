@@ -1,5 +1,5 @@
 //
-// $Id: PoolFiller.java,v 1.2 2000/07/04 05:40:44 dustin Exp $
+// $Id: PoolFiller.java,v 1.3 2000/07/04 05:59:43 dustin Exp $
 
 package net.spy.pool;
 
@@ -53,6 +53,8 @@ public abstract class PoolFiller extends Object {
 
 	/**
 	 * Get an object for the pool.
+	 *
+	 * @exception PoolException if it can't get a new object
 	 */
 	public abstract PoolAble getObject() throws PoolException;
 

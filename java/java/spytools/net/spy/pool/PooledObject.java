@@ -1,5 +1,5 @@
 //
-// $Id: PooledObject.java,v 1.3 2000/07/04 05:40:45 dustin Exp $
+// $Id: PooledObject.java,v 1.4 2000/07/04 05:59:44 dustin Exp $
 
 package net.spy.pool;
 
@@ -28,7 +28,7 @@ public class PooledObject extends Object {
 	/**
 	 * Get the object we just checked out.
 	 *
-	 * @throws PoolException if a problem occurs
+	 * @exception PoolException if a problem occurs
 	 */
 	public Object getObject() throws PoolException {
 		return(p.getObject());
@@ -39,8 +39,8 @@ public class PooledObject extends Object {
 	 *
 	 * @return true if the object is alive
 	 */
-	public boolean alive() {
-		return(p.alive());
+	public boolean isAlive() {
+		return(p.isAlive());
 	}
 
 	/**
