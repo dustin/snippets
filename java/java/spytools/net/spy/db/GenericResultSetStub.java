@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: GenericResultSetStub.java,v 1.2 2002/08/15 20:54:39 dustin Exp $
+ * $Id: GenericResultSetStub.java,v 1.3 2002/08/15 23:12:26 dustin Exp $
  */
 
 package net.spy.db;
@@ -102,13 +102,20 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 	} // initresults
 
 	/**
+	 * Reset the results to the beginning.
+	 */
+	protected void resetResults() {
+		this.resultIter=null;
+	}
+
+	/**
 	 * Set the results for this ResultSet to use.
 	 *
 	 * @param results results list to use
 	 */
 	protected void setResults(List results) {
 		this.results=results;
-		this.resultIter=null;
+		resetResults();
 	}
 
 	/**
