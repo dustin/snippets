@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: checkinterrors,v 1.5 2000/05/11 00:03:47 dustin Exp $ \
+# $Id: checkinterrors,v 1.6 2000/05/11 21:34:24 dustin Exp $ \
 exec /usr/local/bin/scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -89,7 +89,7 @@ while {[gets $input line] != -1} {
 				}
 			}
 			# Store the current reading in the file...
-			puts $routput "$i $ierrors $oerrors"
+			puts $routput "$i $ierrors $oerrors $desc"
 
 		# For each interface
 		}

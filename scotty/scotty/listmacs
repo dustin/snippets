@@ -1,0 +1,123 @@
+#!/bin/sh
+# scotty is stupid \
+exec scotty -nf $0 $*
+
+mib load rfc1493.mib
+
+proc walkToArray { s l tovar } {
+	global $tovar
+	if { [catch {
+		$s walk vbl $l {
+			set vb    [lindex $vbl 0]
+			set oid   [lindex $vb  0]
+			set value [lindex $vb  2]
+			set info [join [lrange [split [mib name $oid] .] 1 end] .]
+
+			# Ain't that some nasty tcl shite?
+			set $tovar\($info) $value
+		}
+	} err] } {
+		puts "Something broke:  $err"
+	}
+}
+
+proc mac2name { } {
+	global mactoname
+
+	set file /tmp/mac2ipandname
+	if [catch {open $file} input] {
+		return
+	}
+
+	while {[gets $input line] != -1} {
+		set mac [lindex $line 0]
+		set name [lindex $line 1]
+		catch { set name [lindex $line 2] }
+
+		set mactoname($mac) $name
+	}
+	close $input
+}
+
+proc getName { mac } {
+	global mactoname
+
+	set name "unknown"
+	catch { set name $mactoname($mac) }
+
+	return $name
+}
+
+proc findMacAddresses { s } {
+
+	global cantomac
+	global cantoport
+	global mactoint
+	global porttoint
+	global inttomac
+
+	mac2name
+
+	# Interface to name
+	walkToArray $s ifDescr idesc
+	# Bridge port to interface
+	walkToArray $s dot1dBasePortIfIndex porttoint
+	# Crazy ass number to MAC address
+	walkToArray $s dot1dTpFdbAddress cantomac
+	# Crazy ass number to port
+	walkToArray $s dot1dTpFdbPort cantoport
+	# Now, let's get rid of the cans
+	foreach can [ array names cantomac ] {
+		set mac $cantomac($can)
+		set int $porttoint($cantoport($can))
+		set mactoint($mac) $int
+		set tmp {}
+		catch {set tmp $inttomac($int)}
+		lappend tmp $mac
+		set inttomac($int) $tmp
+	}
+}
+
+proc debugMACDump { } {
+	puts "Displaying..."
+	foreach var { idesc porttoint cantomac cantoport mactoint inttomac } {
+		global $var
+		puts "$var"
+		foreach n [lsort [array names $var ]] {
+			# more way stupid tcl shite
+			eval set val \$$var\($n)
+			puts "\tGot $n as $val"
+		}
+	}
+}
+
+proc displayMACs { } {
+	global inttomac
+	global idesc
+	foreach int [lsort [array names inttomac]] {
+		puts "$int ($idesc($int))"
+		foreach mac [lsort $inttomac($int) ] {
+			set name [ getName $mac ]
+			puts "\t$mac ($name)"
+		}
+	}
+}
+
+### Start here
+
+set host [lindex $argv 0]
+if {[lsearch [snmp alias] $host] >= 0} {
+	set s [snmp session -alias $host]
+} else {
+	puts stderr "no snmp alias for \"$host\": using SNMPv1 community public"
+	if {[catch {snmp session -address $host -community public} s]} {
+		puts stderr $s
+		exit
+	}
+}
+
+findMacAddresses $s
+displayMACs
+# debugMACDump
+
+exit
