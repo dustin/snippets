@@ -103,38 +103,40 @@ class GreylistPolicyEngine(PolicyEngine):
         self.db=db
         self.delay=delay
 
-    def getAge(self, key):
-        """Get the age of this key in seconds.
-           None if we haven't seen this key."""
+    def getRecord(self, key):
         rv = None
         if key in self.db:
-            now = time.time()
-            oldval = float(self.db[key])
-            rv = now - oldval
+            vs=self.db[key]
+            sa=vs.split(' ')
+            rv=(float(sa[0]), int(sa[1]))
+        else:
+            rv = (time.time(), 0)
         return rv
 
-    def storeKey(self, key):
+    def storeKey(self, key, count):
         """Store the given key."""
-        self.db[key] = str(time.time())
+        self.db[key] = " ".join([str(time.time()), str(count+1)])
 
     def process(self, attributes):
         rv = None
         try:
-            # Calculate a key from these fields
-            keys=['client_address', 'sender', 'recipient']
-            key = "/".join([attributes[k] for k in keys])
+            # Calculate a key from the first three octets of the sender IP
+            # address, the sender email addr, and the recipient email addr
+            subnet=".".join(attributes['client_address'].split(".")[:3])
+            sender=attributes['sender']
+            recip=attributes['recipient']
+            key = "/".join([subnet, sender, recip])
 
-            age=self.getAge(key)
-            if age is None or age < self.delay:
-                ageStr="None"
-                if age is not None:
-                    ageStr = "%.2fs" % age
-                self.log.info("Requesting %s to be deferred: (age: %s)",
-                    key, ageStr)
+            (t, count) = self.getRecord(key)
+            age = time.time() - t
+
+            if age < self.delay:
+                self.log.info("Deferring %s: (age: %.2fs)", key, age)
                 rv = PolicyResponse.DEFER_IF_PERMIT
-                self.storeKey(key)
             else:
-                self.log.info("Passing %s (age %.2f)", key, age)
+                self.log.info("Permitting %s (age %.2f, count=%d)",
+                    key, age, count)
+            self.storeKey(key, count)
         except KeyError:
             self.log.exception("Could not process %s", attributes)
 
