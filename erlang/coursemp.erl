@@ -22,8 +22,7 @@ loop(N, With) ->
 
 % Bounce N messages between two proceses
 twoprocess(N) ->
-	W = spawn(coursemp, echo, []),
-	link(W),
+	W = spawn_link(coursemp, echo, []),
 	loop(N, W).
 
 %
@@ -42,15 +41,10 @@ ringProcess(S) ->
 			true
 	end.
 
-spawnLinked(M, F, A) ->
-	P = spawn(M, F, A),
-	link(P),
-	P.
-
 processMaker(S, F, 1) ->
-	spawnLinked(coursemp, F, [S]);
+	spawn_link(coursemp, F, [S]);
 processMaker(S, F, M) ->
-	processMaker(spawnLinked(coursemp, F, [S]), F, M-1).
+	processMaker(spawn_link(coursemp, F, [S]), F, M-1).
 
 % Bounce N messages around a ring of M processes
 nprocess(N, M) ->
@@ -83,5 +77,5 @@ broadcast2Way(Msg, Procs) ->
 		end, Procs).
 
 nprocessStar(N, M) ->
-	Procs = listBuilder(fun () -> spawnLinked(coursemp, echo, []) end, M, []),
+	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, M, []),
 	ntimes(fun () -> broadcast2Way({self(), ping}, Procs) end, N).
