@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: threadpool.py,v 1.2 2002/03/27 04:01:39 dustin Exp $
+# $Id: threadpool.py,v 1.3 2002/03/28 20:08:27 dustin Exp $
 
 import threading
 import exceptions
 import traceback
 import time
-import threadutil
+
+def dumpThreads():
+	"""Dump all threads to stdout."""
+	print "Threads:"
+	for t in threading.enumerate():
+		print "  * " + str(t)
 
 class Job:
 	"""Superclass for all jobs."""
@@ -113,15 +118,19 @@ class RunThread(threading.Thread):
 			traceback.print_exc()
 		self.running=None
 
+	def isProcessing(self):
+		"""Return true if this thread is currently processing something."""
+		return(self.running != None)
+
 	def __str__(self):
 		# Get the regular string representation, minus the > on the end.
 		rv=threading.Thread.__repr__(self)[0:-1]
 
-		if self.running == None:
-			rv+=" - idle"
-		else:
+		if self.isProcessing():
 			rv+=" - running " + str(self.running.__class__) + " for "
 			rv+="%.2fs" % (time.time() - self.startTime)
+		else:
+			rv+=" - idle"
 		rv+=">"
 		return rv
 
@@ -191,13 +200,13 @@ class SampleTask(Job):
 
 def main():
 	tp=ThreadPool("Test Pool", 15)
-	threadutil.dumpThreads()
+	dumpThreads()
 	try:
 		for i in range(100):
-			threadutil.dumpThreads()
+			dumpThreads()
 			tp.addTask(SampleTask())
 
-		threadutil.dumpThreads()
+		dumpThreads()
 		for i in range(100):
 			tp.waitForTaskCount(50)
 			print "Adding a new task."
@@ -206,7 +215,7 @@ def main():
 		tp.waitForTaskCount(0)
 		print "All tasks have been accepted, shutting down."
 		tp.shutdown()
-		threadutil.dumpThreads()
+		dumpThreads()
 
 		print "Done."
 	except:
