@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.3 1999/09/29 07:15:04 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.4 1999/10/10 08:03:53 dustin Exp $
  */
 
 import java.sql.*;
@@ -19,10 +19,11 @@ public class PhotoHelper
 
 	protected void getDBS() throws Exception {
 		try {
-			Class.forName("postgresql.Driver");
-			String source="jdbc:postgresql://dhcp-104/photo";
-			dbs = new DbConnectionBroker("postgresql.Driver",
-				source, "dustin", "", 2, 5, "/tmp/pool.log", 0.01);
+			PhotoConfig conf = new PhotoConfig();
+			Class.forName(conf.dbDriverName);
+			dbs = new DbConnectionBroker(conf.dbDriverName,
+				conf.dbSource, conf.dbUser, conf.dbPass,
+				2, 5, "/tmp/pool.log", 0.01);
 		} catch(Exception e) {
 			// System.err.println("dbs broke:  " + e.getMessage());
 			throw new Exception ("dbs broke: " + e.getMessage());

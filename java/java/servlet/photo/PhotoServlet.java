@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.26 1999/10/09 21:50:16 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.27 1999/10/10 08:03:56 dustin Exp $
  */
 
 import java.io.*;
@@ -26,6 +26,7 @@ public class PhotoServlet extends HttpServlet
 	RHash rhash=null;
 	MultipartRequest multi=null;
 	PhotoLogger logger=null;
+	PhotoSecurity security = null;
 
 	// Users
 	Hashtable userdb=null;
@@ -35,13 +36,22 @@ public class PhotoServlet extends HttpServlet
 		super.init(config);
 		// Load a postgres driver.
 		try {
-			Class.forName("postgresql.Driver");
-			String source="jdbc:postgresql://dhcp-104/photo";
-			dbs = new DbConnectionBroker("postgresql.Driver",
-				source, "dustin", "", 2, 6, "/tmp/pool.log", 0.01);
+			PhotoConfig pconfig = new PhotoConfig();
+			Class.forName(pconfig.dbDriverName);
+			dbs = new DbConnectionBroker(pconfig.dbDriverName,
+				pconfig.dbSource, pconfig.dbUser, pconfig.dbPass,
+				2, 6, "/tmp/pool.log", 0.01);
 		} catch(Exception e) {
 			// System.err.println("dbs broke:  " + e.getMessage());
 			throw new ServletException ("dbs broke: " + e.getMessage());
+		}
+
+		// Security stuff
+		try {
+			String secret = PhotoSecurity.generateSecret();
+			security = new PhotoSecurity(secret, dbs);
+		} catch(Exception e) {
+			throw new ServletException("Can't create security stuff:  " + e);
 		}
 
 		// Populate the userdb hash
@@ -122,19 +132,7 @@ public class PhotoServlet extends HttpServlet
 		// Set the self_uri
 		self_uri = request.getRequestURI();
 
-		// Let's see what's up before we continue...
-		remote_user = request.getRemoteUser();
-
-		if(remote_user == null) {
-			// throw new ServletException("Not authenticated...");
-			remote_user = "guest";
-		}
-
-		log("Remote user is " + remote_user);
-
-		// Get the UID for the username now that we have a database
-		// connection.
-		getUid();
+		getCreds(request);
 
 		// Figure out what they want, default to index.
 		if(multi==null) {
@@ -169,10 +167,65 @@ public class PhotoServlet extends HttpServlet
 			doLogView(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
 			showImage(request, response);
+		} else if(func.equalsIgnoreCase("credform")) {
+			showCredForm(request, response);
+		} else if(func.equalsIgnoreCase("setcred")) {
+			setCreds(request, response);
+			doIndex(request, response);
 		} else {
 			throw new ServletException("No known function.");
 		}
 
+	}
+
+	protected void getCreds(HttpServletRequest request)
+		throws ServletException {
+		Cookie cookies[];
+		String auth_cookie = null;
+		int i;
+
+		cookies = request.getCookies();
+
+		if(cookies != null) {
+			for(i=0; i<cookies.length && auth_cookie == null; i++) {
+				String s = cookies[i].getName();
+				if(s.equalsIgnoreCase("photo_auth")) {
+					auth_cookie = cookies[i].getValue();
+				}
+			}
+		}
+
+		// log("Got cookie:  " + auth_cookie);
+
+		remote_user = security.getAuthUser(auth_cookie);
+		getUid();
+
+		log("Authenticated as " + remote_user);
+	}
+
+	// Show the style form
+	private void showCredForm (
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String output;
+
+		output = tokenize("authform.inc", new Hashtable());
+		send_response(response, output);
+	}
+
+	public void setCreds (
+		HttpServletRequest request, HttpServletResponse response
+	) throws ServletException, IOException {
+		String username=null, pass=null;
+
+		username=request.getParameter("username");
+		pass=request.getParameter("password");
+
+		if(security.checkPW(username, pass)) {
+			Cookie c = new Cookie("photo_auth",security.setAuthUser(username));
+			c.setPath(self_uri);
+			response.addCookie(c);
+		}
 	}
 
 	// Grab a connection from the pool.

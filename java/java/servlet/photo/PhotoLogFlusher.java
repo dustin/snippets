@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.2 1999/09/29 07:38:55 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.3 1999/10/10 08:03:54 dustin Exp $
  */
 
 import java.sql.*;
@@ -45,11 +45,11 @@ public class PhotoLogFlusher extends Thread {
 	public void run() {
 		is_running = true;
 
-		String source="jdbc:postgresql://dhcp-104/photo";
-
 		try {
-			Class.forName("postgresql.Driver");
-			db=DriverManager.getConnection(source, "nobody", "");
+			PhotoConfig conf = new PhotoConfig();
+			Class.forName(conf.dbDriverName);
+			db=DriverManager.getConnection(conf.dbSource,
+				conf.dbUser, conf.dbPass);
 		} catch(Exception e) {
 			System.err.println("Error loading postgres driver for logging: "
 				+ e.getMessage());
