@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.5 2000/07/18 22:56:12 dustin Exp $
+ * $Id: SpyLog.java,v 1.6 2000/07/18 23:35:25 dustin Exp $
  */
 
 package net.spy;
@@ -23,8 +23,7 @@ import java.util.*;
  */
 
 public class SpyLog extends Object {
-	protected static Vector log_buffer[];
-	protected static int current_buffer;
+	protected static Vector log_buffer;
 	protected static boolean initialized = false;
 	protected static SpyLogFlusher flusher;
 	protected static int refcount;
@@ -72,7 +71,7 @@ public class SpyLog extends Object {
 	 */
 	public void log(SpyLogEntry msg) {
 		synchronized(log_buffer) {
-			log_buffer[current_buffer].addElement(msg);
+			log_buffer.addElement(msg);
 			log_buffer.notify();
 		}
 	}
@@ -84,7 +83,7 @@ public class SpyLog extends Object {
 	 */
 	public void waitForQueue() throws Exception {
 		synchronized(log_buffer) {
-			if(log_buffer[current_buffer].size()>0) {
+			if(log_buffer.size()>0) {
 				return;
 			}
 			log_buffer.wait();
@@ -100,7 +99,7 @@ public class SpyLog extends Object {
 	 */
 	public void waitForQueue(long ms) throws Exception {
 		synchronized(log_buffer) {
-			if(log_buffer[current_buffer].size()>0) {
+			if(log_buffer.size()>0) {
 				return;
 			}
 			log_buffer.wait(ms);
@@ -114,14 +113,8 @@ public class SpyLog extends Object {
 	public Vector flush() {
 		Vector ret=null;
 		synchronized(log_buffer) {
-			int last_buffer = current_buffer;
-			if(current_buffer == 0) {
-				current_buffer=1;
-			} else {
-				current_buffer=0;
-			}
-			log_buffer[current_buffer] = new Vector();
-			ret=log_buffer[last_buffer];
+			ret=log_buffer;
+			log_buffer = new Vector();
 		}
 		return(ret);
 	}
@@ -145,11 +138,7 @@ public class SpyLog extends Object {
 		} catch(InterruptedException e) {
 		}
 
-		log_buffer=new Vector[2];
-		log_buffer[0]=new Vector();
-		log_buffer[1]=new Vector();
-
-		current_buffer = 0;
+		log_buffer=new Vector();
 
 		// Really need to make sure all finalization occurs.
 		System.runFinalizersOnExit(true);
