@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: passwordhander.c,v 1.1 2002/07/09 00:12:52 dustin Exp $
+ * $Id: passwordhander.c,v 1.2 2002/07/09 00:19:23 dustin Exp $
  *
  * Read a file and copy it to a new file descriptor into a pipe so's that a
  * subprocess can read it on a specific file descriptor.  The subprocess
@@ -86,7 +86,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	/*
 	fprintf(stderr, "Read will be available on fd %d\n", pipeparts[0]);
+	*/
 
 	/* Fork and do the stuff */
 	p=fork();
