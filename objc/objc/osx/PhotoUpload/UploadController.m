@@ -1,4 +1,6 @@
 #import "UploadController.h"
+#import "UploadThread.h"
+#import "UploadParams.h"
 #import <EDCommon/EDCommon.h>
 #import <XMLRPC/XMLRPC.h>
 
@@ -16,7 +18,7 @@
     [defaults setObject: [url stringValue] forKey:@"url"];
 
     NS_DURING
-        connection = [XRConnection connectionWithURL:[NSURL URLWithString:[url stringValue]]];
+        id connection = [XRConnection connectionWithURL:[NSURL URLWithString:[url stringValue]]];
         NSArray *args=[NSArray arrayWithObjects: [username stringValue], [password stringValue]];
         id result = [connection performRemoteMethod:@"getCategories.getAddable"
                                         withObjects:args];
@@ -104,11 +106,55 @@
 
 }
 
-- (IBAction)stopUpload:(id)sender
+- (void)setButtonAction: (int)to
 {
+    switch(to) {
+        case BUTTON_UPLOAD:
+            [uploadButton setTitle:@"Upload"];
+            [uploadButton setAction:@selector(upload:)];
+            break;
+        case BUTTON_STOP:
+            [uploadButton setTitle:@"Stop"];
+            [uploadButton setAction:@selector(stopUpload:)];
+            break;
+    }
+    [uploadButton setNeedsDisplay: TRUE];
 }
 
-- (IBAction)upload:(id)sender
+- (IBAction)stopUpload:(id)sender
+{
+    [params setFinished: TRUE];
+    [uploadButton setEnabled: FALSE];
+}
+
+-(void)uploadError: (id)msg
+{
+    [self alert:@"Upload Error" message: msg];
+}
+
+-(void)uploadedFile
+{
+    NSLog(@"Uploaded a file.\n");
+    currentFile++;
+    [self updateProgressText];
+    [progressBar incrementBy: 1];
+}
+
+-(void)uploadComplete
+{
+    NSLog(@"Upload is complete.\n");
+    [addFilesButton setEnabled: TRUE];
+    [uploadingText setHidden: TRUE];
+    [progressBar setMinValue: 0];
+    [progressBar setMaxValue: 0];
+    [progressBar setDoubleValue: 0];
+    [progressBar setHidden: TRUE];
+    [progressBar displayIfNeeded];
+    [self setButtonAction: BUTTON_UPLOAD];
+    [uploadButton setEnabled: TRUE];
+}
+
+- (void)upload:(id)sender
 {
     NSDate *date=[NSCalendarDate dateWithString: [dateTaken stringValue]
                                  calendarFormat: @"%Y/%m/%d"];
@@ -128,65 +174,72 @@
     NSString *u=[username stringValue];
     NSString *p=[password stringValue];
 
-    NSMutableDictionary *dict=[[NSMutableDictionary alloc] initWithCapacity:10];
+    UploadThread *ut=[[UploadThread alloc] init];
 
-    [dict setObject:u forKey:@"username"];
-    [dict setObject:p forKey:@"password"];
-    [dict setObject:k forKey:@"keywords"];
-    [dict setObject:d forKey:@"info"];
-    [dict setObject:date forKey:@"taken"];
-    [dict setObject:cat forKey:@"category"];
+    [ut setUrl: [url stringValue]];
+    [ut setUsername: u];
+    [ut setPassword: p];
+    [ut setKeywords: k];
+    [ut setDescription: d];
+    [ut setCategory: cat];
+    [ut setDateTaken: date];
+    [ut setFiles: files];
 
+    if(params != nil) {
+        [params release];
+    }
+    params=[[UploadParams alloc] init];
+
+    [params setController: self];
+    [params setUploadErrorMethod: @selector(uploadError:)];
+    [params setUploadedFileMethod: @selector(uploadedFile)];
+    [params setUploadCompleteMethod: @selector(uploadComplete)];
+
+    // UI updates
     // Fix up the progress bar
     [progressBar setMinValue: 0];
     [progressBar setMaxValue: [files count]];
     [progressBar setDoubleValue: 0];
     [progressBar setHidden: FALSE];
+    currentFile=1;
     // And the uploading text
+    [self updateProgressText];
     [uploadingText setHidden: FALSE];
-    [uploadButton setEnabled: FALSE];
 
-    int i=0;
-    for(i=0; i<[files count]; i++) {
-        // Update the progress bar and text
-        [progressBar displayIfNeeded];
-        [self updateProgressText: i of:[files count]];
+    [NSThread detachNewThreadSelector: @selector(run:)
+                                         toTarget:ut withObject: params];
 
-        // Get the file data
-        NSData *myData = [NSData dataWithContentsOfFile:[files objectAtIndex:i]];
-        [dict setObject:myData forKey:@"image"];
+    [self setButtonAction: BUTTON_STOP];
+    [addFilesButton setEnabled: FALSE];
+    [ut release];
+}
 
-        NS_DURING
-            // get the XML RPC connection
-            connection = [XRConnection connectionWithURL:
-                [NSURL URLWithString:[url stringValue]]];
-            // Make the call
-            NSArray *args=[NSArray arrayWithObject:dict];
-            id result = [connection performRemoteMethod:@"addImage.addImage"
-                                            withObjects:args];
-            NSLog(@"Uploaded image %@\n", result);
+- (IBAction)uploadForReal:(id)sender
+{
+    [self setButtonAction: BUTTON_STOP];
 
-        NS_HANDLER
-            // On error, open up a window and let the user know
-            [self alert:@"Upload Error" message:[localException description]];
-        NS_ENDHANDLER
-        // Increment the progress bar
-        [progressBar incrementBy:1];
-    }
+    NSMutableDictionary *dict=[[NSMutableDictionary alloc] initWithCapacity:10];
+
+
     // Hide the progress bar and uploading text
     [progressBar setHidden:TRUE];
     [uploadingText setHidden:TRUE];
     // Indicate the upload window needs to wake up and redraw stuff
     [uploadButton setEnabled: TRUE];
+    // [self setButtonAction: BUTTON_UPLOAD];
 
     [dict release];
 }
 
-- (void)updateProgressText: (int)current of:(int)max
+- (void)updateProgressText
 {
-    NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d", (current+1), max];
-    [uploadingText setStringValue: msg];
-    [uploadingText displayIfNeeded];
+    if(currentFile <= [files count])
+    {
+        NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d",
+            currentFile, [files count]];
+        [uploadingText setStringValue: msg];
+        [uploadingText displayIfNeeded];
+    }
 }
 
 - (void)awakeFromNib
@@ -196,6 +249,7 @@
     [progressBar setDisplayedWhenStopped: FALSE];
     [progressBar setHidden: TRUE];
     [uploadingText setHidden: TRUE];
+    buttonType=BUTTON_UPLOAD;
     [self resetMatrix];
 
     defaults=[NSUserDefaults standardUserDefaults];

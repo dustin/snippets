@@ -19,6 +19,10 @@
 				F5F3A438033CF45701A801C4,
 				F5F3A43B033CF57301A801C4,
 				F5F3A43C033CF57301A801C4,
+				F5D455210342CB2701A801C4,
+				F5D455220342CB2701A801C4,
+				F56B38FB0342D1B701A801C4,
+				F56B38FC0342D1B701A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -272,6 +276,8 @@
 				F5F3A436033CF44D01A801C4,
 				F5F3A439033CF45701A801C4,
 				F5F3A43E033CF57301A801C4,
+				F5D455230342CB2701A801C4,
+				F56B38FD0342D1B701A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -292,6 +298,8 @@
 				F5F3A435033CF44D01A801C4,
 				F5F3A43A033CF45701A801C4,
 				F5F3A43D033CF57301A801C4,
+				F5D455240342CB2701A801C4,
+				F56B38FE0342D1B701A801C4,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -449,6 +457,50 @@
 		};
 		F50C0EBB034025C301A801C4 = {
 			fileRef = F50C0E9A034025BE01A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F56B38FB0342D1B701A801C4 = {
+			isa = PBXFileReference;
+			path = UploadParams.h;
+			refType = 4;
+		};
+		F56B38FC0342D1B701A801C4 = {
+			isa = PBXFileReference;
+			path = UploadParams.m;
+			refType = 4;
+		};
+		F56B38FD0342D1B701A801C4 = {
+			fileRef = F56B38FB0342D1B701A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F56B38FE0342D1B701A801C4 = {
+			fileRef = F56B38FC0342D1B701A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D455210342CB2701A801C4 = {
+			isa = PBXFileReference;
+			path = UploadThread.h;
+			refType = 4;
+		};
+		F5D455220342CB2701A801C4 = {
+			isa = PBXFileReference;
+			path = UploadThread.m;
+			refType = 4;
+		};
+		F5D455230342CB2701A801C4 = {
+			fileRef = F5D455210342CB2701A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D455240342CB2701A801C4 = {
+			fileRef = F5D455220342CB2701A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};

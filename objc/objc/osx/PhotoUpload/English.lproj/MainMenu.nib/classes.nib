@@ -19,6 +19,7 @@
             CLASS = UploadController;
             LANGUAGE = ObjC;
             OUTLETS = {
+                addFilesButton = NSButton;
                 authWindow = NSWindow;
                 categories = NSPopUpButton;
                 dateTaken = NSTextField;

@@ -5,9 +5,14 @@
 #import <XMLRPC/XMLRPC.h>
 #import "HideableTextField.h"
 #import "HideableProgressIndicator.h"
+#import "UploadParams.h"
+
+#define BUTTON_UPLOAD 1
+#define BUTTON_STOP 2
 
 @interface UploadController : NSObject
 {
+    IBOutlet NSButton *addFilesButton;
     IBOutlet NSWindow *authWindow;
     IBOutlet NSPopUpButton *categories;
     IBOutlet NSTextField *dateTaken;
@@ -27,7 +32,12 @@
     NSArray *files;
     NSArray *images;
     NSUserDefaults *defaults;
-    XRConnection *connection;
+
+    UploadParams *params;
+
+    int buttonType;
+
+    int currentFile;
 }
 - (IBAction)authenticate:(id)sender;
 - (IBAction)openAuthWindow:(id)sender;
@@ -37,5 +47,5 @@
 - (IBAction)upload:(id)sender;
 
 - (void)alert:(id)title message:(id)msg;
-- (void)updateProgressText: (int)current of:(int)max;
+- (void)updateProgressText;
 @end
