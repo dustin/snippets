@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.27 2001/02/08 05:33:10 dustin Exp $
+ * $Id: SpyDB.java,v 1.28 2001/02/08 05:45:40 dustin Exp $
  */
 
 package net.spy;
@@ -487,20 +487,4 @@ public class SpyDB extends Object {
 		return(scopy);
 	}
 
-	/**
-	 * Test plan, given a config file, create a database connection and do
-	 * a select 1.
-	 */
-	public static void main(String args[]) throws SQLException {
-		SpyDB db=new SpyDB(new SpyConfig(args[0]));
-		ResultSet rs=db.executeQuery("select 1");
-		rs.next();
-		System.out.println("Got results:  " + rs.getString(1));
-		System.out.println("Sleeping...");
-		try {
-			Thread.sleep(15000);
-		} catch(Exception e) {
-			System.err.println("Error while sleeping:  " + e);
-		}
-	}
 }
