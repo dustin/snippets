@@ -181,6 +181,12 @@ let ends_with src pat =
  ends_with "test." "yourmom";;
 *)
 
+(**
+ Does this string begin with that string?
+
+ @param src the source string to test
+ @param pat the string to check at the beginning
+ *)
 let begins_with src pat =
 	if ((String.length src) >= (String.length pat)) then
 		(pat = String.sub src 0 (String.length pat))
