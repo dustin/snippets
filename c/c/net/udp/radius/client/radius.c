@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.4 1998/06/21 21:56:44 dustin Exp $
+ * $Id: radius.c,v 1.5 1998/06/22 00:07:33 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -14,9 +14,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <assert.h>
 
 #include "md5.h"
 #include "radius.h"
+#include "mymalloc.h"
 
 static int getudpsocket(void)
 {
@@ -68,11 +70,13 @@ int rad_recv(radius *r)
     FD_SET(r->s, &fdset);
 
     if( (select(r->s+1, &fdset, NULL, NULL, &t)) <= 0) {
-	return(-1);
+	return(RADIUS_TIMEOUT);
     }
 
     recvfrom(r->s, (char *)r->rad, RADIUS_PACKET_SIZE, 0, &sa, &salen);
-    return(0);
+
+    /* verify and return */
+    return(rad_verify(r));
 }
 
 /*
@@ -91,6 +95,41 @@ void rad_add_att(radius *r, int type, unsigned char *data, int length)
     p->length=length+2;
     rad->length+=p->length;
     memcpy(p->data, data, length);
+}
+
+attribute_t *rad_find_att(radius *r, unsigned char type)
+{
+    attribute_t *att;
+    int len;
+
+    att=&(r->rad->att);
+    len=ntohs(r->rad->length)-RADIUS_HEADER_LENGTH;
+
+    while(att->attribute!=type) {
+	if( (len-=att->length)<=0) {
+	    return(NULL);
+	}
+	att=(attribute_t *) ((char *)att+att->length);
+    }
+    return(att);
+}
+
+int rad_verify(radius *r)
+{
+    MD5_CTX md5;
+    unsigned char reply[RADIUS_VECTOR_LEN], calc[RADIUS_VECTOR_LEN];
+
+    memcpy(reply, r->rad->vector, RADIUS_VECTOR_LEN);
+    memcpy(r->rad->vector, r->vector, RADIUS_VECTOR_LEN);
+
+    MD5Init(&md5);
+    MD5Update(&md5, (unsigned char *)r->rad, ntohs(r->rad->length));
+    MD5Update(&md5, r->secret, strlen(r->secret));
+    MD5Final(calc, &md5);
+
+    if(memcmp(calc, reply, RADIUS_VECTOR_LEN)!=0)
+	return(RADIUS_FAIL_VERIFY);
+    return(0);
 }
 
 static unsigned char *xor(unsigned char *p, unsigned char *q, int len)
@@ -139,45 +178,75 @@ int rad_addpass(radius *r, char *password)
     return(0);
 }
 
-int rad_simpleauth(char *username, char *password)
+int rad_simpleauth(radius *r, char *username, char *password)
 {
     MD5_CTX md5;
     int s, i, service, ret;
-    unsigned char send_buffer[RADIUS_PACKET_SIZE];
-    radius r;
 
-    r.server="bleu";
-    r.port=1645;
-    r.secret="go";
-
-    r.rad=(radius_packet *)send_buffer;
-
-    r.rad->code=RADIUS_ACCESS_REQUEST;
-    r.rad->id=getpid()&0xff;
-    r.rad->length=RADIUS_HEADER_LENGTH;
-
-    srand(time(NULL));
-    i=rand()*getpid();
-
-    MD5Init(&md5);
-    MD5Update(&md5, &i, 4);
-    MD5Final(&(r.rad->vector),&md5);
+    r->rad->code=RADIUS_ACCESS_REQUEST;
 
     /* Username */
-    rad_add_att(&r, RADIUS_USERNAME, username, strlen(username));
-    if(rad_addpass(&r, password)<0)
+    rad_add_att(r, RADIUS_USERNAME, username, strlen(username));
+    if(rad_addpass(r, password)<0)
 	return(-1);
 
     service=RADIUS_AUTH_ONLY;
-    rad_add_att(&r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
+    rad_add_att(r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
 
-    r.s=getudpsocket();
-    rad_send(&r);
+    r->s=getudpsocket();
+    rad_send(r);
 
-    ret=rad_recv(&r);
+    ret=rad_recv(r);
 
-    if(ret<0)
-       return(ret);
-    else
-        return(r.rad->code);
+    if(ret>=0)
+	ret=r->rad->code;
+
+    return(ret);
+}
+
+radius *rad_init(char *hostname, int port, char *secret)
+{
+    MD5_CTX md5;
+    radius *r;
+    int i;
+
+    assert(hostname);
+    assert(secret);
+    assert(port);
+
+    r=calloc(1, sizeof(radius));
+    r->rad=calloc(1, RADIUS_PACKET_SIZE);
+    r->server=strdup(hostname);
+    r->secret=strdup(secret);
+    r->port=port;
+
+    srand(time(NULL));
+    i=rand()^getpid();
+    /* Initialize vectors */
+    MD5Init(&md5);
+    MD5Update(&md5, &i, 4);
+    MD5Final(&(r->rad->vector),&md5);
+    memcpy(r->vector, &(r->rad->vector), RADIUS_VECTOR_LEN);
+
+    r->rad->id=getpid()&0xff;
+    r->rad->length=RADIUS_HEADER_LENGTH;
+
+    return(r);
+}
+
+void rad_destroy(radius *r)
+{
+    if(r==NULL)
+	return;
+
+    if(r->server)
+	free(r->server);
+
+    if(r->secret)
+	free(r->secret);
+
+    if(r->rad)
+	free(r->rad);
+
+    free(r);
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  SPY Internetworking
  *
- * $Id: radius.h,v 1.4 1998/06/21 21:56:45 dustin Exp $
+ * $Id: radius.h,v 1.5 1998/06/22 00:07:35 dustin Exp $
  */
 
 #define RADIUS_VECTOR_LEN 16
@@ -30,16 +30,26 @@ typedef struct {
     int port;        /* server port */
     char *secret;    /* secret for the server */
     int s;           /* server socket */
+    unsigned char vector[RADIUS_VECTOR_LEN];
     radius_packet *rad;
 } radius;
 
 /* useful functions */
 
-int rad_send(radius *r);
-int rad_recv(radius *r);
-void rad_add_att(radius *r, int type, unsigned char *data, int length);
+attribute_t *rad_find_att(radius *r, unsigned char type);
 int rad_addpass(radius *r, char *password);
-int rad_simpleauth(char *username, char *password);
+int rad_recv(radius *r);
+int rad_send(radius *r);
+int rad_simpleauth(radius *rad, char *username, char *password);
+int rad_verify(radius *r);
+void rad_add_att(radius *r, int type, unsigned char *data, int length);
+radius *rad_init(char *hostname, int port, char *secret);
+void rad_destroy(radius *r);
+
+/* Errors */
+
+#define RADIUS_TIMEOUT               -1
+#define RADIUS_FAIL_VERIFY           -2
 
 /* Yes, I did all this by hand... */
 
