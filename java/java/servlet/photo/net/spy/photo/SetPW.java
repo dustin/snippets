@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SetPW.java,v 1.2 1999/10/20 04:16:09 dustin Exp $
+ * $Id: SetPW.java,v 1.3 2000/05/30 04:53:22 dustin Exp $
  */
 
 package net.spy.photo;
@@ -17,11 +17,7 @@ public class SetPW {
 			BufferedReader rd=
 				new BufferedReader(new InputStreamReader(System.in));
 			PhotoConfig config = new PhotoConfig();
-			Class.forName(config.get("dbDriverName"));
-			Connection db =
-			DriverManager.getConnection(config.get("dbSource"),
-				config.get("dbUser"), config.get("dbPass"));
-			PhotoSecurity security=new PhotoSecurity(null);
+			PhotoSecurity security=new PhotoSecurity();
 
 			String user = null;
 			if(args.length<1) {
@@ -40,6 +36,12 @@ public class SetPW {
 				newpw = security.getDigest(args[1]);
 			}
 
+			System.out.println("New password is " + newpw);
+
+			Class.forName(config.get("dbDriverName"));
+			Connection db =
+			DriverManager.getConnection(config.get("dbSource"),
+				config.get("dbUser"), config.get("dbPass"));
 			String query="update wwwusers set password='" + newpw + "'\n"
 				+ "\twhere username='" + user + "'";
 			Statement st = db.createStatement();

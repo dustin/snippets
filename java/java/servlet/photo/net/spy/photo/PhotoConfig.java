@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoConfig.java,v 1.5 2000/05/01 04:32:32 dustin Exp $
+ * $Id: PhotoConfig.java,v 1.6 2000/05/30 04:53:21 dustin Exp $
  */
 
 package net.spy.photo;
@@ -11,7 +11,8 @@ import net.spy.*;
 public class PhotoConfig extends SpyConfig {
 
 	public PhotoConfig() {
-		super("/afs/spy.net/misc/web/etc/photoconfig.xml");
+		// super("/afs/spy.net/misc/web/etc/photoconfig.xml");
+		super("/usr/local/etc/photo.properties");
 		orput("dbDriverName", "org.postgresql.Driver");
 		orput("dbSource", "jdbc:postgresql://localhost/photo");
 		orput("dbUser", "nobody");
