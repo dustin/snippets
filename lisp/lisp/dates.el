@@ -1,7 +1,7 @@
 ;
 ; Constants used to perform calculations
 ;
-(defconst dates-1970 28800 "The beginning of time!  1/1/1970")
+(defconst dates-1970 0 "The beginning of time!  1/1/1970")
 (defconst dates-seconds-per-year 31536000 "Second per normal year")
 (defconst dates-seconds-per-day 86400 "Seconds per day (duh)")
 (defconst dates-days-by-month '(31 28 31 30 31 30 31 31 30 31 30 31)
@@ -57,7 +57,7 @@
 
 ; Tests
 
-; (dates-seconds-for-year 2010)
+; (dates-seconds-for-year 1977)
 ; (dates-seconds-for-month 1977 10)
 ; (dates-seconds-for-day 1977 10 5)
 ; (dates-seconds-for-hour 1977 10 5 4)
