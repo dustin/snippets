@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.6 1999/05/26 01:51:43 dustin Exp $
+-- $Id: pg.e,v 1.7 1999/05/26 05:30:30 dustin Exp $
 --
 class PG
 
@@ -61,8 +61,10 @@ feature {ANY}
    query(q: STRING): BOOLEAN is
       -- Query on an open database connection
       require
-		 is_connected;
+         is_connected;
       do
+         last_row := Void;
+         current_row := 0;
          res := pg_query(conn,q.to_external);
          if res = Void then
             Result := false;
@@ -74,7 +76,7 @@ feature {ANY}
    get_row: BOOLEAN is
       -- Get the next row of data back
       require
-		has_results;
+         has_results;
       local
          i, fields: INTEGER;
          s: STRING;
@@ -82,7 +84,6 @@ feature {ANY}
       do
          if current_row >= pg_ntuples(res) then
             Result := false;
-            pg_finish(conn);
          else
             from
                fields := pg_nfields(res);
@@ -101,6 +102,14 @@ feature {ANY}
             Result := true;
          end;
       end -- get_row
+
+   quote(s: STRING): STRING is
+      -- Quote a string for safety.
+      do
+         !!Result.copy("'");
+         Result.append(s);
+         Result.append("'");
+      end -- quote
 
 feature {ANY} -- Connection options
 
@@ -146,23 +155,21 @@ feature {ANY} -- Connection options
          !!password.copy(to);
       end -- set_password
 
-
 feature {ANY} -- status
 
-	is_connected: BOOLEAN is
-		-- Find out if we're connected.
-		do
-         Result := (conn /= Void);
-		end
+   is_connected: BOOLEAN is
+      -- Find out if we're connected.
+      do
+         Result := conn /= Void;
+      end -- is_connected
 
-	has_results: BOOLEAN is
-		-- Find out if we have results
-		do
-         Result := (res /= Void);
-		end
+   has_results: BOOLEAN is
+      -- Find out if we have results
+      do
+         Result := res /= Void;
+      end -- has_results
 
-feature {PG}
-   -- Internal data stuff
+feature {PG} -- Internal data stuff
 
    conn: POINTER;
       -- Connection holder for C library.
