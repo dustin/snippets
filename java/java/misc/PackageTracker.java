@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PackageTracker.java,v 1.6 2001/10/11 19:39:30 dustin Exp $
+// $Id: PackageTracker.java,v 1.7 2001/10/17 00:44:07 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -108,7 +108,8 @@ public class PackageTracker extends Object {
 	}
 
 	protected void saveChanges(Hashtable changes) throws Exception {
-		SNPP snpp=new SNPP("snpp.skytel.com", 444);
+		SNPP snpp=new SNPP(conf.get("snpp.server", "snpp.skytel.com"),
+			conf.getInt("snpp.port", 444));
 		for(Enumeration e=changes.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
 			String short_status=null;
