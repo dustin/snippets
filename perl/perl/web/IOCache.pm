@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.5 1998/12/02 17:40:44 dustin Exp $
+# $Id: IOCache.pm,v 1.6 1998/12/03 00:50:21 dustin Exp $
 
 =pod
 
@@ -57,7 +57,7 @@ Dustin Sallings <dustin@spy.net>
 
 =head1 VERSION
 
-$Id: IOCache.pm,v 1.5 1998/12/02 17:40:44 dustin Exp $
+$Id: IOCache.pm,v 1.6 1998/12/03 00:50:21 dustin Exp $
 
 =cut
 
@@ -84,13 +84,9 @@ use DCache;
 			$self->{'dcache'}->cachedir($options{'cachedir'});
 		}
 
-		if(-f "/tmp/$key") {
-			$self->{'stat'}=[stat("/tmp/$key")];
-		}
-
 		# check for cache based on age if given, else, check for any cache,
 		# if valid cache is found, print it out, and exit
-		if(defined($options{'maxage'}) && defined($self->{'stat'})) {
+		if(defined($options{'maxage'})) {
 			if($self->{'dcache'}->checkcache($key, $options{'maxage'})) {
 				$self->{'dcache'}->printcache_only($key);
 				if(defined($options{'cachetag'})) {
