@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ZipCode.java,v 1.2 2002/03/05 09:00:49 dustin Exp $
+// $Id: ZipCode.java,v 1.3 2002/03/05 10:42:50 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -128,8 +128,8 @@ public class ZipCode extends Object {
 
 		query.append(" limit 250");
 
-		SpyDB db=new SpyDB(getConf());
-		PreparedStatement pst=db.prepareStatement(query.toString());
+		SpyCacheDB db=new SpyCacheDB(getConf());
+		PreparedStatement pst=db.prepareStatement(query.toString(), 900);
 
 		for(int i=0; i<keys.size(); i++) {
 			String k=(String)keys.elementAt(i);

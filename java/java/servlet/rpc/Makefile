@@ -11,7 +11,8 @@ CLASSPATH=$(C1):.
 
 CLASSES=\
 	net/spy/rpc/XMLRPC.class \
-	net/spy/rpc/services/ZipCode.class
+	net/spy/rpc/services/ZipCode.class \
+	net/spy/rpc/services/Temperatures.class
 
 .SUFFIXES: .java .class .jar
 
