@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: temploader.e,v 1.4 2002/11/23 10:06:25 dustin Exp $
+-- $Id: temploader.e,v 1.5 2002/11/25 02:30:43 dustin Exp $
 --
 class TEMPLOADER
 
@@ -13,14 +13,23 @@ creation {ANY}
 feature {ANY}
 
 	make is
-		-- Process the tempearture log from stdin
+		-- Process the tempearture log from stdin.  Database name is the
+		-- first system argument, if provided.
+		local
+			dbserver: STRING
 		do
+			-- Get the name of the database server from the commandline
+			if argument_count > 0 then
+				dbserver := argument(1)
+			else
+				dbserver := "db"
+			end
 
 			!!db.make
 			db.set_dbname("temperature")
 			db.set_username("tempload")
 			db.set_password("tempload")
-			db.set_host("db")
+			db.set_host(dbserver)
 			db.set_max_retries(0)
 			db.connect
 
@@ -120,7 +129,11 @@ feature{NONE}
 				db.clear_results
 			end
 		rescue
-			std_error.put_string("FAILED:  " + query + db.errmsg + "%N")
+			if query /= Void then
+				std_error.put_string("FAILED:  " + query + db.errmsg + "%N")
+			else
+				std_error.put_string("FAILED:  " + line + "%N")
+			end
 			retry
 		end
 
