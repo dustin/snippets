@@ -5,17 +5,9 @@
 # This is the script I use to move stuff from my old projects archive to my
 # 2004 archive.
 
-makelog() {
-	cat > /tmp/movelog <<EOF
-Summary: moving stuff into 2004
-
-EOF
-}
-
 for i in "$@"
 do
-	makelog
 	tla archive-setup $i
-	tla tag -l /tmp/movelog dustin@spy.net--projects/$i $i
+	tla tag dustin@spy.net--projects/$i $i
 	tla cacherev ${i}--base-0
 done
