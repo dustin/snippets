@@ -17,11 +17,11 @@ open Unix;;
  @param ch the in_channel to read
 *)
 let iter_lines f ch =
+	let rec loop() =
+		f (input_line ch);
+		loop() in
 	try
-		while true do
-			let l = (input_line ch) in
-			f l;
-		done;
+		loop()
 	with End_of_file -> ();
 ;;
 
@@ -55,13 +55,14 @@ let conditional_iter_lines f c ch =
 	iter_lines (function x -> if c x then f x) ch;
 ;;
 
-(** Open a file for reading, and perform the given operation on it, closing on
-  failure.
+(**
+	Open a file for reading, and perform the given operation on it.
+	The file is guaranteed to be closed when this function completes.
 
- @param f the function to perform with the input channel
- @param fn the name of the file to open
+	@param f the function to perform with the input channel
+	@param fn the name of the file to open
 *)
-let operate_on_file f fn =
+let operate_on_file_in f fn =
 	let ch = open_in fn in
 	try
 		let rv = f ch in
@@ -72,13 +73,31 @@ let operate_on_file f fn =
 		raise x
 ;;
 
+(**
+	Open a file for writing and perform the given operations on it.
+	The file is guaranteed to be closed when this function completes.
+
+	@param f the function to perform with the output channel
+	@param fn the name of the file to open
+ *)
+let operate_on_file_out f fn =
+	let ch = open_out fn in
+	try
+		let rv = f ch in
+		close_out ch;
+		rv
+	with x ->
+		close_out ch;
+		raise x
+;;
+
 (** Open a file for reading and iterate the lines.
 
   @param f the function to be called on each line
   @param fn the name of the file to operate on
 *)
 let iter_file_lines f fn =
-	operate_on_file (iter_lines f) fn
+	operate_on_file_in (iter_lines f) fn
 ;;
 
 (** Open a file for reading and iterate the lines.
@@ -88,7 +107,7 @@ let iter_file_lines f fn =
   @param fn the name of the file to operate on
 *)
 let fold_file_lines f init_value fn =
-	operate_on_file (fold_lines f init_value) fn
+	operate_on_file_in (fold_lines f init_value) fn
 ;;
 
 (** {1 Functions for processing directories} *)
