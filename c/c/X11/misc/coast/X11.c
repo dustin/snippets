@@ -6,6 +6,7 @@
 #include <X11/Xutil.h>
 
 #include "plot.h"
+#include "data.h"
 
 #define _setcolor(x) XSetForeground(display, gc, x)
 #define _setpixel(x, y) XDrawPoint(display, window, gc, x, y)
@@ -13,8 +14,7 @@
 extern Display *display;
 extern Window window, rootwindow;
 extern GC gc;
-extern int screen;
-extern int verbose;
+extern int screen, verbose, max_x, max_y;
 
 extern char *filename;
 
@@ -66,7 +66,7 @@ init_window(void)
  * but they are supposed to return different colors.
  */
 
-  event_mask = ButtonPressMask | ExposureMask;
+  event_mask = ButtonPressMask | ExposureMask | ResizeRedirectMask;
 
   attributes.event_mask = event_mask;
   attributes.border_pixel = BlackPixel(display, screen);
@@ -82,7 +82,7 @@ init_window(void)
 
   attr_mask = CWEventMask | CWBackPixel | CWBorderPixel;
 
-  window = XCreateWindow(display, rootwindow, 0, 0, MAX_X, MAX_Y, 2,
+  window = XCreateWindow(display, rootwindow, 0, 0, max_x, max_y, 2,
        CopyFromParent, InputOutput, CopyFromParent, attr_mask, &attributes);
 
 /*
@@ -91,8 +91,8 @@ init_window(void)
  * that's why they call the hints.
  */
 
-  sizehints.height = MAX_Y;
-  sizehints.width = MAX_X;
+  sizehints.height = max_y;
+  sizehints.width = max_x;
   sizehints.flags = USSize;
 
   XSetWMNormalHints(display, window, &sizehints);
@@ -194,20 +194,21 @@ xplot()
   long x, y;
   long oldx = 0;
   long oldy = 0;
-  float lat, lng;
-  char line[80];
-  float lat_diff;
-  float lng_diff;
+  Head header;
+  Point point;
   float temp;
+  float lat_diff, lng_diff;
   long island;
 
   FILE *infile;
 
-  if (NULL == (infile = fopen(filename, "r")))
+  if (NULL == (infile = fopen(filename, "rb")))
     exit(12);
 
-  lat_diff = max_lat - min_lat;
-  lng_diff = max_lng - min_lng;
+  fread(&header, sizeof(header), 1, infile);
+
+  lat_diff=max_lat-min_lat;
+  lng_diff=max_lng-min_lng;
 
   island = 1;
 
@@ -217,26 +218,21 @@ xplot()
 
   while (!feof(infile))
     {
-      fgets(line, sizeof(line), infile);
 
-      if (feof(infile))
-	continue;
+      fread(&point, sizeof(point), 1, infile);
 
-      lat = atof(line);
-      lng = atof(line + 12);
-
-      if (lat > -70.0)
+      if (point.lat > -70.0)
 	{
 	  island = 1;
 	  continue;
 	}
 
-      temp = max_lat - lat;
+      temp = max_lat - point.lat;
       temp = lat_diff - temp;
-      x = (long) ((float) MAX_X * (temp / lat_diff));
+      x = (long) ((float) max_x * (temp / lat_diff));
 
-      temp = max_lng - lng;
-      y = (long) ((float) MAX_Y * (temp / lng_diff));
+      temp = max_lng - point.lng;
+      y = (long) ((float) max_y * (temp / lng_diff));
 
 /*
  * _setpixel(x, y);
@@ -244,8 +240,8 @@ xplot()
 
       if (!island)
 	{
-	  if ((x >= 0 && x < MAX_X && y >= 0 && y < MAX_Y) ||
-	      (oldx >= 0 && oldx < MAX_X && oldy >= 0 && oldy < MAX_Y))
+	  if ((x >= 0 && x < max_x && y >= 0 && y < max_y) ||
+	      (oldx >= 0 && oldx < max_x && oldy >= 0 && oldy < max_y))
 	    XDrawLine(display, window, gc, oldx, oldy, x, y);
 	}
       else
@@ -280,8 +276,8 @@ buttonevent(int x, int y, int button)
     case 1:
       factor_bounds(x, y, 0.5);
       xplot();
-      x = MAX_X / 2;
-      y = MAX_Y / 2;
+      x = max_x / 2;
+      y = max_y / 2;
       break;
 
 /*
@@ -297,8 +293,8 @@ buttonevent(int x, int y, int button)
     case 3:
       factor_bounds(x, y, 2.0);
       xplot();
-      x = MAX_X / 2;
-      y = MAX_Y / 2;
+      x = max_x / 2;
+      y = max_y / 2;
       break;
     }
 }
