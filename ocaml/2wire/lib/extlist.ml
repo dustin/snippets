@@ -16,7 +16,7 @@ let iteri f lin =
 	let rec loop x l =
 		match l with
 		  [] -> ()
-		| _ -> f x (List.hd l); loop (x + 1) (List.tl l)
+		| head::tail -> f x head; loop (x + 1) tail
 	in loop 0 lin
 ;;
 
