@@ -27,17 +27,20 @@ let main() =
 	let fn = Sys.argv.(1) in
 	Printf.eprintf "Updating %s\n" fn;
 	Fileutils.iter_lines (fun l ->
-			let a = Extstring.split l ' ' 99999 in
-			let ts = Int32.of_float(float_of_string (List.hd a)) in
-			(* Create an array of keys and an array of values *)
-			let keys,vals = List.fold_left (fun (rvk, rvv) pair ->
-					let pairsplit = List.nth (Extstring.split pair '=' 2) in
-					((lookupName (pairsplit 0)) :: rvk), (pairsplit 1 :: rvv)
-				) ([], []) (List.tl a) in
-			(* Create the output string *)
-			Printf.printf "update %s -t %s %s:%s\n" fn
-				(String.concat ":" (List.rev keys))
-				(Int32.to_string ts) (String.concat ":" (List.rev vals));
+			try
+				let a = Extstring.split l ' ' 99999 in
+				let ts = Int32.of_float(float_of_string (List.hd a)) in
+				(* Create an array of keys and an array of values *)
+				let keys,vals = List.fold_left (fun (rvk, rvv) pair ->
+						let pairsplit = List.nth (Extstring.split pair '=' 2) in
+						((lookupName (pairsplit 0)) :: rvk), (pairsplit 1 :: rvv)
+					) ([], []) (List.tl a) in
+				(* Create the output string *)
+				Printf.printf "update %s -t %s %s:%s\n" fn
+					(String.concat ":" (List.rev keys))
+					(Int32.to_string ts) (String.concat ":" (List.rev vals));
+			with Failure("nth") ->
+				Printf.eprintf "Problem with line:  %s (ignoring)\n" l
 		) stdin;
 ;;
 
