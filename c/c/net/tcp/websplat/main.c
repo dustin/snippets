@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.2 1998/06/27 04:09:23 dustin Exp $
+ * $Id: main.c,v 1.3 1998/06/27 05:31:03 dustin Exp $
  */
 
 #include <config.h>
@@ -165,11 +165,11 @@ int main(int argc, char **argv)
 	if(s>0) {
 	    printf("Got one: %d...\n", s);
 	    FD_SET(s, &tfdset);
-	}
 
-	/* Sending */
-	i=send(s, req.httpreq, strlen(req.httpreq), 0);
-	printf("Sent %d out of %d bytes\n", i, strlen(req.httpreq));
+	    /* Sending */
+	    i=send(s, req.httpreq, strlen(req.httpreq), 0);
+	    printf("Sent %d out of %d bytes\n", i, strlen(req.httpreq));
+	}
 
 	fdset=tfdset;
 	t.tv_sec=0;
