@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 1997  Dustin Sallings
  *
- * $Id: database.c,v 1.1 1997/07/15 13:50:26 dustin Exp $
+ * $Id: database.c,v 1.2 1997/07/15 13:52:04 dustin Exp $
  */
 
 #include <stdio.h>
@@ -68,4 +68,6 @@ void doQuery(char *query)
 	default:
 	    CreateTrans("Found user", "Find message");
     }
+
+    msqlFreeResult(tmp);
 }
