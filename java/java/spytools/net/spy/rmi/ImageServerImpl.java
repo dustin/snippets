@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.8 2000/05/18 07:38:47 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.9 2000/06/20 07:14:34 dustin Exp $
 
 package net.spy.rmi;
 
@@ -22,9 +22,11 @@ public class ImageServerImpl extends UnicastRemoteObject
 	implements ImageServer {
 
 	RHash rhash=null;
+	SpyConfig conf = null;
 
-	public ImageServerImpl() throws RemoteException {
+	public ImageServerImpl(String config) throws RemoteException {
 		super();
+		conf=new SpyConfig(config);
 	}
 
 	public ImageData getImage(int image_id, boolean thumbnail)
@@ -85,13 +87,11 @@ public class ImageServerImpl extends UnicastRemoteObject
 			f.flush();
 			f.close();
 
-			log("Converting image (75x75)");
-			String command="/usr/local/bin/convert -size 75x75 "
-				+ tmpfilename + " " + thumbfilename;
+			String command=conf.get("convert.cmd")
+				+ " " + tmpfilename + " " + thumbfilename;
 			Runtime run = Runtime.getRuntime();
 			Process p = run.exec(command);
 			p.waitFor();
-			log("done converting image, created " + thumbfilename);
 
 			byte b[]=new byte[8192];
 			FileInputStream fin = new FileInputStream(thumbfilename);
@@ -207,9 +207,10 @@ public class ImageServerImpl extends UnicastRemoteObject
 		Connection photo;
 		String source;
 
-		Class.forName("org.postgresql.Driver");
-		source="jdbc:postgresql://localhost/photo";
-		photo = DriverManager.getConnection(source, "nobody", "");
+		Class.forName(conf.get("db.driver"));
+		source=conf.get("db.url");
+		photo = DriverManager.getConnection(source,
+			conf.get("db.user"), conf.get("db.pass"));
 		return(photo);
 	}
 
@@ -223,7 +224,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 	// Get a cache object server
 	protected void getRhash() {
 		try {
-			rhash = new RHash("//localhost/RObjectServer");
+			rhash = new RHash(conf.get("rhash.url"));
 		} catch(Exception e) {
 			rhash=null;
 		}

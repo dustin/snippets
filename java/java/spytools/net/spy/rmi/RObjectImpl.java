@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.3 2000/01/25 07:01:21 dustin Exp $
+// $Id: RObjectImpl.java,v 1.4 2000/06/20 07:14:36 dustin Exp $
 
 package net.spy.rmi;
 
@@ -15,12 +15,17 @@ import java.io.*;
 public class RObjectImpl extends UnicastRemoteObject implements RObject {
 
 	// Number of hash directory levels.
-	public static int levels = 256;
+	public int levels = 256;
 	// Base directory for hashing
-	public static String basedir = "/home/dustin/rcache";
+	public String basedir = "/tmp/rcache";
 
 	public RObjectImpl() throws RemoteException {
 		super();
+	}
+
+	public RObjectImpl(String basedir) throws RemoteException {
+		super();
+		this.basedir=basedir;
 	}
 
     public void storeObject(String name, Object o) throws RemoteException {

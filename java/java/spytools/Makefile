@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/java
+JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
@@ -33,6 +33,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/FedEx.class \
 	net/spy/info/Traffic.class \
 	net/spy/info/FlightTracker.class \
+	net/spy/info/BigWords.class \
 	net/spy/info/UPS.class net/spy/info/Weather.class
 
 

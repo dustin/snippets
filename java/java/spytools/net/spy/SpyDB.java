@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.12 2000/05/01 04:32:45 dustin Exp $
+ * $Id: SpyDB.java,v 1.13 2000/06/20 07:14:30 dustin Exp $
  */
 
 package net.spy;
@@ -80,6 +80,13 @@ public class SpyDB extends Object {
 			recycle_time=Double.valueOf(tmp).doubleValue();
 		}
 
+		// Do this here because it's a synchronized thing
+		initStuff();
+	}
+
+	// We need to synchronize this stuff because there are potential race
+	// conditions.
+	protected synchronized void initStuff() {
 		if(dbss==null) {
 			dbss=new Hashtable();
 		}
@@ -87,7 +94,6 @@ public class SpyDB extends Object {
 		if(dbs==null) {
 			initDBS();
 		}
-
 	}
 
 	/**
