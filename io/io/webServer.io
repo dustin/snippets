@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.3 2003/08/20 17:33:12 dustin Exp $
+# $Id: webServer.io,v 1.4 2003/08/20 20:14:01 dustin Exp $
 
 WebServer = Object clone
 
@@ -8,27 +8,27 @@ WebServer buf = Buffer clone
 
 WebServer hasRequest = method(
 	/*
-	"Checking to see if we have a request in\n" print
-	buf print
+	write("Checking to see if we have a request in\n")
+	write(buf)
 	*/
 	buf find("\r\n\r\n")
 )
 
 WebServer processRequest = method(aSocket, aServer,
-	"Processing request\n" print
+	write("Processing request\n")
 	lines = buf asString split("\r\n")
 	query = lines at(0)
 	lines removeAt(0)
-	String join(List clone add("Query: ", query, "\n")) print
+	write("Query:  " .. query .. "\n")
 	lines print
-	"\n" print
+	write("\n")
 	rv=List clone add("HTTP/1.1 200 OK",
 		"Content-type: text/plain",
 		"Connection: close")
 	aSocket write(String join(rv, "\r\n"))
 	aSocket write("\r\n\r\n")
 	aSocket write("Here's your content, mofo.\n")
-	aSocket write("BTW, you requested " .. query)
+	aSocket write("BTW, you requested " .. query .. "\n")
 	aSocket close
 	buf empty
 )
