@@ -34,7 +34,7 @@ let head_node l =
 ;;
 
 (** Get the size of the given linked list. *)
-let size l =
+let length l =
 	l.cnt
 ;;
 
@@ -87,6 +87,22 @@ let create_from_list l =
 	let rv = create (List.hd l) in
 	List.iter (fun x -> ignore(append x rv)) (List.tl l);
 	rv
+;;
+
+(** Convert this linked list into a regular list. *)
+let to_list l =
+	if l.cnt = 0 then
+		[]
+	else
+	begin
+		let rec rec_to_list lcur rv =
+			if lcur.next != l.l then
+				lcur.data :: (rec_to_list lcur.next rv)
+			else
+				[lcur.data]
+			in
+		rec_to_list l.l []
+	end
 ;;
 
 (** Delete this item from the list it contains. *)
