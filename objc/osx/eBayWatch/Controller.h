@@ -20,6 +20,8 @@
     int howBusy;
 }
 - (IBAction)addItem:(id)sender;
+- (IBAction)importItems:(id)sender;
+- (IBAction)exportItems:(id)sender;
 - (IBAction)removeItem:(id)sender;
 - (IBAction)openAddWindow:(id)sender;
 

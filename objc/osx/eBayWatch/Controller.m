@@ -50,12 +50,13 @@
 	NSEnumerator *e=[watching objectEnumerator];
 	id object=nil;
 	while(object = [e nextObject]) {
-		NSArray *a=[[NSArray alloc] initWithObjects:
-			[object itemId], [object description], nil];
+		NSArray *a=[[NSArray alloc]
+			initWithObjects: [object itemId], [object description], nil];
 		[allObjs addObject: a];
 		[a release];
 	}
 	[defaults setObject: allObjs forKey: @"watching"];
+	NSLog(@"Updated defaults with %d items", [allObjs count]);
 	[allObjs release];
 }
 
@@ -66,6 +67,53 @@
 
 	[self addItem: inum withDescription: desc];
 	[self updateDefaults];
+}
+
+- (IBAction)importItems:(id)sender
+{
+	id filePanel=[NSOpenPanel openPanel];
+	[filePanel setAllowsMultipleSelection: FALSE];
+	[filePanel setCanChooseDirectories: FALSE];
+	id types=[NSArray arrayWithObjects:@"txt", nil];
+	int rv = [filePanel runModalForTypes:types];
+	if(rv == NSOKButton) {
+		NSString *filename=[[filePanel filenames] objectAtIndex:0];
+		NSString *contents=[NSString stringWithContentsOfFile: filename];
+		if(contents) {
+			NSArray *items=[contents componentsSeparatedByString:@"\n"];
+			id e=[items objectEnumerator];
+			id object;
+			while(object = [e nextObject]) {
+				NSArray *parts=[object componentsSeparatedByString:@"\t"];
+				if([parts count] == 2) {
+					[self addItem:[parts objectAtIndex:0]
+						withDescription:[parts objectAtIndex:1]];
+				}
+			}
+		}
+	}
+	[self updateDefaults];
+}
+
+- (IBAction)exportItems:(id)sender
+{
+	id sp=[NSSavePanel savePanel];
+	[sp setRequiredFileType:@"txt"];
+	if([sp runModal] == NSOKButton) {
+		NSMutableString *s=[[NSMutableString alloc]
+			initWithCapacity: 8192];
+		NSEnumerator *e=[watching objectEnumerator];
+		id object=nil;
+		while(object = [e nextObject]) {
+			[s appendFormat:@"%@\t%@\n", [object itemId], [object description]];
+		}
+		if(![s writeToFile:[sp filename] atomically:YES]) {
+			NSRunAlertPanel(@"Failed to Save",
+				[NSString stringWithFormat:@"Unable to save %@", [sp filename]],
+				@"OK", nil, nil);
+		}
+		[s release];
+	}
 }
 
 - (IBAction)openAddWindow:(id)sender
@@ -86,7 +134,7 @@
 
 -(void)dataUpdated:(id)notification
 {
-	NSLog(@"Something was updated");
+	// NSLog(@"Something was updated");
     // Update the sum and other UI elements.
     float t=0.0;
     NSEnumerator *enumerator = [watching objectEnumerator];

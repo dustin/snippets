@@ -57,7 +57,7 @@
         initWithFormat: @"http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=%@&isPrinterFriendly=1",
         itemId];
     NSURL *url=[[NSURL alloc] initWithString: s];
-    NSLog(@"Fetching from %@", url);
+    // NSLog(@"Fetching from %@", url);
 
 	NSURLRequest *theRequest=[NSURLRequest requestWithURL:url
                         cachePolicy:NSURLRequestUseProtocolCachePolicy
@@ -85,10 +85,10 @@
 	NSString *data=[[NSString alloc] initWithData:responseData encoding:NSASCIIStringEncoding];
     NSRange r=[data rangeOfString: @"Current bid"];
     if(r.location == NSNotFound) {
-        NSLog(@"NOT FOUND!");
+        NSLog(@"No current bid for %@!", self);
     } else {
-        NSLog(@"Range:  %d for %d from %d bytes", r.location, r.length,
-            [data length]);
+        // NSLog(@"Range:  %d for %d from %d bytes", r.location, r.length,
+        //		[data length]);
         r.length=256;
         NSString *stmp=[data substringWithRange: r];
         NSArray *a=[stmp componentsSeparatedByString: @"\r\n"];
@@ -105,7 +105,7 @@
             } else {
                 NSString *thePrice=[endOfFour substringToIndex: r2.location];
                 // Need to pull out commas
-                NSLog(@"Price input:  %@", thePrice);
+                // NSLog(@"Price input:  %@", thePrice);
                 NSMutableString *priceAfter=[[NSMutableString alloc]
                     initWithCapacity: 8];
                 [priceAfter appendString: thePrice];
@@ -114,7 +114,7 @@
                     range: NSMakeRange(0, [priceAfter length])];
                 // Done, float it
                 price=[priceAfter floatValue];
-                NSLog(@"Current price:  %.02f", price);
+                // NSLog(@"Current price:  %.02f", price);
                 [priceAfter release];
             }
         }
@@ -152,7 +152,7 @@
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	NSLog(@"Response complete");
+	// NSLog(@"Response complete");
 	[self parseData];
 
 	[[NSNotificationCenter defaultCenter]
