@@ -13,6 +13,8 @@
 
     NSMutableArray *contents;
 
+	NSArray *sortDescriptors;
+
 }
 
 // For NSTableDataSource

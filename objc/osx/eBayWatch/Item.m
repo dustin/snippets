@@ -113,7 +113,12 @@
                     withString: @"" options: 0
                     range: NSMakeRange(0, [priceAfter length])];
                 // Done, float it
-                price=[priceAfter floatValue];
+                float newPrice=[priceAfter floatValue];
+				if(newPrice != price) {
+					price=newPrice;
+					[[NSNotificationCenter defaultCenter]
+						postNotificationName:DATA_UPDATED object:nil];
+				}
                 // NSLog(@"Current price:  %.02f", price);
                 [priceAfter release];
             }
@@ -154,9 +159,6 @@
 {
 	// NSLog(@"Response complete");
 	[self parseData];
-
-	[[NSNotificationCenter defaultCenter]
-		postNotificationName:DATA_UPDATED object:nil];
 
 	[connection release];
     [responseData release];

@@ -7,13 +7,26 @@
 //
 
 #import "Watching.h"
-
+#import "Controller.h"
 
 @implementation Watching
+
+-(void)sortData
+{
+	NSLog(@"Resorting data");
+	[contents sortUsingDescriptors: sortDescriptors];
+}
 
 - (id)init
 {
     contents=[[NSMutableArray alloc] initWithCapacity: 10];
+
+	[[NSNotificationCenter defaultCenter]
+		addObserver:self
+		selector:@selector(sortData)
+		name:DATA_UPDATED
+		object:nil];
+
     return(self);
 }
 
@@ -40,10 +53,23 @@
     return(rv);
 }
 
+- (void)tableView:(NSTableView *)tableView
+	sortDescriptorsDidChange:(NSArray *)oldDescriptors
+{
+	NSLog(@"Changing sorting descriptors");
+	if(sortDescriptors != nil) {
+		[sortDescriptors release];
+	}
+	sortDescriptors=[tableView sortDescriptors];
+	[sortDescriptors retain];
+	[self sortData];
+}
+
 -(void)addItem: (Item *)item
 {
     NSLog(@"Adding %@", item);
     [contents addObject: item];
+	[self sortData];
 }
 
 -(void)removeItem: (int)which

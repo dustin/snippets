@@ -196,6 +196,12 @@
     watching=[table dataSource];
     [total setFloatValue: 0.0];
 
+	// View sorting
+	id priceDescriptor=[[[NSSortDescriptor alloc]
+		initWithKey:@"price" ascending:NO] autorelease];
+	id sortDescriptors=[NSArray arrayWithObject:priceDescriptor];
+	[table setSortDescriptors: sortDescriptors];
+
     // one-off timer to initialize after this window loads.
     [self performSelector: @selector(awakeInitialization)
         withObject:nil
