@@ -30,28 +30,25 @@ feature {ANY} -- Misc stuff
          has_remote_user: get_environment_variable("REMOTE_USER") /= Void;
       local
          a: ARRAY[STRING];
-         b: BOOLEAN;
          query: STRING;
          retry_attempts: INTEGER;
       do
          Result := - 1;
-         check
-            db.connect;
-         end;
-         !!query.copy("select getwwwuser(");
-         query.append(db.quote(get_environment_variable("REMOTE_USER")));
-         query.append(")");
-         if db.query(query) then
-            if db.get_row then
-               a := db.last_row;
-               Result := a.item(0).to_integer;
-            end;
-         end;
+		 if retry_attempts < max_retry_attempts then
+			-- We only want to do this if we still have a chance.
+		db.connect;
+		!!query.copy("select getwwwuser(");
+		query.append(db.quote(get_environment_variable("REMOTE_USER")));
+		query.append(")");
+		db.query(query);
+			-- This will return one row if it's succesfull
+			check db.get_row end
+		a := db.last_row;
+		Result := a.item(0).to_integer;
+		 end
       rescue
-         if retry_attempts < max_retry_attempts then
-            retry_attempts := retry_attempts + 1;
-            retry;
-         end;
+	retry_attempts := retry_attempts + 1;
+        retry;
       end -- getuid
 
    cacheimage(which: INTEGER) is
@@ -66,24 +63,22 @@ feature {ANY} -- Misc stuff
             -- Get the image from the database
             path := photo_cache_fn(which);
             query := get_image_data_query(which);
-            check
-               db.connect;
-            end;
+            db.connect;
             !!image_data.make(65535);
             image_data.clear;
-            if db.query(query) then
-               from
-                  b := db.get_row;
-               until
-                  b = false
-               loop
-                  a := db.last_row;
-                  image_data.append(base64_decode(a.item(2)));
-                  b := db.get_row;
-               end;
+            db.query(query);
+            from
+               b := db.get_row;
+            until
+               b = false
+            loop
+               a := db.last_row;
+               image_data.append(base64_decode(a.item(2)));
+               b := db.get_row;
             end;
             check
-               image_data.count > 0;
+               image_data.count > 0; -- Make sure we've got a picture now.
+
             end;
             do_cache(path,image_data);
          end;

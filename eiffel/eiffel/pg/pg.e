@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.14 $";
+version: "$Revision: 1.15 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.14 1999/06/02 01:33:56 dustin Exp $
+-- $Id: pg.e,v 1.15 1999/06/02 07:49:28 dustin Exp $
 --
 class PG
 
@@ -137,7 +137,7 @@ feature {ANY}
                i > tmp.count
             loop
                if s.item(i) = '%'' then
-                  tmp.append_character('\');
+                  tmp.append_character('%'');
                end;
                tmp.append_character(s.item(i));
                i := i + 1;
