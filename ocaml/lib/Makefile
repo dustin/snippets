@@ -4,34 +4,14 @@ OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
-PARTS=extstring fileutils lru linkedlist base64 cdb netstring extlist \
-	extoption extstream
+PARTS=extstring.cmx fileutils.cmx lru.cmx linkedlist.cmx base64.cmx cdb.cmx \
+	netstring.cmx extlist.cmx extoption.cmx extstream.cmx
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
 .PHONY: $(PARTS)
 
 all: libspy docs
-
-base64: base64.cmi base64.mli
-
-fileutils: fileutils.cmi fileutils.mli
-
-extstring: extstring.cmi extstring.mli
-
-extlist: extlist.cmi extlist.mli
-
-extoption: extoption.cmi extoption.mli
-
-linkedlist: linkedlist.cmi linkedlist.mli
-
-lru: linkedlist lru.cmi lru.mli
-
-cdb: extoption cdb.cmi cdb.mli
-
-netstring: netstring.cmi netstring.mli
-
-extstream: extstream.cmi extstream.mli
 
 testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
@@ -66,3 +46,25 @@ clean:
 
 .mli.cmi: $<
 	$(MKLIB) $< `echo $< | sed s/.mli/.ml/`
+
+# Deps created by ocamldep
+base64.cmo: base64.cmi
+base64.cmx: base64.cmi
+cdb.cmo: extoption.cmi cdb.cmi
+cdb.cmx: extoption.cmx cdb.cmi
+extlist.cmo: extlist.cmi
+extlist.cmx: extlist.cmi
+extoption.cmo: extoption.cmi
+extoption.cmx: extoption.cmi
+extstream.cmo: extstream.cmi
+extstream.cmx: extstream.cmi
+extstring.cmo: extstring.cmi
+extstring.cmx: extstring.cmi
+fileutils.cmo: fileutils.cmi
+fileutils.cmx: fileutils.cmi
+linkedlist.cmo: linkedlist.cmi
+linkedlist.cmx: linkedlist.cmi
+lru.cmo: linkedlist.cmi lru.cmi
+lru.cmx: linkedlist.cmx lru.cmi
+netstring.cmo: extstring.cmi netstring.cmi
+netstring.cmx: extstring.cmx netstring.cmi
