@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# arch-tag: B159294F-6384-11D8-9FE3-000A957659CC
+
+setvar() {
+	echo "Setting $1 to $2"
+	ndd -set /dev/hme $1 $2
+}
+
+setvar instance 0
+setvar adv_100T4_cap 0
+setvar adv_100fdx_cap 1
+setvar adv_100hdx_cap 0
+setvar adv_10fdx_cap 0
+setvar adv_10hdx_cap 0
+setvar adv_autoneg_cap 0

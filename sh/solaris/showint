@@ -1,0 +1,74 @@
+#!/bin/ksh
+#
+# arch-tag: B4C9BC6D-6384-11D8-A556-000A957659CC
+
+# transceiver_inuse             (read only)
+# link_status                   (read only)
+# link_speed                    (read only)
+# link_mode                     (read only)
+# ipg1                          (read and write)
+# ipg2                          (read and write)
+# use_int_xcvr                  (read and write)
+# pace_size                     (read and write)
+# adv_autoneg_cap               (read and write)
+# adv_100T4_cap                 (read and write)
+# adv_100fdx_cap                (read and write)
+# adv_100hdx_cap                (read and write)
+# adv_10fdx_cap                 (read and write)
+# adv_10hdx_cap                 (read and write)
+# autoneg_cap                   (read only)
+# 100T4_cap                     (read only)
+# 100fdx_cap                    (read only)
+# 100hdx_cap                    (read only)
+# 10fdx_cap                     (read only)
+# 10hdx_cap                     (read only)
+# lp_autoneg_cap                (read only)
+# lp_100T4_cap                  (read only)
+# lp_100fdx_cap                 (read only)
+# lp_100hdx_cap                 (read only)
+# lp_10fdx_cap                  (read only)
+# lp_10hdx_cap                  (read only)
+# instance                      (read and write)
+# lance_mode                    (read and write)
+# ipg0                          (read and write)
+
+showvar() {
+	echo "$1:  `ndd -get /dev/hme $1`"
+}
+
+showstatus() {
+	linkstatus=`ndd -get /dev/hme link_status`
+	linkstatustypes[0]="down"
+	linkstatustypes[1]="up"
+	linkspeed=`ndd -get /dev/hme link_speed`
+	linkspeedtypes[0]="10Mbps"
+	linkspeedtypes[1]="100Mbps"
+	linkmode=`ndd -get /dev/hme link_mode`
+	linkmodetypes[0]="half"
+	linkmodetypes[1]="full"
+
+	echo "Link status:  ${linkstatustypes[$linkstatus]}"
+	echo "Link speed:  ${linkspeedtypes[$linkspeed]}"
+	echo "Link mode:  ${linkmodetypes[$linkmode]}"
+}
+
+echo "read/write"
+showvar instance
+showvar adv_autoneg_cap
+showvar adv_100T4_cap
+showvar adv_100fdx_cap
+showvar adv_100hdx_cap
+showvar adv_10fdx_cap
+showvar adv_10hdx_cap
+
+echo ""
+echo "Link info"
+showstatus
+echo ""
+echo "read/only"
+showvar autoneg_cap
+showvar 100T4_cap
+showvar 100fdx_cap
+showvar 100hdx_cap
+showvar 10fdx_cap
+showvar 10hdx_cap
