@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.13 2002/03/20 20:21:08 dustin Exp $
+# $Id: nntpsucka.py,v 1.14 2002/03/20 20:21:49 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -57,7 +57,7 @@ class NewsDB:
 		self.db.close()
 
 	def getGroupRange(self, group, start, end):
-		myfirst=self.getLastId(groupname)
+		myfirst=self.getLastId(group)
 		if (int(myfirst) < int(first)) or (int(myfirst) > int(last)):
 			myfirst=first
 		mycount=(int(last)-int(myfirst))
