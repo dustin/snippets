@@ -45,9 +45,9 @@ printfunc(void)
 	}
 
 	puts("Obtaining lock...");
-	sb[0].sem_num = 0;
+	sb[0].sem_num =  0;
 	sb[0].sem_op  = -1;
-	sb[0].sem_flg = SEM_UNDO;
+	sb[0].sem_flg =  SEM_UNDO;
 
 	if ((semop(sem, sb, 1)) < 0) {
 		perror("semop");
@@ -55,13 +55,13 @@ printfunc(void)
 	}
 	puts("Locked...");
 	makefile();
-	sleep(15);
+	sleep(10);
 	removefile();
 	puts("Unlocking...");
 
 	sb[0].sem_num = 0;
 	sb[0].sem_op  = 1;
-	sb[0].sem_flg = 0;
+	sb[0].sem_flg = SEM_UNDO;
 	if ((semop(sem, sb, 1)) < 0) {
 		perror("semop");
 		return;
