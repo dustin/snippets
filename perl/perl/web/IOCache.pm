@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.9 2000/04/25 23:47:31 dustin Exp $
+# $Id: IOCache.pm,v 1.10 2000/04/25 23:50:23 dustin Exp $
 
 =pod
 
@@ -57,7 +57,7 @@ Dustin Sallings <dustin@spy.net>
 
 =head1 VERSION
 
-$Id: IOCache.pm,v 1.9 2000/04/25 23:47:31 dustin Exp $
+$Id: IOCache.pm,v 1.10 2000/04/25 23:50:23 dustin Exp $
 
 =cut
 
@@ -85,6 +85,7 @@ use MD5;
 		$self->{'key'}=$key;
 		$fkey=$self->getfkey($key);
 		$self->{'fkey'}=$fkey;
+		$self->{'docache'}=1;
 
 		$self->{'dcache'}=DCache->new;
 		if(defined($options{'cachedir'})) {
@@ -117,6 +118,11 @@ use MD5;
 			0600);
 
 		return($self);
+	}
+
+	sub nocache {
+		my($self)=shift;
+		self->{'docache'}=0;
 	}
 
 	# need a key we can use on the filesystem temporarily
@@ -161,8 +167,12 @@ use MD5;
 			$stuff=join('', <__IOCACHE_READIN>);
 			close(__IOCACHE_READIN);
 
-			# and cache it.
-			$self->{'dcache'}->cache($key, "IOCache", $stuff);
+			# This allows us to turn off the caching if an object decides
+			# it shouldn't recache after it's been instantiated.
+			if($self->{'docache'} == 1) {
+				# and cache it.
+				$self->{'dcache'}->cache($key, "IOCache", $stuff);
+			}
 
 			# oh, and display it  :)
 			print $stuff;
