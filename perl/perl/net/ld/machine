@@ -1,4 +1,6 @@
 #!/usr/local/bin/perl
+# Copyright (c) 2000  Dustin Sallings
+# $Id: machine,v 1.2 2000/06/06 18:14:54 dustin Exp $
 
 use LWP::UserAgent;
 use CGI;
@@ -16,10 +18,11 @@ sub getfile
 
 my($operation, @hosts);
 
-if(defined($ENV{'REQUEST_METHOD'})) {
+if(defined($ENV{'REQUEST_METHOD'}) && $ENV{'REQUEST_METHOD'}=~/\w/) {
 	my $q=CGI->new;
 	$operation=$q->param('operation');
 	@hosts=$q->param('host');
+	print $q->header('text/plain');
 } else {
 	$operation=shift(@ARGV);
 	@hosts=@ARGV;
@@ -28,7 +31,7 @@ if(defined($ENV{'REQUEST_METHOD'})) {
 my $base="http://hazard/ld/machines/";
 my $host;
 
-for $host (@ARGV) {
+for $host (@hosts) {
 	my(@a)=split(/\n/, getfile("$base/$host"));
 
 	for(@a) {
