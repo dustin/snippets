@@ -228,7 +228,6 @@ let main () =
 			("-k", Arg.String(setupReserved),
 					"Location of the reserved mfg keys cdb")
 		] (fun s -> anon := s :: !anon)  "Build manufacturing cache";
-	List.iter (fun s -> Printf.eprintf "\t%s\n" s) (List.rev !anon);
 	if("" = !destpath) then
 		usage();
 	if("" = !modelpath) then
