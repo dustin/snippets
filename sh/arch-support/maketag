@@ -3,11 +3,9 @@
 # arch-tag: 71A3656C-4162-11D8-81D7-000393CFE6B8
 
 # This is the script I use to move stuff from my old projects archive to my
-# 2004 archive.
+# 2005 archive.
 
 for i in "$@"
 do
-	tla archive-setup $i
-	tla tag dustin@spy.net--projects/$i $i
-	tla cacherev ${i}--base-0
+	tla tag -S dustin@spy.net--projects-2004/$i $i
 done
