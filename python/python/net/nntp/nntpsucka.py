@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.26 2002/03/26 21:14:33 dustin Exp $
+# $Id: nntpsucka.py,v 1.27 2002/03/30 05:39:50 dustin Exp $
 
 import nntplib
 import time
@@ -279,24 +279,27 @@ def alarmHandler(sig, frame):
 	raise Timeout
 
 def main():
-	# Lock.
+	# Lock to make sure only one is running at a time.
 	lock=pidlock.PidLock("nntpsucka.pid")
 
+	# Let it run up to four hours.
 	signal.signal(signal.SIGALRM, alarmHandler)
-	signal.alarm(3500)
+	signal.alarm(4*3600)
 
 	sucka=None
+	# Mark the start time
+	start=time.time()
 	try:
-		start=time.time()
 		s=NNTPClient(sys.argv[1])
 		d=NNTPClient(sys.argv[2])
 		sucka=NNTPSucka(s,d)
 		sucka.copyServer()
-		stop=time.time()
 	except IndexError:
 		sys.stderr.write("Usage:  " + sys.argv[0] + " srchost desthost.\n")
 	except Timeout:
 		sys.stderr.write("Took too long.\n")
+	# Mark the stop time
+	stop=time.time()
 
 	if sucka:
 		print sucka.getStats()
