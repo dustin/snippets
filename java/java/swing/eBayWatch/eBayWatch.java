@@ -224,14 +224,6 @@ public class eBayWatch implements Runnable {
 
 		while(true) {
 
-			// Wait
-			try {
-				Thread.sleep(30*1000);
-			} catch(Exception e) {
-				// Don't care
-				System.err.println("Error!  " + e);
-			}
-
 			for(Enumeration e=queue.keys(); e.hasMoreElements(); ) {
 				try {
 
@@ -269,14 +261,22 @@ public class eBayWatch implements Runnable {
 							String msg="Item " + key + " has changed:\n"
 								+ ebw.currentStatus() + was + tl;
 							popUp(msg);
-						}
-					}
+						} // Item info has changed
+					} // Auction for item has not ended
 
 				} catch(Exception cept) {
 					System.err.println("Error checking stuff:  " + cept);
 					cept.printStackTrace();
 				}
-			}
-		}
-	}
+			} // Looking through all of the queued items
+
+			// Wait
+			try {
+				Thread.sleep(30*1000);
+			} catch(Exception e) {
+				// Don't care
+				System.err.println("Error!  " + e);
+			} // sleep (and exception)
+		} // Infinite Loop(tm)
+	} // Thread run
 }
