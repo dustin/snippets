@@ -19,14 +19,12 @@ init() ->
 
 loop(Port, Dict) ->
 	receive
-		{Port, {data, Data}} ->
-			Vals = string:tokens(Data, "\t"),
+		{udp, Port, Raddr, Rport, S} ->
+			% io:format("~p\n", [lists:sublist(S, (length(S)-1))]),
+			Vals = string:tokens(S, "\t"),
 			Key  = lists:nth(2, Vals),
 			Val  = list_to_float(lists:nth(3, Vals)),
 			loop(Port, dict:update(Key, fun(_) -> Val end, Val, Dict));
-		{udp, Port, Raddr, Rport, S} ->
-			io:format("~p\n", [lists:sublist(S, (length(s)-1))]),
-			loop(Port, Dict);
 		{lookup, From, SN} ->
 			From ! dict:fetch(SN, Dict),
 			loop(Port, Dict);
