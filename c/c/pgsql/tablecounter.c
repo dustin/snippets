@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.14 2002/03/15 09:52:46 dustin Exp $
+ * $Id: tablecounter.c,v 1.15 2003/05/08 20:16:41 dustin Exp $
  */
 
 #include <stdio.h>
@@ -141,8 +141,10 @@ void process(struct checkspec query)
 
 	res=PQexec(dbConn, querystr);
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "Query failed:  %s\n%s\n",
-			PQerrorMessage(dbConn), querystr);
+		time_t t=0;
+		time(&t);
+		fprintf(stderr, "Query failed:  %s\n%s\n%s",
+			PQerrorMessage(dbConn), querystr, ctime(&t));
 		goto finished;
 	}
 
