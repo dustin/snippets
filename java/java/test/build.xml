@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<!--
+ Build system for multithreaded test classes.
+
+ $Id: build.xml,v 1.1 2002/07/11 07:50:38 dustin Exp $
+ -->
+
+<project name="mttest" default="spytest.jar" basedir=".">
+
+	<target name="clean">
+		<delete dir="classes"/>
+		<delete dir="build.tmp"/>
+		<delete dir="docs"/>
+		<delete file="spytest.jar"/>
+	</target>
+
+	<target name="spytest.jar" depends="all">
+		<jar jarfile="spytest.jar" basedir="classes"/>
+	</target>
+
+	<target name="javadoc" depends="all">
+		<mkdir dir="docs"/>
+		<javadoc destdir="docs"
+			author="true"
+			version="true"
+			use="true"
+			sourcePath="src"
+			packagenames="net.spy.*"
+			windowtitle="Spy Test Suite Documentation"/>
+	</target>
+
+	<target name="all" depends="spyjarstuff">
+		<javac srcdir="src" destdir="classes"
+			deprecation="on" debug="on" verbose="false">
+			<include name="net/spy/test/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="spyjarstuff" depends="spydeps">
+		<mkdir dir="classes"/>
+		<javac srcdir="build.tmp/spytools" destdir="classes"
+			deprecation="on" debug="on" verbose="false">
+			<include name="net/spy/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="spydeps" depends="spy.jar">
+		<mkdir dir="build.tmp/spytools"/>
+		<unjar src="build.tmp/spy.jar" dest="build.tmp/spytools">
+			<patternset>
+				<include name="net/spy/util/ThreadPool.java"/>
+			</patternset>
+		</unjar>
+	</target>
+
+	<target name="spy.jar">
+		<mkdir dir="build.tmp"/>
+		<get src="http://bleu.west.spy.net/~dustin/lib/spy.jar"
+			dest="build.tmp/spy.jar"
+			usetimestamp="true"/>
+	</target>
+
+</project>
