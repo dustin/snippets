@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.11 2002/08/23 17:25:46 dustin Exp $
+// $Id: SPGen.java,v 1.12 2002/08/26 05:40:01 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.11 $";
+	private String version="$Revision: 1.12 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
@@ -177,7 +177,7 @@ public class SPGen extends Object {
 			+ "\t}\n");
 
 		// Initializer
-		out.println("\tprivate void spinit() {");
+		out.println("\tprivate void spinit() throws SQLException {");
 		// Figure out whether we're a DBSP or a DBSQL
 		if(superclass.equals("DBSP")) {
 			out.println("\t\t// Set the stored procedure name\n"

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.12 2002/08/26 04:34:44 dustin Exp $
+// $Id: DBSP.java,v 1.13 2002/08/26 05:39:58 dustin Exp $
 
 package net.spy.db;
 
@@ -18,10 +18,12 @@ import java.sql.Types;
 
 import java.math.BigDecimal;
 
+import java.util.Collections;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.spy.SpyConfig;
 
@@ -90,20 +92,6 @@ public abstract class DBSP extends SpyCacheDB {
 		this.optional=new HashMap();
 		this.requiredInorder=new ArrayList();
 		this.optionalInorder=new ArrayList();
-	}
-
-	/**
-	 * Get the required arguments, in order.
-	 */
-	protected Collection getRequiredInorder() {
-		return(requiredInorder);
-	}
-
-	/**
-	 * Get the optional arguments, in order.
-	 */
-	protected Collection getOptionalInorder() {
-		return(optionalInorder);
 	}
 
 	/**
@@ -179,17 +167,35 @@ public abstract class DBSP extends SpyCacheDB {
 
 	/**
 	 * Define a field to be required.
+	 *
+	 * @param name the name of the field
+	 * @param type the type
+	 * @throws SQLException if the type has already been added
+	 * @see java.sql.Types
 	 */
-	protected void setRequired(String name, int type) {
-		required.put(name, new Integer(type));
+	protected void setRequired(String name, int type) throws SQLException {
+		Object tmp=required.put(name, new Integer(type));
+		if(tmp!=null) {
+			throw new SQLException("required parameter ``"
+				+ name + "'' already provided.");
+		}
 		requiredInorder.add(name);
 	}
 
 	/**
 	 * Define a field to be optional.
+	 *
+	 * @param name the name of the field
+	 * @param type the type
+	 * @throws SQLException if the type has already been added
+	 * @see java.sql.Types
 	 */
-	protected void setOptional(String name, int type) {
-		optional.put(name, new Integer(type));
+	protected void setOptional(String name, int type) throws SQLException {
+		Object tmp=optional.put(name, new Integer(type));
+		if(tmp!=null) {
+			throw new SQLException("required parameter ``"
+				+ name + "'' already provided.");
+		}
 		optionalInorder.add(name);
 	}
 
@@ -649,6 +655,25 @@ public abstract class DBSP extends SpyCacheDB {
 		setArg(which, a1, Types.TIMESTAMP);
 	}
 
+	/**
+	 * Get the names of all required arguments.
+	 *
+	 * @return a List of Strings representing the required arguments in the
+	 * order in which they will be passed into the query
+	 */
+	public List getRequiredArgs() {
+		return(Collections.unmodifiableList(requiredInorder));
+	}
+
+	/**
+	 * Get the names of all optional arguments.
+	 *
+	 * @return a List of Strings representing the optional arguments in the
+	 * order in which they will be passed into the query
+	 */
+	public List getOptionalArgs() {
+		return(Collections.unmodifiableList(optionalInorder));
+	}
 
 	/**
 	 * Get the type (java.sql.Types) of the given variable.
@@ -673,7 +698,8 @@ public abstract class DBSP extends SpyCacheDB {
 
 	/**
 	 * Set a field in the DBSP after coercing the String value to the
-	 * required value for the given field.
+	 * required value for the given field.  This should <i>rarely</i> be
+	 * used, but is useful for accessing DBSPs through web forms.
 	 *
 	 * @param var the field to set
 	 * @param value the String representation of the value to set
@@ -728,9 +754,9 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
-	 * Commandline test for all SP's.  Invoked thusly:
+	 * Commandline test for SPs that return result sets.  Invoked thusly:
 	 *
-	 * <p>
+	 * <p/>
 	 *
 	 * java net.spy.db.DBSP net.spy.db.sp.SPClassName configpath
 	 * key value [...]
@@ -749,6 +775,7 @@ public abstract class DBSP extends SpyCacheDB {
 		Constructor cons=c.getConstructor(argtypes);
 		DBSP dbsp=(DBSP)cons.newInstance(dargs);
 
+		// Set the args
 		for(int i=2; i<args.length; i+=2) {
 			dbsp.setCoerced(args[i], args[i+1]);
 		}
