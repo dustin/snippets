@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MCastListener.java,v 1.1 2001/04/13 05:07:26 dustin Exp $
+// $Id: MCastListener.java,v 1.2 2001/04/13 06:23:41 dustin Exp $
 
 package net.spy.log;
 
@@ -68,12 +68,12 @@ public class MCastListener extends Object {
 	public static void main(String args[]) throws Exception {
 		MCastListener mcl=new MCastListener(
 			InetAddress.getByName("227.227.227.227"), 3432);
-		for(int i=0; i<1000; i++) {
-			System.out.println("Listening...");
+		while(true) {
 			SpyMessage sm=mcl.getNextMessage();
 			System.out.println(sm);
 		}
-		mcl.close();
+		// NOT REACHED
+		// mcl.close();
 	}
 
 }

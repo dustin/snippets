@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MCastLog.java,v 1.1 2001/04/13 05:07:27 dustin Exp $
+// $Id: MCastLog.java,v 1.2 2001/04/13 06:23:42 dustin Exp $
 
 package net.spy.log;
 
@@ -65,7 +65,7 @@ public class MCastLog extends Object {
 			System.out.println("Sending...");
 			SpyMessage sm=new SpyMessage("Message " + i);
 			mcl.sendMessage(sm);
-			Thread.sleep(100);
+			// Thread.sleep(100);
 		}
 		mcl.close();
 	}
