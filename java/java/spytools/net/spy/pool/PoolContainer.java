@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.22 2001/05/23 22:53:33 dustin Exp $
+// $Id: PoolContainer.java,v 1.23 2001/05/23 23:13:24 dustin Exp $
 
 package net.spy.pool;
 
@@ -252,6 +252,9 @@ public class PoolContainer extends Object {
 		_min_objects=getPropertyInt("min", 0);
 		_max_objects=getPropertyInt("max", 5);
 
+		debug("Pool " + name + " wants a min of " + _min_objects
+			+ " and a max of " + _max_objects);
+
 		getMinObjects();
 	}
 
@@ -278,7 +281,7 @@ public class PoolContainer extends Object {
 		if(totalObjects()<_max_objects) {
 			debug("*** Getting a new object in the "
 				+ name + " pool, currently have " + totalObjects()
-				+ ". ***");
+				+ "/" + _max_objects + ". ***");
 			p=filler.getObject();
 			p.setObjectID(nextId());
 			p.setPoolName(name);
