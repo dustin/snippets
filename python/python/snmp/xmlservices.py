@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: xmlservices.py,v 1.4 2002/04/09 23:46:16 dustin Exp $
+$Id: xmlservices.py,v 1.5 2002/05/01 20:33:47 dustin Exp $
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
@@ -21,12 +21,12 @@ class Handler:
 
 	def getQueueSize(self):
 		"""Get the number of jobs in the queue."""
-		return(len(self.queue.queue))
+		return(len(self.queue.schedular.queue))
 
 	def listDescriptors(self):
 		"""Get a list of all job descriptors in the queue."""
 		rv=[]
-		for item in self.queue.queue:
+		for item in self.queue.schedular.queue:
 			print "Looking at " + `item`
 			try:
 				j=item[3][0]
@@ -39,7 +39,7 @@ class Handler:
 
 	def __findJob(self, descriptor):
 		rv=None
-		for item in self.queue.queue:
+		for item in self.queue.schedular.queue:
 			try:
 				j=item[3][0]
 				if isinstance(j, jobs.Job):
@@ -100,6 +100,18 @@ class Handler:
 				rv.append( (float(parts[0]), parts[2]))
 			line=logfile.readline()
 		logfile.close()
+		return rv
+
+	def createJob(self, type, args):
+		"""Create a new job using jobs.createJob and add it to the queue."""
+
+		rv=None
+
+		j=jobs.createJob(type, args)
+		rv=j.getDescriptor()
+
+		self.queue.addJob(j)
+
 		return rv
 
 class Listener(threading.Thread):

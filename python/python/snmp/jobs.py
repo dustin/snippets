@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.4 2002/04/09 20:42:49 dustin Exp $
+$Id: jobs.py,v 1.5 2002/05/01 20:33:43 dustin Exp $
 """
 
 # time is important
@@ -223,6 +223,30 @@ class SMTPBannerJob(VolatileJob):
 		self.mark()
 
 		self.recordState(banner.rstrip())
+
+class UnsupportedJobException(exceptions.Exception):
+	"""Thrown when createJob is called with an unsupported job type."""
+	pass
+
+def createJob(jobtype, args):
+	"""Create a job from an argument list that describes the job.
+
+	Currently, the following job types are supported:
+
+	 * VolatileSNMPJob (host, community, variable, frequency)
+	 * RRDSNMPJob (host, community, variable(s), frequency, rrdfile)
+	"""
+
+	rv=None
+
+	if jobtype == 'VolatileSNMPJob':
+		rv=apply(VolatileSNMPJob, args)
+	elif jobtype == 'RRDSNMPJob':
+		rv=apply(RRDSNMPJob, args)
+	else:
+		raise UnsupportedJobException(jobtype)
+
+	return rv
 
 ######################################################################
 # End job classes

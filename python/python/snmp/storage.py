@@ -3,7 +3,7 @@
 Data storage classes for collectors.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: storage.py,v 1.2 2002/04/05 01:08:13 dustin Exp $
+$Id: storage.py,v 1.3 2002/05/01 20:33:45 dustin Exp $
 """
 
 # Time
@@ -181,7 +181,7 @@ class RRDStorage(NonThreadSafeStorage):
 			try:
 				rv=RRDStorage.rrd.sendCommand(cmd)
 			except rrdpipe.RRDError, e:
-				print e
+				print e, "query: ", cmd
 		finally:
 			self.unlock()
 		return rv
