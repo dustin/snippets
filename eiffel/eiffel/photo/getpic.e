@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: getpic.e,v 1.2 1999/05/27 15:54:41 dustin Exp $
+-- $Id: getpic.e,v 1.3 1999/05/27 17:16:17 dustin Exp $
 --
 class PHOTO_GET
 
@@ -38,16 +38,10 @@ feature {ANY}
             loop
                a := db.last_row;
 			   decoded:=base64.decode(a.item(2));
-			   std_error.put_string("Output ");
-			   std_error.put_integer(decoded.count);
-			   std_error.put_string(" bytes.%N");
 			   io.put_string(decoded);
                b := db.get_row;
 			   i:=i+1;
             end;
-			std_error.put_string("Got ");
-			std_error.put_integer(i);
-			std_error.put_string(" blocks.%N");
          end;
       end -- make
 
