@@ -1,10 +1,13 @@
 indexing
    description: "CGI Processing routines.";
    author: "Dustin Sallings <dustin@spy.net>";
-   version: "$Revision: 1.5 $";
+   version: "$Revision: 1.6 $";
    copyright: "1999";
    license: "See forum.txt";
 class CGI
+   -- A simple CGI data handling class.  Probably slow for large amounts of
+   -- data, doesn't handle multipart form/data (yet, I need it to), and
+   -- doesn't handle multiple values per key (not directly anyway).
 
 creation {ANY}
    make, parse
@@ -22,8 +25,8 @@ feature {ANY}
 
    display is
       -- Display our data.
-	  require
-		have_cgi_data;
+      require
+         have_cgi_data;
       local
          i: INTEGER;
          kv: KEYVALUE;
@@ -46,7 +49,7 @@ feature {ANY}
       -- Get the value for a key
       require
          key /= Void;
-		 have_cgi_data;
+         have_cgi_data;
       local
          i: INTEGER;
          kv: KEYVALUE;
@@ -75,7 +78,7 @@ feature {ANY}
          i: INTEGER;
       once
          get_cgi_data;
-         a := cgi_input.split_on('&');
+         a := split_on(cgi_input,'&');
          !!cgi_data.with_capacity(1,1);
          from
             i := 1;
@@ -83,18 +86,18 @@ feature {ANY}
             i > a.count
          loop
             s := a @ i;
-            b := s.split_on('=');
+            b := split_on(s,'=');
             !!kv.make(decode_string(b.item(1)),decode_string(b.item(2)));
             cgi_data.add_last(kv);
             i := i + 1;
          end;
       end -- parse
 
-	have_cgi_data: BOOLEAN is
-		-- Verify we have parsed the CGI data.
-		do
-			Result:= ( cgi_data /= Void);
-		end
+   have_cgi_data: BOOLEAN is
+      -- Verify we have parsed the CGI data.
+      do
+         Result := cgi_data /= Void;
+      end -- have_cgi_data
 
 feature {ANY} -- Misc features, probably should be in a utility class
 
@@ -125,8 +128,8 @@ feature {ANY} -- Misc features, probably should be in a utility class
    from_hex(in: STRING): CHARACTER is
       -- Take a two digit hex string, and convert it to a hex character.
       require
-         in.item(1).is_hex_digit;
-         in.item(2).is_hex_digit;
+         in.item(1).is_hexadecimal_digit;
+         in.item(2).is_hexadecimal_digit;
       local
          a, b: INTEGER;
          map, tmp: STRING;
@@ -140,12 +143,70 @@ feature {ANY} -- Misc features, probably should be in a utility class
          Result := a.to_character;
       end -- from_hex
 
-feature {CGI}
+feature {ANY} -- Features that really belong in a string class.
 
-   -- The parsed data.
+   split_on(s: STRING; on: CHARACTER): ARRAY[STRING] is
+      -- split a string on a given character.
+      local
+         split_buffer: ARRAY[STRING];
+      do
+         !!split_buffer.with_capacity(4,1);
+         if s.count > 0 then
+            split_buffer.clear;
+            split_on_in(s,split_buffer,on);
+            if not split_buffer.empty then
+               Result := split_buffer.twin;
+            end;
+         end;
+      end -- split_on
+
+   split_on_in(s: STRING; words: COLLECTION[STRING]; on: CHARACTER) is
+      -- A version of split_in that doesn't assume it knows how
+      -- you want to split.
+      require
+         words /= Void;
+      local
+         state, i: INTEGER;
+         c: CHARACTER;
+         tmp_string: STRING;
+      do
+         if s.count > 0 then
+            !!tmp_string.make(256);
+            from
+               i := 1;
+            until
+               i > s.count
+            loop
+               c := s.item(i);
+               if state = 0 then
+                  if not (c = on) then
+                     tmp_string.clear;
+                     tmp_string.extend(c);
+                     state := 1;
+                  end;
+               else
+                  -- state is not 0, looking for the end
+                  if c = on then
+                     words.add_last(tmp_string.twin);
+                     state := 0;
+                  else
+                     -- this is the one for which we are searching
+                     tmp_string.extend(c);
+                  end;
+               end;
+               i := i + 1;
+            end;
+            if state = 1 then
+               words.add_last(tmp_string.twin);
+            end;
+         end;
+      end -- split_on_in
+
+feature {CGI} -- The parsed data.
+
    cgi_data: ARRAY[KEYVALUE];
+      -- The actual input.
 
-   -- The actual input.
    cgi_input: STRING;
 
    get_cgi_data is
