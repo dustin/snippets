@@ -3,11 +3,11 @@
 %%
 
 -module(coursemp).
--export([twoprocess/1, echo/0, nprocess/2, ringProcess/1]).
+-export([twoprocess/1, echo/0, nprocess/2, ringProcess/1, nprocessStar/2]).
 
 echo() ->
 	receive {From, N} ->
-		io:format("Sending back ~p\n", [N]),
+		io:format("Sending back ~p from ~p\n", [N, self()]),
 		From ! N
 	end,
 	echo().
@@ -58,3 +58,30 @@ nprocess(N, M) ->
 	loop(N, Start),
 	Start ! stop.
 
+%
+% star
+%
+
+listBuilder(F, 1, Rv) ->
+	[F() | Rv];
+listBuilder(F, N, Rv) ->
+	P = F(),
+	listBuilder(F, N-1, [P | Rv]).
+
+foreach(F, [H|T]) ->
+	F(H), foreach(F, T);
+foreach(_, []) -> ok.
+
+ntimes(_, 0) -> ok;
+ntimes(F, N) ->
+	F(), ntimes(F, N-1).
+
+broadcast2Way(Msg, Procs) ->
+	foreach(fun (P) ->
+		P ! Msg,
+		receive Rv -> io:format("bcast: ~p received ~p\n", [self(), Rv]) end
+		end, Procs).
+
+nprocessStar(N, M) ->
+	Procs = listBuilder(fun () -> spawnLinked(coursemp, echo, []) end, M, []),
+	ntimes(fun () -> broadcast2Way({self(), ping}, Procs) end, N).
