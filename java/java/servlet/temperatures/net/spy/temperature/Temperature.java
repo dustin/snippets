@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.9 2002/03/05 10:49:00 dustin Exp $
+ * $Id: Temperature.java,v 1.10 2002/05/04 07:04:39 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -60,8 +60,9 @@ public class Temperature extends PngServlet implements ImageObserver
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
 		// Load the config...
-		temps=new SpyConfig(
-			new File("/afs/@cell/misc/web/etc/temperature.properties"));
+		String configFile=
+			getServletConfig().getInitParameter("temperatureProps");
+		temps=new SpyConfig(new File(configFile));
 		String which=request.getParameter("temp");
 		String therm=request.getParameter("therm");
 		String out="";
@@ -74,7 +75,7 @@ public class Temperature extends PngServlet implements ImageObserver
 				response.setDateHeader("Expires", l);
 				// Show the graphical representation of the temperature
 				try {
-					writePng(request, response, getTherm(therm));
+					writeImage(request, response, getTherm(therm));
 				} catch(Exception e) {
 					throw new ServletException("Error sending gif:  " + e);
 				}
@@ -195,15 +196,14 @@ public class Temperature extends PngServlet implements ImageObserver
 	// Get the base image loaded
 	private Image getBaseImage() throws Exception {
 		if(baseImage==null) {
-			String therm=
-				"http://bleu.west.spy.net/~dustin/images/therm.gif";
+			String therm=getServletConfig().getInitParameter("baseImage");
 			URL url=new URL(therm);
+			log("Getting image (" + url + ")");
 			baseImage=Toolkit.getDefaultToolkit().getImage(url);
-			log("Getting image...");
 			Toolkit.getDefaultToolkit().prepareImage(baseImage, -1, -1, this);
 			if(!imageLoaded) {
 				synchronized(this) {
-					wait();
+					wait(15000);
 				}
 			}
 			log("Image completely loaded.");
