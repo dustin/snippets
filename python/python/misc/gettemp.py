@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: gettemp.py,v 1.5 2003/02/23 09:52:57 dustin Exp $
+# $Id: gettemp.py,v 1.6 2003/05/19 17:20:16 dustin Exp $
 
 import xmlrpclib
 import smtplib
@@ -46,8 +46,7 @@ class Alerts:
 			'dustin@spy.net',
 			'noelani@spy.net',
 			'knitterb@blandsite.org',
-			'dsallings@tmomail.net',
-			'4087681988@mobile.mycingular.com',)
+			'dsallings@tmomail.net',)
 		sender='dustin+temperature@spy.net'
 
 		# Construct a MIME message.
