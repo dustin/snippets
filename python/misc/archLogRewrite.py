@@ -79,7 +79,7 @@ def rewriteFile(filename):
 		elif l.startswith("Summary:"):
 			summary=l[9:].strip()
 			print "Summary is " + summary
-			if summary == "..." or (summary.find("cscvs") > -1):
+			if summary == "..." or (summary.find("cscvs to tla") > -1):
 				summary=extractSummary(lines)
 				print "Forcing change to " + summary
 				headers["Summary"]=summary
