@@ -1,5 +1,5 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 2002/03/01 09:14:57 dustin Exp $
+# $Id: Makefile.in,v 1.2 2002/03/01 09:22:45 dustin Exp $
 
 DEFS=@DEFS@
 CFLAGS=@CFLAGS@ $(DEFS)
@@ -13,4 +13,4 @@ tablecounter: tablecounter.o array.o
 	$(CC) -o $@ tablecounter.o array.o $(LDFLAGS) $(RRDLIB) $(POSTGRESLIB)
 
 clean:
-	rm -f tablecounter tablecounter.o
+	rm -f tablecounter tablecounter.o array.o
