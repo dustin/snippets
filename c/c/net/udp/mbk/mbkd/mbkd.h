@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.3 1998/10/01 18:05:17 dustin Exp $
+ * $Id: mbkd.h,v 1.4 1998/10/02 07:02:29 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -44,6 +44,8 @@
 # endif
 #endif
 
+#define MAXPACKETLEN 1024
+
 struct config {
 	int debug;  /* debug level */
     int log;    /* Logging facility */
@@ -61,20 +63,23 @@ struct namedfunc {
 };
 
 struct mbk {
-    int  len;               /* Length of the packet from length to end of
-	                         * useful data.
-							 */
-	char data[1024];        /* The actual data */
-	struct hashtable *hash; /* The hash table we put all the data in after
-	                         * we get it.
-							 */
+    int  len;                /* Length of the packet from length to end of
+	                          * useful data.
+							  */
+	char data[MAXPACKETLEN]; /* The actual data */
+	struct hashtable *hash;  /* The hash table we put all the data in after
+	                          * we get it.
+							  */
 };
 
-char *kw(char *in);
 char **split(char c, char *string);
-void freeptrlist(char **list);
 char *hexprint(int size, char *buf);
+char *kw(char *in);
 char *unhexprint(int size, char *buf);
-
+void _do_log(int level, char *msg);
+void freeptrlist(char **list);
+void log_debug(char *format,...);
+void log_misc(int level, char *format, ...);
+void log_msg(char *format,...);
 
 #endif /* MBKD_H */

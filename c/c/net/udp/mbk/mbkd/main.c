@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.4 1998/10/01 18:05:15 dustin Exp $
+ * $Id: main.c,v 1.5 1998/10/02 07:02:28 dustin Exp $
  */
 
 #include <config.h>
@@ -17,6 +17,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <assert.h>
+
+#include <md5.h>
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -29,6 +32,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#define AUTHDATA "630712e3e78e9ac261f13b8918c1dbdc"
 
 struct config conf;
 
@@ -89,52 +94,114 @@ detach(void)
 	umask(7);
 }
 
-struct hashtable *parsepacket(struct mbk *mbk_packet)
+struct hashtable *
+parsepacket(struct mbk *mbk_packet)
 {
-	char **stuff, **kv;
-	int i;
+	char  buf[MAXPACKETLEN];
+	char  **stuff, **kv;
+	int     i;
 
-	mbk_packet->hash=hash_init(HASHSIZE);
-	if(mbk_packet->hash==NULL) {
+	if(strlen(mbk_packet->data)>MAXPACKETLEN) {
+		log_msg("Invalid packet, too long (%d bytes) at %s:%d",
+		        strlen(mbk_packet->data), __FILE__, __LINE__);
 	    return(NULL);
 	}
 
-	stuff=split(':', mbk_packet->data);
-	for(i=0; stuff[i]; i++) {
-	    kv=split('=', stuff[i]);
+	strcpy(buf, mbk_packet->data);
+
+	mbk_packet->hash = hash_init(HASHSIZE);
+	if (mbk_packet->hash == NULL) {
+		return (NULL);
+	}
+	stuff = split(':', buf);
+	for (i = 0; stuff[i]; i++) {
+		kv = split('=', stuff[i]);
 		hash_store(mbk_packet->hash, kv[0], kv[1]);
 		freeptrlist(kv);
 	}
 
 	freeptrlist(stuff);
 
-	return(mbk_packet->hash);
+	return (mbk_packet->hash);
+}
+
+int
+verify_auth(struct mbk mbk_packet)
+{
+    MD5_CTX md5;
+	char calc[16], buf[MAXPACKETLEN];
+	char *p;
+	struct hash_container *h;
+
+	if(strlen(mbk_packet.data)>MAXPACKETLEN) {
+		log_msg("Invalid packet, too long (%d bytes) at %s:%d",
+		        strlen(mbk_packet.data), __FILE__, __LINE__);
+	    return(-1);
+	}
+
+	strcpy(buf, mbk_packet.data);
+	p=buf;
+	p=strrchr(p, ':');
+	assert(p);
+	*p=0;
+
+	MD5Init(&md5);
+	MD5Update(&md5, AUTHDATA, strlen(AUTHDATA));
+	MD5Update(&md5, buf, strlen(buf));
+	MD5Final(calc, &md5);
+
+	h=hash_find(mbk_packet.hash, "auth");
+	if(h==NULL) {
+		log_msg("Invalid packet, received no auth at %s:%d",
+		        __FILE__, __LINE__);
+	    return(-1);
+	}
+
+	if(strcmp(hexprint(16, calc), h->value)==0) {
+	    log_msg("Verified auth, packet is good.");
+		return(0);
+	} else {
+	    log_msg("Invalid packet, ignoring at %s:%d.", __FILE__, __LINE__);
+		return(-1);
+	}
 }
 
 void
 process_main()
 {
-	int     s, len, stat;
+	int     s, len, stat, i;
 	struct sockaddr_in from;
 	struct mbk mbk_packet;
 	log_msg("Processing...\n");
 
 	s = getservsocket_udp(1099);
 
-	len = 1024;
+	for (i=0;;i++) {
+		len = sizeof(from);
 
-	stat = recvfrom(s, (char *) &mbk_packet, sizeof(mbk_packet),
-	    0, (struct sockaddr *) &from, &len);
-	if (stat < 0) {
-		perror("recvfrom");
+		stat = recvfrom(s, (char *) &mbk_packet, sizeof(mbk_packet),
+		    0, (struct sockaddr *) &from, &len);
+		if (stat < 0) {
+			perror("recvfrom");
+		}
+		log_debug("Read %d bytes from %s\n", stat,
+		    nmc_intToDQ(ntohl(from.sin_addr.s_addr)));
+		printf("Read %d bytes\n", stat);
+		printf("Length:\t%d\nData:\t%s\n", mbk_packet.len,
+		    mbk_packet.data);
+
+		parsepacket(&mbk_packet);
+		_hash_dump(mbk_packet.hash);
+
+		if(verify_auth(mbk_packet)<0) {
+		    printf("Packet failed auth\n");
+		} else {
+		    printf("Packet passed auth\n");
+		}
+
+		hash_destroy(mbk_packet.hash);
+		printf("Processed %d packets\n", i+1);
 	}
-	printf("Read %d bytes\n", stat);
-	printf("Length:\t%d\nData:\t%s\n", mbk_packet.len,
-	    mbk_packet.data);
-
-	parsepacket(&mbk_packet);
-    _hash_dump(mbk_packet.hash);
-	hash_destroy(mbk_packet.hash);
 }
 
 int

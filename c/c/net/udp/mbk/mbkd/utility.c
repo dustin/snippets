@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.3 1998/10/01 18:05:21 dustin Exp $
+ * $Id: utility.c,v 1.4 1998/10/02 07:02:32 dustin Exp $
  */
 
 #include <config.h>
@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <assert.h>
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -45,28 +46,45 @@ snprintf(char *s, size_t n, const char *format,...)
 
 #endif
 
-/*
- * Each main module will have its own logging that does essentially the
- * same thing.  yes, this is a little bad for maintenence, *but* it makes
- * it a little easier to upgrade part of it and improve on it without
- * shutting the server down.
- */
+void
+_do_log(int level, char *msg)
+{
+    openlog("mbkd", LOG_PID | LOG_NDELAY, conf.log);
+    syslog(conf.log | level, msg);
+    closelog();
+}
 
 void
 log_msg(char *format,...)
 {
 	va_list ap;
 	char    buf[BUFLEN];
-
-	openlog("mbkd", LOG_PID | LOG_NDELAY, conf.log);
-
 	va_start(ap, format);
 	vsnprintf(buf, BUFLEN - 1, format, ap);
 	va_end(ap);
+    _do_log(LOG_INFO, buf);
+}
 
-	syslog(conf.log | LOG_INFO, buf);
+void
+log_debug(char *format,...)
+{
+	va_list ap;
+	char    buf[BUFLEN];
+	va_start(ap, format);
+	vsnprintf(buf, BUFLEN - 1, format, ap);
+	va_end(ap);
+    _do_log(LOG_DEBUG, buf);
+}
 
-	closelog();
+void
+log_misc(int level, char *format, ...)
+{
+	va_list ap;
+	char    buf[BUFLEN];
+	va_start(ap, format);
+	vsnprintf(buf, BUFLEN - 1, format, ap);
+	va_end(ap);
+    _do_log(level, buf);
 }
 
 int
