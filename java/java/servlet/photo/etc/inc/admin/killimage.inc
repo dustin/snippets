@@ -1,4 +1,4 @@
-<h2>Killed %OID%</h2>
+<h2>Killed %ID%</h2>
 
 Keywords:<br>
 %KEYWORDS%

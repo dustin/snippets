@@ -3,7 +3,7 @@
 </center>
 <form method="POST" action="%CGIDIR%/admin/admin.cgi">
 <input type="hidden" name="func" value="edittext">
-<input type="hidden" name="oid" value="%OID%">
+<input type="hidden" name="id" value="%IMAGE%">
 
 Size:  %SIZE%<br>
 

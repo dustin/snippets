@@ -1,4 +1,4 @@
-<html><head><title>Info for %OID%</title>
+<html><head><title>Info for %IMAGE%</title>
 
 <script language="javascript">
 
@@ -46,7 +46,7 @@ Info:<br>
 
 <p>
 
-<a href="javascript:openWindow('%SELF_URI%?func=display&oid=%OID%')">Open
+<a href="javascript:openWindow('%SELF_URI%?func=display&id=%IMAGE%')">Open
 in new window</a><br>
 <a href="javascript:openWindow('%CGIDIR%/img.cgi/%IMAGE%')">Open image only
 in new window</a><br>
