@@ -205,10 +205,20 @@ xplot()
   if (NULL == (infile = fopen(filename, "rb")))
     exit(12);
 
+/*
+ * I'm going to read the header just to get it out of the way.
+ */
+
   fread(&header, sizeof(header), 1, infile);
 
-  lat_diff=max_lat-min_lat;
-  lng_diff=max_lng-min_lng;
+/*
+ * It doesn't seem to work the first time if I don't calculate the
+ * differences right here, so I guess I'll do that, although it'll slow it
+ * down ever so slightly.
+ */
+
+  lat_diff = max_lat - min_lat;
+  lng_diff = max_lng - min_lng;
 
   island = 1;
 
