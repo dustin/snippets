@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.12 2001/05/22 03:40:23 dustin Exp $
+// $Id: SpyUtil.java,v 1.13 2001/06/14 00:00:30 dustin Exp $
 
 package net.spy;
 
@@ -65,7 +65,7 @@ public class SpyUtil {
 	 * @deprecated use getFileData(File)
 	 */
 	public static String getFileData(String file) throws IOException {
-		return(getFileData(file));
+		return(getFileData(new File(file)));
 	}
 
 	/**
