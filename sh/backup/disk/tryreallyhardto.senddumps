@@ -1,0 +1,15 @@
+#!/bin/sh
+# arch-tag: dustin_20040404T145141_28221
+
+. $HOME/lib/shelllock.sh
+
+PIDFILE=/tmp/senddb.lock
+
+shellLock $PIDFILE
+
+if [ $? -eq 0 ]
+then
+	$HOME/bin/untilsuccessful /data/dustin/bak/senddumps "$@"
+	sleep 15
+	shellUnlock $PIDFILE
+fi

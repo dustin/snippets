@@ -1,0 +1,123 @@
+#!/bin/sh
+# arch-tag: dustin_20040404T145145_28224
+
+BACKUP_TOP=/data/dustin/bak
+
+RSYNC=/usr/local/bin/rsync
+
+VERBOSE="v"
+PROGRESS=""
+
+propRsync() {
+	mkdir -p prop/"$1"
+	env RSYNC_PROXY=juan:3128 $RSYNC --delete --partial \
+		--password-file=.proppw -${VERBOSE}arlSz --stats $PROGRESS \
+		--timeout 600 \
+		"propaganda.spy.net::$1/" prop/"$1/"
+}
+
+doSync() {
+
+	propRsync www
+	propRsync filemon
+	propRsync logs
+
+	echo "bleu web logs"
+	$RSYNC -${VERBOSE}arlS $PROGRESS --stats \
+		bleu::weblogs/ bleu/weblogs/
+
+	# $RSYNC --password-file=.tramppw -${VERBOSE}arlS $PROGRESS --stats \
+		# --delete disk@tramp::filemon/ filemon/tramp/
+
+	# $RSYNC --password-file=.tramppw -${VERBOSE}arlS $PROGRESS --stats \
+		# disk@tramp::backups/db/ db/
+
+	echo "bob src"
+	$RSYNC --password-file=.bob-src -${VERBOSE}arlSH $PROGRESS --stats \
+		--delete src@bob::src/ src/
+	echo "End bob src"
+
+	echo "bob mail"
+	$RSYNC --password-file=.bob-cyrus -${VERBOSE}arlSH $PROGRESS --stats \
+		--delete --exclude=postfix\* \
+		cyrus@bob::mail/ mail/
+	echo "End bob mail"
+
+	echo "bob filemon"
+	$RSYNC --password-file=.bob-filemon -${VERBOSE}arlS $PROGRESS --stats \
+		--delete filemon@bob::filemon/ filemon/bob/
+	echo "End bob filemon"
+
+	echo "bsdboy sync"
+	env RSYNC_PROXY=juan:3128 $RSYNC --password-file=.bsdboypw \
+		-${VERBOSE}arlS $PROGRESS --stats --delete --partial \
+		/data/dustin/dav/Replicate/  disk@dustin.accessmyhome.net::davsync/
+	echo "end bsdboy sync"
+}
+
+doTar() {
+	# Input params
+	DIR=$1
+	SRC=$2
+	FILE=$3
+
+	d=$BACKUP_TOP/tars
+	od=$BACKUP_TOP/oldtars
+	bn=`basename "$FILE" .tgz`
+
+	for i in 7 6 5 4 3 2 1
+	do
+		iminus1=`expr $i - 1`
+		if [ -f $od/$bn.$iminus1.tgz ]
+		then
+			echo "$od/$bn.$iminus1.tgz -> $od/$bn.$i.tgz"
+			mv $od/$bn.$iminus1.tgz $od/$bn.$i.tgz
+		fi
+	done
+	if [ -f $d/$FILE ]
+	then
+		echo "$d/$FILE -> $od/$bn.0.tgz"
+		mv $d/$FILE $od/$bn.0.tgz
+	fi
+
+	cd $DIR
+	tar cf - $SRC | gzip -3 > $d/$FILE
+
+	# CD back out
+	cd $BACKUP_TOP
+}
+
+doTars() {
+	doTar filemon bob bob-filemon.tgz
+	doTar . src src.tgz
+	# doTar . rcache rcache.tgz
+	# doTar . mail mail.tgz
+	doTar bleu weblogs bleuweblogs.tgz
+}
+
+doArch() {
+	# Bring in the latest arch stuff
+	# $HOME/bin/tla archive-mirror -s dustin@spy.net--projects
+	$HOME/bin/tla archive-mirror -s dustin@spy.net--projects-2004
+
+	# Tar the archive
+	echo "Tarring the arch repository"
+	cd /data/dustin/
+	ARCHTAR=$BACKUP_TOP/tars/arch.tar
+	pax -wk -f $ARCHTAR arch
+	cd $BACKUP_TOP
+}
+
+# Begin
+
+cd $BACKUP_TOP
+
+# Grab the new files
+doSync
+
+# Update the arch repositories
+doArch
+
+# Create some tar files of directories that are fairly deep
+doTars
+$BACKUP_TOP/tarmail

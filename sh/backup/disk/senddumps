@@ -1,0 +1,23 @@
+#!/bin/sh
+# arch-tag: dustin_20040404T145138_28218
+
+cd /data/dustin/bak
+
+echo "Sending mail tars to offsite storage."
+/usr/local/bin/rsync -arlSH --partial --stats --delete "$@" \
+	--timeout=600 \
+	--password-file=/data/dustin/bak/.bsdboypw \
+	/data/dustin/bak/tars/mail/ disk@bsdboy.west.spy.net::bak/mail/
+
+RV=$?
+if [ $RV -ne 0 ]
+then
+	echo "Failed on send, exit code:  $RV"
+	exit $RV
+fi
+
+echo "Sending DB dumps to offsite storage."
+/usr/local/bin/rsync -arlSH --partial --stats --delete "$@" \
+	--timeout=600 \
+	--password-file=/data/dustin/bak/.bsdboypw \
+	/data/dustin/bak/db/db/ disk@bsdboy.west.spy.net::bak/db/db/
