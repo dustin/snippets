@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: checkinterrors,v 1.2 2000/05/10 08:30:43 dustin Exp $
+# $Id: checkinterrors,v 1.3 2000/05/10 20:20:27 dustin Exp $
 
 set kludge { $*
 	shift
@@ -19,6 +19,7 @@ mib load cisco.mib
 set file [lindex $argv 0 ]
 
 set exit_code 0
+set problems {}
 
 if [catch {open $file} input] {
 	puts "Cannot open input file:  $file"
@@ -89,6 +90,7 @@ while {[gets $input line] != -1} {
 				set idiff [ expr $ierrors - $old_ierrors ]
 				set odiff [ expr $oerrors - $old_oerrors ]
 				puts "$host:$desc:$idiff:$odiff"
+				lappend problems "$host:$desc"
 
 				# Something more intelligent should happen here
 				if {$exit_code == 0} {
@@ -104,6 +106,12 @@ while {[gets $input line] != -1} {
 	# If we could ping the thing
 	}
 # for each router
+}
+
+if {$exit_code > 0} {
+	puts [join $problems ", "]
+} else {
+	puts "OK!"
 }
 
 exit $exit_code
