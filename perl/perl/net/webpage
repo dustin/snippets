@@ -1,13 +1,13 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 # This was written by Dustin Sallings for David Rarick for use with
 # MobileComm's WWW Paging Client thing.
 # Made to work under IRIX 6.2, should work anywhere, probably doesn't.
-# $Id: webpage,v 1.2 1997/11/24 06:28:55 dustin Exp $
+# $Id: webpage,v 1.3 1997/11/24 06:45:00 dustin Exp $
 
-use Socket;
+use strict;
 
 # Username -> pin mapping
-%Users=(
+my %Users=(
     'drarick' => 8203941,
 );
 
@@ -17,7 +17,7 @@ use Socket;
 sub alarmhandler
 {
     alarm(0);
-    $SIG{'ALRM'}=alarmhandler;
+    $SIG{'ALRM'}='alarmhandler';
     return(0);
 }
 
@@ -37,18 +37,49 @@ sub SendPage
 {
     my($pin, $message)=@_;
     my($host, $formdata);
+    my($name, $aliases, $type, $len, $thisaddr, $thataddr, $port, $proto);
+    my($me, $rem);
+    my $sockaddr='S n a4 x8';
+    my $remote="www.mobilecomm.com";
 
-    $host="www.mobilecomm.com";
+    ($name, $aliases, $proto)=getprotobyname('tcp');
+    ($name, $aliases, $port)=getservbyname(80, 'tcp');
 
-    $proto=getprotobyname('tcp');
-    socket(S, PF_INET, SOCK_STREAM, $proto);
-    $sin=sockaddr_in(80, inet_aton($host));
+    ($name, $aliases, $type, $len, $thisaddr)=gethostbyname('0.0.0.0');
+    ($name, $aliases, $type, $len, $thataddr)=gethostbyname($remote);
+    if($name eq "")
+    {
+	print "Unable to resolve hostname: $host\n";
+	return;
+    }
+    $me=pack($sockaddr, 2, 0, $thisaddr);
+    $rem=pack($sockaddr, 2, 80, $thataddr);
+
+    if(!socket(S, 2, 2, $proto))
+    {
+	print "Can't open socket: $!\n";
+	return;
+    }
+
+    if(!bind(S, $me))
+    {
+	print "Can't bind socket: $!\n";
+	return;
+    }
 
     # Thirty seconds should be plenty long enough to connect.
-    $SIG{'ALRM'}=alarmhandler;
+    $SIG{'ALRM'}='alarmhandler';
     alarm(30);
-    connect(S, $sin) || return(0);
+
+    if(!connect(S, $rem))
+    {
+	print "Can't connect to $remote: $!\n";
+	return;
+    }
+
     alarm(0);
+
+    select(S); $|=1; select(STDOUT); $|=1;
 
     $message=~s/([^A-z0-9])/&myurlencode($1)/ge;
     $formdata="PIN=$pin&MSSG=$message";
@@ -71,13 +102,13 @@ sub SendPage
 # Grab the arguments.  First arg is a pin, everything after that is
 # combined with a space to make the message.
 
-$pin=shift;
+my $pin=shift;
 if($pin=~/[A-z]/)
 {
     $pin=$Users{$pin};
 }
 
-$message=join(' ', @ARGV);
+my $message=join(' ', @ARGV);
 
 # Call the page sender.
 
