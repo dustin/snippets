@@ -6,6 +6,7 @@
 #import "HideableTextField.h"
 #import "HideableProgressIndicator.h"
 #import "UploadParams.h"
+#import "DumpMatrix.h"
 
 #define BUTTON_UPLOAD 1
 #define BUTTON_STOP 2
@@ -18,7 +19,7 @@
     IBOutlet NSTextField *dateTaken;
     IBOutlet NSTextField *description;
     IBOutlet NSTextField *fileCount;
-    IBOutlet NSMatrix *imgMatrix;
+    IBOutlet DumpMatrix *imgMatrix;
     IBOutlet NSTextField *keywords;
     IBOutlet NSSecureTextField *password;
     IBOutlet HideableProgressIndicator *progressBar;
@@ -29,8 +30,6 @@
     IBOutlet NSTextField *url;
     IBOutlet NSTextField *username;
 
-    NSArray *files;
-    NSArray *images;
     NSUserDefaults *defaults;
 
     UploadParams *params;
@@ -43,7 +42,9 @@
 - (IBAction)dateToToday:(id)sender;
 - (IBAction)openAuthWindow:(id)sender;
 - (IBAction)openUploadWindow:(id)sender;
+- (IBAction)removeSelected:(id)sender;
 - (IBAction)selectFiles:(id)sender;
+- (IBAction)showFiles:(id)sender;
 - (IBAction)showSelectedImages:(id)sender;
 - (IBAction)stopUpload:(id)sender;
 - (IBAction)upload:(id)sender;

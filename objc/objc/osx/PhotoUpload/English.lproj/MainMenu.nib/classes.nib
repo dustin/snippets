@@ -14,7 +14,9 @@
                 dateToToday = id;
                 openAuthWindow = id;
                 openUploadWindow = id;
+                removeSelected = id;
                 selectFiles = id;
+                showFiles = id;
                 showSelectedImages = id;
                 stopUpload = id;
                 upload = id;
@@ -28,7 +30,7 @@
                 dateTaken = NSTextField;
                 description = NSTextField;
                 fileCount = NSTextField;
-                imgMatrix = NSMatrix;
+                imgMatrix = DumpMatrix;
                 keywords = NSTextField;
                 password = NSSecureTextField;
                 progressBar = HideableProgressIndicator;

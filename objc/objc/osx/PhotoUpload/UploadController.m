@@ -64,21 +64,15 @@
     [uploadWindow makeKeyAndOrderFront: self];
 }
 
--(void)resetMatrix
+- (IBAction)removeSelected:(id)sender
 {
+    NSArray *a=[imgMatrix selectedCells];
     int i=0;
-    for(i=0; i<[imgMatrix numberOfColumns]; i++) {
-        [imgMatrix removeColumn:0];
+    for(i=0; i<[a count]; i++) {
+        [imgMatrix removeFile: [[[a objectAtIndex: i] image] name]];
+        // NSLog(@"Removed image:  %@\n", [[a objectAtIndex: i] image]);
     }
-    if([imgMatrix numberOfRows]>0) {
-        [imgMatrix removeRow: 0];
-    }
-    // [imgMatrix addRow];
-    [imgMatrix setEnabled: FALSE];
-    /*
-     NSLog(@"Number of columns now is %d\n", [imgMatrix numberOfColumns]);
-     NSLog(@"Number of rows is now %d\n", [imgMatrix numberOfRows]);
-     */
+    [imgMatrix update];
 }
 
 - (IBAction)selectFiles:(id)sender
@@ -92,45 +86,19 @@
     int rv = [filePanel runModalForTypes:types];
 
     if (rv == NSOKButton) {
-        files=[filePanel filenames];
-        NSSize cellSize=[imgMatrix cellSize];
-
+        NSArray *files=[filePanel filenames];
         // This is what's displayed in the image box.
-        id array=[NSMutableArray arrayWithCapacity: [files count]];
         int i=0;
         for(i=0; i<[files count]; i++) {
-            id f=[files objectAtIndex: i];
-            // Get the image, and name it the filename.
-            NSImage *img=[[NSImage alloc] initByReferencingFile: f];
-            [img setScalesWhenResized: YES];
-            // Figure out the image icon size to display, and scale the image
-            SizeScaler *sc=[[SizeScaler alloc] initWithSize: [img size]];
-            NSSize iconSize=[sc scaleTo: cellSize];
-            [img setSize: iconSize];
-            [img setName: f];
-            // Get the button cell and set the image and stuff
-            NSButtonCell *imgCell=[[NSButtonCell alloc] init];
-            [imgCell setImage:img];
-            // Add it to the array
-            [array addObject: imgCell];
-            // Don't need these anymore
-            [sc release];
-            [imgCell release];
-            [img release];
+            [imgMatrix addFile: [files objectAtIndex: i]];
         }
-        [self resetMatrix];
-        while([imgMatrix numberOfColumns] < [files count]) {
-            [imgMatrix addColumn];
-        }
-        while([imgMatrix numberOfRows]>0) {
-            [imgMatrix removeRow: 0];
-        }
-        [imgMatrix addRowWithCells: array];
-        [imgMatrix sizeToCells];
-        [imgMatrix setMode: NSListModeMatrix];
-        // [imgMatrix selectCellAtRow:0 column:1];
     }
+    [imgMatrix update];
+}
 
+- (IBAction)showFiles:(id)sender
+{
+    NSLog(@"Files:  %@\n", [imgMatrix files]);
 }
 
 - (IBAction)showSelectedImages:(id)sender
@@ -172,7 +140,7 @@
 
 -(void)uploadedFile
 {
-    NSLog(@"Uploaded a file.\n");
+    // NSLog(@"Uploaded a file.\n");
     currentFile++;
     [self updateProgressText];
     [progressBar incrementBy: 1];
@@ -214,6 +182,7 @@
 
     UploadThread *ut=[[UploadThread alloc] init];
 
+    NSArray *files=[imgMatrix files];
     [ut setUrl: [url stringValue]];
     [ut setUsername: u];
     [ut setPassword: p];
@@ -254,10 +223,10 @@
 
 - (void)updateProgressText
 {
-    if(currentFile <= [files count])
+    if(currentFile <= [[imgMatrix files] count])
     {
         NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d",
-            currentFile, [files count]];
+            currentFile, [[imgMatrix files] count]];
         [uploadingText setStringValue: msg];
         [uploadingText displayIfNeeded];
     }
@@ -271,7 +240,6 @@
     [progressBar setHidden: TRUE];
     [uploadingText setHidden: TRUE];
     buttonType=BUTTON_UPLOAD;
-    [self resetMatrix];
 
     defaults=[NSUserDefaults standardUserDefaults];
     id defaultUrl=[defaults objectForKey:@"url"];
@@ -286,6 +254,7 @@
     // Fill in form entries with defaults
     [self dateToToday: self];
 
+    [imgMatrix clear];
     [imgMatrix registerForDraggedTypes:[NSArray arrayWithObjects:
         NSFilenamesPboardType, nil]];
 
