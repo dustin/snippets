@@ -62,8 +62,8 @@ let final_letters = [
 ];;
 
 (* Dictionaries and stuff for checking the mappings *)
-let dictionary = Hashtbl.create 1;;
-let frequencies = Hashtbl.create 1;;
+let dictionary = Hashtbl.create 250000;;
+let frequencies = Hashtbl.create 50;;
 
 (* Stuff we've seen *)
 let is_a_word w =
@@ -75,20 +75,21 @@ let is_a_word w =
 
 
 let load_words infile =
+	let freqtmp = Hashtbl.create 50 in
 	let record word =
 		let freqs = (
 			try
-				Hashtbl.find frequencies (String.length word)
+				Hashtbl.find freqtmp (String.length word)
 			with Not_found ->
 				let tmp = ref [] in
-				Hashtbl.add frequencies (String.length word) tmp;
+				Hashtbl.add freqtmp (String.length word) tmp;
 				tmp
 		) in
 		try
 			ignore(Hashtbl.find dictionary word)
 		with Not_found ->
 			Hashtbl.add dictionary word true;
-			freqs := !freqs @ [word];
+			freqs := word :: !freqs;
 	in
 	let check_chars w =
 		let rv = ref true in
@@ -98,6 +99,8 @@ let load_words infile =
 	in
 	Fileutils.iter_file_lines (fun l ->
 		if(check_chars l) then record l) infile;
+	(* Reverse the word lists (we built them backwards) *)
+	Hashtbl.iter (fun k v -> Hashtbl.add frequencies k (List.rev !v)) freqtmp;
 ;;
 
 let rec all_are_words l =
@@ -169,7 +172,7 @@ let make_map2 m orig input output =
 			if(CharMap.mem orig.[i] m) then (
 				raise Not_found
 			) else (
-				rv := CharMap.add orig.[i] output.[i] !rv
+				rv := CharMap.add orig.[i] output.[i] !rv;
 			)
 		)
 	done;
@@ -195,7 +198,8 @@ let rec solve_rest m freqs words orig_words =
 	match words with
 	  [] -> if(FreqSet.cardinal freqs =
 					(CharMap.fold (fun _ _ c -> c + 1) m 0)) then (
-				print_solution m orig_words);
+				if(all_are_words (List.map (apply_map m) orig_words)) then (
+					print_solution m orig_words));
 			m
 	| h::t ->
 		let w = apply_map m h in (
@@ -210,7 +214,8 @@ let rec solve_rest m freqs words orig_words =
 					| fw::fwl2 ->
 						if(Str.string_match rx fw 0) then (
 							match_seen := true;
-							(* print_endline("\t\tmatch:  " ^ fw); *)
+							(* print_endline("\t\tmatch:  " ^ w ^ " ~ " ^ fw);
+								*)
 							try
 								solve_rest (make_map2 m h w fw)
 									freqs t orig_words;
@@ -223,7 +228,7 @@ let rec solve_rest m freqs words orig_words =
 						);
 						if(not !match_seen) then (raise Not_found) else m;
 					in
-				solve_rest (loop !(Hashtbl.find frequencies (String.length w)))
+				solve_rest (loop (Hashtbl.find frequencies (String.length w)))
 					freqs t orig_words
 				(* solve_rest m t *)
 			) else (
@@ -241,13 +246,10 @@ let solve freqs words orig_words =
 				ignore(solve_rest m freqs (List.tl words) orig_words);
 				print_endline "-----------";
 			with Not_found -> (); (* print_endline("NO MATCH"); *)
-		) !(Hashtbl.find frequencies (String.length (List.hd words)))
+		) (Hashtbl.find frequencies (String.length (List.hd words)))
 ;;
 
-(* Initial thing:  hl fkzc vd lds *)
-let main () =
-	load_words "freqs.txt";
-	let words = List.map String.lowercase (List.tl (Array.to_list Sys.argv)) in
+let solve_hueristically words =
 	let freqs = count_letter_freq words in
 	let weighed_words = List.sort (fun a b ->
 		compare (word_weight freqs b) (word_weight freqs a)) words in
@@ -257,6 +259,41 @@ let main () =
 	List.iter (fun w -> Printf.printf "\t%s weighs %d\n"
 		w (word_weight freqs w)) weighed_words;
 	solve freqs weighed_words words;
+;;
+
+let solve_rotation words =
+	let build_rotation_map n =
+		let rec loop m c =
+			let li = int_of_char c in
+			if (li > int_of_char 'z') then
+				m
+			else (
+				let ri = li + n in
+				if (ri > (int_of_char 'z')) then (
+					loop (CharMap.add c (char_of_int (ri - 26)) m)
+						(char_of_int (li + 1))
+				) else (
+					loop (CharMap.add c (char_of_int ri) m)
+						(char_of_int (li + 1))
+				)
+			)
+		in loop CharMap.empty 'a'
+	in
+	for i = 0 to 25 do
+		let m = build_rotation_map i in
+		if(all_are_words (List.map (apply_map m) words)) then (
+			print_endline("Solution at rot " ^ (string_of_int i));
+			print_solution m words;
+		)
+	done;
+;;
+
+(* Initial thing:  hl fkzc vd lds *)
+let main () =
+	load_words "freqs.txt";
+	let words = List.map String.lowercase (List.tl (Array.to_list Sys.argv)) in
+	solve_rotation words;
+	solve_hueristically words;
 ;;
 
 (* Start main if we're interactive. *)
