@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.11 2002/07/10 20:00:24 dustin Exp $
+	$Id: build.xml,v 1.12 2002/07/11 07:56:05 dustin Exp $
 
 	-->
 
@@ -44,6 +44,12 @@
 			packagenames="net.spy.*"
 			windowtitle="Spy.jar Documentation">
 		</javadoc>
+	</target>
+
+	<target name="install" depends="spy.jar,install-docs">
+		<copy file="spy.jar"
+			tofile="/afs/spy.net/home/dustin/public_html/lib/spy.jar"/>
+		<copy file="spy.jar" tofile="${user.home}/lib/spy.jar"/>
 	</target>
 
 	<target name="install-docs" depends="docs">

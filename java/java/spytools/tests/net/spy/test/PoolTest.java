@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PoolTest.java,v 1.4 2002/07/10 20:45:27 dustin Exp $
+// $Id: PoolTest.java,v 1.5 2002/07/11 07:56:07 dustin Exp $
 
 package net.spy.test;
 
@@ -52,12 +52,14 @@ public class PoolTest extends TestCase {
 			fail("Couldn't create the pool.");
 		}
 
-		poolPrinter=new PoolPrinter(op);
+		// poolPrinter=new PoolPrinter(op);
 	}
 
 	protected void tearDown() {
-		System.err.println("Shutting down the pool printer");
-		poolPrinter.shutDown();
+		if(poolPrinter!=null) {
+			System.err.println("Shutting down the pool printer");
+			poolPrinter.shutDown();
+		}
 	}
 
 	public void testFetch250WithoutClosing() {
