@@ -43,6 +43,14 @@ let main() =
 	);
 	print_endline("*** Stream.iter ***");
 	Stream.iter print_endline (get_matches cdf "c");
+	print_endline("*** Failed match ***");
+	(
+		try
+			print_endline("*** Searching x ***");
+			print_endline("ERROR:  " ^ find cdf "x");
+		with Stream.Failure ->
+			print_endline("failed as expected")
+	);
 	close_cdb_in cdf;
 ;;
 
