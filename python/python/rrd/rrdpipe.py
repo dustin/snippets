@@ -3,7 +3,7 @@
 A pipe interface to rrdtool.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: rrdpipe.py,v 1.1 2002/03/28 10:15:58 dustin Exp $
+$Id: rrdpipe.py,v 1.2 2002/03/28 10:35:10 dustin Exp $
 """
 
 import os
@@ -25,6 +25,8 @@ class PipeFile:
 
 	def readline(self):
 		"""Read a line from the pipe file."""
+		# XXX  This is really inefficient.  When that becomes a problem,
+		# XXX  I'll implement buffering.
 		rv=''
 		c=self.read(1)
 		while len(c) == 1 and c in '\r\n':
@@ -71,6 +73,10 @@ class RRDError(exceptions.Exception):
 	"""Exception raised when an rrd error is detected."""
 	pass
 
+class SubprocessBroken(exceptions.Exception):
+	"""Exception raised when an the subprocess isn't functioning."""
+	pass
+
 class RRDPipe:
 	"""A pipe interface to rrdtool."""
 
@@ -81,6 +87,8 @@ class RRDPipe:
 		r2=None
 		w1=None
 		w2=None
+		self.pid=0
+		self.pfile=None
 
 		try:
 			r1, w1=os.pipe()
@@ -94,6 +102,7 @@ class RRDPipe:
 				os.dup2(w1, 1)
 				os.dup2(w1, 2)
 				os.execv(rrdtool, [rrdtool, '-'])
+				os._exit(1)
 		except:
 			if r1: os.close(r1)
 			if r2: os.close(r2)
@@ -102,8 +111,15 @@ class RRDPipe:
 			# Rethrow
 			raise sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
+	def __checkProcess(self):
+		p, e=os.waitpid(self.pid, os.WNOHANG)
+		if p==self.pid:
+			self.pid=0
+			raise SubprocessBroken("Exit code:  " + str(os.WEXITSTATUS(e)))
+
 	def sendCommand(self, cmd):
 		"""Send an arbitrary command to the rrdtool backend."""
+		self.__checkProcess()
 		# print "Sending command:  " + cmd
 		self.pfile.write(cmd.rstrip() + "\n")
 		rv=list()
@@ -161,20 +177,23 @@ class RRDPipe:
 
 	def __del__(self):
 		"""Clean up after the pipe."""
-		# print "Closing pipe file."
-		self.pfile.close()
-		# print "Killing child."
-		try:
-			os.kill(self.pid, 15)
-		except exceptions.OSError, e:
-			# No such process is OK
-			if e[0] != 3:
-				raise e
-		# print "Waiting for child."
-		pid, status=os.waitpid(self.pid, 0)
+		if self.pfile:
+			# print "Closing pipe file."
+			self.pfile.close()
+		if self.pid > 0:
+			# print "Killing child " + str(self.pid)
+			try:
+				os.kill(self.pid, 15)
+			except exceptions.OSError, e:
+				# No such process is OK
+				if e[0] != 3:
+					raise e
+			# print "Waiting for child."
+			pid, status=os.waitpid(self.pid, 0)
 
 if __name__ == '__main__':
 	rp=RRDPipe('/usr/local/rrdtool-1.0.33/bin/rrdtool')
+	# rp=RRDPipe()
 
 	print rp.last(sys.argv[1])
 	pprint.pprint(rp.fetch(sys.argv[1], start=(int(time.time())-(86400*30))))
