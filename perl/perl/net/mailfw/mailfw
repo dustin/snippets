@@ -86,6 +86,21 @@ sub analyze
 	}
 }
 
+sub sendMessage
+{
+	my($to, $from, @msg)=@_;
+
+	# print "E-mail accepted.\n";
+	# print "Resending from $from to $to\n";
+	my $smtp=Net::SMTP->new($conf{'mail_server'})
+		|| die("Error instantiating SMTP");
+	$smtp->mail($from) || die("Sender error");
+	$smtp->to($to) || die("Recipient error");
+	$smtp->data(@msg) || die("Data error");
+	$smtp->dataend() || die("End data error");
+	$smtp->quit();
+}
+
 ############
 ## Beginning
 ############
@@ -125,20 +140,7 @@ if($@) {
 } else {
 
 	eval {
-		# print "E-mail accepted.\n";
-		my($from, $to);
-
-		$from=$ENV{'SENDER'};
-		$to=$ENV{'RECIPIENT'};
-		# print "Resending from $from to $to\n";
-
-		my $smtp=Net::SMTP->new($conf{'mail_server'})
-			|| die("Error instantiating SMTP");
-		$smtp->mail($from) || die("Sender error");
-		$smtp->to($to) || die("Recipient error");
-		$smtp->data(<$tmpfile>) || die("Data error");
-		$smtp->dataend() || die("End data error");
-		$smtp->quit();
+		sendMessage($ENV{'RECIPIENT'}, $ENV{'SENDER'}, <$tmpfile>);
 	};
 
 	if($@) {
@@ -146,7 +148,6 @@ if($@) {
 		# EX_TEMPFAIL
 		exit(75);
 	}
-
 	# EX_OK
 	exit(0);
 }
