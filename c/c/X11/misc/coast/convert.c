@@ -5,6 +5,8 @@
 #include "plot.h"
 #include "data.h"
 
+char rcsid[] = "$Id: convert.c,v 1.5 1995/08/02 18:20:43 dustin Exp $";
+
 char newname[61];
 
 char *
