@@ -25,19 +25,39 @@ static int waitForConnect(int s)
 {
 	int selected=0;
 	fd_set rset;
+	fd_set wset;
+	fd_set eset;
 	struct timeval tv;
+	int success=0;
 
 	FD_ZERO(&rset);
+	FD_ZERO(&wset);
+	FD_ZERO(&eset);
 	FD_SET(s, &rset);
+	FD_SET(s, &wset);
+	FD_SET(s, &eset);
 
 	/* Wait up to five seconds */
 	tv.tv_sec=5;
 	tv.tv_usec=0;
 
-	selected=select(s+1, &rset, NULL, NULL, &tv);
+	selected=select(s+1, &rset, &wset, &eset, &tv);
+	if(selected > 0) {
+		if(FD_ISSET(s, &rset)) {
+			char buf[1];
+			/* Make sure we can read a byte */
+			if(read(s, &buf, 1) == 1) {
+				success=1;
+			}
+		} else if(FD_ISSET(s, &wset)) {
+			success=1;
+		} else {
+			success=0;
+		}
+	}
 
 	/* True if there was at least one thing that hinted as being available */
-	return(selected == 1);
+	return(success == 1);
 }
 
 int
