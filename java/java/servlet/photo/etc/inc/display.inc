@@ -15,7 +15,7 @@ function openWindow(URL,name) {
 }
 // done hiding -->
 </script>
-<link rel="stylesheet" href="%URIROOT%/inc/style.css">
+%STYLESHEET%
 </head>
 <body bgcolor="#fFfFfF">
 

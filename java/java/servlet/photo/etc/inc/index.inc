@@ -1,5 +1,5 @@
 <html><head><title>Photo Album</title>
-<link rel="stylesheet" href="%URIROOT%/inc/style.css">
+%STYLESHEET%
 </head>
 <body bgcolor="fFfFfF">
 
