@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.h,v 1.3 2000/07/30 04:05:42 dustin Exp $
+ * $Id: hash.h,v 1.4 2000/07/30 04:58:07 dustin Exp $
  */
 
 #ifndef HASH_H
@@ -9,9 +9,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_PTHREADLIB
+#ifdef USE_PTHREAD
 #include <pthread.h>
-#endif /* HAVE_PTHREADLIB */
+#endif /* USE_PTHREAD */
 
 struct hash_container {
 	unsigned int    key;
@@ -26,9 +26,9 @@ struct hash_keylist {
 
 struct hashtable {
 	int     hashsize;
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	pthread_mutex_t *mutexen;
-#endif /* HAVE_LIBPTHREAD */
+#endif /* USE_PTHREAD */
 	struct hash_container **buckets;
 };
 

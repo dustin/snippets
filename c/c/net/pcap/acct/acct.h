@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: acct.h,v 1.2 2000/07/30 03:01:45 dustin Exp $
+ * $Id: acct.h,v 1.3 2000/07/30 04:58:00 dustin Exp $
  */
 
 #ifndef ACCT_H
@@ -12,6 +12,5 @@
 
 void process(int flags, char *filter);
 char *ntoa(int);
-
 
 #endif /* ACCT_H */

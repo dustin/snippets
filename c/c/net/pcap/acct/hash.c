@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.3 2000/07/30 04:05:41 dustin Exp $
+ * $Id: hash.c,v 1.4 2000/07/30 04:58:06 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 #include <pthread.h>
-#endif /* HAVE_LIBPTHREAD */
+#endif /* USE_PTHREAD */
 
 #include "mymalloc.h"
 #include "acct.h"
@@ -18,7 +18,7 @@
 
 #define _do_hash(a, b) (b%a->hashsize)
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 #define lock(a) { \
 	pthread_mutex_lock(&(hash->mutexen[a])); \
 }
@@ -28,16 +28,16 @@
 #else
 #define lock(a)
 #define unlock(a)
-#endif /* HAVE_LIBPTHREAD */
+#endif /* USE_PTHREAD */
 
 /* Initialize a hash table */
 struct hashtable *
 hash_init(int size)
 {
 	struct hashtable *hash;
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	int i;
-#endif /* HAVE_LIBPTHREAD */
+#endif /* USE_PTHREAD */
 
 	hash = calloc(1, sizeof(struct hashtable));
 	assert(hash);
@@ -47,14 +47,14 @@ hash_init(int size)
 	hash->buckets = calloc(hash->hashsize, sizeof(struct hash_container *));
 	assert(hash->buckets);
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef USE_PTHREAD
 	hash->mutexen = calloc(hash->hashsize, sizeof(pthread_mutex_t));
 	assert(hash->mutexen);
 
 	for(i=0; i<hash->hashsize; i++) {
 		pthread_mutex_init(&(hash->mutexen[i]), NULL);
 	}
-#endif /* HAVE_LIBPTHREAD */
+#endif /* USE_PTHREAD */
 
 	return (hash);
 }

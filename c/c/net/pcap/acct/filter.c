@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.4 2000/07/30 04:05:39 dustin Exp $
+ * $Id: filter.c,v 1.5 2000/07/30 04:58:04 dustin Exp $
  */
 
 #include <stdio.h>
@@ -22,7 +22,10 @@
 #include <pcap.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef USE_PTHREAD
 #include <pthread.h>
+#endif /* USE_PTHREAD */
 
 #include "mymalloc.h"
 #include "acct.h"
@@ -33,11 +36,19 @@ static int      dlt_len = 0;
 static struct hashtable *hash=NULL;
 
 static void     filter_packet(u_char *, struct pcap_pkthdr *, u_char *);
-static char    *log_pkt(struct ip *, char *, int, int);
 static void     showStats();
 static void     signal_handler(int);
 static char    *itoa(int in);
 
+#ifdef USE_PTHREAD
+# define lock(a)   pthread_mutex_lock(&(hash->mutexen[a]))
+# define unlock(a) pthread_mutex_unlock(&(hash->mutexen[a]))
+#else
+# define lock(a)
+# define unlock(a)
+#endif
+
+#ifdef USE_PTHREAD
 void *statusPrinter(void *data)
 {
 	for(;;) {
@@ -45,6 +56,20 @@ void *statusPrinter(void *data)
 		showStats();
 	}
 }
+#else
+void nonThreadsStats()
+{
+	static time_t last_time=0;
+	time_t t=0;
+
+	t=time(NULL);
+
+	if(t-last_time > 60) {
+		last_time=t;
+		showStats();
+	}
+}
+#endif /* USE_PTHREAD */
 
 void
 process(int flags, char *filter)
@@ -54,7 +79,10 @@ process(int flags, char *filter)
 	struct bpf_program prog;
 	bpf_u_int32     network, netmask;
 	int             flagdef;
+	char			*use_pthread="no";
+#ifdef USE_PTHREAD
 	pthread_t		sp;
+#endif
 
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, signal_handler);
@@ -109,18 +137,30 @@ process(int flags, char *filter)
 		fprintf(stderr, "pcap_setfilter: %s\n", errbuf);
 		signal_handler(-1);
 	}
+
 	hash=hash_init(637);
 
+#ifdef USE_PTHREAD
+	use_pthread="yes";
 	/* OK, create the status printer thread */
 	pthread_create(&sp, NULL, statusPrinter, NULL);
+#endif /* USE_PTHREAD */
 
-	fprintf(stderr, "interface: %s, filter: %s, promiscuous: %s\n",
-	interface, filter, (flags & FLAG_BIT(FLAG_PROMISC)) ? "yes" : "no");
+	fprintf(stderr,"interface: %s, filter: %s, promiscuous: %s, threads: %s\n",
+		interface,
+		filter,
+		(flags & FLAG_BIT(FLAG_PROMISC)) ? "yes" : "no",
+		use_pthread);
+	fflush(stderr);
 
 	for (;;) {
 		pcap_loop(pcap_socket, 100, (pcap_handler) filter_packet, NULL);
+#ifdef USE_PTHREAD
 		/* This is for bad pthread implementations */
 		usleep(1);
+#else
+		nonThreadsStats();
+#endif /* USE_PTHREAD */
 	}
 }
 
@@ -145,7 +185,7 @@ showStats()
 		p=hash->buckets[i];
 
 		if(p) {
-			pthread_mutex_lock(&(hash->mutexen[i]));
+			lock(i);
 			lastp=NULL;
 			for(; p; p=p->next) {
 				char buf[8192];
@@ -164,7 +204,7 @@ showStats()
 			}
 			free(lastp);
 			hash->buckets[i]=0;
-			pthread_mutex_unlock(&(hash->mutexen[i]));
+			unlock(i);
 		}
 	}
 	fflush(stdout);
@@ -253,49 +293,6 @@ char    *
 mynet_ntoa(struct in_addr in)
 {
 	return(ntoa(ntohl(in.s_addr)));
-}
-
-static char    *
-log_pkt(struct ip * ip, char *proto, int sport, int dport)
-{
-	static char     ret[8192];
-
-	assert(ip);
-	assert(proto);
-
-	/* Time */
-	strcpy(ret, "time=");
-	strcat(ret, itoa(time(NULL)));
-
-	/* Source address */
-	strcat(ret, " s=");
-	strcat(ret, mynet_ntoa(ip->ip_src));
-
-	/* Destination address */
-	strcat(ret, " d=");
-	strcat(ret, mynet_ntoa(ip->ip_dst));
-
-	/* Length */
-	strcat(ret, " l=");
-	strcat(ret, itoa(ntohs(ip->ip_len)));
-
-	/* Protocol */
-	strcat(ret, " PROTO=");
-	strcat(ret, proto);
-
-	/* Source port */
-	if (sport >= 0) {
-		strcat(ret, " sp=");
-		strcat(ret, itoa(sport));
-	}
-	/* destination port */
-	if (dport >= 0) {
-		strcat(ret, " dp=");
-		strcat(ret, itoa(dport));
-	}
-	strcat(ret, "\n");
-
-	return (ret);
 }
 
 /* shut down in a controlled way, close log file, close socket, and exit */
