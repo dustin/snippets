@@ -6,7 +6,7 @@
             LANGUAGE = ObjC;
             OUTLETS = {
                 addButton = NSButton;
-                category = NSTextField;
+                category = NSComboBox;
                 description = NSTextField;
                 imgMatrix = DumpMatrix;
                 keywords = NSTextField;

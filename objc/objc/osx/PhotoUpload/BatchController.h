@@ -6,7 +6,7 @@
 @interface BatchController : NSWindowController
 {
     IBOutlet NSButton *addButton;
-    IBOutlet NSTextField *category;
+    IBOutlet NSComboBox *category;
     IBOutlet NSTextField *description;
     IBOutlet DumpMatrix *imgMatrix;
     IBOutlet NSTextField *keywords;
