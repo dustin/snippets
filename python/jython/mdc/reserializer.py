@@ -46,7 +46,7 @@ def getOrgFromPath(f):
 processed=0
 for f in sys.argv[2:]:
 	print "Starting " + f
-	org=getOrgFromPath(f)
+	# org=getOrgFromPath(f)
 	fis=java.io.FileInputStream(f)
 	gis=java.util.zip.GZIPInputStream(fis)
 	ois=java.io.ObjectInputStream(gis)
@@ -67,8 +67,11 @@ for f in sys.argv[2:]:
 			# Get the next serial number
 			sn=ois.readObject()
 
-	except java.io.EOFException:
-		print "Finished " + f
+	except java.io.IOException, e:
+		if isinstance(e, java.io.EOFException):
+			print "Finished " + f
+		else:
+			e.printStackTrace()
 
 	fis.close()
 	gis.close()
