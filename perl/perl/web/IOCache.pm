@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.3 1998/12/02 09:27:12 dustin Exp $
+# $Id: IOCache.pm,v 1.4 1998/12/02 09:37:06 dustin Exp $
 
 =pod
 
@@ -11,7 +11,7 @@ IOCache - Object that allows transparent caching of all STDOUT
 
   use IOCache;
 
-  my $cache=IOCache->new('cache key', maxage => I<$AgeInSeconds>);
+  my $cache=IOCache->new('cache key', [tagged options]);
 
   [...]
 
@@ -21,12 +21,31 @@ This module allows one to cache all output from a perl script completely
 transparently.  You simply create an object, and the output of the script
 is cached for the entire scope of the object.
 
-The argument I<maxage> allows you to specify how long something is cached
+The option I<maxage> allows you to specify how long something is cached
 in seconds.  If the cache isn't more than I<$AgeInSeconds> seconds old, the
 cache will be displayed directly, and the script will immediately exit.  If
 the cache does not exist, or is too old, the script will run, with all its
 output saved to a temporary file, then the file's contents will be
-displayed and the document will be cached.
+displayed and the document will be cached.  If there is no I<maxage>
+option, then any matching cache is valid.
+
+The option I<cachedir> allows you to specify an alternate C<DCache> cache
+directory.
+
+The option I<cachetag> will cause a cache hit to include the given cache
+tag at the bottom of the output, letting you know that it got it from
+cache.  For instance, you may want to do something like this for debugging:
+
+ $cache=IOCache->new($key,
+   cachetag => "<!-- This came from cache: $key -->\n");
+
+=head1 AUTHOR
+
+Dustin Sallings <dustin@spy.net>
+
+=head1 VERSION
+
+$Id: IOCache.pm,v 1.4 1998/12/02 09:37:06 dustin Exp $
 
 =cut
 
