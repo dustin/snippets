@@ -14,9 +14,7 @@ echo() ->
 
 loop(0, _) -> 0;
 loop(N, With) ->
-	io:format("Sending ~p\n", [N]),
 	With ! {self(), N},
-	io:format("Receiving\n"),
 	receive
 		Rv -> io:format("Received ~p\n", [Rv])
 	end,
@@ -49,21 +47,14 @@ spawnLinked(M, F, A) ->
 	link(P),
 	P.
 
-processMaker(S, 1) ->
-	spawnLinked(coursemp, ringProcess, [S]);
-processMaker(S, M) ->
-	processMaker(spawnLinked(coursemp, ringProcess, [S]), M-1).
-
-nmloop(0, Start) -> 0;
-nmloop(N, Start) ->
-	Start ! {self(), N},
-	receive
-		Rv -> io:format("Received ~p\n", [Rv])
-	end,
-	nmloop(N-1, Start).
+processMaker(S, F, 1) ->
+	spawnLinked(coursemp, F, [S]);
+processMaker(S, F, M) ->
+	processMaker(spawnLinked(coursemp, F, [S]), F, M-1).
 
 % Bounce N messages around a ring of M processes
 nprocess(N, M) ->
-	Start = processMaker(self(), M),
-	nmloop(N, Start),
+	Start = processMaker(self(), ringProcess, M),
+	loop(N, Start),
 	Start ! stop.
+
