@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.3 2001/02/07 06:31:46 dustin Exp $
+// $Id: QuickRun.java,v 1.4 2001/02/14 02:14:13 dustin Exp $
 
 package net.spy.util;
 
@@ -70,13 +70,15 @@ public class QuickRun extends Thread {
 
 		System.out.println("Got command:  " + cmd + " args:  " + args);
 
-		if(cmd.equals("COMPILE")) {
+		if(cmd.equals("RUN")) {
+			runClass(SpyUtil.split(" ", args));
+		/*
+		} else if(cmd.equals("COMPILE")) {
 			// Grab the Sun compiler
 			sun.tools.javac.Main compiler=
 				new sun.tools.javac.Main(ostream, "javac");
 			compiler.compile(SpyUtil.split(" ", args));
-		} else if(cmd.equals("RUN")) {
-			runClass(SpyUtil.split(" ", args));
+		*/
 		} else if(cmd.equalsIgnoreCase("QUIT")) {
 			out.close();
 			ostream.close();

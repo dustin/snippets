@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.6 2001/02/07 06:31:14 dustin Exp $
+// $Id: Info.java,v 1.7 2001/02/14 02:14:06 dustin Exp $
 
 package net.spy.info;
 
@@ -136,11 +136,11 @@ public abstract class Info extends Object {
 	/**
 	 * getInfo gets the data to be parsed.
 	 */
-	private abstract void getInfo() throws Exception;
+	protected abstract void getInfo() throws Exception;
 
 	/**
 	 * parseInfo parses the data into the hinfo Hashtable object.
 	 * It will be called when needed.
 	 */
-	private abstract void parseInfo() throws Exception;
+	protected abstract void parseInfo() throws Exception;
 }

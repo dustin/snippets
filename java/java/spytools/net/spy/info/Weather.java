@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.8 2001/02/07 06:31:22 dustin Exp $
+// $Id: Weather.java,v 1.9 2001/02/14 02:14:10 dustin Exp $
 
 package net.spy.info;
 
@@ -57,7 +57,7 @@ public class Weather extends Info {
 		return(shortWeather);
 	}
 
-	private void parseInfo() throws Exception {
+	protected void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
 			hinfo.put("zip_code", arg);
@@ -153,7 +153,7 @@ public class Weather extends Info {
 		return(value);
 	}
 
-	private void getInfo() throws Exception {
+	protected void getInfo() throws Exception {
 		if(info==null) {
 			String url="http://www.weather.com/weather/us/zips/";
 			url += arg + ".html";

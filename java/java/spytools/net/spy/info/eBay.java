@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.4 2001/02/07 06:31:23 dustin Exp $
+// $Id: eBay.java,v 1.5 2001/02/14 02:14:12 dustin Exp $
 
 package net.spy.info;
 
@@ -49,7 +49,7 @@ public class eBay extends Info {
 		return(ret);
 	}
 
-	private void parseInfo() throws Exception {
+	protected void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
 			hinfo.put("item_number", arg);
@@ -93,7 +93,7 @@ public class eBay extends Info {
 		} // if there's a need to find it at all.
 	}
 
-	private void getInfo() throws Exception {
+	protected void getInfo() throws Exception {
 		if(info==null) {
 			String url=
 				"http://cgi.ebay.com/aw-cgi/eBayISAPI.dll?ViewItem&item=";
