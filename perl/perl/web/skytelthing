@@ -55,7 +55,8 @@ push(@post_data, 'msgtotal', scalar(@ids));
 
 print "Cleaning up " . scalar(@ids) . " pages.\n";
 
-$url="http://www.skytel.com/cs-tmex.nsf/Inbox";
+# $url="http://www.skytel.com/cs-tmex.nsf/Inbox";
+$url="http://www.skytel.com/cs-tmex.nsf/Inbox?OpenForm\&Seq=1";
 $req=HTTP::Request::Common::POST($url, \@post_data);
 $res=$ua->request($req);
 
@@ -65,4 +66,3 @@ close(OUT);
 
 __END__
 __Click=23c408f97b77b8c28625678a0076e9a0%2F%24Body%2F0.10ba&DefaultURL=Inbox%3FOpenForm&msgtotal=2&MsgIDs=3424878240-1418745231%2C3424878240-1418737564&delall2=Delete+Selected+Messages
-
