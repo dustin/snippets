@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.15 2001/08/06 21:35:03 dustin Exp $
+// $Id: PoolAble.java,v 1.16 2001/08/29 18:09:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -207,7 +207,7 @@ public abstract class PoolAble extends Object {
 			ret++;
 			// If it's not checked out, and it's not available, we *need*
 			// to prune it.
-			if(available) {
+			if(!available) {
 				ret++;
 			}
 
@@ -256,19 +256,22 @@ public abstract class PoolAble extends Object {
 	 * @return a string representation of this object.
 	 */
 	public synchronized String toString() {
-		String out=null;
+		StringBuffer out=new StringBuffer();
+		out.append("PoolAble ");
+		out.append(object_id);
+		out.append(Integer.toHexString(hashCode()));
 		if(isCheckedOut()) {
-			out="PoolAble " + object_id + " is checked out";
+			out.append(" is checked out");
 		} else {
-			out="PoolAble " + object_id + " is not checked out";
+			out.append(" is not checked out");
 		}
-		out+=" (o=" + checkouts + ", i=" + checkins + ")";
+		out.append(" (o=" + checkouts + ", i=" + checkins + ")");
 		if(max_age>0) {
-			out+=" expires " + new Date(start_time + max_age);
+			out.append(" expires " + new Date(start_time + max_age));
 		}
 		if(!available) {
-			out+=" (not available)";
+			out.append(" (not available)");
 		}
-		return(out);
+		return(out.toString());
 	}
 }
