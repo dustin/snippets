@@ -1,0 +1,90 @@
+#!/bin/sh
+
+# Copyright (c) 1997  Dustin Sallings
+# $Id: makefields,v 1.1 1997/06/16 13:46:05 dustin Exp $
+
+FIELDS=fieldlist
+OUTH=fields.h
+OUTC=fields.c
+
+# opening defs
+
+echo "#ifndef FIELDS_H" > $OUTH
+echo "#define FIELDS_H 1" >> $OUTH
+echo "" >> $OUTH
+
+# count
+
+NFIELDS=`wc -l $FIELDS | awk '{print $1}`
+echo "#define NFIELDS $NFIELDS" >> $OUTH
+
+echo "" >> $OUTH
+
+awk -F: 'BEGIN {N=0} { printf "#define DB_%s %d\n", $1, N++ }' $FIELDS >> $OUTH
+
+echo "" >> $OUTH
+
+#end define
+
+echo "#endif  /* FIELDS_H */" >> $OUTH
+
+# end of header stuff, start the C stuff
+
+# headers
+
+cat <<EOF > $OUTC
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "fields.h"
+
+EOF
+
+# db names
+
+echo "" >> $OUTC
+
+echo "static char *tdbfnames[$NFIELDS]={" >> $OUTC
+awk -F: ' { printf "\t\"%s\",\n", $1 }' $FIELDS >> $OUTC
+echo "};" >> $OUTC
+
+# Labels
+
+echo "" >> $OUTC
+
+echo "static char *tdbrnames[$NFIELDS]={" >> $OUTC
+awk -F: ' { printf "\t\"%s\",\n", $2 }' $FIELDS >> $OUTC
+echo "};" >> $OUTC
+
+cat <<EOF >> $OUTC
+
+char **dbfnames, **dbrnames;
+
+void initfields(void)
+{
+    int i;
+    dbfnames=(char **)malloc(NFIELDS*sizeof(char *));
+    dbrnames=(char **)malloc(NFIELDS*sizeof(char *));
+
+    for(i=0; i<NFIELDS; i++)
+    {
+	dbfnames[i]=strdup(tdbfnames[i]);
+	dbrnames[i]=strdup(tdbrnames[i]);
+    }
+}
+
+void freefields(void)
+{
+    int i;
+
+    for(i=0; i<NFIELDS; i++)
+    {
+	free(dbfnames[i]);
+	free(dbrnames[i]);
+    }
+    free(dbfnames);
+    free(dbrnames);
+}
+
+EOF

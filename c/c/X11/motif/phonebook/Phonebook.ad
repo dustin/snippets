@@ -1,0 +1,19 @@
+!! $Id: Phonebook.ad,v 1.1 1997/06/16 13:46:05 dustin Exp $
+*Phonebook*useSchemes:     all
+*Phonebook*sgiMode:        True
+*Phonebook*schemeFileList: SgiSpec, OzSpec
+
+!!
+!! String resources
+!!
+*Phonebook*title:    Phonebook
+*Phonebook*iconName: Phonebook
+*desktopControls.labelString: PhoneBook
+
+*cancel.labelString: Close
+*reset.labelString:  Reset ...
+*help.labelString:   Help
+
+*okLabelString:     OK
+*applyLabelString:  Apply
+*cancelLabelString: Cancel
