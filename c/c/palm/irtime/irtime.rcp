@@ -2,6 +2,7 @@
 
 VERSION ID 1 "0.10"
 ICON "irtime.bmp"
+SMALLICON "irtime_small.bmp"
 
 FORM ID formID_MainForm AT (0 0 160 160)
 NOFRAME

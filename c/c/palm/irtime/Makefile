@@ -1,4 +1,5 @@
 BIN=/emul/linux/usr/local/bin
+PILRC=pilrc
 CC=$(BIN)/m68k-palmos-coff-gcc
 CFLAGS=-O1 #-DERROR_CHECK_LEVEL=2
 LD=$(BIN)/m68k-palmos-coff-gcc
@@ -13,7 +14,7 @@ irtime.prc: timestamp-grc timestamp-bin
 	$(BIN)/build-prc irtime.prc "IrTime" IRTM *.grc *.bin
 
 timestamp-bin: irtime.rcp
-	$(BIN)/pilrc irtime.rcp
+	$(PILRC) irtime.rcp
 	touch timestamp-bin
 
 timestamp-grc: $(OBJS)
