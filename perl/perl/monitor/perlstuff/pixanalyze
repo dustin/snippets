@@ -1,10 +1,28 @@
 #!/usr/local/bin/perl
+# $Id: pixanalyze,v 1.2 2000/10/24 18:03:02 dustin Exp $
+
+# For gethostbyaddr
+use Socket;
+use strict;
+
+my(@Okports, @RedFlag, %Fromstat, %Portstat, %Services, %Tomap);
+my(%Okcount, $alert, $sortval, @list, $port, $svc, $i, @tmplist);
+my($date, $infile, $htmlOutput, @a, $n, $huh, $el, $searchpat);
+
 
 @Okports=(
-    123,
-    137,
-    113,
-    37,
+    "123/udp",
+    "137/udp",
+    "113/tcp",
+    "37/udp",
+    "25/tcp",
+);
+@RedFlag=(
+           110,109, 143,
+           23,
+        22,
+        69,
+        512,513,514,
 );
 
 %Fromstat=();
@@ -12,20 +30,62 @@
 %Services=();
 %Tomap=();
 
-sub isin
+sub getHostname
 {
-    local($what, @a)=@_;
-    local($ret);
+    my($addr)=@_;
+    my($name, $locals, @doms);
+
+    @doms=qw(ic3.com software.net cybersource.com beyond.com);
+    foreach(@doms) {
+        $locals.=".$_ ";
+    }
+    chop($locals);
+
+    # make it a regex
+    $locals=~s/\./\\./g;
+    $locals=~s/\s+/\$\|/g;
+
+    ($name)=gethostbyaddr(inet_aton($addr), AF_INET);
+    if($name=~/\w+/) {
+        if(!($name=~s/$locals\$//g)) {
+            if(!a_isin($name, @doms)) {
+                $name.=" ($addr)"
+            }
+        }
+    } else {
+        $name="*$addr";
+    }
+    return($name);
+}
+
+sub a_isin
+{
+    my($what, @a)=@_;
+    my($ret);
 
     $ret=0;
 
-    foreach(@a)
-    {
-	if($_ == $what)
-	{
-	    $ret=1;
-	    last;
-	}
+    foreach(@a) {
+        if($_ eq $what) {
+            $ret=1;
+            last;
+        }
+    }
+    return($ret);
+}
+
+sub isin
+{
+    my($what, @a)=@_;
+    my($ret);
+
+    $ret=0;
+
+    foreach(@a) {
+        if($_ == $what) {
+            $ret=1;
+            last;
+        }
     }
 
     return($ret);
@@ -33,13 +93,18 @@ sub isin
 
 sub lognet
 {
-    local($src, $port, $prot)=@_;
-    local(@a, $srcnet, $svc);
+    my($src, $port, $prot, $dst)=@_;
+    my(@a, $srcnet, $svc);
 
-    return if(isin($port, @Okports));
+    return if($port>32768 && $prot eq "udp");
+
+    if(isin("$port/$prot", @Okports)) {
+        $Okcount{"$port/$prot"} += 1;
+        return;
+    }
 
     $svc="$port/$prot";
-    $svc="$Services{$svc}/tcp" if(defined($Services{$svc}));
+    $svc="$Services{$svc}/$prot" if(defined($Services{$svc}));
 
     # Fromstats
 
@@ -60,34 +125,38 @@ sub lognet
     # Tomap
 
     if(defined($Tomap{"$src:$svc"}{$dst})) { $Tomap{"$src:$svc"}{$dst}++; }
-	else { $Tomap{"$src:$svc"}{$dst}=1; }
+        else { $Tomap{"$src:$svc"}{$dst}=1; }
 }
 
 sub ReadServices
 {
-    local(@a);
+    my(@a);
 
     open(SRV, "/etc/services");
-    while(<SRV>)
-    {
-	chop;
+    while(<SRV>) {
+        chop;
 
-	next if(/^#/);
-	next if(!/[A-z0-9]/);
+        next if(/^#/);
+        next if(!/[A-z0-9]/);
 
-	@a=split(/\s+/);
+        @a=split(/\s+/);
 
-	$Services{$a[1]}=$a[0];
+        $Services{$a[1]}=$a[0];
     }
     close(SRV);
 }
 
 sub showentry
 {
-    local($date, $pix, $action, $proto, $src, $srcport, $dst, $dstport)=@_;
-    local($f);
-
-    lognet($src, $dstport, $proto);
+    my($date, $pix, $action, $proto, $src, $srcport, $dst, $dstport)=@_;
+    my($f);
+    if (isin($dstport,@RedFlag)) {
+        my($svc,$host);
+            $svc="$dstport/$proto";
+            $svc="$Services{$svc}/$proto" if(defined($Services{$svc}));
+        $alert .= "$date $src attempted $svc to $dst\n";
+    }
+    lognet($src, $dstport, $proto, $dst);
 }
 
 sub byval_from
@@ -110,18 +179,59 @@ sub byval_to
     return($Tomap{"$list[$_]:$port"}{$b} <=> $Tomap{"$list[$_]:$port"}{$a});
 }
 
+# Keen perl markup stuff
+
+sub colored
+{
+    my($color, $text)=@_;
+    my($ret);
+
+    if($htmlOutput) {
+        $ret="<font color=\"$color\">$text</font>";
+    } else {
+        $ret=$text;
+    }
+
+    return($ret);
+}
+
+sub bold
+{
+    my($text)=@_;
+    my($ret);
+
+    if($htmlOutput) {
+        $ret="<b>$text</b>";
+    } else {
+        $ret=uc("*** $text ***");
+    }
+    return($ret);
+}
+
 $sortval=0;
+$searchpat="";
 
-if(defined($ENV{REQUEST_METHOD}))
-{
-    $iscgi=1;
-}
-else
-{
-    $iscgi=0;
+if(!@ARGV) {
+    $infile="/var/log/pixlog";
+    $htmlOutput=1;
+} else {
+	my($t, @t, @mon);
+    $infile=$ARGV[0];
+    $htmlOutput=0;
+
+	$t=time();
+
+	if(@ARGV>1) {
+		$t-=($ARGV[1]*86400);
+	}
+	@t=localtime($t);
+	@mon=qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+	$searchpat=sprintf("^$mon[$t[4]] %s%d", ($t[3]<10?" ":""), $t[3]);
+
+	print "# ARGUMENTS: $ARGV[0] $ARGV[1] ($searchpat))\n";
 }
 
-if($iscgi)
+if($htmlOutput)
 {
 print <<EOF;
 Content-type: text/html
@@ -130,74 +240,99 @@ Content-type: text/html
 EOF
 }
 
-open(IN, "/var/log/pixlog");
+&ReadServices;
+
+open(IN, $infile);
 
 while(<IN>)
 {
-    @a=split(/\s+/);
+	# The search pattern.
+	next unless(/$searchpat/);
+	next unless(/PIX/);
+    # stuff to ignore as not important to us
+    next if /302001/;  #Build Connection
+    next if /302002/;  #Tear down
+    next if /304001/;  #http fetch
+    next if /305002/;
+    next if /305005/;  # No translation group found
+    #next if /202002/;
+    next if /303002/;        #URL fretch
+    next if /106011/;   #Same interface transit
+    @a=split(/[\s\/]+/);
 
-    if($#a>=11)
-    {
+    if($#a>=11) {
         $date="$a[0] $a[1] $a[2]";
-        showentry($date, $a[3], $a[4], $a[5], $a[7], $a[8], $a[10], $a[11]);
+        if(/TCP/) {
+            showentry($date, $a[3], $a[8], "tcp", $a[10], $a[11],
+                      $a[13], $a[14]);
+        } elsif (/UDP/) {
+            showentry($date, $a[3], $a[5], "udp", $a[9], $a[10],
+                      $a[12], $a[13]);
+        } else {
+            $huh .= $_;
+        }
     }
 }
 
 close(IN);
 
-&ReadServices;
-
+if ($alert) {
+        print(colored('red', bold("RED FLAG ITEMS")) . "\n");
+        print $alert;
+        print "\n";
+}
 @list=sort byval_from (keys(%Fromstat));
 
-print "Top 20 troublemakers:\n";
+print(bold("The following ports are being ignored") . "\n");
+foreach $svc (@Okports) {
+    my ($port,$prot) = split(/\//,$svc,2);
+    $svc="$Services{$svc}/$prot" if(defined($Services{$svc}));
+    print "$svc (" . $Okcount{"$port/$prot"} , " attempts)\n";
+}
+print "\n";
+print(bold("Top 20 troublemakers:") . "\n");
 
-for(0..19)
-{
-    # print "$list[$_] ...\t$Fromstat{$list[$_]}[0]\n";
-    printf "%-16s   %d\n", $list[$_], $Fromstat{$list[$_]}[0];
+for(0..19) {
+    last if($_ > $#list);
+    printf "%-48s %d\n", &getHostname($list[$_]),
+        $Fromstat{$list[$_]}[0];
 
-    for $port (keys(%{$Fromstat{$list[$_]}[1]}))
-    {
-	@a=sort byval_to (keys(%{$Tomap{"$list[$_]:$port"}}));
+    for $port (keys(%{$Fromstat{$list[$_]}[1]})) {
+        @a=sort byval_to (keys(%{$Tomap{"$list[$_]:$port"}}));
 
-	printf "\t%-10s -> %-16s    %d\n", $port, $a[0],
-		$Tomap{"$list[$_]:$port"}{$a[0]};
-		# $Fromstat{$list[$_]}[1]{$port};
-	shift(@a);
-	foreach $el (@a)
-	{
-	    printf "\t%10s -> %-16s    %d\n", "",  $el,
-		$Tomap{"$list[$_]:$port"}{$el};
-	}
+        printf "\t%-10s -> %-24s   %d\n", $port, getHostname($a[0]),
+                $Tomap{"$list[$_]:$port"}{$a[0]};
+        shift(@a);
+        foreach $el (@a) {
+            printf "\t%10s -> %-24s   %d\n", "",  getHostname($el),
+                $Tomap{"$list[$_]:$port"}{$el};
+        }
     }
 }
 
 @list=sort byval_port (keys(%Portstat));
 
-print "\nTop 20 attacked ports:\n";
+print "\n" . bold("Top 20 attacked ports:") . "\n";
 
-for $i (0..19)
-{
+for $i (0..19) {
+    last if($i > $#list);
     printf "%-16s   %d\n", $list[$i], $Portstat{$list[$i]}[0];
 
     $sortval=$list[$i];
     @tmplist=sort byval_port2 (keys(%{$Portstat{$list[$i]}[1]}));
 
-    if($#tmplist<5)
-    {
-	$n=$#tmplist+1;
-    }
-    else
-    {
-	$n=5;
+    if($#tmplist<5) {
+        $n=$#tmplist+1;
+    } else {
+        $n=5;
     }
 
     print "\tTop $n attackers on this port:\n";
 
-    for(@tmplist[0..$n-1])
-    {
-	printf("\t\t\t%-16s  %d\n","$_:",$Portstat{$list[$i]}[1]{$_});
+    for(@tmplist[0..$n-1]) {
+        printf("\t\t\t%-48s  %d\n",getHostname($_) . ":",
+            $Portstat{$list[$i]}[1]{$_});
     }
 }
-
-print "</pre>\n" if($iscgi);
+print "\n" . bold("Stuff that made no sense") . "\n$huh\n";
+print "</pre>\n" if($htmlOutput);
