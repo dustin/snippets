@@ -1,5 +1,5 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 2002/01/21 02:31:52 dustin Exp $
+# $Id: Makefile.in,v 1.2 2002/01/21 03:20:28 dustin Exp $
 
 .SUFFIXES: .m .o
 
@@ -10,8 +10,8 @@ OBJC=@CC@
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 EXES=test
-MISCOBJS=dObject.o dString.o dThread.o
-SOURCE=dObject.m dString.m dThread.m
+MISCOBJS=dObject.o dString.o dThread.o dSocket.o
+SOURCE=dObject.m dString.m dThread.m dSocket.m
 JUNK=$(EXES) *.o *.a
 
 libdustin.a: $(MISCOBJS)
