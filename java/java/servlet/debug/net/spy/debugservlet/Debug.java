@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.7 2000/10/13 09:38:35 dustin Exp $
+ * $Id: Debug.java,v 1.8 2001/01/25 01:24:55 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -10,15 +10,13 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 import sun.misc.*;
+import java.lang.reflect.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import net.spy.*;
 import net.spy.pool.*;
-
-import java.awt.*;
-import java.awt.image.*;
 
 // The class
 public class Debug extends HttpServlet
@@ -91,11 +89,25 @@ public class Debug extends HttpServlet
 	}
 
 	protected String dumpSessions(HttpSession session) {
-		String ret="<ul>\n";
+		String rv=null;
 
 		String myid=session.getId();
 
 		HttpSessionContext context=session.getSessionContext();
+
+		if(context==null) {
+			rv="You are " + myid + "<br>No others available.\n";
+		} else {
+			rv=listSessions(myid, context);
+		}
+
+		return(rv);
+	}
+
+	protected String listSessions(String myid, HttpSessionContext context) {
+
+		String ret="<ul>\n";
+
 
 		for(Enumeration e=context.getIds(); e.hasMoreElements();) {
 			String id = (String)e.nextElement();
@@ -153,7 +165,7 @@ public class Debug extends HttpServlet
 		return(ret);
 	}
 
-	public String getJservSpecific(HttpServletRequest request) {
+	protected String getJservSpecific(HttpServletRequest request) {
 
 		String stuff="";
 
@@ -183,6 +195,52 @@ public class Debug extends HttpServlet
 
 	}
 
+	// Call a method on an object that will return an int
+	protected String callMethod(Object o, String mname) throws Exception {
+		Class c=o.getClass();
+		Class paramtypes[]=new Class[0];
+		Method m=c.getMethod(mname, paramtypes);
+		Object rv=m.invoke(o, paramtypes);
+		return( rv.toString() );
+	}
+
+	protected String getResinSpecific(Object o) {
+		String rv=null;
+
+		try {
+			rv="<h1>Resin Specific Stuff</h1>\n";
+
+			rv+="Number of sessions:  " +callMethod(o, "getLiveSessions")
+				+ "<br>\n";
+			rv+="Threads (d/h/m):  "
+				+callMethod(o, "getDayThreads") + "/"
+				+callMethod(o, "getHourThreads") + "/"
+				+callMethod(o, "getMinuteThreads") + "<br>\n";
+			rv+="Slow threads:  " + callMethod(o, "getSlowThreads") + "<br>\n";
+			rv+="CPU (d/h/m):  "
+				+callMethod(o, "getDayCpu") + "/"
+				+callMethod(o, "getHourCpu") + "/"
+				+callMethod(o, "getMinuteCpu") + "<br>\n";
+		} catch(Exception e) {
+			log("Resin exception:  " + e);
+		}
+
+		return(rv);
+	}
+
+	public String engineSpecific(HttpServletRequest request) {
+		String rv=null;
+		// Get some Resin specific stuff
+		Object o=this.context.getAttribute("caucho.statistics");
+		if(o!=null) {
+			rv=getResinSpecific(o);
+		} else {
+			rv=getJservSpecific(request);
+		}
+
+		return(rv);
+	}
+
 	// Do a GET request
 	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
@@ -207,7 +265,7 @@ public class Debug extends HttpServlet
 		stuff+="<pre>\nObjectPool dump:\n" + op + "\n</pre>\n";
 
 		// Get any jserv specific info we can get.
-		stuff+=getJservSpecific(request);
+		stuff+=engineSpecific(request);
 
 		stuff+="<h1>Runtime Info</h1>\n";
 		Runtime r=Runtime.getRuntime();
