@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoConfig.java,v 1.4 1999/10/10 19:44:18 dustin Exp $
+ * $Id: PhotoConfig.java,v 1.5 1999/10/10 20:47:29 dustin Exp $
  */
 
 public class PhotoConfig extends Object {
@@ -10,6 +10,8 @@ public class PhotoConfig extends Object {
 	// public String dbSource="jdbc:postgresql://localhost/photo";
 	public String dbUser="nobody";
 	public String dbPass="";
+
+	public String objectserver="//dhcp-104/RObjectServer";
 
 	public String cryptohash="SHA";
 }

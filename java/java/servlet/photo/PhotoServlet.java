@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.31 1999/10/10 19:54:58 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.32 1999/10/10 20:47:32 dustin Exp $
  */
 
 import java.io.*;
@@ -34,6 +34,8 @@ public class PhotoServlet extends HttpServlet
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
+		PhotoConfig conf = new PhotoConfig();
+
 		initDBS();
 
 		// Populate the userdb hash
@@ -55,7 +57,7 @@ public class PhotoServlet extends HttpServlet
 
 		// Get an rhash to cache images and shite.
 		try {
-			rhash = new RHash("//dhcp-104/RObjectServer");
+			rhash = new RHash(conf.objectserver);
 		} catch(Exception e) {
 			rhash = null;
 		}
