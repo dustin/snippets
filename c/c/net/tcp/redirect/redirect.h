@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: redirect.h,v 1.3 1998/01/02 10:49:35 dustin Exp $
+ * $Id: redirect.h,v 1.4 1998/01/05 00:15:33 dustin Exp $
  */
 
 #ifndef REDIRECT_H
@@ -35,6 +35,14 @@
 #define _ndebug(a, b)
 #endif
 
+struct cluster {
+    char *hostname;
+    int port;
+    int tcptimeout;
+};
+
+struct cluster **getcluster(char *p, int stats);
+void freeCluster(struct cluster **c);
 int getclientsocket(char *host, int port);
 int getservsocket(char *host, int port);
 void resettraps(void);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.6 1998/01/02 10:49:33 dustin Exp $
+ * $Id: main.c,v 1.7 1998/01/05 00:15:31 dustin Exp $
  */
 
 #include <config.h>
@@ -153,10 +153,11 @@ int mapcon(char *p, int stats)
 {
     char key[80];
     char **list=NULL;
+    struct cluster **cluster;
     char *host;
     int port, s, i, index, defalrm, alrm;
 
-    _ndebug(2, ("mapcon(%s, %d)\n", p, stats));
+    _ndebug(2, ("mapcon(\"%s\", %d)\n", p, stats));
 
     sprintf(key, "ports.%s.tcptimeout", p);
     defalrm=rcfg_lookupInt(cf, key);
@@ -168,44 +169,20 @@ int mapcon(char *p, int stats)
     {
         _ndebug(2, ("That's a cluster, do it.\n"));
 
-        sprintf(key, "ports.%s.cluster", p);
-        list=rcfg_getSection(cf, key);
-        for(i=0; list[i]!=NULL; i++);
-        index=stats%i;
-        _ndebug(2, ("Index got %d\n", index));
-
-        s=-1;
-        i=index;
-
-        do
-        {
-            if(list[i]==NULL)
-                i=0;
-
-           sprintf(key, "ports.%s.cluster.%s.remote_port", p, list[i]);
-           _ndebug(5, ("Looking up ``%s''\n", key));
-           port=rcfg_lookupInt(cf, key);
-
-           sprintf(key, "ports.%s.cluster.%s.remote_addr", p, list[i]);
-           _ndebug(5, ("Looking up ``%s''\n", key));
-           host=rcfg_lookup(cf, key);
-
-           _ndebug(5, ("Found ``%s''\n", host));
-
-            sprintf(key, "ports.%s.cluster.%s.tcptimeout", p, list[i]);
-            _ndebug(5, ("Looking up ``%s''\n", key));
-            alrm=rcfg_lookupInt(cf, key);
-            if(alrm<1)
-                alrm=defalrm;
-
-            _ndebug(2, ("%d seconds to connect\n", alrm));
-
-            alarm(alrm);
-            s=getclientsocket(host, port);
+	s=-1;
+        cluster=getcluster(p, stats);
+	for(i=0; cluster[i] && s==-1; i++)
+	{
+	    _ndebug(2, ("Trying %s:%d (alrm: %d)\n",
+			cluster[i]->hostname,
+			cluster[i]->port,
+			cluster[i]->tcptimeout));
+            alarm(cluster[i]->tcptimeout);
+            s=getclientsocket(cluster[i]->hostname, cluster[i]->port);
             alarm(0);
+	}
 
-            ++i;
-        } while(s==-1 && i!=index);
+        freeCluster(cluster);
     }
     else
     {
@@ -216,7 +193,7 @@ int mapcon(char *p, int stats)
         _ndebug(5, ("Looking up ``%s''\n", key));
         host=rcfg_lookup(cf, key);
 
-        sprintf(key, "ports.%s.cluster.%s.tcptimeout", p, list[i]);
+        sprintf(key, "ports.%s.tcptimeout", p);
         _ndebug(5, ("Looking up ``%s''\n", key));
         alrm=rcfg_lookupInt(cf, key);
         if(alrm<1)
@@ -225,7 +202,7 @@ int mapcon(char *p, int stats)
         _ndebug(2, ("%d seconds to connect\n"));
 
         alarm(alrm);
-        s=getclientsocket( rcfg_lookup(cf, key), port);
+        s=getclientsocket(host, port);
         alarm(0);
     }
 
@@ -307,7 +284,7 @@ void _main(void)
          fromlen=sizeof(fsin);
 
          _ndebug(2, ("Selecting...\n"));
-         if(_debug>5)
+         if(_debug>9)
          {
              for(i=0; i<MAPSIZE; i++)
              {
@@ -316,11 +293,11 @@ void _main(void)
              }
          }
 
-         if( (selected=select(MAPSIZE, &fdset, NULL, NULL, NULL)) > 0)
+         if( (selected=select(upper, &fdset, NULL, NULL, NULL)) > 0)
          {
              for(i=0; i<MAPSIZE; i++)
              {
-                 _ndebug(4, ("Testing %d for fdset\n", i));
+                 _ndebug(7, ("Testing %d for fdset\n", i));
                  if(FD_ISSET(i, &fdset))
                  {
                      _ndebug(2, ("Select found %d (portmaps to %s)\n",
@@ -339,6 +316,9 @@ void _main(void)
                                  /* Select on both directions */
                                  FD_SET(cs, &tfdset);
                                  FD_SET(os, &tfdset);
+
+				 if(cs>=upper) upper=cs+1;
+				 if(os>=upper) upper=os+1;
 
                                  /* Map both directions */
                                  map[cs]=os;
