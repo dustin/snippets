@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: stringlib.scm,v 1.4 2002/12/28 11:14:38 dustin Exp $
+; $Id: stringlib.scm,v 1.5 2003/01/01 09:16:42 dustin Exp $
 
 (module stringlib
 		(import
@@ -84,16 +84,22 @@
   (string-split-chars s (list c) limit))
 
 ; Interleave object e into list l
-(define (interleave rv e l)
-  (if (< (length l) 2)
-	(if (null? l)
-	  rv
-		(append rv (list (car l))))
-	(append rv (list (car l) e (interleave rv e (cdr l))))))
+(define (interleave e l)
+  (cond
+	; Empty list
+	((null? l) '())
+	; At least two elements
+	((and (pair? l) (pair? (cdr l)))
+	   (append (list (car l) e) (interleave e (cdr l))))
+	; One element
+	((pair? l) l)
+	; Any random object
+	(else (list l))))
 
 ; Join a list on a string
 ; s is the join string, l is the list
 ; Example:
-; (string-join ", " '("a" "b" "c")) -> "a, b, c"
+; (string-join ", " '("a" "b" "c"))
+;	-> "a, b, c"
 (define (string-join s l)
-  (apply string-append (flatten-list (interleave '() s l))))
+  (apply string-append (flatten-list (interleave s l))))
