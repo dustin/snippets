@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.2 2002/12/10 09:53:39 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.3 2002/12/11 06:03:20 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
@@ -70,8 +70,8 @@ let get_approx_time(le: log_entry): int =
 (* Do the main thing *)
 let main() =
 	(* print_string "Got thing.\n"; *)
-	let rrd = (Array.get Sys.argv 1) in
-	let stuff = { last_time = 0; total_calls = 0; total_time = 0 } in
+	let rrd = (Array.get Sys.argv 1)
+	and stuff = { last_time = 0; total_calls = 0; total_time = 0 } in
 	try
 		while true do
 			let l = (read_line()) in
