@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.6 2000/07/03 07:23:24 dustin Exp $
+// $Id: PoolContainer.java,v 1.7 2000/07/03 07:57:22 dustin Exp $
 
 package net.spy.pool;
 
@@ -45,7 +45,7 @@ public class PoolContainer extends Object {
 				PoolAble p=(PoolAble)e.nextElement();
 
 				// If it's not checked out, we have our man!
-				if(!p.checkedOut()) {
+				if(p.isAvailable()) {
 					// Since we got one from the pool, we want to move it
 				// to the end of the vector.
 					ret=p;
@@ -90,13 +90,14 @@ public class PoolContainer extends Object {
 	/**
 	 * debugging tool, dump out the current state of the pool to System.out
 	 */
-	public void dumpPool() {
-		System.out.println("Pool " + name);
+	public String toString() {
+		String out="Pool " + name + "\n";
 		synchronized (pool) {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				System.out.println("\t" + e.nextElement());
+				out+="\t" + e.nextElement() + "\n";
 			}
 		}
+		return(out);
 	}
 
 	/**
@@ -110,7 +111,7 @@ public class PoolContainer extends Object {
 		synchronized (pool) {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
-				if(!p.checkedOut()) {
+				if(p.isAvailable()) {
 					ret++;
 				}
 			}
@@ -126,19 +127,33 @@ public class PoolContainer extends Object {
 	 * This method should only be called from the ObjectPoolCleaner --
 	 * please don't call it directly.
 	 */
-	public void prune() {
+	public void prune() throws PoolException {
 		synchronized (pool) {
 			int i=0;
+			// We're going to flip through thiw twice...once to remove
+			// things that we *have* to, then once to remove things that we
+			// can.
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
-				// Don't remove too many objects.
-				if(currentObjects()>_min_objects) {
-					if(!p.checkedOut()) {
+				if(p.pruneStatus()==2) {
+					pool.removeElement(p);
+				}
+			}
+			// OK, now let's get rid of the ones we can.
+			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+				PoolAble p=(PoolAble)e.nextElement();
+				if(p.pruneStatus()==1) {
+					if(currentObjects()>_min_objects) {
 						pool.removeElement(p);
 					}
 				}
+			} // Getting rid of stuff
+
+			// If we don't have enough objects, go get more!  They're cheap!
+			if(currentObjects()<_min_objects) {
+				getMinObjects();
 			}
-		}
+		} // pool lock
 	}
 
 	protected void initialize() throws PoolException {
@@ -148,9 +163,13 @@ public class PoolContainer extends Object {
 		_min_objects=getPropertyInt("min", 1);
 		_max_objects=getPropertyInt("max", 10);
 
-		// Populate with the minimum number of objects.
-		for(int i=0; i<_min_objects; i++) {
-			PoolAble p=getNewObject();
+		getMinObjects();
+	}
+
+	// Populate with the minimum number of objects.
+	void getMinObjects() throws PoolException{
+		for(int i=currentObjects(); i<_min_objects; i++) {
+			getNewObject();
 		}
 	}
 

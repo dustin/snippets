@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.6 2000/07/03 07:12:13 dustin Exp $
+// $Id: ObjectPool.java,v 1.7 2000/07/03 07:57:18 dustin Exp $
 
 package net.spy.pool;
 
@@ -81,17 +81,19 @@ public class ObjectPool extends Object {
 	/**
 	 * Dump out the object pools.
 	 */
-	public void dumpPools() throws PoolException {
+	public String toString() {
+		String out="";
 		Vector v=new Vector();
 		synchronized (pools) {
 			for(Enumeration e=pools.elements(); e.hasMoreElements(); ) {
 				v.addElement(e.nextElement());
 			}
 		}
+		// This is broken out to get out of the lock fast...
 		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
-			PoolContainer pc=(PoolContainer)e.nextElement();
-			pc.dumpPool();
+			out+=e.nextElement();
 		}
+		return(out);
 	}
 
 	/**

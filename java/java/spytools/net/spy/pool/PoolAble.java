@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.2 2000/07/03 07:12:15 dustin Exp $
+// $Id: PoolAble.java,v 1.3 2000/07/03 07:57:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -9,11 +9,22 @@ import net.spy.SpyConfig;
 public class PoolAble extends Object {
 	protected int object_id=-1;
 	protected boolean checked_out=false;
+	protected boolean available=true;
 	protected Object the_object=null;
+	protected long max_age=0;
+	protected long start_time=0;
 
 	public PoolAble(Object the_object) {
 		super(); // thanks for asking.
 		this.the_object=the_object;
+		start_time=System.currentTimeMillis();
+	}
+
+	public PoolAble(Object the_object, long max_age) {
+		super(); // thanks for asking.
+		this.the_object=the_object;
+		this.max_age=max_age;
+		start_time=System.currentTimeMillis();
 	}
 
 	/**
@@ -67,6 +78,17 @@ public class PoolAble extends Object {
 	 */
 	public synchronized void checkIn() {
 		checked_out=false;
+		if(max_age==0) {
+			available=true;
+		} else {
+			long current_time=System.currentTimeMillis();
+			if(current_time-start_time < max_age) {
+				available=true;
+			} else {
+				// This should already be the case, but let's make sure.
+				available=false;
+			}
+		}
 	}
 
 	/**
@@ -75,13 +97,43 @@ public class PoolAble extends Object {
 	 */
 	public synchronized void checkOut() {
 		checked_out=true;
+		available=false;
 	}
 
 	/**
 	 * Find out if the object is checked out.
 	 */
-	public synchronized boolean checkedOut() {
+	public synchronized boolean isCheckedOut() {
 		return(checked_out);
+	}
+
+	/**
+	 * Find out if the object is available for a requestor
+	 */
+	public synchronized boolean isAvailable() {
+		return(available);
+	}
+
+	/**
+	 * Find out if an object is prunable
+	 *
+	 * @return 0 if not available, 1 if prunable, and 2 if a pruning is
+	 * required.
+	 */
+	public synchronized int pruneStatus() {
+		int ret=0;
+
+		// If it's not checked out, we can prune it.
+		if(!checked_out) {
+			ret++;
+			// If it's not checked out, and it's not available, we *need*
+			// to prune it.
+			if(available) {
+				ret++;
+			}
+		}
+
+		return(ret);
 	}
 
 	/**
@@ -91,10 +143,13 @@ public class PoolAble extends Object {
 	 */
 	public String toString() {
 		String out=null;
-		if(checkedOut()) {
-			out="PoolAble " + object_id + " is checked out.";
+		if(isCheckedOut()) {
+			out="PoolAble " + object_id + " is checked out ";
 		} else {
-			out="PoolAble " + object_id + " is not checked out.";
+			out="PoolAble " + object_id + " is not checked out ";
+		}
+		if(max_age>0) {
+			out+="expires " + new Date(start_time + max_age);
 		}
 		return(out);
 	}
