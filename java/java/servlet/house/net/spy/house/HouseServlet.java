@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.1 2001/02/23 07:09:31 dustin Exp $
+ * $Id: HouseServlet.java,v 1.2 2001/12/21 05:53:12 dustin Exp $
  */
 
 package net.spy.house;
@@ -27,18 +27,18 @@ import com.mongus.servlet.GifServlet;
 public class HouseServlet extends GifServlet implements ImageObserver
 {
 	// Colors we'll be using
-	Color white=null;
-	Color red=null;
-	Color blue=null;
-	Color black=null;
+	private Color white=null;
+	private Color red=null;
+	private Color blue=null;
+	private Color black=null;
 
 	// The base house image.
-	Image baseImage=null;
+	private Image baseImage=null;
+	private boolean imageLoaded=false;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		getBaseImage();
 		white=new Color(255, 255, 255);
 		red=new Color(255, 0, 0);
 		blue=new Color(0, 0, 255);
@@ -58,7 +58,7 @@ public class HouseServlet extends GifServlet implements ImageObserver
 	}
 
 	// Graphical representation of the image.
-	protected Image getHouseImage() throws Exception {
+	private Image getHouseImage() throws Exception {
 		Image img=createImage(307, 223);
 		Graphics g=img.getGraphics();
 		g.drawImage(baseImage, 0, 0, this);
@@ -66,7 +66,7 @@ public class HouseServlet extends GifServlet implements ImageObserver
 
 		// The description of what we're drawing.
 		SpyConfig conf=new SpyConfig(
-			"/afs/spy.net/misc/web/etc/house.conf"
+			new File("/afs/spy.net/misc/web/etc/house.conf")
 			);
 
 		// Find all the things we need to colorize
@@ -107,11 +107,19 @@ public class HouseServlet extends GifServlet implements ImageObserver
 		return(img);
 	}
 
-	protected void getBaseImage() {
+	private void getBaseImage() {
 		try {
 			if(baseImage==null) {
 				String url="http://bleu.west.spy.net/~dustin/images/house.gif";
+				log("Loading image...");
 				baseImage=Toolkit.getDefaultToolkit().getImage(new URL(url));
+				Toolkit.getDefaultToolkit().prepareImage(baseImage,-1,-1,this);
+				if(!imageLoaded) {
+					synchronized(this) {
+						wait();
+					}
+				}
+				log("Image loaded!");
 			}
 		} catch(Exception e) {
 			System.err.println("Error fetching base image:  " +e);
@@ -122,6 +130,14 @@ public class HouseServlet extends GifServlet implements ImageObserver
 	// When imageUpdate is called...yeah, this sucks.
 	public boolean imageUpdate(Image img, int infoflags,
 		int x, int y, int width, int height) {
-		return(true);
+
+		if((infoflags&ALLBITS) != 0) {
+			imageLoaded=true;
+			synchronized(this) {
+				notify();
+			}
+		}
+
+		return(!imageLoaded);
 	}
 }
