@@ -25,9 +25,8 @@ process() {
 
 	cd "$mail/$srcdir"
 	echo "Doing $d as $mbname.tar"
-	# tar cf "$mbname.tar" "$basename"
 	mkdir -p "$destdir/$basename.tars"
-	tar cf - "$basename" \
+	tar cf - "$basename"/*. "$basename"/cyrus.* \
 		| $HOME/bin/blockDigest - "$digest" $bak/tarmail.stream \
 			"$tars/mail/tars.1/$srcdir/$basename.tars" \
 			"$destdir/$basename.tars" $blocksize
@@ -36,10 +35,9 @@ process() {
 tardir() {
 	while read cc
 	do
+		cd $mail
 		# mbname=`echo "$d" | sed s,/,.,g`
 		d=`dirname "$cc"`
-		cd $mail
-
 		srcdir=`dirname "$d"`
 		bn=`basename "$d"`
 		process "$srcdir" "$bn"
