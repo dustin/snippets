@@ -10,14 +10,13 @@
  Iterate a list supplying the iteration index to each iteration.
 
  @param f the function to call with the iteration and element
- @param lin the list to iterate
+ @param l the list to iterate
  *)
-let iteri f lin =
-	let rec loop x l =
-		match l with
+let iteri f l =
+	let rec loop x = function
 		  [] -> ()
 		| head::tail -> f x head; loop (x + 1) tail
-	in loop 0 lin
+	in loop 0 l
 ;;
 
 (**
