@@ -13,6 +13,7 @@ val fold_file_lines : (string -> 'a -> 'a) -> 'a -> string -> 'a
 
 (** {1 Functions for processing directories} *)
 
+val mkdirs : Unix.file_perm -> string -> unit
 val debug_dir_print : string -> string list -> 'a -> unit
 val lsdir : string -> string list
 val stat_func : (string -> Unix.stats) ref
