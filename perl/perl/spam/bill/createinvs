@@ -1,0 +1,48 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: createinvs,v 1.1 1997/10/23 08:06:48 dustin Exp $
+
+use Postgres;
+
+sub doquery
+{
+    my($query)=@_;
+    my($s);
+
+    if(!($s=$dbh->execute($query)))
+    {
+        die("Error:  $Postgres::error\n$query");
+    }
+    return($s);
+}
+
+sub getdates
+{
+    my(@lastof, @ltime, $m, $y, $start, $end);
+    @lastof=(0,31,28,31,30,31,30,31,31,30,31,30,31);
+    @ltime=localtime();
+    $m=$ltime[4]+1;
+    $y=$ltime[5]+1900;
+
+    $start="$m/01/$y";
+    $end="$m/$lastof[$m]/$y";
+
+    return($start, $end);
+}
+
+($start, $end)=&getdates;
+
+$dbh=db_connect("spam");
+
+$s=doquery("select spam_id from bill_info");
+
+doquery("begin");
+
+while(($id)=$s->fetchrow())
+{
+    $query ="insert into invoices values(nextval('invoice_no'),\n";
+    $query.="    $id, '$start', '$end')\n";
+    doquery($query);
+}
+
+doquery("end");

@@ -1,0 +1,23 @@
+#!/usr/local/bin/perl
+
+use Postgres;
+
+require 'billib.pl';
+
+$dbh=db_connect("spam");
+
+%h=getInvInfo($dbh, $ARGV[0]);
+
+foreach $key (sort(keys(%h)))
+{
+    print "$key:  $h{$key}\n";
+}
+
+print "\n";
+
+foreach $s (@{$h{'trans'}})
+{
+    @r=@{$s};
+
+    print "$r[0] -- $r[1] -- $r[2]\n";
+}
