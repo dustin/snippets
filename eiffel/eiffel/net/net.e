@@ -1,9 +1,9 @@
 -- Networking Classes
 --
--- $Id: net.e,v 1.2 1999/05/18 07:57:27 dustin Exp $
+-- $Id: net.e,v 1.3 1999/05/18 07:57:49 dustin Exp $
 
 indexing
-	description: "Network library $Version$";
+	description: "Network library $Revision: 1.3 $";
 
 class TCP creation make
 
