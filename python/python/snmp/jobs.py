@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.6 2002/05/02 20:03:11 dustin Exp $
+$Id: jobs.py,v 1.7 2002/05/07 20:55:33 dustin Exp $
 """
 
 # time is important
@@ -48,6 +48,10 @@ class Job:
 	def getDescriptor(self):
 		"""Get the descriptor this job uses."""
 		return ':'.join((self.prefix, self.descriptor))
+
+	def getJobParameters(self):
+		"""Get the parameters required to reproduce this job."""
+		raise exceptions.NotImplementedError
 
 	def mark(self):
 		"""Mark activity on a host."""
@@ -100,6 +104,11 @@ class VolatileSNMPJob(VolatileJob, SNMPJob):
 		self.recordState(rv)
 		# Mark it
 		self.mark()
+
+	def getJobParameters(self):
+		"""Describe this job."""
+		return( ('VolatileSNMPJob',
+			(self.host, self.community, self.frequency, self.oid)))
 
 class SNMPWalkCountJob(VolatileSNMPJob):
 	"""An SNMP job that walks a tree and records the number of things it saw."""
@@ -173,6 +182,12 @@ class RRDSNMPJob(RRDJob, SNMPJob):
 		# Mark it
 		self.mark()
 
+	def getJobParameters(self):
+		"""Represent."""
+		return( ('RRDSNMPJob',
+			(self.host, self.community, self.frequency,
+				self.oid, self.file)))
+
 class SMTPBannerJob(VolatileJob):
 	"""A volatile job to monitor SMTP banners."""
 
@@ -229,6 +244,10 @@ class UnsupportedJobException(exceptions.Exception):
 	"""Thrown when createJob is called with an unsupported job type."""
 	pass
 
+class JobTooFrequentException(exceptions.Exception):
+	"""Thrown when createJob creates a job that's too frequent."""
+	pass
+
 def createJob(jobtype, args):
 	"""Create a job from an argument list that describes the job.
 
@@ -246,6 +265,9 @@ def createJob(jobtype, args):
 		rv=apply(RRDSNMPJob, args)
 	else:
 		raise UnsupportedJobException(jobtype)
+
+	if rv.frequency < 60:
+		raise JobTooFrequentException(rv.frequency)
 
 	return rv
 

@@ -3,17 +3,16 @@
 Collect network data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: collector.py,v 1.4 2002/05/01 20:33:42 dustin Exp $
+$Id: collector.py,v 1.5 2002/05/07 20:55:31 dustin Exp $
 """
-
-# Python's scheduling stuff
-import sched, time
 
 # Error stuff
 import traceback
 
 # This is all the jobs stuff
 import jobs
+# My schedular
+import mysched
 
 ######################################################################
 # End job classes
@@ -27,7 +26,7 @@ class NetworkCollector:
 	"""A class to sit around and collect data via SNMP."""
 
 	def __init__(self):
-		self.schedular=sched.scheduler(time.time, time.sleep)
+		self.schedular=mysched.mysched()
 		self.__reschedule()
 
 	def addJob(self, job):

@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: xmlservices.py,v 1.7 2002/05/02 20:03:13 dustin Exp $
+$Id: xmlservices.py,v 1.8 2002/05/07 20:55:39 dustin Exp $
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
@@ -18,20 +18,25 @@ class Handler:
 	def __init__(self, queue):
 		"""Get a handler watching the given queue."""
 		self.queue=queue
+		self.validity=str(time.time())
+
+	def getValidity(self):
+		"""Get the job validity ID."""
+		return(self.validity)
 
 	def getQueueSize(self):
 		"""Get the number of jobs in the queue."""
-		return(len(self.queue.schedular.queue))
+		return(len(self.queue.schedular))
 
 	def emptyJobQueue(self):
 		"""Empty the job queue."""
-		self.queue.schedular.queue=[]
+		self.queue.schedular.emptyJobQueue()
 		return "Queue Emptied."
 
 	def listDescriptors(self):
 		"""Get a list of all job descriptors in the queue."""
 		rv=[]
-		for item in self.queue.schedular.queue:
+		for item in self.queue.schedular:
 			print "Looking at " + `item`
 			try:
 				j=item[3][0]
@@ -42,26 +47,19 @@ class Handler:
 				print `e`
 		return rv
 
-	def __findJob(self, descriptor):
-		rv=None
-		for item in self.queue.schedular.queue:
-			try:
-				j=item[3][0]
-				if isinstance(j, jobs.Job):
-					if j.getDescriptor() == descriptor:
-						rv=j
-			except IndexError, e:
-				print `e`
-		if rv==None:
-			raise "Couldn't find matching job."
-		return rv
+	def getJobParameters(self, descriptor):
+		"""Get the parameters for the given job."""
+		rv=[]
+		# find the job
+		j=self.queue.schedular.findJob(descriptor)
+		return(j.getJobParameters())
 
 	def queryJob(self, descriptor, start=None, end=None):
 		"""Query a job for performance data."""
 		rv={}
 
 		# First, find the job
-		j=self.__findJob(descriptor)
+		j=self.queue.schedular.findJob(descriptor)
 		if not isinstance(j, jobs.RRDJob):
 			raise "Can't do a performance query on a non-RRD job."
 		# Get the rrd filename
