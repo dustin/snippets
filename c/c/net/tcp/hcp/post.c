@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.7 1998/11/11 07:21:09 dustin Exp $
+ * $Id: post.c,v 1.8 1998/11/11 07:26:13 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,7 +16,7 @@
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.7 $"
+#define USERAGENT "DUpload/$Revision: 1.8 $"
 
 void
 _gendelimit(char *d, size_t len)
@@ -90,7 +90,7 @@ postfile(char *url, char *path)
 	fprintf(tmp, "\r\n--%s--\r\n", delimit);
 
 	/* tell how long tmp is */
-	snprintf(line, 1024, "Content-Length: %l\r\n\r\n", ftell(tmp));
+	snprintf(line, 1024, "Content-Length: %ld\r\n\r\n", ftell(tmp));
 	send_data(conn, u, line);
 
 	/* rewind the file, we're going to send it now */
