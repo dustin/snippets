@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.2 1998/11/11 06:35:09 dustin Exp $
+ * $Id: post.c,v 1.3 1998/11/11 06:47:30 dustin Exp $
  */
 
 #include <stdio.h>
@@ -122,14 +122,19 @@ postfile(char *url, char *path)
 int main(int argc, char **argv)
 {
 	struct status st;
+	int i;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGALRM, timeout);
 
 	if(argc<3) {
-		printf("Usage:  %s url filename\n", argv[0]);
+		printf("Usage:  %s url filename [filename...]\n", argv[0]);
 		exit(1);
 	}
-	st=postfile(argv[1], argv[2]);
-	printf("Status was %d (%s)\n", st.status, st.message);
+
+	for(i=2; i<argc; i++) {
+		printf("Sending %s\n", argv[i]);
+		st=postfile(argv[1], argv[i]);
+		printf("Status for %s was %d (%s)\n", argv[i], st.status, st.message);
+	}
 }
