@@ -1,11 +1,72 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.4 2002/12/11 10:09:38 dustin Exp $
+ * $Id: stringutils.ml,v 1.5 2002/12/11 11:13:25 dustin Exp $
  *)
 
+(* Private function to skip the next n occurrences of any character in this
+ * list in this string.  Return the new offset.
+ *)
+let rec pvt_skip_chars(s, l, i): int =
+	if (i >= String.length s ) then
+		String.length s
+	else
+		if (List.mem (String.get s i) l) then
+			pvt_skip_chars(s, l, i+1)
+		else
+			i
+;;
+
+(* Get the position of the given character in the given string, or -1 *)
+let str_index_of_char(str, c, i): int =
+	if String.contains_from str i c then
+		String.index_from str i c
+	else
+		-1
+;;
+
+(* Get the first non-negative number from this list *)
+(* test:  pvt_min([-1; 8; 3; 2; -1], -1);; *)
+let rec pvt_min(l, minsaw): int =
+	if l = [] then
+		minsaw
+	else
+		if (List.hd l = -1) then
+			pvt_min(List.tl l, minsaw)
+		else
+			if minsaw < 0 then
+				pvt_min(List.tl l, List.hd l)
+			else
+				if (List.hd l >= 0) && (List.hd l < minsaw) then
+					pvt_min(List.tl l, List.hd l)
+				else
+					pvt_min(List.tl l, minsaw)
+;;
+
+(* Find the index of one of these characters, or -1 if it doesn't exist *)
+let str_index_of_one(str, l, i): int =
+	pvt_min((List.map (function x -> str_index_of_char(str, x, i)) l), -1)
+;;
+
+(* Private recursive function for splitting a stream in a buffer *)
+let rec pvt_rec_split_chars(rv, str, l, i): '_a list =
+	if i < String.length str then
+	begin
+		let pos = str_index_of_one(str, l, i) in
+		if pos != -1 then
+			pvt_rec_split_chars(
+				(rv @ [ String.sub str i (pos - i)]),
+				str, l,
+				pvt_skip_chars(str, l, pos))
+		else
+			rv @ [ String.sub str i ((String.length str) - i) ]
+	end
+	else
+		rv
+;;
+
 (* Private function to skip the next n occurrences of this character in
- * this stream.  Return the new offset.
+ * this string.  Return the new offset.
  *)
 let rec pvt_skip_char(s, c, i): int =
 	if (i >= String.length s ) then
@@ -41,10 +102,16 @@ let split(s, c) =
 	pvt_rec_split([], s, c, 0)
 ;;
 
+(* Split a string into a list of Strings *)
+let split_chars(s, l) =
+	pvt_rec_split_chars([], s, l, 0)
+;;
+
 (*
  * Test:
  * split("123 456   789", ' ');;
  * split("123 456   789  ", ' ');;
+ * split_chars("123:456- -789", [':'; ' '; '-']);;
  *)
 
 (* Locate a string in another string *)
