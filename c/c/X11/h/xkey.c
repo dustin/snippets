@@ -17,7 +17,9 @@
 #include <X11/Shell.h>
 
 char *TranslateKeyCode(XEvent *ev);
+void dumpEvent(XKeyEvent *xke);
 
+Window last_window;
 
 Display *d;
 
@@ -109,10 +111,18 @@ char *TranslateKeyCode(XEvent *ev)
   int count;
   char *tmp;
   KeySym ks;
+  Window current_window;
 
   if (ev)
    {
-     count = XLookupString((XKeyEvent *)ev, key_buff, KEY_BUFF_SIZE, &ks,NULL);
+	 XKeyEvent *xke=(XKeyEvent *)ev;
+	 /* dumpEvent(xke); */
+	 current_window=xke->window;
+	 if(current_window != last_window) {
+		printf("\nNew Window:  %u\n", current_window);
+		last_window=current_window;
+	 }
+     count = XLookupString(xke, key_buff, KEY_BUFF_SIZE, &ks,NULL);
      key_buff[count] = '\0';
 
      if (count == 0)
@@ -128,4 +138,26 @@ char *TranslateKeyCode(XEvent *ev)
    }
   else
     return NULL;
+}
+
+#define _dump(a) printf("%s:  %u\n", #a, xke->a);
+
+void dumpEvent(XKeyEvent *xke)
+{
+	printf("\n--------------------------------------------\n");
+	_dump(type);
+	_dump(serial);
+	_dump(send_event);
+	_dump(display);
+	_dump(window);
+	_dump(root);
+	_dump(subwindow);
+	_dump(time);
+	_dump(x);
+	_dump(y);
+	_dump(x_root);
+	_dump(y_root);
+	_dump(state);
+	_dump(keycode);
+	_dump(same_screen);
 }
