@@ -9,7 +9,7 @@
  *)
 
 (** Exception raised when there's an attempt to encode a chunk incorrectly *)
-exception Invalid_chunk;;
+exception Invalid_encode_chunk of int;;
 
 (** The character map of all base64 characters *)
 let char_map = [|
@@ -20,25 +20,12 @@ let char_map = [|
 	'0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '+'; '/'|]
 ;;
 
-(** Reverse mapping of character to its index in the char_map *)
-let char_index =
-	let rv = Array.make 256 (-1) in
-	for i = 0 to (Array.length char_map - 1) do
-		let c = char_map.(i) in
-		Array.set rv (Char.code c) i
-	done;
-	rv
-;;
-
-(** Is the given character a valid base64 character? *)
-let is_base64_char c =
-	char_index.(Char.code c) != -1
-;;
+(** {1 Functions for encoding} *)
 
 (** Encode a chunk.  The chunk is either a 1, 2, or 3 element list. *)
 let encode_chunk chars =
 	if(List.length chars = 0 || List.length chars > 3) then
-		raise Invalid_chunk;
+		raise (Invalid_encode_chunk(List.length chars));
 	let chunk = String.create 4 in
 	let a = List.nth chars 0 in
 	let tmpa = (((Char.code a) land 3) lsl 4) in
@@ -108,6 +95,93 @@ let encode_to_string data_stream =
 (** Base64 encode a string *)
 let encode_string s = encode_to_string (Stream.of_string s);;
 
+(* ---------------------------------------------------------------------- *)
+
+(** {1 Functions for decoding} *)
+
+exception Invalid_decode_chunk of int;;
+
+(** Reverse mapping of character to its index in the char_map *)
+let char_index =
+	let rv = Array.make 256 (-1) in
+	for i = 0 to (Array.length char_map - 1) do
+		let c = char_map.(i) in
+		Array.set rv (Char.code c) i
+	done;
+	rv
+;;
+
+(** Is the given character a valid base64 character? *)
+let is_base64_char c =
+	char_index.(Char.code c) != -1
+;;
+
+(** Decode a chunk represented as a list of characters.
+ The chunk must be 2, 3, or 4 elements large.
+ *)
+let decode_chunk chars =
+	let rv = Buffer.create 3 in
+	let fchars = (List.filter (fun c -> c != '=') chars) in
+	let packer = List.fold_left (fun o x -> (o lsl 6) lor x) 0
+		(List.map (fun c -> char_index.(Char.code c)) fchars) in
+	(
+	match List.length fchars with
+		| 4 ->
+			Buffer.add_char rv (Char.chr (0xff land (packer lsr 16)));
+			Buffer.add_char rv (Char.chr (0xff land (packer lsr 8)));
+			Buffer.add_char rv (Char.chr (0xff land packer));
+		| 3 ->
+			Buffer.add_char rv (Char.chr (0xff land ((packer lsl 6) lsr 16)));
+			Buffer.add_char rv (Char.chr (0xff land ((packer lsl 6) lsr 8)));
+		| 2 ->
+			Buffer.add_char rv (Char.chr (0xff land ((packer lsl 12) lsr 16)));
+		| _ -> raise (Invalid_decode_chunk(List.length fchars));
+	);
+	Buffer.contents rv
+;;
+
+(** Decode a stream of base64 characters into a stream of 3 or fewer byte
+	strings.
+ *)
+let decode data_stream =
+	let rec find_next x =
+		try
+			Stream.empty data_stream;
+			None
+		with Stream.Failure -> (
+			let rv = Stream.next data_stream in
+			if (is_base64_char(rv)) then
+				Some rv
+			else (find_next x)
+		) in
+	let clean_stream = Stream.from find_next in
+	let get_block x =
+		try
+			let chunk = Stream.npeek 4 clean_stream in
+			List.iter (fun x -> Stream.junk clean_stream) chunk;
+			if (List.length chunk = 0) then (
+				None
+			) else (
+				Some (decode_chunk chunk)
+			)
+		with Stream.Failure -> None in
+	Stream.from get_block
+;;
+
+(**
+ Base64 decode the stream of base64 encoded data into a string.
+ *)
+let decode_to_string data_stream =
+	let buf = Buffer.create 512 in
+	Stream.iter (fun c -> Buffer.add_string buf c) (decode data_stream);
+	Buffer.contents buf
+;;
+
+(** Base64 decode a string to a string *)
+let decode_string s = decode_to_string (Stream.of_string s);;
+
+(** {1 Functions for testing } *)
+
 (** Simple test function. *)
 let test() =
 	let wordlist = ["A";"AB";"ABC";"Dustin";String.create 128] in
@@ -119,4 +193,7 @@ let test() =
 			Stream.iter print_string (encode (Stream.of_string x));
 			print_newline()
 		) wordlist;
+	print_endline("Decode:");
+	List.iter (fun x -> print_endline(decode_string (encode_string x)))
+		wordlist;
 ;;
