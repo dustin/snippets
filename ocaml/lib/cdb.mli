@@ -11,6 +11,7 @@ type cdb_creator = {
   out : out_channel;
 }
 val open_out : string -> cdb_creator
+val cdb_creator_of_out_channel : Pervasives.out_channel -> cdb_creator
 val add : cdb_creator -> string -> string -> unit
 val close_cdb_out : cdb_creator -> unit
 

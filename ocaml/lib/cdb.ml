@@ -69,6 +69,22 @@ let open_out fn =
 	s
 ;;
 
+(**
+	Convert out_channel to cdb_creator.
+
+	@param out_channel the out_channel to convert
+ *)
+let cdb_creator_of_out_channel out_channel =
+	let s = {	table_count=Array.make 256 0;
+				pointers=[];
+				out=out_channel
+			} in
+	(* Skip over the header *)
+	seek_out s.out 2048;
+	s
+;;
+
+
 let hash_to_table h =
 	Int32.to_int (Int32.logand h ff32)
 ;;
