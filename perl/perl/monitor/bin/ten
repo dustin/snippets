@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: ten,v 1.5 1997/12/15 09:42:43 dustin Exp $
+# $Id: ten,v 1.6 1997/12/19 07:19:02 dustin Exp $
 
 . /home/monitor/lib/shellconf
 
@@ -23,11 +23,11 @@ $HOMEBIN/statelog &
 # goldengate
 # $HOMEBIN/goldengate &
 
-$HOMEBIN/checkwebserver $libdir/urllist &
+$HOMEBIN/checkwebserver $libdir/urllist > $webstatus &
 
 $HOMEBIN/checkpsql &
 
-Now for the non parallel stuff...
+# Now for the non parallel stuff...
 
 # netmon 2
 $HOMEBIN/netmon2
