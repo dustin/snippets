@@ -4,12 +4,20 @@
  * arch-tag: D28A85E0-156E-11D8-A844-000393CFE6B8
  *)
 
+exception SubprocessError of string;;
+
 (* Get a string from the tput command. *)
 let tput x =
 	let r = Unix.open_process_in ("tput " ^ x)
 	and buf = String.create 8 in
 	let len = input r buf 0 8 in
-	close_in r;
+	let status = Unix.close_process_in r in
+	begin
+	match status with
+		Unix.WEXITED(st) -> if (st != 0) then
+						raise (SubprocessError "Non-zero exit status");
+		| _ -> raise (SubprocessError "Unknown error.");
+	end;
 	String.sub buf 0 len
 ;;
 
