@@ -95,6 +95,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/DBSP.class \
 	net/spy/db/DBSQL.class \
 	net/spy/db/TypeNames.class \
+	net/spy/db/DBTTL.class \
+	net/spy/db/DBTTLMonitor.class \
 	net/spy/cron/TimeIncrement.class \
 	net/spy/cron/Job.class \
 	net/spy/cron/JobQueue.class \

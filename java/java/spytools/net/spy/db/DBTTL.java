@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTTL.java,v 1.1 2002/02/13 20:27:17 dustin Exp $
+// $Id: DBTTL.java,v 1.2 2002/02/13 21:13:41 dustin Exp $
 
 package net.spy.db;
 
@@ -18,6 +18,9 @@ public class DBTTL extends Object {
 	private boolean isClosed=false;
 	private long lastReport=0;
 	private int nReports=0;
+
+	private static final long REPORT_INTERVAL=300000;
+	private static final long N_REPORTS=10;
 
 	/**
 	 * Get an instance of DBTTL.
