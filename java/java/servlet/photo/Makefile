@@ -10,6 +10,7 @@ SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
 SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java
+# DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
 	PhotoImage.class Toker.class PhotoLogEntry.class \

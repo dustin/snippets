@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.3 1999/09/30 06:09:30 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.4 1999/10/05 04:12:00 dustin Exp $
  */
 
 import java.lang.*;
 import java.util.*;
+import java.text.*;
 
 // The class
 public class PhotoUtil
@@ -71,5 +72,12 @@ public class PhotoUtil
 
 		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
 		return(ret);
+	}
+
+	// Get today's date as a string
+	public static String getToday() {
+		Date ts=new Date();
+		SimpleDateFormat f=new SimpleDateFormat("MM/dd/yyyy");
+		return(f.format(ts));
 	}
 }

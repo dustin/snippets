@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.24 1999/10/04 08:32:51 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.25 1999/10/05 04:11:58 dustin Exp $
  */
 
 import java.io.*;
@@ -495,6 +495,7 @@ public class PhotoServlet extends HttpServlet
 		} catch(Exception e) {
 			h.put("CAT_LIST", "");
 		}
+		h.put("TODAY", PhotoUtil.getToday());
 		output += tokenize("addform.inc", h);
 		send_response(response, output);
 	}
