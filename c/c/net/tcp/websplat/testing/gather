@@ -1,18 +1,28 @@
 #!/bin/sh
 #
-# $Id: gather,v 1.1 1999/09/01 21:07:01 dustin Exp $
+# $Id: gather,v 1.2 1999/09/01 21:24:29 dustin Exp $
 
 URL=http://coyote.beyond.com:7001/larryktest
 WEBSPLAT_POST=xml.post
 WEBSPLAT=../websplat
 
+# Configuration parameters.
+SETSIZE=1024
+MAX_CONCURRENCY=256
+
 gatherdata() {
 	echo "*** $1 simultaneous ***"
-	$WEBSPLAT -f -S -n $1 -t 128 $URL | tee data/set$2.dat
+	$WEBSPLAT -f -S -n $1 -t $SETSIZE $URL | tee data/set$2.dat
 }
 
+# Make sure the data directory exists.
+if [ ! -d data ]
+then
+	mkdir data
+fi
+
 N=0
-for i in ` perl -e '$,=" "; print (1..256)' `
+for i in ` perl -e "$,=\" \"; print (1..${MAX_CONCURRENCY})" `
 do
 	N=`expr $N + 1`
 	gatherdata $i $N
