@@ -1,0 +1,67 @@
+% Copyright 1996-1997  Dustin Sallings
+% $Id: bills.sty,v 1.1 1997/10/22 05:08:22 dustin Exp $
+
+\typeout{Dustin's coolass bill stylesheet $Revision: 1.1 $ $Date: 1997/10/22 05:08:22 $}
+
+\newcommand{\nl}{\hfill\par}
+
+% Lengths
+
+\newlength{\reswidth}	% Width of the left side
+\newlength{\resspacing}	% space between the left and right sides
+\newlength{\restmplen}	% temporary length
+
+% defaults
+
+\setlength{\reswidth}{2.0in}
+\setlength{\resspacing}{.25in}
+
+% This takes two arguments, the label and the information, both can be
+% as long as needed
+
+\newcommand{\resentry}[2]
+{
+\setlength{\restmplen}{\reswidth}
+\addtolength{\restmplen}{-\resspacing}
+\mbox{%
+\begin{minipage}[t]{\restmplen}
+\sloppy
+\raggedright
+{#1}:
+\end{minipage}
+}% mbox
+\hfill
+\setlength{\restmplen}{\textwidth}
+\addtolength{\restmplen}{-\reswidth}
+\mbox{%
+\begin{minipage}[t]{\restmplen}
+#2
+\end{minipage}
+}% mbox
+\par
+\bigskip\bigskip
+}
+
+% please work
+\newcommand{\addrentry}[2]
+{%
+\makebox[.7in][l]{#1}
+\fatbox{%
+#2
+}
+}
+
+% just one argument here, the text to throw in a box
+
+\newcommand{\fatbox}[1]
+{
+\begin{minipage}[t]{0pt}
+\begin{tabbing}
+#1
+\end{tabbing}
+\end{minipage}
+}
+
+% this is just to have it
+
+\newcommand{\leap}{\bigskip\bigskip\bigskip}
