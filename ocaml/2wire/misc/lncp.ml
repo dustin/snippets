@@ -15,7 +15,7 @@ let linkto basedir d l a =
 	List.iter (fun fn ->
 		let srcfn = (Filename.concat d fn) in
 		let destfn = (Filename.concat basedir (rel srcfn a)) in
-		Printf.printf "ln %s -> %s\n" srcfn destfn;
+		(* Printf.printf "ln %s -> %s\n" srcfn destfn; *)
 		Fileutils.mkdirs 0o755 (Filename.dirname destfn);
 		Unix.link srcfn destfn
 	) l
