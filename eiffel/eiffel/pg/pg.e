@@ -3,9 +3,14 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.10 1999/05/26 06:21:40 dustin Exp $
+-- $Id: pg.e,v 1.11 1999/05/26 17:57:16 dustin Exp $
 --
 class PG
+
+inherit MEMORY
+	redefine
+		dispose
+	end
 
 creation {ANY}
    make
@@ -219,7 +224,7 @@ feature {PG} -- Internal data stuff
    password: STRING;
       -- Database password
 
-feature {MEMORY}
+feature {PG}
    -- Destructor
 
    dispose is
@@ -228,7 +233,6 @@ feature {MEMORY}
          if conn /= Void then
             -- io.put_string("Closing database connection!%N");
             pg_finish(conn);
-            conn := Void;
          end;
       end -- dispose
 
