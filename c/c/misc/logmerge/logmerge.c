@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.2 2002/06/05 18:11:00 dustin Exp $
+ * $Id: logmerge.c,v 1.3 2002/06/05 19:32:17 dustin Exp $
  */
 
 #include <stdio.h>
@@ -15,6 +15,7 @@
 #include <zlib.h>
 
 #include "logmerge.h"
+#include "mymalloc.h"
 
 /**
  * Open a logfile.
@@ -22,7 +23,7 @@
 static int openLogfile(struct logfile *lf)
 {
 	int rv=ERROR;
-	assert(lf);
+	assert(lf != NULL);
 
 	assert(lf->isOpen==0);
 
@@ -74,20 +75,24 @@ static int parseMonth(char *s)
 
 static time_t parseTimestamp(struct logfile *lf)
 {
-	char *p;
+	char *p, *tmp;
 	struct tm tm;
+	static time_t lasttt=0;
 
-	assert(lf);
-	assert(lf->line);
+	assert(lf != NULL);
+	assert(lf->line != NULL);
 
 	lf->timestamp=-1;
 
 	memset(&tm, 0x00, sizeof(tm));
 
-	/* 2002-05-12T23:51:50 */
-	p=lf->line;
+	tmp=strdup(lf->line);
+	assert(tmp!=NULL);
+	p=tmp;
+
 	if(p[10]=='T') {
 		/* fprintf("**** Parsing %s\n", p); */
+
 		tm.tm_year=atoi(p);
 		p+=5;
 		tm.tm_mon=atoi(p);
@@ -105,11 +110,10 @@ static time_t parseTimestamp(struct logfile *lf)
 
 		lf->timestamp=mktime(&tm);
 	} else if(index(p, '[') != NULL) {
-		/* Common log format */
-		char *tmp=NULL;
 
 		p=index(p, '[');
-		assert(p);
+		assert(p != NULL);
+
 		/* fprintf(stderr, "**** Parsing %s\n", p); */
 		p++;
 		tm.tm_mday=atoi(p);
@@ -145,6 +149,13 @@ static time_t parseTimestamp(struct logfile *lf)
 		ctime(&lf->timestamp));
 	*/
 
+	free(tmp);
+
+	/* Verify the timestamp values are always increasing */
+	assert(lf->timestamp >= lasttt);
+
+	lasttt=lf->timestamp;
+
 	return(lf->timestamp);
 }
 
@@ -155,18 +166,20 @@ static char *nextLine(struct logfile *lf)
 {
 	char *p=NULL;
 
-	assert(lf);
+	assert(lf != NULL);
 
 	if(lf->isOpen == 0) {
 		int logfileOpened=openLogfile(lf);
 		assert(logfileOpened == OK);
 		/* Recurse to skip a line */
 		p=nextLine(lf);
-		assert(p);
+		assert(p!=NULL);
 	}
 
 	p=gzgets(lf->input, lf->line, LINE_BUFFER-1);
 	if(p!=Z_NULL) {
+		/* Make sure the line is short enough */
+		assert(strlen(lf->line) < LINE_BUFFER);
 		/* Make sure we read a line */
 		assert(p[strlen(p)-1] == '\n');
 
@@ -182,12 +195,18 @@ static char *nextLine(struct logfile *lf)
 
 static void closeLogfile(struct logfile *lf)
 {
-	assert(lf);
+	int gzerrno=0;
+
+	assert(lf != NULL);
 	assert(lf->input != NULL);
+	assert(lf->filename != NULL);
 
 	fprintf(stderr, "*** Closing %s\n", lf->filename);
 
-	gzclose(lf->input);
+	gzerrno=gzclose(lf->input);
+	if(gzerrno!=0) {
+		gzerror(lf->input, &gzerrno);
+	}
 	lf->isOpen=0;
 }
 
@@ -196,7 +215,9 @@ static void closeLogfile(struct logfile *lf)
  */
 static void destroyLogfile(struct logfile *lf)
 {
-	assert(lf);
+	assert(lf != NULL);
+
+	fprintf(stderr, "** Destroying %s\n", lf->filename);
 
 	if(lf->isOpen==1) {
 		closeLogfile(lf);
@@ -222,13 +243,14 @@ struct logfile *createLogfile(const char *filename)
 	struct logfile *rv;
 
 	rv=calloc(1, sizeof(struct logfile));
-	assert(rv);
+	assert(rv != NULL);
 
 	rv->filename=(char *)strdup(filename);
-	assert(rv->filename);
+	assert(rv->filename != NULL);
 
 	/* Make room for lines */
 	rv->line=calloc(1, LINE_BUFFER);
+	assert(rv->line != NULL);
 
 	/* Try to open the logfile */
 	if(openLogfile(rv) != OK) {
@@ -253,7 +275,7 @@ struct linked_list *addToList(struct linked_list *list, struct logfile *r)
 	struct linked_list *tmp;
 	struct linked_list *rv;
 
-	assert(r);
+	assert(r != NULL);
 
 	tmp=calloc(1, sizeof(struct linked_list));
 
@@ -263,7 +285,7 @@ struct linked_list *addToList(struct linked_list *list, struct logfile *r)
 		rv=tmp;
 	} else {
 
-		assert(list->logfile);
+		assert(list->logfile != NULL);
 
 		if(tmp->logfile->timestamp < list->logfile->timestamp) {
 			/* Special case where it goes at the head. */
@@ -293,6 +315,7 @@ struct linked_list *addToList(struct linked_list *list, struct logfile *r)
 			}
 		}
 	}
+
 
 	return(rv);
 }
@@ -325,10 +348,6 @@ struct linked_list *skipRecord(struct linked_list *list)
 		rv=list->next;
 
 		oldEntry=list->logfile;
-		/* No longer need this record, a new one will be created when it's
-		 * reinserted (if it's reinserted)
-		 */
-		free(list);
 
 		p=nextLine(oldEntry);
 		/* If stuff comes back, reinsert the old entry */
@@ -337,6 +356,11 @@ struct linked_list *skipRecord(struct linked_list *list)
 		} else {
 			destroyLogfile(oldEntry);
 		}
+
+		/* No longer need this record, a new one will be created when it's
+		 * reinserted (if it's reinserted)
+		 */
+		free(list);
 	}
 
 	return(rv);
@@ -366,7 +390,6 @@ int main(int argc, char **argv)
 {
 	struct linked_list *list=NULL;
 	struct logfile *lf=NULL;
-	char *p=NULL;
 	int i=0;
 	int entries=0;
 
@@ -385,11 +408,24 @@ int main(int argc, char **argv)
 
 	while(list!=NULL) {
 		entries++;
+
 		lf=currentRecord(list);
+		mymalloc_assert(lf);
+		mymalloc_assert(lf->line);
+		mymalloc_assert(lf->filename);
+
 		assert(lf!=NULL);
-		printf(lf->line);
+		if(lf->line) {
+			printf("%s", lf->line);
+		}
 		list=skipRecord(list);
 	}
 
 	fprintf(stderr, "Read %d entries.\n", entries);
+
+#ifdef MYMALLOC
+	_mdebug_dump();
+#endif /* MYMALLOC */
+
+	return(0);
 }
