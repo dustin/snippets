@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.2 1999/08/29 14:02:15 dustin Exp $
+# $Id: sendpage.tcl,v 1.3 1999/08/29 14:21:36 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -49,26 +49,32 @@ proc snpp_sendpage { host port id msg } {
 	set status [ snpp_status_ok $line ]
 	if { $status < 0 } {
 		# puts "Error: $line"
+		catch { close $fd }
 		return -1
 	}
 
 	if { [snpp_cmd $fd "page $id"] < 0 } {
+		catch { close $fd }
 		return -1
 	}
 
 	if { [snpp_cmd $fd "mess $msg"] < 0 } {
+		catch { close $fd }
 		return -1
 	}
 
 	if { [snpp_cmd $fd "priority high"] < 0 } {
+		catch { close $fd }
 		return -1
 	}
 
 	if { [snpp_cmd $fd "send"] < 0 } {
+		catch { close $fd }
 		return -1
 	}
 
 	if { [snpp_cmd $fd "quit"] < 0 } {
+		catch { close $fd }
 		return -1
 	}
 
@@ -91,6 +97,7 @@ proc setstatus { text } {
 proc sendpage { } {
 	global snpp_error
 	global last_msg last_uid
+	global snpp_server snpp_port
 
 	set whom [ .whom.whom get ]
 	set msg [ .message.what get ]
@@ -103,7 +110,7 @@ proc sendpage { } {
 
 	setstatus "Sending page..."
 
-	if { [ snpp_sendpage "pager.beyond.com" 1041 $whom $msg ] == 0 } {
+	if { [ snpp_sendpage $snpp_server $snpp_port $whom $msg ] == 0 } {
 		setstatus "Page sent succesfully"
 		set last_msg $msg
 		set last_uid $whom
@@ -124,7 +131,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.2 $ }
+	set rev { $Revision: 1.3 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -139,11 +146,24 @@ proc about { } {
 set last_msg ""
 set last_uid ""
 
+set snpp_server "pager.beyond.com"
+set snpp_port   1041
+
 wm title . "Page People"
 wm iconname . "Pager"
 
 # The width of a text entry thing.
 set entwidth 40
+
+# Menus
+set m .menu
+menu $m -tearoff 1
+menu $m.file -tearoff 1
+$m add cascade -label "File" -menu $m.file -underline 0
+$m.file add command -label "Preferences" -command { error "Not yet" }
+$m.file add command -label "Quit" -command "exit"
+
+. configure -menu $m
 
 # The Whom field.
 frame .whom
