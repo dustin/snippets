@@ -13,7 +13,7 @@ import unittest
 class StateRv(object):
     """Return values for state machines."""
 
-    def __init__(self, state, prefixes=None, postfixes=None):
+    def __init__(self, state, response, prefixes=None, postfixes=None):
         """Instantiate a state rv with a state and optional lists of prefix
         and postfix state machines to adjust the values.
 
@@ -23,6 +23,7 @@ class StateRv(object):
         self.state=state
         self.prefixes=prefixes
         self.postfixes=postfixes
+        self.response=response
 
 class StateMachine(object):
     """State machine interface."""
@@ -30,7 +31,7 @@ class StateMachine(object):
     STATE_INIT = -1
     STATE_DONE = -2
 
-    def runMachine(self, context, state):
+    def runMachine(self, context, state, input):
         """This method should do whatever it needs to do in the given state and
            return the new state."""
         raise NotImplementedError()
@@ -61,14 +62,14 @@ class StateMachineList(object):
         """Add a machine in the beginning."""
         self.machines.insert(0, machine)
 
-    def runMachine(self):
+    def runMachine(self, input):
         """Run the current state machine.  Return True if there's more to do."""
         if len(self.machines) == 0:
             raise NoStateMachineException()
 
         rv = True
 
-        newState = self.machines[0].runMachine(self.context, self.state)
+        newState = self.machines[0].runMachine(self.context, self.state, input)
 
         # Check for a postfix
         if newState.postfixes is not None:
@@ -115,13 +116,13 @@ class TestMachine(StateMachine):
 
     def __init__(self, stateMap=None):
         if stateMap is None:
-            stateMap={StateMachine.STATE_INIT: StateRv(1),
-                1: StateRv(2),
-                2: StateRv(3),
-                3: StateRv(StateMachine.STATE_DONE)}
+            stateMap={StateMachine.STATE_INIT: StateRv(1, None),
+                1: StateRv(2, None),
+                2: StateRv(3, None),
+                3: StateRv(StateMachine.STATE_DONE, None)}
         self.stateMap=stateMap
 
-    def runMachine(self, context, state):
+    def runMachine(self, context, state, input):
         return self.stateMap[state]
 
 class TestPrefixingMachine(TestMachine):
@@ -129,11 +130,11 @@ class TestPrefixingMachine(TestMachine):
        prefixes a new state machine in the middle."""
 
     def __init__(self):
-        TestMachine.__init__(self, {StateMachine.STATE_INIT: StateRv(1),
-            1: StateRv(2),
-            2: StateRv(3, prefixes=[TestMachine()]),
-            3: StateRv(4),
-            4: StateRv(StateMachine.STATE_DONE)})
+        TestMachine.__init__(self, {StateMachine.STATE_INIT: StateRv(1, None),
+            1: StateRv(2, None),
+            2: StateRv(3, None, prefixes=[TestMachine()]),
+            3: StateRv(4, None),
+            4: StateRv(StateMachine.STATE_DONE, None)})
 
 class StateMachineTest(unittest.TestCase):
 
@@ -144,10 +145,10 @@ class StateMachineTest(unittest.TestCase):
     def testPlainMachine(self):
         """Plain state machine test."""
         tm=TestMachine()
-        self.assertState(1, tm.runMachine(None, StateMachine.STATE_INIT))
-        self.assertState(2, tm.runMachine(None, 1))
-        self.assertState(3, tm.runMachine(None, 2))
-        self.assertState(StateMachine.STATE_DONE, tm.runMachine(None, 3))
+        self.assertState(1, tm.runMachine(None, StateMachine.STATE_INIT, None))
+        self.assertState(2, tm.runMachine(None, 1, None))
+        self.assertState(3, tm.runMachine(None, 2, None))
+        self.assertState(StateMachine.STATE_DONE, tm.runMachine(None, 3, None))
 
     def assertStateSequence(self, sm, seq):
         """Validate that the execution of a state machine yields a specific
@@ -156,15 +157,15 @@ class StateMachineTest(unittest.TestCase):
         self.assertEquals(seq[0], sm.state)
         # Validate the state sequence
         for s in seq[1:]:
-            self.failUnless(sm.runMachine(), "State machine run")
+            self.failUnless(sm.runMachine(None), "State machine run")
             # print "Checking", s, "in", sm.state, "from", sm.machines[0]
             self.assertEquals(s, sm.state)
 
         # A final run which should mark the end
-        self.failIf(sm.runMachine(), "State machine should end")
+        self.failIf(sm.runMachine(None), "State machine should end")
 
         try:
-            sm.runMachine()
+            sm.runMachine(None)
             self.fail("State machine should be complete")
         except NoStateMachineException:
             pass
@@ -178,24 +179,24 @@ class StateMachineTest(unittest.TestCase):
         slist.addMachine(TestMachine())
 
         self.assertEquals(StateMachine.STATE_INIT, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(1, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(2, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(3, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(StateMachine.STATE_INIT, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(1, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(2, slist.state)
-        self.failUnless(slist.runMachine(), "State machine run")
+        self.failUnless(slist.runMachine(None), "State machine run")
         self.assertEquals(3, slist.state)
-        self.failIf(slist.runMachine(), "State machine should end")
+        self.failIf(slist.runMachine(None), "State machine should end")
 
         try:
-            slist.runMachine()
+            slist.runMachine(None)
             self.fail("State machine should be complete")
         except NoStateMachineException:
             pass
@@ -243,12 +244,12 @@ class StateMachineTest(unittest.TestCase):
         slist.addMachine(TestMachine())
         slist.addMachine(TestPrefixingMachine())
         # Try it postfixing
-        slist.addMachine(TestMachine({StateMachine.STATE_INIT: StateRv(1),
-            1: StateRv(2),
-            2: StateRv(3, prefixes=None, postfixes=[TestMachine()]),
-            3: StateRv(4),
-            4: StateRv(5),
-            5: StateRv(StateMachine.STATE_DONE)}))
+        slist.addMachine(TestMachine({StateMachine.STATE_INIT: StateRv(1, None),
+            1: StateRv(2, None),
+            2: StateRv(3, None, prefixes=None, postfixes=[TestMachine()]),
+            3: StateRv(4, None),
+            4: StateRv(5, None),
+            5: StateRv(StateMachine.STATE_DONE, None)}))
         # And another plain test machine
         slist.addMachine(TestMachine())
 
@@ -274,23 +275,23 @@ class StateMachineTest(unittest.TestCase):
         two state machines in the list"""
         slist=StateMachineList(None)
 
-        aStates={StateMachine.STATE_INIT: StateRv(10),
-            10: StateRv(11), 11: StateRv(12),
-                12: StateRv(StateMachine.STATE_DONE)}
-        bStates={StateMachine.STATE_INIT: StateRv(20),
-            20: StateRv(21), 21: StateRv(22),
-                22: StateRv(StateMachine.STATE_DONE)}
+        aStates={StateMachine.STATE_INIT: StateRv(10, None),
+            10: StateRv(11, None), 11: StateRv(12, None),
+                12: StateRv(StateMachine.STATE_DONE, None)}
+        bStates={StateMachine.STATE_INIT: StateRv(20, None),
+            20: StateRv(21, None), 21: StateRv(22, None),
+                22: StateRv(StateMachine.STATE_DONE, None)}
 
         # Add two TestMachines
         slist.addMachine(TestMachine())
         slist.addMachine(TestPrefixingMachine())
         # Try it postfixing
-        slist.addMachine(TestMachine({StateMachine.STATE_INIT: StateRv(1),
-            1: StateRv(2),
-            2: StateRv(3,
+        slist.addMachine(TestMachine({StateMachine.STATE_INIT: StateRv(1, None),
+            1: StateRv(2, None),
+            2: StateRv(3, None,
                 prefixes=[TestMachine(aStates), TestMachine(bStates)]),
-            3: StateRv(4),
-            4: StateRv(StateMachine.STATE_DONE)}))
+            3: StateRv(4, None),
+            4: StateRv(StateMachine.STATE_DONE, None)}))
         # And another plain test machine
         slist.addMachine(TestMachine())
 
