@@ -136,6 +136,7 @@ handle_packet($K, Length, Data, State, Info) ->
 
 % Ready for query
 handle_packet($Z, Length, Data, State, Info) ->
+	io:format("Ready for query~n", []),
 	{next_state, ready_for_query, Info};
 
 % parameter status
