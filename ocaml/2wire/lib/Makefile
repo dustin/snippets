@@ -4,7 +4,8 @@ OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
-PARTS=stringutils fileutils lru linkedlist base64 cdb netstring
+PARTS=extstring fileutils lru linkedlist base64 cdb netstring extlist \
+	extoption extstream
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -16,24 +17,32 @@ base64: base64.cmi base64.mli
 
 fileutils: fileutils.cmi fileutils.mli
 
-stringutils: stringutils.cmi stringutils.mli
+extstring: extstring.cmi extstring.mli
+
+extlist: extlist.cmi extlist.mli
+
+extoption: extoption.cmi extoption.mli
 
 linkedlist: linkedlist.cmi linkedlist.mli
 
 lru: linkedlist lru.cmi lru.mli
 
-cdb: cdb.cmi cdb.mli
+cdb: extoption cdb.cmi cdb.mli
 
 netstring: netstring.cmi netstring.mli
 
+extstream: extstream.cmi extstream.mli
+
 testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
-		fileutils.cmo stringutils.cmo linkedlist.cmo lru.cmo base64.cmo \
+		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
+		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
 		cdb.cmo netstring.cmo
 
 docs: $(PARTS)
 	mkdir -p doc
-	ocamldoc -keep-code -colorize-code -d doc -html *.mli *.ml
+	ocamldoc -t "Dustin's OCaml Docs" -keep-code -colorize-code -d doc -html \
+		*.mli *.ml
 
 install-docs: docs
 	cp doc/* /afs/spy.net/home/dustin/public_html/projects/ocaml/doc

@@ -3,7 +3,7 @@
 (* 2wire SQL Log parser *)
 
 open Unix;;
-open Stringutils;;
+open Extstring;;
 open Fileutils;;
 
 (** Log entry representing a single line from the file *)

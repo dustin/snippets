@@ -206,3 +206,23 @@ let begins_with src pat =
  begins_with "." "test.";;
  begins_with "yourmom" "your";;
 *)
+
+(**
+  Create a string from the list of characters provided.
+
+  @param l the list of characters that will become the string.
+  *)
+let string_of_chars l =
+	let rv = Buffer.create 64 in
+	List.iter (fun c -> Buffer.add_char rv c) l;
+	Buffer.contents rv
+;;
+
+(**
+ Convert a character to a string.
+
+ @param c the character
+ *)
+let string_of_char c =
+	String.make 1 c
+;;

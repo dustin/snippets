@@ -67,26 +67,6 @@ let add cdc k v =
 
 ;;
 
-(** Is this option none? *)
-let is_none = function
-	None -> true
-	| _ -> false
-;;
-
-(** Is this option some? *)
-let is_some = function
-	Some(x) -> true
-	| _ -> false
-;;
-
-exception Empty_option;;
-
-(** Get an option value  *)
-let get_option o = function
-	Some(x) -> x
-	| None -> raise Empty_option
-;;
-
 (** Process a hash table *)
 let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Length of the table *)
@@ -103,7 +83,7 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 
 		(* Find an available hash bucket *)
 		let rec find_where where =
-			if (is_none ht.(where)) then
+			if (Extoption.is_none ht.(where)) then
 				where
 			else (
 				if ((where + 1) = len) then (find_where 0)
@@ -289,40 +269,3 @@ let get_matches cdf key =
 let find cdf key =
 	Stream.next (get_matches cdf key)
 ;;
-
-(** test app to create ``test.cdb'' and put some stuff in it *)
-let main() =
-	let c = open_out "test.cdb" in
-	add c "a" "1";
-	add c "b" "2";
-	add c "c" "3";
-	add c "c" "4";
-	add c "dustin" "We're number one!";
-	close_cdb_out c;
-	iter (fun k v -> print_endline(k ^ " -> " ^ v)) "test.cdb";
-	print_endline("*** Searching a ***");
-	let cdf = open_cdb_in "test.cdb" in
-	print_endline(find cdf "a");
-	print_endline("*** Searching c ***");
-	print_endline(find cdf "c");
-	print_endline("*** Stream searching c ***");
-	let str = get_matches cdf "c" in
-	let str2 = get_matches cdf "c" in
-	print_endline(Stream.next str);
-	print_endline(Stream.next str2);
-	print_endline(Stream.next str);
-	print_endline(Stream.next str2);
-	(
-	try
-		print_endline("Testing stream exhaustion failure");
-		print_endline(Stream.next str);
-		print_endline("!!! Expected failure.");
-	with Stream.Failure -> print_endline("failed as expected")
-	);
-	print_endline("*** Stream.iter ***");
-	Stream.iter print_endline (get_matches cdf "c");
-	close_cdb_in cdf;
-;;
-
-(* Start main if we're interactive. *)
-if !Sys.interactive then () else begin main() end;;

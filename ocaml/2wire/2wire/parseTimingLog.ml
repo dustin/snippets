@@ -7,7 +7,7 @@
 open Unix;;
 open Hashtbl;;
 open List;;
-open Stringutils;;
+open Extstring;;
 open Fileutils;;
 
 (* This exception is thrown when we go back in time *)

@@ -47,13 +47,13 @@ let hlen h =
 let main() =
 	(* First, let's find the list of all fields *)
 	let all_fields = Fileutils.fold_file_lines (fun l m->
-		StringSet.add (List.nth (Stringutils.split l ',' 3) 1) m)
+		StringSet.add (List.nth (Extstring.split l ',' 3) 1) m)
 		StringSet.empty Sys.argv.(1) in
 
 	(* Now, flip back through the file and perform the rotation *)
 	let current_record = ref {sn=""; fields=Hashtbl.create 1; } in
 	Fileutils.iter_file_lines (fun l ->
-		let parts = Stringutils.split l ',' 3 in
+		let parts = Extstring.split l ',' 3 in
 		if !current_record.sn = List.hd parts then (
 			Hashtbl.replace !current_record.fields
 				(List.nth parts 1) (List.nth parts 2)
