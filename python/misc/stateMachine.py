@@ -291,7 +291,7 @@ class StateMachineTest(unittest.TestCase):
             3, 4,
             # then the postfixer as defined above
             StateMachine.STATE_INIT, 1, 2, 3, 4, 5,
-            # then the TestMachine that was brought in by the postfixer
+            # then the TestMachine that was defined above
             StateMachine.STATE_INIT, 1, 2, 3,
             # And then the TestMachine that was brought in by the postfixer
             StateMachine.STATE_INIT, 1, 2, 3
