@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 1998  Dustin Sallings
+ *
+ * $Id: rstat.c,v 1.2 1998/05/14 07:18:56 dustin Exp $
+ */
+
 #include <stdio.h>
 #include <rpcsvc/rstat.h>
 
