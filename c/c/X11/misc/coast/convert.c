@@ -92,6 +92,8 @@ main(int argc, char *argv[])
 
   fwrite(&header, sizeof(header), 1, outfile);
 
+  fprintf(stderr, "%d points found.\n", header.num_points);
+
   rewind(infile);
 
   while (!feof(infile))
