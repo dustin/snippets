@@ -1,8 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.4 2001/03/30 10:28:24 dustin Exp $
+// $Id: Base64.java,v 1.5 2001/03/31 08:49:02 dustin Exp $
 
 package net.spy.util;
+
+import java.io.*;
 
 public class Base64 extends Object {
 
@@ -33,28 +35,28 @@ public class Base64 extends Object {
 		for(int i=0; i<data.length; i+=3) {
 			int a, b, c, tmpa, tmpb;
 
-			a=(int)data[i];
-			sb.append(charmap[(int)(a>>2)]);
-			tmpa=(byte)((a&0x03)<<4);
+			a=((int)data[i] & 0xff);
+			sb.append(charmap[(a>>2)]);
+			tmpa=((a&0x03)<<4);
 
 			// If there's another byte, grab it and process it
 			if(data.length > i+1) {
-				b=(int)data[i+1];
-				tmpb=(byte)(b>>4);
-				sb.append(charmap[(int)(tmpa|tmpb)]);
-				tmpa=(byte)((b&0x0f)<<2);
+				b=((int)data[i+1] & 0xff);
+				tmpb=(b>>4);
+				sb.append(charmap[(tmpa|tmpb)]);
+				tmpa=((b&0x0f)<<2);
 				if(data.length>i+2) {
-					c=(int)data[i+2];
-					tmpb=(byte)((c&0xc0)>>6);
-					sb.append(charmap[(int)(tmpa|tmpb)]);
-					sb.append(charmap[(int)(c&0x3f)]);
+					c=((int)data[i+2] & 0xff);
+					tmpb=((c&0xc0)>>6);
+					sb.append(charmap[(tmpa|tmpb)]);
+					sb.append(charmap[(c&0x3f)]);
 				} else {
-					sb.append(charmap[(int)tmpa]);
+					sb.append(charmap[tmpa]);
 					sb.append('=');
 				}
 			} else {
 				// Only one byte in this block.
-				sb.append(charmap[(int)tmpa]);
+				sb.append(charmap[tmpa]);
 				sb.append('=');
 				sb.append('=');
 			}
@@ -143,29 +145,25 @@ public class Base64 extends Object {
 		return(rv);
 	}
 
-	private static void test(String input) throws Exception {
-		Base64 b=new Base64();
-		System.out.println("Input:    " + input);
-		String encoded=b.encode(input.getBytes());
-		System.out.println("Encoded:  " + encoded);
-		String decoded=new String(b.decode(encoded));
-		System.out.println("Decoded:  " + decoded);
-		if(decoded.equals(input)) {
-			System.err.println("Success");
-		} else {
-			System.err.println("The input and the decoded are different.");
-			System.err.println("Input:    " + input.length() + " bytes");
-			System.err.println("Decoded:  " + decoded.length() + " bytes");
-			throw new Exception("Damnit.");
-		}
-	}
-
 	public static void main(String args[]) throws Exception {
-		String testStr="";
-		for(int i=0; i<1000; i++) {
-			test(testStr);
-			testStr+=(i%10);
+		File f=new File(args[0]);
+		System.out.println("Working on " + f + " (" + f.length() + " bytes).");
+		FileInputStream fis=new FileInputStream(f);
+		byte data[]=new byte[(int)f.length()];
+		int size=fis.read(data);
+		fis.close();
+		if(size!=f.length()) {
+			throw new Exception("Didn't read all the data.");
 		}
+
+		Base64 b=new Base64();
+		String tmp=b.encode(data);
+
+		System.out.println(tmp);
+
+		FileOutputStream fos=new FileOutputStream(args[1]);
+		fos.write(b.decode(tmp));
+		fos.close();
 	}
 
 }
