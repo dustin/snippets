@@ -1,13 +1,16 @@
 indexing
-	description: "Hello, damnit!"
-class HELLO creation
-	make
+   description: "Hello, damnit!";
+class HELLO
 
-feature
+creation {ANY}
+   make
 
-	make is
-		-- print a simple message
-	do
-		io.put_string("Hello, damnit...%N");
-	end
-end
+feature {ANY}
+
+   make is
+      -- print a simple message
+      do
+         io.put_string("Hello, damnit...%N");
+      end -- make
+
+end -- class HELLO
