@@ -3,30 +3,35 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: gofetch.py,v 1.3 2002/03/29 08:58:17 dustin Exp $
+$Id: gofetch.py,v 1.4 2002/03/29 09:05:17 dustin Exp $
 """
 
-# Python's schedular
-import sched
-import os
-import atexit
-import time
+# Python's scheduling stuff
+import sched, time
+
+# System stuff
+import os, sys, atexit
+
+# DBM
 import anydbm
-import socket
-import select
-import traceback
-import errno
+
+# Network stuff
+import socket, select
+
+# Error stuff
+import traceback, errno, exceptions
+
 # My kick-ass SNMP lib.  :)
 import snmplib
+
 # My rrdtool interface
 import rrdpipe
-import exceptions
 
 # Threading support, if available
 try:
 	import threading
 except ImportError, ie:
-	os.stderr.write(str(ie) + "\n")
+	sys.stderr.write(str(ie) + "\n")
 
 ######################################################################
 # Storage classes
@@ -48,12 +53,12 @@ class NonThreadSafeStorage(Storage):
 
 	def lock(self):
 		"""Lock mutex."""
-		if self.mutex:
+		if self.mutex != None:
 			self.mutex.acquire()
 
 	def unlock(self):
 		"""Unlock mutex."""
-		if self.mutex:
+		if self.mutex != None:
 			self.mutex.release()
 
 class ThreadSafeStorage(Storage):
@@ -87,7 +92,7 @@ class VolatileStorage(NonThreadSafeStorage):
 		ts=time.time()
 		# Aquire a lock
 		try:
-			self.mutex.acquire()
+			self.lock()
 			if VolatileStorage.db.has_key(key):
 				oldvalue=VolatileStorage.db[key]
 			else:
@@ -99,7 +104,7 @@ class VolatileStorage(NonThreadSafeStorage):
 				VolatileStorage.logfile.flush()
 				VolatileStorage.db[key]=str(value)
 		finally:
-			self.mutex.release()
+			self.unlock()
 
 class RRDStorage(NonThreadSafeStorage):
 	"""Storage for data that will be make it into an rrd."""
@@ -124,7 +129,7 @@ class RRDStorage(NonThreadSafeStorage):
 		# Get the timestamp ASAP
 		ts=time.time()
 		try:
-			self.mutex.acquire()
+			self.lock()
 
 			cmd='update ' + rrdfile
 
@@ -153,7 +158,7 @@ class RRDStorage(NonThreadSafeStorage):
 			except rrdpipe.RRDError, e:
 				print e
 		finally:
-			self.mutex.release()
+			self.unlock()
 
 ######################################################################
 # End storage classes
