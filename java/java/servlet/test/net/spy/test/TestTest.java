@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestTest.java,v 1.2 2001/01/27 09:14:10 dustin Exp $
+// $Id: TestTest.java,v 1.3 2001/01/27 23:24:58 dustin Exp $
 
 package net.spy.test;
 
@@ -13,7 +13,7 @@ import net.spy.*;
  */
 public class TestTest {
 
-	private TestQuestion questions[];
+	private Vector questions=null;
 	private int test_id = -1;
 	private int num_questions = -1;
 	private int current_question_i=0;
@@ -51,17 +51,18 @@ public class TestTest {
 			// Shuffle them
 			q_list = (Integer [])SpyUtil.shuffle(q_list);
 
+			int nquestions=num_questions;
+
 			// Different behavior depending on whether we have enough
 			// questions.
-			if(q_list.length > num_questions) {
-				questions = new TestQuestion[num_questions];
-			} else {
-				questions = new TestQuestion[q_list.length];
+			if(q_list.length < num_questions) {
+				nquestions = q_list.length;
 			}
 
+			questions=new Vector();
 			// OK, populate our questions.
-			for(int i=0; i<questions.length; i++) {
-				questions[i]=new TestQuestion( q_list[i].intValue() );
+			for(int i=0; i<nquestions; i++) {
+				questions.addElement(new TestQuestion( q_list[i].intValue()));
 			}
 
 		} catch(Exception e) {
@@ -78,7 +79,8 @@ public class TestTest {
 	public boolean nextQuestion() {
 		boolean ret=false;
 		try {
-			current_question=questions[current_question_i];
+			current_question=
+				(TestQuestion)questions.elementAt(current_question_i);
 			ret=true;
 		} catch(Exception e) {
 			// Don't care, return false
@@ -92,16 +94,21 @@ public class TestTest {
 	}
 
 	public TestQuestion getQuestion(int i) {
-		return(questions[i]);
+		return((TestQuestion)questions.elementAt(i));
+	}
+
+	public Enumeration getQuestions() {
+		return(questions.elements());
 	}
 
 	public String toString() {
-		String ret="";
+		StringBuffer sb=new StringBuffer();
 
-		for(int i=0; i<questions.length; i++) {
-			ret+=questions[i];
+		for(Enumeration e=questions.elements(); e.hasMoreElements(); ) {
+			sb.append(e.nextElement());
+			sb.append("\n\n");
 		}
 
-		return(ret);
+		return(sb.toString().trim());
 	}
 }

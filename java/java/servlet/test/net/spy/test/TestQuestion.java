@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestQuestion.java,v 1.3 2001/01/27 09:14:05 dustin Exp $
+// $Id: TestQuestion.java,v 1.4 2001/01/27 23:24:56 dustin Exp $
 
 package net.spy.test;
 
@@ -11,7 +11,7 @@ import net.spy.*;
 // This class implements the actual test that will be taken by people
 public class TestQuestion {
 	protected String question = null;
-	protected TestAnswer answers[] = null;
+	protected Vector answers = null;
 
 	public TestQuestion(int question_id) throws Exception {
 		int correct_answer;
@@ -33,7 +33,7 @@ public class TestQuestion {
 			// Done with that result set
 			rs.close();
 
-			Vector answers_v=new Vector();
+			answers=new Vector();
 
 			PreparedStatement pst2=db.prepareStatement(
 				"select * from test_answers where question_id = ?\n"
@@ -44,7 +44,7 @@ public class TestQuestion {
 			rs=pst2.executeQuery();
 
 			while(rs.next()) {
-				answers_v.addElement(
+				answers.addElement(
 					new TestAnswer(
 						rs.getString("answer"),
 						rs.getBoolean("correct")));
@@ -53,13 +53,16 @@ public class TestQuestion {
 			rs.close();
 			db.close();
 
-			// Make an array out of it
-			answers=new TestAnswer[answers_v.size()];
-			answers_v.copyInto(answers);
-
 			// If we're supposed to shuffle this, do so.
 			if(shuffle) {
-				answers=(TestAnswer [])SpyUtil.shuffle(answers);
+				// Make an array out of it
+				TestAnswer answers_a[]=new TestAnswer[answers.size()];
+				answers.copyInto(answers_a);
+				answers_a=(TestAnswer [])SpyUtil.shuffle(answers_a);
+				answers=new Vector();
+				for(int i=0; i<answers_a.length; i++) {
+					answers.addElement(answers_a[i]);
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -72,27 +75,37 @@ public class TestQuestion {
 	}
 
 	public TestAnswer getAnswer(int which) {
-		return(answers[which]);
+		return((TestAnswer)answers.elementAt(which));
 	}
 
 	public TestAnswer getAnswer() {
 		TestAnswer ret=null;
-		for(int i=0; i<4; i++) {
-			if(answers[i].isCorrect()) {
-				ret=answers[i];
+		for(Enumeration e=answers.elements();
+			ret==null && e.hasMoreElements(); ) {
+
+			TestAnswer ta=(TestAnswer)e.nextElement();
+
+			if(ta.isCorrect()) {
+				ret=ta;
 			}
 		}
 		return(ret);
 	}
 
 	public String toString() {
-		String ret=question + "\n";
+		StringBuffer sb=new StringBuffer(question);
 
-		for(int i=0; i<answers.length; i++) {
-			ret+="\t" + answers[i].isCorrect() + ":  "
-				+ answers[i].getAnswer() + "\n";
+		sb.append("\n");
+
+		for(Enumeration e=answers.elements(); e.hasMoreElements(); ) {
+			TestAnswer ta=(TestAnswer)e.nextElement();
+			sb.append("\t");
+			sb.append(ta.isCorrect());
+			sb.append(":  ");
+			sb.append(ta.getAnswer());
+			sb.append("\n");
 		}
 
-		return(ret);
+		return(sb.toString().trim());
 	}
 }

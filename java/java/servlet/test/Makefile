@@ -25,6 +25,8 @@ CLASSES=net/spy/test/TestTaker.class net/spy/test/TestSession.class \
 
 all: $(CLASSES)
 
+jar: testtaker.jar
+
 testtaker.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES)
 
