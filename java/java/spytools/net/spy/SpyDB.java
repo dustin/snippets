@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.7 2000/01/24 10:10:20 dustin Exp $
+ * $Id: SpyDB.java,v 1.8 2000/03/09 06:59:01 dustin Exp $
  */
 
 package net.spy;
@@ -28,6 +28,13 @@ public class SpyDB extends Object {
 	protected DbConnectionBroker dbs=null;
 	protected boolean auto_free = true;
 
+	// Number of connections to start with.
+	protected int min_conns = 1;
+	// Maximum number of connections to open.
+	protected int max_conns = 5;
+	// How long (in days) to keep a connection open.
+	protected double recycle_time = 0.01;
+
 	/**
 	 * Create a SpyDB object based on the description found in the passed
 	 * in SpyConfig object.  The following lists the minimal requiremenet
@@ -40,15 +47,39 @@ public class SpyDB extends Object {
 	 *  <li>dbPass - Database password</li>
 	 * </ul>
 	 *
+	 * The following config entries are optional, but supported:
+	 * <p>
+	 * <ul>
+	 *  <li>dbcbLogFilePath - default /tmp/pool.log</li>
+	 *  <li>dbcbMinConns - minimum number of connections - default 1</li>
+	 *  <li>dbcbMaxConns - maximum number of connections - default 5</li>
+	 *  <li>dbcbMaxLifeTime - maximum connection lifetime in days -
+	 *	default 0.01</li>
+	 * </ul>
+	 *
 	 * @param conf SpyConfig object describing how to connect.
 	 */
 	public SpyDB(SpyConfig conf) {
 		this.conf=conf;
+		String tmp=null;
 
 		log_file=conf.get("dbcbLogFilePath");
 		if(log_file==null) {
 			log_file="/tmp/pool.log";
 		}
+		tmp=conf.get("dbcbMinConns");
+		if(tmp!=null) {
+			min_conns=Integer.parseInt(tmp);
+		}
+		tmp=conf.get("dbcbMaxConns");
+		if(tmp!=null) {
+			max_conns=Integer.parseInt(tmp);
+		}
+		tmp=conf.get("dbcbMaxLifeTime");
+		if(tmp!=null) {
+			recycle_time=Double.valueOf(tmp).doubleValue();
+		}
+
 		if(dbss==null) {
 			dbss=new Hashtable();
 		}
@@ -71,11 +102,25 @@ public class SpyDB extends Object {
 	public SpyDB(SpyConfig conf, boolean auto_free) {
 		this.conf=conf;
 		this.auto_free=auto_free;
+		String tmp=null;
 
 		log_file=conf.get("dbcbLogFilePath");
 		if(log_file==null) {
 			log_file="/tmp/pool.log";
 		}
+		tmp=conf.get("dbcbMinConns");
+		if(tmp!=null) {
+			min_conns=Integer.parseInt(tmp);
+		}
+		tmp=conf.get("dbcbMaxConns");
+		if(tmp!=null) {
+			max_conns=Integer.parseInt(tmp);
+		}
+		tmp=conf.get("dbcbMaxLifeTime");
+		if(tmp!=null) {
+			recycle_time=Double.valueOf(tmp).doubleValue();
+		}
+
 		if(dbss==null) {
 			dbss=new Hashtable();
 		}
@@ -216,7 +261,7 @@ public class SpyDB extends Object {
 			Class.forName(conf.get("dbDriverName"));
 			dbs = new DbConnectionBroker(conf.get("dbDriverName"),
 				conf.get("dbSource"), conf.get("dbUser"), conf.get("dbPass"),
-				3, 20, log_file, 0.01);
+				min_conns, max_conns, log_file, recycle_time);
 			dbss.put(log_file, dbs);
 			log("Got a new DBCB object logging to " + log_file);
 		} catch(Exception e) {
