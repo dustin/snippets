@@ -29,7 +29,7 @@ let is_log_entry(l: string): bool =
 
 (* Parse time from the given timestamp *)
 let parse_time(l: string): int =
-	let times = split_chars(l, [' '; ':'; '-'], 7) in
+	let times = split_chars l [' '; ':'; '-'] 7 in
 	int_of_float(fst(Unix.mktime {
 		tm_sec = int_of_string(List.nth times 5);
 		tm_min = int_of_string(List.nth times 4);
@@ -58,8 +58,8 @@ let print_log_entry(l: log_entry) =
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
 
-	let parts = split(l, ' ', 12) in
-	let tparts = split((List.nth parts 10), '/', 3) in
+	let parts = split l ' ' 12 in
+	let tparts = split (List.nth parts 10) '/' 3 in
 		{
 			(* line_array[7] *)
 			server = List.nth parts 7;
