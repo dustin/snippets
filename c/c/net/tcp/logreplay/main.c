@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.3 1998/12/07 08:32:50 dustin Exp $
+ * $Id: main.c,v 1.4 1998/12/07 19:51:51 dustin Exp $
  */
 
 #include <config.h>
@@ -69,7 +69,7 @@ parseurl(char *url)
 {
 	char   *tmp;
 	struct url u;
-	int     port=0;
+	int     port = 0;
 
 	u.host = NULL;
 	u.req = NULL;
@@ -134,19 +134,50 @@ parseurl(char *url)
 }
 
 void
-usage(char **argv)
+usage(char *progname)
 {
-	printf("Usage:  %s [-dsS] [-n max_conns] request_url\n", argv[0]);
+	printf("Usage:  %s host port access_log\n", progname);
+}
+
+struct http_status
+getstatus(char *response, char *IP)
+{
+	char *p, *p2, *in;
+	struct http_status status;
+
+	in=strdup(response);
+
+	p=strchr(in, ' ');
+	assert(p);
+	p++;
+
+	p2=p;
+
+	while(*p2 && (*p2!='\r' || *p2!='\n')) p2++;
+	*p2=NULL;
+
+	status.status=atoi(p);
+	p=strchr(p, ' ');
+	assert(p);
+	p++;
+
+	status.string=strdup(p);
+	assert(status.string);
+
+	free(in);
+
+	return(status);
 }
 
 void
 dostats(int i, char *request, struct timeval timers[3],
-        int bytes, int delay, int flags)
+    int bytes, int delay, char *response, int flags)
 {
 	int     a, b, c;
 	char    times[3][50];
 	char    tmp[20];
 	float   tmpf;
+	struct	http_status status;
 
 	static int whatsup = 0;
 
@@ -155,14 +186,18 @@ dostats(int i, char *request, struct timeval timers[3],
 		if (whatsup == 0) {
 			whatsup = 1;
 			printf("# descriptor:delay:start_sec:con_time:"
-			    "trans_time:bytes:bps:request\n");
+			    "trans_time:bytes:bps:status:request\n");
 		}
 	}
+
+	status=getstatus(response, "127.0.0.1");
+
 	/* descriptor and number of connections */
 	if (flags & MACHINE_STATS)
 		printf("%d:%d:", i, delay);
 	else
-		printf("Stats for %d (delay %d)\n", i, delay);
+		printf("Stats for %d (delay %d, status (%d %s))\n",
+			i, delay, status.status, status.string);
 
 	strcpy(times[0], ctime(&timers[0].tv_sec));
 	strcpy(times[1], ctime(&timers[1].tv_sec));
@@ -198,8 +233,8 @@ dostats(int i, char *request, struct timeval timers[3],
 
 	/* Bytes and bps */
 	if (flags & MACHINE_STATS)
-		printf("%d:%.2f:%s\n", bytes, (float) ((float) bytes / tmpf),
-		    request);
+		printf("%d:%.2f:%d:%s\n", bytes, (float) ((float) bytes / tmpf),
+			status.status, request);
 	else
 		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
 
@@ -221,8 +256,20 @@ open_connection(char *host, int port, struct log_entry log)
 	return (s);
 }
 
+int
+str_append(struct growstring *s, char *buf)
+{
+	while( (strlen(s->string)+strlen(buf)) > s->size) {
+		s->size+=(1024*(sizeof(char)));
+		s->string=realloc(s->string, s->size);
+		assert(s->string);
+	}
+
+	strcat(s->string, buf);
+}
+
 void
-process(char *host, int port, FILE *f, int flags)
+process(char *host, int port, FILE * f, int flags)
 {
 	int     s, size, index, connected = 0, selected;
 	fd_set  fdset, tfdset;
@@ -230,31 +277,35 @@ process(char *host, int port, FILE *f, int flags)
 	char    buf[8192];
 	struct timeval t;
 	struct timeval timers[MAXSEL][3], tmptime;
-	int     bytes[MAXSEL], done=0;
+	int     bytes[MAXSEL], done = 0;
 	char   *requests[MAXSEL];
-	int    delays[MAXSEL];
-	void   *tzp=NULL;
+	int     delays[MAXSEL];
+	void   *tzp = NULL;
 	struct log_entry log;
+	struct growstring strings[MAXSEL];
 
-	if(getlog(f, &log)!=0)
+	if (getlog(f, &log) != 0)
 		return;
 
 	start_time = time(NULL);
 
 	FD_ZERO(&tfdset);
 
+	/* zero the strings */
+	memset(&strings, 0x00, sizeof(strings));
+
 	/*
 	 * The Loop(tm).  Here, we loop as long as we have more logs entries to
 	 * process, or we have connections open.
 	 */
-	while ( (!done) || connected > 0) {
+	while ((!done) || connected > 0) {
 
 		current_time = time(NULL);
 
 		/* This loop runs if/as long as there are new log entries that need
 		 * to be processed on this loop run */
-		while ( (!done)
-		        && log.timeoffset <= (current_time - start_time)) {
+		while ((!done)
+		    && log.timeoffset <= (current_time - start_time)) {
 
 			/*
 			 * printf("Need to start one for %d (we're at %d):\n\t%s\n",
@@ -271,17 +322,25 @@ process(char *host, int port, FILE *f, int flags)
 				requests[s] = strdup(log.request);
 				delays[s] = log.timeoffset;
 
+				/* Go ahead and pre-allocate 1k, if it's allocated already,
+				 * just prepare to use it again */
+				if(strings[s].string==NULL) {
+					strings[s].size=1024*sizeof(char);
+					strings[s].string=malloc(strings[s].size);
+				}
+				strings[s].string[0]=0x00;
+
 				bytes[s] = 0;
 				connected++;
 				FD_SET(s, &tfdset);
 			}
 			index++;
-			if(log.IP)
+			if (log.IP)
 				free(log.IP);
-			if(log.request)
+			if (log.request)
 				free(log.request);
-			if(getlog(f, &log)!=0)
-				done=1;
+			if (getlog(f, &log) != 0)
+				done = 1;
 		}
 
 		fdset = tfdset;
@@ -298,14 +357,20 @@ process(char *host, int port, FILE *f, int flags)
 						/* printf("--- Lost %d...\n", i); */
 						gettimeofday(&timers[i][2], tzp);
 						dostats(i, requests[i], timers[i], bytes[i],
-							delays[i], flags);
-						free(requests[i]);
+						    delays[i], strings[i].string, flags);
+						if(requests[i])
+							free(requests[i]);
+						if(strings[i].string) {
+							free(strings[i].string);
+							strings[i].string=NULL;
+						}
 						close(i);
 						connected--;
 						FD_CLR(i, &tfdset);
 					} else {
-						bytes[i]+=size;
-					} /* Figured out whether it's data or disco-nect */
+						bytes[i] += size;
+						str_append(&strings[i], buf);
+					}	/* Figured out whether it's data or disco-nect */
 				}	/* Found a match */
 			}	/* checking who's selected */
 		}		/* select */
@@ -315,14 +380,23 @@ process(char *host, int port, FILE *f, int flags)
 int
 main(int argc, char **argv)
 {
-	FILE *f;
+	FILE   *f;
 
-	f=fopen(argv[1], "r");
-	if(f==NULL) {
-		perror(argv[1]);
-		return(-1);
+	if(argc<4) {
+		usage(argv[0]);
+		return(1);
 	}
 
-	process("bleu.west.spy.net", 80, f, 0xffffffff);
-	return(0);
+	if (strcmp(argv[3], "-") == 0) {
+		f = stdin;
+	} else {
+		f = fopen(argv[3], "r");
+		if (f == NULL) {
+			perror(argv[3]);
+			return (-1);
+		}
+	}
+
+	process(argv[1], atoi(argv[2]), f, 0xffffffff);
+	return (0);
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: replay.h,v 1.2 1998/12/07 08:32:52 dustin Exp $
+ * $Id: replay.h,v 1.3 1998/12/07 19:51:53 dustin Exp $
  */
 
 #ifndef REPLAY_H
@@ -54,7 +54,18 @@ struct log_entry {
 	char *request;
 };
 
+struct growstring {
+	size_t size;
+	char *string;
+};
+
+struct http_status {
+	int status;
+	char *string;
+};
+
 int     getclientsocket(char *host, int port);
 int		getlog(FILE *f, struct log_entry *log);
+int		str_append(struct growstring *s, char *buf);
 
 #endif
