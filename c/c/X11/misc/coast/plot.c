@@ -178,11 +178,6 @@ main(int argc, char *argv[])
 	case Expose:
 	  xplot();
 	  break;
-	case ResizeRequest:
-	  max_x = event.xresizerequest.width;
-	  max_y = event.xresizerequest.height;
-	  XResizeWindow(display, window, max_x, max_y);
-	  break;
 	case KeyPress:
           keyevent(&event.xkey);
           break;
