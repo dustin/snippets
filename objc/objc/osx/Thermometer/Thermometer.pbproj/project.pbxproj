@@ -130,6 +130,7 @@
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -220,6 +221,7 @@
 				29B9732DFDCFA39411CA2CEA,
 			);
 			buildSettings = {
+				DEBUGGING_SYMBOLS = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
 				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -263,7 +265,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 1;
 		};
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -349,11 +350,13 @@
 //F53
 //F54
 		F54ADCEB0369034301A801C4 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = Controller.h;
 			refType = 4;
 		};
 		F54ADCEC0369034301A801C4 = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = Controller.m;
 			refType = 4;
@@ -371,11 +374,13 @@
 			};
 		};
 		F54D19D9040EA22A01BE144C = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = ThermometerView.h;
 			refType = 4;
 		};
 		F54D19DA040EA22A01BE144C = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = ThermometerView.m;
 			refType = 4;

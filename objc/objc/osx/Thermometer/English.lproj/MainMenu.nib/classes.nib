@@ -1,9 +1,18 @@
 {
     IBClasses = (
         {
+            ACTIONS = {setCelsius = id; setFarenheit = id; };
             CLASS = Controller;
             LANGUAGE = ObjC;
-            OUTLETS = {img = NSImageView; };
+            OUTLETS = {
+                backYard = ThermometerView;
+                bedroom = ThermometerView;
+                garage = ThermometerView;
+                guestRoom = ThermometerView;
+                livingRoom = ThermometerView;
+                machineRoom = ThermometerView;
+                status = NSTextField;
+            };
             SUPERCLASS = NSObject;
         },
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },

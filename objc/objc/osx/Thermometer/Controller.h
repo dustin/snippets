@@ -5,6 +5,16 @@
 
 @interface Controller : NSObject
 {
-    IBOutlet ThermometerView *img;
+    IBOutlet ThermometerView *backYard;
+    IBOutlet ThermometerView *bedroom;
+    IBOutlet ThermometerView *garage;
+    IBOutlet ThermometerView *guestRoom;
+    IBOutlet ThermometerView *livingRoom;
+    IBOutlet ThermometerView *machineRoom;
+    IBOutlet NSTextField *status;
+
+    NSMutableArray *therms;
 }
+- (IBAction)setCelsius:(id)sender;
+- (IBAction)setFarenheit:(id)sender;
 @end
