@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.4 1998/01/06 05:27:26 dustin Exp $
+ * $Id: cluster.c,v 1.5 1998/01/06 08:03:27 dustin Exp $
  */
 
 #include <config.h>
@@ -61,10 +61,11 @@ void freeCluster(struct cluster **c)
 
     for(i=0; c[i]; i++)
     {
-        _ndebug(4, ("Freeing %s\n", c[i]->hostname));
-
         if(c[i]->hostname)
+	{
+            _ndebug(4, ("Freeing %s\n", c[i]->hostname));
             free(c[i]->hostname);
+	}
         free(c[i]);
     }
     free(c);
@@ -114,6 +115,7 @@ struct cluster **clustRoundRobin(char *p, int stats)
 
     cluster=(struct cluster**)malloc(size*sizeof(struct cluster **));
     assert(cluster);
+    cluster[0]=NULL;
 
     _ndebug(2, ("cluster(\"%s\", %d)\n", p, stats));
 
@@ -150,11 +152,66 @@ struct cluster **clustRoundRobin(char *p, int stats)
     return(cluster);
 }
 
+struct cluster **clustTopDown(char *p, int stats)
+{
+    char **list=NULL;
+    char key[80];
+    struct cluster **cluster=NULL;
+    int i, index, defalrm, current=0, size=4;
+
+    cluster=(struct cluster**)malloc(size*sizeof(struct cluster **));
+    assert(cluster);
+    cluster[0]=NULL;
+
+    sprintf(key, "ports.%s.tcptimeout", p);
+    defalrm=rcfg_lookupInt(cf, key);
+    if(defalrm<1)
+        defalrm=DEFCONTIME;
+
+    sprintf(key, "ports.%s.cluster", p);
+    list=rcfg_getSection(cf, key);
+    if(list)
+	rcfg_freeSectionList(list);
+    freeCluster(cluster);
+    return(NULL);
+}
+
 /*
- * This will eventually decide the best algorithm and return the cluster
- * for it.
+ * Get the cluster algorithm, make it go, return the cluster.
  */
 struct cluster **getcluster(char *p, int stats)
 {
-    return(clustRoundRobin(p, stats));
+    char key[80];
+    int i;
+    char *al;
+    void *(*f)(char *p, int stats);
+    struct namedfunc funclist[]={
+	{ "roundrobin", clustRoundRobin },
+	{ "topdown", clustTopDown },
+	{ NULL, NULL }
+    };
+
+    sprintf(key, "ports.%s.algorithm", p);
+    al=rcfg_lookup(cf, key);
+    if(al==NULL)
+        al=funclist[0].cmd;
+
+    for(i=0; funclist[i].cmd!=NULL; i++)
+    {
+	if(strncmp(funclist[i].cmd, al, strlen(al))==0)
+	    break;
+    }
+
+    if(funclist[i].func==NULL)
+    {
+	_ndebug(2, ("Warning:  No clustering algorithm known named %s\n", al));
+	f=(void *)funclist[0].func;
+    }
+    else
+    {
+	_ndebug(2, ("Using a %s algorithm for clustering.\n", al));
+	f=(void *)funclist[i].func;
+    }
+
+    return((struct cluster **)f(p, stats));
 }

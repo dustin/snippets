@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: redirect.h,v 1.4 1998/01/05 00:15:33 dustin Exp $
+ * $Id: redirect.h,v 1.5 1998/01/06 08:03:30 dustin Exp $
  */
 
 #ifndef REDIRECT_H
@@ -39,6 +39,11 @@ struct cluster {
     char *hostname;
     int port;
     int tcptimeout;
+};
+
+struct namedfunc {
+    char *cmd;
+    struct cluster **(*func)(char *p, int stats);
 };
 
 struct cluster **getcluster(char *p, int stats);

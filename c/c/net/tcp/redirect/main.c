@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.9 1998/01/06 05:27:29 dustin Exp $
+ * $Id: main.c,v 1.10 1998/01/06 08:03:28 dustin Exp $
  */
 
 #include <config.h>
@@ -70,11 +70,11 @@ int checkpidfile(char *filename)
 
         if( kill(pid, 0) ==0)
         {
-            ret=PID_ACTIVE;
+           ret=PID_ACTIVE;
         }
         else
         {
-            ret=PID_STALE;
+           ret=PID_STALE;
         }
     }
 
@@ -97,14 +97,14 @@ void writepid(int pid)
     switch(r)
     {
         case PID_NOFILE:
-            break;
+           break;
         case PID_STALE:
-            puts("Stale PID file found, overriding.");
-            break;
+           puts("Stale PID file found, overriding.");
+           break;
         case PID_ACTIVE:
-            puts("Active PID file found, exiting...");
-            kill(pid, SIGTERM);
-            exit(1);
+           puts("Active PID file found, exiting...");
+           kill(pid, SIGTERM);
+           exit(1);
     }
     if(NULL ==(f=fopen(pidfile, "w")) )
     {
@@ -169,18 +169,21 @@ int mapcon(char *p, int stats)
     {
         _ndebug(2, ("That's a cluster, do it.\n"));
 
-	s=-1;
-        cluster=getcluster(p, stats);
-	for(i=0; cluster[i] && s==-1; i++)
-	{
-	    _ndebug(2, ("Trying %s:%d (alrm: %d)\n",
-			cluster[i]->hostname,
-			cluster[i]->port,
-			cluster[i]->tcptimeout));
-            alarm(cluster[i]->tcptimeout);
-            s=getclientsocket(cluster[i]->hostname, cluster[i]->port);
-            alarm(0);
-	}
+       s=-1;
+       /* Better check that getcluster didn't return NULL, that'd be bad */
+       if( (cluster=getcluster(p, stats)) )
+       {
+           for(i=0; cluster[i] && s==-1; i++)
+           {
+               _ndebug(2, ("Trying %s:%d (alrm: %d)\n",
+                       cluster[i]->hostname,
+                       cluster[i]->port,
+                       cluster[i]->tcptimeout));
+               alarm(cluster[i]->tcptimeout);
+               s=getclientsocket(cluster[i]->hostname, cluster[i]->port);
+               alarm(0);
+           }
+       }
 
         freeCluster(cluster);
     }
@@ -197,7 +200,7 @@ int mapcon(char *p, int stats)
         _ndebug(5, ("Looking up ``%s''\n", key));
         alrm=rcfg_lookupInt(cf, key);
         if(alrm<1)
-            alrm=defalrm;
+           alrm=defalrm;
 
         _ndebug(2, ("%d seconds to connect\n", alrm));
 
@@ -222,17 +225,17 @@ int listento(char *gimme)
      host=ptr;
      for(tmp=ptr; *tmp; tmp++)
      {
-         if(*tmp==':')
-         {
-             *tmp=NULL;
-             tmp++;
-             port=atoi(tmp);
-         }
+        if(*tmp==':')
+        {
+            *tmp=NULL;
+            tmp++;
+            port=atoi(tmp);
+        }
      }
      if(port==-1)
      {
-         host=NULL;
-         port=atoi(ptr);
+        host=NULL;
+        port=atoi(ptr);
      }
 
      s=getservsocket(host, port);
@@ -267,12 +270,12 @@ void _main(void)
         s=listento(ports[i]);
         if(s>=0)
         {
-             if(s>upper)
-                 upper=s;
+            if(s>upper)
+                upper=s;
 
-             _ndebug(3, ("Listening on, and Fdsetting %d\n", s));
-             FD_SET(s, &tfdset);
-             portmap[s]=strdup(ports[i]);
+            _ndebug(3, ("Listening on, and Fdsetting %d\n", s));
+            FD_SET(s, &tfdset);
+            portmap[s]=strdup(ports[i]);
         }
     }
     rcfg_freeSectionList(ports);
@@ -280,92 +283,92 @@ void _main(void)
 
     for(;;)
     {
-         fdset=tfdset;
-         fromlen=sizeof(fsin);
+        fdset=tfdset;
+        fromlen=sizeof(fsin);
 
-         _ndebug(2, ("Selecting...\n"));
-         if(_debug>9)
-         {
-             for(i=0; i<MAPSIZE; i++)
-             {
-                 if(FD_ISSET(i, &fdset))
-                     printf("    ...on %d\n", i);
-             }
-         }
+        _ndebug(2, ("Selecting...\n"));
+        if(_debug>9)
+        {
+            for(i=0; i<MAPSIZE; i++)
+            {
+                if(FD_ISSET(i, &fdset))
+                   printf("    ...on %d\n", i);
+            }
+        }
 
-         if( (selected=select(upper, &fdset, NULL, NULL, NULL)) > 0)
-         {
-             for(i=0; i<MAPSIZE; i++)
-             {
-                 _ndebug(7, ("Testing %d for fdset\n", i));
-                 if(FD_ISSET(i, &fdset))
-                 {
-                     _ndebug(2, ("Select found %d (portmaps to %s)\n",
-                                 i, portmap[i]));
-                     if(portmap[i]!=NULL)
-                     {
-                          _ndebug(2, ("Got a connection for port %s\n",
-                                      portmap[i]));
-                          if( (cs=accept(i, (struct sockaddr *)&fsin,
-                               &fromlen)) >= 0)
+        if( (selected=select(upper, &fdset, NULL, NULL, NULL)) > 0)
+        {
+            for(i=0; i<MAPSIZE; i++)
+            {
+                _ndebug(7, ("Testing %d for fdset\n", i));
+                if(FD_ISSET(i, &fdset))
+                {
+                   _ndebug(2, ("Select found %d (portmaps to %s)\n",
+                              i, portmap[i]));
+                   if(portmap[i]!=NULL)
+                   {
+                        _ndebug(2, ("Got a connection for port %s\n",
+                                  portmap[i]));
+                        if( (cs=accept(i, (struct sockaddr *)&fsin,
+                            &fromlen)) >= 0)
+                        {
+                          if( (os=mapcon(portmap[i], ++stats[i])) >= 0)
                           {
-                             if( (os=mapcon(portmap[i], ++stats[i])) >= 0)
-                             {
-                                 _ndebug(2, ("Got new connection, %d<->%d\n",
-                                             os, cs));
-                                 /* Select on both directions */
-                                 FD_SET(cs, &tfdset);
-                                 FD_SET(os, &tfdset);
+                              _ndebug(2, ("Got new connection, %d<->%d\n",
+                                        os, cs));
+                              /* Select on both directions */
+                              FD_SET(cs, &tfdset);
+                              FD_SET(os, &tfdset);
 
-				 if(cs>=upper) upper=cs+1;
-				 if(os>=upper) upper=os+1;
+                          if(cs>=upper) upper=cs+1;
+                          if(os>=upper) upper=os+1;
 
-                                 /* Map both directions */
-                                 map[cs]=os;
-                                 map[os]=cs;
-                             }
-                             else
-                             {
-                                 close(cs);
-                             }
+                              /* Map both directions */
+                              map[cs]=os;
+                              map[os]=cs;
                           }
-                     }
-                     else /* We've got data, need to send it */
-                     {
-                         _ndebug(2, ("That's a listener\n"));
-                         if(map[i]>0)
-                         {
-                             size=recv(i, buf, BUFLEN, 0);
-                             if(size==0)
-                             {
-                                 close(i);
-                                 close(map[i]);
-                                 FD_CLR(i, &tfdset);
-                                 FD_CLR(map[i], &tfdset);
-                                 map[map[i]]=-1;
-                                 map[i]=-1;
-                             }
-                             else
-                             {
-                                 _ndebug(3, ("Sending %d bytes from %d "
-                                             "to %d\n", size, i, map[i]));
-                                 send(map[i], buf, size, 0);
-                             }
-                         }
-                     }
-                     if(--selected==0)
-                     {
-                         _ndebug(4, ("Select done\n"));
-                         break;
-                     }
-                 } /* End of ``that bastard i's selected'' if statement */
-             } /* End of ``flip through select'' loop */
-         }
-         else
-         {
-             perror("Select");
-             exit(0);
-         }
+                          else
+                          {
+                              close(cs);
+                          }
+                        }
+                   }
+                   else /* We've got data, need to send it */
+                   {
+                       _ndebug(2, ("That's a listener\n"));
+                       if(map[i]>0)
+                       {
+                          size=recv(i, buf, BUFLEN, 0);
+                          if(size==0)
+                          {
+                              close(i);
+                              close(map[i]);
+                              FD_CLR(i, &tfdset);
+                              FD_CLR(map[i], &tfdset);
+                              map[map[i]]=-1;
+                              map[i]=-1;
+                          }
+                          else
+                          {
+                              _ndebug(3, ("Sending %d bytes from %d "
+                                        "to %d\n", size, i, map[i]));
+                              send(map[i], buf, size, 0);
+                          }
+                       }
+                   }
+                   if(--selected==0)
+                   {
+                       _ndebug(4, ("Select done\n"));
+                       break;
+                   }
+                } /* End of ``that bastard i's selected'' if statement */
+            } /* End of ``flip through select'' loop */
+        }
+        else
+        {
+            perror("Select");
+            exit(0);
+        }
     } /* Infinite loop */
 }
 
