@@ -14,27 +14,27 @@ all: $(PROGS)
 
 parseSQLLog: parseSQLLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa stringutils.cmx fileutils.cmx parseSQLLog.ml
+		unix.cmxa extstring.cmx fileutils.cmx parseSQLLog.ml
 
 parseTimingLog: parseTimingLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa stringutils.cmx fileutils.cmx parseTimingLog.ml
+		unix.cmxa extstring.cmx fileutils.cmx parseTimingLog.ml
 
 parseTimingLogbc: parseTimingLog.ml
 	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
-		unix.cma stringutils.cmo fileutils.cmo parseTimingLog.ml
+		unix.cma extstring.cmo fileutils.cmo parseTimingLog.ml
 
 rrdIndex: rrdIndex.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa stringutils.cmx fileutils.cmx rrdIndex.ml
+		unix.cmxa dbm.cmxa extstring.cmx fileutils.cmx rrdIndex.ml
 
 spreadsheetPivot: spreadsheetPivot.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa stringutils.cmx fileutils.cmx spreadsheetPivot.ml
+		unix.cmxa extstring.cmx fileutils.cmx spreadsheetPivot.ml
 
 indexGWAuth: indexGWAuth.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa stringutils.cmx fileutils.cmx indexGWAuth.ml
+		unix.cmxa dbm.cmxa extstring.cmx fileutils.cmx indexGWAuth.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o

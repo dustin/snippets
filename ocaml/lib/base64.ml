@@ -20,38 +20,19 @@ let char_map = [|
 	'0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '+'; '/'|]
 ;;
 
-(** Convert a stream of strings to a string of chars. *)
-let stream_convert source =
-	let chunk = ref (Stream.of_string (Stream.next source)) in
-	Stream.from (fun x ->
-		try
-			Stream.empty !chunk;
-			try
-				Stream.empty source;
-				None
-			with Stream.Failure ->
-				chunk := (Stream.of_string (Stream.next source));
-				Some (Stream.next !chunk)
-		with Stream.Failure ->
-			Some (Stream.next !chunk)
-	)
-;;
-
 (** {1 Functions for encoding} *)
 
 (** Encode a chunk.  The chunk is either a 1, 2, or 3 element list. *)
 let encode_chunk chars =
 	if(List.length chars = 0 || List.length chars > 3) then
 		raise (Invalid_encode_chunk(List.length chars));
-	let chunk = String.create 4 in
+	let chunk = String.make 4 '=' in
 	let a = List.nth chars 0 in
 	let tmpa = (((Char.code a) land 3) lsl 4) in
 	chunk.[0] <- char_map.( (Char.code a) lsr 2);
 	(* Check for another character *)
 	if (List.length chars < 2) then (
 		chunk.[1] <- char_map.(tmpa);
-		chunk.[2] <- '=';
-		chunk.[3] <- '=';
 		chunk;
 	) else (
 		let b = List.nth chars 1 in
@@ -60,7 +41,6 @@ let encode_chunk chars =
 		chunk.[1] <- char_map.(tmpa lor tmpb);
 		if (List.length chars < 3) then (
 			chunk.[2] <- char_map.(tmpa2);
-			chunk.[3] <- '=';
 			chunk
 		) else (
 			let c = List.nth chars 2 in

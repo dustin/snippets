@@ -8,7 +8,7 @@
 let main() =
 	let db = Dbm.opendbm "authdb" [Dbm.Dbm_create;Dbm.Dbm_rdwr] 0o644 in
 	Fileutils.iter_lines (fun l ->
-							Dbm.add db (List.hd (Stringutils.split l '\t' 1)) l)
+							Dbm.add db (List.hd (Extstring.split l '\t' 1)) l)
 						stdin;
 	Dbm.close db;
 ;;

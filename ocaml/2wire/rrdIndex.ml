@@ -9,7 +9,7 @@ let index_one fn =
 	(* Get the DBM *)
 	let db = Dbm.opendbm fn [Dbm.Dbm_create;Dbm.Dbm_rdwr] 0o644 in
 	Fileutils.iter_file_lines (fun l ->
-		let a = Stringutils.split l '\t' 2 in
+		let a = Extstring.split l '\t' 2 in
 		try
 			Dbm.add db (List.hd a) l
 		with

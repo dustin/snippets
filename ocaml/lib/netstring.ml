@@ -11,27 +11,13 @@ let encode s =
 	(string_of_int (String.length s)) ^ ":" ^ s ^ ","
 ;;
 
-let listiteri f lin =
-	let rec loop x l =
-		match l with
-		  [] -> ()
-		| _ -> f x (List.hd l); loop (x + 1) (List.tl l)
-	in loop 0 lin
-;;
-
-let chars_to_string l =
-	let str = String.create (List.length l) in
-	listiteri (fun i c -> str.[i] <- c) l;
-	str
-;;
-
 (** Get the next netstring from the given stream. *)
 let decode in_stream =
 	let rec loop l =
 		if (List.length l > 10) then failwith "Size too long";
 		let c = Stream.next in_stream in
 		if (c = ':') then (
-			int_of_string (chars_to_string l)
+			int_of_string (Extstring.string_of_chars l)
 		) else (
 			loop (l @ [c])
 		) in
@@ -42,5 +28,5 @@ let decode in_stream =
 	if (comma != ',') then (
 		failwith "Invalid netstring (didn't get a comma in the right place"
 	);
-	chars_to_string data
+	Extstring.string_of_chars data
 ;;

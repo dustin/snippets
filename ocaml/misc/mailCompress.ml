@@ -63,7 +63,7 @@ let is_new_enough fn =
 
 let should_process fn =
 	try
-		(Stringutils.ends_with fn ".")
+		(Extstring.ends_with fn ".")
 			&& (is_new_enough fn)
 			&& (not (is_gzip fn))
 	with x ->
