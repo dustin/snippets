@@ -1,0 +1,65 @@
+#!/usr/local/bin/perl
+# $Id: netmon2,v 1.1 1997/12/12 18:36:30 dustin Exp $
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+# Ping data values
+$packets=10;
+$bytes=64;
+
+@plotdata=();
+$maxping=0;
+$minping=999999;
+
+# Host records are like this
+# name<tab>comment<tab>history
+# where history is 30 bytes of stuff that defines the results for this host
+#
+open(HSTS,"<$netmonHostrec") || die "Can't open hosts file";
+
+&ensurepath($netmonPlotdata);
+open(OUT, ">$netmonPlotdata.$$");
+while(<HSTS>)
+{
+        local($times,$sent,$rec,$lost,$t,$c,@t,$current);
+        local($host,$comment,$record) = split(/\t/,$_,3);
+        /^#/ && ($hout .= $_) && next;
+        chop($record); #Chop lf
+        chop($record); #Chop Data From end
+        open(PING,"/usr/sbin/ping -s $host $bytes $packets|")
+		|| die "Can't ping $hst";
+
+        while(<PING>)
+        {
+                chop;
+                /bytes/ && next;
+                s/round.*= // && ($times = $_);
+                /packets/ && ($pack = $_);
+        }
+        close(PING);
+        $pack =~ s/ packets transmitted//;
+        $pack =~ s/ packets received//;
+        $pack =~ s/% packet loss//;
+        ($sent,$rec,$lost) = split(/,/,$pack);
+
+        @stuff=($comment);
+        push(@stuff, $sent, $rec, $lost);
+
+        $fnt = "<font color=black>";
+        $times =~ /./ || ($times="0/0/0");
+
+        ($min,$avg,$max) = split(/\//,$times);
+
+        push(@stuff, $min,$avg,$max);
+
+        print OUT join(':', @stuff);
+        print OUT "\n";
+}
+
+close(HSTS);
+close(OUT);
+
+rename("$netmonPlotdata.$$", $netmonPlotdata);
+
+exit;

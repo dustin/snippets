@@ -1,0 +1,11 @@
+#!/bin/sh
+
+umask 22
+
+while true
+do
+  /home/monitor/bin/ldload > /home/barbershop/stats/load.tmp.$$
+  chmod 644 /home/barbershop/stats/load.tmp.$$
+  mv /home/barbershop/stats/load.tmp.$$ /home/barbershop/stats/load.html
+  sleep 10
+done

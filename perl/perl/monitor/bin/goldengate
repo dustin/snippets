@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+my($errmsg);
+my($color);
+my($status);
+
+$errmsg="";
+$color="007f00";
+$status=0;
+
+chdir($ggtestdir) || die("no $ggtestdir");
+
+open(IN, "./goldengate_test|");
+while($line=<IN>)
+{
+    chop($line);
+    if($line =~ /\[([0-9]+)\](.*)/)
+    {
+        if($1 != 0)
+        {
+            $errmsg=$2;
+            $status=1;
+	    $color="ff0000";
+            last;
+        }
+    }
+    else
+    {
+	$errmsg=$line;
+	$status=1;
+        $color="ff0000";
+	last;
+    }
+}
+close(IN);
+
+open(OUT, ">$quickGG");
+
+print OUT "<font color=\"$color\">";
+
+if($status==1)
+{
+    print OUT "Failed ($errmsg).";
+    doalarms("goldengate.red", "GoldenGate Error:  $errmsg.");
+}
+else
+{
+    print OUT "Passed.";
+}
+
+print OUT "</font>\n";
+
+close(OUT);

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+umask 22
+
+if ps -ef | egrep -v grep | grep localdir >/dev/null
+then
+	exit;
+fi
+echo "Had to restart local dir monitor";
+nohup /home/monitor/bin/localdir &
+exit;

@@ -1,0 +1,19 @@
+#!/bin/sh
+# $Id: getinfos,v 1.1 1997/12/12 18:36:30 dustin Exp $
+
+. /home/monitor/lib/shellconf
+
+GETIT=$HOMEBIN/getit
+DATE=`date +%m%d%y`
+LOG=$BWLOGS/$DATE
+HOSTS=`cat $HOME/lib/routers`
+
+if [ ! -d $LOG ]
+then
+    mkdir -p $LOG
+fi
+
+for host in $HOSTS
+do
+    $GETIT $host >> $LOG/$host
+done

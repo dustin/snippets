@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+#
+# $Id: getdisklog,v 1.1 1997/12/12 18:36:31 dustin Exp $
+#
+# Log disk utilization
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+$timestamp="";
+$datestamp="";
+
+sub domachine
+{
+    my($machine)=@_;
+    my($pathname, $n);
+
+    $pathname="$disklogs/$datestamp/$machine-$timestamp";
+    &ensurepath($pathname);
+
+    open(LOG, ">$pathname");
+
+    &openhost($machine, 6013);
+    print S "disks\r\n";
+
+    $n=<S>;
+
+    for(1..$n)
+    {
+        $_=<S>;
+
+	print LOG;
+    }
+
+    print S "quit\r\n";
+    close(S);
+
+    close(LOG);
+}
+
+($timestamp, $datestamp)=&timeStamps;
+
+foreach $machine (@ARGV)
+{
+    domachine($machine);
+}
+
+# print "Will log to $pslogs/$datestamp/*-$timestamp\n";

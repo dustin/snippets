@@ -1,0 +1,64 @@
+#!/bin/sh
+# $Id: getit,v 1.1 1997/12/12 18:36:30 dustin Exp $
+
+set kludge { $*
+    shift
+    shift
+    if test -f ../scotty ; then
+      exec ../scotty -nf $0 $*
+    else
+      exec /usr/local/bin/scotty -nf $0 $*
+    fi
+}
+
+mib load rfc1213.mib
+mib load cisco.mib
+
+set host [lindex $argv 0]
+set community [expr {$argc == 2 ? [lindex $argv 1] : "public"}]
+
+set pt [lindex [lindex [icmp -retries 5 echo $host] 0] 1]
+
+if { $pt>-1 } {
+
+    set code [catch {snmp session -address $host -community $community} s]
+    if $code {
+        puts stderr $s
+        exit 1
+    }
+
+        set uptime [lindex [lindex [$s get "sysUpTime.0"] 0] 2]
+
+        set infs [lindex [lindex [$s get "ifNumber.0"] 0] 2]
+        if $code {
+            puts stderr $msg
+            exit 1
+        }
+
+        for {set count 1} {$count <= $infs} {incr count 1} {
+            set inf "ifDescr.$count"
+            set desc [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "ifInOctets.$count"
+            set in   [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "locIfInBitsSec.$count"
+            set ain   [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "ifOutOctets.$count"
+            set out  [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "locIfOutBitsSec.$count"
+            set aout  [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "ifSpeed.$count"
+            set spd  [lindex [lindex [$s get $inf] 0] 2]
+
+            set inf "locIfDescr.$count"
+            set ldesc  [lindex [lindex [$s get $inf] 0] 2]
+
+            puts "$host;[getclock];$desc;$in;$out;$spd;$ain;$aout;$ldesc"
+        }
+
+        $s destroy;
+}

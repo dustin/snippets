@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+#
+# $Id: getocpage,v 1.1 1997/12/12 18:36:31 dustin Exp $
+#
+# Get oncall page.
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+$timestamp="";
+$datestamp="";
+
+($timestamp, $datestamp)=&timeStamps;
+
+$pathname="$pagelogs/$datestamp/$timestamp";
+&ensurepath($pathname);
+open(LOG, ">$pathname");
+
+while(<>)
+{
+    print LOG $_;
+}
+close(LOG);

@@ -1,0 +1,71 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+#
+# $Id: checkwebserver,v 1.1 1997/12/12 18:36:31 dustin Exp $
+# $Source: /Users/dustin/stuff/cvstest/perl/monitor/bin/Attic/checkwebserver,v $
+
+use Socket;
+
+sub timeout
+{
+    alarm(0);
+    $SIG{'ALRM'}=timeout;
+    return(0);
+}
+
+sub GetStatus
+{
+    my($url)=@_;
+    my($host, $request, @status);
+
+    if($url eq "")
+    {
+	return("", 0, "Invalid URL format");
+    }
+
+    if(!($url=~/http:\/\/([^\/]+)(.*)/))
+    {
+	return("", 0, "Invalid URL format");
+    }
+
+    ($host, $request)=($1, $2);
+
+    $request="/" if($request eq "");
+
+    print "Getting $request from $host\n";
+
+    $proto=getprotobyname('tcp');
+    socket(S, PF_INET, SOCK_STREAM, $proto);
+    $sin=sockaddr_in(80, inet_aton($host));
+
+    print "Trying to connect\n";
+
+    alarm(15);
+    connect(S, $sin) || return("", "-1", "Connection error");
+    alarm(0);
+
+    print "Connected, sending request.\n";
+
+    print S "GET $request HTTP/1.0\n\n";
+
+    print "Request sent, waiting for the first line of the reply...\n";
+
+    chop($in=<S>);
+    print "Got it, it was ``$in''\n";
+    @status=split(/\s+/, $in, 3);
+    close(S);
+    return(@status);
+}
+
+$SIG{'ALRM'}=timeout;
+
+open(IN, $ARGV[0]) || die("$ARGV[0]: $!");
+while(<IN>)
+{
+    chop;
+    next if(/^#/);
+    next unless(/[A-z0-9]+/);
+    @status=GetStatus($_);
+    print "$_:  $status[1]\n";
+}
+close(IN);

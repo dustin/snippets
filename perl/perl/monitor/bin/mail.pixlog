@@ -1,0 +1,8 @@
+#!/bin/sh
+
+LOGFILE=/var/log/pixlog.0.gz
+PIXANALYZE=/home/barbershop/cgi-bin/stats/pixanalyze.cgi
+GZIP=/usr/local/bin/gzip
+TO="jpp@cybersource.com dustin@cybersource.com"
+
+$GZIP -dc $LOGFILE | $PIXANALYZE - | /usr/ucb/Mail -s "PIX Analysis" $TO

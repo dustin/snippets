@@ -1,0 +1,231 @@
+#!/usr/local/bin/perl -- -*-perl-*-
+#
+# $Id: ldl,v 1.1 1997/12/12 18:36:30 dustin Exp $
+#
+$SIG{'ALRM'} = 'handler';
+$deb = 1;
+$outfile="/home/barbershop/stats/load.html";
+
+$site="hitchcock.cybersource.com";
+  local($sockaddr,$there,$response,$tries) = ("Snc4x8");
+  alarm(25);
+  $port=23;
+  $there = pack($sockaddr,2,$port,&getaddress($site));
+  if (!socket(S,2,2,6)) { &debug("socket open fail $!"); return(0); }
+  if (!connect(S,$there)) { &debug("No connect $site"); return(0); }
+  select(S);$|=1;$/=" ";
+  select(STDOUT);
+  while(<S>)
+  {
+	$temp .= $_;
+	last if $temp =~ /word:/i;
+  }
+  print S "a!ta\n";
+  &getprompt;
+  print S "pager lines 0\n";
+  &getprompt;
+  print S "show real\n";
+  $real = &getprompt;
+  print S "show virtual\n";
+  $virtual = &getprompt;
+  print S "show conn\n";
+  $constat = &getprompt;
+  print S "show fail\n";
+  $fail = &getprompt;
+  print S "quit\n";
+  close(S);
+  alarm(0);
+
+# $out="Content-type: text/html\n\n";
+
+if(defined($ENV{QUERY_STRING}))
+{
+    print <<EOF;
+Content-type: text/html
+
+EOF
+}
+
+$out.="<html><head><title>Load Director Stats</title></head><body>\n";
+
+$out .= "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"10\">";
+
+$out.="<table border=\"2\"><tr><td valign=\"top\">\n";
+$out.="<table border=\"0\">\n";
+$out.="<tr><th>Server</th><th>State</th><th colspan=\"2\">\n";
+$out.="Connections</th><th>Predictor</th></tr>\n";
+
+$out.="<h3>Server Load - virtual servers</h3>\n";
+
+@virtual = sort vbyload split(/\n/,$virtual);
+$vscale = 2;
+if ($vmax > 100)
+{
+	$vscale = 200 / $vmax;
+}
+foreach (@virtual)
+{
+        local($server,$port,$conna,$state,$stick,$pred,$xa);
+        s/^\s+//;
+        ($server,$port,$state,$conn,$stick,$pred) = split(/\s+/,$_);
+
+        next unless $stick =~ /\d/;
+        $out .= "<tr><th align=left>$server:$port</th>";
+        $out .= "<th>$state</th><td>$conn</td><td align=left>";
+        $out .= "<img src=\"/images/bluedot.gif\"";
+        $out.= "height=12 width=" . $conn*$vscale . "></td><td align=right>$pred</td></tr>\n";
+
+}
+$out .= "</table>";
+$constat =~ s/show conn/<h3>Connection Stats<\/h3><pre>/;
+$out .= "$constat</pre>";
+$out .= "<table>";
+$out .= "<tr><th align=left colspan=2>Failover Status</th></tr>";
+$fail =~ s/show fail\r+\n//;
+$fail =~ s/\t\t/    /g;
+$fail =~ s/\t//g;
+$out .= "<tr><td colspan=2><pre>$fail<pre></td></tr>";
+$out .= "<tr><th align=left colspan=2>Key</th></tr>";
+$out .= "<tr><th>IS</th><td>In Service - server is available ";
+$out .= "for and accepting requests</td></tr>\n";
+$out .= "<tr><th>FAILED</th><td>In Service but not accepting ";
+$out .= "requests, removed from rotation</td></tr>\n";
+$out .= "<tr><th>TESTING</th><td>In Service testing for recovery ";
+$out .= "from FAIL condition</td></tr>\n";
+$out .= "<tr><th>OOS</th><td>Administrativly Out Of Service</td></tr>\n";
+$out .= "</table>";
+$out .= "<b><a href=/cgi-bin/stats/ldform.cgi>Server Admin Page</a>";
+$out .= "(take servers in and out of service)</b>";
+$out .= "</td><td>";
+$out .= "<h3>Server Load - real servers</h3>";
+$out .= "<table border=0>\n<tr><th>Server</th><th>State</th>";
+$out .= "<th colspan =2>Connections</th></tr>";
+
+@real = sort byload split(/\n/,$real);
+$rscale = 6;
+if ($rmax > 20)
+{
+        $rscale = 120.0 / $rmax ;
+}
+foreach (@real)
+{
+        local($server,$port,$conn,$state,$thresh,$reas,$reset);
+	s/^\s+//;
+	($server,$port,$conn,$state,$thresh,$reas,$reset) = split(/\s+/,$_);
+
+	next unless $reset =~ /\d/;
+	if ($last =~ /./ && $server !~ /^$last/)
+	{
+		$out .= "<tr><td colspan=4><hr></td></tr>\n";
+	}
+	$server =~ /([^-]*).*/;  $last = $1;
+	$out .= "<tr><td align=left>$server:$port</td>";
+	$out .= "<td align=center>$state</td><td>$conn</td><td align=left>";
+        $out .= "<img src=\"/images/bluedot.gif\"";
+        $out .= " height=8 width=" . $conn*$rscale . "></td></tr>\n";
+
+}
+$out .= "<!-- rmax = $rmax rscale = $rscale-->\n";
+$out .= "</table>";
+$out .= "</td></tr></table>";
+$out =~ s/>IS</ bgcolor=C0FFC0><font color=green>IS<\/font></g;
+$out =~ s/>OOS</ bgcolor=FFC0C0><font color=red>OOS<\/font></g;
+$out =~ s/>FAILED</ bgcolor=FF0000><font color=white>FAIL<\/font></g;
+$out =~ s/>TESTING</ bgcolor=FF8080><font color=white>TEST<\/font></g;
+$out =~ s/width=0/width=1/g;
+$out =~ s/Normal/<font color=green><b>Normal<\/b><\/font>/g;
+$out =~ s/Active \r+\n/<font color=green><b>Active<\/b><\/font>\n/g;
+$out =~ s/Standby/<b>Standby<\/b>/g;
+$out =~ s/Failed/<font color=red><b>Failed<\/b><\/font>/g;
+
+# evil hackery
+$out =~ s/:80</</g;
+$out =~ s/:443/<font size=-1>(SSL)<\/font>/g;
+
+# open(O,">$outfile");
+# print O $out;
+# close(O);
+
+print $out;
+
+
+sub getaddress {
+  local($host) = @_;
+  $host =~ s#techweb.cmp.com#192.216.46.14#;
+  local(@ary);
+  @ary = gethostbyname($host);
+  return(unpack("C4",$ary[4]));
+}
+sub handler {
+        close(S);
+	print "Timeout";
+        $timeout = "yes";
+}
+sub debug {
+        local($msg) = @_;
+        $ref =~ s/^O//;
+        $deb == 1 &&    print STDERR "$msg\n";
+        return 1;
+}
+
+sub getprompt {
+  local $temp;
+  while(<S>)
+  {
+        $temp .= $_;
+        last if $temp =~ /hitchcock> /i;
+  }
+  $temp =~ s/hitchcock> //i;
+  return $temp;
+}
+
+sub byload {
+	local($servera,$porta,$conna,$state,$thresh,$reas,$reset,$xa);
+	local($serverb,$portb,$connb,$state,$thresh,$reas,$reset,$xb);
+	$xa = $a;
+	$xb = $b;
+	$xa =~ s/^\s+//;
+	$xb =~ s/^\s+//;
+
+	($servera,$porta,$conna,$state,$thresh,$reas,$reset)
+            = split(/\s+/,$xa);
+	($serverb,$portb,$connb,$state,$thresh,$reas,$reset)
+            = split(/\s+/,$xb);
+
+	$rmax = $connb if ($connb > $rmax);
+	$rmax = $conna if ($conna > $rmax);
+	if ($servera eq $serverb)
+	{
+		return 	($porta <=> $portb);
+	} else {
+		return 	($servera cmp $serverb);
+	}
+}
+
+sub vbyload {
+        local($server,$port,$conna,$state,$stick,$pred,$xa);
+        local($server,$port,$connb,$state,$stick,$pred,$xb);
+        $xa = $a;
+        $xb = $b;
+        $xa =~ s/^\s+//;
+        $xb =~ s/^\s+//;
+
+        ($server,$port,$state,$conna,$stick,$pred)
+          = split(/\s+/,$xa);
+        ($server,$port,$state,$connb,$stick,$pred)
+          = split(/\s+/,$xb);
+	$vmax = $connb if ($connb > $vmax);
+	$vmax = $conna if ($conna > $vmax);
+        $connb <=> $conna;
+}
+
+sub tail {
+	local($count,$text) = @_;
+	$out .= "<!-- $count $text -->";
+	local(@lines) = split(/\r+\n/,$text);
+	while($#lines > $count)
+	{
+		shift @lines;
+	}
+	return @lines;
+}

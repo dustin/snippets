@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+@hosts=("melchior.ic3.com");
+@vars=("ICS Orders");
+
+%am=&appmonInit;
+
+$color="007f00";
+$status=0;
+
+foreach $var (sort(@vars))
+{
+    foreach $host (sort(@hosts))
+    {
+	if(defined($am{$host}{$var}))
+	{
+	    if($am{$host}{$var}=~/fail/i)
+	    {
+                $status=1;
+		$color="ff0000";
+	    }
+	}
+    }
+}
+
+open(OUT, ">$quickApp");
+
+print OUT "<font color=\"$color\">";
+
+if($status==1)
+{
+    print OUT "Failed.";
+    doalarms("appmon.red", "Application monitor reported a failure.");
+}
+else
+{
+    print OUT "Passed.";
+}
+
+print OUT "</font>\n";
+
+close(OUT);
