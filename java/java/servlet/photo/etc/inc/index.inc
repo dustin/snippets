@@ -10,6 +10,7 @@
     <li><a href="find.shtml">Find an image</a></li>
     <li><a href="/perl/dustin/photo/photo.cgi?func=catview">
 	Category view</a></li>
+	<li><a href="setstyle.shtml">Set viewing style</a></li>
 
 </ul>
 
