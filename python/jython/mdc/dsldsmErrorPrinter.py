@@ -17,5 +17,12 @@ mapf.close()
 
 l=sys.stdin.readline()
 while l != '':
-	print themap[l[0:12]], l
+	k=None
+	sn=l[0:12]
+	rest=l[13:]
+	try:
+		k=themap[sn]
+	except KeyError:
+		k="UNKNOWN"
+	sys.stdout.write(k + " " + sn + " err " + rest)
 	l=sys.stdin.readline()
