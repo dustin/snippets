@@ -15,12 +15,12 @@ public class MCastSend extends Object {
 	public static void main(String args[]) throws Exception {
 		String msg=args[1];
 		InetAddress group = InetAddress.getByName(args[0]);
-		MulticastSocket s = new MulticastSocket(6789);
-		s.joinGroup(group);
+		MulticastSocket s = new MulticastSocket(16789);
+		// s.joinGroup(group);
 		DatagramPacket hi = new DatagramPacket(msg.getBytes(),
 			msg.length(), group, 6789);
 		s.send(hi);
-		s.leaveGroup(group);
+		// s.leaveGroup(group);
 	}
 
 }

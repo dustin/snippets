@@ -63,7 +63,7 @@ public class Init extends HttpServlet
 			log("Starting cron services from " + crontab);
 			FileJobQueue jq=new FileJobQueue(crontab);
 			cron=new Cron(jq);
-			log("Cron is ready and running");
+			log("Cron is ready and running with " + jq.size() + " jobs.");
 		} catch(IOException e) {
 			throw new ServletException("Problem initializing cron", e);
 		}
