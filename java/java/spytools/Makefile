@@ -36,6 +36,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/FlightTracker.class \
 	net/spy/info/BigWords.class \
 	net/spy/info/UPS.class net/spy/info/Weather.class \
+	net/spy/util/SpyLDIF.class \
 	net/spy/pool/ObjectPool.class \
 	net/spy/pool/ObjectPoolCleaner.class \
 	net/spy/pool/PoolAble.class \
