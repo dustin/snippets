@@ -2,10 +2,9 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.16 2002/03/20 20:26:20 dustin Exp $
+# $Id: nntpsucka.py,v 1.17 2002/03/21 04:45:38 dustin Exp $
 
 import nntplib
-from nntplib import NNTP
 import time
 import anydbm
 import os
@@ -66,11 +65,86 @@ class NewsDB:
 
 ######################################################################
 
-class NNTPSucka:
+class NNTPClient(nntplib.NNTP):
+
 	headers=['From', 'Subject', 'Message-Id', 'Sender', 'MIME-Version', \
 		'Path', 'Newsgroups', 'Organization', 'Approved', 'Sender', \
 		'Distribution', \
 		'Lines', 'Content-Type', 'Content-Transfer-Encoding']
+
+	def __init__(self, host, port=119,user=None,password=None,readermode=None):
+		nntplib.NNTP.__init__(self, host, port, user, password, readermode)
+		self.currentmode='poster'
+		# self.debugging=1
+
+	def checkMode(self):
+		try:
+			self.dest.group(groupname)
+		except nntplib.NNTPTemporaryError:
+			self.currentmode='reader'
+
+	def __headerMatches(self, h):
+		rv=None
+		for header in self.headers:
+			if h.lower().find(header.lower()) == 0:
+				rv=1
+		return rv
+
+	def ihave(self, id):
+		print "IHAVing " + id
+		resp = self.shortcmd('IHAVE ' + id)
+		print "IHAVE returned " + str(resp)
+
+	def copyArticle(self, src, which, messid):
+		print "Moving " + str(which)
+		if self.currentmode == 'reader':
+			resp, nr, id, lines = src.article(str(which))
+			self.post(lines)
+		else:
+			self.ihave(messid)
+			try:
+				resp, nr, id, lines = src.article(str(which))
+			except nntplib.NNTPTemporaryError, e:
+				# Generate an error, I don't HAVE this article, after all
+				self.shortcmd('.')
+			self.takeThis(messid, lines)
+
+	def takeThis(self, messid, lines):
+		print "*** TAKE THIS! ***"
+		# self.putline('TAKETHIS: ' + messid)
+		for l in lines:
+			if l == '.':
+				print "*** L was ., adding a dot. ***"
+				l = '..'
+			self.putline(l)
+		self.putline('.')
+		self.getresp()
+
+	def post(self, lines):
+		print "*** POSTING! ***"
+		resp = self.shortcmd('POST')
+		if resp[0] != '3':
+			raise nntplib.NNTPReplyError(resp)
+		headers=1
+		for l in lines:
+			if l == '':
+				headers=None
+				self.putline('')
+			else:
+				if headers:
+					if self.headerMatches(l):
+						self.putline(l)
+				else:
+					if l == '.':
+						print "*** L was ., adding a dot. ***"
+						l = '..'
+					self.putline(l)
+		self.putline('.')
+		self.getresp()
+
+######################################################################
+
+class NNTPSucka:
 
 	def __init__(self, src, dest):
 		self.src=src
@@ -78,39 +152,7 @@ class NNTPSucka:
 		self.db=NewsDB()
 		self.stats=Stats()
 
-	def headerMatches(self, h):
-		rv=None
-		for header in self.headers:
-			if h.lower().find(header.lower()) == 0:
-				rv=1
-		return rv
-
-	def moveArticle(self, groupname, which):
-		print "Moving " + str(which)
-		resp, nr, id, lines = self.src.article(str(which))
-		resp = self.dest.shortcmd('POST')
-		if resp[0] != '3':
-			raise nntplib.NNTPReplyError(resp)
-		headers=1
-		for l in lines:
-			if l == '':
-				headers=None
-				self.dest.putline('')
-			else:
-				if headers:
-					if self.headerMatches(l):
-						self.dest.putline(l)
-				else:
-					if l == '.':
-						print "*** L was ., adding a dot. ***"
-						l = '..'
-					self.dest.putline(l)
-		self.dest.putline('.')
-		self.dest.getresp()
-		print "Posted."
-
 	def copyGroup(self, groupname):
-		self.dest.group(groupname)
 		resp, count, first, last, name = self.src.group(groupname)
 
 		# Figure out where we are
@@ -119,7 +161,8 @@ class NNTPSucka:
 			+ str(myfirst) + "-" + str(mylast) + " in " + groupname
 
 		# Grab the IDs
-		resp, list = self.src.xhdr('message-id', myfirst + "-" + mylast)
+		resp, list = self.src.xhdr('message-id', \
+			str(myfirst) + "-" + str(mylast))
 		ids=dict()
 		for set in list:
 			ids[set[0]]=set[1]
@@ -132,7 +175,7 @@ class NNTPSucka:
 					print "Already seen " + messid
 					self.stats.addDup()
 				else:
-					self.moveArticle(groupname, i)
+					self.dest.copyArticle(self.src, i, messid)
 					self.db.markArticle(messid)
 					self.stats.addMoved()
 			except KeyError, e:
@@ -162,8 +205,8 @@ class NNTPSucka:
 		return self.stats
 
 def main():
-	s=NNTP('news.mindspring.com')
-	d=NNTP('news.west.spy.net')
+	s=NNTPClient('news.mindspring.com')
+	d=NNTPClient('news.west.spy.net')
 	sucka=NNTPSucka(s,d)
 
 	sucka.copyServer()
