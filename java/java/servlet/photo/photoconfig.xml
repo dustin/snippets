@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: photoconfig.xml,v 1.1 1999/10/20 07:44:59 dustin Exp $  -->
+<!-- $Id: photoconfig.xml,v 1.2 1999/10/20 08:41:16 dustin Exp $  -->
 <!DOCTYPE config [
 
 	<!ELEMENT config (entry)*>
@@ -24,4 +24,7 @@
 	<entry name="html_uriroot" value="/~dustin/jphoto/" />
 	<entry name="timezone" value="" />
 	<entry name="cryptohash" value="SHA" />
+
+	<!-- How long to sleep before doing another store (in minutes) -->
+	<entry name="storer_sleep" value="10" />
 </config>

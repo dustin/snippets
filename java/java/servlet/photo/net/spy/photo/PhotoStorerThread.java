@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.1 1999/10/20 03:43:03 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.2 1999/10/20 08:41:23 dustin Exp $
  */
 
 package net.spy.photo;
@@ -107,9 +107,10 @@ public class PhotoStorerThread extends Thread {
 	public void run() {
 		for(;;) {
 			try {
-				// Check every ten minutes
-				sleep(10 * 60 * 1000);
-				// sleep(60000);
+				PhotoConfig p = new PhotoConfig();
+				int m=Integer.valueOf(p.get("storer_sleep")).intValue();
+				// Check every x minutes
+				sleep(m * 60 * 1000);
 			} catch(Exception e) {
 			} finally {
 				doFlush();
