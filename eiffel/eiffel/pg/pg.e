@@ -3,22 +3,20 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.3 1999/05/25 06:23:40 dustin Exp $
+-- $Id: pg.e,v 1.4 1999/05/25 06:45:12 dustin Exp $
 --
 class PG
 
 creation {ANY}
-   execute, make
+   make
 
 feature {ANY}
 
-   conn: POINTER;
-
-   res: POINTER;
-
    current_row: INTEGER;
+      -- Current row number we're on.
 
    last_row: ARRAY[STRING];
+      -- Last row retrieved.
 
    connect(host, db: STRING): BOOLEAN is
       -- Make a database connection
@@ -55,6 +53,7 @@ feature {ANY}
       do
          if current_row >= pg_ntuples(res) then
             Result := false;
+            pg_finish(conn);
          else
             from
                fields := pg_nfields(res);
@@ -74,42 +73,20 @@ feature {ANY}
          end;
       end -- get_row
 
-   execute is
-      local
-         b: BOOLEAN;
-         a: ARRAY[STRING];
-         i: INTEGER;
-      do
-         if not connect("bleu","machine") then
-            io.put_string("NOT Connected%N");
-         end;
-         if query("select * from oems order by name;") then
-            from
-               current_row := 0;
-            until
-               current_row >= pg_ntuples(res)
-            loop
-               if get_row then
-                  a := last_row;
-               end;
-               from
-                  i := 0;
-               until
-                  i >= a.count
-               loop
-                  io.put_string(a @ i);
-                  io.put_string("%T");
-                  i := i + 1;
-               end;
-               io.put_string("%N");
-            end;
-         end;
-      end -- execute
-
    make is
+      -- Doesn't really do anything, but we need a make.
       do
-		execute;
+         current_row := 0;
       end -- make
+
+feature {NONE}
+   -- Internal data stuff
+   -- Connection holder for C library.
+
+   conn: POINTER;
+      -- Result holder for C library.
+
+   res: POINTER;
 
 feature {NONE}
 
@@ -135,5 +112,10 @@ feature {NONE}
       external "C_WithoutCurrent"
       alias "PQnfields"
       end -- pg_nfields
+
+   pg_finish(r: POINTER) is
+      external "C_WithoutCurrent"
+      alias "PQfinish"
+      end -- pg_finish
 
 end -- class PG
