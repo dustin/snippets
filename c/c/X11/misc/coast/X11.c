@@ -195,12 +195,18 @@ float lat_diff, lng_diff;
 	lng=( -( ( (float) y/max_y) * lng_diff) + max_lng);
 
 	sprintf(string, "Latitude: %f", lat);
-	XDrawImageString(display, window, gc, 7, font_height+7, string,
-strlen(string));
+	if(have_font)
+		XDrawImageString(display, window, gc, 7, font_height+7,
+			string, strlen(string));
+	else
+		puts(string);
 
 	sprintf(string, "Longitude: %f", lng);
-	XDrawImageString(display, window, gc, 7, 2*font_height+7, string,
-strlen(string));
+	if(have_font)
+		XDrawImageString(display, window, gc, 7, 2*font_height+7,
+			string, strlen(string));
+	else
+		puts(string);
 }
 
 void
