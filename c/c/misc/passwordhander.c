@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: passwordhander.c,v 1.3 2002/07/09 00:33:12 dustin Exp $
+ * $Id: passwordhander.c,v 1.4 2002/07/09 16:36:20 dustin Exp $
  *
  * Read a file and copy it to a new file descriptor into a pipe so's that a
  * subprocess can read it on a specific file descriptor.  The subprocess
@@ -107,6 +107,8 @@ int main(int argc, char **argv)
 			close(pipeparts[1]);
 			/* Call the real program */
 			execvp(argv[2], argv+2);
+			/* If it gets this far, it didn't run the command */
+			perror(argv[2]);
 			break;
 		default:
 			/* Close the read end */
