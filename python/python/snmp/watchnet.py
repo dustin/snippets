@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #
-# $Id: watchnet.py,v 1.2 2002/04/04 08:40:26 dustin Exp $
+# $Id: watchnet.py,v 1.3 2002/04/04 10:01:50 dustin Exp $
 
 import gofetch
 
 if __name__ == '__main__':
 	nc=gofetch.NetworkCollector()
+	nc.initXMLRPC(9999)
 	try:
 		# Watch the interfaces on sw1 as volatile objects reporting when the
 		# speed changes.  Check again every hour

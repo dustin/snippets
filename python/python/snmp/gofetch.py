@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: gofetch.py,v 1.5 2002/04/04 08:40:24 dustin Exp $
+$Id: gofetch.py,v 1.6 2002/04/04 10:01:48 dustin Exp $
 """
 
 # Python's scheduling stuff
@@ -386,7 +386,6 @@ class NetworkCollector:
 		# Schedule the job to run immediately, it will be rescheduled to
 		# run at its proper frequency in the future.
 		self.schedular.enter(0, 5, self.__runJob, [job])
-		print "Added " + str(job)
 
 	def run(self):
 		"""Loop forever, processing jobs."""
@@ -411,6 +410,14 @@ class NetworkCollector:
 	# Job performed when it's time to stop running
 	def __stop(self):
 		raise StopRunning
+
+	def initXMLRPC(self, port):
+		"""Initialize the XML RPC listener."""
+		# Import here so we can deal with the case where something doesn't
+		# work.
+		import xmlservices
+		self.listener=xmlservices.Listener(port, self.schedular)
+		self.listener.start()
 
 	def stop(self):
 		"""Tell the schedular to stop whenever it can."""
