@@ -1,0 +1,37 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: makefilter,v 1.1 1997/10/21 07:51:19 dustin Exp $
+#
+# Create procmail .spammers file
+
+use Postgres;
+
+$dbh=db_connect("spam");
+
+$query="select domain from custmap order by domain";
+if(!($s=$dbh->execute($query)))
+{
+   print "Query problem:  $Postgres::error\n$query\n";
+   exit(1);
+}
+
+$spammers="SPAMMERS=\"";
+$match=0;
+
+while(($spam)=$s->fetchrow())
+{
+    $tmp.="|" if($match!=0);
+
+    $match++;
+
+    if(length("$tmp$spam")>50)
+    {
+	$spammers.="$tmp\\\n";
+	$tmp="";
+    }
+    $tmp.=$spam;
+}
+
+$spammers.="$tmp\"";
+
+print "$spammers\n";
