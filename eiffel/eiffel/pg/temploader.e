@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: temploader.e,v 1.3 2002/11/23 09:40:07 dustin Exp $
+-- $Id: temploader.e,v 1.4 2002/11/23 10:06:25 dustin Exp $
 --
 class TEMPLOADER
 
@@ -120,7 +120,7 @@ feature{NONE}
 				db.clear_results
 			end
 		rescue
-			io.put_string("FAILED:  " + query + db.errmsg + "%N")
+			std_error.put_string("FAILED:  " + query + db.errmsg + "%N")
 			retry
 		end
 
