@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.14 2000/07/26 09:41:01 dustin Exp $
+// $Id: PoolContainer.java,v 1.15 2000/07/26 09:49:35 dustin Exp $
 
 package net.spy.pool;
 
@@ -103,12 +103,10 @@ public class PoolContainer extends Object {
 					}
 				} // Flipping through the current pool
 
-				// If we didn't get anything, and we're at our minimum
-				// object count, go ahead and grab a new object.
-				if(ret==null
-					&& currentObjects()==_min_objects
-					&& currentObjects()+1<_max_objects) {
-
+				// If we didn't get anything, and we're not at least
+				// half-way through our max object size, open a new
+				// connection
+				if(ret==null && currentObjects()<(_max_objects/2) ) {
 					ret=getNewObject();
 				}
 
