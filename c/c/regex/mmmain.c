@@ -2,7 +2,7 @@
  * Copyright (c) 1998 Beyond.com
  * Written by Dustin Sallings <dustin@beyond.com>
  *
- * $Id: mmmain.c,v 1.4 1998/11/04 09:47:18 dustin Exp $
+ * $Id: mmmain.c,v 1.5 1998/11/05 00:08:27 dustin Exp $
  */
 
 #include <stdio.h>
@@ -14,8 +14,9 @@
 #include <fcntl.h>
 #include <pcre.h>
 
-#include "hash.h"
 #include "mymalloc.h"
+#include "hash.h"
+#include "definitions.h"
 
 #undef USE_MMAP
 
@@ -282,6 +283,7 @@ _enhance_re(char *regex)
 
 	tmp1 = strdup(regex);
 
+    /* make double quoted strings into one word */
 	for (;;) {
 		tmp2 = _quote_re(tmp1, '"');
 		if (strcmp(tmp2, tmp1) == 0)
@@ -290,6 +292,7 @@ _enhance_re(char *regex)
 	}
 	TMPROT;
 
+	/* Make single quoted strings into one word */
 	for (;;) {
 		tmp2 = _quote_re(tmp1, '\'');
 		if (strcmp(tmp2, tmp1) == 0)
@@ -305,6 +308,66 @@ _enhance_re(char *regex)
 	TMPROT;
 
 	return (tmp1);
+}
+
+/* Hash the prices we got */
+
+static struct hashtable *
+_get_hashprice(char *prices)
+{
+	char *tmp, **s;
+	struct hashtable *h;
+	int i;
+
+	tmp=strdup(prices);
+	h=hash_init(HASHSIZE);
+
+	s=split('~', tmp);
+
+	for(i=0; s[i]; i++) {
+		char *p;
+		p=strchr(s[i], '=');
+		if(p) {
+			*p=0x00;
+			hash_store(h, s[i], p+1);
+		}
+	}
+
+	freeptrlist(s);
+	free(tmp);
+	return(h);
+}
+
+static void
+display_skuline(char *line)
+{
+	char *tmp, **s, *store, *price;
+	struct hashtable *hash;
+	struct hash_container *h;
+
+	tmp=strdup(line);
+	s=split('|', tmp);
+
+	hash=_get_hashprice(s[PRICESKU]);
+
+	store=getenv("STORENAME");
+	if(store==NULL) {
+		store="software.net-p0";
+	}
+
+	h=hash_find(hash, store);
+	if(h) {
+		price=h->value;
+	} else {
+		price="priceless";
+	}
+
+	printf("\tSKU:  %s\n\tDescription:  %s\n\tPrice:  %s\n\n",
+		   s[SKU], s[DSKU], price);
+
+	freeptrlist(s);
+	free(tmp);
+	hash_destroy(hash);
 }
 
 int
@@ -407,7 +470,8 @@ main(int argc, char **argv)
 				/* Show the line we matched */
 				buf2 = calloc(1, ((int) stop - (int) start) + 5);
 				strncpy(buf2, start, (int) stop - (int) start);
-				printf("\tLine Matched:  %s\n", buf2);
+				display_skuline(buf2);
+				/* printf("\tLine Matched:  %s\n", buf2); */
 				free(buf2);
 			}
 		}
