@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+
+<!--
+	Build file for spy.jar
+
+	Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+
+	$Id: build.xml,v 1.1 2002/05/23 04:49:26 dustin Exp $
+
+  -->
+
+<project name="spy.jar" default="spy.jar" basedir=".">
+
+	<path id="myclasses">
+		<fileset dir="${user.home}/lib/java">
+			<include name="jndi.jar"/>
+			<include name="jdbc2_0-stdext.jar"/>
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="net">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="spy.jar" depends="all">
+		<jar jarfile="spy.jar" basedir=".">
+			<include name="**/*.class"/>
+			<include name="**/*.properties"/>
+		</jar>
+	</target>
+
+	<target name="all" depends="rmic,dbstuff">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="dbstuff" depends="dbstubs,interfaceimplementor">
+		<java classname="net.spy.util.InterfaceImplementor" >
+				<arg value="-interface"/>
+					<arg value="java.sql.PreparedStatement"/>
+				<arg value="-superclass"/>
+					<arg value="net.spy.db.CachePreparedStatementStub"/>
+				<arg value="-outputclass"/>
+					<arg value="net.spy.db.CachePreparedStatement"/>
+				<classpath>
+					<pathelement path="${java.class.path}"/>
+				</classpath>
+		</java>
+		<java classname="net.spy.util.InterfaceImplementor" >
+			<arg value="-interface"/>
+				<arg value="java.sql.ResultSet"/>
+			<arg value="-superclass"/>
+				<arg value="net.spy.db.CachedResultSetStub"/>
+			<arg value="-outputclass"/>
+				<arg value="net.spy.db.CachedResultSet"/>
+			<classpath>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="interfaceimplementor">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/util/InterfaceImplementor.java"/>
+		</javac>
+	</target>
+
+	<target name="dbstubs">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/db/*Stub.java"/>
+		</javac>
+	</target>
+
+	<target name="rmic" depends="pre-rmic">
+		<rmic base="." classname="net.spy.rmi.RObjectImpl">
+			<classpath refid="myclasses"/>
+		</rmic>
+	</target>
+
+	<target name="pre-rmic">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/rmi/RObjectImpl.java"/>
+		</javac>
+	</target>
+
+</project>
