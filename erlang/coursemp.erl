@@ -3,18 +3,23 @@
 %%
 
 -module(coursemp).
--export([twoprocess/1, echo/0, nprocess/2, ringProcess/1, nprocessStar/2]).
+-export([twoprocess/1, echo/0, nprocess/2]).
+-export([ringProcess/1, nprocessStar/2]).
+-export([mcpMonitor/1, mcp/1]).
 
 echo() ->
 	receive
 		{From, N} ->
 			io:format("Sending back ~p from ~p\n", [N, self()]),
-			From ! N;
+			From ! N,
+			echo();
 		stop ->
 			io:format("Stopping ~p\n", [self()]),
-			true
-	end,
-	echo().
+			true;
+		Unknown ->
+			error_logger:error_msg("~p exiting due to unhandled message:  ~p\n",
+				[self(), Unknown])
+	end.
 
 loop(0, _) -> 0;
 loop(N, With) ->
@@ -89,3 +94,35 @@ nprocessStar(N, M) ->
 	ntimes(fun () -> broadcast2Way({self(), ping}, Procs) end, N),
 	broadcast(stop, Procs).
 
+%
+% Master Control Process
+%
+
+mcpReplaceProcess(OldPid, Procs) ->
+	NewProc = spawn_link(coursemp, echo, []),
+	erlang:monitor(process, NewProc),
+	io:format("Created new proc ~p\n", [NewProc]),
+	OtherProcs = lists:filter(fun (P) -> not(P == OldPid) end, Procs),
+	[NewProc | OtherProcs].
+
+mcpLoop(Procs) ->
+	io:format("Looping with procs:  ~p\n", [Procs]),
+	receive
+		{sendto, N, Msg} ->
+			lists:nth(N, Procs) ! Msg,
+			mcpLoop(Procs);
+		{'DOWN', _Ref, process, Pid, _Flag} ->
+			io:format("MCP got down message for ~p\n", [Pid]),
+			mcpLoop(mcpReplaceProcess(Pid, Procs));
+		Msg ->
+			io:format("MCP got ~p\n", [Msg]),
+			mcpLoop(Procs)
+	end.
+
+mcpMonitor(Procs) ->
+	lists:foreach(fun (P) -> erlang:monitor(process, P) end, Procs),
+	mcpLoop(Procs).
+
+mcp(N) ->
+	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, N, []),
+	spawn_link(coursemp, mcpMonitor, [Procs]).
