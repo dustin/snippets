@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.7 2002/02/28 05:50:39 dustin Exp $
+ * $Id: tablecounter.c,v 1.8 2002/02/28 20:14:05 dustin Exp $
  */
 
 #include <stdio.h>
+#include <time.h>
 #include <assert.h>
 #include <libpq-fe.h>
 
@@ -12,8 +13,8 @@
 #define DBUSER "dustin"
 #define DBPASS "blahblah"
 
-#define MAKEDBSPEC(a, b) { DBSERVER, DBUSER, DBPASS, NULL, a, NULL, b, "ts"}
 #define MAKEDBSPEC3(a, b, c) { DBSERVER, DBUSER, DBPASS, NULL, a, NULL, b, c}
+#define MAKEDBSPEC(a, b) MAKEDBSPEC3(a, b, "ts")
 
 #define INCREMENT 3600
 
