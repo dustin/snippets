@@ -13,16 +13,21 @@ $title="";
 
 while(<>) {
 	chomp;
-	s/\s*twowayAlerts.com\s*//gi;
-	if(/\[!A0\]\[D32801\]!\*\s*(.*?)\s*(\;.*\*!)/) {
+	s/\s*twowayAlerts.com\s*//ogi;
+	s/\s*2wayx.com\s*/ 2WX/ogi;
+	if(/\[!A0\]\[D32801\]!\*\s*(.*?)\s*(\;.*\*!)/o) {
 		$title=$1;
-		/(\[!A0\]\[D32801\]!.*\*!)/;
+		/(\[!A0\]\[D32801\]!.*\*!)/o;
 		$data=$1;
-		while($_=<> && ($_!~/\*\!/)) {
+		while($_=<> && ($_!~/\*\!/o)) {
 			chomp;
 			$data.=$_;
 		}
 		print "insert into newmusic(title, data) values(" . quote($title)
 			. ", " . quote($data) . ");\n";
+	} else {
+		if (/D32801/o) {
+			print STDERR "$_ should've matched, but didn't.\n";
+		}
 	}
 }
