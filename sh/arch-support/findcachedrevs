@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]
+then
+	echo "Need an archive name"
+	exit 1
+fi
+
+arch=$1
+
+for c in `tla categories -A $arch `
+do
+	for b in `tla branches -A $arch $c`
+	do
+		for v in `tla versions -A $arch ${b}`
+		do
+			tla cachedrevs -A $arch ${v}
+		done
+	done
+done
