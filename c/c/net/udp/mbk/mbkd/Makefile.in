@@ -1,0 +1,24 @@
+# Copyright(c) 1998  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1998/10/01 06:39:07 dustin Exp $
+
+SHELL=/bin/sh
+CC=@CC@
+YACC=@YACC@
+LEX=@LEX@
+LINT=@LINT@
+INCLUDES=-I@top_srcdir@ -I@top_srcdir@/readconfig
+CFLAGS=@CFLAGS@ $(INCLUDES)
+
+LIBS=@top_srcdir@/readconfig/readconfig.a @LIBS@
+LDFLAGS=@LDFLAGS@ $(LIBS)
+
+OBJS=main.o nettools.o sockets.o utility.o
+SRCS=main.c nettools.c sockets.c utility.c
+
+all: mbkd
+
+mbkd: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+clean:
+	rm -f $(OBJS) mbkd
