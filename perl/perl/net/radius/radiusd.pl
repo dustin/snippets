@@ -9,6 +9,7 @@
 use RADIUS::Dictionary;
 use RADIUS::Packet;
 use IO::Socket::INET;
+use Net::LDAP;
 use Fcntl;
 use strict;
 
@@ -392,12 +393,67 @@ sub read_pool {
     $vacant ||= 'none';
 
     mlog("Pool read. $entries entries, $vacant vacant, $cleaned cleaned.\n");
+} # '
+
+sub digInLDAP
+{
+	my($u, $p)=@_;
+	my($ldap, $dn, $res, $ret, $entry, $filter);
+
+	undef($ret);
+	$dn="";
+
+	$ldap=Net::LDAP->new("ldap") || return(undef);
+
+	# We do the search and just return the uid because we want the DN to
+	# attempt a binding to and then we'll grab the attributes.
+	$filter="(&(objectClass=beyondRadiusEntry)(uid=$u))";
+	print "Filter is $filter\n" if($opt_x);
+	$res=$ldap->search('base' => 'dc=beyond,dc=com', 'scope' => 'sub',
+		'filter' => $filter, 'attrs' => [ 'uid' ]); # '
+	if($res->code()==0) {
+		# This will get us the last DN...hopefully there'll only be one.
+		for $entry ($res->all_entries()) {
+			$dn=$entry->dn();
+			print "Got dn:  $dn\n" if($opt_x);
+		}
+	}
+
+	# Only do this if we got a dn
+	if($dn ne "") {
+		$res=$ldap->bind($dn, $p);
+		# If we succesfully bound, let's look up the attributes.
+		if($res->code()==0) {
+
+			# This is where we put stuff.
+			my(%ret);
+
+			$res=$ldap->search('base' => $dn, 'scope' => 'base',
+				'filter' => '(objectclass=*)',
+				'attrs' => ['seeAlso' ,'radiusAttribute']); # '
+
+			if($res->code()==0) {
+				# there's only one entry here
+				for $entry ($res->all_entries()) {
+					my(@a)=$entry->get('radiusAttribute');
+
+					for(@a) {
+						my(@b)=split(/\s*=\s*/, $_, 2);
+						$ret{$b[0]}=$b[1];
+					}
+				}
+				$ret=\%ret;
+			}
+		}
+	}
+
+	return($ret);
 }
 
 #
 # Run thru the configuration file, working out
 # what to say, and building a packet to say it..
-#
+# '
 sub run_config {
     my($name, $pass, $attrs, $p, $client) = @_;
     my($rp, $server) = undef;
@@ -409,139 +465,43 @@ sub run_config {
 
 				# For each entry in the config file..
 
-    ENTRY: foreach my $i (@config) {
-	my($user, $orig_cond, $ret) = @{$i};
-	my($cond) = [@{$orig_cond}]; # take a copy. Don't destroy the original.
-				# skip if the name doesn't match.
-	($user eq $name) or
-	    ($user eq 'DEFAULT') or
-		next;
-
-	print "Matched $user\n" if $opt_x;
-
-				# Check all the conditions..
-	while ($_ = shift @{$cond}) {
-	    my $val = shift @{$cond};
-	    print "- $_ -> $val.\n" if $opt_x;
-	    if (/^password/i ) {
-		($val eq $pass and $val !~ /^suspended-/) or
-		    next ENTRY;
-	    } elsif (/^auth-type/i) {
-				# Check the authentication type..
-
-		if ($val eq 'System') {
-		    print "Checking system auth for $name\n" if $opt_x;
-		    system_is_valid($name, $pass) or
-			next ENTRY;
-		} elsif ($val =~ /@(.*)/) {
-		    $server = $1;
-		    $rp = radius_is_valid( $server, $secrets{$server},
-					   $p, $pass );
-		    next ENTRY unless ref $rp;
-		} else {
-		    mlog("Invalid $_ =  $val on entry '$i'\n");
-		    next ENTRY;
-		}
-            } elsif (/^called-station-id/i) {
-		($attrs->{$_} =~ /^$val$/) or	# treat RHS as a regex.
-						# Backward compatable.
-		    next ENTRY;
-	    } elsif (/^fail$/i) {
-		mlog("Hit fail for '$val'\n");
-		last ENTRY;	# 'cut' if we get to this point.
-				# this doesn't process any more entries in
-				# the user file.
-	    }
-	    else {
-		($val eq $attrs->{$_}) or
-		    next ENTRY;
-	    }
-	}
-				# Log a message.
-	mlog("$name authenticated on $attrs->{'Called-Station-Id'}." .
-	    (ref $rp ? "(proxied via $server)":'')."\n");
-
-				# ok! We have a matching user.
-
-				# If we don't have a template packet
-				# then build a new one.
+	# Get our response packet
 	(ref $rp) or ($rp = new RADIUS::Packet $dict);
-	$rp->set_code('Access-Accept');
 
-				# Carry over the indentifierers from
-				# the request.
+	# Carry over the indentifierers from
+	# the request.
 	$rp->set_identifier($p->identifier);
 	$rp->set_authenticator($p->authenticator);
 
-				# Set the attributes for the reply..
-	my %a = %{$ret};
+	my($ret);
+	eval {
+		$ret=digInLDAP($name, $pass);
+	};
 
-				# Handle allocating an address from a
-				# local mapping...
-	if ($a{'Framed-IP-Address'} eq 'pool') {
-	    my $port = $p->attr('NAS-Port');
-
-	    $port %= 65536;	# Drop all bar the lower 16 bits. This
-				# works arounds cisco extended port
-				# setups.
-
-	    if (! defined $clients{$client}) {
-		mlog("Address pool allocation attempted, but no".
-		     " extended data available for $client\n");
-
-		$clients{$client} = {};	# Temp fix, so the server
-				# doesn't crash!
-	    }
-	    my $range = $clients{$client}->{'pool'};
-
-	    if (($range !~ /^(.*)-(\d+)$/) or ($port > $2)) {
-		mlog("$user($name) on $client asked for pool".
-		     " allocation but it failed\n");
-
-		$a{'Framed-IP-Address'} = '255.255.255.254';
-	    } else {
-		my($start, $size) = ($1, $2);
-		my(@ip) = split(/\./, $start);
-		$ip[3] += $port - 1;
-		$a{'Framed-IP-Address'} = join('.', @ip);
-	    }
+	# Was there a problem with the LDAP search?  NAK the user.
+	if($@) {
+		mlog("Error in LDAP stuff:  $@\n");
+		undef($ret);
 	}
 
-			# if it's a file address pool...
-	if ($a{'Framed-IP-Address'} =~ /\//) {
-	    my $pool = $a{'Framed-IP-Address'};
-	    $a{'Framed-IP-Address'} = get_ip($pool);
-	    mlog("Allocated $a{'Framed-IP-Address'} from $pool\n");# if $opt_x;
-	}
-				# Move the attribute set into the
-				# reply packet.
-	map {
-	    $rp->set_attr($_, $a{$_});
-	} keys %a;
+	if(defined($ret)) {
+		# Set the attributes for the reply..
+		my %a = %{$ret};
 
-	return $rp;
-    }
-
-    if ($pass eq "cisco" or not defined $attrs->{'Called-Station-Id'}) {
-	mlog("User $name (domain?) not matched\n");
-	}
-    else {
-	mlog("User $name not matched on $attrs->{'Called-Station-Id'} with \"$pass\" calling from $attrs->{'Calling-Station-Id'}\n");
+		map {
+		$rp->set_attr($_, $a{$_});
+		} keys %a;
+		$rp->set_code('Access-Accept'); # '
+	} else {
+		mlog("User $name not matched on $attrs->{'Called-Station-Id'} with "
+			. "\"$pass\" calling from $attrs->{'Calling-Station-Id'}\n"); # '
+		$rp->set_code('Access-Reject'); # '
+	$rp->set_identifier($p->identifier);
+	$rp->set_authenticator($p->authenticator);
 	}
 
-				# Hmm. No matching entry. Deny
-				# them.
-    $rp = new RADIUS::Packet $dict;
-    $rp->set_code('Access-Reject');
-				# Carry over the indentifierers from
-				# the request.
-    $rp->set_identifier($p->identifier);
-    $rp->set_authenticator($p->authenticator);
-
-    return $rp;
+	return($rp);
 }
-
-
 
 sub handle_authentication {
     my ($p, $client, $secret) = @_;
