@@ -7,7 +7,7 @@
 
 type cdb_creator = {
   table_count : int array;
-  mutable pointers : (int * int) list;
+  mutable pointers : (Int32.t * int) list;
   out : out_channel;
 }
 val open_out : string -> cdb_creator
@@ -22,7 +22,7 @@ val iter : (string -> string -> unit) -> string -> unit
 
 type cdb_file = {
 	f: in_channel;
-	tables: (int * int) array;
+	tables: (Int32.t * int) array;
 }
 
 val open_cdb_in : string -> cdb_file

@@ -15,26 +15,43 @@
 (** CDB creation handle. *)
 type cdb_creator = {
 	table_count: int array;
-	mutable pointers: (int * int) list;
+	mutable pointers: (Int32.t * int) list;
 	out: out_channel;
 };;
 
 (** Initial hash value *)
-let hash_init = 5381;;
+let hash_init = Int64.of_int 5381;;
+
+let ff64 = Int64.of_int 0xff;;
+let ffffffff64 = Int64.of_int 0xffffffff;;
+let ff32 = Int32.of_int 0xff;;
 
 (** Hash the given string. *)
 let hash s =
 	let h = ref hash_init in
-	String.iter (fun c -> h := ((!h lsl 5) + !h) lxor (int_of_char c)) s;
-	!h
+	String.iter (fun c -> h := Int64.logand ffffffff64 (Int64.logxor
+								(Int64.add (Int64.shift_left !h 5) !h)
+								(Int64.of_int (int_of_char c)))
+						) s;
+	Int64.to_int32 !h
 ;;
 
-(** Write a little endian integer to the file *)
 let write_le cdc i =
 	output_byte cdc.out (i land 0xff);
 	output_byte cdc.out ((i lsr 8) land 0xff);
 	output_byte cdc.out ((i lsr 16) land 0xff);
 	output_byte cdc.out ((i lsr 24) land 0xff)
+;;
+
+(** Write a little endian integer to the file *)
+let write_le32 cdc i =
+	output_byte cdc.out (Int32.to_int (Int32.logand ff32 i));
+	output_byte cdc.out (Int32.to_int
+	 (Int32.logand ff32 (Int32.shift_right_logical i 8)));
+	output_byte cdc.out (Int32.to_int
+	 (Int32.logand ff32 (Int32.shift_right_logical i 16)));
+	output_byte cdc.out (Int32.to_int
+		(Int32.logand ff32 (Int32.shift_right_logical i 24)))
 ;;
 
 (**
@@ -52,12 +69,21 @@ let open_out fn =
 	s
 ;;
 
+let hash_to_table h =
+	Int32.to_int (Int32.logand h ff32)
+;;
+
+let hash_to_bucket h len =
+	Int32.to_int (Int32.rem (Int32.shift_right_logical h 8) (Int32.of_int len))
+;;
+
 (** Add a value to the cdb *)
 let add cdc k v =
 	(* Add the hash to the list *)
 	let h = hash k in
 	cdc.pointers <- (h, pos_out cdc.out) :: cdc.pointers;
-	cdc.table_count.(h land 0xff) <- cdc.table_count.(h land 0xff) + 1;
+	let table = hash_to_table h in
+	cdc.table_count.(table) <- cdc.table_count.(table) + 1;
 
 	(* Add the data to the file *)
 	write_le cdc (String.length k);
@@ -88,17 +114,16 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 				if ((where + 1) = len) then (find_where 0)
 				else (find_where (where + 1))
 			) in
-		(* Do an lsr 8 to divide by 256 without breaking negs *)
-		let where = find_where (((fst hp) lsr 8) mod len) in
+		let where = find_where (hash_to_bucket (fst hp) len) in
 		ht.(where) <- Some hp;
 	done;
 	(* Write this hash table *)
 	Array.iter (fun hpp ->
 			let h,t = match hpp with
-				None -> 0,0
+				None -> Int32.zero,0
 				| Some(h,t) -> h,t;
 			in
-			write_le cdc h; write_le cdc t
+			write_le32 cdc h; write_le cdc t
 		) ht;
 ;;
 
@@ -111,12 +136,13 @@ let close_cdb_out cdc =
 		cur_entry := !cur_entry + x;
 		table_start.(i) <- !cur_entry) cdc.table_count;
 	(* Build out the slot pointers array *)
-	let slot_pointers = Array.make (List.length cdc.pointers) (0,0) in
+	let slot_pointers = Array.make (List.length cdc.pointers) (Int32.zero,0) in
 	(* Fill in the slot pointers *)
 	List.iter (fun hp ->
 		let h = fst hp in
-		table_start.(h land 0xff) <- table_start.(h land 0xff) - 1;
-		slot_pointers.(table_start.(h land 0xff)) <- hp
+		let table = hash_to_table h in
+		table_start.(table) <- table_start.(table) - 1;
+		slot_pointers.(table_start.(table)) <- hp
 		) cdc.pointers;
 	(* Write the shit out *)
 	let slot_table = ref [] in
@@ -176,7 +202,7 @@ let iter f fn =
 type cdb_file = {
 	f: in_channel;
 	(* Position * length *)
-	tables: (int * int) array;
+	tables: (Int32.t * int) array;
 };;
 
 (** Open a CDB file for searching.
@@ -185,10 +211,10 @@ type cdb_file = {
  *)
 let open_cdb_in fn =
 	let fin = open_in_bin fn in
-	let tables = Array.make 256 (0,0) in
+	let tables = Array.make 256 (Int32.zero,0) in
 	(* Set the positions and lengths *)
 	Array.iteri (fun i it ->
-		let pos = read_le fin in
+		let pos = Int32.of_int (read_le fin) in
 		let len = read_le fin in
 		tables.(i) <- (pos,len)
 		) tables;
@@ -212,9 +238,9 @@ let close_cdb_in cdf =
 let get_matches cdf key =
 	let kh = hash key in
 	(* Find out where the hash table is *)
-	let hpos, hlen = cdf.tables.(kh land 0xff) in
+	let hpos, hlen = cdf.tables.(hash_to_table kh) in
 	(* Go to the hash and figure out where this slot is *)
-	let slot_num = ((kh lsr 8) mod hlen) in
+	let slot_num = (hash_to_bucket kh hlen) in
 	let myiter = ref 0 in
 	let incr_slot x = (if (1 + x) > hlen then 0 else (1 + x)) in
 	let rec loop x =
@@ -223,9 +249,9 @@ let get_matches cdf key =
 		if(x >= hlen) then (
 			None
 		) else (
-			let spos = (lslot * 8) + hpos in
+			let spos = (lslot * 8) + (Int32.to_int hpos) in
 			seek_in cdf.f spos;
-			let h = read_le cdf.f in
+			let h = Int32.of_int (read_le cdf.f) in
 			let pos = read_le cdf.f in
 			(* validate that we a real bucket *)
 			if (h = kh) && (pos > 0) then (
