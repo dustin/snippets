@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PagewriterToSpeaker.java,v 1.1 2001/02/03 22:41:22 dustin Exp $
+// $Id: PagewriterToSpeaker.java,v 1.2 2001/02/04 00:05:35 dustin Exp $
 
 import java.util.*;
 import net.spy.*;
@@ -79,6 +79,10 @@ public class PagewriterToSpeaker extends Object {
 						current++;
 					}
 					out+="P";
+					if(input[current+1]=='.') {
+						out+=".";
+						current++;
+					}
 					break;
 				case 'A':
 				case 'B':
@@ -110,6 +114,10 @@ public class PagewriterToSpeaker extends Object {
 					if(sharpflat!=null) {
 						out+=sharpflat;
 					}
+					if(input[current+1]=='.') {
+						out+=".";
+						current++;
+					}
 
 					break;
 				case 'S':
@@ -120,6 +128,11 @@ public class PagewriterToSpeaker extends Object {
 				case 'f':
 					note="" + input[current+1];
 					special.put(note, "-");
+					current++;
+					break;
+				case 'N':
+					note="" + input[current+1];
+					special.remove(note);
 					current++;
 					break;
 				case '0':
@@ -139,8 +152,21 @@ public class PagewriterToSpeaker extends Object {
 				case 'l':
 					current++;
 					break;
+				case 'K':
+					out+="MS";
+					break;
+				case 'k':
+					out+="ML";
+					break;
 				case 'V':
 				case 'v':
+					break;
+				// Skip over volume
+				case 'a':
+					current++;
+					break;
+				case '+':
+				case '-':
 					break;
 				// Ignore whitespace
 				case ' ':
