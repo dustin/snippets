@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.11 2000/01/28 01:41:41 dustin Exp $
+# $Id: sendpage.tcl,v 1.12 2000/07/20 00:59:44 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -126,10 +126,10 @@ proc snpp_sendpage { host port id msg } {
 		set twoway_waiting 1
 
 		update
-		exec /bin/sleep 5
+		after 5000
 		while { [check_for_message] < 0 } {
 			update
-			exec /bin/sleep 5
+			after 5000
 		}
 	}
 
@@ -223,7 +223,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.11 $ }
+	set rev { $Revision: 1.12 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
