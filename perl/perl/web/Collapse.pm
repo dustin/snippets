@@ -1,6 +1,6 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Collapse.pm,v 1.4 1997/12/31 09:49:58 dustin Exp $
+# $Id: Collapse.pm,v 1.5 1997/12/31 09:51:50 dustin Exp $
 
 package Collapse;
 
@@ -203,7 +203,12 @@ Collapse.pm - Expandolapse
 
 =head1 USAGE
 
-use Collapse;     # Core Billit libraries (includes Postgres.pm and CGI.pm)
+use Collapse;
+
+=head1 REQUIREMENTS
+
+This was built under perl 5.004, but may not require it.  It does,
+however, require CGI.pm (you have that anyway, right?)
 
 =head1 METHODS
 
