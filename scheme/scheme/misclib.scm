@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: misclib.scm,v 1.5 2002/12/28 10:51:43 dustin Exp $
+; $Id: misclib.scm,v 1.6 2003/01/01 09:17:19 dustin Exp $
 
 (module misclib
 		(export
@@ -51,14 +51,15 @@
 
 ; Take lists of lists of lists and make them into a single flat list
 (define (flatten-list l)
-  (let ((rv '()))
-	(for-each (lambda (x)
-				(set! rv (append rv
-						 (if (pair? x)
-						   (flatten-list x)
-						   (list x)))))
-			  l)
-	rv))
+  (cond
+	((null? l) '())
+	((pair? (car l))
+	 (append
+	   (flatten-list (car l))
+	   (flatten-list (cdr l))))
+	(else
+	  (cons (car l)
+			(flatten-list (cdr l))))))
 
 ; Example
 (define (misclib-main args)
