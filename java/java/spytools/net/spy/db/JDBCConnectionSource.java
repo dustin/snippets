@@ -1,10 +1,12 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: JDBCConnectionSource.java,v 1.1 2002/08/03 01:05:07 dustin Exp $
+// $Id: JDBCConnectionSource.java,v 1.2 2002/08/03 05:00:17 dustin Exp $
 
 package net.spy.db;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.DriverManager;
 
 import net.spy.SpyConfig;
 
@@ -12,7 +14,7 @@ import net.spy.SpyConfig;
  * Implementation of ConnectionSource that gets connections directly from
  * JDBC.
  */
-public class JDBCConnectionSource implements ConnectionSource {
+public class JDBCConnectionSource extends Object implements ConnectionSource {
 
 	/**
 	 * Get a new connection from JDBC.
@@ -54,6 +56,13 @@ public class JDBCConnectionSource implements ConnectionSource {
 
 		// Return it
 		return(conn);
+	}
+
+	/**
+	 * @see ConnectionSource
+	 */
+	public void returnConnection(Connection conn) throws SQLException {
+		conn.close();
 	}
 
 }

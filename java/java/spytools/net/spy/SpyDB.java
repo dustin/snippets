@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.38 2002/07/10 05:41:05 dustin Exp $
+ * $Id: SpyDB.java,v 1.39 2002/08/03 05:00:14 dustin Exp $
  */
 
 package net.spy;
@@ -55,9 +55,6 @@ public class SpyDB extends Object {
 	// Pool name.
 	private String name=null;
 
-	// Whether we want the object to free stuff or not.
-	private boolean autoFree=true;
-
 	// Whether we want to use a pool.
 	private boolean usePool=true;
 	private boolean useJndi=true;
@@ -95,7 +92,16 @@ public class SpyDB extends Object {
 	 * @param conf SpyConfig object describing how to connect.
 	 */
 	public SpyDB(SpyConfig conf) {
-		this(conf, true);
+		super();
+		this.conf=conf;
+		try {
+			initStuff();
+		} catch(Exception e) {
+			initializationException=e;
+			log("Error initializing SpyDB:  " + e);
+			e.printStackTrace();
+		}
+		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
 	/**
@@ -106,28 +112,6 @@ public class SpyDB extends Object {
 	public SpyDB(Connection conn) {
 		super();
 		this.conn=conn;
-	}
-
-	/**
-	 * Same as the above constructor, but has a boolean allowing you to
-	 * disable autoFree.
-	 *
-	 * @param conf SpyConfig object describing how to connect.
-	 *
-	 * @param autoFree is pretty much ignored now, as things will always
-	 * automatically free if not freed explicitly.
-	 */
-	public SpyDB(SpyConfig conf, boolean autoFree) {
-		this.conf=conf;
-		this.autoFree=autoFree;
-		try {
-			initStuff();
-		} catch(Exception e) {
-			initializationException=e;
-			log("Error initializing SpyDB:  " + e);
-			e.printStackTrace();
-		}
-		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
 	// Warning, this contains a bunch of nasty backward-compatibility
@@ -400,31 +384,6 @@ public class SpyDB extends Object {
 	}
 
 	/**
-	 * Free a database connection that was not in autoFree mode.
-	 */
-	public void freeDBConn(Connection conn) {
-		if(usePool) {
-			PooledObject po=(PooledObject)connections.get(conn);
-			if(po!=null) {
-				po.checkIn();
-			}
-		}
-
-		// Remove it from our hash
-		connections.remove(conn);
-
-		// If we're not using a pool, we need to close the connection.
-		if(!usePool) {
-			try {
-				conn.close();
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		this.conn=null;
-	}
-
-	/**
 	 *  Free an established database connection - alias to freeDBConn()
 	 */
 	public void close() {
@@ -450,9 +409,6 @@ public class SpyDB extends Object {
 					object=pool.getObject(name);
 				}
 				conn=(Connection)object.getObject();
-				if(!autoFree) {
-					connections.put(conn, object);
-				}
 			} else {
 				throw initializationException;
 			}
