@@ -9,6 +9,11 @@
  *)
 
 (**
+ The optional fetch function.
+ *)
+type ('a, 'b) fetch_function = None | Func of ('a -> 'b);;
+
+(**
  The lru cache type.
  *)
 type ('a, 'b) t = {
@@ -16,6 +21,8 @@ type ('a, 'b) t = {
 	keys: ('a, 'b) Hashtbl.t;
 	(* The sequences (for aging) *)
 	mutable seq: 'a list;
+	(* autofetch function *)
+	func: ('a, 'b) fetch_function;
 	(* The maximum size of this thing *)
 	size: int;
 };;
@@ -28,6 +35,20 @@ type ('a, 'b) t = {
 let create max_size = {
 	keys = Hashtbl.create 1;
 	seq = [];
+	func = None;
+	size = max_size;
+};;
+
+(**
+ Create an LRU cache with an auto creation function.
+
+ @param max_size the maximum size of the function
+ @param f the auto-populate function
+ *)
+let create_auto max_size f = {
+	keys = Hashtbl.create 1;
+	seq = [];
+	func = Func f;
 	size = max_size;
 };;
 
@@ -52,16 +73,6 @@ let mem lru k =
 ;;
 
 (**
- Get an object from the LRU cache.
-
- @param lru the LRU cache from which to extract the object
- @param k the key of the object to get
- *)
-let find lru k =
-	Hashtbl.find lru.keys k
-;;
-
-(**
  Remove an object from the LRU cache.
 
  @param lru the LRU cache that wants something removed.
@@ -82,7 +93,7 @@ let remove lru k =
  *)
 let add lru k v =
 	(* If the cache is full, remove an item *)
-	if ( (List.length lru.seq) > lru.size) then
+	if ( (List.length lru.seq) >= lru.size) then
 		remove lru (List.hd lru.seq);
 	(* If this key already exists, remove it *)
 	if (mem lru k) then
@@ -91,4 +102,32 @@ let add lru k v =
 	Hashtbl.add lru.keys k v;
 	lru.seq <- List.append lru.seq [k];
 	()
+;;
+
+(**
+ Get an object from the LRU cache.  This also updates the usage sequence thing.
+
+ @param lru the LRU cache from which to extract the object
+ @param k the key of the object to get
+ *)
+let find lru k =
+	try
+		let rv = Hashtbl.find lru.keys k in
+		(* Bring the key to the front *)
+		lru.seq <- List.append (List.filter (fun x -> not (x = k)) lru.seq) [k];
+		rv
+	with Not_found ->
+		match lru.func with
+			| None -> raise Not_found
+			| Func x ->
+				let rv = x k in
+				add lru k rv;
+				rv;
+;;
+
+(**
+ Apply the given function all keys in this cache.
+ *)
+let iter_keys lru f =
+	List.iter f lru.seq
 ;;

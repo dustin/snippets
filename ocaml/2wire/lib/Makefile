@@ -4,11 +4,13 @@ OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
+PARTS=stringutils fileutils lru
+
 .SUFFIXES: .ml .mli .cmi .cmx
 
-.PHONY: stringutils
+.PHONY: $(PARTS)
 
-all: stringutils fileutils lru docs
+all: $(PARTS) docs
 
 fileutils: fileutils.cmi fileutils.mli
 
@@ -16,8 +18,9 @@ stringutils: stringutils.cmi stringutils.mli
 
 lru: lru.cmi lru.mli
 
-testtop: stringutils fileutils
-	$(OCAMLMKTOP) -o testtop unix.cma fileutils.cmo stringutils.cmo lru.cmo
+testtop: $(PARTS)
+	$(OCAMLMKTOP) -o testtop unix.cma \
+		fileutils.cmo stringutils.cmo lru.cmo
 
 docs:
 	mkdir -p doc
