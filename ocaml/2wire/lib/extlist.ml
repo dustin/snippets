@@ -19,3 +19,10 @@ let iteri f lin =
 		| _ -> f x (List.hd l); loop (x + 1) (List.tl l)
 	in loop 0 lin
 ;;
+
+(**
+ Shuffle (unsort) a list.
+ *)
+let shuffle l =
+	List.sort (fun a b -> (Random.int 3) - 1) l
+;;
