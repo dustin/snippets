@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.4 1999/09/13 03:32:44 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.5 1999/09/13 08:37:33 dustin Exp $
  */
 
 import java.io.*;
@@ -60,7 +60,6 @@ public class PhotoServlet extends HttpServlet
 		// Get an actual database connection.
 		try {
 			photo = DriverManager.getConnection(source, "dustin", "");
-			st = photo.createStatement();
 		} catch(SQLException e) {
 			throw new ServletException ("Can't connect to database, shit...");
 		}
@@ -95,6 +94,7 @@ public class PhotoServlet extends HttpServlet
 
 		query = "select getwwwuser('" + remote_user + "')";
 		try {
+			st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			if(rs.next()) {
 				remote_uid=Integer.valueOf(rs.getString(1));
@@ -457,7 +457,7 @@ public class PhotoServlet extends HttpServlet
 
 	// Show an image
 	private static void showImage(HttpServletRequest request,
-		HttpServletResponse response) throws SQLException, IOException {
+		HttpServletResponse response) throws ServletException {
 
 		String query;
 		ServletOutputStream		out;
@@ -466,20 +466,26 @@ public class PhotoServlet extends HttpServlet
 
 		response.setContentType("image/jpeg");
 		String s = request.getParameter("photo_id");
-
-		// Need a binary output thingy.
-		out = response.getOutputStream();
+		Integer which = Integer.valueOf(s);
 
 		query = "select * from image_store where id = " + which +
 			" order by line";
 
 		System.out.print("Doing query:  " + query + "\n");
 
-		ResultSet rs = st.executeQuery(query);
-		while(rs.next()) {
-			byte data[];
-			data=base64.decodeBuffer(rs.getString(3));
-			out.write(data);
+		try {
+			// Need a binary output thingy.
+			out = response.getOutputStream();
+
+			st = photo.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				byte data[];
+				data=base64.decodeBuffer(rs.getString(3));
+				out.write(data);
+			}
+		} catch(Exception e) {
+			throw new ServletException("Problem getting image.");
 		}
 
 		// out.close();
