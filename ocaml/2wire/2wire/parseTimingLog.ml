@@ -43,7 +43,7 @@ type global_state_t = {
 };;
 
 (* The types of logs we consider *)
-let log_types = ["HB"; "BOOT"; "KICK"; "XMLRPC";];;
+let log_types = ["HB"; "BOOT"; "KICK"; "XMLRPC"; "PKGSTAT"; "PKGSETSTAT";];;
 
 (* Log times with time/count/start/end appended *)
 let extended_log_types =
