@@ -7,6 +7,8 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
+#include "xplot_icon.xbm"
+
 #include "plot.h"
 #include "data.h"
 
@@ -136,10 +138,17 @@ init_window(void)
  * supported).
  */
 
-  wmhints.flags = InputHint | StateHint;
+
+  wmhints.flags = InputHint | StateHint | IconPixmapHint;
   wmhints.initial_state = NormalState;
+  wmhints.icon_pixmap=XCreatePixmapFromBitmapData(display, window, xplot_icon_bits,
+xplot_icon_width, xplot_icon_height, BlackPixel(display, screen),
+WhitePixel(display, screen), 1);
+
   wmhints.input = True;
   XSetWMHints(display, window, &wmhints);
+
+  XSetIconName(display, window, "Xplot");
 
 /*
  * This sets up the graphic context for the window.  I'm just telling it
