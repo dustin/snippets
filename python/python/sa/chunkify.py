@@ -4,7 +4,7 @@
 Break up directories into managable chunks.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.6 2002/04/07 21:26:08 dustin Exp $
+$Id: chunkify.py,v 1.7 2002/07/09 01:45:16 dustin Exp $
 """
 
 import os, sys
@@ -140,12 +140,12 @@ def main():
 	if chunkname==None:
 		raise UsageError("No chunk name specified.")
 
-	startdir=args[0]
-	print "Starting from " + startdir
 	chunker=Chunker(chunkname, makezip, maxsize)
 	if dopause:
 		chunker.registerNewFileCallback(pauseCallback)
-	chunker.process(startdir)
+	for d in args[0:]:
+		print "Working on " + d
+		chunker.process(d)
 
 def usage():
 	print "Usage:  " + sys.argv[0] \
