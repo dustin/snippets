@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseTimingLog.scm,v 1.1 2002/12/28 11:51:53 dustin Exp $
+; $Id: parseTimingLog.scm,v 1.2 2002/12/28 12:10:20 dustin Exp $
 
 (module parse-timing-log
 	(import
@@ -142,6 +142,7 @@
   (record-timing le)
   (let ((key (string-append
 			   (log-entry-serial le)
+			   " . "
 			   (log-entry-type le))))
 	(if (string=? (log-entry-state le) "start")
 	  ; Update the hashtable, checks for duplicates
@@ -160,6 +161,7 @@
 			(hashtable-remove! *eventcache* key))
 		  (warning (list "No start for end " key)))))))
 
+; Print the block header (regular rrdtool stuff and the columns)
 (define (print-block-header filename)
   (for-each display '("update " filename " -t "))
   (display (string-join ":"
@@ -220,8 +222,4 @@
 	(error "main"
 		   (string-append "Usage:  " (car args) " filename.rrd")
 		   args))
-  (process-to-rrd (cadr args))
-  (print "Dumping hashes...")
-  (dump-hash *eventcache*)
-  (dump-hash *perblock*)
-  (print "Done..."))
+  (process-to-rrd (cadr args)))
