@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.3 1999/10/10 08:03:54 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.4 1999/10/12 22:54:07 dustin Exp $
  */
 
 import java.sql.*;
@@ -13,7 +13,6 @@ public class PhotoLogFlusher extends Thread {
 
 	public boolean is_running = false;
 
-	private static Connection db;
 	// private static BufferedWriter log_file=null;
 	private static PhotoLogger log_object;
 
@@ -25,19 +24,28 @@ public class PhotoLogFlusher extends Thread {
 	public synchronized void doFlush() {
 		Vector v = log_object.flush();
 		Statement st = null;
-		try {
-			st=db.createStatement();
-		} catch(SQLException e) {
-			System.err.println("BAD LOG ERRROR!  " + e.getMessage());
-		}
-		for(int i = 0; i<v.size(); i++) {
-			PhotoLogEntry l = null;
+		Connection db=null;
+		PhotoDB photodb=null;
+		// Only do all this crap if there's something to log.
+		if(v.size() > 0) {
 			try {
-				l = (PhotoLogEntry)v.elementAt(i);
-				st.executeUpdate(l.toString());
-			} catch(SQLException e) {
-				System.err.println("Error writing log:  "
-					+ l + e.getMessage());
+				photodb = new PhotoDB();
+				db=photodb.getConn();
+				st=db.createStatement();
+				for(int i = 0; i<v.size(); i++) {
+					PhotoLogEntry l = null;
+					try {
+						l = (PhotoLogEntry)v.elementAt(i);
+							st.executeUpdate(l.toString());
+					} catch(SQLException e) {
+						System.err.println("Error writing log:  "
+							+ l + e.getMessage());
+					}
+				}
+			} catch(Exception e) {
+				System.err.println("BAD LOG ERRROR!  " + e.getMessage());
+			} finally {
+				photodb.freeDBConn(db);
 			}
 		}
 	}
@@ -45,15 +53,6 @@ public class PhotoLogFlusher extends Thread {
 	public void run() {
 		is_running = true;
 
-		try {
-			PhotoConfig conf = new PhotoConfig();
-			Class.forName(conf.dbDriverName);
-			db=DriverManager.getConnection(conf.dbSource,
-				conf.dbUser, conf.dbPass);
-		} catch(Exception e) {
-			System.err.println("Error loading postgres driver for logging: "
-				+ e.getMessage());
-		}
 		log_object = new PhotoLogger();
 
 		// System.out.println("Running thread...");
@@ -65,6 +64,7 @@ public class PhotoLogFlusher extends Thread {
 			} catch(Exception e) {
 			} finally {
 				doFlush();
+
 			}
 		}
 	}

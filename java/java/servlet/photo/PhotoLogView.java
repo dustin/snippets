@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.3 1999/09/30 17:37:15 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.4 1999/10/12 22:54:09 dustin Exp $
  */
 
 import java.io.*;
@@ -9,15 +9,13 @@ import java.sql.*;
 import java.util.*;
 import sun.misc.*;
 
-import com.javaexchange.dbConnectionBroker.*;
-
 // The class
 public class PhotoLogView extends PhotoHelper
 {
 	PhotoServlet photoservlet;
 
-	public PhotoLogView(DbConnectionBroker db, PhotoServlet p) {
-		super(db);
+	public PhotoLogView(PhotoServlet p) throws Exception {
+		super();
 		photoservlet=p;
 	}
 
@@ -27,7 +25,7 @@ public class PhotoLogView extends PhotoHelper
 		String query, out="";
 
 		try {
-			db=dbs.getConnection();
+			db=getDBConn();
 		} catch(Exception e) {
 			throw new Exception("Can't get database connection: "
 				+ e.getMessage());
@@ -64,6 +62,8 @@ public class PhotoLogView extends PhotoHelper
 
 		} catch(Exception e) {
 			throw new Exception(e.getMessage());
+		} finally {
+			freeDBConn(db);
 		}
 
 		return(out);

@@ -1,15 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSecurity.java,v 1.3 1999/10/10 19:00:01 dustin Exp $
+ * $Id: PhotoSecurity.java,v 1.4 1999/10/12 22:54:11 dustin Exp $
  */
 
 import java.security.*;
 import java.util.*;
 import java.sql.*;
 import sun.misc.*;
-
-import com.javaexchange.dbConnectionBroker.*;
 
 public class PhotoSecurity extends PhotoHelper {
 	// Secret string to verify authentication with
@@ -18,11 +16,6 @@ public class PhotoSecurity extends PhotoHelper {
 
 	public PhotoSecurity(String key) throws Exception {
 		super();
-		secret = key;
-	}
-
-	public PhotoSecurity(String key, DbConnectionBroker db) throws Exception {
-		super(db);
 		secret = key;
 	}
 
@@ -79,6 +72,7 @@ public class PhotoSecurity extends PhotoHelper {
 			String tpw=getDigest(pass);
 			String pw=null;
 
+			// We can use the precached user database if it's there.
 			if(userdb == null) {
 				log("No userdb hash, getting auth info from database");
 				String u=PhotoUtil.dbquote_str(user);

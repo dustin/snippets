@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.32 1999/10/10 20:47:32 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.33 1999/10/12 22:54:12 dustin Exp $
  */
 
 import java.io.*;
@@ -14,29 +14,25 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import com.oreilly.servlet.*;
-import com.javaexchange.dbConnectionBroker.*;
 
 // The class
 public class PhotoServlet extends HttpServlet
 {
-	public Integer remote_uid=null;
-	public String remote_user=null, self_uri=null;
-	DbConnectionBroker dbs=null;
-	RHash rhash=null;
-	MultipartRequest multi=null;
-	PhotoLogger logger=null;
-	PhotoSecurity security = null;
+	protected Integer remote_uid=null;
+	protected String remote_user=null, self_uri=null;
+	protected RHash rhash=null;
+	protected MultipartRequest multi=null;
+	protected PhotoLogger logger=null;
+	protected PhotoSecurity security = null;
 
 	// Users
-	Hashtable userdb=null;
+	protected Hashtable userdb=null;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
 		PhotoConfig conf = new PhotoConfig();
-
-		initDBS();
 
 		// Populate the userdb hash
 		try {
@@ -49,7 +45,7 @@ public class PhotoServlet extends HttpServlet
 		// Security stuff
 		try {
 			String secret = PhotoSecurity.generateSecret();
-			security = new PhotoSecurity(secret, dbs);
+			security = new PhotoSecurity(secret);
 			security.setUserHash(userdb);
 		} catch(Exception e) {
 			throw new ServletException("Can't create security stuff:  " + e);
@@ -63,29 +59,6 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		logger = new PhotoLogger();
-	}
-
-	protected void initDBS() throws ServletException {
-		// Kill it if it exists.
-		if(dbs!=null) {
-			dbs.destroy();
-		}
-		// Nullify it.
-		dbs = null;
-		// Get rid of garbage.
-		System.runFinalization();
-		System.gc();
-		// Load a postgres driver.
-		try {
-			PhotoConfig pconfig = new PhotoConfig();
-			Class.forName(pconfig.dbDriverName);
-			dbs = new DbConnectionBroker(pconfig.dbDriverName,
-				pconfig.dbSource, pconfig.dbUser, pconfig.dbPass,
-				2, 6, "/tmp/pool.log", 0.01);
-		} catch(Exception e) {
-			// System.err.println("dbs broke:  " + e.getMessage());
-			throw new ServletException ("dbs broke: " + e.getMessage());
-		}
 	}
 
 	protected void init_userdb() throws Exception {
@@ -185,12 +158,32 @@ public class PhotoServlet extends HttpServlet
 			showImage(request, response);
 		} else if(func.equalsIgnoreCase("credform")) {
 			showCredForm(request, response);
+		} else if(func.equalsIgnoreCase("savesearch")) {
+			saveSearch(request, response);
 		} else if(func.equalsIgnoreCase("setcred")) {
 			setCreds(request, response);
 			doIndex(request, response);
 		} else {
 			throw new ServletException("No known function.");
 		}
+	}
+
+	protected void saveSearch(HttpServletRequest request,
+		HttpServletResponse response)
+		throws ServletException {
+		PhotoSearch ps = new PhotoSearch();
+		PhotoUser user = (PhotoUser)userdb.get(remote_user);
+		String output="";
+
+		try {
+			ps.saveSearch(request, user);
+			output=tokenize("addsearch_success.inc", new Hashtable());
+		} catch(Exception e) {
+			Hashtable h = new Hashtable();
+			h.put("MESSAGE", e.getMessage());
+			output=tokenize("addsearch_fail.inc", h);
+		}
+		send_response(response, output);
 	}
 
 	protected void getCreds(HttpServletRequest request)
@@ -219,7 +212,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show the style form
-	private void showCredForm (
+	protected void showCredForm (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output;
@@ -236,10 +229,14 @@ public class PhotoServlet extends HttpServlet
 		username=request.getParameter("username");
 		pass=request.getParameter("password");
 
+		log("Verifying password for " + username);
 		if(security.checkPW(username, pass)) {
 			Cookie c = new Cookie("photo_auth",security.setAuthUser(username));
 			c.setPath(self_uri);
 			response.addCookie(c);
+			// Make it valid immediately
+			remote_user = "dustin";
+			getUid();
 		}
 	}
 
@@ -248,45 +245,27 @@ public class PhotoServlet extends HttpServlet
 	protected void reInitialize() {
 		log("Application would like to reinitialize.");
 		try {
-			initDBS();
+			PhotoDB db=new PhotoDB();
+			db.init();
 		} catch(Exception e) {
 			// Do nothing.
 		}
 	}
 
 	// Grab a connection from the pool.
-	protected Connection getDBConn() throws SQLException {
-		Connection photo;
-
-		if(dbs == null) {
-			reInitialize();
-		}
-
-		// The path to the database...
-		photo = dbs.getConnection();
-		if(photo == null) {
-			reInitialize();
-			photo = dbs.getConnection();
-			if(photo == null) {
-				reInitialize();
-			}
-		}
-		if(photo==null) {
-			log("DB:  Could not get database connection");
-		} else {
-			log("DB:  Getting " + dbs.idOfConnection(photo));
-		}
-		return(photo);
+	protected Connection getDBConn() throws Exception {
+		PhotoDB pdb=new PhotoDB();
+		return(pdb.getConn());
 	}
 
 	// Gotta free the connection
 	protected void freeDBConn(Connection conn) {
-		log("DB:  Freeing " + dbs.idOfConnection(conn));
-		dbs.freeConnection(conn);
+		PhotoDB pdb=new PhotoDB();
+		pdb.freeDBConn(conn);
 	}
 
 	// Get the saved searches.
-	private String showSaved() throws SQLException, IOException {
+	protected String showSaved() {
 		String query, out="";
 		BASE64Decoder base64 = new BASE64Decoder();
 		Connection photo=null;
@@ -305,6 +284,8 @@ public class PhotoServlet extends HttpServlet
 				out += "    <li><a href=\"" + self_uri + "?"
 					+ tmp + "\">" + rs.getString(2) + "</a></li>\n";
 			}
+		} catch(Exception e) {
+			// Nothing
 		} finally {
 			if(photo != null) {
 				freeDBConn(photo);
@@ -314,7 +295,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Find out if the authenticated user can add stuff.
-	private boolean canadd() {
+	protected boolean canadd() {
 		boolean r=false;
 
 		try{
@@ -328,7 +309,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Add an image
-	private void doAddPhoto(
+	protected void doAddPhoto(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String category="", keywords="", picture="", info="", taken="";
@@ -463,7 +444,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Get a list of categories for a select list
-	private String getCatList() throws SQLException, IOException {
+	protected String getCatList() {
 		String query, out="";
 		Connection photo=null;
 		try {
@@ -480,6 +461,8 @@ public class PhotoServlet extends HttpServlet
 				out += "    <option value=\"" + rs.getString(1)
 					+ "\">" + rs.getString(2) + "\n";
 			}
+		} catch(Exception e) {
+			// Nothing
 		} finally {
 				if(photo != null) {
 					freeDBConn(photo);
@@ -489,7 +472,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show the style form
-	private void doStyleForm (
+	protected void doStyleForm (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output;
@@ -499,7 +482,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Get the stylesheet from the cookie, or the default.
-	private void doGetStylesheet (
+	protected void doGetStylesheet (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		Cookie cookies[];
@@ -534,7 +517,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Set the style cookie from the POST data.
-	private void doSetStyle(
+	protected void doSetStyle(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		Cookie c;
@@ -585,7 +568,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show the add an image form.
-	private void doAddForm(
+	protected void doAddForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
@@ -602,7 +585,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show the search form.
-	private void doFindForm(
+	protected void doFindForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
@@ -618,7 +601,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// View categories
-	private void doCatView(
+	protected void doCatView(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
@@ -666,7 +649,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Display the index page.
-	private void doIndex(
+	protected void doIndex(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");;
@@ -682,203 +665,19 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Get the UID
-	private void getUid() throws ServletException {
+	protected void getUid() throws ServletException {
 		String query;
-		// This is our exception, in case we need it.
-		ServletException x;
-		x = new ServletException("Unknown user: " + remote_user);
 
 		try {
 			PhotoUser p=(PhotoUser)userdb.get(remote_user);
 			remote_uid = p.id;
 		} catch(Exception e) {
-			throw x;
+			throw new ServletException("Unknown user: " + remote_user);
 		}
 	}
-
-	// Build the bigass complex search query.
-	private String buildQuery(HttpServletRequest request)
-		throws ServletException {
-		String query, sub, stmp, order, odirection, fieldjoin, join;
-		boolean needao;
-		String atmp[];
-
-		sub = "";
-
-		query = "select a.keywords,a.descr,b.name,\n"
-			+ "   a.size,a.taken,a.ts,a.id,a.cat,c.username,b.id\n"
-			+ "   from album a, cat b, wwwusers c\n   where a.cat=b.id\n"
-			+ "       and a.addedby=c.id\n"
-			+ "       and a.cat in (select cat from wwwacl\n"
-			+ "              where userid=" + remote_uid + ")";
-
-		needao=false;
-
-		// Find out what the fieldjoin is real quick...
-		stmp=request.getParameter("fieldjoin");
-		if(stmp == null) {
-			fieldjoin="and";
-		} else {
-			fieldjoin=PhotoUtil.dbquote_str(stmp);
-		}
-
-		// Start with categories.
-		atmp=request.getParameterValues("cat");
-
-		if(atmp != null) {
-			stmp="";
-			boolean snao=false;
-			int i;
-
-			// Do we need and or or?
-			if(needao) {
-				sub += " and";
-			}
-			needao=true;
-
-			for(i=0; i<atmp.length; i++) {
-				if(snao) {
-					stmp += " or";
-				} else {
-					snao=true;
-				}
-				stmp += "\n        a.cat=" + Integer.valueOf(atmp[i]);
-			}
-
-			if(atmp.length > 1) {
-				sub += "\n     (" + stmp + "\n     )";
-			} else {
-				sub += "\n   " + stmp;
-			}
-		}
-
-		// OK, lets look for search strings now...
-		stmp = request.getParameter("what");
-		if(stmp != null && stmp.length() > 0) {
-			String a, b, field;
-			boolean needjoin=false;
-			a=b="";
-
-			// If we need an and or an or, stick it in here.
-			if(needao) {
-				sub += " " + fieldjoin;
-			}
-			needao=true;
-
-			atmp = PhotoUtil.split(" ", stmp);
-
-			join = PhotoUtil.dbquote_str(request.getParameter("keyjoin"));
-			// Default
-			if(join == null) {
-				join = "or";
-			}
-
-			field = PhotoUtil.dbquote_str(request.getParameter("field"));
-			// Default
-			if(field == null) {
-				throw new ServletException("No field");
-			}
-
-			if(atmp.length > 1) {
-				int i;
-				sub += "\n     (";
-				for(i=0; i<atmp.length; i++) {
-					if(needjoin) {
-						sub += join;
-					} else {
-						needjoin=true;
-					}
-					sub += "\n\t" + field + " ~* '" + atmp[i] + "' ";
-				}
-				sub += "\n     )";
-			} else {
-				sub += "\n    " + field + " ~* '" + stmp + "' ";
-			}
-		}
-
-		// Starts and ends
-
-		stmp=PhotoUtil.dbquote_str(request.getParameter("tstart"));
-		if(stmp != null && stmp.length()>0) {
-			if(needao) {
-				join=PhotoUtil.dbquote_str(request.getParameter("tstartjoin"));
-				if(join==null) {
-					join="and";
-				}
-				sub += " " + join;
-			}
-			needao=true;
-			sub += "\n    a.taken>='" + stmp + "'";
-		}
-
-		stmp=PhotoUtil.dbquote_str(request.getParameter("tend"));
-		if(stmp != null && stmp.length()>0) {
-			if(needao) {
-				join=PhotoUtil.dbquote_str(request.getParameter("tendjoin"));
-				if(join==null) {
-					join="and";
-				}
-				sub += " " + join;
-			}
-			needao=true;
-			sub += "\n    a.taken<='" + stmp + "'";
-		}
-
-		stmp=PhotoUtil.dbquote_str(request.getParameter("start"));
-		if(stmp != null && stmp.length()>0) {
-			if(needao) {
-				join=PhotoUtil.dbquote_str(request.getParameter("startjoin"));
-				if(join==null) {
-					join="and";
-				}
-				sub += " " + join;
-			}
-			needao=true;
-			sub += "\n    a.ts>='" + stmp + "'";
-		}
-
-		stmp=PhotoUtil.dbquote_str(request.getParameter("end"));
-		if(stmp != null && stmp.length()>0) {
-			if(needao) {
-				join=PhotoUtil.dbquote_str(request.getParameter("endjoin"));
-				if(join==null) {
-					join="and";
-				}
-				sub += " " + join;
-			}
-			needao=true;
-			sub += "\n    a.ts<='" + stmp + "'";
-		}
-
-		// Stick the subquery on the bottom.
-		if(sub.length() > 0 ) {
-			query += " and\n (" + sub + "\n )";
-		}
-
-		// Stick the order under the subquery.
-		stmp=PhotoUtil.dbquote_str(request.getParameter("order"));
-		if(stmp != null) {
-			order = stmp;
-		} else {
-			order = "a.taken";
-		}
-
-		// Figure out the direction...
-		stmp=PhotoUtil.dbquote_str(request.getParameter("sdirection"));
-		if(stmp != null) {
-			odirection=stmp;
-		} else {
-			odirection = "";
-		}
-
-		query += "\n order by " + order + " " + odirection;
-
-		return(query);
-	}
-
 
 	// Find and display images.
-	private void doDisplay(
+	protected void doDisplay(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String query, output = "";
@@ -938,7 +737,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Send the response text...
-	private void send_response(HttpServletResponse response, String text)
+	protected void send_response(HttpServletResponse response, String text)
 	{
 		// set content type and other response header fields first
 		response.setContentType("text/html");
@@ -953,7 +752,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Find and display images.
-	private void doFind(
+	protected void doFind(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String query, output = "";
@@ -962,9 +761,11 @@ public class PhotoServlet extends HttpServlet
 		String stmp;
 		Connection photo;
 		Hashtable h = new Hashtable();
+		PhotoSearch ps = new PhotoSearch();
 
-		query=buildQuery(request);
+		query=ps.buildQuery(request, remote_uid);
 
+		h.put("SEARCH", ps.encodeSearch(request));
 		h.put("QUERY", query);
 
 		output += tokenize("find_top.inc", h);
@@ -1037,7 +838,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Link to more search results
-	private String linktomore(HttpServletRequest request,
+	protected String linktomore(HttpServletRequest request,
 		int start, int max) {
 		String ret = "";
 
@@ -1061,7 +862,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show an image
-	private void showImage(HttpServletRequest request,
+	protected void showImage(HttpServletRequest request,
 		HttpServletResponse response) throws ServletException {
 
 		Vector v;
@@ -1078,11 +879,10 @@ public class PhotoServlet extends HttpServlet
 			thumbnail=true;
 		}
 
-		// The new swank image extraction object.
-		PhotoImage p = new PhotoImage(which, dbs, rhash);
-
-
 		try {
+			// The new swank image extraction object.
+			PhotoImage p = new PhotoImage(which, rhash);
+
 			// Need a binary output thingy.
 			out = response.getOutputStream();
 
@@ -1104,11 +904,16 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
-	private void doLogView(HttpServletRequest request,
+	protected void doLogView(HttpServletRequest request,
 		HttpServletResponse response) throws ServletException {
 		String view, out="";
+		PhotoLogView logview=null;
 
-		PhotoLogView logview=new PhotoLogView(dbs, this);
+		try {
+			logview=new PhotoLogView(this);
+		} catch(Exception e) {
+			throw new ServletException(e.getMessage());
+		}
 
 		view=request.getParameter("view");
 		if(view==null) {
@@ -1131,7 +936,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Tokenize a template file and return the tokenized stuff.
-	private String tokenize(String file, Hashtable vars) {
+	protected String tokenize(String file, Hashtable vars) {
 		return(PhotoUtil.tokenize(this, file, vars));
 	}
 }

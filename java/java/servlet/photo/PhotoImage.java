@@ -1,15 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.8 1999/10/10 20:47:30 dustin Exp $
+ * $Id: PhotoImage.java,v 1.9 1999/10/12 22:54:05 dustin Exp $
  */
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 import sun.misc.*;
-
-import com.javaexchange.dbConnectionBroker.*;
 
 // The class
 public class PhotoImage extends PhotoHelper
@@ -36,8 +34,8 @@ public class PhotoImage extends PhotoHelper
 		getRhash();
 	}
 
-	public PhotoImage(int which, DbConnectionBroker db, RHash r) {
-		super(db);
+	public PhotoImage(int which, RHash r) throws Exception {
+		super();
 		image_id = which;
 		rhash=r;
 	}

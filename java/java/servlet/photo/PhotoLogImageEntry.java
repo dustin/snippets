@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogImageEntry.java,v 1.2 1999/09/30 17:37:14 dustin Exp $
+ * $Id: PhotoLogImageEntry.java,v 1.3 1999/10/12 22:54:08 dustin Exp $
  */
 
 
@@ -37,13 +37,15 @@ public class PhotoLogImageEntry extends PhotoLogEntry {
 	public String toString() {
 		String r;
 		SimpleDateFormat f = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		PhotoConfig conf = new PhotoConfig();
 
 		r="insert into photo_log(photo_id, wwwuser_id, remote_addr, "
 			+ "server_host, user_agent, cached, ts) values("
 			+ photo_id + ", " + wwwuser_id + ", '" + remote_addr
 			+ "', '" + server_host
 			+ "', get_agent('" + PhotoUtil.dbquote_str(user_agent) + "'), '"
-			+ cached + "', '" + f.format(timestamp) + " GMT')";
+			+ cached + "', '" + f.format(timestamp) + " "
+			+ conf.timezone + "')";
 
 		return(r);
 	}

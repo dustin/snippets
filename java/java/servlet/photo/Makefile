@@ -17,7 +17,7 @@ CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
 	PhotoImage.class Toker.class PhotoLogEntry.class \
 	PhotoLogFlusher.class PhotoLogger.class PhotoLogView.class \
 	PhotoLogImageEntry.class PhotoUser.class PhotoImageData.class \
-	PhotoSecurity.class PhotoConfig.class
+	PhotoSecurity.class PhotoConfig.class PhotoDB.class PhotoSearch.class \
 
 .SUFFIXES: .java .class .jar
 
