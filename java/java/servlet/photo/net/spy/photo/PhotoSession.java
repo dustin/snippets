@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.7 2000/03/08 07:14:13 dustin Exp $
+ * $Id: PhotoSession.java,v 1.8 2000/03/08 07:21:34 dustin Exp $
  */
 
 package net.spy.photo;
@@ -49,11 +49,7 @@ public class PhotoSession extends Object
 		photo_servlet=p;
 		this.request=request;
 		this.response=response;
-		this.session=request.getSession(true);
-		// Guest by default.
-		if(this.session.isNew()) {
-			this.session.putValue("username", "guest");
-		}
+		this.session=request.getSession(false);
 
 		logger=p.logger;
 
@@ -172,6 +168,9 @@ public class PhotoSession extends Object
 
 		log("Verifying password for " + username);
 		if(security.checkPW(username, pass)) {
+			if(session==null) {
+				session=request.getSession(true);
+			}
 			session.putValue("username", username);
 			// Make it valid immediately
 			remote_user = "dustin";
@@ -623,7 +622,11 @@ public class PhotoSession extends Object
 		String query;
 
 		try {
-			remote_user=(String)session.getValue("username");
+			if(session==null) {
+				remote_user="guest";
+			} else {
+				remote_user=(String)session.getValue("username");
+			}
 			PhotoUser p=(PhotoUser)userdb.get(remote_user);
 			remote_uid = p.id;
 		} catch(Exception e) {
