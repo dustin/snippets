@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.7 1998/07/06 02:30:33 dustin Exp $
+# $Id: DCache.pm,v 1.8 1998/07/06 02:40:46 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -44,9 +44,8 @@ sub ensurepath
     my($fn)=@_;
     my(@a, $np);
 
-    if(-d $fn)
-    {
-        return();
+    if(-d $fn) {
+        return;
     }
 
     @a=split(/\//, $fn);
@@ -55,8 +54,7 @@ sub ensurepath
     $np=join('/', @a);
     &ensurepath($np);
 
-    if(! -d $np )
-    {
+    if(! -d $np ) {
         mkdir($np, 0755);
     }
 }
@@ -114,40 +112,33 @@ sub checkcache
     my($self, $id, $compare)=@_;
     my($name, $r, @a, $s1, $s2);
 
+    if(!defined($compare)) {
+	 $compare="";
+    }
+
     $r=0;
     $name=getname($self, $id);
-    if(-f $name && (@a=stat(_)))
-    {
+    if(-f $name && (@a=stat(_))) {
 	$s1=$a[9];
-	if($compare ne "")
-	{
-	    if($compare=~/^\d+$/)
-	    {
+	if($compare ne "") {
+	    if($compare=~/^\d+$/) {
 		# Comparing lifetime
-		if($s1>time()-$compare)
-		{
+		if($s1>time()-$compare) {
 		    $r=1;
 		}
-	    }
-	    else
-	    {
+	    } else {
 		# Must be a filename...
 		@a=stat($compare);
 	        $s2=$a[9];
-	        if($s1>$s2)
-	        {
+	        if($s1>$s2) {
 		    $r=1;
 	        }
 	    }
-	}
-	else
-	{
+	} else {
 	    open(DC_IN, $name);
 	    $_=<DC_IN>;
-	    if(/X-Cache: (.*)/)
-	    {
-	        if($id eq $1)
-	        {
+	    if(/X-Cache: (.*)/) {
+	        if($id eq $1) {
 		    $r=1;
 	        }
 	    }
