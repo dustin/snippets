@@ -1,14 +1,11 @@
-/* To compile, run it through your favorite ansi compiler something like
- * this :
+/*
+ * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- *    gcc -o xkey xkey.c -lX11 -lm
- *
- * To run it, just use it like this :  xkey displayname:0
- * and watch as that display's keypresses show up in your shell window.
- *
- *    Dominic Giampaolo (nick@cs.maxine.wpi.edu)
+ * $Id: xcopy.c,v 1.2 2000/05/05 04:52:00 dustin Exp $
  */
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
@@ -16,68 +13,113 @@
 #include <X11/Xutil.h>
 #include <X11/Shell.h>
 
-char *TranslateKeyCode(XEvent *ev);
-void dumpEvent(XKeyEvent *xke);
-void resend(XEvent *xe, Window w);
+#define WIDTH  100
+#define HEIGHT 20
 
-Window source;
-Window destination;
+char           *TranslateKeyCode(XEvent * ev);
+void            dumpEvent(XKeyEvent * xke);
+void            resend(Display *d, XEvent * xe, Window w);
+void			docopy(Display *s, Window s_w, Display *d, Window d_w);
+Window			openInputWindow(Display *d);
 
-Display *source_d;
-Display *dest_d;
-
-
-void main(int argc, char **argv)
+void
+main(int argc, char **argv)
 {
-  char *s_hostname, *d_hostname;
-  XEvent xev;
+	char           *s_dpyname, *d_dpyname;
+	/* Source and destination displays */
+	Display        *source_d, *dest_d;
+	/* Source and destination Windows */
+	Window          s_w, d_w;
 
-  if (argc<3) {
-	fprintf(stderr, "Usage:  %s s_display d_display\n", argv[0]);
-	exit(1);
-  }
-  s_hostname = argv[1];
-  d_hostname = argv[2];
+	if (argc < 3) {
+		fprintf(stderr, "Usage:  %s d_display d_id\n", argv[0]);
+		exit(1);
+	}
+	d_dpyname = argv[1];
+	sscanf(argv[2], "0x%x", &d_w);
 
-  source_d = XOpenDisplay(s_hostname);
-  if (source_d == NULL) {
-     fprintf(stderr, "Blah, can't open display: %s\n", s_hostname);
-     exit(10);
-   }
+	s_dpyname=getenv("DISPLAY");
+	if(s_dpyname==NULL) {
+		s_dpyname=":0";
+	}
 
-  dest_d = XOpenDisplay(d_hostname);
-  if (source_d == NULL) {
-     fprintf(stderr, "Blah, can't open display: %s\n", d_hostname);
-     exit(10);
-   }
+	source_d = XOpenDisplay(s_dpyname);
+	if (source_d == NULL) {
+		fprintf(stderr, "Blah, can't open source display: %s\n", s_dpyname);
+		exit(10);
+	}
+	dest_d = XOpenDisplay(d_dpyname);
+	if (source_d == NULL) {
+		fprintf(stderr, "Blah, can't open destination display: %s\n",
+			d_dpyname);
+		exit(10);
+	}
 
-/*
-These were a couple of test windows I had open...
-New Window:  0x3c00013
-New Window:  0x4000013
-*/
+	s_w = openInputWindow(source_d);
 
-  XSelectInput(source_d, 0x3c00013, KeyPressMask);
-
-  while(1) {
-     XNextEvent(source_d, &xev);
-     resend(&xev, 0x2c00522);
-   }
+	docopy(source_d, s_w, dest_d, d_w);
 }
 
-void resend(XEvent *xe, Window w)
+Window openInputWindow(Display *d)
 {
-	XKeyEvent *xke;
+	Window w;
+	GC gc;
+	XGCValues xgcvalues;
+	XSetWindowAttributes attributes;
+	int screen;
 
-	xke=(XKeyEvent *)xe;
-	xke->window=w;
-	XSendEvent(dest_d, w, False, KeyReleaseMask|KeyPressMask, (XEvent *)xke);
-	XFlush(dest_d);
+	/* We'll be using this soon */
+	screen=DefaultScreen(d);
+
+	/* The Window itself */
+	attributes.border_pixel = BlackPixel(d, screen);
+	attributes.background_pixel = WhitePixel(d, screen);
+	w = XCreateWindow(d, DefaultRootWindow(d), 0, 0, WIDTH, HEIGHT, 2,
+		CopyFromParent, InputOutput, CopyFromParent,
+		CWBackPixel | CWBorderPixel, &attributes);
+
+	/* A graphics context */
+
+	xgcvalues.foreground = BlackPixel(d, screen);
+	xgcvalues.background = WhitePixel(d, screen);
+	gc = XCreateGC(d, (Drawable)w, (GCForeground | GCBackground),
+		&xgcvalues);
+
+	XFillRectangle(d, (Drawable)w, gc, 1, 1, WIDTH-2, HEIGHT-2);
+
+	XStoreName(d, w, "xCopy Input");
+	XMapRaised(d, w);
+	XFlush(d);
+
+	return(w);
+}
+
+void
+docopy(Display *s, Window s_w, Display *d, Window d_w)
+{
+	XSelectInput(s, s_w, KeyPressMask);
+	while (1) {
+		XEvent          xev;
+		XNextEvent(s, &xev);
+		resend(d, &xev, d_w);
+	}
+}
+
+void
+resend(Display *d, XEvent * xe, Window w)
+{
+	XKeyEvent      *xke;
+
+	xke = (XKeyEvent *) xe;
+	xke->window = w;
+	XSendEvent(d, w, False, KeyReleaseMask | KeyPressMask, (XEvent *) xke);
+	XFlush(d);
 }
 
 #define _dump(a) printf("%s:  0x%x\n", #a, xke->a);
 
-void dumpEvent(XKeyEvent *xke)
+void
+dumpEvent(XKeyEvent * xke)
 {
 	printf("\n--------------------------------------------\n");
 	_dump(type);
