@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.13 2000/03/04 02:20:04 dustin Exp $
+# $Id: ldap_audit,v 1.14 2000/03/07 06:01:14 dustin Exp $
 
 use strict;
 
@@ -190,7 +190,7 @@ sub fixRecord {
 		my @m=@{$master{$key}};
 		my @s=();
 
-		# Skip the always attributes
+		# Skip the auto attributes
 		next if($key eq "creatorsname");
 		next if($key eq "createtimestamp");
 		next if($key eq "modifytimestamp");
@@ -206,8 +206,14 @@ sub fixRecord {
 			push(@replace, [ $key, $master{$key} ] );
 			next;
 		}
-		my %mh=map { $_, 1}@m;
-		my %sh=map { $_, 1}@s;
+		my(%mh, %sh);
+		if($config{'lowercase'}==1) {
+			%mh=map { lc($_), 1}@m;
+			%sh=map { lc($_), 1}@s;
+		} else {
+			%mh=map { $_, 1}@m;
+			%sh=map { $_, 1}@s;
+		}
 		# First, check for values that're in the master, but not the slave.
 		for(keys %mh) {
 			if(!defined($sh{$_})) {
@@ -254,10 +260,12 @@ sub fixRecord {
 		}
 	}
 
-	# we always have to modify these.
-	for('creatorsname', 'createtimestamp', 'modifiersname', 'modifytimestamp'){
-		if(defined($master{$_})) {
-			push(@replace, [ $_, $master{$_} ]);
+	if($config{'autoAttributes'}==1) {
+		for('creatorsname', 'createtimestamp',
+			'modifiersname', 'modifytimestamp'){
+			if(defined($master{$_})) {
+				push(@replace, [ $_, $master{$_} ]);
+			}
 		}
 	}
 
@@ -273,10 +281,14 @@ sub fixRecord {
 	}
 
 	# do the modify
-	print Dumper(\@mods) if($config{'debug'}>0);
-	my $res=$slave_ldap->modify($dn, 'changes' => \@mods );
-	if($res->code()!=0) {
-		print "WARNING!  Modify of $dn failed:  " . $res->code() . "\n";
+	if(@mods) {
+		print Dumper(\@mods) if($config{'debug'}>0);
+		my $res=$slave_ldap->modify($dn, 'changes' => \@mods );
+		if($res->code()!=0) {
+			print "WARNING!  Modify of $dn failed:  " . $res->code() . "\n";
+		}
+	} else {
+		print "Nothing to change.\n" if($config{'debug'}>0);
 	}
 }
 
