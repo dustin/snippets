@@ -23,7 +23,8 @@ setrange(int start, int end, int startred, int startgreen,
 
 				 *
 				 * *
-				 * * * set colors from start to end
+				 * * *
+				 * * * * set colors from start to end
 				 */
   float ri, gi, bi;
   int range = end - start + 2;
