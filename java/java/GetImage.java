@@ -17,7 +17,7 @@ public class GetImage
 		// Load the postgres driver.
 		Class.forName("postgresql.Driver");
 
-		source="jdbc:postgresql://bleu/photo";
+		source="jdbc:postgresql://dhcp-104/photo";
 
 		photo = DriverManager.getConnection(source, "dustin", "");
 		st = photo.createStatement();
