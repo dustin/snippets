@@ -2,7 +2,7 @@
  * Copyright (c) 2002 Scott Lamb <slamb@slamb.org>
  * This code is released under the MIT license; see the file LICENSE.
  *
- * $Id: SPGenTask.java,v 1.4 2002/07/10 05:42:23 dustin Exp $
+ * $Id: SPGenTask.java,v 1.5 2002/08/17 06:30:40 dustin Exp $
  */
 
 package net.spy.util;
@@ -14,7 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -31,7 +31,7 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
  * builds don't create problems, etc.
  *
  * @author Scott Lamb
- * @version $Revision: 1.4 $ $Date: 2002/07/10 05:42:23 $
+ * @version $Revision: 1.5 $ $Date: 2002/08/17 06:30:40 $
  **/
 public class SPGenTask extends MatchingTask {
 
@@ -94,7 +94,7 @@ public class SPGenTask extends MatchingTask {
 	}
 
 	private String[] trimSPTList(String input[]) {
-		Vector v=new Vector();
+		ArrayList a=new ArrayList();
 
 		for(int i = 0; i < input.length; i ++) {
 			File srcFile = new File(srcDir, input[i]);
@@ -104,13 +104,13 @@ public class SPGenTask extends MatchingTask {
 				&& destFile.lastModified() > srcFile.lastModified()) {
 				// Already have this file.
 			} else {
-				v.addElement(input[i]);
+				a.add(input[i]);
 			}
 		}
 
-		String rv[]=new String[v.size()];
-		for(int i=0; i<v.size(); i++) {
-			rv[i]=(String)v.elementAt(i);
+		String rv[]=new String[a.size()];
+		for(int i=0; i<a.size(); i++) {
+			rv[i]=(String)a.get(i);
 		}
 
 		return(rv);
