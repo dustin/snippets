@@ -30,8 +30,9 @@ int door::opendoor(int x, int y, int width, int height, int fill)
 	return 1;
 }
 
-void main(void)
+int main(void)
 {
 	initwall();
 	displaywall();
+	return(0);
 }
