@@ -5,7 +5,7 @@ JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac -deprecation
 JAVA=$(JAVAHOME)/bin/java
 MYLIB=$(HOME)/lib/java
-C1=$(MYLIB)/jsdk.jar
+C1=$(MYLIB)/jsdk.jar:$(MYLIB)/acme.jar
 C2=$(MYLIB)/spy.jar
 CLASSPATH=$(C1):$(C2):.
 
