@@ -2,21 +2,22 @@
 #
 # arch-tag: DB517CB1-9CD6-11D8-8C7E-000393CFE6B8
 
-for i in "$@"
-do
-	echo "Doing first grep on $i"
-	gzip -dc < $i/results.log.gz \
-		| egrep "Out of session structures|connection after IO error" \
-		| gzip -3vc > $i/grep.one.gz
+FILE=$1
+dir=`dirname $FILE`
 
-	echo "Doing split grep on $i"
-	gzip -dc $i/grep.one.gz | egrep "Out of session structures" \
-		| gzip -3vc > $i/grep.session.gz
-	gzip -dc $i/grep.one.gz | egrep "connection after IO error" \
-		| gzip -3vc > $i/grep.ioerr.gz
+echo "Doing first grep on $FILE (dir is $dir)"
+gzip -dc < $FILE \
+	| egrep "Out of session structures|connection after IO error" \
+	| gzip -3vc > $dir/,grep.one.gz
 
-	echo "Finding unique serial numbers"
-	gzip -dc $i/grep.session.gz | awk '{print $1}' | sort -u > $i/session.sn
-	gzip -dc $i/grep.ioerr.gz | awk '{print $1}' | sort -u > $i/ioerr.sn
+echo "Doing split grep on $FILE"
+gzip -dc $dir/,grep.one.gz | egrep "Out of session structures" \
+	| gzip -3vc > $dir/grep.session.gz
+gzip -dc $dir/,grep.one.gz | egrep "connection after IO error" \
+	| gzip -3vc > $dir/grep.ioerr.gz
 
-done
+echo "Finding unique serial numbers"
+gzip -dc $dir/grep.session.gz | awk '{print $1 " " $2}' \
+	| sort -u > $dir/session.sn
+gzip -dc $dir/grep.ioerr.gz | awk '{print $1 " " $2}' \
+	| sort -u > $dir/ioerr.sn
