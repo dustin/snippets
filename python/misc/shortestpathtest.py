@@ -5,6 +5,7 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
 # arch-tag: C57998D6-32B3-11D9-93E7-000393CFE6B8
 
+import random
 import unittest
 import shortestpath
 
@@ -121,6 +122,43 @@ class ShortestPathTestCase(unittest.TestCase):
         self.assertLinkMatch(self.g, self.e, None, 0)
         self.assertLinkMatch(self.g, self.f, None, 0)
         self.assertLinkMatch(self.g, self.g, None, 0)
+
+    def testShortestPath(self):
+        gp=shortestpath.getShortestPath
+        sp=gp(self.a, self.b)
+        self.assertEquals(1, len(sp), "Shortest path from A -> B")
+        try:
+            sp=gp(self.a, self.a)
+            self.fail("Expected to not find a path from A -> A, found " + `sp`)
+        except shortestpath.NoPathException:
+            pass
+        sp=gp(self.a, self.c)
+        self.assertEquals(1, len(sp), "ShortestPath from A -> C:  " + `sp`)
+        sp=gp(self.a, self.d)
+        self.assertEquals(2, len(sp), "ShortestPath from A -> D:  " + `sp`)
+        sp=gp(self.a, self.e)
+        self.assertEquals(2, len(sp), "ShortestPath from A -> E:  " + `sp`)
+
+        sp=gp(self.d, self.e)
+        self.assertEquals(2, len(sp), "ShortestPath from D -> E:  " + `sp`)
+
+        sp=gp(self.e, self.e)
+        self.assertEquals(1, len(sp), "ShortestPath from E -> E:  " + `sp`)
+
+    def testBigGraph(self):
+        nodes=[]
+        # Generate one hundred nodes
+        for i in range(100):
+            nodes.append(StringNode(str(i)))
+
+        # Randomly select 50 nodes to link each to 50 other nodes
+        r=random.Random()
+        for i in r.sample(range(100), 50):
+            node=nodes[i]
+            for j in r.sample(range(100), 50):
+                node.linkTo(nodes[j])
+
+        shortestpath.calculatePaths(nodes)
 
 if __name__ == '__main__':
     unittest.main()

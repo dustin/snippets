@@ -54,6 +54,14 @@ class Node:
            given cost."""
         self.connections.append(Vertex(n, cost))
 
+class NoPathException:
+    """Exception thrown when attempting to find the shortest path between two
+       nodes when there is no matching path."""
+
+    def __init__(self, f, t):
+        self.nodeFrom=f
+        self.nodeTo=t
+
 ### Main stuff
 
 def __addHopFrom(node, dest, next, cost):
@@ -87,3 +95,21 @@ def calculatePaths(nodes):
     """Calculate all the paths for the given collection of nodes."""
     for n in nodes:
         __calculatePathForNode(n)
+
+def getShortestPath(nodeFrom, nodeTo):
+    """Get the shortest path between two nodes."""
+    rv=[]
+    v = nodeFrom.getNextHop(nodeTo)
+    if v is None:
+        raise NoPathException(nodeFrom, nodeTo)
+
+    current = v.getTo()
+    while current is not nodeTo:
+        rv.append(current)
+
+        v=current.getNextHop(nodeTo)
+        current = v.getTo()
+
+    rv.append(current)
+
+    return rv
