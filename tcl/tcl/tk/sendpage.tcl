@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.1 1999/08/29 13:50:08 dustin Exp $
+# $Id: sendpage.tcl,v 1.2 1999/08/29 14:02:15 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -122,6 +122,16 @@ proc clearstuff { } {
 	setstatus ""
 }
 
+# Tell us about yourself...
+proc about { } {
+	set rev { $Revision: 1.2 $ }
+	set tmp [ split $rev " " ]
+	set version [lindex $tmp 2]
+	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
+	set button [tk_messageBox -icon info -type ok \
+		-title "About sendpage" -parent . -message $msg ]
+}
+
 # START HERE
 
 # Globals, these are needed to ensure someone doesn't accidentally send the
@@ -129,7 +139,6 @@ proc clearstuff { } {
 set last_msg ""
 set last_uid ""
 
-set w ""
 wm title . "Page People"
 wm iconname . "Pager"
 
@@ -137,33 +146,35 @@ wm iconname . "Pager"
 set entwidth 40
 
 # The Whom field.
-frame $w.whom
-label $w.whom.msg -text "Whom"
-entry $w.whom.whom -width $entwidth
-pack $w.whom.msg -side left -expand 1
-pack $w.whom.whom -side right -expand 1
-pack $w.whom -side top -expand 1 -fill x
+frame .whom
+label .whom.msg -text "Whom"
+entry .whom.whom -width $entwidth
+pack .whom.msg -side left -expand 1
+pack .whom.whom -side right -expand 1
+pack .whom -side top -expand 1 -fill x
 
 # The What field.
-frame $w.message
-label $w.message.msg -text "What"
-entry $w.message.what -width $entwidth
-pack $w.message.msg -side left -expand 1
-pack $w.message.what -side right -expand 1
-pack $w.message -side top -expand 1 -fill x
+frame .message
+label .message.msg -text "What"
+entry .message.what -width $entwidth
+pack .message.msg -side left -expand 1
+pack .message.what -side right -expand 1
+pack .message -side top -expand 1 -fill x
 
 # The buttons.
-frame $w.buttons
-button $w.buttons.page -text "Send" -command "sendpage"
-button $w.buttons.clear -text "Clear" -command "clearstuff"
-button $w.buttons.quit -text "Quit" -command "exit"
-pack $w.buttons.page $w.buttons.clear $w.buttons.quit -side left -expand 1
-pack $w.buttons -side top -expand 1 -fill x
+frame .buttons
+button .buttons.page -text "Send" -command "sendpage"
+button .buttons.clear -text "Clear" -command "clearstuff"
+button .buttons.quit -text "Quit" -command "exit"
+button .buttons.about -text "About" -command "about"
+pack .buttons.page .buttons.clear .buttons.quit .buttons.about \
+	-side left -expand 1
+pack .buttons -side top -expand 1 -fill x
 
 # The status bar.
-frame $w.status
-label $w.status.l -text "Status: "
-entry $w.status.msg -width $entwidth -relief flat -state disabled
-pack $w.status.l -side left -expand 1
-pack $w.status.msg -side right -expand 1
-pack $w.status -side bottom -expand 1 -fill x
+frame .status
+label .status.l -text "Status: "
+entry .status.msg -width $entwidth -relief flat -state disabled
+pack .status.l -side left -expand 1
+pack .status.msg -side right -expand 1
+pack .status -side bottom -expand 1 -fill x
