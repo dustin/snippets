@@ -1,13 +1,16 @@
 ; Date calculation stuff.
 ; Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
-; $Id: dates.el,v 1.3 2001/11/16 00:04:15 dustin Exp $
+; $Id: dates.el,v 1.4 2001/11/17 11:17:53 dustin Exp $
 
 ;
 ; Constants used to perform calculations
 ;
 (defconst dates-1970 0 "The beginning of time!  1/1/1970")
-(defconst dates-seconds-per-year 31536000 "Second per normal year")
-(defconst dates-seconds-per-day 86400 "Seconds per day (duh)")
+(defconst dates-seconds-per-year 31536000.0 "Second per normal year")
+(defconst dates-avg-sec-per-year 31557600.0 "Average seconds per year")
+(defconst dates-seconds-per-day 86400.0 "Seconds per day (duh)")
+(defconst dates-avg-sec-per-month (* dates-seconds-per-day (/ 365 12))
+  "Average number of seconds per month.")
 (defconst dates-days-by-month '(31 28 31 30 31 30 31 31 30 31 30 31)
   "Number of days in each month")
 (defconst dates-days-by-month-ly '(31 29 31 30 31 30 31 31 30 31 30 31)
@@ -59,6 +62,40 @@
   (+ (dates-seconds-for-minute year month day hour minute)
      second))
 
+(defun dates-monsec (year)
+  "Get the number of seconds by month for the given year."
+  (map 'list (lambda (x) (* x dates-seconds-per-day))
+       (if (dates-leap-year-p year)
+	   dates-monthday-ly
+	 dates-monthday)))
+
+(defun dates-lte-n (l n)
+  "Get the position of the largest number in the given list where the element
+at the position is less than or equal to  n."
+  (let ((rv 0))
+    (loop for i from 0 to (- (length l) 1) do
+	  (if (<= (nth i l) n)
+	      (setq rv i)))
+    rv))
+
+(defun dates-decode (ts) "Decode the number of seconds (ts) into a time array."
+  (let ((y 0.0) (m 0.0) (d 0.0) (h 0.0) (mn 0.0) (s ts))
+    (setq y (+ 1970 (floor (/ s dates-avg-sec-per-year))))
+    (setq s (- s (dates-seconds-for-year y)))
+    (setq m (dates-lte-n (dates-monsec y) s))
+    (setq s (- s (nth m (dates-monsec y))))
+    (setq d (floor (/ s dates-seconds-per-day)))
+    (setq s (- s (* d dates-seconds-per-day)))
+    (setq h (floor (/ s 3600)))
+    (setq s (- s (* h 3600)))
+    (setq mn (floor (/ s 60)))
+    (setq s (- s (* mn 60)))
+    (list y (1+ m) (1+ d) h mn s)))
+
+; (dates-seconds-for-time 2001 11 16 23 38 33)
+; (dates-decode 1005953913.0)
+; (dates-decode (dates-seconds-for-time 2001 1 1 0 0 0))
+
 (provide 'dates)
 
 ; Tests
@@ -69,12 +106,3 @@
 ; (dates-seconds-for-hour 1977 10 5 4)
 ; (dates-seconds-for-minute 1977 10 5 4 30)
 ; (dates-seconds-for-time 1977 10 5 4 30 15)
-
-; (require 'cl)
-
-; (let (( rv '(0)) (last 0))
-;   (loop for i in dates-days-by-month-ly do
-; 	(setq last (+ i last))
-; 	(setq rv (append rv (list last))))
-;   rv)
-
