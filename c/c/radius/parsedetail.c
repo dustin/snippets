@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.6 1997/09/22 18:29:18 dustin Exp $
+ * $Id: parsedetail.c,v 2.7 1997/10/01 07:16:48 dustin Exp $
  */
 
 #include <stdio.h>
@@ -28,6 +28,8 @@ void dotime(char *t)
 {
     struct tm tm;
     t+=4;
+
+    memset(&tm, 0x00, sizeof(struct tm));
 
     for(tm.tm_mon=0; tm.tm_mon<12; tm.tm_mon++)
         if(strncmp(t, month[tm.tm_mon], 3)==0) break;
@@ -138,7 +140,7 @@ void help(char *me)
     char *p;
 
     /* Pull out version info */
-    strcpy(str, "$Revision: 2.6 $");
+    strcpy(str, "$Revision: 2.7 $");
     for(p=str; *p!=' '; p++);
     p++; p[strlen(p)-1]=0x00;
 
