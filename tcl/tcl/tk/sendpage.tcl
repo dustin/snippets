@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.5 1999/09/04 00:30:17 dustin Exp $
+# $Id: sendpage.tcl,v 1.6 1999/09/04 06:37:38 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -39,7 +39,7 @@ proc snpp_cmd { fd cmd } {
 
 proc snpp_sendpage { host port id msg } {
 
-	global snpp_error hold_state
+	global snpp_error hold_state timezone
 
 	set err [catch {set fd [socket $host $port]}]
 
@@ -82,7 +82,7 @@ proc snpp_sendpage { host port id msg } {
 			append t $s
 		}
 
-		if { [snpp_cmd $fd "holduntil $t -8"] < 0 } {
+		if { [snpp_cmd $fd "holduntil $t $timezone"] < 0 } {
 			catch { close $fd }
 			return -1
 		}
@@ -153,7 +153,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.5 $ }
+	set rev { $Revision: 1.6 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -164,15 +164,18 @@ proc about { } {
 # Preferences store
 
 proc preferences_store { p } {
-	global snpp_server snpp_port
+	global snpp_server snpp_port timezone
+
 	set snpp_server [ $p.server.server get ]
 	set snpp_port [ $p.port.port get ]
+	set timezone [ $p.timezone.timezone get ]
+	write_config
 }
 
 # Preferences window.
 
 proc preferences { } {
-	global snpp_server snpp_port
+	global snpp_server snpp_port timezone
 
 	set p .preferences
 	catch { $p destroy }
@@ -195,6 +198,15 @@ proc preferences { } {
 	pack $p.port.msg -side left -expand 1
 	pack $p.port.port -side right -expand 1
 	pack $p.port -side top -expand 1 -fill x
+
+	# The timezone field.
+	frame $p.timezone
+	label $p.timezone.msg -text "Timezone"
+	entry $p.timezone.timezone
+	$p.timezone.timezone insert 0 $timezone
+	pack $p.timezone.msg -side left -expand 1
+	pack $p.timezone.timezone -side right -expand 1
+	pack $p.timezone -side top -expand 1 -fill x
 
 	# The buttons.
 	frame $p.buttons
@@ -242,6 +254,42 @@ proc toggle_hold { } {
 	}
 }
 
+proc read_config {} {
+	global snpp_server snpp_port timezone
+
+	set err [ catch { set fd [ open "sendpage.cnf" r ] } ]
+
+	if { $err } {
+		return
+	}
+
+	while { [ gets $fd line ] != -1 } {
+		eval $line
+	}
+}
+
+# Save the running config to disk.
+proc write_config {} {
+	global snpp_server snpp_port timezone
+
+	set err [ catch { set fd [ open "sendpage.cnf" w ] } ]
+
+	if { $err } {
+		return
+	}
+
+	# write out all necessary variables.
+	puts $fd "# DO NOT EDIT THIS!"
+
+	foreach var {snpp_server snpp_port timezone} {
+		set value ""
+		eval append value $$var
+		puts $fd "set $var $value"
+	}
+
+	catch { [ close $fd ] }
+}
+
 # START HERE
 
 # Globals, these are needed to ensure someone doesn't accidentally send the
@@ -249,8 +297,12 @@ proc toggle_hold { } {
 set last_msg ""
 set last_uid ""
 
+# Defaults
 set snpp_server "pager.beyond.com"
 set snpp_port   1041
+set timezone -8
+
+read_config
 
 set hold_state 1
 
