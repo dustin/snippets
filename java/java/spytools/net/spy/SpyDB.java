@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.14 2000/06/20 08:35:51 dustin Exp $
+ * $Id: SpyDB.java,v 1.15 2000/06/24 08:10:28 dustin Exp $
  */
 
 package net.spy;
@@ -21,7 +21,7 @@ import com.javaexchange.dbConnectionBroker.*;
 
 public class SpyDB extends Object {
 
-	protected static Hashtable dbss;
+	protected static Hashtable dbss=null;
 	protected Connection conn=null;
 	protected SpyConfig conf = null;
 	protected String log_file=null;
@@ -91,10 +91,6 @@ public class SpyDB extends Object {
 		if(dbss==null) {
 			dbss=new Hashtable();
 		}
-		dbs=(DbConnectionBroker)dbss.get(log_file);
-		if(dbs==null) {
-			initDBS();
-		}
 
 		log_file=conf.get("dbcbLogFilePath", "/tmp/pool.log");
 		min_conns=conf.getInt("dbcbMinConns", min_conns);
@@ -102,6 +98,11 @@ public class SpyDB extends Object {
 		String tmp=conf.get("dbcbMaxLifeTime");
 		if(tmp!=null) {
 			recycle_time=Double.valueOf(tmp).doubleValue();
+		}
+
+		dbs=(DbConnectionBroker)dbss.get(log_file);
+		if(dbs==null) {
+			initDBS();
 		}
 	}
 
