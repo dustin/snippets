@@ -20,7 +20,7 @@ public class LoggingFlusher extends Thread {
 		for(int i = 0; i<v.size(); i++) {
 			try {
 				LogEntry l = (LogEntry)v.elementAt(i);
-				log_file.write( l.toString() + "\n");
+				log_file.write( l + "\n");
 			} catch(IOException e) {
 				System.err.println("Error writing log:  " + e.getMessage());
 			}
@@ -49,10 +49,8 @@ public class LoggingFlusher extends Thread {
 			try {
 				// Wait a second before continuing
 				sleep(1000);
-				System.out.println("Flusher thread sleep thing is over.");
 			} catch(Exception e) {
 			} finally {
-				System.out.println("Flushing.");
 				doFlush();
 			}
 		}

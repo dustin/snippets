@@ -4,7 +4,7 @@ public class Example {
 	public static void main(String args[]) {
 		Logging l = new Logging();
 
-		for(int i = 0; i<100; i++) {
+		for(int i = 0; i<10; i++) {
 			afunction();
 			try {
 				System.runFinalization();
@@ -12,7 +12,7 @@ public class Example {
 			}
 		}
 		try {
-			// Thread.sleep(10000);
+			Thread.sleep(100);
 		} catch(Exception e) {
 		}
 		System.out.println("Done!!!");

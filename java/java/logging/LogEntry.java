@@ -8,17 +8,15 @@ public class LogEntry extends Object {
 	private String message;
 	private int priority;
 	private Date timestamp;
-	private String stack;
+	private Exception exception;
 
 	private String getStack() {
-		String s, r;
-		Exception e = new Exception("hi");
+		String r;
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		PrintWriter writer = new PrintWriter(bytes, true);
-		e.printStackTrace(writer);
-		s=bytes.toString();
+		exception.printStackTrace(writer);
 
-		StringTokenizer t = new StringTokenizer(s, "\n");
+		StringTokenizer t = new StringTokenizer(bytes.toString(), "\n");
 		// The first three are generated here.
 		t.nextToken();
 		t.nextToken();
@@ -35,21 +33,20 @@ public class LogEntry extends Object {
 		super();
 		message = msg;
 		timestamp = new Date();
-		stack = getStack();
+		exception = new Exception("dummy");
 	}
 
 	public LogEntry() {
 		super();
 		message = null;
 		timestamp = new Date();
-		stack = getStack();
+		exception = new Exception("dummy");
 	}
 
 	public String toString() {
 		String r;
 
-		r="[" + timestamp.toString();
-		r+="] " + message + "\n{ " + stack + "\n}" ;
+		r="[" + timestamp + "] " + message + "\n{ " + getStack() + "\n}" ;
 		return(r);
 	}
 
