@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: loglib.scm,v 1.2 2002/12/28 11:47:18 dustin Exp $
+; $Id: loglib.scm,v 1.3 2003/05/02 20:41:17 dustin Exp $
 
 (module loglib
 	  (import
@@ -12,6 +12,7 @@
 		  approx-time))
 
 ; Parse the date out of the given line
+; XXX:  This really needs to deal with daylight savings time better
 (define (parse-2wire-date line)
   (+ (apply dates-seconds-for-time
 		 (map string->integer
@@ -19,7 +20,7 @@
 				(substring line 0 19)
 				'(#\: #\space #\-)
 				19)))
-	 28800))
+	 25200))
 
 ; Parse the date out of the given line (including milliseconds)
 (define (parse-2wire-date-withmillis line)

@@ -1,6 +1,6 @@
 ; Date calculation stuff.
 ; Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
-; $Id: dates.scm,v 1.2 2002/12/28 05:37:38 dustin Exp $
+; $Id: dates.scm,v 1.3 2003/05/02 20:41:15 dustin Exp $
 
 (module dates
 		(export dates-seconds-for-time dates-decode))
@@ -40,10 +40,15 @@
 		   (flonum->fixnum year)) 4)))
 
 ; "Get the number of seconds at the beginning of the given year."
+; Subtract one day from the ceiling of the number of years past 1970
+; divided by four.  This allows us to calculate the number of leap days
+; that have occurred
 (define (dates-seconds-for-year year)
   (+ dates-1970
      (* dates-seconds-per-year (- year 1970))
-     (* dates-seconds-per-day (ceiling (/ (- year 1970) 4.0)))))
+     (* dates-seconds-per-day
+		(- (ceiling (/ (- year 1970) 4.0))
+		   (if (> year 1970) 1 0)))))
 
 ; "Get the number of seconds at the beginning of the month in the given year"
 (define (dates-seconds-for-month year month)

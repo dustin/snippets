@@ -1,10 +1,22 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: hash.scm,v 1.2 2003/01/02 23:27:53 dustin Exp $
+; $Id: hash.scm,v 1.3 2003/05/02 20:41:16 dustin Exp $
 
 ; Generic hash table thing
 
-(module hash)
+(module hash
+		(export
+		  hash
+		  make-hashtbl
+		  hashtbl?
+		  hashtbl-put!
+		  hashtbl-get-pair
+		  hashtbl-get
+		  hashtbl-update!
+		  hashtbl-remove!
+		  hashtbl-keys-values
+		  hashtbl-keys
+		  hashtbl-values))
 
 ; Crappy routine to compute a hash value for a string
 (define (hash-string s)
