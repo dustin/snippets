@@ -1,0 +1,40 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(Makefile.in)
+
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_PATH_PROG(AR, ar, /bin/ar, $PATH)
+
+AC_CHECK_HEADERS(getopt.h)
+
+AC_FUNC_VPRINTF
+
+dnl for et routines
+AC_FUNC_CHECK(strerror,AC_DEFINE(HAS_STRERROR),AC_DEFINE(NEED_SYS_ERRLIST))
+
+dnl need md5, let's see where we can find it.
+AC_CHECK_LIB(md5, MD5Init)
+AC_CHECK_FUNCS(MD5Init)
+if test "$ac_cv_func_MD5Init" = "yes"
+then
+	echo "Using system MD5 stuff"
+	MD5=""
+else
+	echo "Using supplied MD5 library"
+	MD5="md5.o"
+fi
+AC_SUBST(MD5)
+
+AC_CHECK_FUNC(gethostbyname)
+if test $ac_cv_func_gethostbyname = no; then
+  AC_CHECK_LIB(nsl, gethostbyname, EXTRA_LIBS="-lnsl")
+fi
+AC_CHECK_FUNC(connect)
+if test $ac_cv_func_connect = no; then
+  AC_CHECK_LIB(socket, connect, EXTRA_LIBS="-lsocket $EXTRA_LIBS", ,
+    $EXTRA_LIBS)
+fi
+LIBS="${LIBS} ${EXTRA_LIBS}"
+
+AC_OUTPUT(Makefile)

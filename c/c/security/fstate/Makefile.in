@@ -1,0 +1,23 @@
+CFLAGS=@CFLAGS@ -I.
+LDFLAGS=@LDFLAGS@
+AR=@AR@ rc
+SHELL=/bin/sh
+RM=rm
+RANLIB=@RANLIB@
+MAKEDEPEND = @MAKEDEPEND@
+CC=@CC@
+OBJS=main.o @MD5@
+
+all: fstate
+
+fstate: $(OBJS)
+	$(CC) -o $@ $(OBJS)
+
+clean:
+	$(RM) fstate $(OBJS)
+
+depend:
+	${MAKEDEPEND} $(CPPFLAGS) $(DEFS) $(CFLAGS) *.c 1>makedepend.log 2>&1
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
