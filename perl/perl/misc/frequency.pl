@@ -13,7 +13,11 @@ my %notes=(
 	'G' => 784, 'GS' => 831
 );
 
-my $base=8000;
+my $fin=65536;
+# my $fout=8000;
+# my $fout=44100;
+my $fout=8192;
+my @basewave=();
 
 # Degrees to radians
 sub d2r
@@ -49,34 +53,50 @@ sub dumpWave
 }
 
 # Convert the wave to a series of bytes, -1 = 0, 0 = 128, 1 = 256
-sub wav2bytes
-{
-	my($t, @w)=@_;
-	my($i, $rbytes, $r);
-	# Figure out how many bytes we need to get the given duration
-	$rbytes=$t*$base;
-	$r="";
-	while(length($r) < $rbytes) {
-		for($i=0; $i<@w; $i++) {
-			my $v=128+($w[$i]*128);
-			$r.=pack("c", $v);
-		}
-	}
-	# Only return the requested amount
-	return(substr($r, 0, $rbytes));
-}
-
-# Get a specific frequency at a given duration
 sub getTone
 {
-	my($freq, $dur)=@_;
-	my $size=($base * (1/$freq));
-	return(wav2bytes($dur, getWave($size)));
+	# Frequency, duration
+	my($freq, $t)=@_;
+	my($r, $current, $step);
+	# Figure out how many bytes we need to get the given duration
+	my $rbytes=$fout*$t;
+	# Calculate the step
+	$step=($freq/$fout)*$fin;
+	# print STDERR "Step is $step for $freq, bytes is $rbytes for $t\n";
+	$current=0;
+	$r="";
+	while(length($r) < $rbytes) {
+		if($current > $fin) {
+			# print STDERR "current exceeded $fin:  $current\n";
+			# $current = ($current % $fin);
+			$current = 0;
+		}
+
+		my $v=128+($basewave[$current]*128);
+		$r.=pack("c", $v);
+		# my $v=32768+($basewave[$current]*32768);
+		# $r.=pack("s", $v);
+		# $r.=pack("s", $v);
+
+		$current+=$step;
+	}
+	# Only return the requested amount
+	return($r);
 }
 
 #
 # Main, play an A minor scale
 #
+
+print ".snd";
+print pack("N", 56);
+print pack("N", 120000);
+print pack("N", 2); # format
+print pack("N", $fout); # frequency
+print pack("N", 1); # channels
+print "DLS\0";
+
+@basewave=getWave($fin);
 
 my @notes=qw(A B C D E F GS);
 for(@notes) {
