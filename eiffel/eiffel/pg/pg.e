@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.19 $";
+version: "$Revision: 1.20 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.19 1999/06/03 22:16:32 dustin Exp $
+-- $Id: pg.e,v 1.20 1999/06/03 22:25:34 dustin Exp $
 --
 class PG
 
@@ -19,7 +19,7 @@ inherit
 creation {ANY}
    make
 
-feature {ANY}
+feature {PG} -- Creation is private
 
    make is
       -- Make an uninitialized PG object.
@@ -29,145 +29,6 @@ feature {ANY}
          last_row.clear;
          conn := nullpointer;
       end -- make
-
-   current_row: INTEGER;
-      -- Current row number we're on.
-
-   last_row: ARRAY[STRING];
-      -- Last row retrieved.
-
-   connect is
-      -- Make a database connection
-      local
-         h, p, o, t, d, u, pass: POINTER;
-         retry_attempts: INTEGER;
-      do
-         if is_not_connected then
-            if host /= Void then
-               h := host.to_external;
-            end;
-            if port /= Void then
-               p := port.to_external;
-            end;
-            if options /= Void then
-               o := options.to_external;
-            end;
-            if tty /= Void then
-               t := tty.to_external;
-            end;
-            if dbname /= Void then
-               d := dbname.to_external;
-            end;
-            if username /= Void then
-               u := username.to_external;
-            end;
-            if password /= Void then
-               pass := password.to_external;
-            end;
-            conn := pg_connect(h,p,o,t,d,u,pass);
-            check
-               pg_connection_ok(conn);
-            end;
-         end;
-      ensure
-         is_connected;
-      rescue
-         if retry_attempts < max_retry_attempts then
-            retry_attempts := retry_attempts + 1;
-            retry;
-         end;
-      end -- connect
-
-   query(q: STRING) is
-      -- Query on an open database connection
-      require
-         is_connected;
-      local
-         retry_attempts: INTEGER;
-      do
-         current_row := 0;
-         debug
-            io.put_string("PG: Doing query:  ");
-            io.put_string(q);
-            io.put_string("%N-------------------------%N");
-         end;
-         res := pg_query(conn,q.to_external);
-      ensure
-         query_successful;
-      rescue
-         if retry_attempts < max_retry_attempts then
-            retry_attempts := retry_attempts + 1;
-            retry;
-         end;
-      end -- query
-
-   num_rows: INTEGER is
-      -- Number of rows returned from the last query
-      require
-         has_results;
-      do
-         Result := pg_ntuples(res);
-      end -- num_rows
-
-   quote(s: STRING): STRING is
-      -- Quote a string for safety.
-      require
-         s /= Void;
-      local
-         tmp: STRING;
-         i: INTEGER;
-      do
-         !!tmp.copy("'");
-         if s.index_of('%'') < s.count then
-            -- We only need to do this slow copy if we've got a quote
-            from
-               i := 0;
-            until
-               i > tmp.count
-            loop
-               if s.item(i) = '%'' then
-                  tmp.append_character('%'');
-               end;
-               tmp.append_character(s.item(i));
-               i := i + 1;
-            end;
-         else
-            tmp.append(s);
-         end;
-         tmp.append("'");
-         Result := tmp;
-      end -- quote
-
-   get_row: BOOLEAN is
-      -- Get the next row of data back, returns false if there's no more data
-      require
-         has_results;
-      local
-         i, fields: INTEGER;
-         s: STRING;
-         p: POINTER;
-      do
-         if current_row >= num_rows then
-            pg_clear_result(res);
-            res := nullpointer;
-            Result := false;
-         else
-            from
-               fields := pg_nfields(res);
-               last_row.clear;
-               i := 0;
-            until
-               i >= fields
-            loop
-               p := pg_intersect(res,current_row,i);
-               !!s.from_external_copy(p);
-               last_row.add_last(s);
-               i := i + 1;
-            end;
-            current_row := current_row + 1;
-            Result := true;
-         end;
-      end -- get_row
 
 feature {ANY} -- Connection options
 
@@ -213,6 +74,112 @@ feature {ANY} -- Connection options
          !!password.copy(to);
       end -- set_password
 
+   connect is
+      -- Make a database connection
+      local
+         h, p, o, t, d, u, pass: POINTER;
+         retry_attempts: INTEGER;
+      do
+         if is_not_connected then
+            if host /= Void then
+               h := host.to_external;
+            end;
+            if port /= Void then
+               p := port.to_external;
+            end;
+            if options /= Void then
+               o := options.to_external;
+            end;
+            if tty /= Void then
+               t := tty.to_external;
+            end;
+            if dbname /= Void then
+               d := dbname.to_external;
+            end;
+            if username /= Void then
+               u := username.to_external;
+            end;
+            if password /= Void then
+               pass := password.to_external;
+            end;
+            conn := pg_connect(h,p,o,t,d,u,pass);
+            check
+               pg_connection_ok(conn);
+            end;
+         end;
+      ensure
+         is_connected;
+      rescue
+         if retry_attempts < max_retry_attempts then
+            retry_attempts := retry_attempts + 1;
+            retry;
+         end;
+      end -- connect
+
+feature {ANY} -- Query features
+
+   query(q: STRING) is
+      -- Query on an open database connection
+      require
+         is_connected;
+      local
+         retry_attempts: INTEGER;
+      do
+         current_row := 0;
+         debug
+            io.put_string("PG: Doing query:  ");
+            io.put_string(q);
+            io.put_string("%N-------------------------%N");
+         end;
+         res := pg_query(conn,q.to_external);
+      ensure
+         query_successful;
+      rescue
+         if retry_attempts < max_retry_attempts then
+            retry_attempts := retry_attempts + 1;
+            retry;
+         end;
+      end -- query
+
+   num_rows: INTEGER is
+      -- Number of rows returned from the last query
+      require
+         has_results;
+      do
+         Result := pg_ntuples(res);
+      end -- num_rows
+
+   get_row: BOOLEAN is
+      -- Get the next row of data back, returns false if there's no more data
+      require
+         has_results;
+      local
+         i, fields: INTEGER;
+         s: STRING;
+         p: POINTER;
+      do
+         if current_row >= num_rows then
+            pg_clear_result(res);
+            res := nullpointer;
+            Result := false;
+         else
+            from
+               fields := pg_nfields(res);
+               last_row.clear;
+               i := 0;
+            until
+               i >= fields
+            loop
+               p := pg_intersect(res,current_row,i);
+               !!s.from_external_copy(p);
+               last_row.add_last(s);
+               i := i + 1;
+            end;
+            current_row := current_row + 1;
+            Result := true;
+         end;
+      end -- get_row
+
 feature {ANY} -- Transaction
 
    begin is
@@ -237,6 +204,37 @@ feature {ANY} -- Transaction
       end -- rollback
 
 feature {ANY} -- Utility
+
+   quote(s: STRING): STRING is
+      -- Quote a string for safety.
+      require
+         s /= Void;
+      local
+         tmp: STRING;
+         i: INTEGER;
+      do
+         !!tmp.copy("'");
+         if s.index_of('%'') < s.count then
+            -- We only need to do this slow copy if we've got a quote
+            from
+               i := 0;
+            until
+               i > tmp.count
+            loop
+               if s.item(i) = '%'' then
+                  tmp.append_character('%'');
+               end;
+               tmp.append_character(s.item(i));
+               i := i + 1;
+            end;
+         else
+            tmp.append(s);
+         end;
+         tmp.append("'");
+         Result := tmp;
+      end -- quote
+
+feature {ANY} -- Database Information
 
    tables: ARRAY[STRING] is
       -- List all tables in this database.
@@ -317,6 +315,14 @@ feature {ANY} -- status
       do
          Result := pg_command_ok(res) or pg_tuples_ok(res);
       end -- query_successful
+
+feature {ANY} -- Available data
+
+   current_row: INTEGER;
+      -- Current row number we're on.
+
+   last_row: ARRAY[STRING];
+      -- Last row retrieved.
 
 feature {PG} -- Internal data stuff
 
