@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.6 2003/08/21 20:37:46 dustin Exp $
+# $Id: webServer.io,v 1.7 2003/08/21 21:00:35 dustin Exp $
 
 //
 // Web request
@@ -18,6 +18,11 @@ WebRequest version = Nil
 // of the non-header information
 WebRequest parseRequest = method(buf,
 	// Copy the buffer and remove everything after the end of the headers
+	/*
+	"\n-- buf --\n" print
+	buf print
+	"\n-- /buf --\n" print
+	*/
 	btmp = buf fromTo(0, buf find("\r\n\r\n") - 1)
 	bextra = buf fromTo(buf find("\r\n\r\n") + 4, buf length - 1)
 	buf empty
@@ -73,7 +78,7 @@ WebUrlHandler setResponseHeaders = method(request, aSocket, status, headers,
 	aSocket write("\r\n\r\n")
 )
 
-WebUrlHandler handleRequest = block(req, socket,
+WebUrlHandler handleRequest = method(req, socket,
 	raiseException("WebServer.ProtocolError.404",
 		"No handler for " ..(req path))
 )
@@ -252,14 +257,21 @@ WebServer processRequest = method(aSocket, aServer,
 //
 
 WebServer handleSocketFromServer = method(aSocket, aServer,
-	aSocket readBuffer empty
+	write("[New Request ", aSocket host, "]\n")
 	while(aSocket isOpen,
 		if(aSocket read,
 			if(hasRequest(aSocket readBuffer),
-				processRequest(aSocket, aServer))
-			aSocket readBuffer empty)
+				processRequest(aSocket, aServer)
+				aSocket readBuffer empty
+			)
+		)
 	)
+	write("[Closed ", aSocket host, "]\n")
 )
+
+//
+// -- The beginning --
+//
 
 write("[Starting web server on port 8456]\n")
 server = Server clone setPort(8456)
