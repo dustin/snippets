@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.0 1997/09/21 00:28:47 dustin Exp $
+ * $Id: parsedetail.c,v 2.1 1997/09/21 00:32:58 dustin Exp $
  */
 
 #include <stdio.h>
@@ -104,7 +104,7 @@ void display(void)
     char buf[1024];
     int i;
 
-    sprintf(buf, "%d", timestamp);
+    sprintf(buf, "%d", (int)timestamp);
 
     for(i=0; tags[i]!=NULL; i++)
     {

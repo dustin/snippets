@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: fig.c,v 2.1 1997/09/21 00:30:18 dustin Exp $
+ * $Id: fig.c,v 2.2 1997/09/21 00:32:57 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "parse.h"
 
