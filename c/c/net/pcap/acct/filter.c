@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.2 2000/07/29 11:02:21 dustin Exp $
+ * $Id: filter.c,v 1.3 2000/07/30 03:01:47 dustin Exp $
  */
 
 #include <stdio.h>
@@ -23,10 +23,13 @@
 #include <string.h>
 #include <assert.h>
 
+#include "mymalloc.h"
 #include "acct.h"
+#include "hash.h"
 
 static pcap_t  *pcap_socket = NULL;
 static int      dlt_len = 0;
+static struct hashtable *hash=NULL;
 
 static void     filter_packet(u_char *, struct pcap_pkthdr *, u_char *);
 static char    *log_pkt(struct ip *, char *, int, int);
@@ -43,6 +46,7 @@ process(int flags, char *filter)
 	struct bpf_program prog;
 	bpf_u_int32     network, netmask;
 	int             flagdef;
+	time_t			last_time=0;
 
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, signal_handler);
@@ -100,21 +104,61 @@ process(int flags, char *filter)
 	fprintf(stderr, "interface: %s, filter: %s, promiscuous: %s\n",
 	interface, filter, (flags & FLAG_BIT(FLAG_PROMISC)) ? "yes" : "no");
 
+	hash=hash_init(637453);
+
+	last_time=time(NULL);
 	for (;;) {
+		time_t t;
 		pcap_loop(pcap_socket, 100, (pcap_handler) filter_packet, NULL);
-		showStats();
+		/* Show results every 60 seconds */
+		t=time(NULL);
+		if((t-last_time)>60) {
+			showStats();
+			last_time=t;
+		}
 	}
 }
 
 static void
 showStats()
 {
+	static unsigned int last_pcount=0, last_dropcount=0;
 	struct pcap_stat stats;
+	struct hash_container *p, *lastp;
+	int i;
+
 	if (pcap_stats(pcap_socket, &stats) == 0) {
 		printf("# Processed %d packets, dropped %d\n",
-		       stats.ps_recv, stats.ps_drop);
+		       stats.ps_recv-last_pcount,
+			   stats.ps_drop-last_dropcount);
+		last_pcount=stats.ps_recv;
+		last_dropcount=stats.ps_drop;
 	} else {
 		printf("# Error getting pcap statistics.\n");
+	}
+	for(i=0; i<hash->hashsize; i++) {
+		p=hash->buckets[i];
+
+		if(p) {
+			lastp=NULL;
+			for(; p; p=p->next) {
+				char buf[8192];
+
+				strcpy(buf, ntoa(p->key));
+				strcat(buf, "=");
+				strcat(buf, itoa(p->value));
+				strcat(buf, "\n");
+				fputs(buf, stdout);
+
+				if(lastp!=NULL) {
+					free(lastp);
+				}
+
+				lastp=p;
+			}
+			free(lastp);
+			hash->buckets[i]=0;
+		}
 	}
 	fflush(stdout);
 }
@@ -153,6 +197,10 @@ filter_packet(u_char * u, struct pcap_pkthdr * p, u_char * packet)
 	/* Null the out_buf */
 	out_buf[0] = 0x00;
 
+	hash_add(hash, ntohl(ip->ip_src.s_addr), ntohs(ip->ip_len));
+	hash_add(hash, ntohl(ip->ip_dst.s_addr), ntohs(ip->ip_len));
+
+	/*
 	switch (ip->ip_p) {
 	case IPPROTO_TCP:{
 			struct tcphdr  *tcp;
@@ -177,6 +225,7 @@ filter_packet(u_char * u, struct pcap_pkthdr * p, u_char * packet)
 	}
 	assert(strlen(out_buf) < sizeof(out_buf));
 	fputs(out_buf, stdout);
+	*/
 }
 
 static char    *
@@ -203,13 +252,10 @@ itoa(int in)
 	return (buf + i + 1);
 }
 
-static char    *
-mynet_ntoa(struct in_addr in)
+char    *
+ntoa(int a)
 {
 	static char     ret[40];
-	int             a = 0;
-
-	a = ntohl(in.s_addr);
 
 	ret[0] = 0x00;
 	strcat(ret, itoa((a & 0xff000000) >> 24));
@@ -220,7 +266,13 @@ mynet_ntoa(struct in_addr in)
 	strcat(ret, ".");
 	strcat(ret, itoa(a & 0x000000ff));
 
-	return (ret);
+	return(ret);
+}
+
+char    *
+mynet_ntoa(struct in_addr in)
+{
+	return(ntoa(ntohl(in.s_addr)));
 }
 
 static char    *

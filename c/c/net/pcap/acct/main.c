@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: main.c,v 1.2 2000/07/29 11:02:22 dustin Exp $
+ * $Id: main.c,v 1.3 2000/07/30 03:01:51 dustin Exp $
  */
 
 #include <stdlib.h>
@@ -11,6 +11,7 @@
 /*
 #include <getopt.h>
 */
+#include "mymalloc.h"
 #include "acct.h"
 
 void

@@ -1,21 +1,24 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.h,v 1.1 2000/07/29 10:33:41 dustin Exp $
+ * $Id: hash.h,v 1.2 2000/07/30 03:01:49 dustin Exp $
  */
 
 #ifndef HASH_H
 #define HASH_H 1
 
-#define HASHSIZE 16369
-
 #include <stdlib.h>
 #include <string.h>
 
 struct hash_container {
-	char   *name;
-	char   *value;
+	unsigned int    key;
+	unsigned int    value;
 	struct hash_container *next;
+};
+
+struct hash_keylist {
+	int  nentries;
+	int *entries;
 };
 
 struct hashtable {
@@ -23,14 +26,14 @@ struct hashtable {
 	struct hash_container **buckets;
 };
 
-int     _do_hash(struct hashtable *hash, char *s);
 struct hashtable *hash_init(int size);
-struct hash_container *hash_store(struct hashtable *hash,
-    char *key, void *data);
-struct hash_container *hash_find(struct hashtable *hash, char *key);
-void    hash_delete(struct hashtable *hash, char *key);
+struct hash_container *hash_store(struct hashtable *hash, unsigned int key);
+struct hash_container *hash_add(struct hashtable *hash,
+	unsigned int key, int value);
+struct hash_container *hash_find(struct hashtable *hash, unsigned int key);
+void    hash_delete(struct hashtable *hash, unsigned int key);
 void    hash_destroy(struct hashtable *hash);
 void    _hash_dump(struct hashtable *hash);
-char **hash_keys(struct hashtable *hash);
+struct hash_keylist hash_keys(struct hashtable *hash);
 
 #endif /* HASH_H */

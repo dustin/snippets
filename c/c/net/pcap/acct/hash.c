@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.1 2000/07/29 10:33:40 dustin Exp $
+ * $Id: hash.c,v 1.2 2000/07/30 03:01:48 dustin Exp $
  */
 
 #include <stdio.h>
@@ -9,24 +9,11 @@
 #include <string.h>
 #include <assert.h>
 
+#include "mymalloc.h"
+#include "acct.h"
 #include "hash.h"
 
-/* The actual string hashing algorithm */
-int
-_do_hash(struct hashtable *hash, char *s)
-{
-	char   *p;
-	unsigned int h = 0, g;
-
-	for (p = s; *p; p++) {
-		h = (h << 4) + (*p);
-		if ((g = (h & 0xf0000000))) {
-			h = h ^ (g >> 24);
-			h = h ^ g;
-		}
-	}
-	return (h % hash->hashsize);
-}
+#define _do_hash(a, b) (b%a->hashsize)
 
 /* Initialize a hash table */
 struct hashtable *
@@ -34,7 +21,7 @@ hash_init(int size)
 {
 	struct hashtable *hash;
 
-	hash = malloc(sizeof(struct hashtable));
+	hash = calloc(1, sizeof(struct hashtable));
 	assert(hash);
 
 	hash->hashsize = size;
@@ -47,8 +34,7 @@ hash_init(int size)
 
 /* Store something in a hash table */
 struct hash_container *
-hash_store(struct hashtable *hash,
-    char *name, void *value)
+hash_store(struct hashtable *hash, unsigned int key)
 {
 	struct hash_container *c, *p;
 	int     hashval;
@@ -56,13 +42,12 @@ hash_store(struct hashtable *hash,
 	c = calloc(1, sizeof(struct hash_container));
 	assert(c);
 
-	c->name = strdup(name);
-	assert(c->name);
+	c->key = key;
 
-	c->value = strdup(value);
+	c->value = 0;
 	c->next = NULL;
 
-	hashval = _do_hash(hash, name);
+	hashval = _do_hash(hash, key);
 
 	p = hash->buckets[hashval];
 
@@ -76,9 +61,23 @@ hash_store(struct hashtable *hash,
 	return (c);
 }
 
+struct hash_container *hash_add(struct hashtable *hash,
+	unsigned int key, int value)
+{
+	struct hash_container *c;
+
+	c=hash_find(hash, key);
+	if(c==NULL) {
+		c=hash_store(hash, key);
+	}
+
+	c->value+=value;
+	return(c);
+}
+
 /* find a key in a hash table */
 struct hash_container *
-hash_find(struct hashtable *hash, char *key)
+hash_find(struct hashtable *hash, unsigned int key)
 {
 	struct hash_container *p;
 	int     hashval;
@@ -88,10 +87,13 @@ hash_find(struct hashtable *hash, char *key)
 
 	hashval = _do_hash(hash, key);
 
+	assert(hashval >= 0);
+	assert(hashval < hash->hashsize);
+
 	p = hash->buckets[hashval];
 
 	for (; p; p = p->next) {
-		if (strcmp(p->name, key) == 0)
+		if (p->key==key)
 			break;
 	}
 
@@ -100,7 +102,7 @@ hash_find(struct hashtable *hash, char *key)
 
 /* Delete an entry from the hash table */
 void
-hash_delete(struct hashtable *hash, char *key)
+hash_delete(struct hashtable *hash, unsigned int key)
 {
 	struct hash_container *p, *deleteme = NULL;
 	int     hashval;
@@ -109,7 +111,7 @@ hash_delete(struct hashtable *hash, char *key)
 	p = hash->buckets[hashval];
 
 	for (; p->next; p = p->next) {
-		if (strcmp(p->next->name, key) == 0)
+		if (p->key == key)
 			break;
 	}
 
@@ -117,7 +119,7 @@ hash_delete(struct hashtable *hash, char *key)
 		/* Stopped for a reason other than a match, rewind the bucket, and
 		 * check the first key */
 		p = hash->buckets[hashval];
-		if (strcmp(p->name, key) == 0) {
+		if (p->key==key) {
 			deleteme = p;
 			hash->buckets[hashval] = p->next;
 		}
@@ -127,81 +129,59 @@ hash_delete(struct hashtable *hash, char *key)
 	}
 
 	if (deleteme) {
-		if (deleteme->name)
-			free(deleteme->name);
-		deleteme->name = NULL;
-		if (deleteme->value)
-			free(deleteme->value);
-		deleteme->value = NULL;
 		free(deleteme);
 		deleteme = NULL;
 	}
-}
-
-/* free a char** */
-static void freeptrlist(char **list)
-{
-    int     i;
-
-    if (list == NULL)
-        return;
-
-    for (i = 0; list[i]; i++) {
-        free(list[i]);
-    }
-    free(list);
 }
 
 /* Destroy a hash */
 void
 hash_destroy(struct hashtable *hash)
 {
-	int     i;
-	char  **list;
+	int    i;
+	struct hash_keylist keys;
 
 	if (hash == 0)
 		return;
 
-	list = hash_keys(hash);
+	keys = hash_keys(hash);
 
-	for (i = 0; list[i]; i++) {
-		hash_delete(hash, list[i]);
+	for (i = 0; i<keys.nentries; i++) {
+		hash_delete(hash, keys.entries[i]);
 	}
 
-	freeptrlist(list);
+	free(keys.entries);
 
 	if (hash->buckets)
 		free(hash->buckets);
 	free(hash);
 }
 
-char  **
-hash_keys(struct hashtable *hash)
+struct hash_keylist hash_keys(struct hashtable *hash)
 {
-	char  **list;
-	int     size = 256, index = 0, i;
+	int    size = 4096, i;
 	struct hash_container *p;
+	struct hash_keylist list;
 
-	/* prepare to build a ** */
-	list = (void *) malloc(size * sizeof(char *));
-	assert(list);
+	list.nentries=0;
+	list.entries= (int *) malloc(size * sizeof(int));
+	assert(list.entries);
 
-#define LAPPEND(a) if(index == size-1) { \
-        list=realloc(list, (size<<=1)*sizeof(char *)); \
-            assert(list); \
+#define LAPPEND(a) if(list.nentries == size-1) { \
+        list.entries=realloc(list.entries, (size<<=1)*sizeof(int)); \
+            assert(list.entries); \
     } \
-    list[index++]=strdup(a);
+    list.entries[list.nentries++]=a;
 
 	for (i = 0; i < hash->hashsize; i++) {
 		p = hash->buckets[i];
 
 		if (p) {
 			for (; p; p = p->next) {
-				LAPPEND(p->name);
+				LAPPEND(p->key);
 			}
 		}
 	}
-	list[index] = 0;
 	return (list);
 }
 
@@ -226,7 +206,7 @@ _hash_dump(struct hashtable *hash)
 					_mdebug_dump();
 				}
 #endif
-				printf("\t\t%s=%s\n", p->name, (char *) p->value);
+				printf("\t\t%s=%d\n", ntoa(p->key), p->value);
 			}
 		}
 	}
