@@ -7,7 +7,7 @@ OCAMLC=ocamlc
 PROFILE=
 
 PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
-	builddict cipher splitFreqs
+	builddict cipher splitFreqs lncp
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -54,6 +54,10 @@ makeCipher: makeCipher.ml
 splitFreqs: splitFreqs.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa splitFreqs.ml
+
+lncp: lncp.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa lncp.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
