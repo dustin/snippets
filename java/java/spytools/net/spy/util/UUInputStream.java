@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.1 2001/08/08 09:38:36 dustin Exp $
+// $Id: UUInputStream.java,v 1.2 2001/08/08 09:44:37 dustin Exp $
 
 package net.spy.util;
 
 import java.io.*;
+import java.util.StringTokenizer;
 
 /**
  * This class decodes uuencoded files.
@@ -15,6 +16,9 @@ public class UUInputStream extends FilterInputStream {
 	private int currentOut=0;
 	private static int count = 0;
 
+	private String filename=null;
+	private int mode=0;
+
 	private boolean started=false;
 	private boolean finished=false;
 
@@ -23,6 +27,20 @@ public class UUInputStream extends FilterInputStream {
 	 */
 	public UUInputStream(InputStream is) {
 		super(is);
+	}
+
+	/**
+	 * Get the filename the uuencoded originally wanted.
+	 */
+	public String getFilename() {
+		return(filename);
+	}
+
+	/**
+	 * Get the mode the uuencoded stream originally wanted.
+	 */
+	public int getMode() {
+		return(mode);
 	}
 
 	/**
@@ -111,6 +129,13 @@ public class UUInputStream extends FilterInputStream {
 
 			if(temp.startsWith("begin")) {
 				started=true;
+
+				StringTokenizer st=new StringTokenizer(temp);
+				st.nextToken();
+				// Get the mode (base 8)
+				mode=Integer.parseInt(st.nextToken(), 8);
+				// Get the filename
+				filename=st.nextToken();
 			}
 		}
 
@@ -179,7 +204,10 @@ public class UUInputStream extends FilterInputStream {
 			bytesread=uu.read(buffer);
 		}
 
+		System.err.println("Filename should be " + uu.getFilename());
+
 		uu.close();
 		fos.close();
+
 	}
 }
