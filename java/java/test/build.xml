@@ -3,10 +3,16 @@
 <!--
  Build system for multithreaded test classes.
 
- $Id: build.xml,v 1.1 2002/07/11 07:50:38 dustin Exp $
+ $Id: build.xml,v 1.2 2002/07/11 20:58:38 dustin Exp $
  -->
 
 <project name="mttest" default="spytest.jar" basedir=".">
+
+	<path id="buildclasspath">
+		<fileset dir="${user.home}/lib/java">
+			<include name="junit.jar"/>
+		</fileset>
+	</path>
 
 	<target name="clean">
 		<delete dir="classes"/>
@@ -33,6 +39,7 @@
 	<target name="all" depends="spyjarstuff">
 		<javac srcdir="src" destdir="classes"
 			deprecation="on" debug="on" verbose="false">
+			<classpath refid="buildclasspath"/>
 			<include name="net/spy/test/**/*.java"/>
 		</javac>
 	</target>
