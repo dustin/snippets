@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.10 2002/05/04 07:04:39 dustin Exp $
+ * $Id: Temperature.java,v 1.11 2002/05/04 08:41:20 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -29,6 +29,7 @@ public class Temperature extends PngServlet implements ImageObserver
 	private SpyConfig temps = null;
 	private boolean imageLoaded=false;
 	private SpyCache cache=null;
+	private String configFile=null;
 
 	// Image stuff.
 	private Image baseImage=null;
@@ -40,11 +41,20 @@ public class Temperature extends PngServlet implements ImageObserver
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
+		// find the config file
+		configFile=getServletConfig().getInitParameter("temperatureProps");
+		// If it's in WEB-INF, map it
+		if(configFile.startsWith("/WEB-INF")) {
+			configFile=getServletContext().getRealPath(configFile);
+		}
+		log("Using the following config:  " +  configFile);
+
 		try {
 			log("Getting the base image.");
 			getBaseImage();
 			log("Got the base image.");
 			cache=new SpyCache();
+
 		} catch(Exception e) {
 			throw new ServletException("Error getting base image:  " + e);
 		}
@@ -59,9 +69,7 @@ public class Temperature extends PngServlet implements ImageObserver
 	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
-		// Load the config...
-		String configFile=
-			getServletConfig().getInitParameter("temperatureProps");
+
 		temps=new SpyConfig(new File(configFile));
 		String which=request.getParameter("temp");
 		String therm=request.getParameter("therm");
@@ -197,8 +205,16 @@ public class Temperature extends PngServlet implements ImageObserver
 	private Image getBaseImage() throws Exception {
 		if(baseImage==null) {
 			String therm=getServletConfig().getInitParameter("baseImage");
-			URL url=new URL(therm);
+			URL url=null;
+
+			// Try to get this locally first.
+			try {
+				url=getServletContext().getResource(therm);
+			} catch(MalformedURLException me) {
+				url=new URL(therm);
+			}
 			log("Getting image (" + url + ")");
+
 			baseImage=Toolkit.getDefaultToolkit().getImage(url);
 			Toolkit.getDefaultToolkit().prepareImage(baseImage, -1, -1, this);
 			if(!imageLoaded) {
@@ -206,7 +222,7 @@ public class Temperature extends PngServlet implements ImageObserver
 					wait(15000);
 				}
 			}
-			log("Image completely loaded.");
+			log("Image completely loaded (or timed out).");
 		}
 		return(baseImage);
 	}
@@ -217,6 +233,7 @@ public class Temperature extends PngServlet implements ImageObserver
 
 		if( (infoflags&ALLBITS) != 0) {
 			imageLoaded=true;
+			log("Actually loaded.");
 			synchronized(this) {
 				notify();
 			}
