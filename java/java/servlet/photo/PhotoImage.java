@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.9 1999/10/12 22:54:05 dustin Exp $
+ * $Id: PhotoImage.java,v 1.10 1999/10/19 06:24:48 dustin Exp $
  */
 
 import java.io.*;
@@ -115,7 +115,7 @@ public class PhotoImage extends PhotoHelper
 		if(image_data==null || image_data.image_data==null) {
 			fetchImage();
 		}
-		log("Returning image");
+		log("Returning image (" + image_data.image_data.size() + ")");
 		return(image_data.image_data);
 	}
 

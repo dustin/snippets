@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.34 1999/10/13 02:33:59 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.35 1999/10/19 06:24:52 dustin Exp $
  */
 
 import java.io.*;
@@ -24,6 +24,8 @@ public class PhotoServlet extends HttpServlet
 	protected MultipartRequest multi=null;
 	protected PhotoLogger logger=null;
 	protected PhotoSecurity security = null;
+
+	protected PhotoStorerThread storer_thread = null;
 
 	// Users
 	protected Hashtable userdb=null;
@@ -56,6 +58,13 @@ public class PhotoServlet extends HttpServlet
 			rhash = new RHash(conf.objectserver);
 		} catch(Exception e) {
 			rhash = null;
+		}
+
+		try {
+			storer_thread = new PhotoStorerThread();
+			storer_thread.start();
+		} catch(Exception e) {
+			throw new ServletException("Can't get storer thread");
 		}
 
 		logger = new PhotoLogger();
@@ -117,6 +126,16 @@ public class PhotoServlet extends HttpServlet
 		} else {
 			multi = null;
 		}
+
+/*
+		// Experimental session stuff
+		session = request.getSession(true);
+		if(session.isNew()) {
+			log(session.getId() + " is a new session");
+		} else {
+			log(session.getId() + " is an old session");
+		}
+*/
 
 		// Set the self_uri
 		self_uri = request.getRequestURI();
@@ -365,7 +384,7 @@ public class PhotoServlet extends HttpServlet
 
 		try {
 			FileInputStream in;
-			BASE64Encoder base64=new BASE64Encoder();
+			Vector v = new Vector();
 			byte data[] = new byte[57];
 
 			photo=getDBConn();
@@ -382,7 +401,7 @@ public class PhotoServlet extends HttpServlet
 			id=rs.getInt(1);
 
 			// Encode the shit;
-			int i=0, size=0, length=0;
+			int size=0, length=0;
 			in = new FileInputStream(f);
 
 			while( (length=in.read(data)) >=0 ) {
@@ -390,7 +409,13 @@ public class PhotoServlet extends HttpServlet
 
 				size+=length;
 				if(length == 57) {
-					tmp = base64.encodeBuffer(data);
+					byte tb[] = new byte[length];
+					int j;
+
+					for(j=0; j<length; j++) {
+						tb[j] = data[j];
+					}
+					v.addElement(tb);
 				} else {
 					byte tb[] = new byte[length];
 					int j;
@@ -398,16 +423,18 @@ public class PhotoServlet extends HttpServlet
 					for(j=0; j<length; j++) {
 						tb[j] = data[j];
 					}
-					tmp = base64.encodeBuffer(tb);
+					v.addElement(tb);
 				}
-
-				// OK, we have a base64 encoding.
-				query = "insert into image_store values(" + id + ", " + i
-					  + ", '" + tmp + "')\n";
-				st.executeUpdate(query);
-				i++;
 			}
 			query ="update album set size=" + size + "where id=" + id;
+			st.executeUpdate(query);
+
+			log("Putting the photo in the cache (" + v.size() + ")...");
+			rhash.put("photo_" + id, v);
+			log("Done putting the photo in the cache...");
+
+			query = "insert into upload_log values(\n"
+				  + "\t" + id + ", " + remote_uid + ")";
 			st.executeUpdate(query);
 
 			h.put("ID", ""+id);

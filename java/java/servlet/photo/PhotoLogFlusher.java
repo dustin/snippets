@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.4 1999/10/12 22:54:07 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.5 1999/10/19 06:24:50 dustin Exp $
  */
 
 import java.sql.*;
@@ -10,8 +10,6 @@ import java.util.*;
 import java.io.*;
 
 public class PhotoLogFlusher extends Thread {
-
-	public boolean is_running = false;
 
 	// private static BufferedWriter log_file=null;
 	private static PhotoLogger log_object;
@@ -51,11 +49,7 @@ public class PhotoLogFlusher extends Thread {
 	}
 
 	public void run() {
-		is_running = true;
-
 		log_object = new PhotoLogger();
-
-		// System.out.println("Running thread...");
 
 		for(;;) {
 			try {
