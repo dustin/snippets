@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.5 2002/12/11 11:13:25 dustin Exp $
+ * $Id: stringutils.ml,v 1.6 2002/12/11 23:02:45 dustin Exp $
  *)
 
 (* Private function to skip the next n occurrences of any character in this
@@ -49,20 +49,23 @@ let str_index_of_one(str, l, i): int =
 ;;
 
 (* Private recursive function for splitting a stream in a buffer *)
-let rec pvt_rec_split_chars(rv, str, l, i): '_a list =
-	if i < String.length str then
+let rec pvt_rec_split_chars(rv, str, l, i, limit): '_a list =
+	if (List.length rv < (limit-1)) && (i < String.length str) then
 	begin
 		let pos = str_index_of_one(str, l, i) in
 		if pos != -1 then
 			pvt_rec_split_chars(
 				(rv @ [ String.sub str i (pos - i)]),
 				str, l,
-				pvt_skip_chars(str, l, pos))
+				pvt_skip_chars(str, l, pos), limit)
 		else
 			rv @ [ String.sub str i ((String.length str) - i) ]
 	end
 	else
-		rv
+		if i < String.length str then
+			rv @ [ String.sub str i ((String.length str) - i) ]
+		else
+			rv
 ;;
 
 (* Private function to skip the next n occurrences of this character in
@@ -79,8 +82,8 @@ let rec pvt_skip_char(s, c, i): int =
 ;;
 
 (* Private recursive function for splitting a stream in a buffer *)
-let rec pvt_rec_split(rv, str, c, i): '_a list =
-	if i < String.length str then
+let rec pvt_rec_split(rv, str, c, i, limit): '_a list =
+	if (List.length rv < (limit - 1)) && (i < String.length str) then
 	begin
 		if String.contains_from str i c then
 		begin
@@ -88,30 +91,34 @@ let rec pvt_rec_split(rv, str, c, i): '_a list =
 			pvt_rec_split(
 				(rv @ [ String.sub str i (o - i)]),
 				str, c,
-				pvt_skip_char(str, c, o))
+				pvt_skip_char(str, c, o), limit)
 		end
 		else
 			rv @ [ String.sub str i ((String.length str) - i) ]
 	end
 	else
-		rv
+		if i < String.length str then
+			rv @ [ String.sub str i ((String.length str) - i) ]
+		else
+			rv
 ;;
 
 (* Split a string into a list of Strings *)
-let split(s, c) =
-	pvt_rec_split([], s, c, 0)
+let split(s, c, limit) =
+	pvt_rec_split([], s, c, 0, limit)
 ;;
 
 (* Split a string into a list of Strings *)
-let split_chars(s, l) =
-	pvt_rec_split_chars([], s, l, 0)
+let split_chars(s, l, limit) =
+	pvt_rec_split_chars([], s, l, 0, limit)
 ;;
 
 (*
  * Test:
- * split("123 456   789", ' ');;
- * split("123 456   789  ", ' ');;
- * split_chars("123:456- -789", [':'; ' '; '-']);;
+ * split("123 456   789", ' ', 99);;
+ * split("123 456   789  ", ' ', 99);;
+ * split("123 456   789  ", ' ', 2);;
+ * split_chars("123:456- -789", [':'; ' '; '-'], 99);;
  *)
 
 (* Locate a string in another string *)
