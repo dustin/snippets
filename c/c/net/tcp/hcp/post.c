@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.5 1998/11/11 06:50:17 dustin Exp $
+ * $Id: post.c,v 1.6 1998/11/11 07:03:35 dustin Exp $
  */
 
 #include <stdio.h>
@@ -11,11 +11,12 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/signal.h>
+#include <string.h>
 #include <assert.h>
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.5 $"
+#define USERAGENT "DUpload/$Revision: 1.6 $"
 
 void
 _gendelimit(char *d, size_t len)
