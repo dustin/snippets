@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSearch.java,v 1.1 1999/10/20 03:43:01 dustin Exp $
+ * $Id: PhotoSearch.java,v 1.2 2000/03/17 09:41:17 dustin Exp $
  */
 
 package net.spy.photo;
@@ -18,6 +18,8 @@ import javax.servlet.http.*;
 import net.spy.*;
 
 public class PhotoSearch extends Object {
+
+	String encodedSearch=null;
 
 	// Encode the search from the form stuff.
 	public String encodeSearch(HttpServletRequest request) {
@@ -39,6 +41,7 @@ public class PhotoSearch extends Object {
 		return(out);
 	}
 
+	// Save the search.
 	public void saveSearch(HttpServletRequest request, PhotoUser user)
 		throws Exception {
 		if(user==null || request==null) {
@@ -80,8 +83,38 @@ public class PhotoSearch extends Object {
 		}
 	}
 
+	// Actually perform the search
+	public PhotoSearchResults performSearch(
+		HttpServletRequest request, PhotoUser user) throws ServletException {
+		PhotoSearchResults results=new PhotoSearchResults();
+		String query=buildQuery(request, user.id);
+
+		try {
+			SpyDB pdb = new SpyDB(new PhotoConfig());
+			ResultSet rs = pdb.executeQuery(query);
+			int i=0;
+			while(rs.next()) {
+				PhotoSearchResult r=new PhotoSearchResult();
+				r.keywords=rs.getString(1);
+				r.descr=rs.getString(2);
+				r.cat=rs.getString(3);
+				r.size=rs.getString(4);
+				r.taken=rs.getString(5);
+				r.ts=rs.getString(6);
+				r.image=rs.getString(7);
+				r.catnum=rs.getString(8);
+				r.addedby=rs.getString(9);
+				results.add(r);
+			}
+		} catch(Exception e) {
+			throw new ServletException("Can't get database connection:  "
+				+ e.getMessage());
+		}
+		return(results);
+	}
+
 	// Build the bigass complex search query.
-	public String buildQuery(HttpServletRequest request, Integer remote_uid)
+	protected String buildQuery(HttpServletRequest request, Integer remote_uid)
 		throws ServletException {
 		String query, sub, stmp, order, odirection, fieldjoin, join;
 		boolean needao;

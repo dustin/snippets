@@ -22,7 +22,9 @@ CLASSES=net/spy/photo/PhotoServlet.class net/spy/photo/PhotoHelper.class \
 	net/spy/photo/PhotoLogImageEntry.class net/spy/photo/PhotoUser.class \
 	net/spy/photo/PhotoSecurity.class net/spy/photo/PhotoConfig.class \
 	net/spy/photo/PhotoSearch.class net/spy/photo/PhotoStorerThread.class \
-	net/spy/photo/PhotoSession.class
+	net/spy/photo/PhotoSession.class \
+	net/spy/photo/PhotoSearchResult.class \
+	net/spy/photo/PhotoSearchResults.class
 
 .SUFFIXES: .java .class .jar
 

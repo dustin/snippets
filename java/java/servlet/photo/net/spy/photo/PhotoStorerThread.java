@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.7 2000/03/09 04:29:07 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.8 2000/03/17 09:41:31 dustin Exp $
  */
 
 package net.spy.photo;
@@ -39,7 +39,7 @@ public class PhotoStorerThread extends Thread {
 	// query in the transaction records the image having been stored.
 	protected void storeImage(int image_id) throws Exception {
 		PhotoImage p = new PhotoImage(image_id);
-		SpyDB pdb = new SpyDB(new PhotoConfig());
+		SpyDB pdb = getDB();
 		Connection db = null;
 		Statement st = null;
 		Vector v = p.getImage();
@@ -99,10 +99,19 @@ public class PhotoStorerThread extends Thread {
 		}
 	}
 
+	// Get a DB connection from the storer pool.
+	// We need a different log file to get the thing to work at all.
+	protected SpyDB getDB() {
+		PhotoConfig conf=new PhotoConfig();
+		conf.put("dbcbLogFilePath", "/tmp/storer_db.log");
+		SpyDB pdb = new SpyDB(conf);
+		return(pdb);
+	}
+
 	// Get a list of images that have been added, but not yet added into
 	// the database.
 	protected void doFlush() {
-		SpyDB pdb = new SpyDB(new PhotoConfig());
+		SpyDB pdb = getDB();
 		Vector v = null;
 		try {
 			Connection db=pdb.getConn();

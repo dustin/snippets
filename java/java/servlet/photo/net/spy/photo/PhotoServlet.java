@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.7 2000/03/09 04:31:30 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.8 2000/03/17 09:41:25 dustin Exp $
  */
 
 package net.spy.photo;
@@ -39,28 +39,37 @@ public class PhotoServlet extends HttpServlet
 		// Populate the userdb hash
 		try {
 			userdb=new Hashtable();
+			log("Initing userdb");
 			init_userdb();
+			log("Finished userdb");
 		} catch(Exception e) {
 			throw new ServletException("Can't get userdb:  " + e);
 		}
 
 		// Security stuff
 		try {
+			log("Initing security");
 			security = new PhotoSecurity();
 			security.setUserHash(userdb);
+			log("Finished security");
 		} catch(Exception e) {
 			throw new ServletException("Can't create security stuff:  " + e);
 		}
 
 		// Get an rhash to cache images and shite.
 		try {
+			log("Initing rhash");
 			rhash = new RHash(conf.get("objectserver"));
+			log("got rhash");
 		} catch(Exception e) {
 			log("Could not get rhash connection:  " + e);
 			rhash = null;
 		}
 
+		log("Initing logger");
 		logger = new SpyLog(new PhotoLogFlusher());
+		log("got logger");
+		log("Initialization complete");
 	}
 
 	protected void init_userdb() throws Exception {

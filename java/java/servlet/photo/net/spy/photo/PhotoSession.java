@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.8 2000/03/08 07:21:34 dustin Exp $
+ * $Id: PhotoSession.java,v 1.9 2000/03/17 09:41:28 dustin Exp $
  */
 
 package net.spy.photo;
@@ -90,7 +90,9 @@ public class PhotoSession extends Object
 		if(func == null) {
 			doIndex(request, response);
 		} else if(func.equalsIgnoreCase("search")) {
-			doFind(request, response);
+			doFind();
+		} else if(func.equalsIgnoreCase("nextresults")) {
+			displaySearchResults();
 		} else if(func.equalsIgnoreCase("addimage")) {
 			doAddPhoto(request, response);
 		} else if(func.equalsIgnoreCase("index")) {
@@ -108,7 +110,7 @@ public class PhotoSession extends Object
 		} else if(func.equalsIgnoreCase("getstylesheet")) {
 			doGetStylesheet(request, response);
 		} else if(func.equalsIgnoreCase("display")) {
-			doDisplay(request, response);
+			doDisplay();
 		} else if(func.equalsIgnoreCase("logview")) {
 			doLogView(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
@@ -626,6 +628,11 @@ public class PhotoSession extends Object
 				remote_user="guest";
 			} else {
 				remote_user=(String)session.getValue("username");
+				// If we have a session, but no username, add guest.
+				if(remote_user==null) {
+					remote_user="guest";
+					session.putValue("username", "guest");
+				}
 			}
 			PhotoUser p=(PhotoUser)userdb.get(remote_user);
 			remote_uid = p.id;
@@ -634,10 +641,61 @@ public class PhotoSession extends Object
 		}
 	}
 
+	// Display dispatcher
+	protected void doDisplay() throws ServletException {
+		String id=null;
+		String search_id=null;
+
+		id = request.getParameter("id");
+		search_id = request.getParameter("search_id");
+
+		if(id!=null) {
+			doDisplayByID();
+		} else if(search_id!=null) {
+			doDisplayBySearchId();
+		}
+	}
+
+	protected void doDisplayBySearchId() throws ServletException {
+		PhotoSearchResults results=null;
+		results=(PhotoSearchResults)session.getValue("search_results");
+		int to=Integer.parseInt(request.getParameter("search_id"));
+		results.set(to);
+		PhotoSearchResult r = results.get();
+		Hashtable h = new Hashtable();
+
+		h.put("IMAGE",     r.image);
+		h.put("KEYWORDS",  r.keywords);
+		h.put("INFO",      r.descr);
+		h.put("SIZE",      r.size);
+		h.put("TAKEN",     r.taken);
+		h.put("TIMESTAMP", r.ts);
+		h.put("CAT",       r.cat);
+		h.put("CATNUM",    r.catnum);
+		h.put("ADDEDBY",   r.addedby);
+
+		if(results.nResults() > to+1) {
+			h.put("NEXT",
+				"<a href=\"" + self_uri + "?func=display&search_id=" + (to+1)
+				+ "\">&gt;&gt;&gt;</a><br>");
+		} else {
+			h.put("NEXT", "");
+		}
+
+		if(to>0) {
+			h.put("PREV",
+				"<a href=\"" + self_uri + "?func=display&search_id=" + (to-1)
+				+ "\">&lt;&lt;&lt;</a><br>");
+		} else {
+			h.put("PREV", "");
+		}
+
+		String output = tokenize("display.inc", h);
+		send_response(response, output);
+	}
+
 	// Find and display images.
-	protected void doDisplay(
-		HttpServletRequest request, HttpServletResponse response)
-		throws ServletException {
+	protected void doDisplayByID() throws ServletException {
 		String query, output = "";
 		int i;
 		Integer image_id;
@@ -685,6 +743,11 @@ public class PhotoSession extends Object
 			h.put("CAT",       rs.getString(7));
 			h.put("CATNUM",    rs.getString(8));
 			h.put("ADDEDBY",   rs.getString(9));
+
+			// These don't apply here.
+			h.put("PREV",      "");
+			h.put("NEXT",      "");
+
 		} catch(SQLException e) {
 			throw new ServletException("Some kinda SQL problem.");
 		}
@@ -709,117 +772,90 @@ public class PhotoSession extends Object
 		}
 	}
 
-	// Find and display images.
-	protected void doFind(
-		HttpServletRequest request, HttpServletResponse response)
-		throws ServletException {
-		String query, output = "", middle = "";
-		int i, start=0, max=0, total=0;;
-		Integer itmp;
-		String stmp;
-		Connection photo;
-		Hashtable h = new Hashtable();
-		PhotoSearch ps = new PhotoSearch();
+	// Display search results
+	// This whole thing will fail if there's no session.
+	protected void displaySearchResults() throws ServletException {
+		PhotoSearchResults results=
+			(PhotoSearchResults)session.getValue("search_results");
 
-		query=ps.buildQuery(request, remote_uid);
+		String middle="";
+		Hashtable h=null;
+		int i=0;
 
-		stmp=request.getParameter("qstart");
-		if(stmp != null) {
-			itmp=Integer.valueOf(stmp);
-			start=itmp.intValue();
-		}
+		for(i=0; i<5; i++) {
+			PhotoSearchResult r=results.next();
+			if(r!=null) {
+				h = new Hashtable();
+				h.put("KEYWORDS", r.keywords);
+				h.put("DESCR",    r.descr);
+				h.put("CAT",      r.cat);
+				h.put("SIZE",     r.size);
+				h.put("TAKEN",    r.taken);
+				h.put("TS",       r.ts);
+				h.put("IMAGE",    r.image);
+				h.put("CATNUM",   r.catnum);
+				h.put("ADDEDBY",  r.addedby);
+				h.put("ID",       "" + r.id);
 
-		stmp=request.getParameter("maxret");
-		if(stmp != null) {
-			itmp=Integer.valueOf(stmp);
-			max=itmp.intValue();
-		}
-
-		try {
-			photo=getDBConn();
-		} catch(Exception e) {
-			throw new ServletException("Can't get database connection:  "
-				+ e.getMessage());
-		}
-
-		try {
-			// Go through the matches.
-			Statement st = photo.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			i = 0;
-			while(rs.next()) {
-				total++;
-				if (i >= start && ( ( max == 0 ) || ( i < (max+start) ) ) ) {
-					h = new Hashtable();
-
-					h.put("KEYWORDS", rs.getString(1));
-					h.put("DESCR",    rs.getString(2));
-					h.put("CAT",      rs.getString(3));
-					h.put("SIZE",     rs.getString(4));
-					h.put("TAKEN",    rs.getString(5));
-					h.put("TS",       rs.getString(6));
-					h.put("IMAGE",    rs.getString(7));
-					h.put("CATNUM",   rs.getString(8));
-					h.put("ADDEDBY",  rs.getString(9));
-
-					if( ((i+1) % 2) == 0) {
-						middle += "</tr>\n<tr>\n";
-					}
-
-					middle += "<td>\n";
-					middle += tokenize("findmatch.inc", h);
-					middle += "</td>\n";
+				if( ((i) % 2) == 0) {
+					middle += "</tr>\n<tr>\n";
 				}
-				i++;
+
+				middle += "<td>\n";
+				middle += tokenize("findmatch.inc", h);
+				middle += "</td>\n";
 			}
-
-		} catch(SQLException e) {
-			throw new ServletException("Database problem: " + e.getMessage() +
-				"\n" + query);
 		}
-		finally { freeDBConn(photo); }
 
-		h.put("SEARCH", ps.encodeSearch(request));
-		h.put("QUERY", query);
-		h.put("TOTAL", "" + total);
-
-		output += tokenize("find_top.inc", h);
-
+		h = new Hashtable();
+		h.put("TOTAL", "" + results.nResults());
+		h.put("SEARCH", (String)session.getValue("encoded_search"));
+		String output = tokenize("find_top.inc", h);
 		output += middle;
-
-		// Do we have anymore?
-		if(i > max+start && max > 0) {
-			h.put("LINKTOMORE", linktomore(request, start, max));
-		} else {
-			h.put("LINKTOMORE", "");
+		if(results.nRemaining() > 0) {
+			h.put("LINKTOMORE", linkToMore(results.nRemaining()));
 		}
-
 		output += tokenize("find_bottom.inc", h);
-
 		send_response(response, output);
 	}
 
-	// Link to more search results
-	protected String linktomore(HttpServletRequest request,
-		int start, int max) {
-		String ret = "";
+	// Find images.
+	protected void doFind() throws ServletException {
+		String output = "", middle = "";
+		PhotoSearch ps = new PhotoSearch();
+		PhotoUser user = (PhotoUser)userdb.get(remote_user);
 
-		ret += "<form method=\"POST\" action=\"" + self_uri + "\">\n";
-		ret += "<input type=hidden name=qstart value=" + (start+max) + ">\n";
+		PhotoSearchResults results=null;
 
-		for(Enumeration e=request.getParameterNames(); e.hasMoreElements();) {
-			String p = (String)e.nextElement();
-
-			// Don't do this for qstart.
-			if(! p.equals("qstart")) {
-				ret += "<input type=hidden name=\"" + p;
-				ret += "\" value=\"" + request.getParameter(p);
-				ret += "\">\n";
-			}
+		// Make sure there's a real session.
+		if(session==null) {
+			session=request.getSession(true);
 		}
 
-		ret += "<input type=\"submit\" value=\"Next\">\n";
+		// Get the results and put them in the mofo session
+		results=ps.performSearch(request, user);
+		session.putValue("search_results", results);
+		session.putValue("encoded_search",
+			ps.encodeSearch(request));
+
+		displaySearchResults();
+	}
+
+	// Link to more search results
+	protected String linkToMore(int remaining) {
+		String ret = "";
+
+		int nextwhu=5;
+		if(remaining<5) {
+			nextwhu=remaining;
+		}
+
+		ret += "<form method=\"POST\" action=\"" + self_uri + "\">\n";
+		ret += "<input type=hidden name=func value=nextresults>\n";
+
+		ret += "<input type=\"submit\" value=\"Next " + nextwhu + "\">\n";
 		ret += "</form>\n";
+		ret += "<br>\n" + remaining + " pictures remaining.<br>\n";
 		return(ret);
 	}
 
