@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.2 2000/01/16 06:19:18 dustin Exp $
+ * $Id: utility.c,v 1.3 2000/01/18 02:54:01 dustin Exp $
  */
 
 #include <stdio.h>
@@ -20,6 +20,10 @@
 void
 str_append(struct growstring *s, char *buf)
 {
+	assert(s);
+	assert(s->string);
+	assert(buf);
+
 	while ((strlen(s->string) + strlen(buf)) > s->size) {
 		s->size += (1024 * (sizeof(char)));
 		s->string = realloc(s->string, s->size);
@@ -59,6 +63,8 @@ split(char c, char *string)
 	int     i, j = 0, length;
 	char  **ret;
 	char   *p;
+
+	assert(string);
 
 	length = strlen(string);
 
@@ -122,6 +128,7 @@ ensurepath(char *path)
 
 	grow.size=1024*sizeof(char);
 	grow.string=calloc(sizeof(char), grow.size);
+	assert(grow.string);
 
 	dotdot=0;
 

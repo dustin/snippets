@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.4 2000/01/17 23:41:40 dustin Exp $
+ * $Id: main.c,v 1.5 2000/01/18 02:53:59 dustin Exp $
  */
 
 #include <stdio.h>
@@ -28,8 +28,11 @@ parseurl(char *url)
 	int     port;
 	struct growstring grow;
 
+	assert(url);
+
 	grow.size = 1024 * sizeof(char);
 	grow.string = calloc(1, grow.size);
+	assert(grow.string);
 
 	u.host = NULL;
 	u.req = NULL;
