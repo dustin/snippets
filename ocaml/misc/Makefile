@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=parseSQLLog parseTimingLog
+PROGS=parseSQLLog parseTimingLog mailCompress
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -19,6 +19,10 @@ parseSQLLog: parseSQLLog.ml
 parseTimingLog: parseTimingLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa stringutils.cmx fileutils.cmx parseTimingLog.ml
+
+mailCompress: mailCompress.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib -I /usr/local/lib/ocaml/site-lib \
+		unix.cmxa stringutils.cmx fileutils.cmx gz.cmxa $<
 
 parseTimingLogbc: parseTimingLog.ml
 	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \

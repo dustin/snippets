@@ -158,3 +158,39 @@ let rec strstr haystack needle offset =
  strstr "abcdef" "abc" 0;;
  strstr "abcdef" "xyz" 0;;
  *)
+
+(**
+ Does this string end with that string?
+
+ @param src the source string
+ @param pat the comparison string
+ *)
+let ends_with src pat =
+	if ((String.length src) >= (String.length pat)) then
+		(pat =
+			String.sub src
+				((String.length src) - (String.length pat)) (String.length pat))
+	else
+		false
+;;
+
+(*
+ Test:
+ ends_with "test." ".";;
+ ends_with "." "test.";;
+ ends_with "test." "yourmom";;
+*)
+
+let begins_with src pat =
+	if ((String.length src) >= (String.length pat)) then
+		(pat = String.sub src 0 (String.length pat))
+	else
+		false
+;;
+
+(*
+ Test:
+ begins_with "test." ".";;
+ begins_with "." "test.";;
+ begins_with "yourmom" "your";;
+*)
