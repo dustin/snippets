@@ -1,7 +1,70 @@
-% Copyright 1996-1997  Dustin Sallings
-% $Id: bills.sty,v 1.2 1997/10/22 07:08:59 dustin Exp $
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Copyright 1996-1997  Dustin Sallings
+%% $Id: bills.sty,v 1.3 1997/10/22 16:27:20 dustin Exp $
+%%
+%% Dustin Sallings' invoice stylesheet.
+%%
+%% Example:
+%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% \documentclass[11pt]{article}
+%% \usepackage{fullpage}
+%% \usepackage{bills}
+%%
+%% \begin{document}
+%% \pagestyle{empty}
+%%
+%% % Sender
+%% \billfrom{%
+%% Your Name\\
+%% Your Address
+%% }
+%%
+%% %Recipient
+%% \billto{%
+%% Her Name\\
+%% Her Address
+%% }
+%%
+%% % Account ID
+%% \billacctid{2600}
+%%
+%% % Invoice Start Date
+%% \billstart{mm/dd/yyyy}
+%%
+%% % Invoice End Date
+%% \billend{mm/dd/yyyy}
+%%
+%% % Invoice Number
+%% \billnumber{1000}
+%%
+%% % Total debits
+%% \billcharges{36.24}
+%%
+%% % Balance forward
+%% \billforward{15.32}
+%%
+%% % Total credits
+%% \billcredits{18.13}
+%%
+%% % Amount due (sum of debits and balance forward minus credits)
+%% \billtotal{33.43}
+%%
+%% % Generate bill, list heading, and any transactions in a table
+%% % format, as follows:
+%% % Date & description & debit amount & credit amount \\\hline
+%%
+%% \makebill{mycompanyname}{%
+%% 01/01/1970 & Current charge & \$36.24 & \$0.00 \\\hline
+%% }
+%%
+%% \end{document}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\typeout{Dustin's coolass bill stylesheet $Revision: 1.2 $ $Date: 1997/10/22 07:08:59 $}
+\typeout{Dustin's coolass bill stylesheet $Revision: 1.3 $ $Date: 1997/10/22 16:27:20 $}
 
 \newcommand{\nl}{\hfill\par}
 
@@ -123,6 +186,8 @@ I\ N\ V\ O\ I\ C\ E
 
 }
 
+% From box
+
 \newcommand{\makebillfrom}
 {
 \noindent
@@ -130,12 +195,16 @@ I\ N\ V\ O\ I\ C\ E
 \hfill
 }
 
+% To box
+
 \newcommand{\makebillto}
 {
 \noindent
 \addrentry{To:}{\@billto}
 \hfill
 }
+
+% Little box on the prarie
 
 \newcommand{\makeiboxa}
 {
@@ -146,6 +215,8 @@ I\ N\ V\ O\ I\ C\ E
 }
 }
 
+% Other little box on the prarie
+
 \newcommand{\makeiboxb}
 {
 \fatbox{%
@@ -153,6 +224,9 @@ I\ N\ V\ O\ I\ C\ E
 \makebox[2.2in][l]{To date:\hfill \@billend}\\
 }
 }
+
+% Lay out the misc information at the top, from, to, account info,
+% etc...
 
 \newcommand{\makebilltop}
 {
@@ -172,6 +246,8 @@ I\ N\ V\ O\ I\ C\ E
 
 }
 
+% Summary
+
 \newcommand{\makebillbottom}
 {
 \vfill
@@ -185,6 +261,8 @@ I\ N\ V\ O\ I\ C\ E
 }
 }
 
+% Do the transaction section
+
 \newcommand{\makebilltrans}[1]
 {
 \begin{center}
@@ -197,6 +275,8 @@ Date & Description & Debit Amount & Credit Amount \\
 \end{tabular}
 \end{center}
 }
+
+% Finally, put everything together
 
 \newcommand{\makebill}[2]
 {
