@@ -66,8 +66,9 @@ define_bounds(void)
   min_lng = header.min_lng;
 
 #ifdef DEBUG
-  printf("%i points\nmin_lat=%f max_lat=%f\nmin_lng=%f max_lng=%f\n",
-	 header.num_points, min_lat, max_lat, min_lng, max_lng);
+  printf("%i points\nmin_lat=%f max_lat=%f\nmin_lng=%f max_lng=%f\n\
+lat_diff/lng_diff=%f\n", header.num_points, min_lat, max_lat, min_lng,
+max_lng, (float)( (max_lat-min_lat) / (max_lng-min_lng) ));
 #endif
   fclose(infile);
 }
