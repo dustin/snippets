@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.8 2000/11/02 22:19:45 dustin Exp $
+// $Id: PoolAble.java,v 1.9 2001/01/25 07:56:25 dustin Exp $
 
 package net.spy.pool;
 
@@ -11,7 +11,7 @@ import net.spy.SpyConfig;
  * pool.
  */
 
-public class PoolAble extends Object {
+public abstract class PoolAble extends Object {
 	protected int object_id=-1;
 	protected boolean checked_out=false;
 	protected boolean available=true;
@@ -60,9 +60,7 @@ public class PoolAble extends Object {
 	/**
 	 * Tell the object in the PoolAble that we don't need it anymore.
 	 */
-	public void discard() {
-		return;
-	}
+	public abstract void discard();
 
 	/**
 	 * Get the object we're pooling.

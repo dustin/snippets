@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.23 2000/11/30 20:55:45 dustin Exp $
+ * $Id: SpyDB.java,v 1.24 2001/01/25 07:56:24 dustin Exp $
  */
 
 package net.spy;
@@ -50,6 +50,9 @@ public class SpyDB extends Object {
 	// Whether we want the object to free stuff or not.
 	protected boolean auto_free=true;
 
+	// Whether we want to use a pool.
+	protected boolean use_pool=true;
+
 	/**
 	 * Create a SpyDB object based on the description found in the passed
 	 * in SpyConfig object.  The following lists the minimal requiremenet
@@ -65,6 +68,7 @@ public class SpyDB extends Object {
 	 * The following config entries are optional, but supported:
 	 * <p>
 	 * <ul>
+	 *  <li>dbPool - whether to use a pool - default true</li>
 	 *  <li>dbPoolName - default db</li>
 	 *  <li>dbMinConns - minimum number of connections - default 1</li>
 	 *  <li>dbMaxConns - maximum number of connections - default 5</li>
@@ -119,34 +123,43 @@ public class SpyDB extends Object {
 			}
 		}
 
-		// Poolname.
-		name=conf.get("dbPoolName");
-		if(name==null) {
-			name=conf.get("dbcbLogFilePath", "db");
+		// Figure out whether we want to pool.
+		String tmp=conf.get("dbPool");
+		if(tmp!=null) {
+			Boolean b=new Boolean(tmp);
+			use_pool=b.booleanValue();
 		}
 
-		// if we don't have a pool, create one.
-		if(pool==null) {
-			createPool();
-		} else {
-			// If we have a pool, but not the one we're looking
-			// for...create it.
-			if(!pool.hasPool(name)) {
+		// If we'll be using a pool, get it initialized.
+		if(use_pool) {
+			// Poolname.
+			name=conf.get("dbPoolName");
+			if(name==null) {
+				name=conf.get("dbcbLogFilePath", "db");
+			}
+
+			// if we don't have a pool, create one.
+			if(pool==null) {
 				createPool();
+			} else {
+				// If we have a pool, but not the one we're looking
+				// for...create it.
+				if(!pool.hasPool(name)) {
+					createPool();
+				}
 			}
 		}
 
 	}
 
-	protected void createPool() throws PoolException {
+	// Get a normalized config from the one we already have
+	protected SpyConfig getNormalizedConfig() {
 		// We'll need a config to translate into
 		SpyConfig tmpconf=new SpyConfig();
 
-		// If we don't yet have a pool at all, create one.
-		synchronized(POOL_MUTEX) {
-			if(pool==null) {
-				pool=new ObjectPool(conf);
-			}
+		String prefix="";
+		if(name!=null) {
+			prefix=name + ".";
 		}
 
 		// Minimum connections in the pool.
@@ -154,14 +167,14 @@ public class SpyDB extends Object {
 		if(min_conns==-1) {
 			min_conns=conf.getInt("dbcbMinConns", 1);
 		}
-		tmpconf.put(name + ".min", "" + min_conns);
+		tmpconf.put(prefix + "min", "" + min_conns);
 
 		// maximum connections in the pool.
 		max_conns=conf.getInt("dbMaxConns", -1);
 		if(max_conns==-1) {
 			max_conns=conf.getInt("dbcbMaxConns", 5);
 		}
-		tmpconf.put(name + ".max", "" + max_conns);
+		tmpconf.put(prefix + "max", "" + max_conns);
 
 		// Maximum amount of time any given entry may live.
 		String tmp=conf.get("dbMaxLifeTime");
@@ -171,40 +184,64 @@ public class SpyDB extends Object {
 				double tmpd=Double.valueOf(tmp).doubleValue();
 				tmpd*=86400;
 				recycle_time=(long)tmpd;
-				tmpconf.put(name + ".max_age", "" + recycle_time*1000);
+				tmpconf.put(prefix + "max_age", "" + recycle_time*1000);
 			}
 		} else {
 			// The dbMaxLifeTime was valid, put it place.
-			tmpconf.put(name + ".max_age", tmp);
+			tmpconf.put(prefix + "max_age", tmp);
 		}
 
 		// Driver name.
-		tmpconf.put(name + ".dbDriverName", conf.get("dbDriverName"));
+		tmpconf.put(prefix + "dbDriverName", conf.get("dbDriverName"));
 		// JDBC URL
-		tmpconf.put(name + ".dbSource", conf.get("dbSource"));
+		tmpconf.put(prefix + "dbSource", conf.get("dbSource"));
 		// username
-		tmpconf.put(name + ".dbUser", conf.get("dbUser"));
+		tmpconf.put(prefix + "dbUser", conf.get("dbUser"));
 		// password
-		tmpconf.put(name + ".dbPass", conf.get("dbPass"));
+		tmpconf.put(prefix + "dbPass", conf.get("dbPass"));
+
+		return(tmpconf);
+	}
+
+	// Create a pool
+	protected void createPool() throws PoolException {
+		// Get a conf
+		SpyConfig conf=getNormalizedConfig();
+
+		// If we don't yet have a pool at all, create one.
+		synchronized(POOL_MUTEX) {
+			if(pool==null) {
+				pool=new ObjectPool(conf);
+			}
+		}
 
 		// Set the database options:
-		setDBOptions(tmpconf);
+		setDBOptions(conf);
 
 		// Grab the poolfiller with our temporary config.
-		JDBCPoolFiller pf=new JDBCPoolFiller(name, tmpconf);
+		JDBCPoolFiller pf=new JDBCPoolFiller(name, conf);
 		// OK, add the pool.
 		pool.createPool(name, pf);
 	}
 
-	// Set DB options
+	// set options prefixed with the name
 	private void setDBOptions(SpyConfig tmpconf) {
+		setDBOptions(name + ".", tmpconf);
+	}
+
+	// Set DB options
+	private void setDBOptions(String prefix, SpyConfig tmpconf) {
 		for(Enumeration e=conf.propertyNames(); e.hasMoreElements(); ) {
 			String pname=(String)e.nextElement();
 			if(pname.startsWith("dboption.")) {
 				String ovalue=conf.get(pname);
-				tmpconf.put(name + "." + pname, ovalue);
-			}
-		}
+				if(prefix==null) {
+					tmpconf.put(pname, ovalue);
+				} else {
+					tmpconf.put(prefix + pname, ovalue);
+				}
+			} // found a dboption
+		} // For all properties
 	}
 
 	/**
@@ -276,14 +313,23 @@ public class SpyDB extends Object {
 	 * Note:  This should rarely be called directly.
 	 */
 	public void freeDBConn() {
-		// log("Freeing");
+		// Check in the object if we have one
 		if(object!=null) {
 			object.checkIn();
 			object=null;
-			// We may want to remove this from our connection hash.
-			if(conn!=null) {
-				connections.remove(conn);
+		}
+		// We may want to remove this from our connection hash.
+		if(conn!=null) {
+			connections.remove(conn);
+			// If we're not using a pool, we need to close the connection.
+			if(!use_pool) {
+				try {
+					conn.close();
+				} catch(Exception e) {
+					// Oh well...
+				}
 			}
+			conn=null;
 		}
 	}
 
@@ -291,10 +337,23 @@ public class SpyDB extends Object {
 	 * Free a database connection that was not in auto_free mode.
 	 */
 	public void freeDBConn(Connection conn) {
-		PooledObject po=(PooledObject)connections.get(conn);
-		if(po!=null) {
-			po.checkIn();
-			connections.remove(conn);
+		if(use_pool) {
+			PooledObject po=(PooledObject)connections.get(conn);
+			if(po!=null) {
+				po.checkIn();
+			}
+		}
+
+		// Remove it from our hash
+		connections.remove(conn);
+
+		// If we're not using a pool, we need to close the connection.
+		if(!use_pool) {
+			try {
+				conn.close();
+			} catch(Exception e) {
+				// Oh well...
+			}
 		}
 		this.conn=null;
 	}
@@ -318,14 +377,42 @@ public class SpyDB extends Object {
 	}
 
 	protected void getDBConn() throws SQLException {
-		try {
-			object=pool.getObject(name);
-			conn=(Connection)object.getObject();
-			if(!auto_free) {
-				connections.put(conn, object);
+		// Different behavior whether we're using a pool or not
+		if(use_pool) {
+			try {
+				object=pool.getObject(name);
+				conn=(Connection)object.getObject();
+				if(!auto_free) {
+					connections.put(conn, object);
+				}
+			} catch(Exception e) {
+				throw new SQLException(
+					"Unable to get database connection:  " + e);
 			}
-		} catch(Exception e) {
-			throw new SQLException("Unable to get database connection:  " + e);
+		} else {
+			SpyConfig conf=getNormalizedConfig();
+			setDBOptions("", conf);
+
+			System.out.println("Using this config:  " + conf);
+
+			// Make sure the username and password are set
+			conf.put("user", conf.get("dbUser"));
+			conf.put("password", conf.get("dbPass"));
+
+			// Figure out what this guy's trying to get us to do.
+			String driver=conf.get("dbDriverName");
+			String source=conf.get("dbSource");
+
+			// Try to load the class
+			try {
+				Class.forName(driver);
+			} catch(Exception e) {
+				throw new SQLException("Can't load class for db connection: "
+					+ e);
+			}
+
+			// Try to get the actual connection
+			conn=DriverManager.getConnection(source, conf);
 		}
 	}
 
