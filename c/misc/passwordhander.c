@@ -91,21 +91,12 @@ int main(int argc, char **argv)
 		perror(argv[1]);
 		exit(1);
 	}
-	/* We expect this to be three */
-	assert(readFd==3);
 
 	/* create the pipe */
 	if(pipe(pipeparts) < 0) {
 		perror("pipe");
 		exit(1);
 	}
-	/* We expect these pipe parts to always be in the same place */
-	assert(pipeparts[0] == 4);
-	assert(pipeparts[1] == 5);
-
-	/*
-	fprintf(stderr, "Read will be available on fd %d\n", pipeparts[0]);
-	*/
 
 	/* Fork and do the stuff */
 	p=fork();
@@ -117,6 +108,13 @@ int main(int argc, char **argv)
 		case 0:
 			/* Close the write end */
 			close(pipeparts[1]);
+			/* Make sure we're going to write to descriptor 4 */
+			if(pipeparts[0] != 4) {
+				if(dup2(pipeparts[0], 4) < 0) {
+					perror("dup2");
+					exit(1);
+				}
+			}
 			/* Call the real program */
 			execvp(argv[2], argv+2);
 			/* If it gets this far, it didn't run the command */
