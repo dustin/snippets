@@ -3,10 +3,18 @@
 
 DEST=$1
 
+PSQL="$HOME/local/pgsql/bin/psql"
+PDUMP="$HOME/local/pgsql/bin/pg_dump"
+# W="where datname not in ('template0', 'template1', 'photodemo')"
+W="where datname in ('money','misc')"
+# W="where datname in('spyshop', 'money')"
+
 if [ "x$DEST" = "x" ]
 then
 	DEST=$HOME/bak/db
 fi
+
+PLACE=$DEST
 
 cat <<EOF
 *
@@ -14,42 +22,36 @@ cat <<EOF
 *
 EOF
 
-(
+dumpDB() {
+	db="$1"
+	echo "Dumping $db..."
 
-PLACE=$DEST
-GPG=/usr/local/bin/gpg
+	$HOME/local.bin/tablelister '' dustin '' $db | ( while read l
+	do
+		schema=`echo $l | awk '{print $1}'`
+		table=`echo $l | awk '{print $2}'`
+		echo "Grabbing $table from $schema"
+		$PDUMP -n "$schema" -t "$table" "$db" \
+			| $HOME/local.bin/db_dumps_stream "$PLACE" "$db.$schema.$table"
+	done )
+}
+
+(
 
 mkdir -p $PLACE
 cd $PLACE
 
-THISHOST='rubik'
-
-for host in rubik
+for i in `$PSQL -t -c "select datname from pg_database $W" template1`
 do
-	echo "Doing host $host"
-	PSQL="/usr/local/pgsql/bin/psql"
-	PDUMP="/usr/local/pgsql/bin/pg_dump -F c      "
-	if [ "$host" != "$THISHOST" ]
-	then
-		PSQL="$PSQL -h $host"
-		PDUMP="/usr/local/pgsql/bin/pg_dump -h $host"
-	fi
-	W="where datname not in ('template0', 'template1', 'photodemo')"
-	# W="where datname in('spyshop', 'money')"
+	# echo "Analyzing $i ..."
+	# $PSQL -c "analyze;" $i
 
-	for i in `$PSQL -t -c "select datname from pg_database $W" template1`
-	do
-		echo "Analyzing $i ..."
-		$PSQL -c "analyze;" $i
+	dumpDB "$i"
+	# $PDUMP $i | $HOME/bin/db_dumps_stream $PLACE $i
 
-		echo "Dumping..."
-		$PDUMP $i | $HOME/bin/db_dumps_stream $PLACE $i
+	echo ""
 
-		echo ""
-
-	done
-
-    wait
 done
 
+wait
 )

@@ -4,12 +4,18 @@
 place=$1
 dbname=$2
 
-GPG=/usr/local/bin/gpg
+GPG=$HOME/local.bin/gpg
 
 today=`date +%Y%m%d`
 unixtoday=`date +%s`
 unixyesterday=`expr $unixtoday - 86400`
 yesterday=`date -r $unixyesterday +%Y%m%d`
+
+runCommand() {
+	touch /tmp/stream.debug
+	echo "$@" >> /tmp/stream.debug
+	"$@"
+}
 
 blocksize=""
 if [ -f $HOME/.dump-params/$dbname ]
@@ -24,7 +30,7 @@ fi
 
 touch $place/../db.digests/$dbname
 mkdir -p $today/$dbname
-$HOME/bin/blockDigest - $place/../db.digests/$dbname $HOME/bin/encryptBlock \
-	$yesterday/$dbname $today/$dbname $blocksize
+$HOME/local.bin/blockDigest - "$place/../db.digests/$dbname" \
+	$HOME/local.bin/encryptBlock $yesterday/$dbname $today/$dbname $blocksize
 
 du -sk $today/$dbname

@@ -1,11 +1,12 @@
 #!/bin/sh
 # arch-tag: 1BEB8ED6-4A64-11D8-81D8-003065ABF26A
 
-GPG=/usr/local/bin/gpg
+GPG=$HOME/local.bin/gpg
 
 dbname=$2
 
 rm -f $2.gpg
-$HOME/bin/passwordhander $HOME/.sigpw $GPG -se --passphrase-fd 4 \
-	--batch -r primary -r work > $2.gpg
+$HOME/bin/powerpc-apple-darwin/passwordhander \
+	$HOME/.sigpw $GPG -se --passphrase-fd 4 \
+	--batch -r primary > $2.gpg
 ls -l $2.gpg

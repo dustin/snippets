@@ -4,4 +4,4 @@
 place=$1
 dbname=$2
 
-cat > $dbname
+cat > $place/$dbname
