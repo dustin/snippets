@@ -1,0 +1,52 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1998  Dustin Sallings
+#
+# $Id: getquote,v 1.1 1998/04/25 04:32:06 dustin Exp $
+
+use LWP::UserAgent;
+use Net::SNPP;
+
+sub getfile
+{
+    my($ua,$req,$res);
+    $ua=LWP::UserAgent->new;
+    $ua->agent('DustinPlayer/0.1' . $ua->agent);
+    $req=HTTP::Request->new('GET', $_[0]);
+    $res=$ua->request($req);
+    return($res->content);
+}
+
+sub getquote
+{
+    my(@stuff)=@_;
+    my($url, $in, $out, $stuff, @tmp, $i, $cur, $tmp, @out);
+
+    $stuff=join('+',@stuff);
+    $url="http://quote.yahoo.com/q?s=$stuff&d=v1";
+    $in=getfile($url);
+
+    $in=~s/<.*?>//g;
+    $cur=0;
+    @tmp=split(/\n/,$in);
+    for($i=0; $i<@tmp && $cur<@stuff; $i++)
+    {
+	$match="^" . uc($stuff[$cur]) . "\$";
+	if($tmp[$i]=~/$match/)
+	{
+	    $tmp="$tmp[$i]: ";
+	    $i+=2;
+	    $tmp.="$tmp[$i], "; $i++;
+	    $tmp.=$tmp[$i]; $i++;
+            push(@out, $tmp);
+	    $cur++;
+	}
+    }
+    return(join(' -- ', sort(@out)));
+}
+
+$quote=getquote(@ARGV);
+
+$snpp=Net::SNPP->new('pager', Port=>'1031');
+
+$snpp->send(Pager => 'dustin',
+            Message => $quote);
