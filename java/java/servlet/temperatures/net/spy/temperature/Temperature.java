@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.4 2000/03/17 06:14:55 dustin Exp $
+ * $Id: Temperature.java,v 1.5 2000/05/01 04:32:39 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -40,7 +40,7 @@ public class Temperature extends GifServlet implements ImageObserver
 		temps=new Properties();
 		try {
 			temps.load(new
-				FileInputStream("/usr/local/etc/temperature.properties"));
+				FileInputStream("/afs/spy.net/misc/web/etc/temperature.properties"));
 		} catch(Exception e) {
 			throw new ServletException("Error loading properties:  " + e);
 		}

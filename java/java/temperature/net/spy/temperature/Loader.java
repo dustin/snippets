@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Loader.java,v 1.1 2000/01/26 20:17:57 dustin Exp $
+// $Id: Loader.java,v 1.2 2000/05/01 04:32:48 dustin Exp $
 
 package net.spy.temperature;
 
@@ -16,7 +16,7 @@ public class Loader {
 
 	public static void main(String args[]) throws Exception {
 		System.out.println("Loading logfile.");
-		Class.forName("postgresql.Driver");
+		Class.forName("org.postgresql.Driver");
 		String source="jdbc:postgresql://dhcp-104/temperature";
 		Connection temp = DriverManager.getConnection(source, "dustin", "");
 		initSensors(temp);

@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.sql.*;
 
 import net.spy.netinfo.*;
 
@@ -13,6 +14,8 @@ public class NetInfo {
 		BufferedReader f = new BufferedReader(new FileReader(file));
 		String line;
 		Stack stack=new Stack();
+		Connection netinfodb = null;
+		String source="jdbc:postgresql://localhost/netinfo";
 
 		while( (line=f.readLine()) != null) {
 			try {
@@ -34,9 +37,12 @@ public class NetInfo {
 			}
 		}
 
+		Class.forName("postgresql.Driver");
+		netinfodb=DriverManager.getConnection(source, "dustin", "");
+
 		Thread t=null;
-		for(int i=0; i<100; i++) {
-			t=new Getit(stack);
+		for(int i=0; i<200; i++) {
+			t=new Getit(stack, netinfodb);
 			t.run();
 		}
 	}

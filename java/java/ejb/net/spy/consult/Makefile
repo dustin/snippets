@@ -40,7 +40,7 @@ GENCLASSES=BullConsultantBeanConsultantHome_Skel.class \
 all: $(CLASSES) $(SER) $(GENCLASSES)
 
 genic: Consultant.ser
-	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) -keepgenerated -d ../../.. Consultant.ser
+	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) -d ../../.. Consultant.ser
 
 $(GENCLASSES): genic
 

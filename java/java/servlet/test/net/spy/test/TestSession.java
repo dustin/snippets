@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: TestSession.java,v 1.3 2000/01/10 09:05:52 dustin Exp $
+ * $Id: TestSession.java,v 1.4 2000/05/01 04:32:43 dustin Exp $
  */
 
 package net.spy.test;
@@ -276,10 +276,12 @@ public class TestSession extends Object
 
 	protected String tokenize(String file, Hashtable vars) {
 		SpyToker t=new SpyToker();
-		String ret;
+		String ret=null, path=null;
 
 		vars.put("SELF_URI", request.getRequestURI());
-		ret=t.tokenize(test_config.get("includes") + file, vars);
+		path=test_config.get("includes") + file;
+		log("Importing " + path);
+		ret=t.tokenize(path, vars);
 		return(ret);
 	}
 

@@ -16,11 +16,11 @@ public class CachePhoto {
 	public static void main(String args[]) throws Exception
 	{
 		String source;
-		server = (ImageServer)Naming.lookup("//localhost/ImageServer");
+		server = (ImageServer)Naming.lookup("//dhcp-104/ImageServer");
 
 		// Load the postgres driver.
 		Class.forName("postgresql.Driver");
-		source="jdbc:postgresql://localhost/photo";
+		source="jdbc:postgresql://dhcp-104/photo";
 		events = DriverManager.getConnection(source, "dustin", "");
 
 		try {
@@ -37,12 +37,17 @@ public class CachePhoto {
 		st = events.createStatement();
 		Vector v = new Vector();
 
-		query = "select id from album order by ts desc";
+		query = "select id from album order by ts";
 
 		ResultSet rs = st.executeQuery(query);
 		while(rs.next()) {
 			int id = rs.getInt(1);
-			ImageData data=server.getImage(id, true);
+			try {
+				// true == thumbnail
+				ImageData data=server.getImage(id, true);
+			} catch(Exception e) {
+				System.err.println("Fuck:  " + e);
+			}
 			System.out.println("Caching " + id);
 		}
 	}

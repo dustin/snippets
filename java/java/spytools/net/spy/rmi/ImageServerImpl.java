@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.6 2000/04/17 01:31:04 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.7 2000/05/01 04:32:46 dustin Exp $
 
 package net.spy.rmi;
 
@@ -201,7 +201,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 		Connection photo;
 		String source;
 
-		Class.forName("postgresql.Driver");
+		Class.forName("org.postgresql.Driver");
 		source="jdbc:postgresql://localhost/photo";
 		photo = DriverManager.getConnection(source, "nobody", "");
 		return(photo);

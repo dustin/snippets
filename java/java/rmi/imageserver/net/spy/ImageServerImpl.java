@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.2 1999/11/25 09:37:02 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.3 2000/05/01 04:32:30 dustin Exp $
 
 package net.spy;
 
@@ -86,7 +86,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 				v.addElement(tmp);
 			}
 		} catch(Exception e) {
-			throw new Exception(e.getMessage());
+			throw new Exception("Error making thumbnail:  " + e);
 		} finally {
 			try {
 				File f = new File(tmpfilename);
@@ -111,8 +111,15 @@ public class ImageServerImpl extends UnicastRemoteObject
 
 		if(v==null) {
 			// Make a thumbnail out of the fullsize image
-			log("Making thumbnail");
+			log("Making thumbnail (1)");
 			v=makeThumbnail(fetchImage(image_id), image_id);
+			if(rhash!=null && v != null) {
+				log("Storing thumbnail in rhash");
+				rhash.put(key, v);
+				log("Done storing object.");
+			} else {
+				log("Either the rhash or the Vector is null.");
+			}
 		}
 
 		return(new ImageData(v));

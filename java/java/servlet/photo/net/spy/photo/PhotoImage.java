@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.4 2000/01/01 03:34:39 dustin Exp $
+ * $Id: PhotoImage.java,v 1.5 2000/05/01 04:32:33 dustin Exp $
  */
 
 package net.spy.photo;
@@ -71,7 +71,18 @@ public class PhotoImage extends PhotoHelper
 
 	// Make sure we're connected to an image server
 	protected void ensureConnected() throws Exception {
-		if(server == null) {
+		boolean needconn=true;
+
+		try {
+			// If ping works, we don't need a new connection
+			if(server.ping()) {
+				needconn=false;
+			}
+		} catch(Exception e) {
+			// nevermind
+		}
+
+		if(needconn) {
 			log("Connecting to ImageServer");
 			String serverpath=conf.get("imageserver");
 			log("Locating " + serverpath);

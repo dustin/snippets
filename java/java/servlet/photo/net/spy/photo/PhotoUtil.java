@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.4 1999/12/15 04:18:57 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.5 2000/05/01 04:32:37 dustin Exp $
  */
 
 package net.spy.photo;
@@ -38,7 +38,7 @@ public class PhotoUtil
 		vars.put("REMOTE_UID", p.remote_uid.toString());
 		vars.put("LAST_MODIFIED", "recently");
 		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
-			+ "/servlet/PhotoServlet?func=getstylesheet\">");
+			+ p.self_uri + "?func=getstylesheet\">");
 
 		ret = t.tokenize(conf.get("includes") + file, vars);
 		return(ret);

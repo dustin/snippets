@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPSTracker.java,v 1.1 2000/03/22 09:32:08 dustin Exp $
+// $Id: UPSTracker.java,v 1.2 2000/05/01 04:32:26 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -144,7 +144,7 @@ public class UPSTracker extends Object {
 
 	public static void main(String args[]) throws ClassNotFoundException {
 		// Load our driver up-front
-		Class.forName("postgresql.Driver");
+		Class.forName("org.postgresql.Driver");
 		UPSTracker t = new UPSTracker();
 		t.run();
 	}

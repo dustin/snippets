@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.11 2000/04/30 08:01:08 dustin Exp $
+ * $Id: SpyDB.java,v 1.12 2000/05/01 04:32:45 dustin Exp $
  */
 
 package net.spy;
@@ -41,7 +41,7 @@ public class SpyDB extends Object {
 	 * for configuration:
 	 * <p>
 	 * <ul>
-	 *  <li>dbDriverName - Driver to load (i.e. postgresql.Driver)</li>
+	 *  <li>dbDriverName - Driver to load (i.e. org.postgresql.Driver)</li>
 	 *  <li>dbSource - JDBC URL we'll be connecting to.</li>
 	 *  <li>dbUser - Database username</li>
 	 *  <li>dbPass - Database password</li>

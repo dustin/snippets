@@ -12,7 +12,7 @@ CLASSPATH=$(C1):$(C2):$(C3):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
 SCP=scp
-DEST=bleu.west.spy.net:/usr/local/apache/java
+DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/test/
 # DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=net/spy/test/TestTaker.class net/spy/test/TestSession.class \
@@ -31,7 +31,7 @@ test: all
 	env CLASSPATH=$(CLASSPATH) $(SERVLETRUNNER) -d $(PWD)
 
 install: all
-	# $(SCP) PhotoServlet.class photo.jar $(DEST)
+	$(SCP) $(CLASSES) $(DEST)
 
 clean:
 	rm -f $(CLASSES) testtaker.jar

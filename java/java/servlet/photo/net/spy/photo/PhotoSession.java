@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.10 2000/03/17 09:52:42 dustin Exp $
+ * $Id: PhotoSession.java,v 1.11 2000/05/01 04:32:36 dustin Exp $
  */
 
 package net.spy.photo;
@@ -446,10 +446,12 @@ public class PhotoSession extends Object
 
 		cookies = request.getCookies();
 
-		for(i=0; i<cookies.length && output == null; i++) {
-			String s = cookies[i].getName();
-			if(s.equalsIgnoreCase("photo_style")) {
-				output = cookies[i].getValue();
+		if(cookies!=null) {
+			for(i=0; i<cookies.length && output == null; i++) {
+				String s = cookies[i].getName();
+				if(s.equalsIgnoreCase("photo_style")) {
+					output = cookies[i].getValue();
+				}
 			}
 		}
 
@@ -818,9 +820,7 @@ public class PhotoSession extends Object
 		h.put("SEARCH", (String)session.getValue("encoded_search"));
 		String output = tokenize("find_top.inc", h);
 		output += middle;
-		if(results.nRemaining() > 0) {
-			h.put("LINKTOMORE", linkToMore(results.nRemaining()));
-		}
+		h.put("LINKTOMORE", linkToMore(results.nRemaining()));
 		output += tokenize("find_bottom.inc", h);
 		send_response(response, output);
 	}
@@ -851,17 +851,19 @@ public class PhotoSession extends Object
 	protected String linkToMore(int remaining) {
 		String ret = "";
 
-		int nextwhu=5;
-		if(remaining<5) {
-			nextwhu=remaining;
+		if(remaining>0) {
+			int nextwhu=5;
+			if(remaining<5) {
+				nextwhu=remaining;
+			}
+
+			ret += "<form method=\"POST\" action=\"" + self_uri + "\">\n";
+			ret += "<input type=hidden name=func value=nextresults>\n";
+
+			ret += "<input type=\"submit\" value=\"Next " + nextwhu + "\">\n";
+			ret += "</form>\n";
+			ret += "<br>\n" + remaining + " pictures remaining.<br>\n";
 		}
-
-		ret += "<form method=\"POST\" action=\"" + self_uri + "\">\n";
-		ret += "<input type=hidden name=func value=nextresults>\n";
-
-		ret += "<input type=\"submit\" value=\"Next " + nextwhu + "\">\n";
-		ret += "</form>\n";
-		ret += "<br>\n" + remaining + " pictures remaining.<br>\n";
 		return(ret);
 	}
 
@@ -889,8 +891,8 @@ public class PhotoSession extends Object
 			thumbnail=true;
 		}
 
-		if(rhash==null) {
-			throw new ServletException("Me hath no rhash");
+		if(rhash==null || !rhash.connected()) {
+			throw new ServletException("Me hath no working rhash");
 		}
 
 		try {

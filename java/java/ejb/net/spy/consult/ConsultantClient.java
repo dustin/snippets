@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ConsultantClient.java,v 1.2 2000/01/22 11:42:52 dustin Exp $
+// $Id: ConsultantClient.java,v 1.3 2000/05/01 04:32:22 dustin Exp $
 
 package net.spy.consult;
 
@@ -15,7 +15,7 @@ public class ConsultantClient {
 		ConsultantHome h = (ConsultantHome)ctx.lookup("ConsultantHome");
 
 		try {
-			c=h.findByPrimaryKey(new ConsultantPK(1));
+			c=h.findByPrimaryKey(new ConsultantPK(6));
 			System.out.println(c.firstName() + " " + c.lastName());
 		} catch(Exception e) {
 			System.err.println("Error finding by primary key:  " + e);
