@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.1 2002/04/04 20:00:46 dustin Exp $
+$Id: jobs.py,v 1.2 2002/04/05 01:08:12 dustin Exp $
 """
 
 # time is important
@@ -30,15 +30,24 @@ class Job:
 
 	db=None
 
-	def __init__(self, freq):
-		"""Get a job that repeats at the given frequency."""
+	def __init__(self, descriptor, freq):
+		"""Get a job that repeats at the given frequency.
+
+		The descriptor argument provides a unique ID for this job based on
+		what it does.
+		"""
+		self.descriptor=descriptor
 		self.frequency=freq
 		if Job.db == None:
 			Job.db=storage.DBMStorage('hostmarks.db')
 
-	def mark(self, host):
+	def getDescriptor(self):
+		"""Get the descriptor this job uses."""
+		return self.descriptor
+
+	def mark(self):
 		"""Mark activity on a host."""
-		Job.db[host]=str(time.time())
+		Job.db[self.descriptor]=str(time.time())
 
 	def go(self):
 		"""This method is called when it's time to perform the job."""
@@ -49,21 +58,21 @@ class VolatileJob(Job):
 
 	db=None
 
-	def __init__(self, freq):
+	def __init__(self, descriptor, freq):
 		# Initialize the superclass
-		Job.__init__(self, freq)
+		Job.__init__(self, descriptor, freq)
 		if VolatileJob.db==None:
 			VolatileJob.db=storage.VolatileStorage()
 
-	def recordState(self, key, state):
+	def recordState(self, state):
 		"""Record the current state of the task."""
-		VolatileJob.db.recordState(key, state)
+		VolatileJob.db.recordState(self.descriptor, state)
 
 class SNMPJob(Job):
 	"""An SNMP query job that needs to be performed."""
 
-	def __init__(self, host, community, oid, freq):
-		Job.__init__(self, freq)
+	def __init__(self, host, community, oid, freq, jobtype='snmp'):
+		Job.__init__(self, ':'.join((jobtype, host, community, str(oid))), freq)
 		self.host=host
 		self.community=community
 		self.oid=oid
@@ -71,27 +80,28 @@ class SNMPJob(Job):
 class VolatileSNMPJob(VolatileJob, SNMPJob):
 	"""An SNMP job that records its state in the volatile DB."""
 
-	def __init__(self, host, community, oid, freq):
+	def __init__(self, host, community, oid, freq, jobtype='snmp'):
 		# Call the super constructors
-		VolatileJob.__init__(self, freq)
-		SNMPJob.__init__(self, host, community, oid, freq)
+		# VolatileJob's constructor is called with a descriptor of XXXX
+		# because SNMPJob should fill it it with the correct value.
+		VolatileJob.__init__(self, 'XXXX', freq)
+		SNMPJob.__init__(self, host, community, oid, freq, jobtype)
 
 	def go(self):
 		"""Get and record the data."""
 		# Get the data and record the state
 		s=snmplib.SnmpSession(self.host, self.community)
 		rv=s.get(self.oid)
-		k='snmp:' + self.host + ':' + self.oid
-		self.recordState(k, rv)
+		self.recordState(rv)
 		# Mark it
-		self.mark(self.host)
+		self.mark()
 
 class SNMPWalkCountJob(VolatileSNMPJob):
 	"""An SNMP job that walks a tree and records the number of things it saw."""
 
 	def __init__(self, host, community, oid, freq, match=None):
 		# Call the super constructors
-		VolatileSNMPJob.__init__(self, host, community, oid, freq)
+		VolatileSNMPJob.__init__(self, host, community, oid, freq, 'snmpwalk')
 		self.match=match
 
 	def go(self):
@@ -99,24 +109,30 @@ class SNMPWalkCountJob(VolatileSNMPJob):
 		# Get the data and record it
 		s=snmplib.SnmpSession(self.host, self.community)
 		rv=s.countBranch(self.oid, self.match)
-		k='snmpwalk:' + self.host + ':' + self.oid
-		self.recordState(k, rv)
+		self.recordState(rv)
 		# Mark it
-		self.mark(self.host)
+		self.mark()
 
 class RRDJob(Job):
 	"""Base class for jobs that record data via RRD."""
 
 	rrd=None
 
-	def __init__(self, freq):
-		Job.__init__(self, freq)
+	def __init__(self, rrdfile, descriptor, freq):
+		"""Get an RRDJob referencing the given rrdfile, using the given
+		descriptor, and repeating at the specified frequency."""
+		Job.__init__(self, descriptor, freq)
 		if RRDJob.rrd == None:
 			RRDJob.rrd=storage.RRDStorage()
+		self.file=rrdfile
 
-	def recordState(self, rrdfile, data, timestamp=None):
+	def getFilename(self):
+		"""Get the name of the rrd file this job manipulates."""
+		return self.file
+
+	def recordState(self, data, timestamp=None):
 		"""Record the current state."""
-		RRDJob.rrd.recordState(rrdfile, data, timestamp)
+		RRDJob.rrd.recordState(self.file, data, timestamp)
 
 class RRDSNMPJob(RRDJob, SNMPJob):
 	"""A job that collects data from snmp and stores it in an rrd.
@@ -125,29 +141,29 @@ class RRDSNMPJob(RRDJob, SNMPJob):
 	"""
 
 	def __init__(self, host, community, oids, freq, rrdfile):
-		RRDJob.__init__(self, freq)
+		# RRDJob's constructor is called with a descriptor of XXXX because
+		# SNMPJob should fill it it with the correct value.
+		RRDJob.__init__(self, rrdfile, 'XXXX', freq)
 		SNMPJob.__init__(self, host, community, oids, freq)
-		self.rrdfile=rrdfile
 
 	def go(self):
 		"""Get and record the data."""
 		# Get the data and record it
 		s=snmplib.SnmpSession(self.host, self.community)
 		oids, rvs=s.multiGet(self.oid)
-		self.recordState(self.rrdfile, rvs)
+		self.recordState(rvs)
 		# Mark it
-		self.mark(self.host)
+		self.mark()
 
 class SMTPBannerJob(VolatileJob):
 	"""A volatile job to monitor SMTP banners."""
 
 	def __init__(self, host, freq, port=25):
-		VolatileJob.__init__(self, freq)
+		VolatileJob.__init__(self, ':'.join(('smtp', host, `port`)), freq)
 		self.host=host
 		self.port=port
 
 	def go(self):
-		print "Checking SMTP banner on " + self.host
 		sock=None
 		for res in socket.getaddrinfo(self.host, self.port,
 										0, socket.SOCK_STREAM):
@@ -166,7 +182,8 @@ class SMTPBannerJob(VolatileJob):
 				# Ten second timeout
 				rl, wl, xl=select.select([sock.fileno()], [], [], 10)
 				if sock.fileno() not in rl:
-					print "Timed out!"
+					print "Timed out while looking for " \
+						+ self.host + ":" + `self.port`
 					raise socket.error("Timeout")
 				sock.setblocking(1)
 			except socket.error, se:
@@ -186,10 +203,9 @@ class SMTPBannerJob(VolatileJob):
 		f.close()
 		sock.close()
 		# Mark it
-		self.mark(self.host)
+		self.mark()
 
-		k='smtp:' + self.host + ':' + `self.port`
-		self.recordState(k, banner.rstrip())
+		self.recordState(banner.rstrip())
 
 ######################################################################
 # End job classes

@@ -3,7 +3,7 @@
 Data storage classes for collectors.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: storage.py,v 1.1 2002/04/04 20:00:46 dustin Exp $
+$Id: storage.py,v 1.2 2002/04/05 01:08:13 dustin Exp $
 """
 
 # Time
@@ -35,22 +35,25 @@ class Storage:
 class NonThreadSafeStorage(Storage):
 	"""Base class for storage mechanisms that are not thread safe."""
 
+	bigfatlock=None
+
 	def __init__(self):
 		try:
-			self.mutex=threading.Lock()
-		except NameError:
+			if NonThreadSafeStorage.bigfatlock==None:
+				NonThreadSafeStorage.bigfatlock=threading.Lock()
+		except NameError, e:
 			# No threading support, go without
-			self.mutex=None
+			NonThreadSafeStorage.bigfatlock=None
 
 	def lock(self):
 		"""Lock mutex."""
-		if self.mutex != None:
-			self.mutex.acquire()
+		if NonThreadSafeStorage.bigfatlock != None:
+			NonThreadSafeStorage.bigfatlock.acquire()
 
 	def unlock(self):
 		"""Unlock mutex."""
-		if self.mutex != None:
-			self.mutex.release()
+		if NonThreadSafeStorage.bigfatlock != None:
+			NonThreadSafeStorage.bigfatlock.release()
 
 class ThreadSafeStorage(Storage):
 	"""Base class for storage mechanisms that are thread safe."""
@@ -147,37 +150,52 @@ class RRDStorage(NonThreadSafeStorage):
 		"""
 		# Get the timestamp ASAP
 		ts=time.time()
+
+		cmd='update ' + rrdfile
+
+		if timestamp == None:
+			timestamp='N'
+
+		if isinstance(data, dict):
+			k=data.keys()
+			# Get the template
+			t=':'.join(k)
+			# Get the values for the template
+			v=':'.join(map(lambda x: str(data[x]), data.keys()))
+
+			# append the template and the values
+			cmd+=' -t ' + t + ' ' + timestamp + ':' + v
+		elif isinstance(data, tuple) or isinstance(data, list):
+			v=':'.join(map(lambda x: str(x), data))
+			# append the values
+			cmd+=' ' + timestamp + ':' + v
+		else:
+			raise TypeError(data)
+		# Send the command
+		self.performQuery(cmd)
+
+	def performQuery(self, cmd):
+		rv=None
 		try:
 			self.lock()
-
-			cmd='update ' + rrdfile
-
-			if timestamp == None:
-				timestamp='N'
-
-			if isinstance(data, dict):
-				k=data.keys()
-				# Get the template
-				t=':'.join(k)
-				# Get the values for the template
-				v=':'.join(map(lambda x: str(data[x]), data.keys()))
-
-				# append the template and the values
-				cmd+=' -t ' + t + ' ' + timestamp + ':' + v
-			elif isinstance(data, tuple) or isinstance(data, list):
-				v=':'.join(map(lambda x: str(x), data))
-				# append the values
-				cmd+=' ' + timestamp + ':' + v
-			else:
-				raise TypeError(data)
-			# Send the command
 			try:
-				# print "RRD command"  + cmd
-				RRDStorage.rrd.sendCommand(cmd)
+				rv=RRDStorage.rrd.sendCommand(cmd)
 			except rrdpipe.RRDError, e:
 				print e
 		finally:
 			self.unlock()
+		return rv
+
+	def fetch(self, rrdfile, cf='AVERAGE', res=None, start=None, end=None):
+		"""Fetch data out of the underlying rrd file."""
+		rv=None
+		try:
+			self.lock()
+			rv=RRDStorage.rrd.fetch(rrdfile, cf, res, start, end)
+		finally:
+			self.unlock()
+		return rv
+
 
 ######################################################################
 # End storage classes

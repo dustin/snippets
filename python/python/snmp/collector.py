@@ -3,7 +3,7 @@
 Collect network data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: collector.py,v 1.1 2002/04/04 20:00:43 dustin Exp $
+$Id: collector.py,v 1.2 2002/04/05 01:08:10 dustin Exp $
 """
 
 # Python's scheduling stuff
@@ -86,7 +86,12 @@ class NetworkCollector:
 ######################################################################
 
 if __name__ == '__main__':
+	import sys
 	nc=NetworkCollector()
+
+	if(len(sys.argv)>1):
+		# Start RPC services.
+		nc.initXMLRPC(int(sys.argv[1]))
 
 	try:
 		nc.addJob(jobs.VolatileSNMPJob('lamer', 'public', 'sysDescr.0', 5))
@@ -109,8 +114,6 @@ if __name__ == '__main__':
 		nc.addJob(jobs.SMTPBannerJob('ld0', 60))
 
 		nc.run()
-
-		time.sleep(300)
 
 	finally:
 		print "Requesting a stop."
