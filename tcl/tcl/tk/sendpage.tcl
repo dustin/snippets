@@ -1,14 +1,24 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.8 1999/09/05 12:26:21 dustin Exp $
+# $Id: sendpage.tcl,v 1.9 2000/01/28 00:49:59 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
-	set status [ lindex $msg 0 ]
+	global snpp_status twoway_state
+
+	set snpp_status [ lindex $msg 0 ]
+	set status $snpp_status
 	set result -1
 
-	if { $status < 300} {
-		if { $status >= 200} {
+	if { $status < 300 && $status >= 200 } {
+		set result 0
+	}
+
+	# if we're in two-way mode, there are other OK states
+	if { $result == -1 && $twoway_state == 1 } {
+		if { $status < 890 && $status >= 860 } {
+			set result 0
+		} elseif { $status < 970 && $status >= 960 } {
 			set result 0
 		}
 	}
@@ -25,12 +35,14 @@ proc snpp_cmd { fd cmd } {
 	flush $fd
 
 	set line [gets $fd]
+	set snpp_error $line
+	puts ">> $cmd"
+	puts "<< $line"
 	set status [ snpp_status_ok $line ]
 	if { $status < 0 } {
-		set snpp_error $line
 		# puts "Error: $line"
 		# puts "CMD: $cmd"
-		close $fd
+		# close $fd
 		set ret -1
 	}
 
@@ -39,7 +51,8 @@ proc snpp_cmd { fd cmd } {
 
 proc snpp_sendpage { host port id msg } {
 
-	global snpp_error hold_state timezone
+	global snpp_error hold_state timezone twoway_state snpp_status fd
+	global twoway_waiting msta
 
 	set err [catch {set fd [socket $host $port]}]
 
@@ -56,6 +69,13 @@ proc snpp_sendpage { host port id msg } {
 		return -1
 	}
 
+	if { $twoway_state == 1 } {
+		if { [snpp_cmd $fd "2way"] < 0 } {
+			catch { close $fd }
+			return -1
+		}
+	}
+
 	if { [snpp_cmd $fd "page $id"] < 0 } {
 		catch { close $fd }
 		return -1
@@ -67,8 +87,11 @@ proc snpp_sendpage { host port id msg } {
 	}
 
 	if { [snpp_cmd $fd "priority high"] < 0 } {
-		catch { close $fd }
-		return -1
+		# This is actually OK if the error was 500
+		if { $snpp_status != 500 } {
+			catch { close $fd }
+			return -1
+		}
 	}
 
 	if { $hold_state == 1 } {
@@ -98,6 +121,20 @@ proc snpp_sendpage { host port id msg } {
 		return -1
 	}
 
+	if { $twoway_state == 1 } {
+		set msta "[lindex $snpp_error 1] [lindex $snpp_error 2]"
+		setstatus "Waiting for response..."
+
+		set twoway_waiting 1
+
+		update idletasks
+		exec /bin/sleep 5
+		while { [check_for_message] < 0 } {
+			update idletasks
+			exec /bin/sleep 5
+		}
+	}
+
 	if { [snpp_cmd $fd "quit"] < 0 } {
 		catch { close $fd }
 		return -1
@@ -106,6 +143,44 @@ proc snpp_sendpage { host port id msg } {
 	catch { close $fd }
 
 	return 0
+}
+
+proc check_for_message { } {
+	global msta twoway_waiting fd twoway_state snpp_status snpp_error
+
+	set r -1
+
+	puts "=== Checking for two-way state"
+
+	if { $twoway_state == 0 } {
+		return -1
+	}
+
+	puts "=== Checking for two-way waiting"
+
+	if { $twoway_waiting == 0 } {
+		return -1
+	}
+
+	puts "=== Issuing msta"
+
+	if { [snpp_cmd $fd "msta $msta"] < 0 } {
+		catch { close $fd }
+		return -1
+	}
+
+	puts "=== Checking status"
+
+	set response [lrange $snpp_error 4 end]
+	if { $snpp_status == 889 } {
+		set twoway_waiting 0
+		show_response $response
+		set r 0
+	} else {
+		setstatus $response
+	}
+
+	return $r
 }
 
 # end SNPP stuff...
@@ -158,12 +233,18 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.8 $ }
+	set rev { $Revision: 1.9 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
 	set button [tk_messageBox -icon info -type ok \
 		-title "About sendpage" -parent . -message $msg ]
+}
+
+# Show the response
+proc show_response { response } {
+	set button [tk_messageBox -icon info -type ok \
+		-title "SNPP Response" -parent . -message $response ]
 }
 
 # Preferences store
@@ -239,6 +320,16 @@ proc preferences { } {
 	button $p.buttons.done -text "Done" -command "destroy $p"
 	pack $p.buttons.save $p.buttons.done -side left -expand 1
 	pack $p.buttons -side top -expand 1 -fill x
+}
+
+proc toggle_twoway {} {
+	global twoway_state
+
+	if { $twoway_state == 0 } {
+		set twoway_state 1
+	} else {
+		set twoway_state 0
+	}
 }
 
 proc toggle_hold { } {
@@ -325,14 +416,24 @@ set last_msg ""
 set last_uid ""
 
 # Defaults
-set snpp_server "pager.beyond.com"
-set snpp_port   1041
+set snpp_server "snpp.skytel.com"
+set snpp_port   444
 set timezone -8
 set enter_to_send 1
 
 read_config
 
+# This gets toggled  going on
 set hold_state 1
+
+# this doesn't
+set twoway_state 0
+set twoway_waiting 0
+
+set snpp_status 0
+
+# file descriptor we use
+set fd -1
 
 wm title . "Page People"
 wm iconname . "Pager"
@@ -394,6 +495,14 @@ pack .hold.hms .hold.hms.hms .hold.hms.h .hold.hms.m .hold.hms.s \
 	-side left -expand 1
 
 pack .hold -side top -expand 1 -fill x
+
+# 2way
+frame .twoway
+label .twoway.l -text "Two-Way"
+checkbutton .twoway.twoway -command toggle_twoway
+
+pack .twoway.l .twoway.twoway -side left -expand 0
+pack .twoway -side top -expand 1 -fill x
 
 # Set the hold state, initialize crap.
 toggle_hold
