@@ -19,6 +19,7 @@
     NSImage *fImage;
     Thermometer *therm;
     bool _showTrend;
+    NSUserDefaults *defaults;
 }
 
 -(void)setCelsius;
@@ -27,6 +28,8 @@
 -(void)setFImage: (NSImage *)to;
 -(void)setTherm: (Thermometer *)t;
 -(id)therm;
+
+-(void)setDefaults:(NSUserDefaults *)d;
 
 -(void)newReading:(float)r;
 

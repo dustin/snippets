@@ -26,6 +26,15 @@
     [thermMatrix setNeedsDisplay: true];
     [status setStringValue: s];
     [s release];
+
+    // Now, verify the timer is scheduled appropriately
+    double erval=[[defaults objectForKey: @"frequency"] doubleValue];
+    double cur=(double)[updater timeInterval];
+    if(erval != cur) {
+        NSLog(@"Time has changed from %.2f to %.2f, updating", cur, erval);
+        [updater invalidate];
+        [self scheduleTimer];
+    }
 }
 
 -(IBAction)launchPreferences:(id)sender
@@ -33,6 +42,18 @@
     id prefc=[[PreferenceController alloc] initWithWindowNibName: @"Preferences"];
     [prefc startUp: defaults];
     NSLog(@"Initialized Test");
+}
+
+-(IBAction)setCelsius:(id)sender
+{
+    [defaults setObject: @"c" forKey: @"units"];
+    [thermMatrix setNeedsDisplay: true];
+}
+
+-(IBAction)setFarenheit:(id)sender
+{
+    [defaults setObject: @"f" forKey: @"units"];
+    [thermMatrix setNeedsDisplay: true];
 }
 
 // Updates from the UI
@@ -56,6 +77,17 @@
     [defaults registerDefaults: dd];
     // [self setUnits: [defaults objectForKey: @"units"]];
     [dd release];
+}
+
+-(void)scheduleTimer
+{
+    // Schedule updates
+    int freq=[[defaults objectForKey: @"frequency"] intValue];
+    NSLog(@"Scheduling timer with frequency:  %d", freq);
+    updater=[NSTimer scheduledTimerWithTimeInterval:freq
+        target: self
+        selector: @selector(update)
+        userInfo:nil repeats:true];
 }
 
 -(void)awakeFromNib
@@ -108,7 +140,9 @@
         [mi setTag: i];
         [dockMenu addItem: mi];
 
-        [tc setImage: ci];
+        [tc setCImage: ci];
+        [tc setFImage: fi];
+        [tc setDefaults: defaults];
         // Figure out where to put it
         int rownum, colnum;
         rownum=i % ([therms count]/3);
@@ -140,13 +174,7 @@
         withObject:nil
         afterDelay:0];
 
-    // Schedule updates
-    int freq=[[defaults objectForKey: @"frequency"] intValue];
-    NSLog(@"Update frequency:  %d", freq);
-    [NSTimer scheduledTimerWithTimeInterval:freq
-        target: self
-        selector: @selector(update)
-        userInfo:nil repeats:true];
+    [self scheduleTimer];
 }
 
 @end

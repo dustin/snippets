@@ -82,6 +82,12 @@ static float ctof(float c)
     fImage=to;
 }
 
+-(void)setDefaults:(NSUserDefaults *)d
+{
+    defaults=d;
+    [self setUnits: [defaults objectForKey: @"units"]];
+}
+
 /* Draw the actual arm of the thermometer here. */
 - (void)drawArm:(NSRect)bounds
 {
@@ -114,6 +120,17 @@ static float ctof(float c)
     return(rv);
 }
 
+-(void)setUnits:(NSString *)u
+{
+    if([u isEqualToString: @"c"]) {
+        celsius=true;
+        [self setImage: cImage];
+    } else {
+        celsius=false;
+        [self setImage: fImage];
+    }
+}
+
 // Delegate stuff indicating a new reading
 -(void)newReading:(float)r
 {
@@ -128,6 +145,18 @@ static float ctof(float c)
 /* Draw the underling thermometer, then some lines over it */
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+    // Figure out whether it's celsius or farenheit
+    NSString *u=[defaults objectForKey: @"units"];
+    // If it's changed, update it.
+    if([u isEqualToString: @"c"]) {
+        if(!celsius) {
+            [self setUnits: u];
+        }
+    } else {
+        if(celsius) {
+            [self setUnits: u];
+        }
+    }
     [super drawInteriorWithFrame: cellFrame inView: controlView];
     // Draw the reading
     NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f",

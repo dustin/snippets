@@ -27,7 +27,7 @@
             SUPERCLASS = NSWindowController;
         },
         {
-            ACTIONS = {launchPreferences = id; update = id; };
+            ACTIONS = {launchPreferences = id; setCelsius = id; setFarenheit = id; update = id; };
             CLASS = ThermController;
             LANGUAGE = ObjC;
             OUTLETS = {dockMenu = NSMenu; status = NSTextField; thermMatrix = NSMatrix; };

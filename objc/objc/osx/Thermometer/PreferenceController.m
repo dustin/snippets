@@ -36,9 +36,6 @@
     int oldfreq=[[defaults objectForKey: @"frequency"] intValue];
     int freq=[frequency intValue];
     if(oldfreq != freq) {
-        NSRunAlertPanel(@"Notice",
-            @"Frequency changes will take effect upon the next restart.",
-            @"OK", nil, nil);
         NSNumber *n=[[NSNumber alloc] initWithInt: [frequency intValue]];
         [defaults setObject: n forKey: @"frequency"];
         [n release];

@@ -18,6 +18,7 @@
     IBOutlet NSMenu *dockMenu;
 
     NSMutableArray *therms;
+    NSTimer *updater;
 
     NSUserDefaults *defaults;
 }
@@ -25,5 +26,8 @@
 -(void)update;
 -(IBAction)update:(id)sender;
 -(IBAction)launchPreferences:(id)sender;
+
+-(IBAction)setCelsius:(id)sender;
+-(IBAction)setFarenheit:(id)sender;
 
 @end
