@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.6 2002/04/24 07:47:01 dustin Exp $
+ * $Id: HouseServlet.java,v 1.7 2002/05/04 06:33:43 dustin Exp $
  */
 
 package net.spy.house;
@@ -40,7 +40,9 @@ public class HouseServlet extends PngServlet implements ImageObserver
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		getBaseImage();
+		String bi=config.getInitParameter("baseImage");
+
+		getBaseImage(bi);
 
 		white=new Color(255, 255, 255);
 		red=new Color(255, 0, 0);
@@ -65,12 +67,18 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		Image img=createImage(307, 223);
 		Graphics g=img.getGraphics();
 		g.drawImage(baseImage, 0, 0, this);
-		SpyTemp spytemp=new SpyTemp();
+
+		ServletConfig sconf=getServletConfig();
+
+		// Get the temperature servlet
+		String tempUrl=sconf.getInitParameter("tempServlet");
+		SpyTemp spytemp=new SpyTemp(tempUrl);
+
+		// Find the description
+		String descrFile=sconf.getInitParameter("houseConfig");
 
 		// The description of what we're drawing.
-		SpyConfig conf=new SpyConfig(
-			new File("/afs/spy.net/misc/web/etc/house.conf")
-			);
+		SpyConfig conf=new SpyConfig(new File(descrFile));
 
 		// Find all the things we need to colorize
 		String things[]=SpyUtil.split(" ", conf.get("colorize", ""));
@@ -117,11 +125,10 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		return(img);
 	}
 
-	private void getBaseImage() {
+	private void getBaseImage(String url) {
 		try {
 			if(baseImage==null) {
-				String url="http://bleu.west.spy.net/~dustin/images/house.gif";
-				log("Loading image...");
+				log("Loading image... (" + url + ")");
 				baseImage=Toolkit.getDefaultToolkit().getImage(new URL(url));
 				Toolkit.getDefaultToolkit().prepareImage(baseImage,-1,-1,this);
 				if(!imageLoaded) {
