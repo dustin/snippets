@@ -14,9 +14,15 @@
 #include <stdio.h>
 
 
-#define HELLO_PORT 6789
-#define HELLO_GROUP "225.0.0.37"
-#define MSGBUFSIZE 256
+#ifndef HELLO_PORT
+# define HELLO_PORT 6789
+#endif
+#ifndef HELLO_GROUP
+# define HELLO_GROUP "225.0.0.37"
+#endif
+#ifndef MSGBUFSIZE
+# define MSGBUFSIZE 256
+#endif
 
 main(int argc, char *argv[])
 {
@@ -56,11 +62,12 @@ main(int argc, char *argv[])
 	/* now just enter a read-print loop */
 	addrlen = sizeof(addr);
 	for(;;) {
-		if ((nbytes = recvfrom(fd, msgbuf, MSGBUFSIZE, 0,
+		if ((nbytes = recvfrom(fd, msgbuf, MSGBUFSIZE-1, 0,
 			       (struct sockaddr *) & addr, &addrlen)) < 0) {
 			perror("recvfrom");
 			exit(1);
 		}
+		msgbuf[nbytes]=0x00;
 		puts(msgbuf);
 	}
 }
