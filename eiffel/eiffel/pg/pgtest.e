@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pgtest.e,v 1.3 1999/06/02 01:33:58 dustin Exp $
+-- $Id: pgtest.e,v 1.4 1999/06/03 18:06:38 dustin Exp $
 --
 class PGTEST
 
@@ -20,27 +20,31 @@ feature {ANY}
          db: PG;
       do
          !!db.make;
-         db.set_dbname("machine");
+         db.set_dbname("events");
          db.connect;
-         db.query("select * from oems order by name;");
+
+         a := db.tables;
+		 io.put_string("Tables:%N");
          from
-            b := db.get_row;
+            i := a.lower;
          until
-            b = false
+            i > a.upper
          loop
-            a := db.last_row;
-            from
-               i := 0;
-            until
-               i >= a.count
-            loop
-               io.put_string(a @ i);
-               io.put_string("%T");
-               i := i + 1;
-            end;
-            io.put_string("%N");
-            b := db.get_row;
+            io.put_string("%T" + a @ i + "%N");
+            i := i + 1;
          end;
+
+         a := db.sequences;
+		 io.put_string("Sequences:%N");
+         from
+            i := a.lower;
+         until
+            i > a.upper
+         loop
+            io.put_string("%T" + a @ i + "%N");
+            i := i + 1;
+         end;
+
       end -- make
 
 end -- class PGTEST

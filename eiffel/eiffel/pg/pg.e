@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.16 $";
+version: "$Revision: 1.17 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.16 1999/06/03 07:39:46 dustin Exp $
+-- $Id: pg.e,v 1.17 1999/06/03 18:06:36 dustin Exp $
 --
 class PG
 
@@ -80,11 +80,11 @@ feature {ANY}
          retry_attempts: INTEGER;
       do
          current_row := 0;
-		 debug
-			io.put_string("Doing query:  ");
-			io.put_string(q);
-			io.put_string("%N-------------------------%N");
-		 end
+         debug
+            io.put_string("Doing query:  ");
+            io.put_string(q);
+            io.put_string("%N-------------------------%N");
+         end;
          res := pg_query(conn,q.to_external);
       ensure
          has_results;
@@ -200,26 +200,83 @@ feature {ANY} -- Connection options
 
 feature {ANY} -- Transaction
 
-	begin is
-		require
-			is_connected;
-		do
-			query("begin transaction");
-		end
+   begin is
+      require
+         is_connected;
+      do
+         query("begin transaction");
+      end -- begin
 
-	commit is
-		require
-			is_connected;
-		do
-			query("commit");
-		end
+   commit is
+      require
+         is_connected;
+      do
+         query("commit");
+      end -- commit
 
-	rollback is
-		require
-			is_connected;
-		do
-			query("rollback");
-		end
+   rollback is
+      require
+         is_connected;
+      do
+         query("rollback");
+      end -- rollback
+
+feature {ANY} -- Utility
+
+   tables: ARRAY[STRING] is
+      -- List all tables in this database.
+      require
+         is_connected;
+      local
+         a: ARRAY[STRING];
+         b: BOOLEAN;
+         i: INTEGER;
+         q: STRING;
+      do
+         !!Result.with_capacity(0,16);
+         Result.clear;
+         q := "select tablename from pg_tables "
+			+ "where tablename not like 'pg_%%'";
+         query(q);
+         from
+            b := get_row;
+         until
+            b = false
+         loop
+            a := last_row;
+            Result.add_last(a @ 0);
+            b := get_row;
+         end;
+      ensure
+         Result /= Void;
+      end -- tables
+
+   sequences: ARRAY[STRING] is
+      -- List all sequences in this database.
+      require
+         is_connected;
+      local
+         a: ARRAY[STRING];
+         b: BOOLEAN;
+         i: INTEGER;
+         q: STRING;
+      do
+         !!Result.with_capacity(0,16);
+         Result.clear;
+         !!q.copy("select * from pg_class where relkind='S'");
+         query(q);
+         from
+            b := get_row;
+         until
+            b = false
+         loop
+            a := last_row;
+            Result.add_last(a @ 0);
+            b := get_row;
+         end;
+      ensure
+         Result /= Void;
+      end -- sequences
 
 feature {ANY} -- status
 
