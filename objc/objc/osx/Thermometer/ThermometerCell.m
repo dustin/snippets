@@ -82,6 +82,17 @@ static float ctof(float c)
     fImage=to;
 }
 
+-(void)setUnits:(NSString *)u
+{
+    if([u isEqualToString: @"c"]) {
+        celsius=true;
+        [self setImage: cImage];
+    } else {
+        celsius=false;
+        [self setImage: fImage];
+    }
+}
+
 -(void)setDefaults:(NSUserDefaults *)d
 {
     defaults=d;
@@ -118,17 +129,6 @@ static float ctof(float c)
         [self reading]];
 
     return(rv);
-}
-
--(void)setUnits:(NSString *)u
-{
-    if([u isEqualToString: @"c"]) {
-        celsius=true;
-        [self setImage: cImage];
-    } else {
-        celsius=false;
-        [self setImage: fImage];
-    }
 }
 
 // Delegate stuff indicating a new reading

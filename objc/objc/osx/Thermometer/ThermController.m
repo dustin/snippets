@@ -11,6 +11,18 @@
 
 @implementation ThermController
 
+// Timer scheduling
+-(void)scheduleTimer
+{
+    // Schedule updates
+    int freq=[[defaults objectForKey: @"frequency"] intValue];
+    NSLog(@"Scheduling timer with frequency:  %d", freq);
+    updater=[NSTimer scheduledTimerWithTimeInterval:freq
+        target: self
+        selector: @selector(update)
+        userInfo:nil repeats:true];
+}
+
 -(void)update
 {
     NSLog(@"Updating.");
@@ -79,56 +91,12 @@
     [dd release];
 }
 
--(void)scheduleTimer
+// place the thermometers
+-(void)placeTherms:(NSImage *)ci fImage:(NSImage *)fi
 {
-    // Schedule updates
-    int freq=[[defaults objectForKey: @"frequency"] intValue];
-    NSLog(@"Scheduling timer with frequency:  %d", freq);
-    updater=[NSTimer scheduledTimerWithTimeInterval:freq
-        target: self
-        selector: @selector(update)
-        userInfo:nil repeats:true];
-}
-
--(void)awakeFromNib
-{
-    NSLog(@"Starting ThermController.");
-
-    // Initialize the defaults
-    [self initDefaults];
-
-    NSBundle *mainBundle = [NSBundle mainBundle];
-    NSString *path = [mainBundle pathForResource:@"therm-c" ofType:@"png"];
-    NSImage *ci = [[NSImage alloc]initWithContentsOfFile:path];
-    path = [mainBundle pathForResource:@"therm-f" ofType:@"png"];
-    NSImage *fi = [[NSImage alloc]initWithContentsOfFile:path];
-
     // Get the current number of rows and columns
-    int r, c, orow, ocol;
+    int r, c;
     [thermMatrix getNumberOfRows:&r columns:&c];
-    orow=r;
-    ocol=c;
-
-    // Grab the list.
-    NSString *thermsurls=[[NSString alloc]
-        initWithFormat: [defaults objectForKey: @"url"]];
-    NSURL *thermsurl=[[NSURL alloc] initWithString: thermsurls];
-    NSString *thermlist=[[NSString alloc] initWithContentsOfURL: thermsurl];
-    NSArray *thermarray=[thermlist componentsSeparatedByString:@"\n"];
-    [thermsurl release];
-    [thermlist release];
-
-    therms=[[NSMutableArray alloc] initWithCapacity: [thermarray count]];
-    NSEnumerator *enumerator = [thermarray objectEnumerator];
-    id anObject;
-    while (anObject = [enumerator nextObject]) {
-        if([anObject length] > 0) {
-            Thermometer *t=[[Thermometer alloc] initWithName: anObject
-                url:[defaults objectForKey: @"url"]];
-            [therms addObject: t];
-            [t release];
-        }
-    }
 
     int i;
     for(i=0; i<[therms count]; i++) {
@@ -156,12 +124,58 @@
             r++;
         }
 
-        // NSLog(@"Adding %@ at %d,%d", tc, rownum, colnum);
         [thermMatrix putCell:tc atRow:rownum column:colnum];
         [tc release];
     }
     [thermMatrix sizeToCells];
+}
 
+-(void)awakeFromNib
+{
+    NSLog(@"Starting ThermController.");
+
+    // Initialize the defaults
+    [self initDefaults];
+
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *path = [mainBundle pathForResource:@"therm-c" ofType:@"png"];
+    NSImage *ci = [[NSImage alloc] initWithContentsOfFile:path];
+    path = [mainBundle pathForResource:@"therm-f" ofType:@"png"];
+    NSImage *fi = [[NSImage alloc] initWithContentsOfFile:path];
+
+    // Grab the list.
+    NSString *thermsurls=[[NSString alloc]
+        initWithFormat: [defaults objectForKey: @"url"]];
+    NSURL *thermsurl=[[NSURL alloc] initWithString: thermsurls];
+    NSString *thermlist=[[NSString alloc] initWithContentsOfURL: thermsurl];
+    NSArray *thermarray=[thermlist componentsSeparatedByString:@"\n"];
+    [thermsurl release];
+    [thermlist release];
+
+	// Convert the list of names to a list of Thermometers
+    therms=[[NSMutableArray alloc] initWithCapacity: [thermarray count]];
+    NSEnumerator *enumerator = [thermarray objectEnumerator];
+    id anObject;
+    while (anObject = [enumerator nextObject]) {
+        if([anObject length] > 0) {
+            Thermometer *t=[[Thermometer alloc] initWithName: anObject
+                url:[defaults objectForKey: @"url"]];
+            [therms addObject: t];
+            [t release];
+        }
+    }
+
+	// get the row sizes and stuff
+    int orow, ocol;
+    [thermMatrix getNumberOfRows:&orow columns:&ocol];
+
+	// Create and place the cells
+	[self placeTherms: ci fImage: fi];
+
+    int r, c;
+    [thermMatrix getNumberOfRows:&r columns:&c];
+
+	// Set the window size.
     NSRect newdims=[[self window] frame];
     newdims.size.width=318+(143*(r-orow));
     newdims.size.height=223+(151*(c-ocol));
@@ -174,7 +188,12 @@
         withObject:nil
         afterDelay:0];
 
+	// Schedule the timer for future updates
     [self scheduleTimer];
+
+	// Release some stuff
+	[ci release];
+	[fi release];
 }
 
 @end
