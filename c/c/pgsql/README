@@ -1,0 +1,74 @@
+
+To use this software, you must do the following things:
+
+	1) Have one or more databases with one or more tables to monitor.
+	2) Have a recent version of RRDTool installed.
+	3) Modify the source code to include the tables you want to monitor.
+	4) Create the RRDs for each table you'll be watching.
+	5) Make a cron job or something to draw graphs.
+
+
+Detailed instructions:
+
+	1) Can't help here.
+
+	2) This was built against rrdtool 1.0.33.  Should work under newer or
+	   older versions just fine (I've also tested under 1.0.28).  RRDtool
+	   downloads may be found here:
+
+	   http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/
+
+	3) This is where things can get a bit tricky if you're not paying
+	   attention.
+
+	   If you have a single database server and want to look at it with a
+	   single username and password, it's pretty easy, just set them
+	   towards the top of tablecounter.c and then apply them in main (see
+	   below).
+
+	   If you have a couple different database servers, it might be easiest
+	   to make macros to save some of the work.  For example, see
+	   MAKEDBSPEC3, MAKEDBSPEC, and TIGERDB.
+
+	   The purpose of the macros is to create checkspec structs giving the
+	   program its configuration.  I did it this way because it's a lot
+	   easier than providing an external configuration and I just wanted to
+	   start the thing and leave it running for a few year.
+
+	   In main, there's an array of checkspec structs called, ``queries.''
+	   Fill that with all the stuff you want it to watch and you're good to
+	   go.
+
+	4) The ``makerrd'' script takes a list of rrds to make on the
+	    commandline.  The format the application uses is
+		<dbname>.<tablename>.rrd.  If you have more than database with the
+		same name on different servers...well, I suppose the source will
+		need to be modified to support that.
+
+		The RRD is defined as a GAUGE, which means it keeps an absolute
+		count of rows rather than growth rate deltas by hour.  This is how
+		I want to look at my data, if you want them to be counters, make
+		your own RRDs and tablecounter will happily supply you data.
+
+	5) The createimages script is how I make my images.  This part's pretty
+       easy.
+
+
+OPTIONALLY, if you have timestamped data, you may want to back fill
+your rrds so you can see more historical data.  If given a time_t value
+as an argument, your rrd will be filled with counts for all of the
+times from that point to present.  This currently takes more memory
+than it should, but you only need to do it once (unless you break
+something).  I may fix this in the future.  Also, note that you can't
+do this *after* you start doing normal processing.
+
+Once you've completed all of the above tasks, cd to the directory
+containing the rrds in which you want to store your data, and run
+tablecounter with no arguments.  It will start counting immediately and
+recount every hour.  If all goes well, you should never have to touch it
+again.
+
+The end.
+
+------------------------------
+$Id: README,v 1.1 2002/03/12 22:40:28 dustin Exp $

@@ -1,0 +1,57 @@
+#!/bin/sh
+
+DIR=/usr/tmp/db
+IMGDIR=/afs/@cell/home/dustin/public_html/public/db
+
+PATH=$PATH:/home/dustin/bin
+
+RRDTOOL=/usr/local/rrdtool-1.0.33/bin/rrdtool
+
+makeFullSizeImage()
+{
+	FILE="$1"
+	TABLE="$2"
+	DESCR="$2"
+	IMG="$3"
+	SPEC="$4"
+
+	OUTFILE=$IMGDIR/${TABLE}_${IMG}.png
+
+	$RRDTOOL graph \
+		$OUTFILE \
+		--lazy -v "Number of Rows" \
+		-s "$SPEC" \
+		-w 440 -h 200 \
+		-a PNG \
+		-t "Growth Rate of $DESCR" \
+		"DEF:g=$FILE:rows:AVERAGE" \
+		'LINE2:g#000000:Num Rows' \
+		COMMENT:"\n" \
+		GPRINT:g:LAST:"Current\: %0.0lf\n" \
+		COMMENT:"Graph updated: `date`\r"
+
+	# nice pngcrush -q -m 119 /tmp/tmp.$$.png $OUTFILE
+	# rm /tmp/tmp.$$.png
+}
+
+cd $DIR
+for FILE in *.rrd
+do
+
+	table=`basename $FILE .rrd`
+
+	if [ -f $FILE ]
+	then
+
+		echo "Doing $table"
+
+		# Various images.
+		# makeFullSizeImage "$FILE" "$table" "day" "now - 26 hours"
+		makeFullSizeImage "$FILE" "$table" "month" "now - 6 days"
+		makeFullSizeImage "$FILE" "$table" "year" "now - 13 months"
+	fi
+
+done
+
+# cd $IMGDIR
+# ./makeindex > index.html

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+for i in "$@"
+do
+	/usr/local/rrdtool-1.0.33/bin/rrdtool create "$i" \
+		-s 3600 \
+		-b 'now - 2 years' \
+		DS:rows:GAUGE:43200:0:100000000 \
+		RRA:AVERAGE:0.5:1:360 \
+		RRA:AVERAGE:0.5:24:1825
+done
