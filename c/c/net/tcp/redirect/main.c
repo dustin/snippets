@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.4 1998/01/02 06:20:25 dustin Exp $
+ * $Id: main.c,v 1.5 1998/01/02 06:43:29 dustin Exp $
  */
 
 #include <config.h>
@@ -231,7 +231,6 @@ void _main(void)
     struct sockaddr_in fsin;
     int i, s, cs, os, fromlen, upper, size, selected;
     fd_set fdset, tfdset;
-    struct timeval t;
     int map[MAPSIZE], stats[MAPSIZE];
     char *portmap[MAPSIZE];
     char buf[BUFLEN];
@@ -267,8 +266,6 @@ void _main(void)
     for(;;)
     {
 	 fdset=tfdset;
-	 t.tv_sec=0;
-	 t.tv_usec=0;
 	 fromlen=sizeof(fsin);
 
 	 _ndebug(2, ("Selecting...\n"));
