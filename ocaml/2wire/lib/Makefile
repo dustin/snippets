@@ -33,10 +33,10 @@ docs: $(PARTS)
 	ocamldoc -d doc -html *.ml
 
 clean:
-	rm -rf testtop *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o doc
+	rm -rf testtop *.a *.cma *.cmxa *.cmx *.cmi *.cmo *.o doc
 
 .ml.mli:
 	$(OCAMLOPT) -i $< > $@
 
-.ml.cmi:
-	$(MKLIB) $<
+.mli.cmi: $<
+	$(MKLIB) $< `echo $< | sed s/.mli/.ml/`
