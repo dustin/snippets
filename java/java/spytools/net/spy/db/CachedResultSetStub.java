@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.7 2001/03/27 09:30:49 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.8 2001/04/07 11:30:04 dustin Exp $
  */
 
 package net.spy.db;
@@ -282,6 +282,8 @@ public class CachedResultSetStub extends Object implements Cloneable {
 			} catch(Exception e) {
 				throw new SQLException("Error getting Number value:  " + e);
 			}
+		} else {
+			n=new Integer(0);
 		}
 		return(n);
 	}
