@@ -1,12 +1,12 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.5 2002/05/04 05:45:08 dustin Exp $
+// $Id: SpyTemp.java,v 1.6 2002/07/10 04:26:21 dustin Exp $
 
 package net.spy.temperature;
 
-import java.util.*;
+import java.util.Vector;
 
-import net.spy.net.*;
+import net.spy.net.HTTPFetch;
 
 /**
  * A simple interface to my temperature servlet at home.

@@ -2,17 +2,27 @@
  * Copyright (c) 2002 Scott Lamb <slamb@slamb.org>
  * This code is released under the MIT license; see the file LICENSE.
  *
- * $Id: SPGenTask.java,v 1.2 2002/07/09 20:10:45 dustin Exp $
+ * $Id: SPGenTask.java,v 1.3 2002/07/10 04:26:43 dustin Exp $
  */
 
 package net.spy.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+
 import java.util.Vector;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Task;
+
 import org.apache.tools.ant.taskdefs.MatchingTask;
-import net.spy.util.SPGen;
 
 /**
  * Generates Java code from SPT files.
@@ -24,7 +34,7 @@ import net.spy.util.SPGen;
  * builds don't create problems, etc.
  *
  * @author Scott Lamb
- * @version $Revision: 1.2 $ $Date: 2002/07/09 20:10:45 $
+ * @version $Revision: 1.3 $ $Date: 2002/07/10 04:26:43 $
  **/
 public class SPGenTask extends MatchingTask {
 

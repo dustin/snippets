@@ -1,10 +1,12 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeSpan.java,v 1.2 2001/11/14 09:44:29 dustin Exp $
+// $Id: TimeSpan.java,v 1.3 2002/07/10 04:26:55 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
+import java.text.DateFormat;
+
+import java.util.Date;
 
 /**
  * Creates a representable timespan.

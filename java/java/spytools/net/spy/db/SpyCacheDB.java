@@ -1,14 +1,23 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.5 2001/04/08 21:02:51 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.6 2002/07/10 04:25:24 dustin Exp $
  */
 
 package net.spy.db;
 
-import net.spy.*;
-import net.spy.cache.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import java.util.Calendar;
+
+import net.spy.SpyConfig;
+import net.spy.SpyDB;
+
+import net.spy.cache.SpyCache;
 
 /**
  * Extensions to DB that allow for result set caching.  <b>Use wisely!</b>

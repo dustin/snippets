@@ -1,11 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NestedException.java,v 1.3 2001/07/11 09:30:55 dustin Exp $
+// $Id: NestedException.java,v 1.4 2002/07/10 04:26:33 dustin Exp $
 
 package net.spy.util;
 
-import java.io.PrintWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 /**
  * An Exception that will allow chaining of another Throwable.

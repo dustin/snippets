@@ -1,11 +1,11 @@
 //
-// $Id: PoolAble.java,v 1.21 2001/08/30 20:26:46 dustin Exp $
+// $Id: PoolAble.java,v 1.22 2002/07/10 04:26:08 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
-import java.io.*;
-import net.spy.SpyConfig;
+import java.util.Date;
+
+import net.spy.util.Debug;
 
 /**
  * PoolAble is the object container that is used to store objects in the

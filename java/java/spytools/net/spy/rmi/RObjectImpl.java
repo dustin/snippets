@@ -1,18 +1,17 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.10 2002/06/17 02:46:49 dustin Exp $
+// $Id: RObjectImpl.java,v 1.11 2002/07/10 04:26:19 dustin Exp $
 
 package net.spy.rmi;
 
+import java.io.IOException;
+
 import java.rmi.Naming;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
+
 import java.rmi.server.UnicastRemoteObject;
 
-import java.util.*;
-import java.security.*;
-import java.io.*;
-
-import net.spy.cache.*;
+import net.spy.cache.DiskCache;
 
 /**
  * Implementation for RObjectServer

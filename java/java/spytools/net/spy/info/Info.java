@@ -1,13 +1,11 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.9 2001/10/09 19:01:34 dustin Exp $
+// $Id: Info.java,v 1.10 2002/07/10 04:25:32 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
-
-import net.spy.*;
-import net.spy.net.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * net.spy.info.* superclass -- extend this to provide info services

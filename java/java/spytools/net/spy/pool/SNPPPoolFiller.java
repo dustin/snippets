@@ -1,11 +1,11 @@
 //
-// $Id: SNPPPoolFiller.java,v 1.3 2001/08/30 00:51:24 dustin Exp $
+// $Id: SNPPPoolFiller.java,v 1.4 2002/07/10 04:26:16 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
-import net.spy.net.SNPP;
 import net.spy.SpyConfig;
+
+import net.spy.net.SNPP;
 
 /**
  * PoolFiller object to fill a pool with SNPP PoolAbles

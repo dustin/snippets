@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTTL.java,v 1.2 2002/02/13 21:13:41 dustin Exp $
+// $Id: DBTTL.java,v 1.3 2002/07/10 04:25:21 dustin Exp $
 
 package net.spy.db;
 
@@ -107,3 +107,4 @@ public class DBTTL extends Object {
 	}
 
 }
+

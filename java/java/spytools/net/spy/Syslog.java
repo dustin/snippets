@@ -1,10 +1,13 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: Syslog.java,v 1.2 2002/01/10 02:23:13 dustin Exp $
+// $Id: Syslog.java,v 1.3 2002/07/10 04:24:43 dustin Exp $
 
 package net.spy;
 
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Send a message via syslog.

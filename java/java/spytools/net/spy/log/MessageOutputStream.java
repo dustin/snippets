@@ -1,11 +1,14 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MessageOutputStream.java,v 1.1 2001/04/13 06:23:43 dustin Exp $
+// $Id: MessageOutputStream.java,v 1.2 2002/07/10 04:25:46 dustin Exp $
 
 package net.spy.log;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
+import java.net.InetAddress;
 
 /**
  * Send SpyMessages when stuff goes to this OutputStream.

@@ -1,16 +1,18 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.10 2001/08/28 22:51:50 dustin Exp $
+ * $Id: SpyCache.java,v 1.11 2002/07/10 04:25:02 dustin Exp $
  */
 
 package net.spy.cache;
 
-import java.util.*;
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
 
-import net.spy.util.*;
+import java.net.InetAddress;
+
+import java.util.Enumeration;
+
+import net.spy.util.TimeStampedHash;
 
 /**
  * Spy in-memory cache object.

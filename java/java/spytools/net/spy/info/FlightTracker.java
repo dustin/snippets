@@ -1,13 +1,15 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FlightTracker.java,v 1.5 2001/02/14 02:14:05 dustin Exp $
+// $Id: FlightTracker.java,v 1.6 2002/07/10 04:25:30 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Get FlightTracker info.

@@ -1,13 +1,20 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.6 2001/04/08 21:02:52 dustin Exp $
+// $Id: QuickRun.java,v 1.7 2002/07/10 04:26:38 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
-import java.net.*;
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import net.spy.SpyUtil;
 

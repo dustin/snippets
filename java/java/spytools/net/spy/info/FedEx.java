@@ -1,13 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.7 2001/03/03 11:25:59 dustin Exp $
+// $Id: FedEx.java,v 1.8 2002/07/10 04:25:29 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Get FedEx info.

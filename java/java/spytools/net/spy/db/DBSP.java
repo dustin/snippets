@@ -1,14 +1,26 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.5 2001/08/02 20:35:31 dustin Exp $
+// $Id: DBSP.java,v 1.6 2002/07/10 04:25:18 dustin Exp $
 
 package net.spy.db;
 
-import java.util.*;
-import java.util.Date; // Avoid ambiguous class with java.sql.Date
-import java.sql.*;
-import java.math.*;
-import java.lang.reflect.*; // For newInstance(Object[])
+import java.lang.reflect.Constructor;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+
+import java.math.BigDecimal;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import net.spy.SpyConfig;
 

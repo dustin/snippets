@@ -1,10 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeStampedHash.java,v 1.3 2001/08/28 22:58:34 dustin Exp $
+// $Id: TimeStampedHash.java,v 1.4 2002/07/10 04:26:56 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
+import java.util.Hashtable;
 
 /**
  * A Hashtable that remembers when it was accessed.  Good for caching and

@@ -1,10 +1,12 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Digest.java,v 1.1 2001/05/27 06:42:32 dustin Exp $
+// $Id: Digest.java,v 1.2 2002/07/10 04:26:30 dustin Exp $
 
 package net.spy.util;
 
-import java.security.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 /**
  * Digest for getting checksums, hashing passwords, stuff like that.

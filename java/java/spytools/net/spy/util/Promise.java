@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Promise.java,v 1.1 2001/06/07 07:51:14 dustin Exp $
+// $Id: Promise.java,v 1.2 2002/07/10 04:26:35 dustin Exp $
 
 package net.spy.util;
 
@@ -75,3 +75,4 @@ public abstract class Promise extends Object {
 	protected abstract Object execute() throws BrokenPromiseException;
 
 }
+

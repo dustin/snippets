@@ -1,13 +1,15 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyToker.java,v 1.4 2001/05/22 03:57:34 dustin Exp $
+ * $Id: SpyToker.java,v 1.5 2002/07/10 04:24:41 dustin Exp $
  */
 
 package net.spy;
 
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+
+import java.util.Hashtable;
 
 /**
  * A simple token in-plugger.

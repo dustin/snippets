@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings
 //
-// $Id: PackageInfo.java,v 1.2 2001/02/07 06:31:16 dustin Exp $
+// $Id: PackageInfo.java,v 1.3 2002/07/10 04:25:33 dustin Exp $
 
 package net.spy.info;
 
@@ -14,3 +14,4 @@ public abstract class PackageInfo extends Info {
 		return(delivered);
 	}
 }
+

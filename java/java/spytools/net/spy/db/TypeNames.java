@@ -1,11 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TypeNames.java,v 1.1 2001/03/11 11:51:02 dustin Exp $
+// $Id: TypeNames.java,v 1.2 2002/07/10 04:25:25 dustin Exp $
 
 package net.spy.db;
 
-import java.sql.*;
-import java.lang.reflect.*;
+import java.sql.Types;
 
 /**
  * Get names for sql data types.

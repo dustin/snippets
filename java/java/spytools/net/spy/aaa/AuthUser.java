@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: AuthUser.java,v 1.1 2001/07/11 09:30:48 dustin Exp $
+// $Id: AuthUser.java,v 1.2 2002/07/10 04:24:47 dustin Exp $
 
 package net.spy.aaa;
 
@@ -16,3 +16,4 @@ public interface AuthUser {
 	void checkPassword(String password) throws AuthException;
 
 }
+

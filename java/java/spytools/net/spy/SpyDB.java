@@ -1,18 +1,32 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.36 2001/11/13 22:52:24 dustin Exp $
+ * $Id: SpyDB.java,v 1.37 2002/07/10 04:24:38 dustin Exp $
  */
 
 package net.spy;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-import javax.sql.*;
-import javax.naming.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
-import net.spy.pool.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
+import javax.sql.DataSource;
+
+import net.spy.pool.JDBCPoolFiller;
+import net.spy.pool.ObjectPool;
+import net.spy.pool.PooledObject;
+import net.spy.pool.PoolException;
+import net.spy.pool.PoolFiller;
 
 /**
  * SpyDB is an abstraction of both net.spy.pool and java.sql.

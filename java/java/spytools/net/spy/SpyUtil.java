@@ -1,13 +1,25 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.16 2002/02/21 01:32:30 dustin Exp $
+// $Id: SpyUtil.java,v 1.17 2002/07/10 04:24:42 dustin Exp $
 
 package net.spy;
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.security.*;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import java.security.SecureRandom;
+
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * Miscellaneous utilities.

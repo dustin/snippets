@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Authenticator.java,v 1.1 2001/07/11 09:30:50 dustin Exp $
+// $Id: Authenticator.java,v 1.2 2002/07/10 04:24:51 dustin Exp $
 
 package net.spy.aaa;
 
@@ -32,3 +32,4 @@ public abstract class Authenticator extends Object {
 	}
 
 }
+

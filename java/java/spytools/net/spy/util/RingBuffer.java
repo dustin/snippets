@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RingBuffer.java,v 1.1 2002/01/11 10:30:56 dustin Exp $
+// $Id: RingBuffer.java,v 1.2 2002/07/10 04:26:40 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A circular buffer.

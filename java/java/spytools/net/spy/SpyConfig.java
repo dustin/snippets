@@ -1,14 +1,18 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.15 2001/05/22 03:28:10 dustin Exp $
+ * $Id: SpyConfig.java,v 1.16 2002/07/10 04:24:36 dustin Exp $
  */
 
 package net.spy;
 
-import java.util.*;
-import java.lang.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
 
 /**
  * SpyConfig - an abstracted config file maintainer.

@@ -1,11 +1,20 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: DiskCache.java,v 1.2 2002/06/26 20:03:52 dustin Exp $
+// $Id: DiskCache.java,v 1.3 2002/07/10 04:25:01 dustin Exp $
 
 package net.spy.cache;
 
-import java.util.*;
-import java.security.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Simple local disk caching.

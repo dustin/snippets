@@ -1,15 +1,22 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.9 2001/05/07 07:46:09 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.10 2002/07/10 04:25:15 dustin Exp $
  */
 
 package net.spy.db;
 
-import java.util.*;
-import java.math.*;
-import java.io.*;
-import java.sql.*;
+import java.math.BigDecimal;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Types;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * This object represents a cached java.sql.ResultSet.  It will hopefully

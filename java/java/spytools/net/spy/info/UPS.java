@@ -1,13 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.10 2001/10/09 19:01:35 dustin Exp $
+// $Id: UPS.java,v 1.11 2002/07/10 04:25:39 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Get UPS info.

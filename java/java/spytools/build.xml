@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.8 2002/06/26 20:03:51 dustin Exp $
+	$Id: build.xml,v 1.9 2002/07/10 04:24:32 dustin Exp $
 
 	-->
 
@@ -29,6 +29,7 @@
 			</fileset>
 			<fileset dir=".">
 				<include name="spy.jar"/>
+				<include name="checkstyle.txt"/>
 			</fileset>
 		</delete>
 	</target>
@@ -133,5 +134,80 @@
 			<include name="net/spy/rmi/RObjectImpl.java"/>
 		</javac>
 	</target>
+
+	<!-- import scrubber -->
+	<target name="scrubimports">
+		<taskdef name="scrub"
+			classname="net.sourceforge.importscrubber.ant.ImportScrubberTask">
+			<classpath refid="myclasses"/>
+			<classpath>
+				<fileset dir="${user.home}/lib/importscrubber">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</taskdef>
+
+		<scrub root="." format="each" sortjavalibshigh="true" recurse="true"/>
+	</target>
+
+	<!-- PMD code checker -->
+	<target name="pmd">
+		<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+			<classpath>
+				<fileset dir="${user.home}/lib/java">
+					<include name="pmd-0.3.jar"/>
+				</fileset>
+			</classpath>
+		</taskdef>
+		<pmd reportFile="pmd-unused-report.html"
+			rulesetfiles="rulesets/unusedcode.xml"
+			format="html">
+			<fileset dir=".">
+				<include name="net/spy/**/*.java"/>
+			</fileset>
+		</pmd>
+			<pmd reportFile="pmd-basic-report.html"
+				rulesetfiles="rulesets/basic.xml"
+			format="html">
+			<fileset dir=".">
+				<include name="net/spy/**/*.java"/>
+			</fileset>
+		</pmd>
+			<pmd reportFile="pmd-design-report.html"
+				rulesetfiles="rulesets/design.xml"
+			format="html">
+			<fileset dir=".">
+				<include name="net/spy/**/*.java"/>
+			</fileset>
+		</pmd>
+	</target>
+
+	<!-- checkstyle -->
+	<target name="checkstyle">
+		<taskdef name="checkstyle"
+			classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
+			<classpath>
+				<fileset dir="${user.home}/lib/checkstyle">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</taskdef>
+
+		<delete file="checkstyle.txt"/>
+
+		<checkstyle
+			allowtabs="yes"
+			tabwidth="4"
+			allowNoAuthor="yes"
+			requirePackageHtml="yes"
+			javadocScope="nothing"
+			ignorewhitespace="yes">
+			<fileset dir=".">
+				<include name="net/spy/**/*.java"/>
+			</fileset>
+			<formatter type="plain" toFile="checkstyle.txt"/>
+		</checkstyle>
+	</target>
+
 
 </project>

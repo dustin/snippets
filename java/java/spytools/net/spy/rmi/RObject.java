@@ -1,12 +1,10 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObject.java,v 1.3 2000/06/30 05:59:13 dustin Exp $
+// $Id: RObject.java,v 1.4 2002/07/10 04:26:18 dustin Exp $
 
 package net.spy.rmi;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-
-import java.util.*;
 
 /**
  * RObject is an RMI service that allows you to access a hash table stored

@@ -1,11 +1,16 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.23 2001/05/25 00:21:18 dustin Exp $
+// $Id: ObjectPool.java,v 1.24 2002/07/10 04:26:06 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import net.spy.SpyConfig;
+
+import net.spy.util.Debug;
 import net.spy.util.TimeStampedHash;
 
 /**

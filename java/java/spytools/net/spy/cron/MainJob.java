@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MainJob.java,v 1.2 2001/04/04 08:45:21 dustin Exp $
+// $Id: MainJob.java,v 1.3 2002/07/10 04:25:11 dustin Exp $
 
 package net.spy.cron;
 
-import java.util.*;
+import java.util.Date;
+
 import net.spy.SpyUtil;
 
 /**

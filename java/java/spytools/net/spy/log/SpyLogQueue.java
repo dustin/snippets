@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.8 2001/07/03 08:31:44 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.9 2002/07/10 04:25:51 dustin Exp $
  */
 
 package net.spy.log;
 
-import java.util.Vector;
 import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * This class performs the actual queue management for the SpyLog system.

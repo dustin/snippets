@@ -1,10 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Job.java,v 1.2 2001/04/03 07:37:23 dustin Exp $
+// $Id: Job.java,v 1.3 2002/07/10 04:25:07 dustin Exp $
 
 package net.spy.cron;
 
-import java.util.*;
+import java.util.Date;
 
 /**
  * All Jobs should implement this interface.

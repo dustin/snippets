@@ -1,11 +1,14 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyPermissionCollection.java,v 1.1 2001/07/11 09:30:52 dustin Exp $
+// $Id: SpyPermissionCollection.java,v 1.2 2002/07/10 04:24:53 dustin Exp $
 
 package net.spy.aaa;
 
-import java.security.*;
-import java.util.*;
+import java.security.Permission;
+import java.security.PermissionCollection;
+
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A collection of permissions.

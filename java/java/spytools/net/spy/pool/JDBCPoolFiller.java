@@ -1,10 +1,14 @@
 //
-// $Id: JDBCPoolFiller.java,v 1.7 2001/08/30 00:51:17 dustin Exp $
+// $Id: JDBCPoolFiller.java,v 1.8 2002/07/10 04:26:05 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+import java.util.Enumeration;
+import java.util.Properties;
+
 import net.spy.SpyConfig;
 
 /**

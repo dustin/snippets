@@ -1,12 +1,15 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyMessage.java,v 1.1 2001/04/13 05:07:28 dustin Exp $
+// $Id: SpyMessage.java,v 1.2 2002/07/10 04:25:53 dustin Exp $
 
 package net.spy.log;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.Serializable;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
 
 /**
  * Log message for use in textual logs.

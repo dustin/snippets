@@ -1,10 +1,9 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyDoubleComparable.java,v 1.2 2001/04/03 07:59:33 dustin Exp $
+// $Id: SpyDoubleComparable.java,v 1.3 2002/07/10 04:26:46 dustin Exp $
 
 package net.spy.util;
 
-import java.util.Date;
 
 /**
  * Compare Doubles for SpySort.

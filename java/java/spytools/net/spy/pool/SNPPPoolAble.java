@@ -1,10 +1,8 @@
 //
-// $Id: SNPPPoolAble.java,v 1.4 2001/08/30 00:51:22 dustin Exp $
+// $Id: SNPPPoolAble.java,v 1.5 2002/07/10 04:26:15 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
-import net.spy.SpyConfig;
 import net.spy.net.SNPP;
 
 /**

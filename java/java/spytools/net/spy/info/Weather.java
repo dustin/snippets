@@ -1,13 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.10 2001/06/21 00:07:31 dustin Exp $
+// $Id: Weather.java,v 1.11 2002/07/10 04:25:41 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Get Weather info from weather.com

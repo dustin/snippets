@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: AuthableImpl.java,v 1.1 2001/07/11 09:30:49 dustin Exp $
+// $Id: AuthableImpl.java,v 1.2 2002/07/10 04:24:50 dustin Exp $
 
 package net.spy.aaa;
 
@@ -27,3 +27,4 @@ public class AuthableImpl extends Object implements Authable {
 	}
 
 }
+

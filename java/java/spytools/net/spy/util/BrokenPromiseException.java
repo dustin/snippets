@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: BrokenPromiseException.java,v 1.1 2001/06/07 07:51:13 dustin Exp $
+// $Id: BrokenPromiseException.java,v 1.2 2002/07/10 04:26:27 dustin Exp $
 
 package net.spy.util;
 
@@ -25,3 +25,4 @@ public class BrokenPromiseException extends NestedException {
 	}
 
 }
+

@@ -1,13 +1,13 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Stocks.java,v 1.4 2001/02/07 06:31:18 dustin Exp $
+// $Id: Stocks.java,v 1.5 2002/07/10 04:25:37 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.net.HTTPFetch;
 
 /**
  * Get stock quotes.

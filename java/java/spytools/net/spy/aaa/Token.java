@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Token.java,v 1.1 2001/07/11 09:30:54 dustin Exp $
+// $Id: Token.java,v 1.2 2002/07/10 04:24:58 dustin Exp $
 
 package net.spy.aaa;
 
@@ -40,3 +40,4 @@ public class Token extends Object {
 	}
 
 }
+

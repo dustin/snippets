@@ -1,10 +1,10 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.6 2001/02/07 06:31:17 dustin Exp $
+// $Id: StockQuote.java,v 1.7 2002/07/10 04:25:35 dustin Exp $
 
 package net.spy.info;
 
-import net.spy.*;
+import net.spy.SpyUtil;
 
 /**
  * An individual stock quote.

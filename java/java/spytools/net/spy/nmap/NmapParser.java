@@ -1,13 +1,17 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapParser.java,v 1.4 2001/02/07 06:31:33 dustin Exp $
+// $Id: NmapParser.java,v 1.5 2002/07/10 04:26:01 dustin Exp $
 
 package net.spy.nmap;
 
-import java.lang.*;
-import java.util.*;
-import java.io.*;
-import net.spy.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * NMAP log parser.  After creating an nmap machine parseable log, you can

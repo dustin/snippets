@@ -1,11 +1,15 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.6 2001/07/03 09:30:27 dustin Exp $
+// $Id: Debug.java,v 1.7 2002/07/10 04:26:28 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
+import java.util.Date;
+import java.util.Hashtable;
 
 /**
  * Generic Debug logger.  Logs to a file that's listed in a System

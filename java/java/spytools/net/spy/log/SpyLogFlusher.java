@@ -1,16 +1,18 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.15 2001/07/03 08:59:23 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.16 2002/07/10 04:25:50 dustin Exp $
  */
 
 package net.spy.log;
 
-import net.spy.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 
-import java.lang.*;
-import java.util.*;
-import java.io.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * SpyLogFlusher does the actual work of SpyLog.  This is where the log

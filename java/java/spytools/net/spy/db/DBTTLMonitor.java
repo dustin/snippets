@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTTLMonitor.java,v 1.1 2002/02/13 20:27:18 dustin Exp $
+// $Id: DBTTLMonitor.java,v 1.2 2002/07/10 04:25:22 dustin Exp $
 
 package net.spy.db;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * Monitors TTLs.

@@ -1,10 +1,9 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyIntegerComparable.java,v 1.2 2001/04/03 07:59:34 dustin Exp $
+// $Id: SpyIntegerComparable.java,v 1.3 2002/07/10 04:26:48 dustin Exp $
 
 package net.spy.util;
 
-import java.util.Date;
 
 /**
  * Compare Integers for SpySort.

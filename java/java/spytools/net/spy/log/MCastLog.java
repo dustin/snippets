@@ -1,11 +1,17 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MCastLog.java,v 1.2 2001/04/13 06:23:42 dustin Exp $
+// $Id: MCastLog.java,v 1.3 2002/07/10 04:25:45 dustin Exp $
 
 package net.spy.log;
 
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 /**
  * Multicast log sender.

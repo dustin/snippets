@@ -1,12 +1,9 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapPort.java,v 1.2 2001/02/07 06:31:34 dustin Exp $
+// $Id: NmapPort.java,v 1.3 2002/07/10 04:26:02 dustin Exp $
 
 package net.spy.nmap;
 
-import java.lang.*;
-import java.util.*;
-import net.spy.*;
 
 public class NmapPort extends Object {
 

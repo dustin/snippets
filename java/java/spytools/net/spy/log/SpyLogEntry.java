@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SpyLogEntry.java,v 1.1 2000/07/19 03:22:33 dustin Exp $
+// $Id: SpyLogEntry.java,v 1.2 2002/07/10 04:25:49 dustin Exp $
 
 package net.spy.log;
 
@@ -20,3 +20,4 @@ public class SpyLogEntry extends Object {
 		return("ERROR:  Method should be overridden");
 	}
 }
+

@@ -1,14 +1,12 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.10 2001/08/06 21:35:02 dustin Exp $
+ * $Id: SpyLog.java,v 1.11 2002/07/10 04:25:48 dustin Exp $
  */
 
 package net.spy.log;
 
-import net.spy.*;
-
-import java.util.*;
+import java.util.Vector;
 
 /**
  * The Spy Asyncrhonous logger.

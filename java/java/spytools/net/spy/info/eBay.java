@@ -1,13 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.6 2002/05/30 18:04:01 dustin Exp $
+// $Id: eBay.java,v 1.7 2002/07/10 04:25:42 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Get eBay info.

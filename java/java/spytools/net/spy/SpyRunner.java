@@ -1,13 +1,12 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.9 2001/05/22 03:28:12 dustin Exp $
+// $Id: SpyRunner.java,v 1.10 2002/07/10 04:24:39 dustin Exp $
 
 package net.spy;
 
-import java.lang.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.*;
+import java.io.File;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * SpyRunner - a hack-ass application server.

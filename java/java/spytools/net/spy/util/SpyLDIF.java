@@ -1,10 +1,15 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.12 2001/04/03 07:59:35 dustin Exp $
+// $Id: SpyLDIF.java,v 1.13 2002/07/10 04:26:49 dustin Exp $
 
 package net.spy.util;
 
-import java.util.*;
-import java.io.*;
+import java.io.Reader;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import net.spy.SpyUtil;
 
 /**

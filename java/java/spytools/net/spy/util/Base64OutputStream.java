@@ -1,10 +1,14 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64OutputStream.java,v 1.4 2001/04/26 07:21:58 dustin Exp $
+// $Id: Base64OutputStream.java,v 1.5 2002/07/10 04:26:26 dustin Exp $
 
 package net.spy.util;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * A FilterOutputStream that encodes data into Base64.

@@ -1,10 +1,12 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.7 2001/04/03 07:59:28 dustin Exp $
+// $Id: Base64.java,v 1.8 2002/07/10 04:26:23 dustin Exp $
 
 package net.spy.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 /**
  * Base64 block encoder/decoder.

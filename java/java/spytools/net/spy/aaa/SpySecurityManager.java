@@ -1,13 +1,15 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpySecurityManager.java,v 1.1 2001/07/11 09:30:53 dustin Exp $
+// $Id: SpySecurityManager.java,v 1.2 2002/07/10 04:24:57 dustin Exp $
 
 package net.spy.aaa;
 
-import java.security.*;
-import java.util.*;
+import java.security.Permission;
+import java.security.PermissionCollection;
 
-import net.spy.util.*;
+import java.util.Enumeration;
+
+import net.spy.util.TimeStampedHash;
 
 /**
  * A flexible SecurityManager type thing for use within applications.

@@ -1,5 +1,5 @@
 //
-// $Id: PooledObject.java,v 1.6 2001/03/19 20:27:35 dustin Exp $
+// $Id: PooledObject.java,v 1.7 2002/07/10 04:26:13 dustin Exp $
 
 package net.spy.pool;
 
@@ -78,3 +78,4 @@ public class PooledObject extends Object {
 		pooldebug.debug(what);
 	}
 }
+

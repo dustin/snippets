@@ -1,9 +1,8 @@
 //
-// $Id: PoolFiller.java,v 1.5 2001/08/30 00:51:21 dustin Exp $
+// $Id: PoolFiller.java,v 1.6 2002/07/10 04:26:12 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
 import net.spy.SpyConfig;
 
 /**

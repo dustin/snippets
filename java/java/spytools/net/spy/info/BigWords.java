@@ -1,13 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: BigWords.java,v 1.3 2001/02/14 02:14:02 dustin Exp $
+// $Id: BigWords.java,v 1.4 2002/07/10 04:25:27 dustin Exp $
 
 package net.spy.info;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import net.spy.*;
-import net.spy.net.*;
+import net.spy.SpyUtil;
+
+import net.spy.net.HTTPFetch;
 
 /**
  * Look up a book by ISBN from BigWords.com.

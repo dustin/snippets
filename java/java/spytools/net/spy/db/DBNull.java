@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBNull.java,v 1.1 2001/03/27 09:30:50 dustin Exp $
+// $Id: DBNull.java,v 1.2 2002/07/10 04:25:16 dustin Exp $
 
 package net.spy.db;
 
@@ -25,4 +25,5 @@ public class DBNull extends Object {
 		return type;
 	}
 }
+
 

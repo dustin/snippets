@@ -1,10 +1,9 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: WatchDog.java,v 1.2 2000/10/13 06:50:13 dustin Exp $
+// $Id: WatchDog.java,v 1.3 2002/07/10 04:24:45 dustin Exp $
 
 package net.spy;
 
-import java.lang.*;
 
 /**
  * A simple watchdog timer.

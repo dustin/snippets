@@ -1,11 +1,12 @@
 //
-// $Id: JDBCPoolAble.java,v 1.7 2002/03/01 21:25:34 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.8 2002/07/10 04:26:04 dustin Exp $
 
 package net.spy.pool;
 
-import java.util.*;
-import java.sql.*;
-import net.spy.SpyConfig;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 
 /**
  * PoolAble object for containing a JDBC object.

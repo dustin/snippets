@@ -1,9 +1,11 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIFReader.java,v 1.2 2001/04/03 07:59:37 dustin Exp $
+// $Id: SpyLDIFReader.java,v 1.3 2002/07/10 04:26:51 dustin Exp $
 
 package net.spy.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Reader of .ldif files.

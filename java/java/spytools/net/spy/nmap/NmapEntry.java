@@ -1,12 +1,13 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapEntry.java,v 1.2 2001/02/07 06:31:31 dustin Exp $
+// $Id: NmapEntry.java,v 1.3 2002/07/10 04:26:00 dustin Exp $
 
 package net.spy.nmap;
 
-import java.lang.*;
-import java.util.*;
-import net.spy.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import net.spy.SpyUtil;
 
 public class NmapEntry extends Object {
 	// The actual line of data

@@ -1,11 +1,14 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: CacheClearRequestListener.java,v 1.2 2001/07/28 00:21:48 dustin Exp $
+// $Id: CacheClearRequestListener.java,v 1.3 2002/07/10 04:24:59 dustin Exp $
 
 package net.spy.cache;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 /**
  * Listen for multicast request to clear cache for a given prefix.

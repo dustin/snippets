@@ -1,10 +1,15 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.4 2001/08/09 08:43:07 dustin Exp $
+// $Id: UUInputStream.java,v 1.5 2002/07/10 04:26:57 dustin Exp $
 
 package net.spy.util;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilterInputStream;
+import java.io.InputStream;
+import java.io.IOException;
+
 import java.util.StringTokenizer;
 
 /**

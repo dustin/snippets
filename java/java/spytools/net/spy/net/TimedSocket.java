@@ -1,13 +1,15 @@
 /*
  * Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
  *
- * $Id: TimedSocket.java,v 1.3 2001/07/27 22:49:32 dustin Exp $
+ * $Id: TimedSocket.java,v 1.4 2002/07/10 04:25:58 dustin Exp $
  */
 
 package net.spy.net;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+
+import java.net.InetAddress;
+import java.net.Socket;
 
 /**
  * Because java doesn't have the ability to timeout on a connection, this

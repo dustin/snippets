@@ -1,13 +1,11 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSQL.java,v 1.1 2001/03/27 09:30:52 dustin Exp $
+// $Id: DBSQL.java,v 1.2 2002/07/10 04:25:19 dustin Exp $
 
 package net.spy.db;
 
-import java.util.*;
-import java.util.Date; // Avoid ambiguous class with java.sql.Date
-import java.sql.*;
-import java.math.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import net.spy.SpyConfig;
 

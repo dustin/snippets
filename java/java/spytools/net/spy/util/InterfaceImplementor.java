@@ -6,9 +6,14 @@
 
 package net.spy.util;
 
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import java.util.Hashtable;
 
 /**
  * Think Java Interfaces are even more stupid than the lack of multiple
