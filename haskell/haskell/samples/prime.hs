@@ -67,6 +67,10 @@ primeNearest a
 primeBetween3 :: Integer -> Integer -> Integer
 primeBetween3 a b = primeNearest(a+(truncate(fromIntegral(b - a)/2))::Integer)
 
+-- Use div instead of truncate/fromIntegral/cast for integer division
+primeBetween4 :: Integer -> Integer -> Integer
+primeBetween4 a b = primeNearest(a+((b - a) `div` 2))
+
 -- Create a list of the primes that are furthest away from powers of two
 
 powersOfTwo = [ 2 ^ x | x <- [1..32]]
