@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.5 1999/10/10 08:44:14 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.6 1999/10/10 19:54:57 dustin Exp $
  */
 
 import java.sql.*;
@@ -59,11 +59,17 @@ public class PhotoHelper
 
 		// The path to the database...
 		photo = dbs.getConnection();
+		if(photo == null) {
+			log("DB:  Could not get database connection");
+		} else {
+			log("DB:  Got connection:  " + dbs.idOfConnection(photo));
+		}
 		return(photo);
 	}
 
 	// Gotta free the connection
 	protected void freeDBConn(Connection conn) {
+		log("DB:  Freeing " + dbs.idOfConnection(conn));
 		dbs.freeConnection(conn);
 	}
 }

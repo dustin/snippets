@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.30 1999/10/10 19:44:19 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.31 1999/10/10 19:54:58 dustin Exp $
  */
 
 import java.io.*;
@@ -269,11 +269,17 @@ public class PhotoServlet extends HttpServlet
 				reInitialize();
 			}
 		}
+		if(photo==null) {
+			log("DB:  Could not get database connection");
+		} else {
+			log("DB:  Getting " + dbs.idOfConnection(photo));
+		}
 		return(photo);
 	}
 
 	// Gotta free the connection
 	protected void freeDBConn(Connection conn) {
+		log("DB:  Freeing " + dbs.idOfConnection(conn));
 		dbs.freeConnection(conn);
 	}
 
