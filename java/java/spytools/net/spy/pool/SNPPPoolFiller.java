@@ -1,5 +1,5 @@
 //
-// $Id: SNPPPoolFiller.java,v 1.1 2000/07/04 09:44:10 dustin Exp $
+// $Id: SNPPPoolFiller.java,v 1.2 2000/07/27 19:21:52 dustin Exp $
 
 package net.spy.pool;
 
@@ -47,12 +47,14 @@ public class SNPPPoolFiller extends PoolFiller {
 
 			port=getPropertyInt("snppPort", 444);
 
+			int timeout=getPropertyInt("snppTimeout", 0);
+
 			long max_age=(long)getPropertyInt("max_age", 0);
 
 			// Grab a connection.
-			SNPP db = new SNPP(hostname, port);
+			SNPP snpp = new SNPP(hostname, port, timeout);
 			// Create the PoolAble object
-			p=new SNPPPoolAble(db, max_age);
+			p=new SNPPPoolAble(snpp, max_age);
 		} catch(Exception e) {
 			throw new PoolException(
 				"Error getting new SNPP object for the "

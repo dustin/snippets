@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.9 2000/03/21 20:51:08 dustin Exp $
+// $Id: SNPP.java,v 1.10 2000/07/27 19:21:50 dustin Exp $
 
 package net.spy.net;
 
@@ -48,6 +48,35 @@ public class SNPP {
 	 *
 	 * @param host SNPP host to connect to
 	 * @param port SNPP port number
+	 * @param timeout SO_TIMEOUT in milliseconds
+	 *
+	 * @exception IOException Thrown if the various input and output
+	 * streams cannot be established.
+	 *
+	 * @exception UnknownHostException Thrown if the SNPP server hostname
+	 * cannot be resolved.
+	 */
+	public SNPP(String host, int port, int timeout)
+		throws IOException, UnknownHostException {
+		s = new Socket(host, port);
+
+		if(timeout>0) {
+			s.setSoTimeout(timeout);
+		}
+
+		in=s.getInputStream();
+		din = new BufferedReader(new InputStreamReader(in));
+		out=s.getOutputStream();
+		prout=new PrintWriter(out);
+
+		getaline();
+	}
+
+	/**
+	 * Get a new SNPP object connected to host:port
+	 *
+	 * @param host SNPP host to connect to
+	 * @param port SNPP port number
 	 *
 	 * @exception IOException Thrown if the various input and output
 	 * streams cannot be established.
@@ -57,14 +86,7 @@ public class SNPP {
 	 */
 	public SNPP(String host, int port)
 		throws IOException, UnknownHostException {
-		s = new Socket(host, port);
-
-		in=s.getInputStream();
-		din = new BufferedReader(new InputStreamReader(in));
-		out=s.getOutputStream();
-		prout=new PrintWriter(out);
-
-		getaline();
+		this(host, port, 0);
 	}
 
 	/**

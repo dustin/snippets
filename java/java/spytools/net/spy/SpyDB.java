@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.18 2000/07/04 07:42:25 dustin Exp $
+ * $Id: SpyDB.java,v 1.19 2000/07/27 19:21:45 dustin Exp $
  */
 
 package net.spy;
@@ -129,7 +129,7 @@ public class SpyDB extends Object {
 
 	}
 
-	protected void createPool() throws PoolException {
+	protected synchronized void createPool() throws PoolException {
 		// We'll need a config to translate into
 		SpyConfig tmpconf=new SpyConfig();
 

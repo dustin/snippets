@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.3 2000/07/26 08:49:57 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.4 2000/07/27 19:21:48 dustin Exp $
  */
 
 package net.spy.log;
@@ -38,27 +38,46 @@ public class SpyLogFlusher extends Thread {
 	 * can be overridden.
 	 */
 	public String logfile = "/tmp/spy.log";
+	protected String queue_name=null;
 
 	/**
-	 * Get a SpyFlusher and place it in a given threadgroup.
+	 * Get a SpyFlusher for the given queue.
+	 */
+	public SpyLogFlusher(String name) {
+		super();
+		setDaemon(true);
+		setName("SpyLogFlusher-" + name);
+		this.queue_name=name;
+		configure();
+	}
+
+	/**
+	 * Get a SpyFlusher for the given queue in the given ThreadGroup
+	 */
+	public SpyLogFlusher(String name, ThreadGroup t) {
+		super(t, "SpyLogFlusher");
+		setDaemon(true);
+		setName("SpyLogFlusher-" + name);
+		this.queue_name=name;
+		configure();
+	}
+
+	/**
+	 * Get a SpyFlusher.
+	 * @deprecated Please provide a queue name
 	 */
 	public SpyLogFlusher() {
-		super("log_flusher");
-		setDaemon(true);
-		setName("SpyLogFlusher");
-		configure();
+		this("GenericSpyLogQueue");
 	}
 
 	/**
 	 * Get a SpyFlusher and place it in a given threadgroup.
 	 *
 	 * @param t the threadgroup in which the SpyFlusher should be placed.
+	 * @deprecated Please provide a queue name
 	 */
 	public SpyLogFlusher(ThreadGroup t) {
-		super(t, "log_flusher");
-		setDaemon(true);
-		setName("SpyLogFlusher");
-		configure();
+		this("GenericSpyLogQueue", t);
 	}
 
 	/**
@@ -94,7 +113,7 @@ public class SpyLogFlusher extends Thread {
 	}
 
 	public void run() {
-		log_queue = new SpyLogQueue();
+		log_queue = new SpyLogQueue(queue_name);
 
 		for(;;) {
 			try {

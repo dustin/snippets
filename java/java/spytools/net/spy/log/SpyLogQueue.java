@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.3 2000/07/27 01:59:22 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.4 2000/07/27 19:21:49 dustin Exp $
  */
 
 package net.spy.log;
 
 import java.util.Vector;
+import java.util.Hashtable;
 
 /**
  * This class performs the actual queue management for the SpyLog system.
@@ -14,32 +15,57 @@ import java.util.Vector;
  */
 
 public class SpyLogQueue extends Object {
-	protected static Vector log_buffer=null;
-	protected final static String log_mutex="Log Mutex";
+	protected static Hashtable queues=null;
+	protected final static String queue_mutex="Log Mutex";
+	protected String queue_name=null;
 
+	/**
+	 * @deprecated Please specify a queue name.
+	 */
 	public SpyLogQueue() {
-		super();
+		this("GenericSpyLogQueue");
+	}
 
+	public SpyLogQueue(String name) {
+		super();
+		this.queue_name=name;
 		init();
 	}
 
 	protected synchronized void init() {
-		synchronized(log_mutex) {
-			if(log_buffer==null) {
-				log_buffer=new Vector();
+		synchronized(queue_mutex) {
+			if(queues==null) {
+				queues=new Hashtable();
+			}
+
+			Vector v=(Vector)queues.get(queue_name);
+			if(v==null) {
+				v=new Vector();
+				queues.put(queue_name, v);
 			}
 		}
 	}
 
+	protected Vector getQueue() {
+		Vector v=null;
+		synchronized(queue_mutex) {
+			v=(Vector)queues.get(queue_name);
+		}
+		return(v);
+	}
+
 	/**
-	 * Add a new item to the queue.
+	 * Add a new item to a queue.
 	 *
-	 * @SpyLogEntry item to be added.
+	 * @param e item to be added
 	 */
 	public void addToQueue(SpyLogEntry e) {
-		synchronized(log_mutex) {
-			log_buffer.addElement(e);
-			log_mutex.notify();
+		Vector v=getQueue();
+		synchronized(v) {
+			v.addElement(e);
+		}
+		synchronized(queue_mutex) {
+			queue_mutex.notify();
 		}
 	}
 
@@ -50,17 +76,18 @@ public class SpyLogQueue extends Object {
 	 */
 	public void waitForQueue(long ms) {
 		int size=0;
+		Vector log_buffer=getQueue();
 
 		// Figure out the size first.
-		synchronized(log_mutex) {
+		synchronized(queue_mutex) {
 			size=log_buffer.size();
 		}
 
 		if(size<=0) {
 			// Only do this if we don't already think we have data
 			try {
-				synchronized(log_mutex) {
-					log_mutex.wait(ms);
+				synchronized(queue_mutex) {
+					queue_mutex.wait(ms);
 				}
 			} catch(InterruptedException e) {
 				// If we are going to return too early, pause just a sec
@@ -82,7 +109,8 @@ public class SpyLogQueue extends Object {
 	 */
 	public int size() {
 		int size=-1;
-		synchronized(log_mutex) {
+		Vector log_buffer=getQueue();
+		synchronized(queue_mutex) {
 			size=log_buffer.size();
 		}
 		return(size);
@@ -94,9 +122,11 @@ public class SpyLogQueue extends Object {
 	 */
 	public Vector flush() {
 		Vector ret=null;
-		synchronized(log_mutex) {
+		Vector log_buffer=getQueue();
+		synchronized(queue_mutex) {
 			ret=log_buffer;          // Copy the old vector's reference.
 			log_buffer=new Vector(); // Create a new one.
+			queues.put(queue_name, log_buffer);
 		}
 		return(ret);
 	}
