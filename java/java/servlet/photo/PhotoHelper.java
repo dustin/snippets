@@ -1,20 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.1 1999/09/28 05:46:07 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.2 1999/09/28 06:21:13 dustin Exp $
  */
 
-import java.io.*;
 import java.sql.*;
-import java.text.*;
 import java.util.*;
-import java.net.*;
-import sun.misc.*;
+import java.lang.*;
 
-// import javax.servlet.*;
-// import javax.servlet.http.*;
-
-import com.oreilly.servlet.*;
 import com.javaexchange.dbConnectionBroker.*;
 
 
