@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.4 2002/02/24 07:25:57 dustin Exp $
+// $Id: ThreadPool.java,v 1.5 2002/05/23 18:55:44 dustin Exp $
 
 package net.spy.util;
 
@@ -22,6 +22,9 @@ public class ThreadPool extends Object {
 
 	// Private thread ID allocator for the inner class.
 	private static int thread_ids=0;
+
+	// Set to true when shutdown is called.
+	private boolean shutdown=false;
 
 	/**
 	 * Get an instance of ThreadPool.
@@ -93,6 +96,20 @@ public class ThreadPool extends Object {
 	}
 
 	/**
+	 * Find out how many threads are still active in the pool.
+	 */
+	public int getActiveThreadCount() {
+		int rv=0;
+		for(Enumeration e=threads.elements(); e.hasMoreElements(); ) {
+			RunThread t=(RunThread)e.nextElement();
+			if(t.isAlive()) {
+				rv++;
+			}
+		}
+		return(rv);
+	}
+
+	/**
 	 * Tell all the threads to shut down after they finish their current
 	 * tasks.
 	 */
@@ -101,6 +118,7 @@ public class ThreadPool extends Object {
 			RunThread t=(RunThread)e.nextElement();
 			t.shutdown();
 		}
+		shutdown=true;
 	}
 
 	/**
@@ -111,6 +129,18 @@ public class ThreadPool extends Object {
 			synchronized(monitor) {
 				monitor.wait(5000);
 			}
+		}
+	}
+
+	/**
+	 * Wait until there are no more threads processing.
+	 */
+	public void waitForThreads() throws InterruptedException {
+		if(!shutdown) {
+			throw new IllegalStateException("Not shut down.");
+		}
+		while(getActiveThreadCount() > 0) {
+			Thread.sleep(1);
 		}
 	}
 
