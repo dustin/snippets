@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.3 1999/09/12 19:04:23 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.4 1999/09/13 03:32:44 dustin Exp $
  */
 
 import java.io.*;
@@ -21,6 +21,13 @@ public class PhotoServlet extends HttpServlet
 	static Statement st;
 	static Integer remote_uid;
 	static String remote_user;
+
+	// Do a POST request
+	public void doPost (
+		HttpServletRequest request, HttpServletResponse response
+	) throws ServletException, IOException {
+		doGet(request, response);
+	}
 
 	// Do a GET request
 	public void doGet (
@@ -69,28 +76,14 @@ public class PhotoServlet extends HttpServlet
 
 		if(func.equalsIgnoreCase("search")) {
 			doFind(request, response);
+		} else if(func.equalsIgnoreCase("display")) {
+			doDisplay(request, response);
 		} else if(func.equalsIgnoreCase("getimage")) {
-			response.setContentType("image/jpeg");
-			String s = request.getParameter("photo_id");
-			try {
-				showImage(Integer.valueOf(s), response);
-			} catch(Exception e) {
-				throw new ServletException ("Mother fucker...");
-			}
+			showImage(request, response);
 		} else {
 			throw new ServletException("No known function.");
 		}
 
-/*
-		response.setContentType("image/jpeg");
-		String s = request.getParameter("photo_id");
-		// Fiznetch
-		try {
-			showImage(Integer.valueOf(s), response);
-		} catch(Exception e) {
-			throw new ServletException ("Mother fucker...");
-		}
-*/
 	}
 
 	// Get the UID
@@ -323,6 +316,65 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Find and display images.
+	private static void doDisplay(
+		HttpServletRequest request, HttpServletResponse response)
+		throws ServletException {
+		String query, output = "";
+		int i;
+		Integer image_id;
+		String stmp;
+		Hashtable h = new Hashtable();
+
+		stmp = request.getParameter("id");
+		if(stmp == null) {
+			throw new ServletException("Not enough information.");
+		}
+		image_id=Integer.valueOf(stmp);
+
+		query = "select a.id,a.keywords,a.descr,\n"
+			+ "   a.size,a.taken,a.ts,b.name,a.cat,a.addedby,b.id\n"
+			+ "   from album a, cat b\n"
+			+ "   where a.cat=b.id and a.id=" + image_id
+			+ "\n and a.cat in (select cat from wwwacl where "
+			+ "userid=" + remote_uid + ")\n";
+
+		output += "<!-- Query:\n" + query + "\n-->\n";
+
+		try {
+			st = photo.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			if(rs.next() == false) {
+				throw new ServletException("No data found for that id.");
+			}
+
+			h.put("IMAGE",     rs.getString(1));
+			h.put("KEYWORDS",  rs.getString(2));
+			h.put("INFO",      rs.getString(3));
+			h.put("SIZE",      rs.getString(4));
+			h.put("TAKEN",     rs.getString(5));
+			h.put("TIMESTAMP", rs.getString(6));
+			h.put("CAT",       rs.getString(7));
+			h.put("CATNUM",    rs.getString(8));
+			h.put("ADDEDBY",   rs.getString(9));
+		} catch(SQLException e) {
+			throw new ServletException("Some kinda SQL problem.");
+		}
+		Toker t=new Toker();
+		output += t.tokenize("/tmp/display.inc", h);
+
+		// set content type and other response header fields first
+		response.setContentType("text/html");
+		try {
+			PrintWriter out = response.getWriter();
+			out.print(output);
+			out.close();
+		} catch(IOException e) {
+		}
+
+	}
+
+	// Find and display images.
 	private static void doFind(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
@@ -357,21 +409,25 @@ public class PhotoServlet extends HttpServlet
 			ResultSet rs = st.executeQuery(query);
 			i = 0;
 			while(rs.next()) {
-				if (i >= start && i < (max+start) ) {
+				if (i >= start && ( ( max == 0 ) || ( i < (max+start) ) ) ) {
 					Hashtable h = new Hashtable();
 					Toker t=new Toker();
 
 					h.put("KEYWORDS", rs.getString(1));
-					h.put("DESCR", rs.getString(2));
-					h.put("CAT", rs.getString(3));
-					h.put("SIZE", rs.getString(4));
-					h.put("TAKEN", rs.getString(5));
-					h.put("TS", rs.getString(6));
-					h.put("IMAGE", rs.getString(7));
-					h.put("CATNUM", rs.getString(8));
-					h.put("ADDEDBY", rs.getString(9));
+					h.put("DESCR",    rs.getString(2));
+					h.put("CAT",      rs.getString(3));
+					h.put("SIZE",     rs.getString(4));
+					h.put("TAKEN",    rs.getString(5));
+					h.put("TS",       rs.getString(6));
+					h.put("IMAGE",    rs.getString(7));
+					h.put("CATNUM",   rs.getString(8));
+					h.put("ADDEDBY",  rs.getString(9));
 
 					// System.out.println("Matched:  " + rs.getString(1));
+
+					if( ((i+1) % 2) == 0) {
+						output += "</tr>\n<tr>\n";
+					}
 
 					output += "<td>\n";
 					output += t.tokenize("/tmp/findmatch.inc", h);
@@ -396,16 +452,20 @@ public class PhotoServlet extends HttpServlet
 			out.close();
 		} catch(IOException e) {
 		}
+
 	}
 
 	// Show an image
-	private static void showImage(Integer which, HttpServletResponse response)
-		throws SQLException, IOException {
+	private static void showImage(HttpServletRequest request,
+		HttpServletResponse response) throws SQLException, IOException {
 
 		String query;
 		ServletOutputStream		out;
 
 		BASE64Decoder base64 = new BASE64Decoder();
+
+		response.setContentType("image/jpeg");
+		String s = request.getParameter("photo_id");
 
 		// Need a binary output thingy.
 		out = response.getOutputStream();
