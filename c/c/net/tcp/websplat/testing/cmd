@@ -1,11 +1,13 @@
 #!/bin/sh
 # Beyond.com test order
 
-HOST=monty.spice:8101
+HOST=www.beyond.com
+WEBSPLAT_COOKIE="basket_number=software.netcolton1956994132974110.2.31.253"
+export WEBSPLAT_COOKIE
 
-./websplat $* "\
-http://${HOST}/orders/order.htm?email=brutaltester%40foo%2Enet&em\
-ail2=brutaltester%40foo%2Enet&ship_first_name=Brutal&ship_last_name=Tester&c\
+../websplat $* "\
+https://${HOST}/orders/order.htm?email=nobody%40beyond%2Ecom&em\
+ail2=nobody%40beyond%2Ecom&ship_first_name=Brutal&ship_last_name=Tester&c\
 ompany=%20&ship_address_1=HardKnocks%20St%2E&ship_address_2=%20&ship_city=Ne\
 w%20York&ship_state_province=NY&ship_postal_code=10223&ship_country_code=US&\
 ship_phone=2124332345&bill_first_name=Brutal&bill_last_name=Tester&bill_addr\

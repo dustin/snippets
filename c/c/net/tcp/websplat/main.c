@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.21 1999/06/19 03:57:49 dustin Exp $
+ * $Id: main.c,v 1.22 2000/01/12 00:58:12 dustin Exp $
  */
 
 #include <config.h>
@@ -128,6 +128,10 @@ parseurl(char *url)
 	str_append(&grow, u.req);
 	str_append(&grow,  " HTTP/1.0\r\n");
 
+	str_append(&grow, "Host: ");
+	str_append(&grow, u.host);
+	str_append(&grow, "\r\n");
+
 	if(getenv("WEBSPLAT_COOKIE")) {
 		str_append(&grow,  "Cookie: ");
 		str_append(&grow,  getenv("WEBSPLAT_COOKIE"));
@@ -165,6 +169,8 @@ parseurl(char *url)
 
 	u.httpreq=grow.string;
 
+	_ndebug(3, ("Request\n%s\n", u.httpreq));
+
 	u.port = port;
 	return (u);
 }
@@ -172,7 +178,7 @@ parseurl(char *url)
 void
 usage(char **argv)
 {
-	printf("Usage:  %s [-NfdsS] [-n max_conns] [-t total_hits] request_url\n",
+	printf("Usage:  %s [-NfdsSp] [-n max_conns] [-t total_hits] request_url\n",
 	    argv[0]);
 	printf("\t-d Turns on debugging\n");
 	printf("\t-s Produces human readable statistics\n");
@@ -181,6 +187,7 @@ usage(char **argv)
 	printf("\t-t Total number of hits to complete\n");
 	printf("\t-N Use Nagle algorithm\n");
 	printf("\t-f Flush after every print\n");
+	printf("\t-p Keep max_conns connections open\n");
 }
 
 struct http_status
@@ -358,9 +365,10 @@ main(int argc, char **argv)
 {
 	int     s, selected, size, c, i, maxhits = 65535, totalhits = 0,
 	        n = 0, flags = 0, hit, sock_flags = 0;
-	fd_set  fdset, tfdset;
+	fd_set  fdset, tfdset, fdset2, tfdset2;
 	struct timeval timers[MAXSEL][3];
 	int     bytes[MAXSEL];
+	int		keep_populated=0;
 	struct timeval tmptime;
 	char    buf[8192];
 	struct url req;
@@ -373,7 +381,7 @@ main(int argc, char **argv)
 
 	req.port = -1;
 
-	while ((c = getopt(argc, argv, "Nfd:t:n:sS")) >= 0) {
+	while ((c = getopt(argc, argv, "Nfd:t:n:sSp")) >= 0) {
 		switch (c) {
 
 		case 'd':
@@ -394,6 +402,10 @@ main(int argc, char **argv)
 
 		case 's':
 			flags |= DO_STATS;
+			break;
+
+		case 'p':
+			keep_populated=1;
 			break;
 
 		case 'S':
@@ -428,53 +440,80 @@ main(int argc, char **argv)
 		req.host, req.port, req.req, maxhits));
 
 	FD_ZERO(&tfdset);
+	FD_ZERO(&tfdset2);
 
 	resettraps();
 
 	/* hit will be incremented on the inside, we count a hit by a closed
 	 * connection */
 	for (hit = 0; hit < totalhits;) {
-		if (n < maxhits) {
+		if (n < maxhits && (n + hit) < totalhits) {
 
-			if (flags & DO_STATS)
-				gettimeofday(&tmptime, tzp);
+			int numtoopen=1, iteration=0;
 
-			conn = getclientsocket(req, sock_flags);
-			s=conn.s;
-			conns[s]=conn;
-
-			if (flags & DO_STATS) {
-				gettimeofday(&timers[s][1], tzp);
-				timers[s][0] = tmptime;
+			/* If the keep_populated flag is set, we want to keep all of
+			 * our connections open */
+			if(keep_populated) {
+				numtoopen=maxhits-n;
+				_ndebug(2, ("n is %d, need to open %d connections\n",
+					n, numtoopen));
 			}
-			if (s > 0) {
-				_ndebug(1, ("Got one: %d...\n", s));
-				bytes[s] = 0;
-				FD_SET(s, &tfdset);
 
-				if (strings[s].string == NULL) {
-					strings[s].size = 1024 * sizeof(char);
-					strings[s].string = malloc(strings[s].size);
+			/* just so we can do this loop */
+			s=1;
+			for(iteration=0; iteration<numtoopen && s>=0; iteration++) {
+				if (flags & DO_STATS)
+					gettimeofday(&tmptime, tzp);
+
+				conn = getclientsocket(req, sock_flags);
+				s=conn.s;
+				conns[s]=conn;
+
+				if (flags & DO_STATS) {
+					gettimeofday(&timers[s][1], tzp);
+					timers[s][0] = tmptime;
 				}
-				strings[s].string[0] = 0x00;
+				if (s > 0) {
+					_ndebug(1, ("Got one: %d...\n", s));
+					bytes[s] = 0;
+					FD_SET(s, &tfdset);
 
-				/* Sending */
-				i = send_data(conn, req, req.httpreq);
-				_ndebug(2, ("Sent %d out of %d bytes\n",
-					i, strlen(req.httpreq)));
-				n++;
+					if (strings[s].string == NULL) {
+						strings[s].size = 1024 * sizeof(char);
+						strings[s].string = malloc(strings[s].size);
+					}
+					strings[s].string[0] = 0x00;
+
+					/* Mark this as something that needs to be sent */
+					FD_SET(s, &tfdset2);
+
+					n++;
+				}
 			}
 		}
 		fdset = tfdset;
+		fdset2 = tfdset2;
 
 		_ndebug(2, ("Selecting...\n"));
 
 		tmptime.tv_sec = 1;
 		tmptime.tv_usec = 0;
 
-		if ((selected = select(MAXSEL, &fdset, NULL, NULL, &tmptime)) > 0) {
-			int     i;
+		if ((selected = select(MAXSEL, &fdset, &fdset2, NULL, &tmptime)) > 0) {
 			for (i = 0; i < MAXSEL; i++) {
+
+				/* Do we need to send anything? */
+				if(FD_ISSET(i, &fdset2)) {
+					int sentb;
+					selected--;
+					sentb=send_data(conns[i], req, req.httpreq);
+					_ndebug(2, ("Sent %d out of %d bytes\n",
+						sentb, strlen(req.httpreq)));
+					/* We won't need to write to this again */
+					FD_CLR(i, &tfdset2);
+				}
+
+				/* Do we need to read anything? */
 				if (FD_ISSET(i, &fdset)) {
 					_ndebug(3, ("Caught %d\n", i));
 					selected--;
@@ -494,7 +533,7 @@ main(int argc, char **argv)
 								strings[i].string = NULL;
 							}
 						}
-						FD_CLR(i, &fdset);
+						FD_CLR(i, &tfdset);
 						n--;
 					} else {
 						bytes[i] += size;
