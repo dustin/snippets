@@ -66,7 +66,7 @@ public class ClassResolver extends ClassLoader {
 			ne.initCause(e);
 			throw ne;
 		}
-		loaded.add(name);
+		loaded.add(rv);
 		return(rv);
 	}
 
@@ -103,6 +103,7 @@ public class ClassResolver extends ClassLoader {
 			for(int i=0; i<args.length; i++) {
 				System.out.println("Loading " + args[i]);
 				Class c=cl.loadClass(args[i]);
+				System.out.println("Got " + c + " from " + c.getClassLoader());
 				c.newInstance();
 			}
 		} catch(Throwable t) {
@@ -110,8 +111,8 @@ public class ClassResolver extends ClassLoader {
 		}
 		System.out.println("Loaded classes:");
 		for(Iterator i=cl.getLoaded().iterator(); i.hasNext();) {
-			String nm=(String)i.next();
-			System.out.println(" " + nm);
+			Class c=(Class)i.next();
+			System.out.println(" " + c.getName() + " " + c.getClassLoader());
 		}
 	}
 
