@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.2 2000/03/28 08:48:39 dustin Exp $
+// $Id: Info.java,v 1.3 2000/06/16 03:04:07 dustin Exp $
 
 package net.spy.info;
 
@@ -13,7 +13,7 @@ import net.spy.net.*;
  * net.spy.info.* superclass -- extend this to provide info services
  */
 
-public class Info extends Object {
+public abstract class Info extends Object {
 
 	// Error if the thing doesn't believe it did what it should.
 	protected boolean error=true;
@@ -68,7 +68,9 @@ public class Info extends Object {
 	public String toXML() {
 		String ret="";
 		try {
-			parseInfo();
+			if(hinfo==null) {
+				parseInfo();
+			}
 			for(Enumeration e = hinfo.keys(); e.hasMoreElements(); ) {
 				String key=(String)e.nextElement();
 				String safekey=xmlSafe(key);
@@ -96,7 +98,9 @@ public class Info extends Object {
 	 * @param what which variable to get
 	 */
 	public String get(String what) throws Exception {
-		parseInfo();
+		if(hinfo==null) {
+			parseInfo();
+		}
 		String ret=(String) hinfo.get(what);
 		return(ret);
 	}
@@ -109,15 +113,17 @@ public class Info extends Object {
 	 * @param def default value
 	 */
 	public String get(String what, String def) throws Exception {
-		parseInfo();
-		String ret=(String) hinfo.get(what);
+		String ret=(String) get(what);
 		if(ret==null) {
 			ret=def;
 		}
 		return(ret);
 	}
 
-	// This needs to be overridden
+	protected abstract void parseInfo() throws Exception;
+	protected abstract void getInfo() throws Exception;
+
+/*
 	protected void parseInfo() throws Exception {
 		throw new Exception("parseInfo() must be overridden!");
 	}
@@ -125,4 +131,5 @@ public class Info extends Object {
 	protected void getInfo() throws Exception {
 		throw new Exception("getInfo() must be overridden!");
 	}
+*/
 }

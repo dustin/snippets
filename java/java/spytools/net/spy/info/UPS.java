@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.5 2000/05/01 07:11:27 dustin Exp $
+// $Id: UPS.java,v 1.6 2000/06/16 03:04:08 dustin Exp $
 
 package net.spy.info;
 
@@ -48,7 +48,8 @@ public class UPS extends Info {
 	public String toString() {
 		String ret="";
 		try {
-			parseInfo();
+			// Force it to have done everything it needs.
+			get("ERROR");
 			// Deal with not getting our data.
 			if(error) {
 				ret+=get("ERROR", "An unknown error has occurred");
