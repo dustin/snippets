@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.4 2001/02/07 06:31:06 dustin Exp $
+ * $Id: SpyCache.java,v 1.5 2001/05/21 23:05:44 dustin Exp $
  */
 
 package net.spy.cache;
@@ -12,7 +12,7 @@ import java.util.*;
  * Spy in-memory cache object.
  */
 public class SpyCache extends Object {
-	private static Hashtable cacheStore=null;
+	private static SpyCacheStore cacheStore=null;
 	private static String CACHE_MUTEX="CACHE_MUTEX";
 	private static SpyCacheCleaner cacheCleaner=null;
 	private static String CLEANER_MUTEX="CLEANER_MUTEX";
@@ -91,7 +91,7 @@ public class SpyCache extends Object {
 	private synchronized void init() {
 		synchronized(CACHE_MUTEX) {
 			if(cacheStore==null) {
-				cacheStore=new Hashtable();
+				cacheStore=new SpyCacheStore();
 			}
 		}
 
@@ -108,12 +108,12 @@ public class SpyCache extends Object {
 	////////////////////////////////////////////////////////////////////
 
 	private class SpyCacheCleaner extends Thread {
-		private Hashtable cacheStore=null;
+		private SpyCacheStore cacheStore=null;
 
 		// How many cleaning passes we've done.
 		private int passes=0;
 
-		public SpyCacheCleaner(Hashtable cacheStore) {
+		public SpyCacheCleaner(SpyCacheStore cacheStore) {
 			super();
 			this.cacheStore=cacheStore;
 			this.setName("SpyCacheCleaner");
@@ -122,7 +122,8 @@ public class SpyCache extends Object {
 		}
 
 		public String toString() {
-			return(super.toString() + " - " + passes + " runs");
+			return(super.toString() + " - " + passes + " runs, mod age:  "
+				+ cacheStore.getModAge());
 		}
 
 		private void cleanup() throws Exception {
@@ -138,16 +139,37 @@ public class SpyCache extends Object {
 			passes++;
 		}
 
+		private boolean shouldIContinue() {
+			boolean rv=false;
+
+			// Return true if the difference between now and the last
+			// time the cache was touched is less than an hour.
+			if( (cacheStore.getModAge()) < (3600*1000) ) {
+				rv=true;
+			}
+
+			return(rv);
+		}
+
 		public void run() {
-			// Give it ten passes
-			while(passes<12) {
+
+			boolean keepgoing=true;
+
+			// It will keep going until nothing's been touched in the cache
+			// for an hour, at which point it'll dump the whole cache and join.
+			while(keepgoing) {
 				try {
 					sleep(300*1000);
 					cleanup();
 				} catch(Exception e) {
 					// Just try again.
 				}
+
+				keepgoing=shouldIContinue();
 			}
+
+			// OK, we're about to bail, let's dump the cache and go.
+			cacheStore.clear();
 		}
 	} // Cleaner class
 

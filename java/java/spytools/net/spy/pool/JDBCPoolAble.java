@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.4 2001/03/16 01:03:04 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.5 2001/05/21 23:05:46 dustin Exp $
 
 package net.spy.pool;
 
@@ -28,7 +28,8 @@ public class JDBCPoolAble extends PoolAble {
 				c.close();
 			}
 		} catch(Exception e) {
-			System.err.println("Error on finalize!  " + e);
+			System.err.println("Error on finalize!  ObjectID="
+				+ getObjectID() + ":  " + e);
 			e.printStackTrace();
 		}
 		// Tell the parent to do the same.

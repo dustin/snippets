@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.30 2001/04/08 21:02:50 dustin Exp $
+ * $Id: SpyDB.java,v 1.31 2001/05/21 23:05:42 dustin Exp $
  */
 
 package net.spy;
@@ -120,7 +120,7 @@ public class SpyDB extends Object {
 
 	// Warning, this contains a bunch of nasty backward-compatibility
 	// stuff.
-	private synchronized void initStuff() throws PoolException {
+	private synchronized void initStuff() throws PoolException, SQLException {
 
 		// If we haven't established our connections hash yet, do so
 		// Synchronize on the class to do this
@@ -154,14 +154,18 @@ public class SpyDB extends Object {
 				name=conf.get("dbcbLogFilePath", "db");
 			}
 
-			// if we don't have a pool, create one.
-			if(pool==null) {
-				createPool();
-			} else {
-				// If we have a pool, but not the one we're looking
-				// for...create it.
-				if(!pool.hasPool(name)) {
+			// Synchronize this whole thing so we don't accidentally try to
+			// create it more than once.
+			synchronized(POOL_MUTEX) {
+				// if we don't have a pool, create one.
+				if(pool==null) {
 					createPool();
+				} else {
+					// If we have a pool, but not the one we're looking
+					// for...create it.
+					if(!pool.hasPool(name)) {
+						createPool();
+					}
 				}
 			}
 		}
@@ -169,7 +173,7 @@ public class SpyDB extends Object {
 	}
 
 	// Get a normalized config from the one we already have
-	private SpyConfig getNormalizedConfig() {
+	private SpyConfig getNormalizedConfig() throws SQLException {
 		// We'll need a config to translate into
 		SpyConfig tmpconf=new SpyConfig();
 
@@ -208,19 +212,39 @@ public class SpyDB extends Object {
 		}
 
 		// Driver name.
-		tmpconf.put(prefix + "dbDriverName", conf.get("dbDriverName"));
+		tmp=conf.get("dbDriverName");
+		if(tmp==null) {
+			throw new SQLException(
+				"dbDriverName not given, invalid configuration.");
+		}
+		tmpconf.put(prefix + "dbDriverName", tmp);
 		// JDBC URL
-		tmpconf.put(prefix + "dbSource", conf.get("dbSource"));
+		tmp=conf.get("dbSource");
+		if(tmp==null) {
+			throw new SQLException(
+				"dbSource not given, invalid configuration.");
+		}
+		tmpconf.put(prefix + "dbSource", tmp);
 		// username
-		tmpconf.put(prefix + "dbUser", conf.get("dbUser"));
+		tmp=conf.get("dbUser");
+		if(tmp==null) {
+			throw new SQLException(
+				"dbUser not given, invalid configuration.");
+		}
+		tmpconf.put(prefix + "dbUser", tmp);
 		// password
-		tmpconf.put(prefix + "dbPass", conf.get("dbPass"));
+		tmp=conf.get("dbPass");
+		if(tmp==null) {
+			throw new SQLException(
+				"dbPass not given, invalid configuration.");
+		}
+		tmpconf.put(prefix + "dbPass", tmp);
 
 		return(tmpconf);
 	}
 
 	// Create a pool
-	private void createPool() throws PoolException {
+	private void createPool() throws PoolException, SQLException {
 		// Get a conf
 		SpyConfig conf=getNormalizedConfig();
 

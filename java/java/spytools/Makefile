@@ -70,6 +70,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/SNPPPoolFiller.class \
 	net/spy/pool/SNPPPoolAble.class \
 	net/spy/pool/PoolDebug.class \
+	net/spy/cache/SpyCacheStore.class \
 	net/spy/cache/SpyCache.class \
 	'net/spy/cache/SpyCache$$SpyCacheCleaner.class' \
 	'net/spy/cache/SpyCache$$SpyCacheItem.class' \
@@ -113,7 +114,7 @@ doc: $(CLASSES)
 jar: spy.jar
 
 spy.jar: $(CLASSES)
-	$(JAR) cv0f $@ $(CLASSES)
+	$(JAR) cv0f $@ `find net -name "*.class"`
 
 install: all
 	cp spy.jar $(FDEST)
