@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: etherealMuxTrace.py,v 1.1 2003/04/16 23:37:12 dustin Exp $
+$Id: etherealMuxTrace.py,v 1.2 2003/04/16 23:59:11 dustin Exp $
 """
 
 import sys
@@ -72,6 +72,9 @@ class MuxCommand:
 		rv=self.parts[self.used]
 		self.used=self.used+1
 		return rv
+
+	# Alias
+	readByte = nextByte
 
 	def readWord(self):
 		"""Read an int value from the stream."""
@@ -188,7 +191,7 @@ class ErrorCommand(MuxCommand):
 	"""Error is kinda special"""
 	def __init__(self, a):
 		MuxCommand.__init__(self, a)
-		self.cmd = self.readByte()
+		self.cmd = chr(self.readByte())
 		self.channel = self.readWord()
 		self.code = self.readWord()
 		self.msg = self.readString()
