@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.17 2002/07/22 07:33:23 dustin Exp $
+	$Id: build.xml,v 1.18 2002/07/23 05:43:47 dustin Exp $
 
 	-->
 
@@ -31,6 +31,7 @@
 		<delete>
 			<fileset dir="net">
 				<include name="**/*.class"/>
+				<include name="spy/build.properties"/>
 				<include name="spy/db/CachePreparedStatement.java"/>
 				<include name="spy/db/CachedResultSet.java"/>
 			</fileset>
@@ -75,19 +76,39 @@
 
 	<target name="thinjar" depends="all">
 		<jar jarfile="spy.jar" basedir=".">
+			<manifest>
+				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
+			</manifest>
 			<include name="net/spy/**/*.class"/>
 			<include name="net/spy/**/*.properties"/>
 		</jar>
 	</target>
 
-	<target name="spy.jar" depends="all,docs">
+	<target name="spy.jar" depends="all,properties,docs">
 		<jar jarfile="spy.jar" basedir=".">
+			<manifest>
+				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
+			</manifest>
 			<include name="build.xml"/>
 			<include name="docs/**"/>
 			<include name="net/spy/**/*.class"/>
 			<include name="net/spy/**/*.java"/>
 			<include name="net/spy/**/*.properties"/>
 		</jar>
+	</target>
+
+	<!-- Build properties, memorabilia, etc... -->
+	<target name="properties">
+		<delete file="net/spy/build.properties"/>
+		<buildnumber file="etc/build.number"/>
+		<propertyfile file="net/spy/build.properties">
+			<entry key="java.vendor" value="${java.vendor}"/>
+			<entry key="java.version" value="${java.version}"/>
+			<entry key="os.name" value="${os.name}"/>
+			<entry key="os.version" value="${os.version}"/>
+			<entry key="build.number" value="${build.number}"/>
+			<entry key="build.date" type="date" value="now"/>
+		</propertyfile>
 	</target>
 
 	<target name="all" depends="rmic,dbstuff">
