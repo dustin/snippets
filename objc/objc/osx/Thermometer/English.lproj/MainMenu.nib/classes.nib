@@ -1,7 +1,7 @@
 {
     IBClasses = (
         {
-            ACTIONS = {setCelsius = id; setFarenheit = id; };
+            ACTIONS = {setCelsius = id; setFarenheit = id; update = id; };
             CLASS = Controller;
             LANGUAGE = ObjC;
             OUTLETS = {

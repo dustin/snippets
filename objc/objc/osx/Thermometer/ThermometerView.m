@@ -2,6 +2,33 @@
 
 @implementation ThermometerView
 
+-(void)postInit
+{
+    lastReadings=[[NSMutableArray alloc] initWithCapacity: 5];
+}
+
+- (id)initWithFrame:(NSRect)frameRect
+{
+    id rv=[super initWithFrame: frameRect];
+    [rv postInit];
+    return(rv);
+}
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    id rv=[super initWithCoder: decoder];
+    [rv postInit];
+    return(rv);
+}
+
+- (void)dealloc {
+    [lastReadings release];
+    [cImage release];
+    [fImage release];
+    [name release];
+    [super dealloc];
+}
+
 float ctof(float c)
 {
     float rv=0.0;
@@ -44,11 +71,33 @@ float ctof(float c)
 
 -(void)setReading:(float)r
 {
+    // Normal reading update stuff
     if(reading != r) {
         float oldreading=reading;
         reading=r;
         NSLog(@"Updated %@ (%.2f -> %.2f)", [self name], oldreading, reading);
         [self setNeedsDisplay: true];
+    }
+
+    // Keep the array small enough.
+    while([lastReadings count] >= RING_BUFFER_SIZE) {
+        [lastReadings removeLastObject];
+    }
+    // Add the current reading
+    NSNumber *n=[[NSNumber alloc] initWithFloat: r];
+    [lastReadings insertObject:n atIndex: 0];
+    [n release];
+
+    // Check to see whether we're going up or down
+    n=[lastReadings lastObject];
+    // tmp is used to find the directional change from the oldest reading
+    float tmp=[n floatValue] - r;
+    if(tmp<0) {
+        changeState=INCREASING;
+    } else if(tmp>0) {
+        changeState=DECREASING;
+    } else {
+        changeState=STABLE;
     }
 }
 
@@ -120,6 +169,25 @@ float ctof(float c)
                             ((bounds.size.height/2) - (wordSize.height + 3)));
     [readingStr drawAtPoint:p withAttributes:attribs];
     [readingStr release];
+
+    // Draw the change indicator
+    switch(changeState) {
+        case STABLE:
+            readingStr=@"";
+            break;
+        case INCREASING:
+            readingStr=@"+";
+            break;
+        case DECREASING:
+            readingStr=@"-";
+            break;
+    }
+    [attribs setObject:[NSFont fontWithName:@"Monaco" size:12]
+                forKey:NSFontAttributeName];
+    wordSize=[readingStr sizeWithAttributes: attribs];
+    p=NSMakePoint( ((bounds.size.width/2) - (wordSize.width/2)),
+                            ((bounds.size.height/2) + (wordSize.height - 6)));
+    [readingStr drawAtPoint:p withAttributes:attribs];
 
     // Now tell it to draw the arm.
     [self drawArm: bounds];

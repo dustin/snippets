@@ -3,6 +3,9 @@
 #import <Cocoa/Cocoa.h>
 #import "ThermometerView.h"
 
+// How long (in seconds) to sleep between samples
+#define SAMPLE_RATE 60
+
 @interface Controller : NSObject
 {
     IBOutlet ThermometerView *backYard;
@@ -18,4 +21,6 @@
 }
 - (IBAction)setCelsius:(id)sender;
 - (IBAction)setFarenheit:(id)sender;
+
+-(IBAction)update:(id)sender;
 @end

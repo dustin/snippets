@@ -53,6 +53,12 @@
     [s release];
 }
 
+// Updates from the UI
+-(IBAction)update:(id)sender
+{
+    [self update];
+}
+
 -(void)awakeFromNib
 {
     // Load the images from the bundle
@@ -101,7 +107,7 @@
     [self update];
 
     // Schedule the timer
-    [NSTimer scheduledTimerWithTimeInterval:60
+    [NSTimer scheduledTimerWithTimeInterval:SAMPLE_RATE
         target: self
         selector: @selector(update)
         userInfo:nil repeats:true];
