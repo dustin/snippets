@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogEntry.java,v 1.3 1999/09/29 07:38:54 dustin Exp $
+ * $Id: PhotoLogEntry.java,v 1.4 1999/09/29 07:46:54 dustin Exp $
  */
 
 
@@ -42,7 +42,7 @@ public class PhotoLogEntry extends Object {
 			+ "server_host, user_agent, cached, ts) values("
 			+ photo_id + ", " + wwwuser_id + ", '" + remote_addr
 			+ "', '" + server_host + "', '" + PhotoUtil.dbquote_str(user_agent)
-			+ "', '" + cached + "', '" + f.format(timestamp) + "')";
+			+ "', '" + cached + "', '" + f.format(timestamp) + " GMT')";
 
 		return(r);
 	}
