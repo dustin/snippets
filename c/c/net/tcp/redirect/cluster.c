@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.2 1998/01/05 00:20:25 dustin Exp $
+ * $Id: cluster.c,v 1.3 1998/01/05 00:23:30 dustin Exp $
  */
 
 #include <config.h>
@@ -114,12 +114,18 @@ struct cluster **getcluster(char *p, int stats)
 
     /* Do keen round-robin thing in two for loops */
     for(i=index; list[i]; i++)
+    {
         lAPPEND(lookupClusterEnt(p, list[i], defalrm));
+    }
 
     /* Second loop isn't necessary if the index above was zero */
     if(index>0)
+    {
 	for(i=0; i<index; i++)
+	{
             lAPPEND(lookupClusterEnt(p, list[i], defalrm));
+	}
+    }
 
     if(list)
         rcfg_freeSectionList(list);
