@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings
  *
- * $Id: executor.c,v 1.2 1999/10/06 18:06:40 dustin Exp $
+ * $Id: executor.c,v 1.3 2001/07/04 20:58:46 dustin Exp $
  *
  * This program is used to execute commands found in another directory.
  * Useful for hiding shell scripts.
@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <syslog.h>
 #include <assert.h>
 
 #ifndef CMD_DIRECTORY
@@ -42,6 +43,11 @@ int main(int argc, char **argv)
 	assert(strlen(path) + strlen(cmd) < 8190);
 	/* concatenate */
 	strcat(path, cmd);
+
+	/* Log it */
+	openlog("executor", LOG_NDELAY|LOG_PID, LOG_AUTH);
+	syslog(LOG_NOTICE, "Running %s on behalf of uid %d\n", path, getuid());
+	closelog();
 
 	/* run the program */
 	execvp(path, argv);
