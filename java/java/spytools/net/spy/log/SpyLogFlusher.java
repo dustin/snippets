@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.11 2001/04/03 04:02:53 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.12 2001/07/03 05:04:21 dustin Exp $
  */
 
 package net.spy.log;
 
 import net.spy.*;
 
-import java.sql.*;
 import java.lang.*;
 import java.util.*;
 import java.io.*;
@@ -41,6 +40,10 @@ public class SpyLogFlusher extends Thread {
 	public String logfile = "/tmp/spy.log";
 	private String queue_name=null;
 
+	private Date lastRun=null;
+	private Date lastErrorTime=null;
+	private Exception lastError=null;
+
 	/**
 	 * Get a SpyFlusher for the given queue.
 	 */
@@ -68,27 +71,24 @@ public class SpyLogFlusher extends Thread {
 	}
 
 	/**
-	 * Get a SpyFlusher.
-	 * @deprecated Please provide a queue name
+	 * Get a string describing this thingy.
 	 */
-	public SpyLogFlusher() {
-		this("GenericSpyLogQueue");
-		Exception e=new Exception("Using deprecated API!");
-		System.err.println("Warning!  " + e);
-		e.printStackTrace();
-	}
-
-	/**
-	 * Get a SpyFlusher and place it in a given threadgroup.
-	 *
-	 * @param t the threadgroup in which the SpyFlusher should be placed.
-	 * @deprecated Please provide a queue name
-	 */
-	public SpyLogFlusher(ThreadGroup t) {
-		this("GenericSpyLogQueue", t);
-		Exception e=new Exception("Using deprecated API!");
-		System.err.println("Warning!  " + e);
-		e.printStackTrace();
+	public String toString() {
+		StringBuffer sb=new StringBuffer(super.toString());
+		sb.append(" - ");
+		sb.append(queueSize());
+		sb.append(" items queued");
+		if(lastRun!=null) {
+			sb.append(", last run:  ");
+			sb.append(lastRun);
+		}
+		if(lastError!=null) {
+			sb.append(", last error:  ");
+			sb.append(lastError);
+			sb.append(" time of last error:  ");
+			sb.append(lastErrorTime);
+		}
+		return(sb.toString());
 	}
 
 	/**
@@ -132,8 +132,12 @@ public class SpyLogFlusher extends Thread {
 				}
 				log_file.flush();
 				log_file.close(); // Close it, we're done!
+
+				lastRun=new Date();
 			} catch(Exception e) {
 				System.err.println("BAD LOG ERRROR!  " + e);
+				lastError=e;
+				lastErrorTime=new Date();
 			}
 		}
 	}
