@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: statwatch.py,v 1.1 2003/07/17 00:21:58 dustin Exp $
+$Id: statwatch.py,v 1.2 2003/07/17 00:33:52 dustin Exp $
 """
 
 import sys
@@ -45,6 +45,22 @@ def updateAll(urls, h, prefix=""):
 			print k + ":  " + `(v-ov)`
 		h[k]=v
 
+def showTimes(times, readings):
+	for timeset in times:
+		try:
+			label=timeset[0]
+			timing=float(readings[timeset[1]])
+			transcount=0.0
+			for k in readings.keys():
+				if k.startswith(timeset[2]):
+					transcount = transcount + float(readings[k])
+			if transcount > 0 and timing > 0:
+				rate=((timing / transcount)/1000)
+				print "%s: %.2fs/t" % (label, rate)
+		except KeyError:
+			# No data found for this key
+			pass
+
 if __name__ == '__main__':
 
 	# Build the list of servers
@@ -70,6 +86,12 @@ if __name__ == '__main__':
 	# Dustin
 	servers['noc13']=\
 		['http://desktop.dsallings.eng.2wire.com/admin/monitor/stat']
+
+	# Time calculation stuff
+	timeCalcs=( ('Heartbeat', 'rpc.time.HB', 'rpc.success.CMS_HEARTBEAT'),
+				('Bootstrap' ,'rpc.time.BOOT', 'rpc.success.CMS_BOOTSTRAP'),
+				('Kick', 'rpc.time.KICK' ,'rpc.success.CMS_KICKED'),
+			)
 
 	h={}
 	hparam=''
@@ -102,5 +124,7 @@ if __name__ == '__main__':
 		print "--------------------------------------- " \
 			+ time.ctime(time.time())
 		updateAll(u, h, prefix)
+		print ""
+		showTimes(timeCalcs, h)
 		print ""
 		time.sleep(60)
