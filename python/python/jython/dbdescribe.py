@@ -18,6 +18,12 @@ class Table:
             pkg+=".old"
         self.pkg=pkg
 
+        # Custom column type mapping
+        self.colTypes={}
+        self.colTypes[-9]='VARCHAR'
+        self.colTypes[-8]='VARCHAR'
+        self.colTypes[-10]='LONGVARCHAR'
+
     def __repr__(self):
         return "<Table: " + self.table + ">"
 
@@ -26,6 +32,14 @@ class Table:
 
     def getPackageName(self):
         return self.pkg
+
+    def columnType(self, t):
+        rv=None
+        if self.colTypes.has_key(t):
+            rv=self.colTypes[t]
+        else:
+            rv=net.spy.db.TypeNames.getTypeName(t)
+        return rv
 
     def toDBSP(self):
         rv=""
@@ -37,25 +51,25 @@ class Table:
         rsmd=rs.getMetaData()
 
         rv+="@package\n" + self.pkg + "\n\n"
-        rv+="@description\nTable definition for " + self.table + "\n\n"
+        rv+="@description\nSelect all rows from " + self.table + ".\n\n"
 
         rv+="@sql\n"
         rv+="select\n"
         for i in range(1, rsmd.getColumnCount()+1):
-            rv+="\t\t" + rsmd.getColumnName(i) + "\n"
+            rv+="\t\t" + rsmd.getColumnName(i)
+            if i < rsmd.getColumnCount():
+                rv+=","
+            rv+="\n"
         rv+="\tfrom\n\t\t" + self.table + "\n\n"
 
         rv+="@results\n"
-
-        # Alias for type name getter
-        t=net.spy.db.TypeNames.getTypeName
 
         for i in range(1, rsmd.getColumnCount()+1):
             nullable="(nullable)"
             if rsmd.isNullable(i) == rsmd.columnNullable:
                 nullable="(not nullable)"
             rv+=rsmd.getColumnName(i) + " " \
-                + t(rsmd.getColumnType(i)).upper() \
+                + self.columnType(rsmd.getColumnType(i)).upper() \
                 + " " + rsmd.getColumnName(i) + " " + nullable + "\n"
 
         return rv
