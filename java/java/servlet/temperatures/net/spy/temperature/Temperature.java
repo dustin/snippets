@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.18 2002/11/25 01:48:12 dustin Exp $
+ * $Id: Temperature.java,v 1.19 2002/11/25 01:57:48 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -121,6 +121,9 @@ public class Temperature extends PngServlet {
 		throws ServletException {
 
 		Double dv=gatherer.getSeen(which);
+		if(dv == null) {
+			throw new ServletException("No value for " + which);
+		}
 		double t=dv.doubleValue();
 		int temptmp=(int)(t*100.0);
 		t=(double)temptmp/100;
