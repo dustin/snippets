@@ -19,6 +19,10 @@
 ; Buttons
 (define add-btn 4001)
 
+;
+; Utility stuff
+;
+
 ; Vector item swap
 (define (vswap v a b)
   (let ( (atmp (vector-ref v a)) (btmp (vector-ref v b) ) )
@@ -37,15 +41,33 @@
         ; swap'm
         (vswap v i r)))))
 
+(define (gen-nlist from to)
+ (let ( (thelist '()) )
+  (do ( (i from (+ i 1)))
+   ( (> i to) thelist)
+   (set! thelist (append thelist (list i))))))
+
+;
+; Database stuff
+;
+
 ; Get a record
 (define (get-record which)
-  (map (lambda (x) (hb-getfield testdb which x) ) '(0 1 2 3 4 5 6)))
+  (map (lambda (x) (hb-getfield testdb which x) ) (gen-nlist 0 6)))
 
 ; Show the correct answer (used in edit forms, etc...)
 (define (set-select-button which)
   (map (lambda (x) (
 	ctl-set-val x #f)) (list answer1-psh answer2-psh answer3-psh answer4-psh))
   (ctl-set-val (+ answer-psh-base which) #t))
+
+; Find out how many records we have
+(define (n-records)
+ (car (hb-info testdb)))
+
+; Get a random test
+(define (random-test)
+ (map (lambda (x) (get-record x) (gen-nlist 0 (n-records)))))
 
 ; Populate the textual fields in the current form
 (define (populate-fields data)
@@ -58,18 +80,18 @@
 ; Run the actual test program
 (define (test)
   (set-resdb "TestTaker")
-  ; Edit the first record
-  (edit-record 0))
+  (let ( (testdata (random-test)) )
+    ; Edit the first record
+    (edit-record (list-ref testdata 0))))
 
 ; Edit a given record
-(define (edit-record n)
+(define (edit-record data)
   (frm-popup 1000
     (lambda (event . args)
       (case event
         ((menu) (frm-return 'bye))
 		; When we open the form, populate it with the nth record from the DB
         ((frm-open)
-          (let ( (data (get-record n)) )
 			(populate-fields data)
 			(set-select-button (string->object (list-ref data 5)))))
-        (else #f)))))
+        (else #f))))
