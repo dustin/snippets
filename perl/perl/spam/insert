@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: insert,v 1.1 1997/10/14 21:13:56 dustin Exp $
+# $Id: insert,v 1.2 1997/10/15 03:01:43 dustin Exp $
 #
 # This is used to insert messages into the database and
 # puts them in the webroot for viewing.
@@ -8,7 +8,7 @@
 use Postgres;
 use MD5;
 
-$messdir="/usr/people/dustin/public_html/spam/messages";
+$messdir="/usr/people/httpd/bulk/messages";
 
 sub ensurePath
 {
@@ -53,7 +53,40 @@ sub checkId
     my($id)=@_;
     my($query, $count, $s);
 
+    if($id eq "")
+    {
+	return(-1);
+    }
+
     $query="select count(*) from bill_info where spam_id=$id;";
+
+    if(!($s=$dbh->execute($query)))
+    {
+	print "ERROR:\n$query\n$Postgres::error\n";
+	return(-1);
+    }
+
+    ($count)=$s->fetchrow();
+
+    if($count>0)
+    {
+	return(0);
+    }
+
+    return(-1);
+}
+
+sub checkAgnt
+{
+    my($id)=@_;
+    my($query, $count, $s);
+
+    if($id eq "")
+    {
+	return(-1);
+    }
+
+    $query="select count(*) from agents where agent_id=$id;";
 
     if(!($s=$dbh->execute($query)))
     {
@@ -73,6 +106,7 @@ sub checkId
 
 $file=$ARGV[0];
 $spammer=$ARGV[1];
+$agent=$ARGV[2];
 
 $dbh=db_connect("spam");
 
@@ -82,6 +116,12 @@ if(checkId($spammer))
 {
     print "Invalid SPAM Id:  $spammer\n";
     exit(1);
+}
+
+if(checkAgnt($agent))
+{
+    print "Invalid AGENT:  $agent\nUsing default agent, 0\n";
+    $agent=0;
 }
 
 $size=(stat($ARGV[0]))[7];
@@ -128,6 +168,7 @@ $subject=~s/\'/\\\'/g;
 $dbh->execute("begin");
 
 $query ="insert into messages values($spammer,\n";
+$query.="    $agent,\n";
 $query.="    '$fn',\n";
 $query.="    '$subject',\n";
 $query.="    '$digest',\n";
