@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.19 2001/03/17 21:58:51 dustin Exp $
+// $Id: ObjectPool.java,v 1.20 2001/03/18 19:47:45 dustin Exp $
 
 package net.spy.pool;
 
@@ -112,6 +112,7 @@ public class ObjectPool extends Object {
 	public PooledObject getObject(String name) throws PoolException {
 		PooledObject ret=null;
 		PoolContainer pc=null;
+		checkCleaner();
 		synchronized (pools) {
 			pc=getPool(name);
 		}
@@ -195,14 +196,18 @@ public class ObjectPool extends Object {
 				pools=new Hashtable();
 			}
 		}
-		// Is our cleaner working?
+
+		checkCleaner();
+	}
+
+	// Make sure the cleaner is doing its job.
+	private void checkCleaner() {
 		synchronized(CLEANER_MUTEX) {
 			if(cleaner==null || (!cleaner.isAlive())) {
 				cleaner=new ObjectPoolCleaner(this);
 			}
 		}
 	}
-
 
 	// This is a private class that keeps the pool clean.
 	private class ObjectPoolCleaner extends Thread {
