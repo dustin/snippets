@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.5 2002/02/01 22:48:46 dustin Exp $
+ * $Id: rrdrstat.c,v 1.6 2002/03/01 08:39:02 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,12 +16,29 @@
 #include <rrd.h>
 #endif /* HAVE_RRD_H */
 
+#include "array.h"
 #include "rstat.h"
+
+static void
+rrdErrorPrint(char *buf, char **args)
+{
+	int i=0;
+
+	fprintf(stderr, "%s\n", buf);
+	fprintf(stderr, "ERROR:  %s\n", rrd_get_error());
+	for(i=0; i<listLength(args); i++) {
+		fprintf(stderr, "\targs[%d]=``%s''\n", i, args[i]);
+	}
+	rrd_clear_error();
+}
 
 static void
 process(const char *host, statstime *stat)
 {
 	char buf[8192];
+	char **args=NULL;
+	extern int optind;
+	int rv=0;
 
 	/* usr wio sys idl pgin pgout intr ipkts opkts coll errors cs load */
 	sprintf(buf,
@@ -41,8 +58,15 @@ process(const char *host, statstime *stat)
 	/* I'm using sprintf above because it's more portable, and it pretty
 	 * much can't exceed the buffer size */
 	assert(strlen(buf) < sizeof(buf));
-	puts(buf);
-	fflush(stdout);
+	args=split(buf, " ");
+	optind=0;
+
+	rv=rrd_update(listLength(args), args);
+	if(rv<0 || rrd_test_error()) {
+		rrdErrorPrint(buf, args);
+	}
+
+	freeList(args);
 }
 
 static int
