@@ -1,5 +1,6 @@
 MKLIB=ocamlmklib
 OCAMLOPT=ocamlopt
+OCAMLC=ocamlc
 
 # Set this to -p for profiler support
 PROFILE=
@@ -17,6 +18,10 @@ parseSQLLog: parseSQLLog.ml
 parseTimingLog: parseTimingLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa stringutils.cmx parseTimingLog.ml
+
+parseTimingLogbc: parseTimingLog.ml
+	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
+		unix.cma stringutils.cmo parseTimingLog.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
