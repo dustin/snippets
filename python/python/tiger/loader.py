@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import zipfile
-import psycopg;
+import psycopg
 from sys import argv
 import os
 
