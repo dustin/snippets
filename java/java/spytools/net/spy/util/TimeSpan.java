@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeSpan.java,v 1.1 2001/11/13 23:35:45 dustin Exp $
+// $Id: TimeSpan.java,v 1.2 2001/11/14 09:44:29 dustin Exp $
 
 package net.spy.util;
 
@@ -41,7 +41,7 @@ public class TimeSpan extends Object {
 
 		// Days
 		if(diff>86400000l) {
-			days=diff/864000000l;
+			days=diff/86400000l;
 			diff=diff%86400000l;
 		}
 
