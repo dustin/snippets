@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.4 1999/05/25 06:45:12 dustin Exp $
+-- $Id: pg.e,v 1.5 1999/05/25 07:42:29 dustin Exp $
 --
 class PG
 
@@ -18,10 +18,33 @@ feature {ANY}
    last_row: ARRAY[STRING];
       -- Last row retrieved.
 
-   connect(host, db: STRING): BOOLEAN is
+   connect: BOOLEAN is
       -- Make a database connection
+      local
+         h, p, o, t, d, u, pass: POINTER;
       do
-         conn := pg_connect(host.to_external,db.to_external);
+         if host /= Void then
+            h := host.to_external;
+         end;
+         if port /= Void then
+            p := port.to_external;
+         end;
+         if options /= Void then
+            o := options.to_external;
+         end;
+         if tty /= Void then
+            t := tty.to_external;
+         end;
+         if dbname /= Void then
+            d := dbname.to_external;
+         end;
+         if username /= Void then
+            u := username.to_external;
+         end;
+         if password /= Void then
+            pass := password.to_external;
+         end;
+         conn := pg_connect(h,p,o,t,d,u,pass);
          if conn = Void then
             Result := false;
          else
@@ -73,6 +96,48 @@ feature {ANY}
          end;
       end -- get_row
 
+   set_host(to: STRING) is
+      -- Set database host to connect to
+      do
+         !!host.copy(to);
+      end -- set_host
+
+   set_port(to: STRING) is
+      -- Set database port to connect to
+      do
+         !!port.copy(to);
+      end -- set_port
+
+   set_options(to: STRING) is
+      -- Set database connection options
+      do
+         !!options.copy(to);
+      end -- set_options
+
+   set_tty(to: STRING) is
+      -- Set database tty
+      do
+         !!tty.copy(to);
+      end -- set_tty
+
+   set_dbname(to: STRING) is
+      -- Set database to connect to
+      do
+         !!dbname.copy(to);
+      end -- set_dbname
+
+   set_username(to: STRING) is
+      -- Set username to connect as
+      do
+         !!username.copy(to);
+      end -- set_username
+
+   set_password(to: STRING) is
+      -- Set password for authentication
+      do
+         !!password.copy(to);
+      end -- set_password
+
    make is
       -- Doesn't really do anything, but we need a make.
       do
@@ -81,16 +146,37 @@ feature {ANY}
 
 feature {NONE}
    -- Internal data stuff
-   -- Connection holder for C library.
 
    conn: POINTER;
-      -- Result holder for C library.
+      -- Connection holder for C library.
 
    res: POINTER;
+      -- Result holder for C library.
+
+   host: STRING;
+      -- Database host
+
+   port: STRING;
+      -- Database port
+
+   options: STRING;
+      -- Database options
+
+   tty: STRING;
+      -- Database tty
+
+   dbname: STRING;
+      -- Database name
+
+   username: STRING;
+      -- Database username
+
+   password: STRING;
+      -- Database password
 
 feature {NONE}
 
-   pg_connect(host, database: POINTER): POINTER is
+   pg_connect(h, p, o, t, d, u, pass: POINTER): POINTER is
       external "C_WithoutCurrent"
       end -- pg_connect
 

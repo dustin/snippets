@@ -8,11 +8,16 @@
 #include <libpq-fe.h>
 
 PGconn *
-pg_connect(char *host, char *db)
+pg_connect(char *host, char *port, char *options, char *tty, char *db,
+	char *user, char *pass)
 {
 	PGconn *conn;
 
-	conn = PQsetdb(host, NULL, NULL, NULL, db);
+	if(user!=NULL || pass != NULL) {
+		conn = PQsetdbLogin(host, port, options, tty, db, user, pass);
+	} else {
+		conn = PQsetdb(host, port, options, tty, db);
+	}
 
 	if (PQstatus(conn) == CONNECTION_BAD) {
 		conn=NULL;

@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pgtest.e,v 1.1 1999/05/25 06:45:15 dustin Exp $
+-- $Id: pgtest.e,v 1.2 1999/05/25 07:42:31 dustin Exp $
 --
 class PGTEST
 
@@ -20,7 +20,8 @@ feature {ANY}
          db: PG;
       do
          !!db.make;
-         if not db.connect("bleu","machine") then
+		 db.set_dbname("machine");
+         if not db.connect then
             io.put_string("NOT Connected%N");
          end;
          if db.query("select * from oems order by name;") then
