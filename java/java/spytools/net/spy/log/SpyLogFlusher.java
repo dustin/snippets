@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.12 2001/07/03 05:04:21 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.13 2001/07/03 07:30:14 dustin Exp $
  */
 
 package net.spy.log;
@@ -41,8 +41,6 @@ public class SpyLogFlusher extends Thread {
 	private String queue_name=null;
 
 	private Date lastRun=null;
-	private Date lastErrorTime=null;
-	private Exception lastError=null;
 
 	/**
 	 * Get a SpyFlusher for the given queue.
@@ -82,12 +80,6 @@ public class SpyLogFlusher extends Thread {
 			sb.append(", last run:  ");
 			sb.append(lastRun);
 		}
-		if(lastError!=null) {
-			sb.append(", last error:  ");
-			sb.append(lastError);
-			sb.append(" time of last error:  ");
-			sb.append(lastErrorTime);
-		}
 		return(sb.toString());
 	}
 
@@ -101,6 +93,7 @@ public class SpyLogFlusher extends Thread {
 	 * Return the current queue of things to be logged
 	 */
 	protected Vector flush() {
+		lastRun=new Date();
 		return(log_queue.flush());
 	}
 
@@ -133,11 +126,8 @@ public class SpyLogFlusher extends Thread {
 				log_file.flush();
 				log_file.close(); // Close it, we're done!
 
-				lastRun=new Date();
 			} catch(Exception e) {
 				System.err.println("BAD LOG ERRROR!  " + e);
-				lastError=e;
-				lastErrorTime=new Date();
 			}
 		}
 	}
