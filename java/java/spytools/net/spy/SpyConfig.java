@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.5 2000/06/20 07:14:28 dustin Exp $
+ * $Id: SpyConfig.java,v 1.6 2000/06/20 07:24:47 dustin Exp $
  */
 
 package net.spy;
@@ -98,13 +98,25 @@ public class SpyConfig extends Hashtable {
 	}
 
 	/**
-	 * Get an int value for a given config entry.
+	 * Get the value for a given config entry, with default.
 	 *
 	 * @param key which config entry to return.
+	 * @param def default in case the entry doesn't exist.
 	 */
-	public int getInt(String key) {
+
+	/**
+	 * Get an int value for a given config entry.  Please note, a default
+	 * is *required* because undefined ints suck.
+	 *
+	 * @param key which config entry to return.
+	 * @param def default in case the entry doesn't exist.
+	 */
+	public int getInt(String key, int def) {
 		String value=get(key);
-		int r=Integer.parseInt(value);
+		int r=def;
+		if(value==null) {
+			r=Integer.parseInt(value);
+		}
 		return(r);
 	}
 
