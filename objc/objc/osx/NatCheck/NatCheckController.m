@@ -2,6 +2,20 @@
 
 @implementation NatCheckController
 
+/* Helper C function to provider error popups.  It probably doesn't belong
+ * here, but it's quick */
+void perrordie(const char *msg) {
+	char msgbuf[1024];
+	int ssize=0;
+
+	ssize=snprintf(msgbuf, sizeof(msgbuf), "%s: %s", msg, strerror(errno));
+	msgbuf[sizeof(msgbuf)]=0x00;
+	NSRunAlertPanel(@"Error", [NSString stringWithCString: msgbuf],
+		@"Quit", nil, nil);
+
+	exit(1);
+}
+
 - (void)clearResults
 {
     [natType setStringValue: @"Unknown"];

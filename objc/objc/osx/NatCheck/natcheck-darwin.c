@@ -49,11 +49,6 @@ struct reply {
 
 int verbose = 0;
 
-void perrordie(const char *msg) {
-	perror(msg);
-	exit(1);
-}
-
 void getaddr(const char *hostname, struct in_addr *addr)
 {
 	struct hostent *h;

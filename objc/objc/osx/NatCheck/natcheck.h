@@ -10,5 +10,6 @@ struct check_result {
 };
 
 struct check_result performNatCheck(int ntries);
+void perrordie(const char *msg);
 
 #endif NATCHECK_H
