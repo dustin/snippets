@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.1 2001/07/28 03:15:28 dustin Exp $
+// $Id: ThreadPool.java,v 1.2 2001/07/28 04:46:56 dustin Exp $
 
 package net.spy.util;
 
@@ -16,6 +16,10 @@ public class ThreadPool extends Object {
 	// The tasks for the threads to do.
 	private Stack tasks=null;
 
+	// This is what we monitor for things being checked out (otherwise we
+	// can't tell the difference between adds and check outs).
+	private Object monitor=null;
+
 	// Private thread ID allocator for the inner class.
 	private static int thread_ids=0;
 
@@ -28,10 +32,11 @@ public class ThreadPool extends Object {
 		super();
 		tasks=new Stack();
 		threads=new Vector();
+		monitor=new Object();
 
 		// Initialize all of the threads.
 		for(int i=0; i<n; i++) {
-			RunThread rt=new RunThread(tasks, this);
+			RunThread rt=new RunThread(tasks, monitor);
 			threads.addElement(rt);
 		}
 	}
@@ -80,8 +85,8 @@ public class ThreadPool extends Object {
 	 */
 	public void waitForTaskCount(int num) throws InterruptedException {
 		while(getTaskCount() > num) {
-			synchronized(this) {
-				wait(5000);
+			synchronized(monitor) {
+				monitor.wait(5000);
 			}
 		}
 	}
@@ -104,6 +109,15 @@ public class ThreadPool extends Object {
 	}
 
 	/**
+	 * Shuts down in case you didn't.
+	 */
+	protected void finalize() throws Throwable {
+		System.err.println(
+			"********** Shutting down abandoned thread pool **********");
+		shutdown();
+	}
+
+	/**
 	 * Testing and what not.
 	 */
 	public static void main(String args[]) throws Exception {
@@ -117,15 +131,17 @@ public class ThreadPool extends Object {
 		// Add another 100 tasks, but only if the task count is below 50
 		for(int i=0; i<100; i++) {
 			tp.waitForTaskCount(50);
-			System.err.println("Adding new task.");
+			System.out.println("Adding new task.");
 			tp.addTask(getTestRunnable());
 		}
 
 		// Wait for all of the tasks to finish
 		tp.waitForTaskCount(0);
+		System.out.println("All tasks have been accepted, shutting down.");
 		// I shut 'em down!
 		tp.shutdown();
 
+		System.out.println("Done.");
 	}
 
 	// //////////////////////////////////////////////////////////////////////
@@ -146,7 +162,7 @@ public class ThreadPool extends Object {
 
 			thread_id=thread_ids++;
 
-			System.err.println("RunThread " + thread_id + " going online.");
+			System.out.println("RunThread " + thread_id + " going online.");
 
 			setName("RunThread#" + thread_id);
 			// This should not be a daemon thread.
