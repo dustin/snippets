@@ -22,22 +22,25 @@ DEST=bleu.west.spy.net:/usr/local/apache/java
 # DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=Address.class Consultant.class ConsultantPK.class \
-	ConsultantBean.class ConsultantHome.class ConsultantPK.class
+	ConsultantBean.class ConsultantHome.class ConsultantPK.class \
+	ConsultantClient.class
 
 SER=Consultant.ser
 
 GENCLASSES=BullConsultantBeanConsultantHome_Skel.class \
 	BullConsultantBeanConsultantHome_Stub.class \
 	BullConsultantBeanConsultant_Skel.class \
-	BullConsultantBeanConsultant_Stub.class
-
+	BullConsultantBeanConsultant_Stub.class \
+	BullConsultantBeanConsultant.class \
+	BullConsultantBeanConsultantHandle.class \
+	BullConsultantBeanConsultantHome.class
 
 .SUFFIXES: .java .class .jar .txt .ser
 
 all: $(CLASSES) $(SER) $(GENCLASSES)
 
 genic: Consultant.ser
-	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) Consultant.ser
+	env CLASSPATH=$(CLASSPATH) JONAS_ROOT=$(JONAS_ROOT) $(GENIC) -d ../../.. Consultant.ser
 
 $(GENCLASSES): genic
 
