@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.12 2002/08/26 05:40:01 dustin Exp $
+// $Id: SPGen.java,v 1.13 2002/08/26 06:08:21 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.12 $";
+	private String version="$Revision: 1.13 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
@@ -109,7 +109,9 @@ public class SPGen extends Object {
 			for(Iterator i=required.iterator(); i.hasNext(); ) {
 				Parameter p=(Parameter)i.next();
 				out.println(" * <li>" + p.getName() + " - "
-					+ p.getType() + " - " + p.getDescription() + "</li>");
+					+ "{@link java.sql.Types#" + p.getType() + " "
+						+ p.getType() + "}\n * "
+					+ " - " + p.getDescription() + "</li>");
 			}
 		}
 		out.println(" * </ul>\n"
@@ -127,7 +129,9 @@ public class SPGen extends Object {
 			for(Iterator i=optional.iterator(); i.hasNext(); ) {
 				Parameter p=(Parameter)i.next();
 				out.println(" * <li>" + p.getName() + " - "
-					+ p.getType() + " - " + p.getDescription() + "</li>");
+					+ "{@link java.sql.Types#" + p.getType() + " "
+						+ p.getType() + "}\n * "
+					+ " - " + p.getDescription() + "</li>");
 			}
 		}
 		out.println(" * </ul>\n"
