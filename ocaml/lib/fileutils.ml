@@ -11,6 +11,42 @@ open Unix;;
 (** {1 Functions for processing lines of files} *)
 
 (**
+ Kind of like really_input, but returns as much as possible at EOF, as much as
+ requested otherwise.
+
+ @param ch the input channel
+ @param buf the buffer into which to read
+ @param pos the position to begin writing in the buffer
+ @param len the amount to read
+
+ @return the number of bytes read
+ *)
+let input_block ch buf pos len =
+	let rec loop remaining =
+		if remaining = 0 then (
+			len
+		) else (
+			let rv = input ch buf (pos + (len - remaining)) remaining in
+			if rv = 0 then (
+				len - remaining
+			) else (
+				loop (remaining - rv)
+			)
+		)
+	in
+	loop len
+;;
+
+(**
+ Pervasives.open that will open ``-'' as stdin
+ *)
+let my_open fn =
+	if fn = "-" then Pervasives.stdin
+	else Pervasives.open_in fn
+;;
+
+
+(**
  Apply the given function to each line in the giving channel.
 
  @param f the function to apply to each line
@@ -63,7 +99,7 @@ let conditional_iter_lines f c ch =
 	@param fn the name of the file to open
 *)
 let operate_on_file_in f fn =
-	let ch = open_in fn in
+	let ch = my_open fn in
 	try
 		let rv = f ch in
 		close_in ch;

@@ -2,6 +2,8 @@
 
 (** {1 Functions for processing lines of files} *)
 
+val my_open : string -> in_channel
+val input_block : in_channel -> string -> int -> int -> int
 val iter_lines : (string -> 'a) -> in_channel -> unit
 val fold_lines : (string -> 'a -> 'a) -> 'a -> in_channel -> 'a
 val conditional_iter_lines :
