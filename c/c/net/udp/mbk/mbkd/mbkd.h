@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.7 1998/10/03 08:02:31 dustin Exp $
+ * $Id: mbkd.h,v 1.8 1998/10/03 08:13:33 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -73,15 +73,17 @@ struct __mbk {
 
 };
 
+MBK *mbk_new(char *host, int port, char *auth);
 char **split(char c, char *string);
 char *hexprint(int size, char *buf);
 char *kw(char *in);
 char *unhexprint(int size, char *buf);
+int checkpidfile(char *pidfile);
+int getservsocket_udp(int);
 void _do_log(int level, char *msg);
 void freeptrlist(char **list);
 void log_debug(char *format,...);
 void log_misc(int level, char *format, ...);
 void log_msg(char *format,...);
-MBK *mbk_new(char *host, int port, char *auth);
 
 #endif /* MBKD_H */

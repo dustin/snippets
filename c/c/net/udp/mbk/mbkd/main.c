@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.8 1998/10/03 08:02:26 dustin Exp $
+ * $Id: main.c,v 1.9 1998/10/03 08:13:30 dustin Exp $
  */
 
 #include <config.h>
+#include <nettools.h>
 #include <mbkd.h>
 
 #include <stdio.h>
