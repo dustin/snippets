@@ -8,7 +8,7 @@ PROFILE=
 
 PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
 	builddict cipher splitFreqs lncp resolver ager blockDigest blockDigest.cmi \
-	digestline cdbcat cdbpick
+	digestline cdbcat cdbpick cdbget
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -24,17 +24,21 @@ hlgrep: hlgrep.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa str.cmxa fileutils.cmx hlgrep.ml
 
+cdbget: cdbget.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa cdbget.ml
+
 cdbcat: cdbcat.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa str.cmxa spy.cmxa cdbcat.ml
+		unix.cmxa spy.cmxa cdbcat.ml
 
 cdbpick: cdbpick.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa str.cmxa spy.cmxa cdbpick.ml
+		unix.cmxa spy.cmxa cdbpick.ml
 
 digestline: digestline.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa str.cmxa fileutils.cmx digestline.ml
+		unix.cmxa fileutils.cmx digestline.ml
 
 missingNumbers: missingNumbers.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
@@ -74,7 +78,7 @@ cipher: cipher.ml
 
 makeCipher: makeCipher.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa str.cmxa spy.cmxa makeCipher.ml
+		unix.cmxa spy.cmxa makeCipher.ml
 
 splitFreqs: splitFreqs.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
