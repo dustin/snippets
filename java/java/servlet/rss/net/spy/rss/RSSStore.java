@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSStore.java,v 1.3 2001/04/29 07:57:14 dustin Exp $
+// $Id: RSSStore.java,v 1.4 2002/08/16 07:28:44 dustin Exp $
 
 package net.spy.rss;
 
@@ -15,7 +15,7 @@ public class RSSStore extends Thread {
 	// Don't let them idle more than an hour
 	private static final int MAX_IDLE_TIME=3600000;
 
-	private Hashtable sites=null;
+	private HashMap sites=null;
 	private boolean notdone=true;
 	private int runs=0;
 
@@ -25,14 +25,17 @@ public class RSSStore extends Thread {
 	public RSSStore() {
 		super("RSSStore");
 		setDaemon(true);
-		sites=new Hashtable();
+		sites=new HashMap();
 	}
 
 	/**
 	 * Get a String telling about this thing.
 	 */
 	public String toString() {
-		int numSites=sites.size();
+		int numSites=0;
+		synchronized(sites) {
+			numSites=sites.size();
+		}
 		return(super.toString() + " - "
 			+ numSites + " sites watched, " + runs + " runs");
 	}
@@ -46,22 +49,24 @@ public class RSSStore extends Thread {
 			try {
 				runs++;
 				long now=System.currentTimeMillis();
-				Vector toremove=new Vector();
 				// Update and queue removals
-				for(Enumeration e=sites.elements(); e.hasMoreElements(); ) {
+				ArrayList toUpdate=new ArrayList();
+				synchronized(sites) {
+					for(Iterator i=sites.values().iterator(); i.hasNext(); ) {
 
-					RSSItem ri=(RSSItem)e.nextElement();
-					// Throw away anything that's too old, otherwise, update it
-					if( (now-ri.lastRequest()) > MAX_IDLE_TIME) {
-						toremove.addElement(ri.getURL());
-					} else {
-						ri.update();
+						RSSItem ri=(RSSItem)i.next();
+						// Throw away anything that's too old, otherwise,
+						// get ready to update it
+						if( (now-ri.lastRequest()) > MAX_IDLE_TIME) {
+							i.remove();
+						} else {
+							toUpdate.add(ri);
+						}
 					}
 				}
-				// Remove the things that we don't want anymore.
-				for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
-					String key=(String)e.nextElement();
-					sites.remove(key);
+				for(Iterator i=toUpdate.iterator(); i.hasNext(); ) {
+					RSSItem ri=(RSSItem)i.next();
+					ri.update();
 				}
 				sleep(5*60*1000);
 			} catch(Exception e) {

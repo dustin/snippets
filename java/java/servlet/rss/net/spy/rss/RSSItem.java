@@ -1,10 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSItem.java,v 1.4 2001/09/07 08:56:36 dustin Exp $
+// $Id: RSSItem.java,v 1.5 2002/08/16 07:28:42 dustin Exp $
 
 package net.spy.rss;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import net.spy.net.*;
 
 /**
@@ -38,7 +38,7 @@ public class RSSItem extends Object {
 	public void update() {
 		long now=System.currentTimeMillis();
 		int timepassed=(int)((now-lastUpdate)/1000);
-		Hashtable headers=new Hashtable();
+		HashMap headers=new HashMap();
 		// Make sure we get good shit.
 		headers.put("Pragma", "no-cache");
 
