@@ -1,9 +1,12 @@
 #!/usr/bin/env jython
 
-import jarray
-import base64
+# Optional debug
+# -Dorg.apache.commons.logging.simplelog.showdatetime=true \
+# -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog \
+# -Dorg.apache.commons.logging.simplelog.log.httpclient.wire=trace \
+# -Dorg.apache.commons.logging.simplelog.log.org.apache.commons.httpclient=debug \
 
-from java.lang import System
+import jarray
 
 from org.apache.commons.httpclient import HttpClient
 from org.apache.commons.httpclient import UsernamePasswordCredentials
@@ -51,18 +54,6 @@ class MySSLSocketFactory(SecureProtocolSocketFactory):
 
 # Main
 
-System.setProperty("org.apache.commons.logging.Log",
-	"org.apache.commons.logging.impl.SimpleLog")
-System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true")
-# System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient.Authenticator", "trace")
-# System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire",
-	# "debug")
-# System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
-# System.setProperty("org.apache.commons.logging.simplelog.log", "trace")
-System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace")
-System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire",
-	"debug")
-
 Protocol.registerProtocol("https", Protocol("https", MySSLSocketFactory(), 443))
 client = HttpClient();
 # auth
@@ -77,6 +68,6 @@ get.setDoAuthentication(1)
 
 status=client.executeMethod(get)
 
-# print get.getResponseBodyAsString()
+print get.getResponseBodyAsString()
 # print "Auth realm:  " + str(get.getAuthenticationRealm())
 get.releaseConnection()
