@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.21 2003/06/28 22:55:45 dustin Exp $
+ * $Id: Temperature.java,v 1.22 2003/06/28 23:18:20 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -26,8 +26,10 @@ import net.spy.png.*;
 // The class
 public class Temperature extends PngServlet {
 
+	// shared gatherer instance
+	static Gatherer gatherer=null;
+
 	private SpyCache cache=null;
-	private Gatherer gatherer=null;
 
 	// Image stuff.
 	private Image baseImage=null;

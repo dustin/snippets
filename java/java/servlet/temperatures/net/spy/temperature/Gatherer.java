@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Gatherer.java,v 1.4 2003/02/23 08:05:21 dustin Exp $
+// $Id: Gatherer.java,v 1.5 2003/06/28 23:18:19 dustin Exp $
 
 package net.spy.temperature;
 
@@ -33,8 +33,6 @@ public class Gatherer extends SpyThread {
 	private int updates=0;
 	private Map seen=null;
 	private ResourceBundle serials=null;
-
-	private static Gatherer instance=null;
 
 	private static final long MAX_AGE=900000;
 
