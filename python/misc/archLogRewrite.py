@@ -17,8 +17,6 @@ def rewriteFile(filename):
 	lines=f.readlines()
 	f.close()
 
-	out=open(filename + ".tmp", "w")
-
 	# find the date
 	ttable=string.maketrans("/:", "  ")
 	lines.reverse()
@@ -48,21 +46,26 @@ def rewriteFile(filename):
 
 	sys.stderr.write(repr(headers) + "\n")
 
-	lines.reverse()
-	allheaders=0
-	for l in lines:
-		if allheaders == 0:
-			h=string.split(l, ":", 2)
-			if headers.has_key(h[0]):
-				out.write("%s: %s\n" % (h[0], headers[h[0]]))
+	if (len(headers) > 0):
+		out=open(filename + ".tmp", "w")
+
+		lines.reverse()
+		allheaders=0
+		for l in lines:
+			if allheaders == 0:
+				h=string.split(l, ":", 2)
+				if headers.has_key(h[0]):
+					out.write("%s: %s\n" % (h[0], headers[h[0]]))
+				else:
+					out.write(l)
+				if l == "\n":
+					allheaders=1
 			else:
 				out.write(l)
-			if l == "\n":
-				allheaders=1
-		else:
-			out.write(l)
 
-	os.rename(filename + ".tmp", filename)
+		os.rename(filename + ".tmp", filename)
+	else:
+		sys.stderr.write("No changes, not modifying log.\n")
 
 # MAIN
 for f in sys.argv[1:]:
