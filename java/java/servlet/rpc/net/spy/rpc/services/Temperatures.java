@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Temperatures.java,v 1.1 2002/03/05 10:42:49 dustin Exp $
+// $Id: Temperatures.java,v 1.2 2002/11/11 09:41:51 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -64,7 +64,11 @@ public class Temperatures extends Object {
 	public static void main(String args[]) throws Exception {
 		Temperatures t=new Temperatures();
 
-		System.out.println(t.getTemperatures());
+		if(args.length > 0 ) {
+			System.out.println(t.getTemperature(args[0]));
+		} else {
+			System.out.println(t.getTemperatures());
+		}
 	}
 
 }
