@@ -18,6 +18,9 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/log/SpyLogEntry.class \
 	net/spy/log/SpyLogFlusher.class \
 	net/spy/log/SpyLogQueue.class \
+	net/spy/log/SpyMessage.class \
+	net/spy/log/MCastLog.class \
+	net/spy/log/MCastListener.class \
 	net/spy/SpyToker.class \
 	'net/spy/SpyConfig$$SpyConfigReader.class' net/spy/net/SNPP.class \
 	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
