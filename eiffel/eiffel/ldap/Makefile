@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 1999/06/07 07:35:01 dustin Exp $
+# $Id: Makefile,v 1.6 1999/06/07 22:53:58 dustin Exp $
 #
 # Copyright (c) 1999 Dustin Sallings
 # See forum.txt for license
@@ -23,6 +23,9 @@ DEST=/home/dustin/public_html/eiffel/eiffeldap.tgz
 ldaptest: ldaptest.e ldap.e openldap_stuff.c
 	$(EC) ldaptest -o $@ $(EFLAGS) openldap_stuff.c $(LFLAGS)
 
+lookup: ldap.e lookup.e openldap_stuff.c
+	$(EC) $@ -o $@ $(EFLAGS) openldap_stuff.c $(LFLAGS)
+
 short:
 	$(E) short ldap
 
@@ -38,5 +41,5 @@ eiffeldap.tgz: $(FILES)
 	chmod 644 $(DEST)
 
 clean:
-	$(E) clean ldaptest
-	rm -f ldaptest *.o
+	$(E) clean ldaptest lookup
+	rm -f ldaptest lookup *.o
