@@ -40,6 +40,7 @@
     int currentFile;
 }
 - (IBAction)authenticate:(id)sender;
+- (IBAction)dateToToday:(id)sender;
 - (IBAction)openAuthWindow:(id)sender;
 - (IBAction)openUploadWindow:(id)sender;
 - (IBAction)selectFiles:(id)sender;

@@ -37,8 +37,16 @@
     NS_ENDHANDLER
 }
 
+- (IBAction)dateToToday:(id)sender
+{
+    NSDate *today = [NSDate date];
+    [dateTaken setStringValue:[today descriptionWithCalendarFormat:@"%Y/%m/%d"
+                                                          timeZone:nil locale:nil]];
+}
+
 - (IBAction)openAuthWindow:(id)sender
 {
+    [authWindow makeKeyAndOrderFront: self];
 }
 
 - (IBAction)openUploadWindow:(id)sender
@@ -228,23 +236,6 @@
     [ut release];
 }
 
-- (IBAction)uploadForReal:(id)sender
-{
-    [self setButtonAction: BUTTON_STOP];
-
-    NSMutableDictionary *dict=[[NSMutableDictionary alloc] initWithCapacity:10];
-
-
-    // Hide the progress bar and uploading text
-    [progressBar setHidden:TRUE];
-    [uploadingText setHidden:TRUE];
-    // Indicate the upload window needs to wake up and redraw stuff
-    [uploadButton setEnabled: TRUE];
-    // [self setButtonAction: BUTTON_UPLOAD];
-
-    [dict release];
-}
-
 - (void)updateProgressText
 {
     if(currentFile <= [files count])
@@ -277,9 +268,7 @@
     }
 
     // Fill in form entries with defaults
-    NSDate *today = [NSDate date];
-    [dateTaken setStringValue:[today descriptionWithCalendarFormat:@"%Y/%m/%d"
-                                                          timeZone:nil locale:nil]];
+    [self dateToToday: self];
 
     [authWindow makeKeyAndOrderFront: self];
 }

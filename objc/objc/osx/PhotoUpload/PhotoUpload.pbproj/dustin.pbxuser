@@ -13,14 +13,14 @@
 			F5F17F5F033CF3AF01A801C4,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 54878163;
+			PBXPerProjectTemplateStateSaveDate = 54962795;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F5084A1F0345945901A801C4;
+									bookmark = F55924730346B05301A801C4;
 									history = (
 										F5D455290342D18101A801C4,
 										F5084A0F0345945901A801C4,
@@ -32,14 +32,11 @@
 										F5084A150345945901A801C4,
 										F5084A160345945901A801C4,
 										F5084A170345945901A801C4,
-										F5084A180345945901A801C4,
 										F5084A190345945901A801C4,
 										F5084A1A0345945901A801C4,
 										F5084A1B0345945901A801C4,
-										F5084A1C0345945901A801C4,
-									);
-									nextStack = (
-										F5084A1E0345945901A801C4,
+										F55924700346B05301A801C4,
+										F55924710346B05301A801C4,
 									);
 									prevStack = (
 										F5F3A446033CF80401A801C4,
@@ -72,6 +69,7 @@
 										F5DD8131033E568801A801C4,
 										F5DD8132033E568801A801C4,
 										F5084A1D0345945901A801C4,
+										F55924720346B05301A801C4,
 									);
 								};
 								NavCount = 1;
@@ -134,8 +132,6 @@
 											DebugVariablesTableConfiguration = (
 												Name,
 												123,
-												Type,
-												84,
 												Value,
 												85,
 												Summary,
@@ -159,10 +155,10 @@
 								LauncherConfigVersion = 7;
 							};
 							Tab1 = {
-								Frame = "{{0, 0}, {565, 125}}";
+								Frame = "{{0, 0}, {646, 125}}";
 								LauncherConfigVersion = 3;
 								Runner = {
-									Frame = "{{0, 0}, {565, 125}}";
+									Frame = "{{0, 0}, {646, 125}}";
 								};
 							};
 							Tab2 = {
@@ -180,12 +176,10 @@
 						Tab0 = {
 							Frame = "{{0, 0}, {260, 563}}";
 							GroupTreeTableConfiguration = (
-								SCMStatusColumn,
-								22,
 								TargetStatusColumn,
 								18,
 								MainColumn,
-								205,
+								227,
 							);
 						};
 						Tab1 = {
@@ -232,10 +226,10 @@
 					StatusViewVisible = YES;
 					Template = F5F68CF101725D4C0D7A8F4C;
 					ToolbarVisible = YES;
-					WindowLocation = "{3, 112}";
+					WindowLocation = "{13, 180}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 54878163;
+			PBXWorkspaceStateSaveDate = 54962795;
 		};
 		perUserProjectItems = {
 			F5084A0F0345945901A801C4 = F5084A0F0345945901A801C4;
@@ -247,16 +241,16 @@
 			F5084A150345945901A801C4 = F5084A150345945901A801C4;
 			F5084A160345945901A801C4 = F5084A160345945901A801C4;
 			F5084A170345945901A801C4 = F5084A170345945901A801C4;
-			F5084A180345945901A801C4 = F5084A180345945901A801C4;
 			F5084A190345945901A801C4 = F5084A190345945901A801C4;
 			F5084A1A0345945901A801C4 = F5084A1A0345945901A801C4;
 			F5084A1B0345945901A801C4 = F5084A1B0345945901A801C4;
-			F5084A1C0345945901A801C4 = F5084A1C0345945901A801C4;
 			F5084A1D0345945901A801C4 = F5084A1D0345945901A801C4;
-			F5084A1E0345945901A801C4 = F5084A1E0345945901A801C4;
-			F5084A1F0345945901A801C4 = F5084A1F0345945901A801C4;
 			F541BE86033DB8CC01A801C4 = F541BE86033DB8CC01A801C4;
 			F541BE87033DB8CC01A801C4 = F541BE87033DB8CC01A801C4;
+			F55924700346B05301A801C4 = F55924700346B05301A801C4;
+			F55924710346B05301A801C4 = F55924710346B05301A801C4;
+			F55924720346B05301A801C4 = F55924720346B05301A801C4;
+			F55924730346B05301A801C4 = F55924730346B05301A801C4;
 			F5D455290342D18101A801C4 = F5D455290342D18101A801C4;
 			F5DD812F033E568801A801C4 = F5DD812F033E568801A801C4;
 			F5DD8130033E568801A801C4 = F5DD8130033E568801A801C4;
@@ -303,16 +297,6 @@
 	F5084A0F0345945901A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = F50849F8034561C001A801C4;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {379, 198}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {147, 362}}";
-			TOCViewSelectedItems = (
-				PBXBSExpertAspectModule,
-			);
-		};
 	};
 	F5084A100345945901A801C4 = {
 		fRef = F5F3A43C033CF57301A801C4;
@@ -394,16 +378,6 @@
 		vrLen = 190;
 		vrLoc = 0;
 	};
-	F5084A180345945901A801C4 = {
-		fRef = F5F3A43B033CF57301A801C4;
-		isa = PBXTextBookmark;
-		name = "UploadController.m: 13";
-		rLen = 0;
-		rLoc = 264;
-		rType = 0;
-		vrLen = 886;
-		vrLoc = 79;
-	};
 	F5084A190345945901A801C4 = {
 		bstl = 4A9504CCFFE6A4B311CA0CBA;
 		isa = PBXBuildStyleBookmark;
@@ -415,72 +389,10 @@
 	F5084A1B0345945901A801C4 = {
 		exec = F5F17F5F033CF3AF01A801C4;
 		isa = PBXExecutableBookmark;
-		uiCtxt = {
-			buildSettingsExpandedSubviews = (
-				0,
-				1,
-				2,
-				3,
-				4,
-				5,
-			);
-			buildSettingsVisRect = "{{0, 0}, {631, 358}}";
-		};
-	};
-	F5084A1C0345945901A801C4 = {
-		isa = PBXTargetBookmark;
-		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 204}, {467, 358}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {140, 358}}";
-			TOCViewSelectedItems = (
-				"com.apple.target-editor-pane.settings.simple",
-			);
-		};
 	};
 	F5084A1D0345945901A801C4 = {
 		bstl = 4A9504CDFFE6A4B311CA0CBA;
 		isa = PBXBuildStyleBookmark;
-	};
-	F5084A1E0345945901A801C4 = {
-		exec = F5F17F5F033CF3AF01A801C4;
-		isa = PBXExecutableBookmark;
-		uiCtxt = {
-			buildSettingsExpandedSubviews = (
-				0,
-				1,
-				2,
-				3,
-				4,
-				5,
-			);
-			buildSettingsVisRect = "{{0, 0}, {631, 358}}";
-		};
-	};
-	F5084A1F0345945901A801C4 = {
-		isa = PBXTargetBookmark;
-		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 147}, {436, 358}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {171, 358}}";
-			TOCViewSelectedItems = (
-				"com.apple.target-editor-pane.settings.simple",
-			);
-		};
 	};
 	F541BE86033DB8CC01A801C4 = {
 		fRef = F5F3A438033CF45701A801C4;
@@ -497,10 +409,63 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 39";
 		rLen = 0;
-		rLoc = 2166;
+		rLoc = 2383;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 614;
+	};
+	F55924700346B05301A801C4 = {
+		isa = PBXTargetBookmark;
+		trg = 29B97326FDCFA39411CA2CEA;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {436, 233}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+				"com.apple.target-editor-pane.settings.simple",
+				"com.apple.target-editor-pane.info-plist",
+				"com.apple.target-editor-pane.info-plist.simple",
+				"com.apple.target-editor-pane.buildphases",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {171, 358}}";
+			TOCViewSelectedItems = (
+				PBXTargetSummarySettingsModule,
+			);
+		};
+	};
+	F55924710346B05301A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		rLen = 1;
+		rLoc = 270;
+		rType = 1;
+	};
+	F55924720346B05301A801C4 = {
+		isa = PBXTargetBookmark;
+		trg = 29B97326FDCFA39411CA2CEA;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {436, 233}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+				"com.apple.target-editor-pane.settings.simple",
+				"com.apple.target-editor-pane.info-plist",
+				"com.apple.target-editor-pane.info-plist.simple",
+				"com.apple.target-editor-pane.buildphases",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {171, 358}}";
+			TOCViewSelectedItems = (
+				PBXTargetSummarySettingsModule,
+			);
+		};
+	};
+	F55924730346B05301A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: awakeFromNib";
+		rLen = 0;
+		rLoc = 7944;
+		rType = 0;
+		vrLen = 715;
+		vrLoc = 7290;
 	};
 	F5D455290342D18101A801C4 = {
 		fRef = F5D455410342D18101A801C4;
@@ -520,7 +485,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
 		rLen = 0;
-		rLoc = 2174;
+		rLoc = 2391;
 		rType = 0;
 		vrLen = 617;
 		vrLoc = 0;
@@ -738,7 +703,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7970;
+		rLoc = 7730;
 		rType = 0;
 		vrLen = 715;
 		vrLoc = 728;
@@ -748,7 +713,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7528;
+		rLoc = 7288;
 		rType = 0;
 		vrLen = 718;
 		vrLoc = 726;
@@ -758,7 +723,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7528;
+		rLoc = 7288;
 		rType = 0;
 		vrLen = 717;
 		vrLoc = 726;
@@ -778,7 +743,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7466;
+		rLoc = 7226;
 		rType = 0;
 		vrLen = 719;
 		vrLoc = 731;
