@@ -78,22 +78,27 @@ if __name__ == '__main__':
 
 	# Build the list of servers
 	servers={}
-	# Noc0
-	tmp=[]
-	for n in range(1,13):
-		s="http://w51-" + str(n) + ".diag.c51.2wire.com:8080" \
-			+ '/admin/monitor/stat'
-		tmp.append(s)
-	servers['noc0'] = tmp
-	servers['production'] = tmp
-	# Staging
-	tmp=[]
-	for n in range(1,5):
-		s="http://w50-" + str(n) + ".diag.c50.2wire.com:8080" \
-			+ '/admin/monitor/stat'
-		tmp.append(s)
-	servers['noc1'] = tmp
-	servers['staging'] = tmp
+
+	u=urllib.URLopener()
+	r=u.open("http://buildmaster.eng.2wire.com/clusterinfo/clusters.txt")
+	for cluster in r.readlines():
+		cluster=cluster.strip()
+		tmp=[]
+		rl=u.open("http://buildmaster.eng.2wire.com/clusterinfo/" + cluster \
+			+ "-full.txt")
+		for s in rl.readlines():
+			s=s.strip()
+			parts=s.split(".")
+			url="http://" + parts[0] + ".diag." + parts[1] \
+				+ ".2wire.com:8080/admin/monitor/stat"
+			tmp.append(url)
+		servers[cluster] = tmp
+
+	# Production aliases
+	servers['noc0'] = servers['prod']
+	# Staging aliases
+	servers['noc1'] = servers['50']
+	servers['staging'] = servers['50']
 	# Farooq
 	servers['noc5']=['http://noc.noc5.2wire.com/admin/monitor/stat']
 	# Dustin
