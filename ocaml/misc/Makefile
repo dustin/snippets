@@ -35,6 +35,10 @@ waitForSocket: waitForSocket.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa \
 		waitForSocket.ml
 
+largefile: largefile.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa \
+		largefile.ml
+
 resolver: resolver.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa spy.cmxa \
 		resolver.ml
