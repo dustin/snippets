@@ -1,5 +1,5 @@
 # Copyright(c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.5 1998/10/03 08:02:23 dustin Exp $
+# $Id: Makefile.in,v 1.6 1998/10/03 08:06:23 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
@@ -17,14 +17,17 @@ LDFLAGS=@LDFLAGS@ $(LIBS)
 OBJS=nettools.o sockets.o utility.o hash.o md5.o mymalloc.o mbk.o
 SRCS=nettools.c sockets.c utility.c hash.c md5.c mymalloc.c mbk.c
 
-all: mbkd
+all: mbkd sample_send
 
 mbkd: libmbk.a main.o
 	$(CC) -o $@ main.o libmbk.a $(LDFLAGS)
+
+sample_send: libmbk.a sample_send.o
+	$(CC) -o $@ sample_send.o libmbk.a $(LDFLAGS)
 
 libmbk.a: $(OBJS)
 	$(AR) $@ $(OBJS)
 	$(RANLIB) $@
 
 clean:
-	rm -f $(OBJS) mbkd libmbk.a
+	rm -f $(OBJS) mbkd sample_send libmbk.a main.o sample_send.o
