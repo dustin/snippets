@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.1 1999/10/20 03:43:00 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.2 2000/06/05 09:24:03 dustin Exp $
  */
 
 package net.spy.photo;
@@ -51,14 +51,19 @@ public class PhotoLogView extends PhotoHelper
 			out=PhotoUtil.tokenize(photosession, "log/viewers_top.inc", htmp);
 
 			while(rs.next()) {
-				Hashtable h = new Hashtable();
-				h.put("USERNAME", rs.getString(1));
-				h.put("REMOTE_ADDR", rs.getString(2));
-				h.put("USER_AGENT", rs.getString(3));
-				h.put("CACHED", rs.getString(4));
-				h.put("TS", rs.getString(5));
-				out+=PhotoUtil.tokenize(photosession, "log/viewers_match.inc",
-					h);
+				try {
+					Hashtable h = new Hashtable();
+					h.put("USERNAME", rs.getString(1));
+					h.put("REMOTE_ADDR", rs.getString(2));
+					h.put("USER_AGENT", rs.getString(3));
+					h.put("CACHED", rs.getString(4));
+					h.put("TS", rs.getString(5));
+					out+=PhotoUtil.tokenize(photosession,
+						"log/viewers_match.inc", h);
+				} catch(Exception e) {
+					log("Error reporting log entry for " +
+						photo_id.toString() + " from " + rs.getString(5));
+				}
 			}
 
 			out+=PhotoUtil.tokenize(photosession, "log/viewers_bottom.inc",
