@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.3 2003/04/03 01:45:07 dustin Exp $
+ * $Id: main.c,v 1.4 2003/04/16 01:06:41 dustin Exp $
  */
 
 #include <config.h>
@@ -43,11 +43,12 @@ static void
 usage(const char *name)
 {
 	fprintf(stderr,
-		"Usage:\n  %s [-pb] [-n max_conns] [-d data] hostname port\n",
-		name);
+		"Usage:\n  %s [-pb] [-n max_conns] [-d data] "
+			"[-t total] hostname port\n", name);
 	fprintf(stderr, "\t-p Keep max_conns connections open\n");
 	fprintf(stderr, "\t-b Disable non-blocking IO\n");
-	fprintf(stderr, "\t-n Maximum number of connections to open\n");
+	fprintf(stderr, "\t-n Maximum number of concurrent connections to open\n");
+	fprintf(stderr, "\t-t Total number of connections to open\n");
 }
 
 int
@@ -60,16 +61,20 @@ main(int argc, char **argv)
 	fd_set  fdset, tfdset;
 	char    buf[8192];
 	struct timeval t;
+	int total=-1, opened=0;
 	int maxconns=MAXINT;
 
 	/* Process options */
-	while ((c=getopt(argc, argv, "bpn:d:")) >= 0) {
+	while ((c=getopt(argc, argv, "bpn:d:t:")) >= 0) {
 		switch(c) {
 			case 'p':
 				keep_populated=1;
 				break;
 			case 'n':
 				maxconns=atoi(optarg);
+				break;
+			case 't':
+				total=atoi(optarg);
 				break;
 			case 'd':
 				data=optarg;
@@ -96,12 +101,16 @@ main(int argc, char **argv)
 
 	resettraps();
 
-	for (;;) {
+	for (opened=0; total == -1 || opened < total;) {
 		int numToOpen=1, i;
 
 		/* Figure out how many connections we need to open */
 		if(keep_populated) {
 			numToOpen=(maxconns-currentlyOpen);
+		}
+
+		if(opened + numToOpen > total) {
+			numToOpen=0;
 		}
 
 		/* Open them (if the number is less than 1, it won't do anything */
@@ -110,6 +119,7 @@ main(int argc, char **argv)
 			s = getclientsocket(hostname, port, sock_flags);
 			if (s > 0) {
 				printf("Got one: %d...\n", s);
+				opened++;
 				FD_SET(s, &tfdset);
 				currentlyOpen++;
 				if (data != NULL) { /* send some data if we've got some */
