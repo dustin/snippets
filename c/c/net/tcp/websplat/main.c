@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.11 1998/12/07 20:03:24 dustin Exp $
+ * $Id: main.c,v 1.12 1999/02/24 07:17:35 dustin Exp $
  */
 
 #include <config.h>
@@ -128,8 +128,15 @@ parseurl(char *url)
 void
 usage(char **argv)
 {
-	printf("Usage:  %s [-fdsS] [-n max_conns] [-t total_hits] request_url\n",
+	printf("Usage:  %s [-NfdsS] [-n max_conns] [-t total_hits] request_url\n",
 	    argv[0]);
+	printf("\t-d Turns on debugging\n");
+	printf("\t-s Produces human readable statistics\n");
+	printf("\t-S Produces machine readable statistics\n");
+	printf("\t-n Maximum number of simultaneous connections\n");
+	printf("\t-t Total number of hits to complete\n");
+	printf("\t-N Use Nagle algorithm\n");
+	printf("\t-f Flush after every print\n");
 }
 
 struct http_status
@@ -256,7 +263,7 @@ int
 main(int argc, char **argv)
 {
 	int     s, selected, size, c, i, maxhits = 65535, totalhits = 0,
-	        n = 0, flags = 0, hit;
+	        n = 0, flags = 0, hit, sock_flags = 0;
 	fd_set  fdset, tfdset;
 	struct timeval timers[MAXSEL][3];
 	int     bytes[MAXSEL];
@@ -271,11 +278,15 @@ main(int argc, char **argv)
 
 	req.port = -1;
 
-	while ((c = getopt(argc, argv, "fdt:n:sS")) >= 0) {
+	while ((c = getopt(argc, argv, "Nfdt:n:sS")) >= 0) {
 		switch (c) {
 
 		case 'd':
 			_debug = 3;
+			break;
+
+		case 'N':
+			sock_flags|=DO_NAGLE;
 			break;
 
 		case 'n':
@@ -333,7 +344,7 @@ main(int argc, char **argv)
 			if (flags & DO_STATS)
 				gettimeofday(&tmptime, tzp);
 
-			s = getclientsocket(req.host, req.port);
+			s = getclientsocket(req.host, req.port, sock_flags);
 
 			if (flags & DO_STATS) {
 				gettimeofday(&timers[s][1], tzp);

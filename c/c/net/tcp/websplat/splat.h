@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.3 1998/12/07 20:01:51 dustin Exp $
+ * $Id: splat.h,v 1.4 1999/02/24 07:17:38 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -24,6 +24,9 @@
 #endif
 
 #define REQ_LEN 1024
+
+/* Socket options */
+#define DO_NAGLE 1
 
 /*
  * URL request holder.
@@ -55,6 +58,6 @@ struct http_status {
 	char *string;
 };
 
-int     getclientsocket(char *host, int port);
+int     getclientsocket(char *host, int port, int flags);
 
 #endif

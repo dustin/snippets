@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.2 1998/08/26 01:59:08 dustin Exp $
+ * $Id: sockets.c,v 1.3 1999/02/24 07:17:37 dustin Exp $
  */
 
 #include <stdio.h>
@@ -21,7 +21,7 @@
 extern int _debug;
 
 int
-getclientsocket(char *host, int port)
+getclientsocket(char *host, int port, int flags)
 {
 	struct hostent *hp;
 	int     success, i, flag;
@@ -58,11 +58,15 @@ getclientsocket(char *host, int port)
 		l.l_linger = 60;
 		setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &l, sizeof(l));
 
-		flag = 1;
-		if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
-			sizeof(int)) < 0) {
-			puts("Nagle algorithm not dislabled.");
+		/* Don't disable the nagle algorithm if we say not to */
+		if( (flags&DO_NAGLE) ==0) {
+			flag = 1;
+			if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
+				sizeof(int)) < 0) {
+				puts("Nagle algorithm not dislabled.");
+			}
 		}
+
 		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 			sleep(1);
 		} else {
