@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.1 2002/12/10 09:40:30 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.2 2002/12/10 09:53:39 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
@@ -21,11 +21,12 @@ type stats = {
 let g_timesep = Str.regexp "[-: ]";;
 let g_spacesep = Str.regexp "[ ]+";;
 let g_slashsep = Str.regexp "[/]";;
-let g_linematch = Str.regexp ".*database.DBManager.sql";;
 
 (* True if the line looks like a SQL log entry *)
 let is_log_entry(l: string): bool =
-	Str.string_match g_linematch l 0
+	(* Look for the exact location since there's no strstr in ocaml *)
+	String.length l > 60
+		&& ((String.sub l 36 22) = "database.DBManager.sql")
 ;;
 
 (* Parse time from the given timestamp *)
