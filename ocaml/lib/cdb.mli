@@ -18,6 +18,19 @@ val close_cdb_out : cdb_creator -> unit
 
 val iter : (string -> string -> unit) -> string -> unit
 
+(** {1 Searching } *)
+
+type cdb_file = {
+	f: in_channel;
+	tables: (int * int) array;
+}
+
+val open_cdb_in : string -> cdb_file
+
+(*
+val find : cdb_file -> string -> string
+*)
+
 (*
  * arch-tag: 55F4CBF0-2B50-11D8-BEDC-000393CFE6B8
  *)

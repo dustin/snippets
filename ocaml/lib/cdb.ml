@@ -193,15 +193,106 @@ let iter f fn =
 	with x -> close_in fin; raise x;
 ;;
 
+(** {1 Searching } *)
+
+(** Type type of a cdb_file. *)
+type cdb_file = {
+	f: in_channel;
+	(* Position * length *)
+	tables: (int * int) array;
+};;
+
+(** Open a CDB file for searching. *)
+let open_cdb_in fn =
+	let fin = open_in_bin fn in
+	let tables = Array.make 256 (0,0) in
+	(* Set the positions and lengths *)
+	Array.iteri (fun i it ->
+		let pos = read_le fin in
+		let len = read_le fin in
+		tables.(i) <- (pos,len);
+		(*
+		print_endline("Table " ^ (string_of_int i) ^ " is "
+			^ (string_of_int (fst tables.(i))) ^ ", "
+			^ (string_of_int (snd tables.(i))));
+		*)
+		) tables;
+	{f=fin; tables=tables}
+;;
+
+(**
+ Close a cdb file.
+ *)
+let close_cdb_in cdf =
+	close_in cdf.f
+;;
+
+(**
+ Find the first record with the given key.
+
+ @param cdf the cdb_file
+ @param key the key to find
+ *)
+let find cdf key =
+	let kh = hash key in
+	print_endline("key hash is " ^ (string_of_int kh));
+	(* Find out where the hash table is *)
+	let hpos, hlen = cdf.tables.(kh land 0xff) in
+	print_endline("Busket is " ^ (string_of_int (kh land 0xff)));
+	(* Go to the hash and figure out where this slot is *)
+	let rec loop slot_num x =
+		print_endline("Loop #" ^ (string_of_int x));
+		print_endline("slot_num =" ^ (string_of_int slot_num));
+		if(x > 0) then (
+			let spos = (slot_num * 8) + hpos in
+			print_endline("Seeking to " ^ (string_of_int spos));
+			seek_in cdf.f spos;
+			let h = read_le cdf.f in
+			let pos = read_le cdf.f in
+			print_endline("h,pos = " ^ (string_of_int h)
+				^ ", " ^ (string_of_int pos));
+			if (pos > 0) then (
+				print_endline("Pos is positive");
+				if (h = kh) then (
+					print_endline("hashes match, seeking to "
+						^ (string_of_int pos));
+					seek_in cdf.f pos;
+					let klen = read_le cdf.f in
+					if (klen = String.length key) then (
+						print_endline("key lengths match");
+						let dlen = read_le cdf.f in
+						let rkey = String.create klen in
+						really_input cdf.f rkey 0 klen;
+						if(rkey = key) then (
+							print_endline("Keys match");
+							let rdata = String.create dlen in
+							really_input cdf.f rdata 0 dlen;
+							print_endline("*** Found " ^ rdata);
+						)
+					)
+				)
+			);
+			loop (if (1 + slot_num) > hlen then 0 else (1 + slot_num)) (x - 1);
+		) in
+	loop ((kh lsr 8) mod hlen) hlen;
+;;
+
 (** test app to create ``test.cdb'' and put some stuff in it *)
 let main() =
 	let c = open_out "test.cdb" in
 	add c "a" "1";
 	add c "b" "2";
 	add c "c" "3";
+	add c "c" "4";
 	add c "dustin" "We're number one!";
 	close_cdb_out c;
 	iter (fun k v -> print_endline(k ^ " -> " ^ v)) "test.cdb";
+	print_endline("*** Searching a ***");
+	let cdf = open_cdb_in "test.cdb" in
+	find cdf "a";
+	print_endline("*** Searching c ***");
+	find cdf "c";
+	close_cdb_in cdf;
 ;;
 
 (* Start main if we're interactive. *)
