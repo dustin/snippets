@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.2 1998/10/01 18:05:13 dustin Exp $
+ * $Id: hash.c,v 1.3 1998/10/03 08:11:14 dustin Exp $
  */
 
 #include <stdio.h>
@@ -20,7 +20,7 @@ _do_hash(struct hashtable *hash, char *s)
 
 	for (p = s; *p; p++) {
 		h = (h << 4) + (*p);
-		if (g = h & 0xf0000000) {
+		if ( (g = (h & 0xf0000000) )) {
 			h = h ^ (g >> 24);
 			h = h ^ g;
 		}
@@ -176,7 +176,7 @@ _hash_dump(struct hashtable *hash)
 
 		if (p) {
 			for (; p; p = p->next) {
-				printf("\t%s=%s\n", p->name, p->value);
+				printf("\t%s=%s\n", p->name, (char *)p->value);
 			}
 		}
 	}

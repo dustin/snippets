@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.5 1998/10/03 08:02:33 dustin Exp $
+ * $Id: sockets.c,v 1.6 1998/10/03 08:11:16 dustin Exp $
  */
 
 #include <stdio.h>
@@ -35,7 +35,7 @@ getHostName(unsigned int addr)
 int
 getservsocket_udp(int port)
 {
-	int     reuse = 1, s;
+	int     s;
 	struct sockaddr_in sin;
 
 	signal(SIGPIPE, SIG_IGN);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.5 1998/10/03 08:02:36 dustin Exp $
+ * $Id: utility.c,v 1.6 1998/10/03 08:11:18 dustin Exp $
  */
 
 #include <config.h>
@@ -331,7 +331,7 @@ set_bit(int map, int bit)
 char  **
 split(char c, char *string)
 {
-	int     i, j = 0, k = 0, length;
+	int     i, j = 0, length;
 	char  **ret;
 	char   *p;
 
@@ -416,8 +416,8 @@ unhexprint(int size, char *buf)
 	}
 
 	for (i = 0; i < size * 2; i += 2) {
-		assert(map[buf[i]] >= 0 && map[buf[i + 1]] >= 0);
-		r[j++] = (map[buf[i]] << 4 | map[buf[i + 1]]);
+		assert(map[(int)buf[i]] >= 0 && map[(int)buf[i + 1]] >= 0);
+		r[j++] = (map[(int)buf[i]] << 4 | map[(int)buf[i + 1]]);
 	}
 
 	return (r);
