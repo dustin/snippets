@@ -1,0 +1,19 @@
+# Copyright (c) 1997  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1998/03/17 04:04:54 dustin Exp $
+
+SHELL=/bin/sh
+
+DIRS=snpp
+AUTOCRAP=Makefile snpp/Makefile include/config.h config.status \
+	config.log config.cache
+
+all:
+	rm -f snpp/snppclient
+	for i in $(DIRS); do cd $$i && $(MAKE) ; cd .. ; done
+
+clean:
+	for i in $(DIRS); do cd $$i && $(MAKE) $@ ; cd .. ; done
+
+ultrabrite:
+	for i in $(DIRS); do cd $$i && $(MAKE) clean ; cd .. ; done
+	-rm -f $(AUTOCRAP)

@@ -1,0 +1,34 @@
+# Copyright (c) 1997  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1998/03/17 04:04:55 dustin Exp $
+
+.SUFFIXES: .m .o
+
+CFLAGS=-I../include -g
+AR=@AR@ cr
+RANLIB=@RANLIB@
+OBJC=@CC@
+LIBS=@LIBS@
+LDFLAGS=$(LIBS)
+EXES=test
+MISCOBJS=dString.o dSSocket.o dCSocket.o
+SOURCE=dString.m dSSocket.m dCSocket.m
+JUNK=$(EXES) *.o *.a
+
+snpp.a:	$(MISCOBJS)
+	$(AR) $@ $(MISCOBJS)
+	$(RANLIB) $@
+
+test:   misc.a test.o
+	$(OBJC) -o $@ test.o misc.a $(LIBS)
+
+clean:
+	-rm -f $(JUNK)
+
+.m:	$@.o
+	$(OBJC) -o $> $< $(LDFLAGS)
+
+.o:
+	$(OBJC) -o $> $< $(LDFLAGS)
+
+.m.o:
+	$(OBJC) $(CFLAGS) -c $<
