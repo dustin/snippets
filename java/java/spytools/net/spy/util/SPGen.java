@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.2 2001/03/27 21:47:03 dustin Exp $
+// $Id: SPGen.java,v 1.3 2001/04/03 07:59:30 dustin Exp $
 
 package net.spy.util;
 
@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Generator for spt's.
+ * Generator for .spt-&gt;.java.
  */
 public class SPGen extends Object {
 
@@ -21,7 +21,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.2 $";
+	private String version="$Revision: 1.3 $";
 	private long cachetime=0;
 	private boolean debug=false;
 	private Vector sqlquery=null;

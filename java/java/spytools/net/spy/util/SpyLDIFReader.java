@@ -1,10 +1,13 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIFReader.java,v 1.1 2000/08/17 23:37:20 dustin Exp $
+// $Id: SpyLDIFReader.java,v 1.2 2001/04/03 07:59:37 dustin Exp $
 
 package net.spy.util;
 
 import java.io.*;
 
+/**
+ * Reader of .ldif files.
+ */
 public class SpyLDIFReader extends BufferedReader {
 
 	/**
@@ -22,6 +25,9 @@ public class SpyLDIFReader extends BufferedReader {
 		super(r, bufsize);
 	}
 
+	/**
+	 * Get the next ldif entry from the file.
+	 */
 	public SpyLDIF readLDIF() throws IOException {
 		StringBuffer data=new StringBuffer("");
 		String tmp=null;

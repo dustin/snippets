@@ -1,13 +1,13 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.1 2001/03/19 20:27:37 dustin Exp $
+// $Id: Debug.java,v 1.2 2001/04/03 07:59:29 dustin Exp $
 
 package net.spy.util;
 
 import java.util.*;
 import java.io.*;
 
-/*
+/**
  * Generic Debug logger.  Logs to a file that's listed in a System
  * property, or does not log if the System property is not set.
  */
@@ -18,6 +18,10 @@ public class Debug extends Object {
 	private static Hashtable debugs=null;
 	private String propname=null;
 
+	/**
+	 * Get a new Debug object that writes its output to the Fle specified
+	 * in the given System property.
+	 */
 	public Debug(String propname) {
 		super();
 		this.propname=propname;

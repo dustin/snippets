@@ -1,11 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyDoubleComparable.java,v 1.1 2000/09/05 08:04:06 dustin Exp $
+// $Id: SpyDoubleComparable.java,v 1.2 2001/04/03 07:59:33 dustin Exp $
 
 package net.spy.util;
 
 import java.util.Date;
 
+/**
+ * Compare Doubles for SpySort.
+ */
 public class SpyDoubleComparable extends Object implements SpyComparable {
 	public int compare(Object obj1, Object obj2) {
 		Double o1=null, o2=null;

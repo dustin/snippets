@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.11 2001/04/03 00:02:03 dustin Exp $
+// $Id: SpyLDIF.java,v 1.12 2001/04/03 07:59:35 dustin Exp $
 
 package net.spy.util;
 
@@ -7,6 +7,11 @@ import java.util.*;
 import java.io.*;
 import net.spy.SpyUtil;
 
+/**
+ * An LDIF Entry (returned by SpyLDIFReader).
+ *
+ * @see SpyLDIFReader
+ */
 public class SpyLDIF extends Hashtable {
 
 	/**

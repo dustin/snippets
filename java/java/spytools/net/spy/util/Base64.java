@@ -1,11 +1,14 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.6 2001/03/31 10:01:38 dustin Exp $
+// $Id: Base64.java,v 1.7 2001/04/03 07:59:28 dustin Exp $
 
 package net.spy.util;
 
 import java.io.*;
 
+/**
+ * Base64 block encoder/decoder.
+ */
 public class Base64 extends Object {
 
 	private static final char charmap[]={

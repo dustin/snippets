@@ -1,12 +1,15 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.2 2001/04/03 07:37:22 dustin Exp $
+// $Id: Cron.java,v 1.3 2001/04/03 07:59:25 dustin Exp $
 
 package net.spy.cron;
 
 import java.util.*;
 import java.io.*;
 
+/**
+ * Watches a JobQueue and invokes the Jobs when they're ready.
+ */
 public class Cron extends Thread {
 
 	private JobQueue jq=null;
