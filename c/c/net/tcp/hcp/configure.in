@@ -1,0 +1,33 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(http.c)
+
+dnl Checks for programs.
+AC_PROG_CC
+
+dnl Checks for libraries.
+AC_CHECK_LIB(socket, main)
+AC_CHECK_LIB(nsl, main)
+
+AC_MSG_CHECKING(for ssleay)
+if test -d /usr/local/ssl
+then
+	CFLAGS="${CFLAGS} -DUSE_SSLEAY -I/usr/local/ssl/include"
+	LIBS="${LIBS} -L/usr/local/ssl/lib -lssl -lcrypto"
+	AC_MSG_RESULT(found in /usr/local/ssl)
+else
+	AC_MSG_RESULT(not found)
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(strings.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(socket strdup)
+
+AC_OUTPUT(Makefile)
