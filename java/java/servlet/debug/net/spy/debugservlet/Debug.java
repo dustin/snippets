@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.2 2000/07/26 09:07:54 dustin Exp $
+ * $Id: Debug.java,v 1.3 2000/07/26 10:14:01 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -63,6 +63,30 @@ public class Debug extends HttpServlet
 		return(dumpThreadGroup(0, tg));
 	}
 
+	protected String dumpSessions(HttpSession session) {
+		String ret="";
+
+		HttpSessionContext context=session.getSessionContext();
+
+		for(Enumeration e=context.getIds(); e.hasMoreElements();) {
+			String id = (String)e.nextElement();
+			HttpSession s=context.getSession(id);
+
+			long now=System.currentTimeMillis();
+			long last=s.getLastAccessedTime();
+			long diff=(now-last)/1000;
+
+			ret+=id + " Idle for " + diff + "s\n";
+
+			String names[]=s.getValueNames();
+			for(int i=0; i<names.length; i++) {
+				ret+="  " + names[i] + "\n";
+			}
+		}
+
+		return(ret);
+	}
+
 	// Do a GET request
 	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
@@ -74,7 +98,11 @@ public class Debug extends HttpServlet
 		out.println(stuff);
 		System.getProperties().list(out);
 
-		stuff ="----------- Runtime Info -------------\n";
+		stuff+="-------------- Session ---------------\n";
+		stuff+=dumpSessions(request.getSession(true));
+		stuff+="--------------------------------------\n";
+
+		stuff+="----------- Runtime Info -------------\n";
 		Runtime r=Runtime.getRuntime();
 		stuff+="Total memory in JVM:  " + r.totalMemory() + "\n";
 		stuff+="Free memory in JVM:   " + r.freeMemory() + "\n";
