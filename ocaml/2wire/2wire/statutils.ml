@@ -10,8 +10,19 @@ type 'a col_t = {
 	avg: ('a list -> 'a);
 };;
 
+(* Convenience function for determining if a number isn't a number *)
+let isnan i =
+	classify_float i = FP_nan
+;;
+
+(* add that won't result in nan *)
+let numplus a b =
+	let realnum a = if (isnan a) then 0.0 else a in
+	realnum a +. realnum b
+;;
+
 (* Get the sum of a list of numbers *)
-let sum l = List.fold_left (+.) 0.0 l ;;
+let sum l = List.fold_left numplus 0.0 l ;;
 
 (* Get the average of the numbers in a list *)
 let simpleAvg l = (sum l) /. float_of_int(List.length l) ;;
