@@ -13,6 +13,7 @@
                 openAuthWindow = id;
                 openUploadWindow = id;
                 selectFiles = id;
+                showSelectedImages = id;
                 stopUpload = id;
                 upload = id;
             };

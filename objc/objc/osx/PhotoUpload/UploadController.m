@@ -75,19 +75,24 @@
 
     if (rv == NSOKButton) {
         files=[filePanel filenames];
-        /*
-        String countString=files.count() + " files selected.";
-        fileCount.setStringValue(countString);
-         */
 
         // This is what's displayed in the image box.
         id array=[NSMutableArray arrayWithCapacity: [files count]];
         int i=0;
         for(i=0; i<[files count]; i++) {
-            id imgCell=[[NSImageCell alloc] init];
-            id img=[[NSImage alloc] initByReferencingFile: [files objectAtIndex: i]];
+            id f=[files objectAtIndex: i];
+            // Get the image, and name it the filename.
+            NSImage *img=[[NSImage alloc] initByReferencingFile: f];
+            [img setName: f];
+            // Get the image cell and set the image and stuff
+            NSImageCell *imgCell=[[NSImageCell alloc] init];
             [imgCell setImage:img];
+            [imgCell setImageFrameStyle: NSImageFramePhoto];
+            // Add it to the array
             [array addObject: imgCell];
+            // Don't need these anymore
+            [imgCell release];
+            [img release];
         }
         [self resetMatrix];
         while([imgMatrix numberOfColumns] < [files count]) {
@@ -97,13 +102,20 @@
             [imgMatrix removeRow: 0];
         }
         [imgMatrix addRowWithCells: array];
-        [imgMatrix setEnabled: TRUE];
-        NSLog(@"New row is %@\n", [array description]);
-        NSLog(@"Matrix is %@\n", [imgMatrix description]);
-        NSLog(@"Number of columns now is %d\n", [imgMatrix numberOfColumns]);
-        NSLog(@"Number of rows is now %d\n", [imgMatrix numberOfRows]);
+        [imgMatrix sizeToCells];
+        [imgMatrix setMode: NSListModeMatrix];
+        [imgMatrix selectCellAtRow:0 column:1];
     }
 
+}
+
+- (IBAction)showSelectedImages:(id)sender
+{
+    NSArray *a=[imgMatrix selectedCells];
+    int i=0;
+    for(i=0; i<[a count]; i++) {
+        NSLog(@"Selected image:  %@\n", [[a objectAtIndex: i] image]);
+    }
 }
 
 - (void)setButtonAction: (int)to
@@ -112,10 +124,12 @@
         case BUTTON_UPLOAD:
             [uploadButton setTitle:@"Upload"];
             [uploadButton setAction:@selector(upload:)];
+            [uploadButton setToolTip: @"Upload selected images."];
             break;
         case BUTTON_STOP:
             [uploadButton setTitle:@"Stop"];
             [uploadButton setAction:@selector(stopUpload:)];
+            [uploadButton setToolTip: @"Stop upload after next image completes."];
             break;
     }
     [uploadButton setNeedsDisplay: TRUE];
@@ -154,7 +168,7 @@
     [uploadButton setEnabled: TRUE];
 }
 
-- (void)upload:(id)sender
+- (IBAction)upload:(id)sender
 {
     NSDate *date=[NSCalendarDate dateWithString: [dateTaken stringValue]
                                  calendarFormat: @"%Y/%m/%d"];

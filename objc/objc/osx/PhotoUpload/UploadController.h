@@ -43,6 +43,7 @@
 - (IBAction)openAuthWindow:(id)sender;
 - (IBAction)openUploadWindow:(id)sender;
 - (IBAction)selectFiles:(id)sender;
+- (IBAction)showSelectedImages:(id)sender;
 - (IBAction)stopUpload:(id)sender;
 - (IBAction)upload:(id)sender;
 

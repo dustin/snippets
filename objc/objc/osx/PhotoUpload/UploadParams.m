@@ -46,17 +46,20 @@
 // Methods used in the thread to indicate changes.
 -(void)uploadedFile
 {
-    [_controller performSelector: _uploadFileMethod];
+    [_controller performSelectorOnMainThread: _uploadFileMethod
+                                  withObject:nil waitUntilDone:FALSE];
 }
 
 -(void)uploadComplete
 {
-    [_controller performSelector: _uploadCompleteMethod];
+    [_controller performSelectorOnMainThread: _uploadCompleteMethod
+                                  withObject:nil waitUntilDone:FALSE];
 }
 
 -(void)uploadError: (id)object
 {
-    [_controller performSelector: _uploadErrorMethod withObject: object];
+    [_controller performSelectorOnMainThread: _uploadErrorMethod
+                                  withObject: object waitUntilDone:FALSE];
 }
 
 @end
