@@ -1,0 +1,111 @@
+dnl $Id: configure.in,v 1.1 2002/03/01 09:14:59 dustin Exp $
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(tablecounter.c)
+
+dnl Checks for programs.
+AC_PROG_CC(-g)
+AC_PROG_RANLIB
+AC_PATH_PROG(AR, ar, /bin/ar, $PATH)
+AC_PATH_PROG(LINT, lint, /bin/lint, $PATH)
+AC_PROGRAM_CHECK(UNAMEPROG, uname, uname, )
+AC_PROGRAM_CHECK(TRPROG, tr, tr, )
+AC_PROGRAM_CHECK(SEDPROG, sed, sed, )
+AC_PROGRAM_CHECK(CUTPROG, cut, cut, )
+
+AC_ARG_ENABLE(mymalloc, [  --enable-mymalloc       enable my debug malloc code],
+	[
+		echo "Enabling debug malloc."
+		CPPFLAGS="$CPPFLAGS -DMYMALLOC"
+	])
+
+AC_ARG_WITH(rrdtool, [  --with-rrdtool          path to rrdtool installation],
+	[if test -d $withval/include && test -d $withval/lib
+	then
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	fi])
+
+AC_ARG_WITH(postgresql, [  --with-postgresql       path to postgresql installation],
+	[if test -d $withval/include && test -d $withval/lib
+	then
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	fi],
+	[
+		AC_MSG_CHECKING(postgres installation)
+		if test -d /usr/local/pgsql
+		then
+			CPPFLAGS="$CPPFLAGS -I/usr/local/pgsql/include"
+			LDFLAGS="$LDFLAGS -L/usr/local/pgsql/lib"
+			AC_MSG_RESULT(/usr/local/pgsql)
+		else
+			AC_MSG_RESULT(not found)
+		fi
+	])
+
+dnl I needed these for something, might as well not include them if they
+dnl don't exist.
+if test -d /usr/local/include
+then
+	CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+fi
+if test -d /usr/local/lib
+then
+	LDFLAGS="$LDFLAGS -L/usr/local/lib"
+fi
+
+if test "$GCC" = "yes"
+then
+	echo "GCC, setting -Wall"
+	CPPFLAGS="$CPPFLAGS -Wall"
+fi
+
+AC_DEFINE_UNQUOTED(DYNLIBS, $DYNLIBS)
+AC_SUBST(DYNLIBS)
+
+AC_DEFINE_UNQUOTED(NEEDUNDERSCORE, $NEEDUNDERSCORE)
+AC_SUBST(NEEDUNDERSCORE)
+
+AC_DEFINE_UNQUOTED(MAKESO, $MAKESO)
+AC_SUBST(MAKESO)
+
+if test "$OS" = "unixware"
+then
+    AC_CHECK_LIB(ucb, main)
+    AC_CHECK_LIB(gen, main)
+fi
+
+dnl Solaris stuff
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_LIB(nsl, gethostbyname)
+RRDLIB=""
+AC_CHECK_LIB(rrd, rrd_update,
+	[RRDLIB="-lrrd"
+	AC_DEFINE_UNQUOTED(RRDLIB, $RRDLIB)])
+AC_SUBST(RRDLIB)
+
+POSTGRESLIB=""
+AC_CHECK_LIB(pq, PQexec,
+	[POSTGRESLIB="-lpq"
+	AC_DEFINE_UNQUOTED(POSTGRESLIB, $POSTGRESLIB)])
+AC_SUBST(POSTGRESLIB)
+
+dnl Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
+AC_CHECK_HEADERS(sys/time.h sys/errno.h unistd.h getopt.h getopts.h)
+AC_CHECK_HEADERS(utime.h utimes.h)
+AC_CHECK_HEADERS(rrd.h libpq-fe.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(getopt vsprintf vsnprintf snprintf sprintf strerror utime utimes)
+
+CFLAGS="$CFLAGS $CPPFLAGS"
+
+AC_OUTPUT(Makefile)
