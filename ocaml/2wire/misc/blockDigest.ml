@@ -67,7 +67,7 @@ exception Subprocess_error of int;;
 
 let block_diff prevdir newdir prog n data digest old_digest =
 	(*
-	Printf.printf "Difference at block %d - %s != %s\n" n digest old_digest;
+	Printf.eprintf "Difference at block %d - %s != %s\n%!" n digest old_digest;
 	*)
 	let args = (Array.of_list
 		["BLOCK=" ^ (string_of_int n);
