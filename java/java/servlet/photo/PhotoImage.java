@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.5 1999/10/04 06:32:19 dustin Exp $
+ * $Id: PhotoImage.java,v 1.6 1999/10/04 06:52:35 dustin Exp $
  */
 
 import java.io.*;
@@ -113,9 +113,10 @@ public class PhotoImage extends PhotoHelper
 	}
 
 	public Vector getImage() throws Exception {
-		if(image_data==null) {
+		if(image_data==null || image_data.image_data==null) {
 			fetchImage();
 		}
+		log("Returning image");
 		return(image_data.image_data);
 	}
 
@@ -150,7 +151,8 @@ public class PhotoImage extends PhotoHelper
 		String query, key;
 		BASE64Decoder base64 = new BASE64Decoder();
 
-		if(image_data.image_data!=null) {
+		if(image_data!=null && image_data.image_data!=null) {
+			log("Already have image data, doing nothing");
 			return;
 		}
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.22 1999/10/04 06:32:21 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.23 1999/10/04 06:52:38 dustin Exp $
  */
 
 import java.io.*;
@@ -983,8 +983,10 @@ public class PhotoServlet extends HttpServlet
 			out = response.getOutputStream();
 
 			if(thumbnail) {
+				log("Requesting thumbnail");
 				v=p.getThumbnail();
 			} else {
+				log("Requesting full image");
 				v=p.getImage();
 			}
 			logger.log(new PhotoLogImageEntry(remote_uid.intValue(),
