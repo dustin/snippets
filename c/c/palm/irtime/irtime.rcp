@@ -9,12 +9,17 @@ USABLE
 BEGIN
   TITLE "IR Time"
 
-  BUTTON "Bind" ID ctlID_BindButton AT (5 20 AUTO AUTO) USABLE FRAME
-  BUTTON "Unbind" ID ctlID_UnbindButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
-  BUTTON "Test" ID ctlID_TestButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
-  BUTTON "Discover" ID ctlID_DiscoverButton AT (5 PrevBottom+5 AUTO AUTO) USABLE FRAME
-  BUTTON "Connect LAP" ID ctlID_ConnectLAPButton AT (5 PrevBottom+5 AUTO AUTO) USABLE FRAME
-  BUTTON "Disconnect LAP" ID ctlID_DisconnectLAPButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
+  BUTTON "Send Time" ID ctlID_SendButton AT (5 20 AUTO AUTO) USABLE FRAME
+  BUTTON "Enable"  ID ctlID_EnableButton AT (5 35 AUTO AUTO) USABLE FRAME
+  BUTTON "Disable" ID ctlID_DisableButton AT (5 50 AUTO AUTO) USABLE FRAME
+END
+
+ALERT ID alertID_Info
+ERROR
+BEGIN
+  TITLE "Info"
+  MESSAGE "^1"
+  BUTTONS "OK"
 END
 
 ALERT ID alertID_Error
@@ -22,5 +27,5 @@ ERROR
 BEGIN
   TITLE "Error"
   MESSAGE "^1"
-  BUTTONS "Quit"
+  BUTTONS "OK"
 END

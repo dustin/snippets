@@ -10,7 +10,7 @@ OBJS=irtime.o
 	$(CC) $(CFLAGS) -c $<
 
 irtime.prc: timestamp-grc timestamp-bin
-	$(BIN)/build-prc irtime.prc "IrTime" TKD1 *.grc *.bin
+	$(BIN)/build-prc irtime.prc "IrTime" IRTM *.grc *.bin
 
 timestamp-bin: irtime.rcp
 	$(BIN)/pilrc irtime.rcp

@@ -1,17 +1,21 @@
 /*
- * IrTest
- * Tom Dyas (tdyas@vger.rutgers.edu)
+ * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * This program is a test program for the IrComm library on PalmOS 3.
+ * $Id: irtime.c,v 1.2 2000/08/22 07:36:12 dustin Exp $
  */
 
 #include <Common.h>
 #include <System/SysAll.h>
+#include <System/ExgMgr.h>
+#include <System/ErrorMgr.h>
+#include <System/StringMgr.h>
 #include <UI/UIAll.h>
-#include <System/irlib.h>
 
 #include "irtime.h"
 #include "callback.h"
+
+#define myAppId 'IRTM'
+#define TimeType "application/x-irtm-seconds"
 
 typedef struct
 {
@@ -19,12 +23,7 @@ typedef struct
   SWord X, Y;
 } TtyGadget;
 
-static Word irRefNum;
-static IrConnect conn;
 static TtyGadget tty;
-static IrDeviceAddr deviceAddr;
-static IrPacket packet;
-static char buffer[128];
 
 static void
 Print(CharPtr msg)
@@ -52,180 +51,107 @@ Print(CharPtr msg)
   }
 }
 
-static void
-PrintStatus(CharPtr where, IrStatus status)
+#define exgErrThing(a) case a: msg=#a "\n"; break;
+char *getExgError(Err e)
 {
-  Print(where);
-  Print(": ");
-  switch (status) {
-  case IR_STATUS_SUCCESS:
-    Print("Success.");
-    break;
-  case IR_STATUS_FAILED:
-    Print("Failed.");
-    break;
-  case IR_STATUS_PENDING:
-    Print("Pending.");
-    break;
-  case IR_STATUS_DISCONNECT:
-    Print("Disconnect.");
-    break;
-  case IR_STATUS_NO_IRLAP:
-    Print("No IrLAP.");
-    break;
-  case IR_STATUS_MEDIA_BUSY:
-    Print("Media busy.");
-    break;
-  case IR_STATUS_MEDIA_NOT_BUSY:
-    Print("Media not busy.");
-    break;
-  case IR_STATUS_NO_PROGRESS:
-    Print("No progress.");
-    break;
-  case IR_STATUS_LINK_OK:
-    Print("Link OK.");
-    break;
-  }
-  Print("\n");
+	char *msg=NULL;
+	static char buf[40];
+	switch(e) {
+		case 0:
+			break;
+		exgErrThing(exgMemError)
+		exgErrThing(exgErrStackInit)
+		exgErrThing(exgErrUserCancel)
+		exgErrThing(exgErrNoReceiver)
+		exgErrThing(exgErrNoKnownTarget)
+		exgErrThing(exgErrTargetMissing)
+		exgErrThing(exgErrNotAllowed)
+		exgErrThing(exgErrBadData)
+		exgErrThing(exgErrAppError)
+		exgErrThing(exgErrUnknown)
+		exgErrThing(exgErrDeviceFull)
+		exgErrThing(exgErrDisconnected)
+		exgErrThing(exgErrNotFound)
+		exgErrThing(exgErrBadParam)
+		exgErrThing(exgErrNotSupported)
+		exgErrThing(exgErrDeviceBusy)
+		exgErrThing(exgErrBadLibrary)
+		default:
+			StrPrintF(buf, "Error #%d\n", e);
+			msg=buf;
+			break;
+	}
+
+	return(msg);
 }
 
-static void
-PrintCallbackEvent(CharPtr where, IrEvent eventType)
+void displayExgError(Err e)
 {
-  Print(where);
-  Print(": ");
-  switch (eventType) {
-  case LEVENT_LM_CON_IND:
-    Print("LEVENT_LM_CON_IND");
-    break;
-  case LEVENT_LM_DISCON_IND:
-    Print("LEVENT_LM_DISCON_IND");
-    break;
-  case LEVENT_DATA_IND:
-    Print("LEVENT_DATA_IND");
-    break;
-  case LEVENT_PACKET_HANDLED:
-    Print("LEVENT_PACKET_HANDLED");
-    break;
-  case LEVENT_LAP_CON_IND:
-    Print("LEVENT_LAP_CON_IND");
-    break;
-  case LEVENT_LAP_DISCON_IND:
-    Print("LEVENT_LAP_DISCON_IND");
-    break;
-  case LEVENT_DISCOVERY_CNF:
-    Print("LEVENT_DISCOVERY_CNF");
-    break;
-  case LEVENT_LAP_CON_CNF:
-    Print("LEVENT_LAP_CON_CNF");
-    break;
-  case LEVENT_LM_CON_CNF:
-    Print("LEVENT_LM_CON_CNF");
-    break;
-  case LEVENT_STATUS_IND:
-    Print("LEVENT_STATUS_IND");
-    break;
-  case LEVENT_TEST_IND:
-    Print("LEVENT_TEST_IND");
-    break;
-  case LEVENT_TEST_CNF:
-    Print("LEVENT_TEST_CNF");
-    break;
-  }
-  Print("\n");
+	char *msg=NULL;
+
+	msg=getExgError(e);
+	if(msg==NULL) {
+		Print("no error\n");
+	} else {
+		Print(msg);
+	}
 }
 
-static void
-OurCallback(IrConnect * conn, IrCallBackParms * params)
-{
-  Char buf[32];
-  CALLBACK_PROLOGUE;
 
-  PrintCallbackEvent("callback: ", params->event);
-  switch (params->event) {
-  case LEVENT_DISCOVERY_CNF:
-    StrIToA(buf, params->deviceList->nItems);
-    Print("DISCOVERY_CNF: ");
-    Print(buf);
-    Print(" devices discovered.\n");
-    if (params->deviceList->nItems >= 1) {
-      deviceAddr = params->deviceList->dev[0].hDevice;
-    }
-    break;
-  case LEVENT_STATUS_IND:
-    switch (params->status) {
-    case IR_STATUS_NO_PROGRESS:
-      Print("IR_STATS_NO_PROGRESS\n");
-      break;
-    case IR_STATUS_LINK_OK:
-      Print("IR_STATUS_LINK_OK\n");
-      break;
-    case IR_STATUS_MEDIA_NOT_BUSY:
-      Print("IR_STATUS_MEDIA_NOT_BUSY\n");
-      break;
-    }
-  }
-  CALLBACK_EPILOGUE;
+void do_send()
+{
+	ExgSocketType exgsocket;
+	ULong t=0;
+	Err err;
+
+	MemSet(&exgsocket, sizeof(exgsocket), 0x00);
+
+	t=TimGetSeconds();
+
+	exgsocket.description="The time";
+	/* exgsocket.type=TimeType; */
+	exgsocket.count=1;
+	exgsocket.length=sizeof(t);
+	exgsocket.target=myAppId;
+
+	Print("Sending...\n");
+
+	err=ExgPut(&exgsocket);
+	displayExgError(err);
+	if(err==0) {
+		ExgSend(&exgsocket, &t, sizeof(t), &err);
+		displayExgError(err);
+		err=ExgDisconnect(&exgsocket, err);
+		displayExgError(err);
+	}
+
+	Print("Done\n");
 }
 
-static void
-do_bind(void)
+void do_enable()
 {
-  IrStatus status;
-
-  MemSet(&conn, sizeof(conn), 0);
-
-  status = IrBind(irRefNum, &conn, OurCallback);
-  PrintStatus("IrBind", status);
+	Err e;
+	Print("Enabling...\n");
+	e=ExgRegisterData(myAppId, exgRegTypeID, TimeType);
+	switch(e) {
+		case 0: Print("Success!\n"); break;
+		default:
+			displayExgError(e);
+			break;
+	}
 }
 
-static void
-do_unbind(void)
+void do_disable()
 {
-  IrStatus status;
-
-  status = IrUnbind(irRefNum, &conn);
-  PrintStatus("IrUnbind", status);
-}
-
-static void
-do_discover(void)
-{
-  IrStatus status;
-
-  status = IrDiscoverReq(irRefNum, &conn);
-  PrintStatus("IrDiscoverReq", status);
-}
-
-static void
-do_connect_lap()
-{
-  IrStatus status;
-
-  status = IrConnectIrLap(irRefNum, deviceAddr);
-  PrintStatus("IrConnectIrLap", status);
-}
-
-static void
-do_disconnect_lap()
-{
-  IrStatus status;
-
-  status = IrDisconnectIrLap(irRefNum);
-  PrintStatus("IrDisconnectIrLap", status);
-}
-
-static void
-do_test()
-{
-  IrStatus status;
-
-  MemSet(&buffer, 0, sizeof(buffer));
-  packet.buff = &buffer[0];
-  packet.len = 8;
-
-  status = IrTestReq(irRefNum, deviceAddr, &conn, &packet);
-  PrintStatus("IrTestReq", status);
+	Err e;
+	Print("Disabling...\n");
+	e=ExgRegisterData(myAppId, exgRegTypeID, NULL);
+	switch(e) {
+		case 0: Print("Success!\n"); break;
+		default:
+			displayExgError(e);
+			break;
+	}
 }
 
 static Boolean
@@ -241,23 +167,14 @@ MainFormHandleEvent(EventPtr event)
 
   case ctlSelectEvent:
     switch (event->data.ctlEnter.controlID) {
-    case ctlID_TestButton:
-      do_test();
+    case ctlID_SendButton:
+      do_send();
       return true;
-    case ctlID_DiscoverButton:
-      do_discover();
+    case ctlID_EnableButton:
+      do_enable();
       return true;
-    case ctlID_BindButton:
-      do_bind();
-      return true;
-    case ctlID_UnbindButton:
-      do_unbind();
-      return true;
-    case ctlID_ConnectLAPButton:
-      do_connect_lap();
-      return true;
-    case ctlID_DisconnectLAPButton:
-      do_disconnect_lap();
+    case ctlID_DisableButton:
+      do_disable();
       return true;
     }
     break;
@@ -308,53 +225,92 @@ static Err
 StartApplication(void)
 {
   Err err;
-  IrStatus status;
-
-  deviceAddr.u32 = 0;
 
   /* Initialize the tty gadget. */
   RctSetRectangle(&tty.bounds, 0, 70, 160, 8 * FntCharHeight());
   WinEraseRectangle(&tty.bounds, 0);
   tty.X = tty.Y = 0;
 
-  /* Locate the IR shared library. (should have been autoloaded already) */
-  err = SysLibFind(irLibName, &irRefNum);
-  if (err != 0) {
-    FrmCustomAlert(alertID_Error, "StartApplication: SysFindLib failed",
-		   " ", " ");
-    return 1;
-  }
-
-  /* Let the IR library allocate space and other stuff. */
-  err = IrOpen(irRefNum, 0);
-  if (err != 0) {
-    FrmCustomAlert(alertID_Error, "StartApplication: IrOpen failed",
-		   " ", " ");
-    return 1;
-  }
-
   FrmGotoForm(formID_MainForm);
   return 0;
+}
+
+void alertPopup(CharPtr msg)
+{
+	FrmCustomAlert(alertID_Error, msg, " ", " ");
+}
+
+void infoPopup(CharPtr msg)
+{
+	FrmCustomAlert(alertID_Info, msg, " ", " ");
 }
 
 static void
 StopApplication(void)
 {
   FrmCloseAllForms();
+  /* Do other stuff */
+}
 
-  /* Let the IR library free any resources. (must balance IrOpen() )*/
-  IrClose(irRefNum);
+void receiveData(ExgSocketType *exgsocket)
+{
+	Err err;
+	ULong t=0;
+
+	exgsocket->goToCreator=0;
+
+	err=ExgAccept(exgsocket);
+	displayExgError(err);
+	if(err==0) {
+		ExgReceive(exgsocket, &t, sizeof(t), &err);
+		displayExgError(err);
+		if(err!=0) {
+			char *msg;
+
+			msg=getExgError(err);
+
+			if(msg==NULL) {
+				alertPopup("Null Error!");
+			} else {
+				alertPopup(msg);
+			}
+		} else {
+			TimSetSeconds(t);
+			infoPopup("Set time!");
+		}
+
+		err=ExgDisconnect(exgsocket, 0);
+		displayExgError(err);
+	} else {
+		alertPopup("Did not accept");
+	}
 }
 
 DWord
 PilotMain (Word cmd, Ptr cmdPBP, Word launchFlags)
 {
-  if (cmd == sysAppLaunchCmdNormalLaunch)
-    {
-      if (! StartApplication()) {
-	EventLoop();
-	StopApplication();
-      }
-    }
+  Err inErr;
+  ExgAskParamType *askparam=NULL;
+  ExgSocketType *exgsocket=NULL;
+
+  switch(cmd) {
+	case sysAppLaunchCmdNormalLaunch:
+		if(!StartApplication()) {
+			EventLoop();
+			StopApplication();
+		}
+		break;
+	case sysAppLaunchCmdExgAskUser:
+		askparam=(ExgAskParamType *)cmdPBP;
+		askparam->result=exgAskOk;
+		break;
+	case sysAppLaunchCmdExgReceiveData:
+		exgsocket=(ExgSocketType *)cmdPBP;
+		receiveData(exgsocket);
+		break;
+	default:
+		break;
+  }
+
   return 0;
 }
