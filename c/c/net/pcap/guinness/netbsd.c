@@ -11,6 +11,9 @@
 ** Please send bug fixes/bug reports to: Peter Eriksson <pen@lysator.liu.se>
 */
 
+/* This is NetBSD-only code */
+#ifdef __NetBSD__
+
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
@@ -251,3 +254,4 @@ int k_getuid(faddr, fport, laddr, lport, uid)
   return -1;
 }
 
+#endif __NetBSD__

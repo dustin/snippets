@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.2 1998/10/04 08:52:21 dustin Exp $
+ * $Id: filter.c,v 1.3 1998/10/04 09:48:46 dustin Exp $
  */
 
 #include <stdio.h>
@@ -164,16 +164,22 @@ static void log_syn(struct ip *ip, struct tcphdr *tcp)
 	ip_src=ip->ip_src;
 	ip_dst=ip->ip_dst;
 
-	if(k_getuid (&ip_dst, tcp->th_dport, &ip_src, tcp->th_sport, &uid) >= 0) {
+	if(k_getuid (&ip_dst, tcp->th_dport, &ip_src, tcp->th_sport, &uid) < 0) {
+		if(k_getuid (&ip_src, tcp->th_sport,
+				     &ip_dst, tcp->th_dport, &uid) < 0) {
+			uid=-1; /* If I can't find it, set it to -1 */
+		}
+	}
+
+    if(uid>=0) {
 		sprintf(buf, "%d", uid);
 		mbk->append(mbk, "uid", buf);
-
 		if( (p=getpwuid(uid)) != NULL) {
 		    mbk->append(mbk, "username", p->pw_name);
 		} else {
 			log_msg("getpwuid(%d) did not return a valid passwd entry\n", uid);
 		}
-	}
+    }
 
 	mbk->send(mbk);
 
