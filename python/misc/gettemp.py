@@ -45,7 +45,6 @@ class Alerts:
 		emails=(
 			'dustin@spy.net',
 			'noelani@spy.net',
-			'knitterb@blandsite.org',
 			'dsallings@tmomail.net',)
 		sender='dustin+temperature@spy.net'
 
