@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.15 1999/06/16 06:33:27 dustin Exp $
+ * $Id: main.c,v 1.16 1999/06/16 06:38:57 dustin Exp $
  */
 
 #include <config.h>
@@ -404,6 +404,7 @@ main(int argc, char **argv)
 
 			conn = getclientsocket(req, sock_flags);
 			s=conn.s;
+			conns[s]=conn;
 
 			if (flags & DO_STATS) {
 				gettimeofday(&timers[s][1], tzp);

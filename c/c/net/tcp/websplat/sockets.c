@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.5 1999/06/16 06:33:29 dustin Exp $
+ * $Id: sockets.c,v 1.6 1999/06/16 06:38:59 dustin Exp $
  */
 
 #include <stdio.h>
@@ -35,8 +35,8 @@ getclientsocket(struct url u, int flags)
 	struct sockaddr_in sin;
 #ifdef USE_SSLEAY
 	int     err;
-	X509   *server_cert;
-	char   *str;
+	X509   *server_cert=NULL;
+	char   *str=NULL;
 #endif /* USE_SSLEAY */
 
 	host=u.host;
@@ -148,10 +148,10 @@ getclientsocket(struct url u, int flags)
 
 			CHK_NULL(str);
 			Free(str);
-		}
 
-		if (server_cert)
-			X509_free(server_cert);
+			if (server_cert)
+				X509_free(server_cert);
+		}
 	}
 #endif /* USE_SSLEAY */
 	return (ret);
