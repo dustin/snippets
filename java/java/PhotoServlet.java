@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.2 1999/09/12 08:51:46 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.3 1999/09/12 19:04:23 dustin Exp $
  */
 
 import java.io.*;
@@ -327,7 +327,7 @@ public class PhotoServlet extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String query, output = "";
-		int start=0, max=0;
+		int i, start=0, max=0;
 		Integer itmp;
 		String stmp;
 
@@ -355,25 +355,32 @@ public class PhotoServlet extends HttpServlet
 			// Go through the matches.
 			st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
+			i = 0;
 			while(rs.next()) {
-				Hashtable h = new Hashtable();
-				Toker t=new Toker();
+				if (i >= start && i < (max+start) ) {
+					Hashtable h = new Hashtable();
+					Toker t=new Toker();
 
-				h.put("KEYWORDS", rs.getString(1));
-				h.put("DESCR", rs.getString(2));
-				h.put("CAT", rs.getString(3));
-				h.put("SIZE", rs.getString(4));
-				h.put("TAKEN", rs.getString(5));
-				h.put("TS", rs.getString(6));
-				h.put("IMAGE", rs.getString(7));
-				h.put("CATNUM", rs.getString(8));
-				h.put("ADDEDBY", rs.getString(9));
+					h.put("KEYWORDS", rs.getString(1));
+					h.put("DESCR", rs.getString(2));
+					h.put("CAT", rs.getString(3));
+					h.put("SIZE", rs.getString(4));
+					h.put("TAKEN", rs.getString(5));
+					h.put("TS", rs.getString(6));
+					h.put("IMAGE", rs.getString(7));
+					h.put("CATNUM", rs.getString(8));
+					h.put("ADDEDBY", rs.getString(9));
 
-				System.out.println("Matched:  " + rs.getString(1));
+					// System.out.println("Matched:  " + rs.getString(1));
 
-				output += "<td>\n";
-				output += t.tokenize("/tmp/findmatch.inc", h);
-				output += "</td>\n";
+					output += "<td>\n";
+					output += t.tokenize("/tmp/findmatch.inc", h);
+					output += "</td>\n";
+
+				// } else {
+					// System.out.println("Not Matched:  " + rs.getString(1));
+				}
+				i++;
 			}
 		} catch(SQLException e) {
 			throw new ServletException("Database problem: " + e.getSQLState());
