@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: testconfig.xml,v 1.1 1999/11/15 08:39:26 dustin Exp $  -->
+<!-- $Id: testconfig.xml,v 1.2 1999/11/19 07:29:19 dustin Exp $  -->
 <!DOCTYPE config [
 
 	<!ELEMENT config (entry)*>
@@ -22,6 +22,8 @@
 	<entry name="dbcbLogFilePath" value="/tmp/testpool.log" />
 	<entry name="timezone" value="" />
 	<entry name="cryptohash" value="SHA" />
+
+	<entry name="includes" value="/home/dustin/public_html/test/inc/" />
 
 	<entry name="sweeper_sleep" value="10" />
 	<entry name="sweeper_maxage" value="300" />
