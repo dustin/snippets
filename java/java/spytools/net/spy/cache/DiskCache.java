@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: DiskCache.java,v 1.1 2002/06/17 02:46:48 dustin Exp $
+// $Id: DiskCache.java,v 1.2 2002/06/26 20:03:52 dustin Exp $
 
 package net.spy.cache;
 
@@ -86,6 +86,10 @@ public class DiskCache extends Object {
 			ObjectInputStream p = new ObjectInputStream(istream);
 			o = p.readObject();
 			rv=o;
+		} catch(FileNotFoundException e) {
+            // If it's file not found, just print the path, no need for a
+            // full stack.
+            System.err.println(e.toString());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

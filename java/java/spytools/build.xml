@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.7 2002/06/17 03:50:21 dustin Exp $
+	$Id: build.xml,v 1.8 2002/06/26 20:03:51 dustin Exp $
 
 	-->
 
@@ -71,7 +71,7 @@
 	</target>
 
 	<target name="all" depends="rmic,dbstuff">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/**/*.java"/>
 		</javac>
@@ -81,7 +81,7 @@
 	</target>
 
 	<target name="resultset" depends="interfaceimplementor">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/db/CachedResultSetStub.java"/>
 		</javac>
@@ -97,7 +97,7 @@
 	</target>
 
 	<target name="preparedstatement" depends="resultset,interfaceimplementor">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/db/CachePreparedStatementStub.java"/>
 		</javac>
@@ -115,7 +115,7 @@
 	</target>
 
 	<target name="interfaceimplementor">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/util/InterfaceImplementor.java"/>
 		</javac>
@@ -128,7 +128,7 @@
 	</target>
 
 	<target name="pre-rmic">
-		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/rmi/RObjectImpl.java"/>
 		</javac>
