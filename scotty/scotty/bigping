@@ -1,0 +1,62 @@
+#!/bin/sh
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+# $Id: bigping,v 1.1 2000/12/12 08:57:19 dustin Exp $ \
+exec scotty -nf $0 $*
+
+set count 0
+set sent 0
+set dead 0
+set sum 0
+set returned 0
+
+proc doping { hosts } {
+	global sent sum returned dead
+	set lsum 0
+	set ldead 0
+	set lsent 0
+	set lreturned 0
+
+	foreach host $hosts {
+		set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
+
+		incr sent
+		incr lsent
+	    if { $pt<0 } {
+			incr dead
+			incr ldead
+			puts "$host is dead!"
+	} else {
+		# puts "$host seq=$sent ${pt}ms"
+			incr returned
+			incr lreturned
+			incr sum $pt
+			incr lsum $pt
+	}
+	}
+
+	set avg [expr $lsum / $lsent.0]
+	puts "Sent $lsent, got $lreturned, avg ${avg}ms"
+}
+
+proc showstats { } {
+    global host count dead sum returned sent
+
+    set ave [expr $sum / $sent.0]
+    set loss [expr ($dead/$sent.0)*100.0]
+
+    puts -nonewline "*** Total pings:  $sent, $dead dead "
+    puts -nonewline "($loss% loss)"
+    puts "  Average pingtime:  ${ave}ms"
+}
+
+while { 1 } {
+
+	doping $argv
+
+	incr count
+    if { ($count%20) ==0 } {
+        showstats
+    }
+
+    sleep 1
+}
