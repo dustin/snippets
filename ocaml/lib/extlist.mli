@@ -7,3 +7,4 @@
 (** Extra list utilities. *)
 
 val iteri : (int -> 'a -> unit) -> 'a list -> unit
+val shuffle : 'a list -> 'a list
