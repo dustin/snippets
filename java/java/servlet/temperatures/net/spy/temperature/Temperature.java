@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.11 2002/05/04 08:41:20 dustin Exp $
+ * $Id: Temperature.java,v 1.12 2002/05/06 22:13:27 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -211,6 +211,9 @@ public class Temperature extends PngServlet implements ImageObserver
 			try {
 				url=getServletContext().getResource(therm);
 			} catch(MalformedURLException me) {
+				// Ignore for now, try again later.
+			}
+			if(url==null) {
 				url=new URL(therm);
 			}
 			log("Getting image (" + url + ")");
