@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.3 2000/07/19 07:13:19 dustin Exp $
+# $Id: 1921graph.tk,v 1.4 2000/07/19 08:18:54 dustin Exp $
 
 set width 640
 set height 480
@@ -12,65 +12,126 @@ proc ctof { c } {
 proc showGraph { width height } {
 	global dumpData
 
-	set input {}
+	set min_t $dumpData(mission_start)
+	set max_t [expr $min_t+($dumpData(sample_rate)*60*$dumpData(mission_samples))]
 	set items 0
-	set max 0
-	set min 9999
 
+	set min_v  99999
+	set max_v -99999
+
+	set rate $dumpData(sample_rate)
+
+	set i 0
 	foreach key [lsort [array names dumpData sample_data_*]] {
-		set value $dumpData($key)
-		lappend input $value
+		set value [ctof $dumpData($key) ]
 
-		# Find the max temperature
-		if { $value > $max } {
-			set max $value
+		set mykey [expr $min_t+($rate*$i*60)]
+
+		set input($mykey) $value
+
+		# Set the min for the values
+		if { $value < $min_v } {
+			set min_v $value
 		}
 
-		# Find the min temperature
-		if { $value < $min } {
-			set min $value
+		# set the max for the values
+		if { $value > $max_v } {
+			set max_v $value
 		}
 
 		incr items
+		incr i
 	}
 
 	# the y factor
-	set yfactor [expr ($height-40)/($max-$min+1)]
+	set yfactor [expr ($height-40)/($max_v-$min_v+1)]
 	# the x factor
-	set xfactor [expr ($width-20)/$items]
+	puts "max_t=$max_t, min_t=$min_t ([expr $max_t-$min_t])"
+	set xfactor [expr (1.0*($width-40.0))/(1.0*($max_t-$min_t+$rate))]
 
-	# Find out the stuff for the graph.
-	set starttime [clock format $dumpData(mission_start) ]
-	puts "Mission start time:  $starttime"
-	# Figure out how many seconds we have to graph
-	set timespan [expr ($dumpData(sample_rate)*60*$dumpData(mission_samples))]
-	puts "OK, looks like we have $timespan seconds of data"
-	# Find the first even hour
-	set firstline [expr (($dumpData(mission_start) / 3600)+1) * 3600 ]
-	puts "First time:  [clock format $firstline]"
+	set nadj [expr ($min_t-$min_t)]
+	set minx [expr $width-(($width-40)-($nadj*$xfactor))]
+	set nadj [expr ($max_t-$min_t)]
+	set maxx [expr $width-(($width-40)-($nadj*$xfactor))]
 
-	set minx 5
-	set maxx [expr $width-5]
-	set miny [expr ($height-40)]
-	set maxy [expr ($height-40-($max-$min)*$yfactor)]
+	set miny [expr ($height-40-($max_v-$min_v)*$yfactor)]
+	set maxy [expr ($height-20)]
 
+	# Draw the box.
 	.c create line $minx $miny $minx $maxy
 	.c create line $maxx $miny $maxx $maxy
 	.c create line $minx $miny $maxx $miny
 	.c create line $minx $maxy $maxx $maxy
 
-	# .c create line [expr $width-5] [expr ($height-40)] \
-		[expr $width-5] [expr ($height-40-($max-$min)*$yfactor)] -width 2
-	# .c create line 5 [expr ($height-40-($max-$min)*$yfactor)] \
-		5 [expr ($height-40)] -width 2
+	puts "($minx,$miny) to ($maxx, $maxy)"
+
+	# Find out the stuff for the graph.
+	set starttime [clock format $dumpData(mission_start) ]
+	puts "Mission start time:  $starttime"
+	# Figure out how many seconds we have to graph
+	set timespan [expr ($rate*60*$dumpData(mission_samples))]
+	puts "OK, looks like we have $timespan seconds of data"
+	# Find the first even hour
+	set firstline [expr (($dumpData(mission_start) / 3600)+1) * 3600 ]
+	puts "First time:  [clock format $firstline]"
+
+	######################################################################
+	# Time lines
+	######################################################################
+
+	# Draw the hour lines.
+	for { set i $firstline } { $i < $max_t } { set i [expr $i + 3600 ] } {
+		set nadj [expr ($i-$min_t)]
+		set x [expr $width-(($width-40)-($nadj*$xfactor))]
+		# puts "Drawing line for  [clock format $i] ($i, max is $max_t)"
+		.c create line $x $maxy $x $miny -dash . -fill grey
+	}
+
+	set firstline [expr (($dumpData(mission_start) / 86400)+1) * 86400 ]
+	# Draw the day lines.
+	for { set i $firstline } { $i < $max_t } { set i [expr $i + 86400 ] } {
+		set nadj [expr ($i-$min_t)]
+		set x [expr $width-(($width-40)-($nadj*$xfactor))]
+		.c create line $x $maxy $x $miny -fill grey
+		.c addtag text withtag [.c create text $x [expr ($height-10)] \
+			-text [clock format $i -format %m/%d]]
+	}
+
+	######################################################################
+
+	######################################################################
+	# Temp lines
+	######################################################################
+
+	# Draw the five-degree lines.
+	set v [expr int($min_v/5)*5]
+	for { set i $v } { $i < $max_v } { set i [expr $i + 5]} {
+		set nadj [expr ($i-$min_v)]
+		set y [expr ($height-40)-($nadj*$yfactor)]
+		.c create line $minx $y $maxx $y -dash . -fill grey
+	}
+
+	# Draw the ten-degree lines.
+	set v [expr int($min_v/10)*10]
+	for { set i $v } { $i < $max_v } { set i [expr $i + 10 ] } {
+		set nadj [expr ($i-$min_v)]
+		set y [expr ($height-40)-($nadj*$yfactor)]
+		.c create line $minx $y $maxx $y -fill grey
+		.c addtag text withtag [.c create text 20 $y \
+			-text $i]
+	}
+
+	######################################################################
 
 	set lastx -1
 
-	for { set i 0 } { $i < $items } { incr i } {
-		set n [lindex $input $i]
+	for { set i $min_t } { $i < $max_t } { set i [expr $i + ($rate*60)] } {
+		set n $input($i)
 
-		set x [expr ($i+1) * $xfactor ]
-		set nadj [expr ($n-$min)]
+		# set x [expr ($i+1) * $xfactor ]
+		set nadj [expr ($i-$min_t)]
+		set x [expr $width-(($width-40)-($nadj*$xfactor))]
+		set nadj [expr ($n-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
 
 		if { $lastx >= 0 } {
