@@ -7,6 +7,7 @@ import md5
 import sys
 import os
 import bisect
+import time
 
 # Regex for matching the start of a log entry and pulling out the useful fields
 tsmatch=re.compile("^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d+\s+(w?\d+-\d+)\s+"
@@ -96,6 +97,7 @@ def makeHtml(filename, entries, thissort):
 			refs[s]='byrev' + s
 		else:
 			refs[s]='by' + s
+	refs['now']=time.ctime()
 	f.write("""
 <html>
 <head>
@@ -103,11 +105,11 @@ def makeHtml(filename, entries, thissort):
 	<link rel="stylesheet" href="crashes.css">
 </head>
 <body>
-<h1>Available Crash Dumps (last 14 days)</h1>
+<h1>Available Crash Dumps (last 14 days as of %(now)s)</h1>
 <a href="index.txt">(text version)</a>
 <table>
 <tr>
-	<th><a href="%(sn)s.html">Timestamp</a></th>
+	<th><a href="%(ts)s.html">Timestamp</a></th>
 	<th><a href="%(server)s.html">Server</a></th>
 	<th><a href="%(sn)s.html">Serial Number</a></th>
 	<th><a href="%(build)s.html">Build</a></th>
@@ -152,7 +154,7 @@ if currentEntry is not None:
 	currentEntry.writeLines()
 	bisect.insort(entries, currentEntry)
 
-makeHtml("index.html", entries, 'sn')
+makeHtml("index.html", entries, 'ts')
 for s in sorts:
 	entries.sort(sortFunction(s))
 	makeHtml("by" + s + ".html", entries, s)
