@@ -1,0 +1,69 @@
+#!/usr/local/bin/perl
+
+use LWP::UserAgent;
+use HTML::LinkExtor;
+use URI::URL;
+
+@links=();
+
+sub linkmaker
+{
+    my($tag, %attr)=@_;
+    my($url);
+
+    foreach $url (values(%attr))
+    {
+        $url=url($url,$base)->abs;
+        print LOG "\t$url\n";
+        push(@links, $url) if(!defined($links{$url}));
+        $links{$url}=1;
+    }
+}
+
+sub geturl
+{
+    return(shift(@links));
+}
+
+sub getbaseof
+{
+    my($url)=@_;
+
+    $url=~s/(.*\/)[^\/]*/\1/;
+    return($url);
+}
+
+$ua=LWP::UserAgent->new;
+$ua->agent('DustinScan/0.1' . $ua->agent);
+$p=HTML::LinkExtor->new(\&linkmaker);
+
+push(@links, $ARGV[0]);
+$links{$ARGV[0]}=1;
+$base="";
+
+open(LOG, ">webfind.log");
+select(LOG);
+$|=1;
+select(STDOUT);
+
+while(1)
+{
+    my($url, $res, $req);
+    $url=geturl();
+    last if(!$url=~/\w+/);
+
+    print "Checking out $url\n";
+    print LOG "$url\n";
+    $req=HTTP::Request->new('GET', $url);
+
+    $base=getbaseof($url);
+    print "Base is $base\n";
+
+    print "Requesting...\n";
+    $res=$ua->request($req, sub { $p->parse($_[0]) });
+    print "Processing...\n";
+    # map { $_=url($_,$base)->abs; $links{$_}=1 unless(defined($used{$_})); }
+    #     @links;
+}
+
+close(LOG);
