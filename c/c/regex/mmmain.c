@@ -2,7 +2,7 @@
  * Copyright (c) 1998 Beyond.com
  * Written by Dustin Sallings <dustin@beyond.com>
  *
- * $Id: mmmain.c,v 1.3 1998/11/04 09:04:48 dustin Exp $
+ * $Id: mmmain.c,v 1.4 1998/11/04 09:47:18 dustin Exp $
  */
 
 #include <stdio.h>
@@ -141,17 +141,17 @@ addtostr(int *size, char *dest, char *str)
 static char *
 _space_to_re(char *subject)
 {
-	char  **s, *ret=NULL;
+	char  **s, *ret = NULL;
 	int     i, size = 0;
 
 	s = split(' ', subject);
 
 	/* get the beginning */
-	ret=addtostr(&size, ret, s[0]);
+	ret = addtostr(&size, ret, s[0]);
 
 	for (i = 1; s[i]; i++) {
-		ret=addtostr(&size, ret, ".*?");
-		ret=addtostr(&size, ret, s[i]);
+		ret = addtostr(&size, ret, ".*?");
+		ret = addtostr(&size, ret, s[i]);
 	}
 
 	freeptrlist(s);
@@ -188,7 +188,7 @@ _get_wordmap(void)
 static char *
 _translate_re(char *subject)
 {
-	char  **s, *ret=NULL;
+	char  **s, *ret = NULL;
 	int     i, size = 0;
 	struct hashtable *h;
 	struct hash_container *ent;
@@ -200,17 +200,17 @@ _translate_re(char *subject)
 	/* get the beginning */
 	ent = hash_find(h, s[0]);
 	if (ent)
-		ret=addtostr(&size, ret, ent->value);
+		ret = addtostr(&size, ret, ent->value);
 	else
-		ret=addtostr(&size, ret, s[0]);
+		ret = addtostr(&size, ret, s[0]);
 
 	for (i = 1; s[i]; i++) {
-		ret=addtostr(&size, ret, " ");
+		ret = addtostr(&size, ret, " ");
 		ent = hash_find(h, s[i]);
 		if (ent)
-			ret=addtostr(&size, ret, ent->value);
+			ret = addtostr(&size, ret, ent->value);
 		else
-			ret=addtostr(&size, ret, s[i]);
+			ret = addtostr(&size, ret, s[i]);
 	}
 
 	freeptrlist(s);
@@ -218,19 +218,91 @@ _translate_re(char *subject)
 	return (ret);
 }
 
+/* do kinda what John did */
+static char *
+_quote_re(char *regex, int quotechar)
+{
+	char   *ret = NULL, *tmp, *p;
+	int     size = 0, i;
+
+	/* working copy */
+	tmp = strdup(regex);
+
+	p = strchr(tmp, quotechar);
+	if (p) {
+		char   *quote, *space;
+		p++;
+		space = strchr(p, ' ');
+		quote = strchr(p, quotechar);
+		if (quote) {
+			*quote = 0x00;
+			*p = 0x00;
+		}
+		ret = addtostr(&size, ret, tmp);	/* grab up to the beginning quote */
+
+		/* Loop through, grabbing everything but spaces */
+		while (quote && space) {
+			*space = 0x00;
+			space++;
+			ret = addtostr(&size, ret, p);
+			p = space;
+			space = strchr(p, ' ');
+		}
+
+		if (quote) {
+			/* get up to the last quote */
+			ret = addtostr(&size, ret, p);
+
+			/* get past the last quote */
+			ret = addtostr(&size, ret, quote + 1);
+		} else {
+			free(tmp);
+			tmp = strdup(regex);
+			free(ret);
+			size = 0;
+			ret = NULL;
+		}
+	}
+	free(tmp);
+	/* if we didn't find any quotes, return what we were handed */
+	if (ret == NULL)
+		ret = strdup(regex);
+
+	return (ret);
+}
+
+/* little macro to get us through _enhance_re */
+#define TMPROT free(tmp1); tmp1 = tmp2; tmp2 = NULL;
+
 /* Figure out what the user wants, return in buf */
 static char *
 _enhance_re(char *regex)
 {
 	char   *tmp1, *tmp2;
 
-	tmp1 = _translate_re(regex);
-	tmp2 = _space_to_re(tmp1);
+	tmp1 = strdup(regex);
 
-	/* set tmp1 to tmp2 and free the old tmp1 */
-	free(tmp1);
-	tmp1 = tmp2;
-	tmp2 = NULL;
+	for (;;) {
+		tmp2 = _quote_re(tmp1, '"');
+		if (strcmp(tmp2, tmp1) == 0)
+			break;
+		TMPROT;
+	}
+	TMPROT;
+
+	for (;;) {
+		tmp2 = _quote_re(tmp1, '\'');
+		if (strcmp(tmp2, tmp1) == 0)
+			break;
+		TMPROT;
+	}
+	TMPROT;
+
+	tmp2 = _translate_re(tmp1);
+	TMPROT;
+
+	tmp2 = _space_to_re(tmp1);
+	TMPROT;
 
 	return (tmp1);
 }
@@ -242,9 +314,9 @@ main(int argc, char **argv)
 	pcre_extra *hints = NULL;
 	const char *error;
 	int     errptr, offsets[99], matches, fd, got = 1, end, tmp;
-	char    *buf=NULL;
-	int     bufsz=0;
-	char    *buf2=NULL;
+	char   *buf = NULL;
+	int     bufsz = 0;
+	char   *buf2 = NULL;
 	char   *source, *p, *start, *stop, *optpat;
 	struct stat st, ist;
 
@@ -256,9 +328,9 @@ main(int argc, char **argv)
 	 */
 
 	optpat = _enhance_re(argv[1]);
-	buf=addtostr(&bufsz, buf, "(");
-	buf=addtostr(&bufsz, buf, optpat);
-	buf=addtostr(&bufsz, buf, ")");
+	buf = addtostr(&bufsz, buf, "(");
+	buf = addtostr(&bufsz, buf, optpat);
+	buf = addtostr(&bufsz, buf, ")");
 	free(optpat);
 
 	printf("Pattern is %s\n", buf);
@@ -327,13 +399,13 @@ main(int argc, char **argv)
 				stop = strchr(p + offsets[2], '\n');
 
 				/* Show what the pattern found */
-				buf2=calloc(1, (offsets[3] - offsets[2]) + 5);
+				buf2 = calloc(1, (offsets[3] - offsets[2]) + 5);
 				strncpy(buf2, p + offsets[2], offsets[3] - offsets[2]);
 				printf("\tPattern matched %s\n", buf2);
 				free(buf2);
 
 				/* Show the line we matched */
-				buf2=calloc(1, ((int) stop - (int) start) + 5);
+				buf2 = calloc(1, ((int) stop - (int) start) + 5);
 				strncpy(buf2, start, (int) stop - (int) start);
 				printf("\tLine Matched:  %s\n", buf2);
 				free(buf2);

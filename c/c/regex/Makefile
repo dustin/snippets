@@ -1,4 +1,4 @@
-CFLAGS=-I. -O2 -DMYMALLOC
+CFLAGS=-I. -g -DMYMALLOC
 
 all: mwoo makeindex
 
