@@ -1,11 +1,11 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.1 2000/01/16 04:37:10 dustin Exp $
+# $Id: Makefile.in,v 1.2 2000/12/14 20:51:57 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
 LINT=lint
 INCLUDES=-I.
-DEFINES=
+DEFINES=@DEFS@ -DCONFFILE=\"@CONFFILE@\"
 CFLAGS=@CFLAGS@ $(INCLUDES) $(DEFINES)
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.6 2000/12/14 01:56:57 dustin Exp $
+ * $Id: main.c,v 1.7 2000/12/14 20:52:02 dustin Exp $
  */
 
 #include <stdio.h>
@@ -318,9 +318,47 @@ int parse_headers(char *buf, int *size)
 }
 
 void
-do_error(char *type, char *msg)
+do_error(int status, char *type, char *msg)
 {
-	printf("Status: 500\r\nContent-type: %s\r\n\r\n%s\r\n", type, msg);
+	printf("Status: %d\r\nContent-type: %s\r\n\r\n%s\r\n", status, type, msg);
+}
+
+void
+pre_check()
+{
+	int cont=TRUE;
+
+	/* Make sure the required environment variables are there */
+	if(getenv("REQUEST_URI")==NULL || getenv("DOCUMENT_ROOT")==NULL) {
+		fprintf(stderr,
+			"Required CGI variables not present.  Is this a CGI?\n"
+			);
+		fprintf(stderr, "The following CGI variables are required:\n"
+			"\tREQUEST_URI\n"
+			"\tDOCUMENT_ROOT\n\n"
+			);
+		cont=FALSE;
+	}
+
+	/* Make sure we can read the config file */
+	if(access(CONFFILE, R_OK)<0) {
+		fprintf(stderr,
+			"Could not read config file:  %s\n", CONFFILE);
+		perror("reason");
+		fprintf(stderr,
+			"\nThe config file should contain lines that appear as follows:\n"
+			"\n# Allow to proxy to server:80\n"
+			"ok=server:80\n\n"
+			"Please note that the port number *is* required, even if it's 80\n"
+			);
+		fprintf(stderr, "\n");
+		cont=FALSE;
+	}
+
+	if(cont==FALSE) {
+		fprintf(stderr, "One or more pre-checks failed, exiting.\n");
+		exit(-1);
+	}
 }
 
 int main(int argc, char **argv)
@@ -328,6 +366,9 @@ int main(int argc, char **argv)
 	struct ProxyStruct proxystruct;
 	int s, f, size, rv, parsed_headers=0;
 	char recv_buf[8192];
+
+	/* Make sure stuff sane */
+	pre_check();
 
 	proxystruct=parseuri(GETENV("REQUEST_URI"));
 
@@ -341,7 +382,7 @@ int main(int argc, char **argv)
 
 	/* Make sure we allow access to this host and port (and what not) */
 	if(check_auth(proxystruct)==FALSE) {
-		do_error("text/plain", "You are not authorized to do get this.");
+		do_error(403, "text/plain", "You are not authorized to do get this.");
 	} else {
 		ensurepath(proxystruct.file);
 		f=open(proxystruct.tmpfile, O_WRONLY|O_CREAT|O_EXCL, 0644);

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.1 2000/01/16 04:37:12 dustin Exp $
+dnl $Id: configure.in,v 1.2 2000/12/14 20:52:01 dustin Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(main.c)
 
@@ -50,6 +50,15 @@ case "$OS" in
 	fi
 	;;
 esac
+
+dnl Where do we put the config?
+CONFFILE=/usr/local/etc/proxycgi.conf
+AC_ARG_WITH(
+	conffile,
+	[ --with-conffile=/path/to/conf/file	default is /usr/local/etc/proxycgi.conf],
+	CONFFILE=$withval,
+)dnl
+AC_SUBST(CONFFILE)
 
 dnl Do libraries
 if test "$OS" != "irix"
