@@ -1,14 +1,12 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.15 2002/08/08 21:56:32 dustin Exp $
+ * $Id: SpyCache.java,v 1.16 2002/08/12 20:59:32 dustin Exp $
  */
 
 package net.spy.cache;
 
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.ReferenceQueue;
 
 import java.io.IOException;
 
@@ -32,12 +30,14 @@ public class SpyCache extends Object {
 
 	private TimeStampedHash cacheStore=null;
 	private SpyCacheCleaner cacheCleaner=null;
-	private ReferenceQueue refQueue=null;
 
 	private static SpyCache instance=null;
 
-	// This is a singleton, the constructor should only be called once.
-	private SpyCache() {
+	/**
+	 * Construct a new instance of SpyCache.  This allows subclasses to
+	 * override certain methods, allowing smarter cache handling.
+	 */
+	protected SpyCache() {
 		super();
 
 		init();
@@ -45,7 +45,6 @@ public class SpyCache extends Object {
 
 	private void init() {
 		cacheStore=new TimeStampedHash();
-		refQueue=new ReferenceQueue();
 	}
 
 	private void checkThread() {
@@ -53,7 +52,7 @@ public class SpyCache extends Object {
 			// Do the same thing synchronized
 			synchronized(SpyCache.class) {
 				if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
-					cacheCleaner=new SpyCacheCleaner(cacheStore, refQueue);
+					cacheCleaner=new SpyCacheCleaner(cacheStore);
 				}
 			}
 		}
@@ -86,8 +85,7 @@ public class SpyCache extends Object {
 	 * @param cacheTime Amount of time (in milliseconds) to store object.
 	 */
 	public void store(String key, Object value, long cacheTime) {
-		SpyCacheItem i=new SpyCacheItem(key,
-			new SoftReference(value, refQueue), cacheTime);
+		SpyCacheItem i=new SpyCacheItem(key, value, cacheTime);
 		synchronized(cacheStore) {
 			cacheStore.put(key, i);
 		}
@@ -105,15 +103,14 @@ public class SpyCache extends Object {
 		synchronized(cacheStore) {
 			SpyCacheItem i=(SpyCacheItem)cacheStore.get(key);
 			if(i!=null && (!i.expired())) {
-				Reference ref=i.getObject();
-				ret=ref.get();
-				// If the reference returned a null object, remove this
-				// item from the cache.
-				if(ret==null) {
-					cacheStore.remove(key);
-				}
-			}
-		}
+				ret=i.getObject();
+				// If the stored object is a reference, dereference it.
+				if( (ret!=null) && (ret instanceof Reference) ) {
+					Reference ref=(Reference)i.getObject();
+					ret=ref.get();
+				} // Object was a reference
+			} // Found object in cache
+		} // Locked the cache store
 		return(ret);
 	}
 
@@ -153,13 +150,9 @@ public class SpyCache extends Object {
 
 	private class SpyCacheCleaner extends Thread {
 		private TimeStampedHash cacheStore=null;
-		private ReferenceQueue refQueue=null;
 
 		// How many cleaning passes we've done.
 		private int passes=0;
-
-		// How many times were soft references dequeued.
-		private int refDequeued=0;
 
 		// This is so we can only report multicast security exceptions
 		// once.
@@ -168,11 +161,9 @@ public class SpyCache extends Object {
 		// Insert multicast listener here.
 		private CacheClearRequestListener listener=null;
 
-		public SpyCacheCleaner(TimeStampedHash cacheStore,
-			ReferenceQueue refQueue) {
+		public SpyCacheCleaner(TimeStampedHash cacheStore) {
 			super();
 			this.cacheStore=cacheStore;
-			this.refQueue=refQueue;
 			this.setName("SpyCacheCleaner");
 			this.setDaemon(true);
 			this.start();
@@ -186,7 +177,6 @@ public class SpyCache extends Object {
 				+ ", watermark:  " + cacheStore.getWatermark()
 				+ ", hits:  " + cacheStore.getHits()
 				+ ", misses:  " + cacheStore.getMisses()
-				+ ", ref dqed:  " + refDequeued
 				);
 		}
 
@@ -250,11 +240,6 @@ public class SpyCache extends Object {
 					if(listener==null || (!listener.isAlive())) {
 						checkMulticastThread();
 					}
-					Reference r=refQueue.remove(300*1000);
-					while(r!=null) {
-						refDequeued++;
-						r=refQueue.poll();
-					}
 					// Just for throttling, sleep a second.
 					sleep(1000);
 					cleanup();
@@ -277,10 +262,10 @@ public class SpyCache extends Object {
 
 	private class SpyCacheItem extends Object {
 		private Object key=null;
-		private Reference value=null;
+		private Object value=null;
 		private long exptime=0;
 
-		public SpyCacheItem(Object key, Reference value, long cacheTime) {
+		public SpyCacheItem(Object key, Object value, long cacheTime) {
 			super();
 
 			this.key=key;
@@ -298,7 +283,7 @@ public class SpyCache extends Object {
 			return(out);
 		}
 
-		public Reference getObject() {
+		public Object getObject() {
 			return(value);
 		}
 
@@ -312,9 +297,13 @@ public class SpyCache extends Object {
 				long t=System.currentTimeMillis();
 				ret=(t>exptime);
 			}
-			// If the reference is no longer valid, the object has expired
-			if(value.get()==null) {
-				ret=false;
+			// If the value is a reference that is no longer valid,
+			// the object has expired
+			if(value instanceof Reference) {
+				Reference rvalue=(Reference)value;
+				if(rvalue.get()==null) {
+					ret=false;
+				}
 			}
 			return(ret);
 		}
