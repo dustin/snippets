@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: runscans,v 1.1 1997/12/12 18:36:31 dustin Exp $
+# $Id: runscans,v 1.2 1997/12/12 18:37:46 dustin Exp $
 
 . /home/monitor/lib/shellconf
 
