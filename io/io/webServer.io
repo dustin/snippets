@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.11 2003/08/22 03:53:01 dustin Exp $
+# $Id: webServer.io,v 1.12 2003/08/22 08:23:48 dustin Exp $
 
 // Object definitions
 
@@ -75,13 +75,21 @@ WebResponse bytesWritten = 0
 WebResponse socket = Nil
 
 // Additional headers
-WebResponse headers = Map clone
-WebResponse headers atPut("Connection", "close")
+WebResponse headers = Nil
 // Response status
-WebResponse status = "200"
+WebResponse status = Nil
 // protocol version
-WebResponse httpVersion = "HTTP/1.0"
+WebResponse httpVersion = Nil
 WebResponse beginning = 1
+
+WebResponse init = method(
+	self bytesWritten = 0
+	self headers = Map clone
+	self headers atPut("Connection", "close")
+	self status = "200"
+	self httpVersion = "HTTP/1.0"
+	self
+)
 
 WebResponse addHeader = method(k, v,
 	self headers atPut(k, v)
@@ -145,10 +153,9 @@ WebResponse readBuffer = method(socket readBuffer)
 //
 
 
-WebServer handlers = Map clone
+WebServer handlers = Nil
 
 WebServer responseStatusCodes = Map clone
-
 // Begin status codes
 WebServer responseStatusCodes atPut("100", "Continue")
 WebServer responseStatusCodes atPut("101", "Switching Protocols")
@@ -191,6 +198,11 @@ WebServer responseStatusCodes atPut("503", "Service Unavailable")
 WebServer responseStatusCodes atPut("504", "Gateway Time-out")
 WebServer responseStatusCodes atPut("505", "HTTP Version not supported")
 // End status codes
+
+// Initialize the headers
+WebServer init = method(
+	self handlers = Map clone
+)
 
 WebServer defaultHandler = WebUrlHandler clone
 WebServer errorHandler = WebErrorHandler clone
