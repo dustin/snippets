@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.20 1999/09/30 17:48:56 dustin Exp $
+-- $Id: photo.sql,v 1.21 1999/10/05 20:10:00 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -119,16 +119,16 @@ grant all on show_group to nobody;
 -- Search saves
 
 create table searches (
-	id      serial,
-	name    text,
-	addedby text,
-	search  text,
-	ts      datetime default('now')
+	searches_id	serial,
+	name		text,
+	addedby		integer,
+	search		text,
+	ts			datetime default('now')
 );
 
 grant all on searches to nobody;
 -- implicit seqeunce
-grant all on searches_id_seq to nobody;
+grant all on searches_searches_id_seq to nobody;
 
 -- Hmm...  Store images in text?  OK, sure...
 -- This is keyed of the id in the album table
