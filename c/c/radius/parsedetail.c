@@ -1,59 +1,50 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 1.3 1997/09/20 07:04:40 dustin Exp $
+ * $Id: parsedetail.c,v 2.0 1997/09/21 00:28:47 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
-char *tags[]={
-    "User-Name",
-    "Acct-Session-Id",
-    "Acct-Session-Time",
-    "Acct-Status-Type",
-    "Framed-Address",
-};
+#include "parse.h"
 
-char *month[]={
-    NULL, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+char **tags;
+char **out;
+time_t timestamp;
+
+static char *month[]={
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
     "Sep", "Oct", "Nov", "Dec"
 };
 
-struct out {
-    char userid[20];
-    char session_id[20];
-    char address[20];
-    int status_type;
-    int session_time;
-    int year;
-    int day;
-    int month;
-    int time;
-} out;
-
 void dotime(char *t)
 {
+    struct tm tm;
     t+=4;
-    for(out.month=1; out.month<13; out.month++)
-        if(strncmp(t, month[out.month], 3)==0) break;
+
+    for(tm.tm_mon=0; tm.tm_mon<12; tm.tm_mon++)
+        if(strncmp(t, month[tm.tm_mon], 3)==0) break;
 
     t+=4;
-    out.day=atoi(t);
+    tm.tm_mday=atoi(t);
 
     t+=3;
-    out.time=atoi(t)*3600;
+    tm.tm_hour=atoi(t);
 
     t+=3;
-    out.time+=atoi(t)*60;
+    tm.tm_min=atoi(t);
 
     t+=3;
-    out.time+=atoi(t);
+    tm.tm_sec=atoi(t);
 
     t+=3;
-    out.year=atoi(t);
+    tm.tm_year=atoi(t)-1900;
+
+    timestamp=mktime(&tm);
 }
 
 void insert(char *handle, char *value)
@@ -65,28 +56,24 @@ register int type;
         if(strcmp(tags[type], handle)==0)
             break;
     }
-    switch(type)
+
+    if(tags[type]!=NULL)
     {
-        case 0:
-            value++; value[strlen(value)-1]=0;
-            strcpy(out.userid, value);
-            break;
-        case 1:
-            value++; value[strlen(value)-1]=0;
-            strcpy(out.session_id, value);
-            break;
-        case 2:
-            out.session_time=atoi(value);
-            break;
-        case 3:
-            if(strcmp("Start", value))
-                out.status_type=0;
-            else
-                out.status_type=1;
-            break;
-        case 4:
-            strcpy(out.address, value);
+	/* Remove quotes */
+	if(value[0]=='"')
+	{
+            value++;
+	    value[strlen(value)-1]=0;
+	}
+        strcpy(out[type], value);
     }
+}
+
+void cleanup(void)
+{
+    int i;
+    for(i=0; tags[i]!=NULL; i++)
+	out[i][0]=0x00;
 }
 
 void process(char *line)
@@ -96,30 +83,43 @@ register int i, j=0;
 
     switch(line[0])
     {
-    case 0:
-        if(out.status_type==0)
-            printf("%s:%s::%d:%s:%d/%d/%d/%d\n", out.userid,
-                out.session_id, out.session_time,
-                out.address,
-                out.month, out.day, out.year, out.time);
-        break;
-    case '\t':
-        i=1;
-        thing[j++]=line+1;
-        for(; line[i]!='=' && i<strlen(line); i++);
-        line[i-1]=0;
-        thing[j++]=line+i+2;
-        insert(thing[0], thing[1]);
-        break;
-    default:
-        dotime(line);
+        case 0:
+            display();
+	    cleanup();
+            break;
+        case '\t':
+            i=1;
+            thing[j++]=line+1;
+            for(; line[i]!='=' && i<strlen(line); i++);
+            line[i-1]=0;
+            thing[j++]=line+i+2;
+            insert(thing[0], thing[1]);
+            break;
+        default:
+            dotime(line); }
+}
+
+void display(void)
+{
+    char buf[1024];
+    int i;
+
+    sprintf(buf, "%d", timestamp);
+
+    for(i=0; tags[i]!=NULL; i++)
+    {
+	strcat(buf, ":");
+	strcat(buf, out[i]);
     }
+
+    puts(buf);
 }
 
 int main(int argc, char *argv[])
 {
 char line[80];
 FILE *in;
+int i;
 
     if(argc<2)
     {
@@ -139,6 +139,19 @@ FILE *in;
             exit(2);
         }
     }
+
+    /* Get the tags list */
+    tags=getList("list");
+
+    /* Make room for the output */
+    for(i=0; tags[i]!=NULL; i++);
+
+    out=(char **)malloc(i*sizeof(char *));
+
+    for(; i>=0; i--)
+	out[i]=(char *)malloc(LINELEN*sizeof(char));
+
+    /* process */
 
     while(fgets(line, 80, in))
     {
