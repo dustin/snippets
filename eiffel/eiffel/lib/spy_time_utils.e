@@ -1,6 +1,6 @@
 indexing
 	description: "";
-	version: "$Revision: 1.2 $";
+	version: "$Revision: 1.3 $";
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "2002";
 	license: "See forum.txt.";
@@ -8,25 +8,13 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: spy_time_utils.e,v 1.2 2002/11/25 07:11:36 dustin Exp $
+-- $Id: spy_time_utils.e,v 1.3 2002/12/08 10:06:38 dustin Exp $
 --
 class SPY_TIME_UTILS
 	-- Time with my extensions
 
-creation {ANY}
-	make
-
 feature {ANY}
-	-- Creation
-
-	make is
-		-- Make with an initial capacity
-		local
-			t: TIME
-		do
-			t:=parse("%%Y-%%m-%%d %%H:%%M:%%S", "2002-11-13 10:30:05")
-			dump_time(t)
-		end
+	-- Normal stuff
 
 	parse(format, str: STRING): TIME is
 		-- Parse the time base out of the given string.
@@ -62,10 +50,35 @@ feature {ANY}
 			end
 		end -- make
 
+	to_unix_time(t: TIME): INTEGER is
+		require
+			valid_time: t /= Void
+			after_1970: t >= epoch
+		do
+			Result := epoch.elapsed_seconds(t)
+		ensure
+			Result /= Void
+		end
+
+	epoch: TIME is
+		-- Time representing the UNIX epoch
+		local
+			t: TIME
+		once
+			!!t
+			t.set_universal_time
+			if t.set(1970, 1, 1, 0, 0, 0) then
+				Result := t
+			end
+		ensure
+			Result /= Void
+		end
+
 feature{NONE}
 	-- Debug stuff.
 
 	dump_time(t: TIME) is
+		-- Dump out the time
 		local
 			tie: TIME_IN_ENGLISH
 		do
