@@ -1,0 +1,10 @@
+#!/usr/local/bin/perl
+use Data::Dumper;
+
+@fields=qw(field1 field2 field3 field4);
+
+@data=split(',', 'testa,testb,testc,testd');
+
+@data{@fields}=@data;
+
+print Dumper(\%data);
