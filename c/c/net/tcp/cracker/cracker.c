@@ -1,7 +1,7 @@
 /*
  * Copyright 1997 SPY Internetworking
  *
- * $Id: cracker.c,v 1.3 1997/01/07 08:07:32 dustin Exp $
+ * $Id: cracker.c,v 1.4 1997/01/10 05:58:36 dustin Exp $
  */
 
 #include <stdio.h>
@@ -61,6 +61,12 @@ main(int argc, char **argv)
   done = 0;
 
   strcpy(glob->encrypted, argv[1]);
+
+  if(argc >2)
+  {
+      printf("Setting initial password to %s\n", argv[2]);
+      set_pass(argv[2]);
+  }
 
   printf("Listening socket is %d\n", s);
 
