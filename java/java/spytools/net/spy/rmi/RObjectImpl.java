@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.9 2002/02/21 01:32:32 dustin Exp $
+// $Id: RObjectImpl.java,v 1.10 2002/06/17 02:46:49 dustin Exp $
 
 package net.spy.rmi;
 
@@ -12,79 +12,53 @@ import java.util.*;
 import java.security.*;
 import java.io.*;
 
+import net.spy.cache.*;
+
 /**
  * Implementation for RObjectServer
  */
 public class RObjectImpl extends UnicastRemoteObject implements RObject {
 
-	// Number of hash directory levels.
-	public static final int levels = 256;
-	// Base directory for hashing
-	public String basedir = "/tmp/rcache";
+	private static final String DEFAULT_DIR="/tmp/rcache";
 
+	private DiskCache diskCache=null;
+
+	/**
+	 * Get an RObjectImpl with the default directory.
+	 */
 	public RObjectImpl() throws RemoteException {
-		super();
+		this(DEFAULT_DIR);
 	}
 
+	/**
+	 * Get an RObjectImpl with the given directory.
+	 */
 	public RObjectImpl(String basedir) throws RemoteException {
 		super();
-		this.basedir=basedir;
+		diskCache=new DiskCache(basedir);
 	}
 
-	public String getPath(String key) {
-		MessageDigest md=null;
-		try {
-			md=MessageDigest.getInstance("SHA");
-		} catch(NoSuchAlgorithmException e) {
-			throw new Error("There's no SHA?");
-		}
-		md.update(key.getBytes());
-
-		String hashed=net.spy.SpyUtil.byteAToHexString(md.digest());
-
-		String base=basedir+"/"+hashed.substring(0,2);
-		String path=basedir+"/"+hashed.substring(0,2)+"/"+hashed;
-
-		File f=new File(base);
-		if(!f.isDirectory()) {
-			f.mkdirs();
-		}
-
-		return(path);
-	}
-
+	/**
+	 * @see RObject
+	 */
     public void storeObject(String name, Object o) throws RemoteException {
-		String pathto=getPath(name);
-
 		try {
-			FileOutputStream ostream = new FileOutputStream(pathto);
-			ObjectOutputStream p = new ObjectOutputStream(ostream);
-			p.writeObject(o);
-			p.flush();
-			ostream.close();
-		} catch(Exception e) {
-			System.err.println("RObject exception while storing object:  "
-				+ e);
-			throw new RemoteException(e.getMessage());
+			diskCache.storeObject(name, o);
+		} catch(IOException e) {
+			throw new RemoteException("Error storing object", e);
 		}
 	}
 
+	/**
+	 * @see RObject
+	 */
     public Object getObject(String name) throws RemoteException {
-		String pathto=getPath(name);
-
-		try {
-			Object o;
-			FileInputStream istream = new FileInputStream(pathto);
-			ObjectInputStream p = new ObjectInputStream(istream);
-			o = p.readObject();
-			return(o);
-		} catch(Exception e) {
-			System.err.println("RObject exception while getting object:  "
-				+ e);
-		}
-		return(null);
+		return(diskCache.getObject(name));
 	}
 
+	/**
+	 * @see RObject
+	 */
 	public boolean ping() throws RemoteException {
 		return(true);
 	}
