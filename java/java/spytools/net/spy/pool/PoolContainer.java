@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.19 2001/03/16 01:03:07 dustin Exp $
+// $Id: PoolContainer.java,v 1.20 2001/03/17 21:58:54 dustin Exp $
 
 package net.spy.pool;
 
@@ -18,7 +18,8 @@ public class PoolContainer extends Object {
 	private PoolFiller filler=null;
 	private int _min_objects=-1;
 	private int _max_objects=-1;
-	private int _object_id=0;
+
+	private static int _object_id=0;
 
 	private boolean _debug=false;
 
@@ -113,7 +114,7 @@ public class PoolContainer extends Object {
 				// If we didn't get anything, and we're not at least
 				// half-way through our max object size, open a new
 				// connection
-				if(ret==null && currentObjects()<(_max_objects/2) ) {
+				if(ret==null && totalObjects()<(_max_objects/2) ) {
 					ret=getNewObject();
 				}
 
@@ -224,7 +225,7 @@ public class PoolContainer extends Object {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()==1) {
-					if(currentObjects()>_min_objects) {
+					if(totalObjects()>_min_objects) {
 						// Tell it that it can go away now.
 						debug("Removing " + p);
 						p.discard();
@@ -234,7 +235,7 @@ public class PoolContainer extends Object {
 			} // Getting rid of stuff
 
 			// If we don't have enough objects, go get more!  They're cheap!
-			if(currentObjects()<_min_objects) {
+			if(totalObjects()<_min_objects) {
 				getMinObjects();
 			}
 		} // pool lock
@@ -253,7 +254,7 @@ public class PoolContainer extends Object {
 	// Populate with the minimum number of objects.
 	private void getMinObjects() throws PoolException{
 		debug("Pool " + name + " wants at least " + _min_objects +" objects.");
-		for(int i=currentObjects(); i<_min_objects; i++) {
+		for(int i=totalObjects(); i<_min_objects; i++) {
 			getNewObject();
 		}
 	}
@@ -265,32 +266,35 @@ public class PoolContainer extends Object {
 
 		// First, if we're at capacity, do a prune and see if we can shrink
 		// it down a bit.
-		if(currentObjects()>=_max_objects) {
+		if(totalObjects()>=_max_objects) {
 			prune();
 		}
 
 		// Don't add an object if we're at capacity.
-		if(currentObjects()<_max_objects) {
+		if(totalObjects()<_max_objects) {
 			debug("*** Getting a new object in the "
-				+ name + " pool, currently have " + currentObjects()
+				+ name + " pool, currently have " + totalObjects()
 				+ ". ***");
 			p=filler.getObject();
-			p.setObjectID(_object_id);
+			p.setObjectID(nextId());
 			p.setPoolName(name);
-			_object_id++;
+			p.activate();
 			synchronized(pool) {
 				pool.addElement(p);
 			}
 			debug("Added the object to the pool, now have "
-				+ currentObjects());
+				+ totalObjects());
 		} else {
 			throw new PoolException("Cannot create another object in the pool");
 		}
 		return(p);
 	}
 
-	// Find out how many objects we currently have.
-	private int currentObjects() {
+	/**
+	 * Find out how many objects are in this pool.  This will be the sum of
+	 * the available and unavailable objects.
+	 */
+	public int totalObjects() {
 		int ret=-1;
 		synchronized(pool) {
 			ret=pool.size();
@@ -308,6 +312,11 @@ public class PoolContainer extends Object {
 
 	private String getProperty(String what) {
 		return(conf.get(name + "." + what));
+	}
+
+	private static synchronized int nextId() {
+		_object_id++;
+		return(_object_id);
 	}
 
 	private void debug(String msg) {

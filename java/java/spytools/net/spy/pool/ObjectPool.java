@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.18 2001/02/07 06:31:36 dustin Exp $
+// $Id: ObjectPool.java,v 1.19 2001/03/17 21:58:51 dustin Exp $
 
 package net.spy.pool;
 
@@ -161,7 +161,7 @@ public class ObjectPool extends Object {
 				PoolContainer pc=(PoolContainer)e.nextElement();
 
 				// If it's empty, remove it.
-				if(pc.avaliableObjects()==0) {
+				if(pc.totalObjects()==0) {
 					destroyPool(pc.getName());
 				} else {
 					v.addElement(pc);

@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.11 2001/03/16 01:03:05 dustin Exp $
+// $Id: PoolAble.java,v 1.12 2001/03/17 21:58:52 dustin Exp $
 
 package net.spy.pool;
 
@@ -146,6 +146,13 @@ public abstract class PoolAble extends Object {
 	 */
 	public int getObjectID() {
 		return(object_id);
+	}
+
+	/**
+	 * Activate this PoolAble object.
+	 */
+	public void activate() {
+		debug("Activated.");
 	}
 
 	/**
