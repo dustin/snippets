@@ -6,7 +6,7 @@ creation
 
 feature {NONE} -- Just a program, nothing public
 
-	search_base: STRING is "dc=beyond,dc=com";
+	search_base: STRING is "dc=spy,dc=net";
 
 	ldap: LDAP;
 
@@ -44,6 +44,10 @@ feature {NONE} -- Just a program, nothing public
 				!!s.copy("uid=" + argument(1));
 				io.put_string("Searching for " + s + "%N");
 				ldap.search(s, 2);
+				io.put_string("Search finished, found ");
+				io.put_integer(ldap.nresults);
+				io.put_string(" matches.%N");
+				ldap.first_entry;
 
 				display_attribute("cn");
 				display_attribute("mail");
