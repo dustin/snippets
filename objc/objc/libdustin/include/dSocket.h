@@ -6,7 +6,7 @@
 //  Copyright (c) 2001 __MyCompanyName__. All rights reserved.
 //
 
-#import <dString.h>
+#include <dString.h>
 
 @interface dSocket : Object {
 	@private

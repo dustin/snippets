@@ -17,7 +17,7 @@
 #include <netdb.h>
 #include <netinet/tcp.h>
 
-#import <dSocket.h>
+#include <dSocket.h>
 
 @implementation dSocket
 
