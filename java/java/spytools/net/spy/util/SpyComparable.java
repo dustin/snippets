@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyComparable.java,v 1.1 2000/09/05 08:04:02 dustin Exp $
+// $Id: SpyComparable.java,v 1.2 2001/04/26 07:22:00 dustin Exp $
 
 package net.spy.util;
 
@@ -14,5 +14,5 @@ public interface SpyComparable {
 	/**
 	 * Compare two objects.
 	 */
-	public int compare(Object obj1, Object obj2);
+	int compare(Object obj1, Object obj2);
 }

@@ -1,17 +1,19 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr/java
 JAR=$(JAVAHOME)/bin/jar
-JAVAC=$(JAVAHOME)/bin/javac
+# JAVAC=$(JAVAHOME)/bin/javac
+JAVAC=jikes +P
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
 COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
-C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
+C2=$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
 C3=$(MYLIB)/oromatcher.jar
-CLASSPATH=$(C1):$(C2):$(C3):.
+S=/System/Library/Frameworks/JavaVM.framework/Versions/1.3/Classes/classes.jar
+CLASSPATH=$(C1):$(C2):$(C3):$S:.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/log/SpyLog.class \
@@ -159,4 +161,4 @@ net/spy/db/CachePreparedStatement.java: \
 		-outputclass net.spy.db.CachePreparedStatement
 
 .java.class:
-	env CLASSPATH=$(CLASSPATH) $(COMPILE) $<
+	env CLASSPATH=$(CLASSPATH) $(COMPILE) -deprecation $<

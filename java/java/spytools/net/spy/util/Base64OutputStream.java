@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64OutputStream.java,v 1.3 2001/03/31 10:37:09 dustin Exp $
+// $Id: Base64OutputStream.java,v 1.4 2001/04/26 07:21:58 dustin Exp $
 
 package net.spy.util;
 
@@ -25,8 +25,8 @@ public class Base64OutputStream extends FilterOutputStream {
 		base64=new Base64();
 		buffer=new byte[3];
 		crlf=new byte[2];
-		crlf[0]='\r';
-		crlf[1]='\n';
+		crlf[0]=(byte)'\r';
+		crlf[1]=(byte)'\n';
 	}
 
 	/**

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.7 2001/02/07 06:31:25 dustin Exp $
+ * $Id: SpyLog.java,v 1.8 2001/04/26 07:21:57 dustin Exp $
  */
 
 package net.spy.log;
@@ -144,13 +144,6 @@ public class SpyLog extends Object {
 
 		if(flushers==null) {
 			flushers=new Vector();
-		}
-
-		// Really need to make sure all finalization occurs.
-		try {
-			System.runFinalizersOnExit(true);
-		} catch(Exception e) {
-			// Well, we need to try, anyway...
 		}
 	}
 }
