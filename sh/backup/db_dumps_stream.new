@@ -1,0 +1,19 @@
+#!/bin/sh
+# arch-tag: 13CE71CE-4A64-11D8-9F39-003065ABF26A
+
+place=$1
+dbname=$2
+
+GPG=/usr/local/bin/gpg
+
+today=`date +%Y%m%d`
+unixtoday=`date +%s`
+unixyesterday=`expr $unixtoday - 86400`
+yesterday=`date -r $unixyesterday +%Y%m%d`
+
+touch $place/digests/$dbname
+mkdir -p $today/$dbname
+$HOME/bin/blockDigest - $place/digests/$dbname $HOME/bin/encryptBlock \
+	$yesterday/$dbname $today/$dbname
+
+du -sk $today/$dbname
