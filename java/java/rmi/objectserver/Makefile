@@ -5,6 +5,7 @@ JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 RMIC=$(JAVAHOME)/bin/rmic
+JAVA=$(JAVAHOME)/bin/java
 
 CLASSES=Example.class RHash.class RObject.class RObjectImpl.class \
 	RObjectImpl_Skel.class RObjectImpl_Stub.class
@@ -18,6 +19,9 @@ clean:
 
 RHash.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES)
+
+serve: RHash.jar
+	$(JAVA) -Djava.rmi.server.codebase=file://${PWD}/ RObjectImpl
 
 RObjectImpl_Skel.class: RObjectImpl.class
 	$(RMIC) -d . RObjectImpl
