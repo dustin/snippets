@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.12 1999/02/24 07:17:35 dustin Exp $
+ * $Id: main.c,v 1.13 1999/05/19 02:27:50 dustin Exp $
  */
 
 #include <config.h>
@@ -61,7 +61,7 @@ parseurl(char *url)
 {
 	char   *tmp;
 	struct url u;
-	int     i, port;
+	int     port;
 
 	u.host = NULL;
 	u.req = NULL;
@@ -151,7 +151,8 @@ getstatus(char *response)
 	in = strdup(response);
 
 	p = strchr(in, ' ');
-	assert(p);
+	if (p==NULL)
+		return(status);
 	p++;
 
 	p2 = p;
@@ -162,7 +163,10 @@ getstatus(char *response)
 
 	status.status = atoi(p);
 	p = strchr(p, ' ');
-	assert(p);
+	if (p==NULL) {
+		status.status=-1;
+		return(status);
+	}
 	p++;
 
 	status.string = strdup(p);
@@ -207,9 +211,9 @@ dostats(int i, struct timeval timers[3], int bytes,
 
 	/* timestamps */
 	if (flags & MACHINE_STATS) {
-		printf("%d:", timers[0].tv_sec);
+		printf("%ld:", timers[0].tv_sec);
 	} else {
-		printf("\t%d/%u %s\t%d/%u %s\t%d/%u %s",
+		printf("\t%lu/%lu %s\t%lu/%lu %s\t%lu/%lu %s",
 		    timers[0].tv_usec, timers[0].tv_sec, times[0],
 		    timers[1].tv_usec, timers[1].tv_sec, times[1],
 		    timers[2].tv_usec, timers[2].tv_sec, times[2]);
@@ -257,6 +261,7 @@ str_append(struct growstring *s, char *buf)
 	}
 
 	strcat(s->string, buf);
+	return(0);
 }
 
 int
@@ -372,7 +377,10 @@ main(int argc, char **argv)
 
 		_ndebug(2, ("Selecting...\n"));
 
-		if ((selected = select(MAXSEL, &fdset, NULL, NULL, NULL)) > 0) {
+		tmptime.tv_sec = 1;
+		tmptime.tv_usec = 0;
+
+		if ((selected = select(MAXSEL, &fdset, NULL, NULL, &tmptime)) > 0) {
 			int     i;
 			for (i = 0; i < MAXSEL; i++) {
 				if (FD_ISSET(i, &fdset)) {
@@ -406,4 +414,5 @@ main(int argc, char **argv)
 			}
 		}		/* select */
 	}			/* splat loop */
+	return(0);
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.3 1999/02/24 07:17:37 dustin Exp $
+ * $Id: sockets.c,v 1.4 1999/05/19 02:27:52 dustin Exp $
  */
 
 #include <stdio.h>
@@ -23,7 +23,7 @@ extern int _debug;
 int
 getclientsocket(char *host, int port, int flags)
 {
-	struct hostent *hp;
+	static struct hostent *hp=NULL;
 	int     success, i, flag;
 	register int s = -1;
 	struct linger l;
@@ -34,13 +34,15 @@ getclientsocket(char *host, int port, int flags)
 	if (host == NULL || port == 0)
 		return (-1);
 
-	if ((hp = gethostbyname(host)) == NULL) {
+	if(hp==NULL) {
+		if ((hp = gethostbyname(host)) == NULL) {
 #ifdef HAVE_HERROR
-		herror("gethostbyname");
+			herror("gethostbyname");
 #else
-		fprintf(stderr, "Error looking up %s\n", host);
+			fprintf(stderr, "Error looking up %s\n", host);
 #endif
-		return (-1);
+			return (-1);
+		}
 	}
 	success = 0;
 
