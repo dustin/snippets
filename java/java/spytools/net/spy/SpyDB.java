@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.35 2001/08/18 00:47:30 dustin Exp $
+ * $Id: SpyDB.java,v 1.36 2001/11/13 22:52:24 dustin Exp $
  */
 
 package net.spy;
@@ -52,6 +52,9 @@ public class SpyDB extends Object {
 	// Whether we want to use a pool.
 	private boolean use_pool=true;
 	private boolean use_jndi=true;
+
+	// Is this thing closed?
+	private boolean isClosed=false;
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
@@ -417,6 +420,7 @@ public class SpyDB extends Object {
 	 */
 	public void close() {
 		freeDBConn();
+		isClosed=true;
 	}
 
 	/**
@@ -530,6 +534,13 @@ public class SpyDB extends Object {
 			scopy=sout;
 		}
 		return(scopy);
+	}
+
+	/**
+	 * Has close() been called?
+	 */
+	public boolean isClosed() {
+		return(isClosed);
 	}
 
 }
