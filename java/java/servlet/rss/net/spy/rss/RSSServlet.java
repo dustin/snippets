@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.1 2001/03/01 22:42:15 dustin Exp $
+// $Id: RSSServlet.java,v 1.2 2001/03/02 02:40:02 dustin Exp $
 
 package net.spy.rss;
 
@@ -23,6 +23,7 @@ public class RSSServlet extends HttpServlet {
 			// Get it
 			String url=request.getParameter("url");
 			String xsl=request.getParameter("xsl");
+			log("url=" + url + " - xsl=" + xsl);
 			String html=getHTML(url, xsl);
 
 			// Set a cache time
