@@ -11,9 +11,8 @@ void dodbwork(char *query)
     int r;
     printf("Attempting %s\n", query);
     pthread_mutex_lock(&mutexen[DBMUTEX]);
-    printf("Doing query:  %s\n", query);
+    printf("\t\t\t\t\tDoing query:  %s\n", query);
     r=rand()%5;
-    printf("\tsleeping %d\n", r);
     sleep(r);
     pthread_mutex_unlock(&mutexen[DBMUTEX]);
 }
