@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.2 2000/03/21 20:51:05 dustin Exp $
+// $Id: UPS.java,v 1.3 2000/03/22 07:49:33 dustin Exp $
 
 package net.spy.info;
 
@@ -11,16 +11,26 @@ import net.spy.net.*;
 
 /**
  * Get UPS info.
+ *
+ * <p>
+ * The following variables are available as of this writing:
+ * <p>
+ * <ul>
+ *  <li>Package Status - UPS' idea of the state of the delivery.</li>
+ *  <li>Last Scanned on - Last time the package was scanned.</li>
+ *  <li>Last Scanned at - Last location where the package was scanned.</li>
+ *  <li>Sent on - Date the package was sent.</li>
+ *  <li>Shipped to - Destination of the package.</li>
+ *  <li>Tracking Number - UPS tracking number of the package.</li>
+ *  <li>UPS Service Type - Um, it's not obvious?</li>
+ *  <li>Package Weight - Approximate weight of the package.</li>
+ *  <li>NOTICE - Legal shite.</li>
+ * </ul>
  */
 
-public class UPS extends Object {
+public class UPS extends Info {
 
 	String tracking_number=null;
-	String info=null;
-
-	Hashtable hinfo=null;
-
-	boolean error=true;
 
 	/**
 	 * Get a UPS info object.
@@ -49,47 +59,6 @@ public class UPS extends Object {
 			}
 		} catch(Exception e) {
 			// Just let it return null
-		}
-		return(ret);
-	}
-
-	/**
-	 * gets the value of a variable from the tracking info
-	 *
-	 * @param what variable to get
-	 * <p>
-	 * The following variables are available as of this writing:
-	 * <p>
-	 * <ul>
-	 *  <li>Package Status - UPS' idea of the state of the delivery.</li>
-	 *  <li>Last Scanned on - Last time the package was scanned.</li>
-	 *  <li>Last Scanned at - Last location where the package was scanned.</li>
-	 *  <li>Sent on - Date the package was sent.</li>
-	 *  <li>Shipped to - Destination of the package.</li>
-	 *  <li>Tracking Number - UPS tracking number of the package.</li>
-	 *  <li>UPS Service Type - Um, it's not obvious?</li>
-	 *  <li>Package Weight - Approximate weight of the package.</li>
-	 *  <li>NOTICE - Legal shite.</li>
-	 * </ul>
-	 */
-	public String get(String what) throws Exception {
-		parseInfo();
-		String ret=(String) hinfo.get(what);
-		return(ret);
-	}
-
-	/**
-	 * Same as the above, but allows a default to use when the variable
-	 * does not exist.
-	 *
-	 * @param what which variable to get
-	 * @param def default value
-	 */
-	public String get(String what, String def) throws Exception {
-		parseInfo();
-		String ret=(String) hinfo.get(what);
-		if(ret==null) {
-			ret=def;
 		}
 		return(ret);
 	}

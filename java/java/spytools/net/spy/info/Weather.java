@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.2 2000/03/22 04:22:27 dustin Exp $
+// $Id: Weather.java,v 1.3 2000/03/22 07:49:34 dustin Exp $
 
 package net.spy.info;
 
@@ -13,17 +13,12 @@ import net.spy.net.*;
  * Get Weather info from weather.com
  */
 
-public class Weather extends Object {
+public class Weather extends Info {
 
 	protected String zip_code=null;
-	protected String info=null;
 	protected String relevent=null;
 	protected String shortWeather=null;
 	protected String city=null;
-
-	protected Hashtable hinfo=null;
-
-	protected boolean error=true;
 
 	/**
 	 * Get a Weather object.
@@ -53,38 +48,6 @@ public class Weather extends Object {
 		// return(ret);
 		// return(hinfo.toString() + "\nLeftovers:\n" + relevent);
 		return(shortWeather);
-	}
-
-	/**
-	 * gets the value of a variable from the weather info
-	 *
-	 * @param what variable to get
-	 * <p>
-	 * The following variables are available as of this writing:
-	 * <p>
-	 * <ul>
-	 * </ul>
-	 */
-	public String get(String what) throws Exception {
-		parseInfo();
-		String ret=(String) hinfo.get(what);
-		return(ret);
-	}
-
-	/**
-	 * Same as the above, but allows a default to use when the variable
-	 * does not exist.
-	 *
-	 * @param what which variable to get
-	 * @param def default value
-	 */
-	public String get(String what, String def) throws Exception {
-		parseInfo();
-		String ret=(String) hinfo.get(what);
-		if(ret==null) {
-			ret=def;
-		}
-		return(ret);
 	}
 
 	protected void parseInfo() throws Exception {
