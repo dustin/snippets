@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoDB.java,v 1.1 1999/10/12 22:58:32 dustin Exp $
+ * $Id: PhotoDB.java,v 1.2 1999/10/19 09:21:40 dustin Exp $
  */
 
 import java.sql.*;
@@ -57,11 +57,12 @@ public class PhotoDB extends Object {
 			initDBS();
 		}
 		conn=dbs.getConnection();
-		if(conn==null) {
+		// Make sure we got one, *and* it's open.
+		if(conn==null || conn.isClosed()) {
 			log("conn is null, need to reinit");
 			initDBS();
 			conn=dbs.getConnection();
-			if(conn==null) {
+			if(conn==null || conn.isClosed()) {
 				log("conn is *still* null, need to reinit");
 				initDBS();
 			}

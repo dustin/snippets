@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.1 1999/10/19 07:11:32 dustin Exp $
+ * $Id: PhotoSession.java,v 1.2 1999/10/19 09:21:42 dustin Exp $
  */
 
 import java.io.*;
@@ -379,12 +379,13 @@ public class PhotoSession extends Object
 			st.executeUpdate(query);
 
 			h.put("ID", ""+id);
-			st.executeUpdate("commit");
+
+			photo.commit();
 			out += tokenize("add_success.inc", h);
 		} catch(Exception e) {
 			log(e.getMessage());
 			try {
-				st.executeUpdate("rollback");
+				photo.rollback();
 				h.put("QUERY", query);
 				h.put("ERRSTR", e.getMessage());
 				out += tokenize("add_success.inc", h);

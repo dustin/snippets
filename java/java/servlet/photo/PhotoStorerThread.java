@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.1 1999/10/19 06:24:54 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.2 1999/10/19 09:21:43 dustin Exp $
  */
 
 import java.sql.*;
@@ -42,12 +42,12 @@ public class PhotoStorerThread extends Thread {
 			}
 			st.executeUpdate("update upload_log set stored=datetime(now())\n"
 				+ "\twhere photo_id = " + image_id);
-			st.executeUpdate("commit");
+			db.commit();
 		} catch(Exception e) {
 			// If anything happens, roll it back.
 			if( st != null) {
 				try {
-					st.executeUpdate("rollback");
+					db.rollback();
 				} catch(Exception e3) {
 					// Nothing
 				}
