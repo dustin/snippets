@@ -23,7 +23,8 @@ type cdb_creator = {
 let hash_init = Int64.of_int 5381;;
 
 let ff64 = Int64.of_int 0xff;;
-let ffffffff64 = Int64.of_int 0xffffffff;;
+(* I need to do this of_string because it's larger than an ocaml int *)
+let ffffffff64 = Int64.of_string "0xffffffff";;
 let ff32 = Int32.of_int 0xff;;
 
 (** Hash the given string. *)
