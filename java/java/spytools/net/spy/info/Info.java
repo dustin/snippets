@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.8 2001/06/21 00:07:29 dustin Exp $
+// $Id: Info.java,v 1.9 2001/10/09 19:01:34 dustin Exp $
 
 package net.spy.info;
 
@@ -133,6 +133,43 @@ public abstract class Info extends Object {
 			ret=def;
 		}
 		return(ret);
+	}
+
+	/**
+	 * Remove HTML entity stuff from a String.
+	 *
+	 * @param in String that may contain HTML entities.
+	 *
+	 * @return the String with known entities replaced.
+	 */
+	public String deEntity(String in) {
+		StringBuffer sb=new StringBuffer();
+
+		for(int i=0; i<in.length(); i++) {
+			String sub=in.substring(i);
+			if(sub.startsWith("&")) {
+				int term=sub.indexOf(";");
+				// If we didn't find a terminator, assume it's just an
+				// ampersand.
+				if(term<0) {
+					sb.append("&");
+				} else {
+					String entity=sub.substring(1, term);
+					if(entity.equalsIgnoreCase("nbsp")) {
+						sb.append(" ");
+						i+=term;
+					} else {
+						new Exception(
+							"Unhandled entity: " + entity).printStackTrace();
+						sb.append("&");
+					}
+				}
+			} else {
+				sb.append(sub.charAt(0));
+			}
+		}
+
+		return(sb.toString());
 	}
 
 	/**

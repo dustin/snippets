@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.9 2001/02/14 02:14:09 dustin Exp $
+// $Id: UPS.java,v 1.10 2001/10/09 19:01:35 dustin Exp $
 
 package net.spy.info;
 
@@ -88,17 +88,18 @@ public class UPS extends PackageInfo {
 				// we really only care about the first section
 				if(lines[i].startsWith("Tracking Result")) {
 					section=1;
-				} else if(lines[i].startsWith("Date Time Location Activity")) {
+				} else if(lines[i].startsWith("NOTICE:")) {
 					section=2;
 				}
 
 				// Figure out what section we're parsing.
 				if(section==1) {
-					int sep=lines[i].indexOf(": ");
+					int sep=lines[i].indexOf(":&nbsp;");
 					if(sep>0) {
 						String k, v;
-						k=lines[i].substring(0, sep);
-						v=lines[i].substring(sep+2, lines[i].length());
+						k=deEntity(lines[i].substring(0, sep));
+						v=deEntity(lines[i].substring(sep+7,
+							lines[i].length()));
 						hinfo.put(k, v);
 					} // Sep index
 				} // Section one
