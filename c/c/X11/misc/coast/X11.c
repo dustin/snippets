@@ -102,7 +102,7 @@ init_window(void)
  * This puts that cool title at the top of the window.
  */
 
-  XStoreName(display, window, "James Lemley's Cool Coast Plotter Thing.");
+  XStoreName(display, window, "Coast Plotter Thing.");
 
 /*
  * Class hints are kind of neat.  It tells other programs what kind of
@@ -111,7 +111,7 @@ init_window(void)
  * argv[0], but that's close enough.
  */
 
-  class_hints.res_class = "CoolX11Ports";
+  class_hints.res_class = "CoolX11Stuff";
   class_hints.res_name = "xPlot";
   XSetClassHint(display, window, &class_hints);
 
