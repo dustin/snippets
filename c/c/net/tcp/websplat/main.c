@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.8 1998/12/03 19:33:24 dustin Exp $
+ * $Id: main.c,v 1.9 1998/12/03 19:42:32 dustin Exp $
  */
 
 #include <config.h>
@@ -202,7 +202,7 @@ int
 main(int argc, char **argv)
 {
 	int     s, selected, size, c, i, maxhits = 65535, totalhits = 0,
-	        n = 0, flags = 0;
+	        n = 0, flags = 0, hit;
 	fd_set  fdset, tfdset;
 	struct timeval timers[MAXSEL][3];
 	int     bytes[MAXSEL];
@@ -267,7 +267,9 @@ main(int argc, char **argv)
 
 	resettraps();
 
-	for (;;) {
+	/* hit will be incremented on the inside, we count a hit by a closed
+	 * connection */
+	for (hit=0;hit<totalhits;) {
 		if (n < maxhits) {
 
 			if (flags & DO_STATS)
@@ -304,6 +306,7 @@ main(int argc, char **argv)
 					size = recv(i, buf, 8192, 0);
 					if (size == 0) {
 						_ndebug(2, ("Lost %d\n", i));
+						hit++;
 						close(i);
 
 						if (flags & DO_STATS) {
@@ -321,5 +324,5 @@ main(int argc, char **argv)
 					break;
 			}
 		}		/* select */
-	}			/* infinite loop */
+	}			/* splat loop */
 }
