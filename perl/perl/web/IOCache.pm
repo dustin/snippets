@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.2 1998/12/02 09:21:46 dustin Exp $
+# $Id: IOCache.pm,v 1.3 1998/12/02 09:27:12 dustin Exp $
 
 =pod
 
@@ -62,12 +62,16 @@ use DCache;
 		if(defined($options{'maxage'}) && defined($self->{'stat'})) {
 			if($self->{'dcache'}->checkcache($key, $options{'maxage'})) {
 				$self->{'dcache'}->printcache_only($key);
-				print "!!! This was straigt-outta cache !!!\n";
+				if(defined($options{'cachetag'})) {
+					print $options{'cachetag'};
+				}
 				exit;
 			}
 		} elsif($self->{'dcache'}->checkcache($key)) {
 			$self->{'dcache'}->printcache_only($key);
-			print "!!! This was straigt-outta cache !!!\n";
+			if(defined($options{'cachetag'})) {
+				print $options{'cachetag'};
+			}
 			exit;
 		}
 
