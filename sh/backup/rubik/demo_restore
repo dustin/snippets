@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# arch-tag: 27CE4FFC-9283-11D8-A34D-003065ABF26A
+
+PATH=$PATH:$HOME/local/pgsql/bin
+export PATH
+
+cd /Users/dustin/stuff/demo
+
+DBNAME=photodemo
+
+N=0
+MAX_RETRIES=12
+dropdb $DBNAME
+while [ $? -ne 0 ] && [ $N -lt $MAX_RETRIES ]
+do
+	N=`expr $N + 1`
+	echo "Retry #$N in five minutes..."
+	sleep 300
+	dropdb $DBNAME
+done
+
+createdb $DBNAME && gzip -dc $DBNAME.dump | psql $DBNAME
