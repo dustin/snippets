@@ -101,20 +101,25 @@
     NSURL *u=[[NSURL alloc] initWithString: urlString];
     NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
     NSLog(@"Fetching url list from %@", u);
-    NSData *data=[u resourceDataUsingCache: FALSE];
 
-	char fourbytes[5];
-	[data getBytes: &fourbytes length: 4];
-	fourbytes[4]=0x00;
+    NSURLRequest *theRequest=[NSURLRequest requestWithURL:u
+                        cachePolicy:NSURLRequestUseProtocolCachePolicy
+                    timeoutInterval:60.0];
+    NSURLResponse *theResponse=nil;
+    NSError *error=nil;
 
-    /*
-	NSLog(@"First four bytes are %x.%x.%x.%x",
-		fourbytes[0], fourbytes[1], fourbytes[2], fourbytes[3]);
-    */
+    NSData *data=[NSURLConnection sendSynchronousRequest: theRequest
+        returningResponse:&theResponse error: &error];
+
+    if(data == nil) {
+        NSLog(@"Error is %@", error);
+    }
+
+    NSLog(@"Mime type of response is %@", [theResponse MIMEType]);
 
 	NSArray *newList=nil;
-	if(strcmp(fourbytes, "http") == 0) {
-		NSLog(@"Hey, that says http, I'm guessing this is a list of URLs");
+	if([@"text/plain" isEqual: [theResponse MIMEType]]) {
+		NSLog(@"Content type is text/plain, I'm guessing this is a list of URLs");
 		NSString *str=[[NSString alloc] initWithData: data
 			encoding:NSUTF8StringEncoding];
 		NSArray *splitList=[str componentsSeparatedByString: @"\n"];
@@ -158,9 +163,18 @@
 
     NSURL *u=[[NSURL alloc]
 		initWithString: [imageUrls objectAtIndex: currentURLOffset]];
-    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-    NSLog(@"Fetching image from %@", u);
-    NSData *data=[u resourceDataUsingCache: FALSE];
+    NSURLRequest *theRequest=[NSURLRequest requestWithURL:u
+                        cachePolicy:NSURLRequestUseProtocolCachePolicy
+                    timeoutInterval:60.0];
+    NSURLResponse *theResponse=nil;
+    NSError *error=nil;
+
+    NSData *data=[NSURLConnection sendSynchronousRequest: theRequest
+        returningResponse:&theResponse error: &error];
+
+    if(data == nil) {
+        NSLog(@"Error is %@", error);
+    }
 
     if(data != nil) {
         NSImage *tmpImage=[[NSImage alloc] initWithData: data];

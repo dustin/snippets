@@ -3,18 +3,24 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 38;
+	objectVersion = 39;
 	objects = {
 		06F27B2DFFEEEFEF11CA0E56 = {
+			expectedFileType = wrapper.framework;
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
 			name = ScreenSaver.framework;
 			path = /System/Library/Frameworks/ScreenSaver.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		06F27B2EFFEEEFEF11CA0E56 = {
+			expectedFileType = folder;
+			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = BlankSaver.saver;
 			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		06F27B2FFFEEEFEF11CA0E56 = {
 			fileRef = 06F27B2DFFEEEFEF11CA0E56;
@@ -27,7 +33,12 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -37,6 +48,8 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -52,10 +65,13 @@
 //083
 //084
 		089C1669FE841209C02AAC07 = {
+			buildSettings = {
+			};
 			buildStyles = (
 				06F27B30FFEEEFEF11CA0E56,
 				06F27B31FFEEEFEF11CA0E56,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 089C166AFE841209C02AAC07;
 			projectDirPath = "";
@@ -73,6 +89,7 @@
 			isa = PBXGroup;
 			name = BlankSaver;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C1671FE841209C02AAC07 = {
 			children = (
@@ -82,12 +99,16 @@
 			isa = PBXGroup;
 			name = "Frameworks and Libraries";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C1672FE841209C02AAC07 = {
+			expectedFileType = wrapper.framework;
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		089C1673FE841209C02AAC07 = {
 			buildPhases = (
@@ -142,7 +163,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 1;
 		};
 		089C1674FE841209C02AAC07 = {
 			buildActionMask = 2147483647;
@@ -191,6 +211,7 @@
 			isa = PBXGroup;
 			name = Resources;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C167DFE841241C02AAC07 = {
 			children = (
@@ -199,19 +220,25 @@
 			isa = PBXVariantGroup;
 			name = InfoPlist.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C167EFE841241C02AAC07 = {
+			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		089C167FFE841241C02AAC07 = {
+			expectedFileType = wrapper.framework;
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		089C1680FE841241C02AAC07 = {
 			fileRef = 089C167DFE841241C02AAC07;
@@ -227,6 +254,7 @@
 			isa = PBXGroup;
 			name = Classes;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 //080
 //081
@@ -246,12 +274,16 @@
 			isa = PBXGroup;
 			name = "Linked Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7ADFEA557BF11CA2CBB = {
+			expectedFileType = wrapper.framework;
+			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		1058C7AEFEA557BF11CA2CBB = {
 			children = (
@@ -261,6 +293,7 @@
 			isa = PBXGroup;
 			name = "Other Frameworks";
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		1058C7AFFEA557BF11CA2CBB = {
 			fileRef = 1058C7ADFEA557BF11CA2CBB;
@@ -285,6 +318,7 @@
 			isa = PBXGroup;
 			name = Products;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 //190
 //191
@@ -297,14 +331,20 @@
 //F53
 //F54
 		F50079790118B23001CA0E54 = {
+			expectedFileType = sourcecode.c.h;
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = BlankSaverView.h;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F500797A0118B23001CA0E54 = {
+			expectedFileType = sourcecode.c.objc;
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = BlankSaverView.m;
 			refType = 4;
+			sourceTree = "<group>";
 		};
 		F500797B0118B23101CA0E54 = {
 			fileRef = F50079790118B23001CA0E54;
