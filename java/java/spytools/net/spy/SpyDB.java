@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.16 2000/07/01 00:41:06 dustin Exp $
+ * $Id: SpyDB.java,v 1.17 2000/07/04 07:20:35 dustin Exp $
  */
 
 package net.spy;
@@ -9,31 +9,42 @@ package net.spy;
 import java.sql.*;
 import java.util.*;
 
-import com.javaexchange.dbConnectionBroker.*;
+import net.spy.pool.*;
 
 /**
- * SpyDB is an abstraction of both JavaExchange's DB Connection Broker, and
- * java.sql.
- * <p>
- * For more information on DB Connection Broker, check out
- * <a href="http://www.javaexchange.com/">Java Exchange</a>.
+ * SpyDB is an abstraction of both net.spy.pool and java.sql.
  */
 
 public class SpyDB extends Object {
 
-	protected static Hashtable dbss=null;
+	// Object pool we store our objects in.
+	protected static ObjectPool pool=null;
+
+	// Place where we keep up with connections so we can get rid of them
+	// manually if needed.
+	protected static Hashtable connections=null;
+
+	// Pooled Object container we got out of the pool.
+	protected PooledObject object=null;
+
+	// The actual database connection from the PooledObject.
 	protected Connection conn=null;
+
+	// Our configuration.
 	protected SpyConfig conf = null;
-	protected String log_file=null;
-	protected DbConnectionBroker dbs=null;
-	protected boolean auto_free = true;
+
+	// Pool name.
+	protected String name=null;
 
 	// Number of connections to start with.
 	protected int min_conns = 1;
 	// Maximum number of connections to open.
 	protected int max_conns = 5;
-	// How long (in days) to keep a connection open.
-	protected double recycle_time = 0.01;
+	// How long (in milliseconds) to keep a connection open.
+	protected long recycle_time = 6 * 3600 * 60 * 1000;
+
+	// Whether we want the object to free stuff or not.
+	protected boolean auto_free=true;
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
@@ -50,21 +61,24 @@ public class SpyDB extends Object {
 	 * The following config entries are optional, but supported:
 	 * <p>
 	 * <ul>
-	 *  <li>dbcbLogFilePath - default /tmp/pool.log</li>
-	 *  <li>dbcbMinConns - minimum number of connections - default 1</li>
-	 *  <li>dbcbMaxConns - maximum number of connections - default 5</li>
-	 *  <li>dbcbMaxLifeTime - maximum connection lifetime in days -
-	 *	default 0.01</li>
+	 *  <li>dbPoolName - default db</li>
+	 *  <li>dbMinConns - minimum number of connections - default 1</li>
+	 *  <li>dbMaxConns - maximum number of connections - default 5</li>
+	 *  <li>dbMaxLifeTime - maximum connection lifetime in milliseconds -
+	 *      default 6 hours</li>
 	 * </ul>
 	 *
 	 * @param conf SpyConfig object describing how to connect.
 	 */
 	public SpyDB(SpyConfig conf) {
 		this.conf=conf;
-		String tmp=null;
 
-		// Do this here because it's a synchronized thing
-		initStuff();
+		try {
+			initStuff();
+		} catch(Exception e) {
+			log("Error initializing SpyDB:  " + e);
+		}
+		System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
 	/**
@@ -73,37 +87,99 @@ public class SpyDB extends Object {
 	 *
 	 * @param conf SpyConfig object describing how to connect.
 	 *
-	 * @param auto_free If false, all database connections must be manually
-	 * freed.
+	 * @param auto_free is pretty much ignored now, as things will always
+	 * automatically free if not freed explicitly.
 	 */
 	public SpyDB(SpyConfig conf, boolean auto_free) {
 		this.conf=conf;
 		this.auto_free=auto_free;
-		String tmp=null;
-
-		// Synchronized initialization
-		initStuff();
+		try {
+			initStuff();
+		} catch(Exception e) {
+			log("Error initializing SpyDB:  " + e);
+		}
+		System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
-	// We need to synchronize this stuff because there are potential race
-	// conditions.
-	protected synchronized void initStuff() {
-		if(dbss==null) {
-			dbss=new Hashtable();
+	// Warning, this contains a bunch of nasty backward-compatibility
+	// stuff.
+	protected synchronized void initStuff() throws PoolException {
+
+		// If we haven't established our connections hash yet, do so
+		if(connections==null) {
+			connections=new Hashtable();
 		}
 
-		log_file=conf.get("dbcbLogFilePath", "/tmp/pool.log");
-		min_conns=conf.getInt("dbcbMinConns", min_conns);
-		max_conns=conf.getInt("dbcbMaxConns", max_conns);
-		String tmp=conf.get("dbcbMaxLifeTime");
-		if(tmp!=null) {
-			recycle_time=Double.valueOf(tmp).doubleValue();
+		// Poolname.
+		name=conf.get("dbPoolName");
+		if(name==null) {
+			name=conf.get("dbcbLogFilePath", "db");
 		}
 
-		dbs=(DbConnectionBroker)dbss.get(log_file);
-		if(dbs==null) {
-			initDBS();
+		// if we don't have a pool, create one.
+		if(pool==null) {
+			createPool();
+		} else {
+			// If we have a pool, but not the one we're looking
+			// for...create it.
+			if(!pool.hasPool(name)) {
+				createPool();
+			}
 		}
+
+	}
+
+	protected void createPool() throws PoolException {
+		// We'll need a config to translate into
+		SpyConfig tmpconf=new SpyConfig();
+
+		// If we don't yet have a pool at all, create one.
+		if(pool==null) {
+			pool=new ObjectPool(conf);
+		}
+
+		// Minimum connections in the pool.
+		min_conns=conf.getInt("dbMinConns", -1);
+		if(min_conns==-1) {
+			min_conns=conf.getInt("dbcbMinConns", 1);
+		}
+		tmpconf.put(name + ".min", "" + min_conns);
+
+		// maximum connections in the pool.
+		max_conns=conf.getInt("dbMaxConns", -1);
+		if(max_conns==-1) {
+			max_conns=conf.getInt("dbcbMaxConns", 5);
+		}
+		tmpconf.put(name + ".max", "" + max_conns);
+
+		// Maximum amount of time any given entry may live.
+		String tmp=conf.get("dbMaxLifeTime");
+		if(tmp==null) {
+			tmp=conf.get("dbcbMaxLifeTime");
+			if(tmp!=null) {
+				double tmpd=Double.valueOf(tmp).doubleValue();
+				tmpd*=86400;
+				recycle_time=(long)tmpd;
+				tmpconf.put(name + ".max_age", "" + recycle_time*1000);
+			}
+		} else {
+			// The dbMaxLifeTime was valid, put it place.
+			tmpconf.put(name + ".max_age", tmp);
+		}
+
+		// Driver name.
+		tmpconf.put(name + ".dbDriverName", conf.get("dbDriverName"));
+		// JDBC URL
+		tmpconf.put(name + ".dbSource", conf.get("dbSource"));
+		// username
+		tmpconf.put(name + ".dbUser", conf.get("dbUser"));
+		// password
+		tmpconf.put(name + ".dbPass", conf.get("dbPass"));
+
+		// Grab the poolfiller with our temporary config.
+		JDBCPoolFiller pf=new JDBCPoolFiller(name, tmpconf);
+		// OK, add the pool.
+		pool.createPool(name, pf);
 	}
 
 	/**
@@ -176,21 +252,26 @@ public class SpyDB extends Object {
 	 */
 	public void freeDBConn() {
 		log("Freeing");
-		if(conn!=null) {
-			dbs.freeConnection(conn);
-			conn=null;
+		if(object!=null) {
+			object.checkIn();
+			object=null;
+			// We may want to remove this from our connection hash.
+			if(conn!=null) {
+				connections.remove(conn);
+			}
 		}
 	}
 
 	/**
-	 * Free an established database connection.  This method allows you to
-	 * free a specific database connection by passing it in.
-	 * <p>
-	 * Note:  This should be called more rarely than the last method.
+	 * Free a database connection that was not in auto_free mode.
 	 */
-	public void freeDBConn(Connection c) {
-		log("Freeing");
-		dbs.freeConnection(c);
+	public void freeDBConn(Connection conn) {
+		PooledObject po=(PooledObject)connections.get(conn);
+		if(po!=null) {
+			po.checkIn();
+			connections.remove(conn);
+		}
+		this.conn=null;
 	}
 
 	/**
@@ -201,67 +282,24 @@ public class SpyDB extends Object {
 	}
 
 	/**
-	 * Initialize SpyDB.  This will completely reinitialize SpyDB and all
-	 * pools.
+	 * Initialize SpyDB.  Currently, this does nothing.
 	 */
 	public void init() {
-		try {
-			dbs=null;
-		} catch(Exception e) {
-			// Nothing
-		}
 	}
 
 	protected void log(String msg) {
 		System.err.println("DB:  " + msg);
 	}
 
-	protected synchronized void getDBConn() throws SQLException {
-		log("Getting a connection");
-		if(dbs == null) {
-			log("dbs is null, need to reinit");
-			initDBS();
-		}
-		conn=dbs.getConnection();
-		// Make sure we got one, *and* it's open.
-		if(conn==null || conn.isClosed()) {
-			log("conn is null, trying to run finalization");
-			System.runFinalization();
-			conn=dbs.getConnection();
-			if(conn==null || conn.isClosed()) {
-				log("conn is null again, reinitializing");
-				initDBS();
-				conn=dbs.getConnection();
-				if(conn==null || conn.isClosed()) {
-					log("conn is *still* null, need to reinit");
-					initDBS();
-				}
-			}
-		}
-	}
-
-	protected synchronized void initDBS() {
-		log("Initializing");
-		if(dbs!=null) {
-			dbs.destroy();
-		}
-		// Nullify it.
-		dbs=null;
-		// Get rid of garbage.
-		System.runFinalization();
-		System.gc();
-
-		// Load the db driver
+	protected void getDBConn() throws SQLException {
 		try {
-			Class.forName(conf.get("dbDriverName"));
-			dbs = new DbConnectionBroker(conf.get("dbDriverName"),
-				conf.get("dbSource"), conf.get("dbUser"), conf.get("dbPass"),
-				min_conns, max_conns, log_file, recycle_time);
-			dbss.put(log_file, dbs);
-			log("Got a new DBCB object logging to " + log_file);
+			object=pool.getObject(name);
+			conn=(Connection)object.getObject();
+			if(!auto_free) {
+				connections.put(conn, object);
+			}
 		} catch(Exception e) {
-			System.err.println("Error initializing dbs! " + e);
-			e.printStackTrace();
+			throw new SQLException("Unable to get database connection:  " + e);
 		}
 	}
 
@@ -295,16 +333,5 @@ public class SpyDB extends Object {
 			scopy=sout;
 		}
 		return(scopy);
-	}
-
-	protected void finalize() throws Throwable {
-		if(auto_free && conn!=null) {
-			try {
-				freeDBConn();
-			} catch(Exception e) {
-				// Nothin'
-			}
-		}
-		super.finalize();
 	}
 }
