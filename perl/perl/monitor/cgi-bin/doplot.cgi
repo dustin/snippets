@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: doplot.cgi,v 1.1 1997/12/12 21:36:00 dustin Exp $
+# $Id: doplot.cgi,v 1.2 1997/12/14 21:31:40 dustin Exp $
 
 use GIFgraph::bars;
 
@@ -20,7 +20,7 @@ while(<IN>)
 
     @a=split(/:/, $_);
 
-    @toplot=(@a[0], $a[3]+0, $a[5]+0);
+    @toplot=(@a[0], $a[5]+0, $a[3]+0);
 
     $minping=$a[5] if($a[5]<$minping);
     $maxping=$a[5] if($a[5]>$maxping);
@@ -38,13 +38,14 @@ $minping=(int($minping/25))*25;
 $im=new GIFgraph::bars(800, 200);
 
 $im->set( 'x_label' => 'Hosts',
-	'y2_label' => 'ping time (in ms)',
-	'y1_label' => '% packet loss',
+	'y1_label' => 'ping time (in ms)',
+	'y2_label' => '% packet loss',
 	'title' => "Ping times and Packet Loss (updated $lastmod)",
-	'y2_max_value' => $maxping,
-	'y2_min_value' => $minping,
-	'y1_max_value' => 100,
-	'y1_min_value' => 0,
+	'dclrs' => [ 'green', 'red'],
+	'y1_max_value' => $maxping,
+	'y1_min_value' => $minping,
+	'y2_max_value' => 100,
+	'y2_min_value' => 0,
 	'two_axes' => 1,
 );
 

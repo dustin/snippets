@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: getstats.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+# $Id: getstats.cgi,v 1.2 1997/12/14 21:31:46 dustin Exp $
 
 set kludge { $*
     shift
@@ -359,41 +359,55 @@ if [catch {open $file} input] {
     exit
 }
 
-while {[gets $input machine] != -1} {
-    set list ""
-    set list2 ""
+set machines {}
 
+while {[gets $input machine] != -1 } {
+    lappend machines $machine
+}
+
+foreach machine $machines {
     set pt [lindex [lindex [icmp echo $machine] 0] 1]
-
     if { $pt>-1 } {
+        set clk1($machine) [getclock]
+        set list($machine) [ sunrpc stat $machine ]
+        set clk2($machine) [getclock]
+    } else {
+	shownoanswer $machine
+    }
+}
 
-        set clk1 [getclock]
-        set list [ sunrpc stat $machine ]
+# sleep so we can check the times
+sleep $sleeptime
 
-        # sleep so we can check the times
-        sleep $sleeptime
+foreach machine $machines {
+    set pt [lindex [lindex [icmp echo $machine] 0] 1]
+    if { $pt>-1 } {
+        set list2($machine) [ sunrpc stat $machine ]
+    } else {
+	shownoanswer $machine
+    }
+}
 
-        set list2 [ sunrpc stat $machine ]
-        set clk2 [getclock]
+foreach machine $machines {
 
-        set stats [expr {$clk2-$clk1}]
+        set stats [expr {($clk2($machine)-$clk1($machine)) }]
 
-        showtop $machine [lindex [lindex $list2 21] 2] \
-            [lindex [lindex $list2 22] 2]
+        showtop $machine [lindex [lindex $list2($machine) 21] 2] \
+            [lindex [lindex $list2($machine) 22] 2]
 
-        set loadvals [load $list];
+        set loadvals [load $list($machine)];
         showload $loadvals
 
-        set cpuvals [ cpu $list $list2 ]
+        set cpuvals [ cpu $list($machine) $list2($machine) ]
         showcpu $cpuvals
 
-        set netvals [network $list $list2]
+        set netvals [network $list($machine) $list2($machine)]
         shownetwork $netvals
 
-        set swapvals [swap $list $list2]
+        set swapvals [swap $list($machine) $list2($machine)]
         showswap $swapvals
 
-        set pagevals [page $list $list2]
+        set pagevals [page $list($machine) $list2($machine)]
         showpage $pagevals
 
         showstats $stats $pt
@@ -403,7 +417,4 @@ while {[gets $input machine] != -1} {
         } elseif {[string compare $mode "html"] == 0} {
             puts "</tr></table><p>"
         }
-    } else {
-	shownoanswer $machine
-    }
 }

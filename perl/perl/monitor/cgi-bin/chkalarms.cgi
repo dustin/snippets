@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: chkalarms.cgi,v 1.1 1997/12/12 21:36:00 dustin Exp $
+# $Id: chkalarms.cgi,v 1.2 1997/12/14 21:31:38 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'statlib.pl';
@@ -18,6 +18,6 @@ if(&checkCutoff)
 }
 else
 {
-    print "Click <a href=\"/stats/quiet.shtml\">here</a> to\n";
+    print "Click <a href=\"/~dustin/stats/quiet.shtml\">here</a> to\n";
     print "quiet the alarms temporarily.";
 }

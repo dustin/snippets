@@ -1,12 +1,11 @@
-#!/usr/bin/perl
-# $Id: scanlogs.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: scanlogs.cgi,v 1.2 1997/12/14 21:31:50 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require "statlib.pl";
 
+@logFiles=split(/\s+/, $logFiles);
 %ht=readInLogstuff();
-
-@files=("/var/log/pixlog", "/var/adm/messages");
 
 print <<EOF;
 Content-type: text/html
@@ -19,14 +18,14 @@ Content-type: text/html
 <tr>
 EOF
 
-for $file (@files)
+for $file (@logFiles)
 {
     %res=scanLogFile($file);
 
     for $key (sort(keys(%res)))
     {
-	print "<tr><td>$ht{$key}[1]</td><td>$res{$key}[0]</td>";
-	print "<td>$res{$key}[1]</td></tr>\n";
+        print "<tr><td>$ht{$key}[1]</td><td>$res{$key}[0]</td>";
+        print "<td>$res{$key}[1]</td></tr>\n";
     }
 }
 

@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: getusers.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: getusers.cgi,v 1.2 1997/12/14 21:31:47 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'statlib.pl';
@@ -87,7 +87,7 @@ EOF
 	@a=split(/;/, $_);
 
         print "    <tr>\n";
-	print "\t<td><a href=\"mailto:$a[0]\@cybersource.com\">$a[0]</a></td>";
+	print "\t<td><a href=\"mailto:$a[0]\@$mailDomain\">$a[0]</a></td>";
 	print  "<td>".&doidle($a[1])."</td>\n";
     }
     if($n>0)

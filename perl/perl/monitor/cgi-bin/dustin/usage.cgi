@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: usage.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+# $Id: usage.cgi,v 1.2 1997/12/14 21:31:59 dustin Exp $
 
 use GIFgraph::lines;
 
@@ -132,6 +132,6 @@ $my_graph->set( 'y_label' => 'Percentage Utilization',
                 'dclrs' => ['purple', 'lred', 'lblue']
               );
 
-print "Content-type: image/gif\n\n";
+print "Content-type: image/gif\nPragma: no-cache\n\n";
 
 print $my_graph->plot(\@plotdata );

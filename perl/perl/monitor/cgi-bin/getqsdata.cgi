@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: getqsdata.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: getqsdata.cgi,v 1.2 1997/12/14 21:31:45 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'statlib.pl';

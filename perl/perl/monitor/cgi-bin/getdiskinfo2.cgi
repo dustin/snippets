@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: getdiskinfo2.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: getdiskinfo2.cgi,v 1.2 1997/12/14 21:31:42 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'statlib.pl';
@@ -68,6 +68,6 @@ EOF
 }
 
 print "<hr width=\"50%\" align=\"left\"><pre>\n";
-print '$Id: getdiskinfo2.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $';
+print '$Id: getdiskinfo2.cgi,v 1.2 1997/12/14 21:31:42 dustin Exp $';
 print "\n</pre>\n</body></html>";
 

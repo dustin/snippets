@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: append.cgi,v 1.1 1997/12/12 21:36:02 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: append.cgi,v 1.2 1997/12/14 21:32:01 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'cgi-lib.pl';
