@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.33 2002/08/18 18:53:49 dustin Exp $
+	$Id: build.xml,v 1.34 2002/08/18 19:18:41 dustin Exp $
 
 	-->
 
@@ -113,7 +113,9 @@
 	<target name="install-docs" depends="docs">
 		<copy todir="/afs/spy.net/home/dustin/public_html/spyjar/j2/doc/">
 			<fileset dir="docs">
-				<include name="**"/>
+				<include name="**/*.html"/>
+				<include name="**/*.css"/>
+				<include name="package-list"/>
 			</fileset>
 		</copy>
 	</target>
@@ -136,7 +138,9 @@
 				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
 			</manifest>
 			<include name="build.xml"/>
-			<include name="docs/**"/>
+			<include name="docs/**/*.html"/>
+			<include name="docs/**/*.css"/>
+			<include name="docs/package-list"/>
 			<include name="net/spy/**/*.class"/>
 			<include name="net/spy/**/*.java"/>
 			<include name="net/spy/**/*.properties"/>
@@ -148,7 +152,11 @@
 	</target>
 
 	<target name="testjar" depends="test-classes">
-		<jar jarfile="testsuite.jar" basedir="${TBUILDDIR}"/>
+		<jar jarfile="testsuite.jar" basedir="${TBUILDDIR}">
+			<include name="net/spy/**/*.class"/>
+			<include name="net/spy/**/*.java"/>
+			<include name="net/spy/**/*.properties"/>
+		</jar>
 	</target>
 
 	<!-- Build properties, memorabilia, etc... -->
