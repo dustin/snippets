@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.8 2000/02/29 03:27:42 dustin Exp $
+# $Id: ldap_audit,v 1.9 2000/03/01 09:58:37 dustin Exp $
 
 use strict;
 
@@ -24,7 +24,7 @@ my $master = Net::LDAP->new($config{'ldap_server'}) or die "$@";
 
 my $res=$master->bind ( dn => $config{'binddn'}, password => $config{'bindpw'});
 if($res->code() != 0) {
-	print STDERR "ERROR:  Unable to bind to master, giving up.\n";
+	print STDERR "ERROR:  Unable to bind to master, giving up, check pw\n";
 	exit(-1);
 }
 
@@ -279,7 +279,12 @@ sub get_slaves {
 			$bindpw=$config{'bindpw'};
 		}
 
-		my $tmp=Net::LDAP->new($hostname) or die "$@";
+		my $tmp=Net::LDAP->new($hostname);
+		if(!$tmp) {
+			print "WARNING!  Failed to connect to $hostname, ignoring.\n";
+			next;
+		}
+
 		my $res=$tmp->bind( dn => $binddn, password => $bindpw);
 		if($res->code()==0) {
 			push(@slaves, new LDAPSlave($_, $tmp));
