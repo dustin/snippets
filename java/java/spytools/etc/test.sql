@@ -40,7 +40,9 @@ insert into testtable(test_vc, test_d, test_t, test_ts,
 create table primary_keys(
 	table_name varchar(128) not null,
 	primary_key numeric(16) not null default 1,
+	incr integer not null default 10,
 	primary key(table_name)
 );
 
-insert into primary_keys(table_name, primary_key) values('test_table', 1);
+insert into primary_keys(table_name) values('test_table');
+insert into primary_keys(table_name, incr) values('test_table2', 1000);

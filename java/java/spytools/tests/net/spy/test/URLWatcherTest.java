@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcherTest.java,v 1.5 2002/08/21 22:27:21 dustin Exp $
+// $Id: URLWatcherTest.java,v 1.6 2002/08/24 07:23:04 dustin Exp $
 
 package net.spy.test;
 
@@ -135,8 +135,8 @@ public class URLWatcherTest extends TestCase {
 			}
 		}
 
-		// Wait five seconds
-		Thread.sleep(5000);
+		// Wait two seconds
+		Thread.sleep(2000);
 
 		for(int i=0; i<urls.length; i++) {
 			URL u=new URL(urls[i]);

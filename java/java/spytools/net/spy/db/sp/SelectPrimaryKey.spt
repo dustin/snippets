@@ -1,5 +1,5 @@
 #
-# $Id: SelectPrimaryKey.spt,v 1.2 2002/08/23 07:48:29 dustin Exp $
+# $Id: SelectPrimaryKey.spt,v 1.3 2002/08/24 07:23:01 dustin Exp $
 #
 
 @package
@@ -10,7 +10,7 @@ Select the current value from the primary key table.
 
 @sql
 select
-	table_name, primary_key
+	table_name, (primary_key - (incr-1)) as first_key, primary_key as last_key
 from
 	primary_keys
 where
@@ -20,5 +20,6 @@ where
 table_name required VARCHAR The name of the table for which you want the key
 
 @results
-table_name  VARCHAR the name of the table
-primary_key NUMERIC the new key (end+1)
+table_name VARCHAR the name of the table
+first_key  NUMERIC the first key in the pk range
+last_key   NUMERIC the last key in the pk range

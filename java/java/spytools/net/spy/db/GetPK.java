@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: GetPK.java,v 1.1 2002/08/23 07:46:21 dustin Exp $
+// $Id: GetPK.java,v 1.2 2002/08/24 07:23:00 dustin Exp $
 
 package net.spy.db;
 
@@ -24,12 +24,12 @@ public class GetPK extends Object {
 
 	private static GetPK instance=null;
 
-	private static final int DEFAULT_NUM_KEYS=10;
-
 	private HashMap caches=null;
 
-	// singleton
-	private GetPK() {
+	/**
+	 * Constructor for an extensible Singleton.
+	 */
+	protected GetPK() {
 		super();
 		caches=new HashMap();
 	}
@@ -96,10 +96,61 @@ public class GetPK extends Object {
 		return(rv);
 	}
 
+	/**
+	 * Get the DBSP required for updating the primary key table.
+	 *
+	 * A subclass may override this to change the behavior of the first
+	 * part of the ``fetch from db'' stage.  The DBSP returned will take
+	 * exactly one parameter:  <code>table_name</code> and will be called
+	 * via executeUpdate.  The update must update exactly <i>one</i> row.
+	 * Any more or fewer will cause the process to fail and an exception
+	 * will be thrown.
+	 *
+	 * <p/>
+	 *
+	 * For an example implementation, please see {@link UpdatePrimaryKey}.
+	 *
+	 * @param conn the connection to use (already in a transaction)
+	 * @return the required DBSP
+	 * @throws SQLException if there's a problem getting the DBSP
+	 */
+	protected DBSP getUpdateDBSP(Connection conn) throws SQLException {
+		return(new UpdatePrimaryKey(conn));
+	}
+
+	/**
+	 * Get the DBSP required for selecting primary key information back out
+	 * of the primary key table.
+	 *
+	 * A subclass may override this method to change the behavior of the
+	 * select statement that finds the range of results for a table.  The
+	 * DBSP returned will take exactly one parameter:
+	 * <code>table_name</code> and return a result set containing at least
+	 * the following two columns:
+	 *
+	 * <ul>
+	 *  <li><code>first_key</code> - the first key in the range</li>
+	 *  <li><code>last_key</code> - the last key in the range</li>
+	 * </ul>
+	 *
+	 * The ResultSet must contain exactly <i>one</i> row.  Any more or
+	 * fewer will cause the process to fail and an exception will be
+	 * thrown.
+	 *
+	 * <p/>
+	 *
+	 * For an example implementation, please see {@link SelectPrimaryKey}.
+	 *
+	 * @param conn the connection to use (already in a transaction)
+	 * @return the required DBSP
+	 * @throws SQLException if there's a problem getting the DBSP
+	 */
+	protected DBSP getSelectDBSP(Connection conn) throws SQLException {
+		return(new SelectPrimaryKey(conn));
+	}
+
 	// get keys from a database
 	private void getKeysFromDB(SpyDB db, String table) throws SQLException {
-		int num_keys=DEFAULT_NUM_KEYS;
-
 		Connection conn=null;
 		boolean complete=false;
 
@@ -108,8 +159,7 @@ public class GetPK extends Object {
 			conn.setAutoCommit(false);
 
 			// Update the table first
-			DBSP dbsp=new UpdatePrimaryKey(conn);
-			dbsp.set("incr_amount", num_keys);
+			DBSP dbsp=getUpdateDBSP(conn);
 			dbsp.set("table_name", table);
 			int changed=dbsp.executeUpdate();
 			// Make sure one row got updated
@@ -120,23 +170,22 @@ public class GetPK extends Object {
 			dbsp.close();
 
 			// Now, fetch it again
-			dbsp=new SelectPrimaryKey(conn);
+			dbsp=getSelectDBSP(conn);
 			dbsp.set("table_name", table);
 			ResultSet rs=dbsp.executeQuery();
 			if(!rs.next()) {
 				throw new SQLException("No results returned for primary key");
 			}
-			// Get the end
-			BigDecimal end=rs.getBigDecimal("primary_key");
+			// Get the beginning and ending of the range
+			BigDecimal start=rs.getBigDecimal("first_key");
+			BigDecimal end=rs.getBigDecimal("last_key");
 			if(rs.next()) {
 				throw new SQLException(
 					"Too many results returned for primary key");
 			}
+			// clean up
 			rs.close();
 			dbsp.close();
-
-			// OK, calculate the beginning
-			BigDecimal start=end.subtract(new BigDecimal(num_keys-1));
 
 			synchronized(caches) {
 				caches.put(table, new KeyStore(start, end));
