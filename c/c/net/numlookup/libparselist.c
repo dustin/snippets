@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <stdarg.h>
+#include <string.h>
 #include <assert.h>
 
 #include "mymalloc.h"
@@ -212,10 +213,9 @@ main(int argc, char **argv)
 
 	destroyConfig(config);
 
-	return(0);
-
 #ifdef MYMALLOC
-	printf("*** Dumping memory crap ***\n");
 	_mdebug_dump();
 #endif
+
+	return(0);
 }
