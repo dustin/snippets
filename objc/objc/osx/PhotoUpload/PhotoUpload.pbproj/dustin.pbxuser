@@ -11,14 +11,14 @@
 			F5F17F5F033CF3AF01A801C4,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 54545934;
+			PBXPerProjectTemplateStateSaveDate = 54546090;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F5C3C0B703404E4401A801C4;
+									bookmark = F526DDD003404FBF01A801C4;
 									history = (
 										F5F3A441033CF80401A801C4,
 										F5F3A442033CF80401A801C4,
@@ -29,7 +29,7 @@
 										F50C08B103401F9201A801C4,
 										F50C0EBC034038F601A801C4,
 										F594DDA90340431A01A801C4,
-										F5C3C0B603404E4401A801C4,
+										F5C3C0B703404E4401A801C4,
 									);
 									prevStack = (
 										F5F3A446033CF80401A801C4,
@@ -203,10 +203,12 @@
 						Tab0 = {
 							Frame = "{{0, 0}, {260, 572}}";
 							GroupTreeTableConfiguration = (
+								SCMStatusColumn,
+								22,
 								TargetStatusColumn,
 								18,
 								MainColumn,
-								227,
+								205,
 							);
 						};
 						Tab1 = {
@@ -256,7 +258,7 @@
 					WindowLocation = "{5, 175}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 54545934;
+			PBXWorkspaceStateSaveDate = 54546090;
 		};
 		perUserProjectItems = {
 			F50C08AF03401F9201A801C4 = F50C08AF03401F9201A801C4;
@@ -281,6 +283,7 @@
 			F50C0EC6034038F601A801C4 = F50C0EC6034038F601A801C4;
 			F50C0EC7034038F601A801C4 = F50C0EC7034038F601A801C4;
 			F50C0EC8034038F601A801C4 = F50C0EC8034038F601A801C4;
+			F526DDD003404FBF01A801C4 = F526DDD003404FBF01A801C4;
 			F541BE86033DB8CC01A801C4 = F541BE86033DB8CC01A801C4;
 			F541BE87033DB8CC01A801C4 = F541BE87033DB8CC01A801C4;
 			F594DDA90340431A01A801C4 = F594DDA90340431A01A801C4;
@@ -290,7 +293,6 @@
 			F594DDAE0340431A01A801C4 = F594DDAE0340431A01A801C4;
 			F594DDAF0340431A01A801C4 = F594DDAF0340431A01A801C4;
 			F594DDB00340431A01A801C4 = F594DDB00340431A01A801C4;
-			F5C3C0B603404E4401A801C4 = F5C3C0B603404E4401A801C4;
 			F5C3C0B703404E4401A801C4 = F5C3C0B703404E4401A801C4;
 			F5DD812B033E568801A801C4 = F5DD812B033E568801A801C4;
 			F5DD812C033E568801A801C4 = F5DD812C033E568801A801C4;
@@ -390,7 +392,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: upload:";
 		rLen = 0;
-		rLoc = 4320;
+		rLoc = 3888;
 		rType = 0;
 		vrLen = 794;
 		vrLoc = 1454;
@@ -400,7 +402,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 4315;
+		rLoc = 3883;
 		rType = 0;
 		vrLen = 823;
 		vrLoc = 1660;
@@ -410,7 +412,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 4315;
+		rLoc = 3883;
 		rType = 0;
 		vrLen = 753;
 		vrLoc = 1660;
@@ -528,7 +530,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib";
 		rLen = 0;
-		rLoc = 4607;
+		rLoc = 4175;
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 2197;
@@ -542,6 +544,16 @@
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 0;
+	};
+	F526DDD003404FBF01A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: resetMatrix";
+		rLen = 0;
+		rLoc = 1707;
+		rType = 0;
+		vrLen = 782;
+		vrLoc = 2882;
 	};
 	F541BE86033DB8CC01A801C4 = {
 		fRef = F5F3A438033CF45701A801C4;
@@ -558,7 +570,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 39";
 		rLen = 0;
-		rLoc = 2119;
+		rLoc = 2121;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 614;
@@ -597,8 +609,8 @@
 		fRef = F5F3A43B033CF57301A801C4;
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
-		rLen = 1;
-		rLoc = 3464;
+		rLen = 0;
+		rLoc = 3247;
 		rType = 0;
 		vrLen = 797;
 		vrLoc = 1733;
@@ -618,7 +630,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
 		rLen = 0;
-		rLoc = 3302;
+		rLoc = 3095;
 		rType = 0;
 		vrLen = 1192;
 		vrLoc = 2039;
@@ -633,19 +645,12 @@
 		vrLen = 906;
 		vrLoc = 173;
 	};
-	F5C3C0B603404E4401A801C4 = {
-		fRef = F5F3A43B033CF57301A801C4;
-		isa = PBXTextBookmark;
-		rLen = 1;
-		rLoc = 98;
-		rType = 1;
-	};
 	F5C3C0B703404E4401A801C4 = {
 		fRef = F5F3A43B033CF57301A801C4;
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
 		rLen = 0;
-		rLoc = 2980;
+		rLoc = 2982;
 		rType = 0;
 		vrLen = 1215;
 		vrLoc = 2441;
@@ -663,7 +668,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
 		rLen = 0;
-		rLoc = 2260;
+		rLoc = 2262;
 		rType = 0;
 		vrLen = 617;
 		vrLoc = 0;
@@ -1003,7 +1008,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 4320;
+		rLoc = 3888;
 		rType = 0;
 		vrLen = 715;
 		vrLoc = 728;
@@ -1013,7 +1018,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 3908;
+		rLoc = 3476;
 		rType = 0;
 		vrLen = 718;
 		vrLoc = 726;
@@ -1023,7 +1028,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 3908;
+		rLoc = 3476;
 		rType = 0;
 		vrLen = 717;
 		vrLoc = 726;
@@ -1043,7 +1048,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 3846;
+		rLoc = 3414;
 		rType = 0;
 		vrLen = 719;
 		vrLoc = 731;

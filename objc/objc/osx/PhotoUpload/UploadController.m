@@ -56,8 +56,8 @@
     // [imgMatrix addRow];
     [imgMatrix setEnabled: FALSE];
     /*
-    printf("Number of columns now is %d\n", [imgMatrix numberOfColumns]);
-    printf("Number of rows is now %d\n", [imgMatrix numberOfRows]);
+     NSLog(@"Number of columns now is %d\n", [imgMatrix numberOfColumns]);
+     NSLog(@"Number of rows is now %d\n", [imgMatrix numberOfRows]);
      */
 }
 
@@ -96,23 +96,10 @@
         }
         [imgMatrix addRowWithCells: array];
         [imgMatrix setEnabled: TRUE];
-        id s=[scroller horizontalScroller];
-        if(s == nil) {
-            NSLog(@"No horizontal scroller\n");
-        } else {
-            NSLog(@"Horizontal scroller:  %@\n", [s description]);
-        }
         NSLog(@"New row is %@\n", [array description]);
         NSLog(@"Matrix is %@\n", [imgMatrix description]);
-        printf("Number of columns now is %d\n", [imgMatrix numberOfColumns]);
-        printf("Number of rows is now %d\n", [imgMatrix numberOfRows]);
-        /*
-         images=new NSImage[files.count()];
-         for(int i=0; i<files.count(); i++) {
-             String fn=(String)files.objectAtIndex(i);
-             images[i]=new NSImage(fn, true);
-         }
-         */
+        NSLog(@"Number of columns now is %d\n", [imgMatrix numberOfColumns]);
+        NSLog(@"Number of rows is now %d\n", [imgMatrix numberOfRows]);
     }
 
 }
