@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	signal(SIGCHLD, sigChildHandler);
 
 	/* Close all (most) file descriptors above stderr */
-	for(i=3; i<1024; i++) {
+	for(i=3; i<getdtablesize(); i++) {
 		close(i); /* Ignore the result */
 	}
 
