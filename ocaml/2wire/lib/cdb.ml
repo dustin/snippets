@@ -63,8 +63,7 @@ let add cdc k v =
 	write_le cdc (String.length k);
 	write_le cdc (String.length v);
 	output_string cdc.out k;
-	output_string cdc.out v;
-
+	output_string cdc.out v
 ;;
 
 (** Process a hash table *)
@@ -193,12 +192,7 @@ let open_cdb_in fn =
 	Array.iteri (fun i it ->
 		let pos = read_le fin in
 		let len = read_le fin in
-		tables.(i) <- (pos,len);
-		(*
-		print_endline("Table " ^ (string_of_int i) ^ " is "
-			^ (string_of_int (fst tables.(i))) ^ ", "
-			^ (string_of_int (snd tables.(i))));
-		*)
+		tables.(i) <- (pos,len)
 		) tables;
 	{f=fin; tables=tables}
 ;;
