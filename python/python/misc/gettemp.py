@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: gettemp.py,v 1.3 2002/12/06 07:15:57 dustin Exp $
+# $Id: gettemp.py,v 1.4 2002/12/06 19:00:49 dustin Exp $
 
 import xmlrpclib
 import smtplib
@@ -101,7 +101,7 @@ def report(vals):
 	# These are the ranges we care about:
 	normal = {
 		"newmachineroom": (15, 26),
-		"bedroom": (15, 31),
+		"bedroom": (13, 31),
 		"livingroom": (15, 30),
 		"guestroom": (10, 30),
 		}
