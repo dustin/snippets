@@ -2,31 +2,23 @@
 
 @implementation ThermometerView
 
--(void)postInit
+-(void)setTherm: (Thermometer *)t
 {
-    lastReadings=[[NSMutableArray alloc] initWithCapacity: 5];
+    therm=t;
+    [therm retain];
+    [therm setDelegate: self];
 }
 
-- (id)initWithFrame:(NSRect)frameRect
+-(id)therm
 {
-    id rv=[super initWithFrame: frameRect];
-    [rv postInit];
-    return(rv);
-}
-
-- (id)initWithCoder:(NSCoder *)decoder
-{
-    id rv=[super initWithCoder: decoder];
-    [rv postInit];
-    return(rv);
+    return(therm);
 }
 
 - (void)dealloc
 {
-    [lastReadings release];
     [cImage release];
     [fImage release];
-    [name release];
+    [therm release];
     [super dealloc];
 }
 
@@ -39,7 +31,7 @@ float ctof(float c)
 
 -(float)reading
 {
-    float rv=reading;
+    float rv=[therm reading];
     if(!celsius) {
         rv=ctof(rv);
     }
@@ -70,54 +62,6 @@ float ctof(float c)
     fImage=to;
 }
 
--(bool) readingIsValid: (float)r
-{
-    return( (r>-100) && (r<100) );
-}
-
--(void)setValidReading:(float)r
-{
-    // Normal reading update stuff
-    if(reading != r) {
-        float oldreading=reading;
-        reading=r;
-        NSLog(@"Updated %@ (%.2f -> %.2f)", [self name], oldreading, reading);
-        [self setNeedsDisplay: true];
-    }
-
-    // Keep the array small enough.
-    while([lastReadings count] >= RING_BUFFER_SIZE) {
-        [lastReadings removeLastObject];
-    }
-    // Add the current reading
-    NSNumber *n=[[NSNumber alloc] initWithFloat: r];
-    [lastReadings insertObject:n atIndex: 0];
-    [n release];
-
-    // Check to see whether we're going up or down
-    n=[lastReadings lastObject];
-    // Remember the trend (upwards or downwards)
-    trend=r - [n floatValue];
-}
-
--(void)setReading:(float)r
-{
-    if([self readingIsValid: r]) {
-        [self setValidReading: r];
-    }
-}
-
--(void)setName: (NSString *)n
-{
-    name=n;
-    [name retain];
-}
-
--(NSString *)name
-{
-    return(name);
-}
-
 /* Draw the actual arm of the thermometer here. */
 - (void)drawArm:(NSRect)bounds
 {
@@ -143,28 +87,10 @@ float ctof(float c)
 
 -(NSString *)description
 {
-    NSString *rv = [NSString stringWithFormat: @"%@ %.2f", name,
+    NSString *rv = [NSString stringWithFormat: @"%@ %.2f", [therm name],
         [self reading]];
 
     return(rv);
-}
-
--(void)update
-{
-    NSString *s=[[NSString alloc]
-        initWithFormat: @"http://bleu.west.spy.net/therm/Temperature?temp=%@",
-        name];
-    NSURL *u=[[NSURL alloc] initWithString: s];
-    NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
-    [self setReading: [sr floatValue]];
-    [s release];
-    [u release];
-    [sr release];
-}
-
--(NSArray *)lastReadings
-{
-    return(lastReadings);
 }
 
 //
@@ -194,6 +120,12 @@ float ctof(float c)
 {
     NSLog(@"Getting the item from the view");
     return(item);
+}
+
+-(void)newReading:(float)r
+{
+    NSLog(@"Received delegate notification of new reading:  %.2f", r);
+    [self setNeedsDisplay: true];
 }
 
 //
@@ -230,14 +162,14 @@ float ctof(float c)
 
     // Draw the change indicator
     NSString *fmt=nil;
-    if(trend > 0) {
+    if([therm trend] > 0) {
         fmt=@"+%.2f";
-    } else if(trend < 0) {
+    } else if([therm trend] < 0) {
         fmt=@"%.2f";
     } else {
         fmt=@"";
     }
-    readingStr=[[NSString alloc] initWithFormat: fmt, trend];
+    readingStr=[[NSString alloc] initWithFormat: fmt, [therm trend]];
     [attribs setObject:[NSFont fontWithName:@"Monaco" size:9]
                 forKey:NSFontAttributeName];
     wordSize=[readingStr sizeWithAttributes: attribs];

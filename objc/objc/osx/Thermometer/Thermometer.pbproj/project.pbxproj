@@ -19,6 +19,8 @@
 				DA7C50FA041C92D50018EE5C,
 				F54D19D9040EA22A01BE144C,
 				F54D19DA040EA22A01BE144C,
+				DAB80BDC042D85D700A80132,
+				DAB80BDD042D85D700A80132,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -276,6 +278,7 @@
 				F54ADCED0369034301A801C4,
 				F54D19DB040EA22A01BE144C,
 				DA7C50FB041C92D50018EE5C,
+				DAB80BDE042D85D700A80132,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,6 +301,7 @@
 				F54ADCEE0369034301A801C4,
 				F54D19DC040EA22A01BE144C,
 				DA7C50FC041C92D50018EE5C,
+				DAB80BDF042D85D700A80132,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,6 +381,30 @@
 		};
 		DA7C50FC041C92D50018EE5C = {
 			fileRef = DA7C50FA041C92D50018EE5C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAB80BDC042D85D700A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Thermometer.h;
+			refType = 4;
+		};
+		DAB80BDD042D85D700A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Thermometer.m;
+			refType = 4;
+		};
+		DAB80BDE042D85D700A80132 = {
+			fileRef = DAB80BDC042D85D700A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAB80BDF042D85D700A80132 = {
+			fileRef = DAB80BDD042D85D700A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};

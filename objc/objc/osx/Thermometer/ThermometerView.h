@@ -1,33 +1,26 @@
 /* ThermometerView */
 
 #import <Cocoa/Cocoa.h>
-
-#define RING_BUFFER_SIZE 10
+#import "Thermometer.h"
 
 @interface ThermometerView : NSImageView
 {
-    float reading;
-    NSString *name;
     bool celsius;
 
     NSImage *cImage;
     NSImage *fImage;
-    NSMutableArray *lastReadings;
-    float trend;
+    Thermometer *therm;
     bool _showTrend;
 }
 
--(void)setReading: (float)r;
--(void)setName: (NSString *)n;
--(NSString *)name;
 -(void)setCelsius;
 -(void)setFarenheit;
 -(void)setCImage: (NSImage *)to;
 -(void)setFImage: (NSImage *)to;
+-(void)setTherm: (Thermometer *)t;
+-(id)therm;
 
--(NSArray *)lastReadings;
-
--(void)update;
+-(void)newReading:(float)r;
 
 // For outline views
 - (id)outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item;

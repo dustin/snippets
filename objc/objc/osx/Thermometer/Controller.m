@@ -35,7 +35,7 @@
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
     while (object = [enumerator nextObject]) {
-        [object update];
+        [[object therm] update];
         // Update the menu
         [[dockMenu itemWithTag: [object tag]] setTitle: [object description]];
     }
@@ -67,19 +67,32 @@
 
     // Create the collection of thermometers
     therms=[[NSMutableArray alloc] initWithCapacity: 6];
-    [therms retain];
-    [backYard setName: @"backyard"];
+
+    // Initialize all of the individual thermometers
+    Thermometer *t=[[Thermometer alloc] initWithName: @"backyard"];
+    [backYard setTherm: t];
     [therms addObject: backYard];
-    [bedroom setName: @"bedroom"];
+    [t release];
+    t=[[Thermometer alloc] initWithName: @"bedroom"];
+    [bedroom setTherm: t];
     [therms addObject: bedroom];
-    [garage setName: @"garage"];
+    [t release];
+    t=[[Thermometer alloc] initWithName: @"garage"];
+    [garage setTherm: t];
     [therms addObject: garage];
-    [guestRoom setName: @"guestroom"];
+    [t release];
+    t=[[Thermometer alloc] initWithName: @"guestroom"];
+    [guestRoom setTherm: t];
     [therms addObject: guestRoom];
-    [livingRoom setName: @"livingroom"];
+    [t release];
+    t=[[Thermometer alloc] initWithName: @"livingroom"];
+    [livingRoom setTherm: t];
     [therms addObject: livingRoom];
-    [machineRoom setName: @"newmachineroom"];
+    [t release];
+    t=[[Thermometer alloc] initWithName: @"newmachineroom"];
+    [machineRoom setTherm: t];
     [therms addObject: machineRoom];
+    [t release];
 
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
