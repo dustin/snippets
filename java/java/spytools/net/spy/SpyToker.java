@@ -1,18 +1,20 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Toker.java,v 1.1 1999/09/12 08:28:24 dustin Exp $
+ * $Id: SpyToker.java,v 1.1 1999/10/20 02:25:38 dustin Exp $
  */
+
+package net.spy;
 
 import java.util.*;
 import java.io.*;
 
-public class Toker {
+public class SpyToker extends Object {
 
 	// Tokenize a file, replacing all of the stuff in the hash.
-	public static String tokenize(String file, Hashtable p) {
+	public String tokenize(String file, Hashtable p) {
 		String input, output="";
-		int i, which;
+		int which;
 
 		// Get our mofo data.
 		try {
@@ -45,15 +47,17 @@ public class Toker {
 	}
 
 	// Get the shite out of the file.
-	private static String getfiledata(String file)
+	private String getfiledata(String file)
 		throws IOException {
 		byte b[]=new byte[8192];
 		FileInputStream f = new FileInputStream(file);
 		String input="", tmp;
+		int size;
 
-		while( f.read(b) >=0 ) {
+		while( (size=f.read(b)) >=0 ) {
 			tmp = new String(b);
-			input += tmp;
+			// Substring to get rid of all the damned nulls
+			input += tmp.substring(0, size);
 		}
 
 		return(input);

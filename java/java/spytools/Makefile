@@ -1,0 +1,34 @@
+# Makefile for RHash, remote object server stuff.
+
+JAVAHOME=/usr/pkg/java
+JAR=$(JAVAHOME)/bin/jar
+JAVAC=$(JAVAHOME)/bin/javac
+JAVA=$(JAVAHOME)/bin/java
+C1=/home/dustin/lib/java/jsdk.jar:/home/dustin/lib/java/DBCB.jar
+C2=/home/dustin/lib/java/RHash.jar:/home/dustin/lib/java/cos.jar
+CLASSPATH=$(C1):$(C2):/home/dustin/lib/java/postgresql.jar:.
+
+CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
+	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
+	net/spy/SpyToker.class net/spy/SpyLogFlusher.class
+
+FDEST=/home/dustin/lib/java
+SCP=scp
+SDEST=bleu.west.spy.net:/usr/local/apache/java
+
+.SUFFIXES: .java .class .jar
+
+all: spy.jar
+
+spy.jar: $(CLASSES)
+	$(JAR) cv0f $@ net
+
+install: all
+	cp spy.jar $(FDEST)
+	# $(SCP) spy.jar $(SDEST)
+
+clean:
+	rm -f $(CLASSES) spy.jar
+
+.java.class:
+	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<

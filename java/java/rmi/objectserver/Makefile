@@ -21,7 +21,7 @@ RHash.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES)
 
 serve: RHash.jar
-	$(JAVA) -Djava.rmi.server.codebase=file://${PWD}/ RObjectImpl
+	$(JAVA) -Djava.rmi.server.codebase=file://${PWD}/ RObjectImpl &
 
 RObjectImpl_Skel.class: RObjectImpl.class
 	$(RMIC) -d . RObjectImpl
