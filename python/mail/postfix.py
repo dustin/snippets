@@ -23,7 +23,7 @@ class PolicyEngine(object):
     def __init__(self):
         """Initialize a PolicyEngine"""
 
-        self.log=logging.getLogger("PolicyEngine")
+        self.log=logging.getLogger(self.__class__.__name__)
 
     def process(self, attributes):
         """Process the given attributes and return a valid response or None if
@@ -48,13 +48,14 @@ class PolicyEngine(object):
                 if response is None:
                     response = PolicyResponse.DUNNO
 
-                self.log.debug("Response is %s", response)
+                self.log.info("Response is %s", response)
                 output.write("action=" + response + "\n\n")
                 output.flush()
                 # Reset the attributes for the next request
                 attrs={}
             else:
                 # Just another thing to parse
+                # self.log.debug("Read line:  %s", l)
                 parts=l.split('=', 2)
                 if len(parts) != 2:
                     self.log.warn("Invalid/unexpected input line: %s", l)
@@ -81,6 +82,8 @@ class ChainedPolicyEngine(PolicyEngine):
         for engine in self.engines:
             rv = engine.process(attributes)
             if rv is not None:
+                self.log.info("Got a response from %s",
+                    engine.__class__.__name__)
                 break
         return rv
 
@@ -123,11 +126,15 @@ class GreylistPolicyEngine(PolicyEngine):
 
             age=self.getAge(key)
             if age is None or age < self.delay:
-                self.log.info("Requesting %s to be deferred", key)
+                ageStr="None"
+                if age is not None:
+                    ageStr = "%.2fs" % age
+                self.log.info("Requesting %s to be deferred: (age: %s)",
+                    key, ageStr)
                 rv = PolicyResponse.DEFER_IF_PERMIT
                 self.storeKey(key)
             else:
-                self.log.debug("Passing %s", key)
+                self.log.info("Passing %s (age %.2f)", key, age)
         except KeyError:
             self.log.exception("Could not process %s", attributes)
 
