@@ -88,8 +88,7 @@ sub getTone
 @basewave=getWave($fin);
 
 print "float wave[]={\n";
-# for(getTone($notes{'C'}*2, 1)) {
-for(getTone(10000, 1)) {
+for(getTone($notes{'F'}, 1)) {
 	print "\t$_,\n";
 }
 print "};\n";
