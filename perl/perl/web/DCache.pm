@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.2 1998/01/15 06:47:19 dustin Exp $
+# $Id: DCache.pm,v 1.3 1998/01/15 07:29:33 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -82,7 +82,7 @@ sub getcache
     my($name, $out);
 
     $name=getname($self, $id);
-    open(DC_IN, $name);
+    open(DC_IN, $name) || return("");
     # Eat my tag
     <DC_IN>;
     $out="";
@@ -106,12 +106,23 @@ sub checkcache
 	$s1=$a[9];
 	if($compare ne "")
 	{
-            @a=stat($compare);
-	    $s2=$a[9];
-
-	    if($s1>$s2)
+	    if($compare=~/^\d+$/)
 	    {
-		$r=1;
+		# Comparing lifetime
+		if($s1>time()-$compare)
+		{
+		    $r=1;
+		}
+	    }
+	    else
+	    {
+		# Must be a filename...
+		@=stat($compare);
+	        $s2=$a[9];
+	        if($s1>$s2)
+	        {
+		    $r=1;
+	        }
 	    }
 	}
 	else
@@ -132,3 +143,65 @@ sub checkcache
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+DCache.pm - Dustin's Cache Thing
+
+=head1 SAMPLE USAGE
+
+use DCache;
+
+$c=DCache->new;
+
+if($c->checkcache($somekey))
+{
+    print $c->getcache($somekey);
+    exit(0);
+}
+
+$out=doabunchofstuff();
+
+print $out;
+$c->cache($somekey, "text/plain", $out);
+
+=head1 METHODS
+
+=item new;
+
+    Create a new cache object.
+
+=item cachedir($path)
+
+    Set the caching directory to $path
+
+=item checkcache($somekey)
+
+or
+
+=item checkcache($somekey, $compare)
+
+    Check the cache for $somekey.  If no $compare is given, it just
+    checks for the existence of it, returns 1 if it exists, 0 if it
+    doesn't.  If $compare is there, it behaves one of two ways.  If
+    $compare is a number, it returns 1 if the cache exists and the data
+    is less than $compare seconds old.  If it's a path, it returns 1 if
+    the cache exists and the cache file was modified since a file
+    pointing to $compare (or $compare doesn't exist).
+
+=item cache($somekey, $mimetype, $data)
+
+    Cache $data keyed under $somekey using $mimetype as the Content-type
+
+=item getcache($somekey)
+
+    Return the data associated with $somekey
+
+=item getname($somekey)
+
+    Get the path to the cache file that data will be stored in for
+    $somekey
+
+=cut
