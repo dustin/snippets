@@ -1,5 +1,5 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1998/01/02 05:41:46 dustin Exp $
+# $Id: Makefile.in,v 1.2 1998/01/02 06:53:44 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
@@ -7,6 +7,7 @@ INCLUDES=-Ireadconfig -I.
 DEFINES=
 CFLAGS=@CFLAGS@ $(INCLUDES) $(DEFINES)
 LIBS=@LIBS@ readconfig/readconfig.a
+LDFLAGS=$(LIBS)
 
 OBJS=main.o sockets.o
 SRCS=main.c sockets.c
@@ -15,7 +16,7 @@ AUTOJUNK=config.h config.status config.cache config.log Makefile
 JUNK=$(OBJS) $(EXES)
 
 redirect: readconfig $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
 readconfig: readconfig/readconfig.a
 
