@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.1 2000/01/17 00:44:25 dustin Exp $
+ * $Id: Temperature.java,v 1.2 2000/01/17 07:32:45 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -43,18 +43,32 @@ public class Temperature extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException {
 		String which=request.getParameter("temp");
-		String url;
-		double t;
+		String out="";
 		if(which==null) {
-			throw new ServletException("Must have temp parameter");
+			out=listTemps();
+		} else {
+			out=getTemp(which);
 		}
 
-		url=(String)temps.get(which);
+		send_response(response, out);
+	}
 
+	protected String listTemps() {
+		String ret="";
+
+		for(Enumeration e = temps.keys(); e.hasMoreElements();) {
+			ret+=e.nextElement() + "\n";
+		}
+
+		return(ret);
+	}
+
+	protected String getTemp(String which) throws ServletException {
+		String url=(String)temps.get(which);
+		double t;
 		if(url==null) {
 			throw new ServletException("Unknown location: " + which);
 		}
-
 		try {
 			HTTPFetch f = new HTTPFetch(url);
 			String s;
@@ -66,14 +80,17 @@ public class Temperature extends HttpServlet
 		} catch(Exception e) {
 			throw new ServletException("Error getting temperature:  " + e);
 		}
+		return("" + t);
+	}
 
+	protected void send_response(HttpServletResponse response, String o) {
 		try {
 			response.setContentType("text/plain");
 			PrintWriter out=response.getWriter();
-			out.print(t);
+			out.print(o);
 			out.close();
 		} catch(Exception e) {
-			throw new ServletException("Error writing output:  " + e);
+			// Ignore.
 		}
 	}
 }

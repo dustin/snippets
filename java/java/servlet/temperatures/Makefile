@@ -10,8 +10,8 @@ C2=$(MYLIB)/spy.jar
 CLASSPATH=$(C1):$(C2):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
-SCP=scp
-DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/test/
+SCP=rcp
+DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/temperature/
 # DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=net/spy/temperature/Temperature.class
