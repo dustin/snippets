@@ -1,5 +1,5 @@
 -- SPAM Database stuff
--- $Id: spam.sql,v 1.1 1997/10/11 23:47:11 dustin Exp $
+-- $Id: spam.sql,v 1.2 1997/10/12 08:44:25 dustin Exp $
 
 create sequence sid_seq increment 1;
 
@@ -30,6 +30,7 @@ create index trans_byspam on trans (spam_id);
 
 create table messages (
     spam_id int,
+    fn      char(32),
     subject text,
     md5sum char(32),
     size int,
