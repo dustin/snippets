@@ -8,7 +8,7 @@ open Mfgcdb;;
 
 let loadMfgKeys from =
 	let db = Mfgcdb.open_mfg_db from in
-	Mfgcdb.iter (fun r -> Printf.printf "%d|1,%s\n" r.gateway_key r.sn) db;
+	Mfgcdb.iter (fun r -> Printf.printf "%d|%s\n" r.gateway_key r.sn) db;
 	Mfgcdb.close_mfg_db db
 ;;
 
