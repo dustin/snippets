@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: Syslog.java,v 1.1 2000/04/22 10:29:16 dustin Exp $
+// $Id: Syslog.java,v 1.2 2002/01/10 02:23:13 dustin Exp $
 
 package net.spy;
 
@@ -54,7 +54,7 @@ public class Syslog extends Object {
 		int fl=facility | level;
 
 		String what="<" + fl + ">" + msg;
-		System.out.println(what);
+		// System.out.println(what);
 
 		try {
 			DatagramPacket dp = new DatagramPacket(what.getBytes(),

@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.14 2001/08/08 08:27:25 dustin Exp $
+// $Id: SpyUtil.java,v 1.15 2002/01/10 02:23:11 dustin Exp $
 
 package net.spy;
 
@@ -93,13 +93,28 @@ public class SpyUtil {
 	}
 
 	/**
-	 * Get a stack from an exception.
+	 * Join an Enumeration of Strings on a join string.
+	 */
+	public static String join(Enumeration e, String on) {
+		StringBuffer sb=new StringBuffer();
+		while(e.hasMoreElements()) {
+			String s=(String)e.nextElement();
+			sb.append(s);
+			if(e.hasMoreElements()) {
+				sb.append(on);
+			}
+		}
+		return(sb.toString());
+	}
+
+	/**
+	 * Get a stack from an Exception.
 	 *
 	 * @param e Exception from which we'll be extracting the stack.
 	 * @param skip Number of stack entries to skip (usually two or three)
 	 */
-	public static String getStack(Exception e, int skip) {
-		String r="";
+	public static Enumeration getStackEnum(Exception e, int skip) {
+		Vector v=new Vector();
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		PrintWriter writer = new PrintWriter(bytes, true);
 		e.printStackTrace(writer);
@@ -110,9 +125,20 @@ public class SpyUtil {
 		}
 
 		while(t.hasMoreTokens()) {
-			r+=t.nextToken().substring(4) + ",";
+			v.addElement(t.nextToken().substring(4));
 		}
-		return(r);
+
+		return(v.elements());
+	}
+
+	/**
+	 * Get a stack from an exception.
+	 *
+	 * @param e Exception from which we'll be extracting the stack.
+	 * @param skip Number of stack entries to skip (usually two or three)
+	 */
+	public static String getStack(Exception e, int skip) {
+		return(join(getStackEnum(e, skip), ", "));
 	}
 
 	/**
