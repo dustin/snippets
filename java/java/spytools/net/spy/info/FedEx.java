@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.6 2001/02/14 02:14:04 dustin Exp $
+// $Id: FedEx.java,v 1.7 2001/03/03 11:25:59 dustin Exp $
 
 package net.spy.info;
 
@@ -53,47 +53,79 @@ public class FedEx extends PackageInfo {
 		return(ret);
 	}
 
+	private void setValue(Hashtable h, String input, String match) {
+		if(input.startsWith(match)) {
+			// Make sure it's likely we'd be able to get it and trim it
+			if(input.length() > match.length()+1) {
+				String data=input.substring(match.length()+1).trim();
+				// No dta, no addition
+				if(data.length()>0) {
+					h.put(match, data);
+				}
+			}
+		}
+	}
+
 	protected void parseInfo() throws Exception {
 		hinfo=new Hashtable();
-		hinfo.put("airbill_number", arg);
+		hinfo.put("tracking_number", arg);
 		getInfo();
 		String lines[]=SpyUtil.split("\n", info);
-		int section=0;
-		String local_info = "";
 		for(int i=0; i<lines.length; i++) {
-			if(lines[i].startsWith("Airbill Found")) {
-				section=1;
-				error=false;
-			} else if(lines[i].startsWith(arg) && section==1) {
-				section=2;
-			} else if(lines[i].startsWith("If you have any questions")
-				&& section==2) {
-				section=3;
-			}
-
-			// We've figured out what section we're in, now let's look
-			// at the data.
-			if(section==2) {
-				local_info+=lines[i] + "\r\n";
-			}
+			setValue(hinfo, lines[i], "Tracking Number");
+			setValue(hinfo, lines[i], "Shipper ID");
+			setValue(hinfo, lines[i], "Customer Reference Number");
+			setValue(hinfo, lines[i], "Invoice Number");
+			setValue(hinfo, lines[i], "Purchase Order Number");
+			setValue(hinfo, lines[i], "Ship Date");
+			setValue(hinfo, lines[i], "E-PDI Date");
+			setValue(hinfo, lines[i], "Est. Delivery Date");
+			setValue(hinfo, lines[i], "Status");
+			setValue(hinfo, lines[i], "Delivery Location");
+			setValue(hinfo, lines[i], "Delivery Date/Time");
+			setValue(hinfo, lines[i], "Signed For By");
+			setValue(hinfo, lines[i], "Service Type");
+			setValue(hinfo, lines[i], "Total Weight");
+		}
+		// If there's no tracking number in the hash, it wasn't succesful
+		if(hinfo.get("Tracking Number")!=null) {
+			error=false;
+		}
+		// If there's a delivery date and time, it's been delivered
+		if(hinfo.get("Delivery Date/Time")!=null) {
+			delivered=true;
 		}
 		if(error) {
 			String error_string="Unable to get FedEx info.  "
 				+ "Invalid tracking number?";
 			hinfo.put("ERROR", error_string);
 		} else {
-			local_info=local_info.trim();
-			hinfo.put("info", local_info);
+			// Make a toStringable version
+			StringBuffer sb=new StringBuffer();
+			sb.append("Tracking ");
+			sb.append(hinfo.get("Tracking Number"));
+			if(delivered) {
+				sb.append(" - delivered.");
+			} else {
+				if(hinfo.get("Est. Delivery Date")!=null) {
+					sb.append(" - ETA: ");
+					sb.append(hinfo.get("Est. Delivery Date"));
+				}
+				if(hinfo.get("Status")!=null) {
+					sb.append(" - Status: ");
+					sb.append(hinfo.get("Status"));
+				}
+			}
+			hinfo.put("info", sb.toString().trim());
 		}
 	}
 
-	// 790827254891 - Tracking this...
 	protected void getInfo() throws Exception {
 		if(info==null) {
 			String url=
-				"http://www.fedex.com/cgi-bin/track_it?airbills=";
+				"http://www.fedex.com/cgi-bin/tracking?tracknumbers=";
 			url += arg;
-			hinfo.put("URL", url);
+			url += "&action=track&language=english&cntry_code=us";
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();
 		}

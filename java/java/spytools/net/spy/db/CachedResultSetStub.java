@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachedResultSetStub.java,v 1.5 2001/02/07 06:31:09 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.6 2001/03/03 11:25:57 dustin Exp $
  */
 
 package net.spy.db;
@@ -90,23 +90,22 @@ public class CachedResultSetStub extends Object implements Cloneable {
 				switch(metadata.getColumnType(i)) {
 					case Types.DOUBLE:
 					case Types.REAL:
-						result[i-1]=new Double(rs.getDouble(i));
-						break;
 					case Types.DECIMAL:
+					case Types.NUMERIC:
+					case Types.BIGINT:
+					case Types.FLOAT:
+					case Types.SMALLINT:
+					case Types.TINYINT:
+					case Types.INTEGER:
+						// BigDecimal can represent *any* result,
+						// unfortunately, I'm having to parse it here
+						// because the old getBigDecimal requires you to
+						// tell it how many decimal places to use.  This is
+						// very lame.
 						tmp=rs.getString(i);
 						if(tmp!=null) {
 							result[i-1]=new BigDecimal(tmp);
 						}
-						break;
-					case Types.NUMERIC:
-					case Types.BIGINT:
-						tmp=rs.getString(i);
-						if(tmp!=null) {
-							result[i-1]=new BigInteger(tmp);
-						}
-						break;
-					case Types.FLOAT:
-						result[i-1]=new Float(rs.getFloat(i));
 						break;
 					case Types.CHAR:
 					case Types.VARCHAR:
@@ -121,11 +120,6 @@ public class CachedResultSetStub extends Object implements Cloneable {
 						break;
 					case Types.TIMESTAMP:
 						result[i-1]=rs.getTimestamp(i);
-						break;
-					case Types.SMALLINT:
-					case Types.TINYINT:
-					case Types.INTEGER:
-						result[i-1]=new Long(rs.getLong(i));
 						break;
 					case Types.BIT:
 						result[i-1]=new Boolean(rs.getBoolean(i));

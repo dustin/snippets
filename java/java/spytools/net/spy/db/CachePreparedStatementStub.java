@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachePreparedStatementStub.java,v 1.3 2001/02/07 06:31:07 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.4 2001/03/03 11:25:56 dustin Exp $
  */
 
 package net.spy.db;
@@ -110,6 +110,7 @@ public class CachePreparedStatementStub extends Object {
 			try {
 				crs=realExecuteQuery();
 			} catch(Exception e) {
+				e.printStackTrace();
 				throw new SQLException("Error getting stuff from db:  " + e);
 			}
 			cache.store(key, crs, cacheTime*1000);
