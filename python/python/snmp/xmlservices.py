@@ -2,11 +2,12 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: xmlservices.py,v 1.3 2002/04/09 20:42:52 dustin Exp $
+$Id: xmlservices.py,v 1.4 2002/04/09 23:46:16 dustin Exp $
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 import threading
+import time
 
 import jobs
 import storage
@@ -50,7 +51,6 @@ class Handler:
 			raise "Couldn't find matching job."
 		return rv
 
-
 	def queryJob(self, descriptor, start=None, end=None):
 		"""Query a job for performance data."""
 		rv={}
@@ -78,6 +78,28 @@ class Handler:
 		rv['performance']=perfval
 		rv['names']=j.getNames()
 
+		return rv
+
+	def queryVolatile(self, descriptor, start=None, end=None):
+		"""Query a volatile job for changes."""
+		rv=[]
+
+		if start==None:
+			start=0
+		if end==None:
+			end=time.time()
+
+		logfile=file("volatile.log")
+		line=logfile.readline()
+		while line!='':
+			parts=line.rstrip().split('\t')
+			# If this is a match, store it
+			if parts[1]==descriptor \
+				and float(parts[0]) >= start \
+				and float(parts[0]) <= end:
+				rv.append( (float(parts[0]), parts[2]))
+			line=logfile.readline()
+		logfile.close()
 		return rv
 
 class Listener(threading.Thread):
