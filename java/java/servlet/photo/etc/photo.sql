@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.12 1998/11/08 01:17:40 dustin Exp $
+-- $Id: photo.sql,v 1.13 1998/11/08 01:25:37 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -19,9 +19,9 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
 create table album(
 	keywords varchar(50),
 	descr    text,
-	cat      int,
+	cat      integer,
 	taken    date,
-	size     int,
+	size     integer,
 	addedby  varchar(16),
 	ts       datetime default datetime(now()),
 	id       serial
@@ -59,7 +59,7 @@ grant all on cat_id_seq to nobody;
 
 create table wwwacl(
 	username varchar(16),
-	cat      int
+	cat      integer
 );
 
 create index acl_byname on wwwacl(username);
@@ -105,8 +105,8 @@ grant all on searches_id_seq to nobody;
 -- This is keyed of the id in the album table
 
 create table image_store (
-	id   int,
-	line int,
+	id   integer,
+	line integer,
 	data varchar(76)
 );
 
@@ -115,8 +115,8 @@ create index images_id on image_store(id);
 
 -- A SQL function to return the count of elements in a category.
 
-create function catsum (int4 )
-	returns int4 AS
+create function catsum (integer)
+	returns integer AS
 	'select count(*) from album where cat = $1'
 	language 'SQL';
 
