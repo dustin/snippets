@@ -1,30 +1,60 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.2 2001/03/15 11:28:52 dustin Exp $
+// $Id: Cleanse.java,v 1.3 2001/03/16 09:27:29 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
 
 public class Cleanse extends Object {
 
-	Vector wordList=null;
-	Vector toremove=null;
+	private Vector wordList=null;
+	private Hashtable toremove=null;
+	private int removed=0;
+	private static final String SOURCE="jdbc:postgresql://dhcp-104/dustin";
+
+	// How many passes before we run flush()
+	private static final int BATCHSIZE=1000;
+
+	private static final String REMOVE="REMOVE";
 
 	public Cleanse() {
 		super();
 		this.wordList=new Vector(250000);
-		this.toremove=new Vector(100000);
+		this.toremove=new Hashtable(BATCHSIZE);
 	}
 
 	private void remove(String a, String b) {
 		System.out.println("Removing " + a + " and " + b);
 		wordList.removeElement(a);
 		wordList.removeElement(b);
-		toremove.addElement(a);
-		toremove.addElement(b);
+		toremove.put(a, REMOVE);
+		toremove.put(b, REMOVE);
 	}
 
-	private void killWords() {
+	// Save the state permanently
+	private void flush() throws SQLException {
+
+		if(toremove.size() > 0) {
+			System.out.println("Flushing " + toremove.size() + " items");
+			// OK, need it again
+			Connection conn=DriverManager.getConnection(SOURCE, "dustin", "");
+			// Get rid of all the stuff we don't want anymore.
+			PreparedStatement pst=conn.prepareStatement(
+				"insert into badwords(badword) values(?)"
+				);
+			for(Enumeration e=toremove.keys(); e.hasMoreElements(); ) {
+				String s=(String)e.nextElement() + ":";
+				pst.setString(1, s);
+				pst.executeUpdate();
+			}
+			removed+=toremove.size();
+			pst.close();
+			conn.close();
+			toremove.clear();
+		}
+	}
+
+	private void killWords() throws Exception {
 		CleanseStats stats=new CleanseStats(wordList.size());
 		for(Enumeration e=wordList.elements(); e.hasMoreElements(); ) {
 			String current=(String)e.nextElement();
@@ -33,13 +63,25 @@ public class Cleanse extends Object {
 
 			stats.click();
 			stats.start();
+			int i=0;
 			for(Enumeration e2=wordList.elements(); e2.hasMoreElements(); ) {
 				String checking=(String)e2.nextElement();
 
-				if(! current.equals(checking)) {
+				// Make sure it's not the word we're looking at, and that
+				// the words both still exist (haven't been added to the
+				// toremove hash)
+				if(! current.equals(checking)
+					&& (toremove.get(current)==null)
+					&& (toremove.get(checking)==null) ) {
 					if(current.indexOf(checking)>0 ||
 						checking.indexOf(current)>0) {
 						remove(current, checking);
+					}
+
+					i++;
+
+					if( (i % BATCHSIZE) == 0) {
+						flush();
 					}
 				}
 			} // inner loop
@@ -47,23 +89,22 @@ public class Cleanse extends Object {
 			System.out.println("Processed in " + stats.getLastTime()
 				+ " - " + stats.getStats());
 		} // outer loop
+		// A final flush, as we're done now.
 	}
 
-	public Vector cleanse() throws Exception {
+	public int cleanse() throws Exception {
 
 		Class.forName("org.postgresql.Driver");
-		String source="jdbc:postgresql://dhcp-104/dustin";
-		Connection conn=DriverManager.getConnection(source, "dustin", "");
+		Connection conn=DriverManager.getConnection(SOURCE, "dustin", "");
 		Statement st=conn.createStatement();
 		System.out.println("Executing query.");
 		ResultSet rs=st.executeQuery(
-			"select celeb_key, item2 from celeb_parse\n"
-			+ "  where item2 is not null order by item2");
+			"select word from wordlist\n"
+			+ "  order by word");
 		System.out.println("Fetching results.");
 		int i=0;
 		while(rs.next()) {
-			int id=rs.getInt("celeb_key");
-			String tmp=rs.getString("item2");
+			String tmp=rs.getString("word");
 			wordList.addElement(tmp.substring(0, tmp.indexOf(':')));
 			if(i % 100 == 0) {
 				System.out.println("Read " + i + " thingies.");
@@ -77,21 +118,10 @@ public class Cleanse extends Object {
 		// Don't need a DB connection during this
 		killWords();
 
-		// OK, need it again
-		conn=DriverManager.getConnection(source, "dustin", "");
+		// Make sure everything's stored
+		flush();
 
-		// Get rid of all the stuff we don't want anymore.
-		PreparedStatement pst=conn.prepareStatement(
-			"update celeb_parse set item2=null where item2=?"
-			);
-		for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
-			String s=(String)e.nextElement() + ":";
-
-			pst.setString(1, s);
-			pst.executeUpdate();
-		}
-
-		return(toremove);
+		return(removed);
 	}
 
 	// Private inner class used for managing statistics.
@@ -152,13 +182,9 @@ public class Cleanse extends Object {
 	public static void main(String args[]) throws Exception {
 
 		Cleanse c=new Cleanse();
-		Vector r=c.cleanse();
+		int removed=c.cleanse();
 
-		System.out.println("The following thingies needed to be removed:");
-		for(Enumeration e=r.elements(); e.hasMoreElements(); ) {
-			String s=(String)e.nextElement();
-			System.out.println("\t" + s);
-		}
+		System.out.println("A total of " + removed + " words removed.");
 
 	}
 
