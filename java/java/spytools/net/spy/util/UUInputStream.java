@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.3 2001/08/09 07:18:15 dustin Exp $
+// $Id: UUInputStream.java,v 1.4 2001/08/09 08:43:07 dustin Exp $
 
 package net.spy.util;
 
@@ -113,11 +113,14 @@ public class UUInputStream extends FilterInputStream {
 		}
 
 		while(r!=-1 && r!='\n' && r!='\r') {
-			sb.append((char)r);
+			// XXX:  OK, I have no idea why this is happening, but it is...
+			if(r!=0) {
+				sb.append((char)r);
+			}
 			r=in.read();
 		}
 
-		if(sb.length()>0) {
+		if(r!=-1 || sb.length()>0) {
 			rv=sb.toString().trim();
 		}
 
@@ -128,6 +131,10 @@ public class UUInputStream extends FilterInputStream {
 
 		while(!started) {
 			String temp=readLine();
+
+			if(temp==null) {
+				throw new IOException("begin not found");
+			}
 
 			if(temp.startsWith("begin")) {
 				started=true;
