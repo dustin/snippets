@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.4 2001/05/22 03:28:16 dustin Exp $
+// $Id: DBSP.java,v 1.5 2001/08/02 20:35:31 dustin Exp $
 
 package net.spy.db;
 
@@ -112,9 +112,11 @@ public abstract class DBSP extends SpyCacheDB {
 	/**
 	 * Execute a query for update only.
 	 */
-	public void executeUpdate() throws SQLException  {
+	public int executeUpdate() throws SQLException  {
+		int rv=0;
 		prepare();
-		pst.executeUpdate();
+		rv=pst.executeUpdate();
+		return(rv);
 	}
 
 	/**

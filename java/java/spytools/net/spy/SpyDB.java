@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.32 2001/05/25 00:21:17 dustin Exp $
+ * $Id: SpyDB.java,v 1.33 2001/08/02 20:35:29 dustin Exp $
  */
 
 package net.spy;
@@ -315,10 +315,12 @@ public class SpyDB extends Object {
 	 * @exception SQLException an exception is thrown if the connection fails,
 	 * or the SQL query fails.
 	 */
-	public void executeUpdate(String query) throws SQLException {
+	public int executeUpdate(String query) throws SQLException {
+		int rv=0;
 		Connection conn=getConn();
 		Statement st = conn.createStatement();
-		st.executeUpdate(query);
+		rv=st.executeUpdate(query);
+		return(rv);
 	}
 
 	/**
