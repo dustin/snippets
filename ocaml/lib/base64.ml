@@ -5,7 +5,7 @@
  *)
 
 (**
- Base64 block encoder/decoder.
+ Base64 stream encoder/decoder.
  *)
 
 (** Exception raised when there's an attempt to encode a chunk incorrectly *)

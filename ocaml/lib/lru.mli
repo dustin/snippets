@@ -1,3 +1,5 @@
+(** LRU Caching. *)
+
 type ('a, 'b) t = {
   keys : ('a, ('a, 'b) hval) Hashtbl.t;
   mutable seq : 'a Linkedlist.t option;
