@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: getexpire.c,v 1.2 1998/09/02 08:05:21 dustin Exp $
+ * $Id: getexpire.c,v 1.3 2003/06/04 00:55:30 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/getexpire.c,v $
  *
  */
@@ -74,11 +74,11 @@ openhost(char *host, int port)
 	char   *str;
 
 	if ((hp = gethostbyname(host)) == NULL) {
-		printf("ERR: gethostbyname\n");
+		printf("ERR: gethostbyname:  %s\n", host);
 		return (-1);
 	}
 	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("socket");
+		perror(host);
 		return (-1);
 	}
 	sin.sin_family = AF_INET;
@@ -86,8 +86,10 @@ openhost(char *host, int port)
 	bcopy(hp->h_addr, &sin.sin_addr, hp->h_length);
 
 	alarm(30);
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0)
+	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		perror(host);
 		return (-1);
+	}
 	alarm(0);
 
 	SSLeay_add_ssl_algorithms();
@@ -142,12 +144,12 @@ doit(char *file)
 	return;
 }
 
-void
+int
 main(int argc, char **argv)
 {
 	if (argc < 2) {
 		printf("%s, copyright (c) 1997  Dustin Sallings\n"
-		    "$Id: getexpire.c,v 1.2 1998/09/02 08:05:21 dustin Exp $\n",
+		    "$Id: getexpire.c,v 1.3 2003/06/04 00:55:30 dustin Exp $\n",
 			 argv[0]);
 		printf("Error, arguments required.  Usage:\n%s file\n",
 		    argv[0]);
