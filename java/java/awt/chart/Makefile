@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
@@ -14,7 +14,9 @@ SCP=rcp
 DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/temperature/
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=net/spy/chart/BarGraph.class net/spy/chart/BarGraphServlet.class
+CLASSES=net/spy/chart/TwoPointGraph.class \
+		net/spy/chart/BarGraph.class \
+		net/spy/chart/BarGraphServlet.class
 
 .SUFFIXES: .java .class .jar
 

@@ -1,87 +1,23 @@
 // Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
 //
-// $Id: BarGraph.java,v 1.1 2000/10/19 08:55:51 dustin Exp $
+// $Id: BarGraph.java,v 1.2 2002/01/18 00:12:53 dustin Exp $
 
 package net.spy.chart;
 
 import java.awt.*;
 import java.util.*;
 
-public class BarGraph extends Canvas {
-
-	protected int width=0;
-	protected int height=0;
-	protected double data[]=null;
-	protected String labels[]=null;
-
-	protected Color background=null;
-	protected Color foreground=null;
-
-	protected boolean bgset=false;
+public class BarGraph extends TwoPointGraph {
 
 	public BarGraph(int width, int height) {
-		super();
-		this.width=width;
-		this.height=height;
-		setSize(width, height);
-		background=Color.white;
-		foreground=Color.black;
-	}
-
-	public void setData(double data[]) {
-		this.data=data;
-	}
-
-	public void setData(int data[]) {
-		double d[]=new double[data.length];
-		for(int i=0; i<d.length; i++) {
-			d[i]=(double)data[i];
-		}
-		this.data=d;
-	}
-
-	public void setLabels(String labels[]) {
-		this.labels=labels;
-	}
-
-	public void setFGColor(Color c) {
-		foreground=c;
-	}
-
-	public void setBGColor(Color c) {
-		background=c;
-	}
-
-	protected int labelPos(String label, Graphics g, int x, double bwidth) {
-		FontMetrics fm=g.getFontMetrics();
-		int width=fm.stringWidth(label);
-
-		// X has to take into account the item width
-		x+=(int)(bwidth*2);
-		// Make sure the string starts at the right place
-		x-=(int)(width/2);
-
-		return(x);
+		super(width, height);
 	}
 
 	public void paint(Graphics g) {
-		double max=0;
-
-		if(!bgset) {
-			setBackground(background);
-			bgset=true;
-		}
 
 		g.setColor(foreground);
 
-		// Find the max
-		for(int i=0; i<data.length; i++) {
-			if(data[i]>max) {
-				max=data[i];
-			}
-		}
-
-		double yfactor=((double)(height-20))/(double)max;
+		double yfactor=((double)(height-20))/(double)getMax();
 		double xfactor=(double)((width-20))/(double)data.length;
 		double bwidth=(xfactor/2)-(xfactor*.10);
 
@@ -106,7 +42,6 @@ public class BarGraph extends Canvas {
 			// Label the bottom
 			g.drawString(label, labelPos(label, g, x, bwidth), height-10);
 
-
 			// Label the value (and make sure it's short enough)
 			label="" + data[i];
 			int lwidth=g.getFontMetrics().stringWidth(label);
@@ -119,7 +54,7 @@ public class BarGraph extends Canvas {
 		}
 	}
 
-	public static double[] getNumbers() {
+	private static double[] getNumbers() {
 		double a[]=new double[5];
 		Random r=new Random();
 
@@ -139,8 +74,8 @@ public class BarGraph extends Canvas {
 		BarGraph bg=new BarGraph(640, 480);
 		bg.setData(getNumbers());
 		bg.setLabels(labels);
-		bg.setBGColor(Color.red);
-		bg.setFGColor(Color.green);
+		// bg.setBGColor(Color.red);
+		// bg.setFGColor(Color.green);
 		f.add(bg);
 		f.pack();
 		f.show();
