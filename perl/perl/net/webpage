@@ -2,11 +2,17 @@
 # This was written by Dustin Sallings for David Rarick for use with
 # MobileComm's WWW Paging Client thing.
 # Made to work under IRIX 6.2, should work anywhere, probably doesn't.
-# $Id: webpage,v 1.1 1997/11/24 06:16:51 dustin Exp $
+# $Id: webpage,v 1.2 1997/11/24 06:28:55 dustin Exp $
 
 use Socket;
 
-# Encode a character into a %XX value.
+# Username -> pin mapping
+%Users=(
+    'drarick' => 8203941,
+);
+
+# In case of an alarm (connection timeout), just reset the alarm handler
+# and return.
 
 sub alarmhandler
 {
@@ -14,6 +20,8 @@ sub alarmhandler
     $SIG{'ALRM'}=alarmhandler;
     return(0);
 }
+
+# Encode a character into a %XX value.
 
 sub myurlencode
 {
@@ -64,6 +72,11 @@ sub SendPage
 # combined with a space to make the message.
 
 $pin=shift;
+if($pin=~/[A-z]/)
+{
+    $pin=$Users{$pin};
+}
+
 $message=join(' ', @ARGV);
 
 # Call the page sender.
