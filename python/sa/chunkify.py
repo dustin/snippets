@@ -114,6 +114,18 @@ def pauseCallback(chunker, fn):
     print "--- Press enter to create " + fn + " ---"
     sys.stdin.readline()
 
+def parseSize(s):
+    rv=None
+    if s[-1].lower() == 'g':
+        rv=float(s[:-1]) * (1024*1024*1024)
+    elif s[-1].lower() == 'm':
+        rv=float(s[:-1]) * (1024*1024)
+    elif s[-1].lower() == 'k':
+        rv=float(s[:-1]) * 1024
+    else:
+        rv=float(s)
+    return int(rv)
+
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'c:m:zp')
@@ -131,7 +143,7 @@ def main():
         elif pair[0]=='-z':
             makezip=1
         elif pair[0]=='-m':
-            maxsize=int(pair[1])
+            maxsize=parseSize(pair[1])
         elif pair[0]=='-p':
             dopause=1
 
@@ -151,8 +163,8 @@ def usage():
     print "Usage:  " + sys.argv[0] \
         + " -c basefile [-m chunksize] [-z] [-p] startpath"
     print "\t-c specifies the base name for each file"
-    print "\t-m specifies the chunk size (in bytes) for each file " \
-        "(default, 650MB)"
+    print "\t-m specifies the chunk size (in bytes, or with k/m/g extension)"
+    print "\t   each file (default, 650m)"
     print "\t-z chooses to make zip files rather than file lists."
     print "\t-p pauses before creating each file (after the first)."
     print "\tstartpath is the directory to traverse."
