@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.9 2002/03/20 20:00:22 dustin Exp $
+# $Id: nntpsucka.py,v 1.10 2002/03/20 20:01:30 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -123,7 +123,7 @@ class NNTPSucka:
 					self.stats.addDup()
 				else:
 					self.moveArticle(groupname, i)
-					self.markArticle(messid)
+					self.db.markArticle(messid)
 					self.stats.addMoved()
 			except KeyError, e:
 				# Couldn't find the header, article probably doesn't
@@ -132,7 +132,7 @@ class NNTPSucka:
 			except nntplib.NNTPTemporaryError, e:
 				# Save it if it's duplicate
 				if str(e).find("Duplicate"):
-					self.markArticle(messid)
+					self.db.markArticle(messid)
 					self.stats.addDup()
 				else:
 					self.stats.addOther()
