@@ -118,9 +118,14 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Build the hash table *)
 	let ht = Array.make len None in
 	let cur_p = ref table_start.(i) in
+	(* Lookup entries by slot number *)
+	let lookupSlot x =
+		try Hashtbl.find slot_pointers x
+		with Not_found -> (Int32.zero,0)
+	in
 	(* from 0 to tc-1 because the loop will run an extra time otherwise *)
 	for u = 0 to (tc - 1) do
-		let hp = slot_pointers.(!cur_p) in
+		let hp = lookupSlot !cur_p in
 		cur_p := !cur_p + 1;
 
 		(* Find an available hash bucket *)
@@ -152,14 +157,14 @@ let close_cdb_out cdc =
 	Array.iteri (fun i x ->
 		cur_entry := !cur_entry + x;
 		table_start.(i) <- !cur_entry) cdc.table_count;
-	(* Build out the slot pointers array *)
-	let slot_pointers = Array.make (List.length cdc.pointers) (Int32.zero,0) in
+	(* Build out the slot pointers hash *)
+	let slot_pointers = Hashtbl.create (List.length cdc.pointers) in
 	(* Fill in the slot pointers *)
 	List.iter (fun hp ->
 		let h = fst hp in
 		let table = hash_to_table h in
 		table_start.(table) <- table_start.(table) - 1;
-		slot_pointers.(table_start.(table)) <- hp
+		Hashtbl.replace slot_pointers table_start.(table) hp;
 		) cdc.pointers;
 	(* Write the shit out *)
 	let slot_table = ref [] in

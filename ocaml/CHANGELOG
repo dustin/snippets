@@ -2,6 +2,18 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-08-09 22:17:46 GMT	Dustin Sallings <dsallings@2wire.com>	patch-78
+
+    Summary:
+      Convert the final cdb pointer array to a hashtbl since it can get large
+    Revision:
+      snippets--ocaml--1.0--patch-78
+
+
+    modified files:
+     CHANGELOG lib/cdb.ml
+
+
 2004-08-02 06:59:09 GMT	Dustin Sallings <dustin@spy.net>	patch-77
 
     Summary:
