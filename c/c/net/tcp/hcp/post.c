@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.3 1998/11/11 06:47:30 dustin Exp $
+ * $Id: post.c,v 1.4 1998/11/11 06:49:57 dustin Exp $
  */
 
 #include <stdio.h>
@@ -15,8 +15,7 @@
 
 #include "http.h"
 
-#define VERSION "0.1"
-#define USERAGENT "Mozilla/4.05 [en] (X11; U; IRIX 6.2 IP22; Nav)"
+#define USERAGENT "DUpload/$Version$"
 
 void
 _gendelimit(char *d, size_t len)
