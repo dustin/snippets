@@ -1,6 +1,7 @@
 CFLAGS=@CFLAGS@ @DEFS@ -DMYMALLOC
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)
+MAKESO=@MAKESO@
 OBJS=libparselist.o mymalloc.o hash.o parselist.o
 MYLIBS=libparselist.so
 EXES=parselist
@@ -18,7 +19,7 @@ parselist: parselist.o parselist.h
 
 libparselist.so: libparselist.o mymalloc.o hash.o parselist.h
 	rm -f libparselist.so
-	$(LD) -x -shared -o libparselist.so libparselist.o mymalloc.o hash.o
+	$(MAKESO) -o libparselist.so libparselist.o mymalloc.o hash.o
 
 clean:
 	rm -f $(EXES) $(MYLIBS) $(OBJS) $(LINTS)

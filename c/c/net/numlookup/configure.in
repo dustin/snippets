@@ -4,8 +4,88 @@ AC_INIT(mymalloc.c)
 dnl Checks for programs.
 AC_PROG_CC(-g)
 AC_PATH_PROG(LINT, lint, /bin/lint, $PATH)
+AC_PROGRAM_CHECK(UNAMEPROG, uname, uname, )
+AC_PROGRAM_CHECK(TRPROG, tr, tr, )
+AC_PROGRAM_CHECK(SEDPROG, sed, sed, )
+AC_PROGRAM_CHECK(CUTPROG, cut, cut, )
+
+dnl Do we do dynamically loading libs on this OS?
+DYNLIBS=0
+NEEDUNDERSCORE=0
+MAKESO=:
+
+dnl What we on, boys?
+echo "Checking out your OS..."
+OS=`$UNAMEPROG|$TRPROG '[[A-Z]]' '[[a-z]]'`
+VER=`$UNAMEPROG -r`
+if test "$OS" = "sunos" && test "$VER" -ge 5
+then
+	OS="solaris"
+fi
+case "$OS" in
+	'sunos')
+		echo "Woohoo!  SunOS 4.x, one of my favs"
+	if test "$GCC" = "yes"
+	then
+		echo "Using GCC, let's try to make shared libs."
+		DYNLIBS=1
+		NEEDUNDERSCORE=0
+		MAKESO="$CC -shared"
+		CFLAGS="$CFLAGS -fPIC"
+	fi
+	;;
+	'netbsd')
+	echo "NetBSD!  One of my favs, setting -Wall"
+	CFLAGS="$CFLAGS -Wall"
+	;;
+	'solaris')
+		echo "Hmm...Solaris"
+		if test "$GCC" = "yes"
+		then
+			echo "Using GCC, let's try to make shared libs."
+			DYNLIBS=1
+			NEEDUNDERSCORE=0
+			MAKESO="$CC -shared"
+			CFLAGS="$CFLAGS -Wall -fPIC"
+		fi
+	;;
+	'hp-ux')
+		echo "HP-UX, this should be fun..."
+		if test "$GCC" != "yes"
+		then
+			echo "Setting ANSI flags"
+			CFLAGS="$CFLAGS -Ae"
+		fi
+		BSDLIKE=0
+		;;
+	'irix')
+	echo "Looks like IRIX it's going to be..."
+	if test "$GCC" = "yes"
+	then
+		echo "That's odd, we're using gcc...  OK."
+		echo "If you have the IDO, please set the environ CC to cc"
+		echo "to use the native compiler."
+	else
+		echo "Using the native IDO, let's set some CFLAGS"
+		CFLAGS="$CFLAGS -fullwarn"
+		DYNLIBS=1
+		NEEDUNDERSCORE=0
+		MAKESO="ld -shared"
+	fi
+	;;
+esac
+
+AC_DEFINE_UNQUOTED(DYNLIBS, $DYNLIBS)
+AC_SUBST(DYNLIBS)
+
+AC_DEFINE_UNQUOTED(NEEDUNDERSCORE, $NEEDUNDERSCORE)
+AC_SUBST(NEEDUNDERSCORE)
+
+AC_DEFINE_UNQUOTED(MAKESO, $MAKESO)
+AC_SUBST(MAKESO)
 
 dnl Checks for libraries.
+AC_CHECK_LIB(dl, dlopen)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -14,11 +94,6 @@ AC_CHECK_HEADERS(limits.h syslog.h unistd.h)
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
-
-OLDCFLAGS=$CFLAGS
-CFLAGS="$CFLAGS -fPIC"
-AC_CACHE_VAL(check_pic,AC_TRY_COMPILE([],[return(0);
-],CFLAGS="$OLDCFLAGS -fPIC",CFLAGS="$OLDCFLAGS"))
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strdup strspn sprintf snprintf vsnprintf vsprintf)

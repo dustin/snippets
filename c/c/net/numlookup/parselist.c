@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.9 1999/05/08 22:39:54 dustin Exp $
+ * $Id: parselist.c,v 1.10 1999/05/10 18:20:51 dustin Exp $
  */
 
 #include <stdio.h>
@@ -59,7 +59,7 @@ static void emergency(void)
 	/* We'll run the emergency loop based on time */
 	while( (time(0)-t)<EMERGENCY_TIME ) {
 		tmp=fgets(buf, 79, stdin);
-		puts("ERROR");
+		puts("");
 	}
 }
 

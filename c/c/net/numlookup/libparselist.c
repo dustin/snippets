@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.13 1999/05/10 05:07:29 dustin Exp $
+ * $Id: libparselist.c,v 1.14 1999/05/10 18:20:50 dustin Exp $
  */
 
 #include <stdio.h>
@@ -10,7 +10,10 @@
 #include <syslog.h>
 #include <stdarg.h>
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <time.h>
 
 #include "mymalloc.h"
 #include "hash.h"
@@ -200,7 +203,9 @@ search(struct config_t config, unsigned int ip)
 			return(h->value);
 		}
 	}
-	return (NULL);
+	/* Return an empty string if nothing found.
+	 * This implies misconfiguration */
+	return ("");
 }
 
 int
