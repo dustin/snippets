@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<project name="RSSServlet" default="all" basedir=".">
+
+	<path id="myclasses">
+		<fileset dir="${user.home}/lib/java">
+			<include name="jsdk.jar"/>
+			<include name="resin.jar"/>
+			<include name="sax.jar"/>
+			<include name="dom.jar"/>
+			<include name="jaxp.jar"/>
+			<include name="spy.jar"/>
+		</fileset>
+		<pathelement path="."/>
+	</path>
+
+	<property name="SRCDIR" value="."/>
+	<property name="BUILDDIR" value="."/>
+
+	<target name="clean" description="Clean up.">
+		<delete>
+			<fileset dir="${BUILDDIR}/net">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+		<fileset dir="${BUILDDIR}">
+			<include name="rss.jar"/>
+		</fileset>
+	</target>
+
+	<target name="all" description="Build everything.">
+		<javac
+			srcdir="${SRCDIR}"
+			destdir="${BUILDDIR}"
+			deprecation="on"
+			debug="on">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="jar" description="Create rss.jar" depends="all">
+		<jar jarfile="rss.jar" basedir=".">
+			<include name="net/**/*.class"/>
+		</jar>
+	</target>
+
+	<target name="install" description="Install rss.jar" depends="jar">
+		<copy
+			file="rss.jar"
+			tofile="/afs/spy.net/home/dustin/public_html/webapp/WEB-INF/lib/rss.jar"/>
+		<copy
+			file="rss.jar"
+			tofile="/afs/spy.net/home/dustin/public_html/soft/rss.jar"/>
+	</target>
+
+</project>
