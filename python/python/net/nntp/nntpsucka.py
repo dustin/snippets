@@ -2,11 +2,12 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.20 2002/03/21 22:55:07 dustin Exp $
+# $Id: nntpsucka.py,v 1.21 2002/03/24 08:32:58 dustin Exp $
 
 import nntplib
 import time
 import anydbm
+import signal
 import os
 
 class Stats:
@@ -205,14 +206,25 @@ class NNTPSucka:
 	def getStats(self):
 		return self.stats
 
-def main():
-	start=time.time()
-	s=NNTPClient('news.mindspring.com')
-	d=NNTPClient('news.west.spy.net')
-	sucka=NNTPSucka(s,d)
+class Timeout:
+	pass
 
-	sucka.copyServer()
-	stop=time.time()
+def alarmHandler(sig, frame):
+	raise Timeout
+
+def main():
+	signal.signal(signal.SIGALRM, alarmHandler)
+	signal.alarm(3500)
+
+	try:
+		start=time.time()
+		s=NNTPClient('news.mindspring.com')
+		d=NNTPClient('news.west.spy.net')
+		sucka=NNTPSucka(s,d)
+		sucka.copyServer()
+		stop=time.time()
+	except Timeout:
+		print "Took too long."
 
 	print sucka.getStats()
 	print "Total time spent:  " + str(stop-start) + "s"
