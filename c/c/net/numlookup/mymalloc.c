@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: mymalloc.c,v 1.1 1999/05/08 07:40:56 dustin Exp $
+ * $Id: mymalloc.c,v 1.2 1999/05/08 08:35:47 dustin Exp $
  */
 
 #include <stdio.h>
