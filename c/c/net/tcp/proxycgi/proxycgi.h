@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: proxycgi.h,v 1.1 2000/01/16 04:37:13 dustin Exp $
+ * $Id: proxycgi.h,v 1.2 2000/01/17 23:41:42 dustin Exp $
  */
 
 #ifndef PROXYCGI_H
@@ -27,6 +27,7 @@ struct ProxyStruct {
 	char *request_url;
 	struct url url;
 	char *file;
+	char *tmpfile;
 };
 
 void str_append(struct growstring *s, char *buf);

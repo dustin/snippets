@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.3 2000/01/16 06:23:20 dustin Exp $
+ * $Id: main.c,v 1.4 2000/01/17 23:41:40 dustin Exp $
  */
 
 #include <stdio.h>
@@ -49,7 +49,7 @@ parseurl(char *url)
 	 * with host.
 	 */
 	u.req = u.host;
-	while (*u.req && *u.req != ':' && *u.req != '/')
+	while (*u.req && *u.req != ':' && *u.req != '%' && *u.req != '/')
 		u.req++;
 
 	/*
@@ -68,6 +68,17 @@ parseurl(char *url)
 		while (*u.req && *u.req != '/')
 			u.req++;
 		u.req = *u.req ? strdup(u.req) : "/";
+		break;
+	case '%':		/* Check for %3A */
+		if(strlen(u.req)>3 && u.req[1]=='3' && tolower(u.req[2])=='a') {
+			/* Same as colon, except longer */
+			port = atoi(u.req + 3);
+			*u.req=NULL;
+			u.req+=3;
+			while (*u.req && *u.req != '/')
+				u.req++;
+			u.req = *u.req ? strdup(u.req) : "/";
+		}
 		break;
 	case '/':		/* format http://host.domain.com/ */
 		port = 80;
@@ -97,6 +108,7 @@ struct ProxyStruct parseuri(char *uri)
 {
 	struct ProxyStruct ret;
 	char **atmp;
+	char tmpfiletmp[64];
 	struct growstring grow;
 	int i;
 
@@ -128,7 +140,11 @@ struct ProxyStruct parseuri(char *uri)
 	str_append(&grow, "/");
 	str_append(&grow, ret.request_uri);
 
-	ret.file=grow.string;
+	ret.file=strdup(grow.string);
+
+	sprintf(tmpfiletmp, ".tmp.%d", getpid());
+	str_append(&grow, tmpfiletmp);
+	ret.tmpfile=grow.string;
 
 	freeptrlist(atmp);
 
@@ -191,10 +207,34 @@ int parse_headers(char *buf, int *size)
 		kw(left);
 
 		/* Find the stuff we want */
+
+		if(strncasecmp(left, "HTTP/1.1", 8)==0) {
+			char *ptmp;
+			/* We need to output this directly,
+			   but not let it appear in the file. */
+			write(1, left, strlen(left));
+			write(1, "\r\n", 2);
+			left=strchr(left, ' ');
+			assert(left);
+			left++;
+			ptmp=strchr(left, ' ');
+			assert(ptmp);
+			*ptmp=NULL;
+			str_append(&grow, "Status:  ");
+			str_append(&grow, left);
+			str_append(&grow, "\r\n");
+		}
+
 		if(strncasecmp(left, "Content-Type", 12)==0) {
 			str_append(&grow, "Content-Type");
 			str_append(&grow, left+12);
-			str_append(&grow, "\r\n\r\n");
+			str_append(&grow, "\r\n");
+		}
+
+		if(strncasecmp(left, "Content-Length", 14)==0) {
+			str_append(&grow, "Content-Length");
+			str_append(&grow, left+14);
+			str_append(&grow, "\r\n");
 		}
 
 		/* Find the next left */
@@ -208,6 +248,8 @@ int parse_headers(char *buf, int *size)
 			done=1;
 		}
 	}
+	/* a new line to end the thing */
+	str_append(&grow, "\r\n");
 
 	/* Make sure we have enough room */
 	assert(sizeof(outbuf) > s);
@@ -245,9 +287,9 @@ int main(int argc, char **argv)
 #endif /* UGLY_DEBUG */
 
 	ensurepath(proxystruct.file);
-	f=open(proxystruct.file, O_WRONLY|O_CREAT|O_EXCL, 0755);
+	f=open(proxystruct.tmpfile, O_WRONLY|O_CREAT|O_EXCL, 0644);
 	if(f<0) {
-		perror(proxystruct.file);
+		perror(proxystruct.tmpfile);
 	}
 
 	s=start_request(proxystruct);
@@ -264,6 +306,10 @@ int main(int argc, char **argv)
 			rv=write(f, recv_buf, size);
 			assert(rv=size);
 		}
+	}
+
+	if(rename(proxystruct.tmpfile, proxystruct.file)<0) {
+		perror(proxystruct.file);
 	}
 
 	return(0);
