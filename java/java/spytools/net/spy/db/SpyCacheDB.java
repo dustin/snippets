@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.2 2001/01/27 09:01:14 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.3 2001/02/08 05:33:12 dustin Exp $
  */
 
 package net.spy.db;
@@ -21,9 +21,9 @@ public class SpyCacheDB extends SpyDB {
 	 *
 	 * @see SpyConfig
 	 *
-	 * @exception Exception never, but it might someday.
+	 * @exception SQLException never, but it might someday.
 	 */
-	public SpyCacheDB(SpyConfig conf) throws Exception {
+	public SpyCacheDB(SpyConfig conf) throws SQLException {
 		super(conf);
 	}
 
@@ -33,10 +33,10 @@ public class SpyCacheDB extends SpyDB {
 	 * @param query Query to execute
 	 * @param lifetime How long (in seconds) the results can live
 	 *
-	 * @exception Exception when bad stuff happens
+	 * @exception SQLException when bad stuff happens
 	 */
 	public ResultSet executeQuery(String query, long lifetime)
-		throws Exception {
+		throws SQLException {
 
 		SpyCache cache=new SpyCache();
 		String key="cachedb_" + query;
@@ -57,10 +57,10 @@ public class SpyCacheDB extends SpyDB {
 	 * @param query Query to prepare
 	 * @param lifetime How long (in seconds) the results can live
 	 *
-	 * @exception Exception when bad stuff happens
+	 * @exception SQLException when bad stuff happens
 	 */
 	public PreparedStatement prepareStatement(String query, long lifetime)
-		throws Exception {
+		throws SQLException {
 
 		return(new CachePreparedStatement(this, query, lifetime));
 	}

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.26 2001/02/07 06:31:03 dustin Exp $
+ * $Id: SpyDB.java,v 1.27 2001/02/08 05:33:10 dustin Exp $
  */
 
 package net.spy;
@@ -264,10 +264,10 @@ public class SpyDB extends Object {
 	 *
 	 * @param query SQL query to execute.
 	 *
-	 * @exception Exception an exception is thrown if the connection fails, or
-	 * the SQL query fails.
+	 * @exception SQLException an exception is thrown if the connection fails,
+	 * or the SQL query fails.
 	 */
-	public ResultSet executeQuery(String query) throws Exception {
+	public ResultSet executeQuery(String query) throws SQLException {
 		Connection conn=getConn();
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery(query);
@@ -280,10 +280,10 @@ public class SpyDB extends Object {
 	 *
 	 * @param query SQL query to execute.
 	 *
-	 * @exception Exception an exception is thrown if the connection fails, or
-	 * the SQL query fails.
+	 * @exception SQLException an exception is thrown if the connection fails,
+	 * or the SQL query fails.
 	 */
-	public void executeUpdate(String query) throws Exception {
+	public void executeUpdate(String query) throws SQLException {
 		Connection conn=getConn();
 		Statement st = conn.createStatement();
 		st.executeUpdate(query);
@@ -294,9 +294,11 @@ public class SpyDB extends Object {
 	 *
 	 * @param query SQL query to prepare.
 	 *
-	 * @exception Exception thrown if something bad happens.
+	 * @exception SQLException thrown if something bad happens.
 	 */
-	public PreparedStatement prepareStatement(String query) throws Exception {
+	public PreparedStatement prepareStatement(String query)
+		throws SQLException {
+
 		Connection conn=getConn();
 		PreparedStatement pst = conn.prepareStatement(query);
 		return(pst);
@@ -307,10 +309,10 @@ public class SpyDB extends Object {
 	 * maintain a single database connection, so if multiple connections
 	 * from the pool are needed, multiple SpyDB objects will be required.
 	 *
-	 * @exception Exception An exception may be thrown if a database
+	 * @exception SQLException An exception may be thrown if a database
 	 * connection cannot be obtained.
 	 */
-	public Connection getConn() throws Exception {
+	public Connection getConn() throws SQLException {
 		if(conn==null) {
 			// log("New connection");
 			getDBConn();
@@ -489,12 +491,16 @@ public class SpyDB extends Object {
 	 * Test plan, given a config file, create a database connection and do
 	 * a select 1.
 	 */
-	public static void main(String args[]) throws Exception {
+	public static void main(String args[]) throws SQLException {
 		SpyDB db=new SpyDB(new SpyConfig(args[0]));
 		ResultSet rs=db.executeQuery("select 1");
 		rs.next();
 		System.out.println("Got results:  " + rs.getString(1));
 		System.out.println("Sleeping...");
-		Thread.sleep(15000);
+		try {
+			Thread.sleep(15000);
+		} catch(Exception e) {
+			System.err.println("Error while sleeping:  " + e);
+		}
 	}
 }
