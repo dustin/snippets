@@ -6,17 +6,21 @@
 
 pthread_mutex_t mutexen[NMUTEXEN];
 
+/* Thread simulating database work */
 void dodbwork(char *query)
 {
     int r;
     printf("Attempting %s\n", query);
     pthread_mutex_lock(&mutexen[DBMUTEX]);
+	printf("\t\t\t\t\tLOCKED\n");
     printf("\t\t\t\t\tDoing query:  %s\n", query);
     r=rand()%5;
     sleep(r);
+	printf("\t\t\t\t\tUNLOCKING\n");
     pthread_mutex_unlock(&mutexen[DBMUTEX]);
 }
 
+/* Thread does this */
 int thread_main(int *n)
 {
     int me, i;
@@ -41,13 +45,17 @@ int main(int argc, char **argv)
 
     srand(time(NULL));
 
-    pthread_mutex_init(&mutexen[0], NULL);
+    pthread_mutex_init(&mutexen[DBMUTEX], NULL);
 
-    for(i=0; i<8; i++)
-    {
+	/* Start some threads */
+    for(i=0; i<8; i++) {
         thread_n[i]=i;
         pthread_create(&threads[i], NULL, thread_main, &thread_n[i]);
     }
-    for(i=0; i<8; i++)
+	/* Wait for them to finish
+	   If we were not going to wait, we'd use pthread_detach
+	 */
+    for(i=0; i<8; i++) {
         pthread_join(threads[i], NULL);
+	}
 }
