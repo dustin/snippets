@@ -40,7 +40,6 @@ def deepCmp(srcf, destf):
 
        Return 1 if the contents of the files are the same, 0 if they are
        different."""
-    # dbgMsg("Beginning deep compare of %s and %s", (srcf, destf))
     rv=1
     # 8k buffers
     bufsize=8*1024
@@ -76,7 +75,6 @@ def filesSame(srcf, destf):
     else:
         # Stat sigs are different, we know it's different
         rv = 0
-        dbgMsg("%s=%s %s=%s", (srcf, `s1`, destf, `s2`))
 
     return rv
 
@@ -112,7 +110,6 @@ def processDeletes(src, dest, srcnames):
         for dname in os.listdir(dest):
             if not snames.has_key(dname):
                 dfn=os.path.join(dest, dname)
-                dbgMsg("Need to delete %s", (dfn, ))
                 if os.path.isdir(dfn):
                     deltree(dfn)
                 else:
