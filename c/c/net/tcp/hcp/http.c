@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.9 1998/11/11 08:12:15 dustin Exp $
+ * $Id: http.c,v 1.10 1998/11/11 08:13:30 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -32,14 +32,15 @@
  * More that likely, it'll overrun buffers, because they
  * probably don't have vsnprintf either.
  */
-int snprintf(char *s, size_t n, const char *format, ...)
+int
+snprintf(char *s, size_t n, const char *format,...)
 {
-	int i;
+	int     i;
 	va_list ap;
 	va_start(ap, format);
-	i=vsnprintf(s, n-1, format, ap);
+	i = vsnprintf(s, n - 1, format, ap);
 	va_end(ap);
-	return(i);
+	return (i);
 }
 #endif
 
@@ -131,7 +132,7 @@ parseurl(char *url)
 {
 	char   *tmp;
 	struct url u;
-	int     port=80;
+	int     port = 80;
 
 	u.host = NULL;
 	u.req = NULL;
@@ -215,35 +216,35 @@ freestatus(struct status s)
 int
 send_data(struct host_ret conn, struct url u, char *data)
 {
-	int r=0;
+	int     r = 0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
-		r=SSL_write(conn.ssl, data, strlen(data));
+		r = SSL_write(conn.ssl, data, strlen(data));
 #endif
 	} else {
-		r=send(conn.s, data, strlen(data), 0);
+		r = send(conn.s, data, strlen(data), 0);
 	}
-	return(r);
+	return (r);
 }
 
 int
 send_ndata(struct host_ret conn, struct url u, size_t n, char *data)
 {
-	int r=0;
+	int     r = 0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
-		r=SSL_write(conn.ssl, data, n);
+		r = SSL_write(conn.ssl, data, n);
 #endif
 	} else {
-		r=send(conn.s, data, n, 0);
+		r = send(conn.s, data, n, 0);
 	}
-	return(r);
+	return (r);
 }
 
 int
 recv_data(struct host_ret conn, struct url u, char *buf, size_t len)
 {
-	int     size=0;
+	int     size = 0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
 		size = SSL_read(conn.ssl, buf, len);
@@ -305,7 +306,7 @@ getstatus(struct url u, struct host_ret conn)
 	/* Eat the rest of the page */
 	while (recv_data(conn, u, line, 1024));
 
-	return(st);
+	return (st);
 }
 
 /*
