@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.17 2001/08/29 18:14:51 dustin Exp $
+// $Id: PoolAble.java,v 1.18 2001/08/30 00:51:18 dustin Exp $
 
 package net.spy.pool;
 
@@ -27,6 +27,7 @@ public abstract class PoolAble extends Object {
 	private PoolDebug pooldebug=null;
 	private int checkouts=0;
 	private int checkins=0;
+	private int poolHash=0;
 
 	/**
 	 * Minimum value returned from pruneStatus() if we may clean the object.
@@ -45,9 +46,10 @@ public abstract class PoolAble extends Object {
 	/**
 	 * Get a PoolAble representation for an object.
 	 */
-	public PoolAble(Object the_object) {
+	public PoolAble(Object the_object, int poolHash) {
 		super(); // thanks for asking.
 		this.the_object=the_object;
+		this.poolHash=poolHash;
 		start_time=System.currentTimeMillis();
 		debug("New object");
 	}
@@ -60,12 +62,21 @@ public abstract class PoolAble extends Object {
 	 * will be valid.  Objects will not be checked out if they are older
 	 * than their maximum lifetime.
 	 */
-	public PoolAble(Object the_object, long max_age) {
+	public PoolAble(Object the_object, long max_age, int poolHash) {
 		super(); // thanks for asking.
 		this.the_object=the_object;
 		this.max_age=max_age;
+		this.poolHash=poolHash;
 		start_time=System.currentTimeMillis();
 		debug("New object.");
+	}
+
+	// Get the debug name
+	private String debugName() {
+		StringBuffer sb=new StringBuffer();
+		sb.append("PoolAble for ");
+		sb.append(Integer.toHexString(poolHash));
+		return(sb.toString());
 	}
 
 	/**
@@ -257,10 +268,7 @@ public abstract class PoolAble extends Object {
 	 */
 	public synchronized String toString() {
 		StringBuffer out=new StringBuffer();
-		out.append("PoolAble ");
-		out.append(object_id);
-		out.append('@');
-		out.append(Integer.toHexString(hashCode()));
+		out.append(debugName());
 		if(isCheckedOut()) {
 			out.append(" is checked out");
 		} else {

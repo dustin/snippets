@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolFiller.java,v 1.6 2000/11/30 22:02:47 dustin Exp $
+// $Id: JDBCPoolFiller.java,v 1.7 2001/08/30 00:51:17 dustin Exp $
 
 package net.spy.pool;
 
@@ -62,18 +62,18 @@ public class JDBCPoolFiller extends PoolFiller {
 			// Set the system-wide and local DB properties here.
 			Properties sysprop=System.getProperties();
 			setDBOptions(sysprop, prop, "dboption.");
-			setDBOptions(conf, prop, name+".dboption.");
+			setDBOptions(getConfig(), prop, getName()+".dboption.");
 
 			long max_age=(long)getPropertyInt("max_age", 0);
 
 			// Grab a connection.
 			Connection db = DriverManager.getConnection(source, prop);
 			// Create the PoolAble object
-			p=new JDBCPoolAble(db, max_age);
+			p=new JDBCPoolAble(db, max_age, getPoolHash());
 		} catch(Exception e) {
 			throw new PoolException(
 				"Error getting new DB object for the "
-					+ name + " pool:  " + e
+					+ debugName() + " pool:  " + e
 				);
 		}
 

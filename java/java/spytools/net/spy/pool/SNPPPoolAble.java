@@ -1,5 +1,5 @@
 //
-// $Id: SNPPPoolAble.java,v 1.3 2001/02/07 06:31:42 dustin Exp $
+// $Id: SNPPPoolAble.java,v 1.4 2001/08/30 00:51:22 dustin Exp $
 
 package net.spy.pool;
 
@@ -13,12 +13,12 @@ import net.spy.net.SNPP;
 
 public class SNPPPoolAble extends PoolAble {
 
-	public SNPPPoolAble(Object the_object) {
-		super(the_object);
+	public SNPPPoolAble(Object the_object, int poolHash) {
+		super(the_object, poolHash);
 	}
 
-	public SNPPPoolAble(Object the_object, long max_age) {
-		super(the_object, max_age);
+	public SNPPPoolAble(Object the_object, long max_age, int poolHash) {
+		super(the_object, max_age, poolHash);
 	}
 
 	public void discard() {

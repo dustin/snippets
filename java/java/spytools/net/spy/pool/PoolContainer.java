@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.26 2001/08/06 21:35:04 dustin Exp $
+// $Id: PoolContainer.java,v 1.27 2001/08/30 00:51:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -179,18 +179,36 @@ public class PoolContainer extends Object {
 		return(rv);
 	}
 
+	// Name to print in debuggy type things.
+	private String debugName() {
+		StringBuffer rv=new StringBuffer();
+		rv.append(name);
+		rv.append(" @");
+		rv.append(Integer.toHexString(hashCode()));
+
+		return(rv.toString());
+	}
+
 	/**
 	 * debugging tool, dump out the current state of the pool
 	 */
 	public String toString() {
-		String out="Pool " + name + " - total Objects:  " + totalObjects()
-			+ ", available objects:  " + avaliableObjects() + "\n";
+		StringBuffer sb=new StringBuffer();
+		sb.append("Pool ");
+		sb.append(debugName());
+		sb.append(" - total Objects:  ");
+		sb.append(totalObjects());
+		sb.append(", available objects:  ");
+		sb.append(availableObjects());
+
 		synchronized (pool) {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				out+="    " + e.nextElement() + "\n";
+				sb.append("    ");
+				sb.append(e.nextElement());
+				sb.append("\n");
 			}
 		}
-		return(out);
+		return(sb.toString());
 	}
 
 	/**
@@ -198,7 +216,7 @@ public class PoolContainer extends Object {
 	 *
 	 * @return the number of available (not checked out) objects.
 	 */
-	public int avaliableObjects() {
+	public int availableObjects() {
 		int ret=0;
 
 		synchronized (pool) {
@@ -273,7 +291,10 @@ public class PoolContainer extends Object {
 		_yellow_line=(int)((float)_max_objects*
 			(float)getPropertyInt("yellow_line", 75)/100.0);
 
-		debug("Pool " + name + " wants a min of " + _min_objects
+		// Set the hashcode of this pool for consistent debug output.
+		filler.setPoolHash(hashCode());
+
+		debug("Pool " + debugName() + " wants a min of " + _min_objects
 			+ " and a max of " + _max_objects
 			+ " with a yellow line at " + _yellow_line);
 

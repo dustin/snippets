@@ -1,5 +1,5 @@
 //
-// $Id: SNPPPoolFiller.java,v 1.2 2000/07/27 19:21:52 dustin Exp $
+// $Id: SNPPPoolFiller.java,v 1.3 2001/08/30 00:51:24 dustin Exp $
 
 package net.spy.pool;
 
@@ -10,7 +10,6 @@ import net.spy.SpyConfig;
 /**
  * PoolFiller object to fill a pool with SNPP PoolAbles
  */
-
 public class SNPPPoolFiller extends PoolFiller {
 
 	public SNPPPoolFiller(String name, SpyConfig conf) {
@@ -54,11 +53,11 @@ public class SNPPPoolFiller extends PoolFiller {
 			// Grab a connection.
 			SNPP snpp = new SNPP(hostname, port, timeout);
 			// Create the PoolAble object
-			p=new SNPPPoolAble(snpp, max_age);
+			p=new SNPPPoolAble(snpp, max_age, getPoolHash());
 		} catch(Exception e) {
 			throw new PoolException(
 				"Error getting new SNPP object for the "
-					+ name + " pool:  " + e
+					+ debugName() + " pool:  " + e
 				);
 		}
 

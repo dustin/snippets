@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.5 2001/05/21 23:05:46 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.6 2001/08/30 00:51:15 dustin Exp $
 
 package net.spy.pool;
 
@@ -10,15 +10,14 @@ import net.spy.SpyConfig;
 /**
  * PoolAble object for containing a JDBC object.
  */
-
 public class JDBCPoolAble extends PoolAble {
 
-	public JDBCPoolAble(Object the_object) {
-		super(the_object);
+	public JDBCPoolAble(Object the_object, int poolHash) {
+		super(the_object, poolHash);
 	}
 
-	public JDBCPoolAble(Object the_object, long max_age) {
-		super(the_object, max_age);
+	public JDBCPoolAble(Object the_object, long max_age, int poolHash) {
+		super(the_object, max_age, poolHash);
 	}
 
 	public void discard() {

@@ -1,5 +1,5 @@
 //
-// $Id: PoolFiller.java,v 1.4 2000/07/25 07:11:23 dustin Exp $
+// $Id: PoolFiller.java,v 1.5 2001/08/30 00:51:21 dustin Exp $
 
 package net.spy.pool;
 
@@ -11,10 +11,10 @@ import net.spy.SpyConfig;
  * abstract class because the getObject() method must be implemented to
  * build the PoolAbles for whatever types of objects you're pooling.
  */
-
 public abstract class PoolFiller extends Object {
-	protected SpyConfig conf=null;
-	protected String name=null;
+	private SpyConfig conf=null;
+	private String name=null;
+	private int poolHash=0;
 
 	/**
 	 * Get an unitialized PoolFiller object.  The name and config
@@ -38,10 +38,44 @@ public abstract class PoolFiller extends Object {
 	}
 
 	/**
+	 * Set the hash to use for debug data.
+	 */
+	public void setPoolHash(int to) {
+		this.poolHash=to;
+	}
+
+	/**
+	 * Get the hash of the pool this filler is filling.
+	 */
+	protected int getPoolHash() {
+		return(poolHash);
+	}
+
+	/**
+	 * Get the debug name (including the pool's hash).
+	 */
+	protected String debugName() {
+		StringBuffer sb=new StringBuffer();
+
+		sb.append(name);
+		sb.append(" @");
+		sb.append(Integer.toHexString(poolHash));
+
+		return(sb.toString());
+	}
+
+	/**
 	 * Set the name to be used for config lookups.
 	 */
 	public void setName(String name) {
 		this.name=name;
+	}
+
+	/**
+	 * Get the name of this filler.
+	 */
+	public String getName() {
+		return(name);
 	}
 
 	/**
