@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.8 2001/01/27 09:01:13 dustin Exp $
+// $Id: SpyUtil.java,v 1.9 2001/01/28 02:41:24 dustin Exp $
 
 package net.spy;
 
@@ -24,16 +24,13 @@ public class SpyUtil {
 		SecureRandom r = new SecureRandom();
 		int size, i;
 
-		size=ret.length-1;
-
-		for(i=0; i<size; i++) {
+		for(i=0; i<ret.length; i++) {
 			// Get a random number the size of the length
 			int n = r.nextInt();
 			if(n<0) {
 				n=-n;
 			}
 			n=n%size;
-			// System.out.println("Index is " + n);
 			tmp=ret[i];
 			ret[i]=ret[n];
 			ret[n]=tmp;
