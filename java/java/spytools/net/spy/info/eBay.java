@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.5 2001/02/14 02:14:12 dustin Exp $
+// $Id: eBay.java,v 1.6 2002/05/30 18:04:01 dustin Exp $
 
 package net.spy.info;
 
@@ -54,10 +54,15 @@ public class eBay extends Info {
 			hinfo=new Hashtable();
 			hinfo.put("item_number", arg);
 			getInfo();
+            // System.out.println("Raw info:\n" + info);
 			String lines[]=SpyUtil.split("\n", info);
 			int section=0;
 			for(int i=0; i<lines.length; i++) {
-				if(lines[i].startsWith("Currently")) {
+			    if(lines[i].startsWith("eBay item")) {
+					i++;
+					hinfo.put("Description", lines[i+4]);
+					section++;
+                } else if(lines[i].startsWith("Currently")) {
 					i++;
 					hinfo.put("Currently", lines[i]);
 					section++;
@@ -76,10 +81,6 @@ public class eBay extends Info {
 						highbid=lines[i];
 					}
 					hinfo.put("High bid", highbid);
-					section++;
-				} else if(lines[i].startsWith("Bidding")) {
-					i++;
-					hinfo.put("Description", lines[i]);
 					section++;
 				}
 			}
