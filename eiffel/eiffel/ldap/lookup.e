@@ -6,8 +6,6 @@ creation
 
 feature {NONE} -- Just a program, nothing public
 
-	search_base: STRING is "dc=spy,dc=net";
-
 	ldap: LDAP;
 
 	display_attribute(attr: STRING) is
@@ -20,14 +18,16 @@ feature {NONE} -- Just a program, nothing public
 				-- One shot at this, if it fails, we don't care.
 				tried:=true;
 				a:=ldap.get_values(attr);
-				io.put_string(attr + ":%N");
-				from
-					i:=a.lower;
-				until
-					i>a.upper
-				loop
-					io.put_string("%T" + a @ i + "%N");
-					i:=i+1;
+				if a.count > 0 then
+					io.put_string(attr + ":%N");
+					from
+						i:=a.lower;
+					until
+						i>a.upper
+					loop
+						io.put_string("%T" + a @ i + "%N");
+						i:=i+1;
+					end
 				end
 			end
 		rescue
@@ -42,14 +42,18 @@ feature {NONE} -- Just a program, nothing public
 			if not tried then
 				tried:=true;
 				!!s.copy("uid=" + argument(1));
-				io.put_string("Searching for " + s + "%N");
 				ldap.search(s, 2);
+
 				io.put_string("Search finished, found ");
 				io.put_integer(ldap.nresults);
 				io.put_string(" matches.%N");
+
 				ldap.first_entry;
 
 				display_attribute("cn");
+				display_attribute("department");
+				display_attribute("title");
+				display_attribute("location");
 				display_attribute("mail");
 				display_attribute("telephonenumber");
 			else
@@ -59,14 +63,13 @@ feature {NONE} -- Just a program, nothing public
 				end
 			end
 		rescue
-			io.put_string("Retrying search...%N");
+			debug io.put_string("Retrying search...%N"); end
 			retry
 		end
 
 	make is
 		do
 			!!ldap;
-			-- ldap.set_searchbase(search_base);
 			ldap.connect;
 			do_search;
 		end
