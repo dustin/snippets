@@ -5,10 +5,10 @@
 from sys import argv
 import xmlrpclib
 
-server=xmlrpclib.Server('http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC');
+server=xmlrpclib.Server('http://bleu.west.spy.net/geo/RPC2')
 
 try:
-    a = server.geo.getPointInfo(float(argv[1]), float(argv[2]));
+    a = server.geo.getPointInfo(float(argv[1]), float(argv[2]))
 
     for poly in a:
         print poly['type'] + ': ' + poly['name']
