@@ -1,11 +1,11 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseSQLLog.scm,v 1.3 2002/12/28 03:33:30 dustin Exp $
+; $Id: parseSQLLog.scm,v 1.4 2002/12/28 06:24:39 dustin Exp $
 
 (module parse-sql-log
 	(import
-	  (dates "../dates.scm")
 	  (misclib "../misclib.scm")
+	  (loglib "loglib.scm")
 	  (stringlib "../stringlib.scm"))
 	(main main))
 
@@ -13,20 +13,10 @@
 (define-struct log-entry
 			   time calls calltime)
 
-; Parse the date out of the given line
-(define (parse-date line)
-  (+ (apply dates-seconds-for-time
-		 (map string->integer
-			  (string-split-chars
-				(substring line 0 19)
-				'(#\: #\space #\-)
-				19)))
-	 28800))
-
 ; Process each line
 (define (get-log-entry line)
   (let ((rv (make-log-entry)))
-	(log-entry-time-set! rv (parse-date line))
+	(log-entry-time-set! rv (parse-2wire-date line))
 	(let ((parts (string-split-chars line '(#\space #\+) 12)))
 	  (let ((tparts (string-split
 					  (list-ref parts 10) #\/ 3)))
@@ -82,9 +72,12 @@
 				  (set! total-time
 					(+ total-time (truncate
 									(/ (log-entry-calltime le)
-									   (log-entry-calls le)))))))))))
-	  (current-input-port))))
+									   (log-entry-calls le))))))))))))))
 
 ; main, get the rrd file, and start processing stdin
 (define (main args)
-	(process-to-rrd (cadr args)))
+  (if (< (length args) 2)
+	(error "main"
+		   (string-append "Usage:  " (car args) " filename.rrd")
+		   args))
+  (process-to-rrd (cadr args)))
