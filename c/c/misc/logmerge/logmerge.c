@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.3 2002/06/05 19:32:17 dustin Exp $
+ * $Id: logmerge.c,v 1.4 2002/06/05 19:37:06 dustin Exp $
  */
 
 #include <stdio.h>
@@ -77,7 +77,6 @@ static time_t parseTimestamp(struct logfile *lf)
 {
 	char *p, *tmp;
 	struct tm tm;
-	static time_t lasttt=0;
 
 	assert(lf != NULL);
 	assert(lf->line != NULL);
@@ -149,12 +148,11 @@ static time_t parseTimestamp(struct logfile *lf)
 		ctime(&lf->timestamp));
 	*/
 
+	if(lf->timestamp < 0) {
+		fprintf(stderr, "* Error parsing timestamp from %s", tmp);
+	}
+
 	free(tmp);
-
-	/* Verify the timestamp values are always increasing */
-	assert(lf->timestamp >= lasttt);
-
-	lasttt=lf->timestamp;
 
 	return(lf->timestamp);
 }

@@ -1,11 +1,11 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile,v 1.2 2002/06/05 19:32:16 dustin Exp $
+# $Id: Makefile,v 1.3 2002/06/05 19:37:04 dustin Exp $
 #
 # Makefile for Parallel Do
 
 SHELL=/bin/sh
 
-CFLAGS=-g -Wall -Werror -DMYMALLOC=1
+CFLAGS=-g -Wall -Werror
 LDFLAGS=-lz
 
 logmerge: logmerge.o mymalloc.o
