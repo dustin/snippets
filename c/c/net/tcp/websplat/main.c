@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.19 1999/06/17 00:02:38 dustin Exp $
+ * $Id: main.c,v 1.20 1999/06/18 17:49:23 dustin Exp $
  */
 
 #include <config.h>
@@ -65,7 +65,7 @@ parseurl(char *url)
 	struct growstring grow;
 
 	grow.size = 1024 * sizeof(char);
-	grow.string = malloc(grow.size);
+	grow.string = calloc(1, grow.size);
 
 	u.host = NULL;
 	u.req = NULL;
@@ -295,7 +295,7 @@ dostats(int i, struct timeval timers[3], int bytes,
 		free(status.string);
 }
 
-int
+void
 str_append(struct growstring *s, char *buf)
 {
 	while ((strlen(s->string) + strlen(buf)) > s->size) {
@@ -305,7 +305,6 @@ str_append(struct growstring *s, char *buf)
 	}
 
 	strcat(s->string, buf);
-	return(0);
 }
 
 int

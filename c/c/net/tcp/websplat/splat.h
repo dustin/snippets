@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.8 1999/06/17 00:02:39 dustin Exp $
+ * $Id: splat.h,v 1.9 1999/06/18 17:49:25 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -84,6 +84,6 @@ struct http_status {
 };
 
 struct host_ret getclientsocket(struct url u, int flags);
-int str_append(struct growstring *grower, char *string);
+void str_append(struct growstring *grower, char *string);
 
 #endif
