@@ -35,7 +35,7 @@ let version = "3";;
 let seenIds = Hashtbl.create 1;;
 
 (* Reserved keys *)
-let reservedKeys = ref None;;
+let reservedKeys = Hashtbl.create 1;;
 
 (* When we collide, we hand out keys from the top.  This is the highest one
    potentially available to be handed out. *)
@@ -57,21 +57,6 @@ let makeOutRecord product_line sn ht =
 		ht
 ;;
 
-(* Check to see if this is a reserved number.  This will only be called for
-   a generated number, so if it's in the reserve DB, it's wrong *)
-let checkReservedDup n plsn =
-	match !reservedKeys with
-		  None -> false
-		| Some(cdb) ->
-			try
-				let found = Cdb.find cdb (string_of_int n) in
-				Printf.eprintf "DUPLICATE (reserved) AT %d (old: %s, new: %s)\n"
-					n found plsn;
-				true
-			with Stream.Failure ->
-				false
-;;
-
 (* Check for a duplicate generated key. *)
 let checkUsable n plsn =
 	try
@@ -83,12 +68,8 @@ let checkUsable n plsn =
 			false
 		)
 	with Not_found ->
-		if checkReservedDup n plsn then (
-			false
-		) else (
-			Hashtbl.add seenIds n plsn;
-			true
-		)
+		Hashtbl.add seenIds n plsn;
+		true
 ;;
 
 (* Return an unused key potentially related to the provided suggestion *)
@@ -121,17 +102,12 @@ let genBoxNum product_line sn =
    either be pulled from the reserve DB (if specified), or will be generated.
  *)
 let getBoxNum product_line sn =
-	match !reservedKeys with
-		  None ->
-			(* If we don't have a reserved db, don't use it *)
-			genBoxNum product_line sn
-		| Some(cdb) ->
-			try
-				(* Try to get it from the reserved key cdb *)
-				int_of_string (Cdb.find cdb (product_line ^ "," ^ sn))
-			with Stream.Failure ->
-				(* If it's not there, generate one *)
-				genBoxNum product_line sn
+	try
+		(* Try to get it from the reserved key cdb *)
+		Hashtbl.find reservedKeys (product_line ^ "," ^ sn)
+	with Not_found ->
+		(* If it's not there, generate one *)
+		genBoxNum product_line sn
 ;;
 
 (* Like List.nth, but with a default *)
@@ -235,7 +211,15 @@ let usage() =
 
 (* If the user wants to use a reserved path DB, this will set it up *)
 let setupReserved path =
-	reservedKeys := Some(Cdb.open_cdb_in path)
+	Fileutils.iter_file_lines (fun l ->
+			try
+				let parts = List.nth (Extstring.split_all l '|' 3) in
+				let id = int_of_string(parts 0) and sn = parts 1 in
+				Hashtbl.replace reservedKeys sn id;
+				Hashtbl.replace seenIds id sn
+			with x ->
+				Printf.eprintf "Error on ``%s'':  %s\n" l (Printexc.to_string x)
+		) path;
 ;;
 
 (* This is where all the work's done, main *)
@@ -247,7 +231,7 @@ let main () =
 			("-d", Arg.Set_string(destpath), "Location of the destination cdb");
 			("-m", Arg.Set_string(modelpath), "Location of the model map");
 			("-k", Arg.String(setupReserved),
-					"Location of the reserved mfg keys cdb")
+					"Location of the reserved mfg keys -> sn map")
 		] (fun s -> anon := s :: !anon)  "Build manufacturing cache";
 	if("" = !destpath) then
 		usage();
