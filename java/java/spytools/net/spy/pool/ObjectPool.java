@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.9 2000/07/04 05:59:39 dustin Exp $
+// $Id: ObjectPool.java,v 1.10 2000/07/04 07:22:01 dustin Exp $
 
 package net.spy.pool;
 
@@ -56,7 +56,7 @@ public class ObjectPool extends Object {
 
 		synchronized(pools) {
 			// Make sure we don't already have a this pool
-			if(pools.containsKey(name)) {
+			if(hasPool(name)) {
 				throw new PoolException("There's already a pool called "
 					+ name);
 			}
@@ -80,6 +80,19 @@ public class ObjectPool extends Object {
 			getPool(name);
 			pools.remove(name);
 		}
+	}
+
+	/**
+	 * Find out if the ObjectPool contains the named pool.
+	 *
+	 * @param name the name of the pool we're looking for
+	 */
+	public boolean hasPool(String name) {
+		boolean ret=false;
+		synchronized (pools) {
+			ret=pools.contains(name);
+		}
+		return(ret);
 	}
 
 	/**
