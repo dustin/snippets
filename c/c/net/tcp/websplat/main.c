@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.16 1999/06/16 06:38:57 dustin Exp $
+ * $Id: main.c,v 1.17 1999/06/16 20:48:28 dustin Exp $
  */
 
 #include <config.h>
@@ -62,6 +62,10 @@ parseurl(char *url)
 	char   *tmp;
 	struct url u;
 	int     port;
+	struct growstring grow;
+
+	grow.size = 1024 * sizeof(char);
+	grow.string = malloc(grow.size);
 
 	u.host = NULL;
 	u.req = NULL;
@@ -116,19 +120,46 @@ parseurl(char *url)
 		break;
 	}
 
-	assert(strlen(u.req) < (REQ_LEN - 16));		/* TMI */
-	strcpy(u.httpreq, "GET ");
-	strcat(u.httpreq, u.req);
-	strcat(u.httpreq, " HTTP/1.0\n");
+	if(getenv("WEBSPLAT_POST")) {
+		str_append(&grow, "POST ");
+	} else {
+		str_append(&grow, "GET ");
+	}
+	str_append(&grow, u.req);
+	str_append(&grow,  " HTTP/1.0\r\n");
+
 	if(getenv("WEBSPLAT_COOKIE")) {
-		assert( strlen(u.httpreq) +
-			strlen(getenv("WEBSPLAT_COOKIE")) < (REQ_LEN - 64) );
-		strcat(u.httpreq, "Cookie: ");
-		strcat(u.httpreq, getenv("WEBSPLAT_COOKIE"));
-		strcat(u.httpreq, "\n");
+		str_append(&grow,  "Cookie: ");
+		str_append(&grow,  getenv("WEBSPLAT_COOKIE"));
+		str_append(&grow,  "\r\n");
 	}
 
-	strcat(u.httpreq, "\n");
+	if(getenv("WEBSPLAT_POST")) {
+		FILE *f;
+		char buf[8192];
+		struct stat st;
+		int ret;
+
+		ret=stat(getenv("WEBSPLAT_POST"), &st);
+		assert(ret>=0);
+
+		sprintf(buf, "Content-length: %d\r\n\r\n", st.st_size);
+		str_append(&grow, buf);
+
+		f=fopen(getenv("WEBSPLAT_POST"), "r");
+		assert(f);
+
+		while(fgets(buf, 8190, f)) {
+			str_append(&grow, buf);
+		}
+
+		fclose(f);
+	} else {
+		/* This ends the request if we're doing a GET */
+		str_append(&grow,  "\n");
+	}
+
+	u.httpreq=grow.string;
 
 	u.port = port;
 	return (u);
@@ -462,6 +493,7 @@ main(int argc, char **argv)
 						bytes[i] += size;
 						str_append(&strings[i], buf);
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
+						_ndebug(3, ("%s", buf));
 					}
 				}
 				if (selected == 0)
