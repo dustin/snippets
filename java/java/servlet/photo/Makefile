@@ -12,7 +12,7 @@ C4=$(MYLIB)/ImageServer.jar
 CLASSPATH=$(C1):$(C2):$(C3):$(C4):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
-SCP=scp
+SCP=rcp
 DEST=bleu.west.spy.net:/usr/local/apache/java
 # DEST=170.1.69.194:/usr/local/apache/java
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.4 2000/01/25 06:58:57 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.5 2000/01/25 07:21:52 dustin Exp $
  */
 
 package net.spy.photo;
@@ -113,14 +113,21 @@ public class PhotoServlet extends HttpServlet
 
 	// Verify we have a valid rhash, if not, reopen it.
 	protected void verify_rhash() {
-		if(rhash==null || rhash.connected()==false) {
+		boolean needy=false;
+		try {
+			rhash.connected();
+		} catch(Exception e) {
+			needy=true;
+		}
+		if(needy) {
+			log("Need a new rhash");
 			try {
 				// Try to reopen it
 				PhotoConfig conf = new PhotoConfig();
 				rhash = new RHash(conf.get("objectserver"));
 			} catch(Exception e) {
 				rhash=null;
-				// damnit
+				log("Error getting rhash:  " + e);
 			}
 		}
 	}
