@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.32 2002/08/17 04:33:23 dustin Exp $
+	$Id: build.xml,v 1.33 2002/08/18 18:53:49 dustin Exp $
 
 	-->
 
@@ -25,6 +25,9 @@
 		<fileset dir="${user.home}/lib/java">
 			<include name="junit.jar"/>
 			<include name="spytest.jar"/>
+		</fileset>
+		<fileset dir=".">
+			<include name="testsuite.jar"/>
 		</fileset>
 	</path>
 
@@ -58,6 +61,7 @@
 			</fileset>
 			<fileset dir=".">
 				<include name="spy.jar"/>
+				<include name="testsuite.jar"/>
 				<include name="checkstyle.txt"/>
 			</fileset>
 		</delete>
@@ -126,7 +130,7 @@
 	</target>
 
 	<target name="spy.jar" unless="spy.jar.upToDate"
-		depends="all,properties,docs" description="Build the full jar">
+		depends="all,properties,docs,testjar" description="Build the full jar">
 		<jar jarfile="spy.jar" basedir=".">
 			<manifest>
 				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
@@ -136,8 +140,15 @@
 			<include name="net/spy/**/*.class"/>
 			<include name="net/spy/**/*.java"/>
 			<include name="net/spy/**/*.properties"/>
+			<include name="testsuite.jar"/>
+			<include name="etc/test.sql"/>
+			<include name="etc/build.number"/>
 		</jar>
 		<property name="spy.jar.upToDate" value="true"/>
+	</target>
+
+	<target name="testjar" depends="test-classes">
+		<jar jarfile="testsuite.jar" basedir="${TBUILDDIR}"/>
 	</target>
 
 	<!-- Build properties, memorabilia, etc... -->
@@ -188,7 +199,15 @@
 		</javac>
 	</target>
 
-  <target name="tests" depends="test-classes">
+	<target name="lookForTestJar">
+		<available file="testsuite.jar" property="hasTestSuiteJar"/>
+	</target>
+
+	<target name="test-suite" depends="lookForTestJar" unless="hasTestSuiteJar">
+		<antcall target="test-classes"/>
+	</target>
+
+  <target name="tests" depends="test-suite">
     <java classname="net.spy.test.AllTests">
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
@@ -198,7 +217,7 @@
     </java>
   </target>
 
-  <target name="tests-quick" depends="test-classes"
+  <target name="tests-quick" depends="test-suite"
 		description="Perform all tests that don't take all day.">
     <java classname="net.spy.test.QuickTests">
 			<classpath refid="myclasses"/>
@@ -209,7 +228,7 @@
     </java>
   </target>
 
-  <target name="tests-gui" depends="test-classes"
+  <target name="tests-gui" depends="test-suite"
 		description="Start the JUnit GUI">
     <java classname="junit.swingui.TestRunner" fork="yes">
 			<classpath refid="myclasses"/>
