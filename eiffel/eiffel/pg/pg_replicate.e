@@ -1,32 +1,28 @@
 indexing
-   description: "The Replicator...";
-version: "$Revision: 1.4 $";
+   description: "Postgres database replication...";
+   version: "$Revision: 1.5 $";
+   author: "Dustin Sallings <dustin@spy.net>";
+   copyright: "1999";
+   license: "See forum.txt.";
 class PG_REPLICATE
+-- The replicator
 
 creation {ANY}
    make
 
-feature {ANY}
+feature {NONE}  -- Make is private
 
    make(s, d: PG) is
+	-- Make a PG_REPLICATE object from s to d
+	  require
+		s.is_connected;
+		d.is_connected;
       do
-         set_db_from(s);
-         set_db_to(d);
+		 db_from := s;
+		 db_to := d;
       end -- make
 
 feature {ANY} -- Replication services
-
-   set_db_from(to: PG) is
-      -- Source database thingy
-      do
-         db_from := to;
-      end -- set_db_from
-
-   set_db_to(to: PG) is
-      -- Destination database thingy
-      do
-         db_to := to;
-      end -- set_db_to
 
    rep_seq(seq: STRING) is
       -- Replicate a sequence
@@ -49,6 +45,8 @@ feature {ANY} -- Replication services
 
    rep_table(table: STRING) is
       -- Replicate a table
+	  require
+		table /= Void;
       local
          a: ARRAY[STRING];
          b: BOOLEAN;
@@ -97,6 +95,7 @@ feature {ANY} -- Replication services
       end -- rep_table
 
    full is
+	-- Full replication of everything we know about.
       local
          a: ARRAY[STRING];
          i: INTEGER;
