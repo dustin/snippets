@@ -3,12 +3,12 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.2 1999/05/19 07:58:29 dustin Exp $
+-- $Id: pg.e,v 1.3 1999/05/25 06:23:40 dustin Exp $
 --
 class PG
 
 creation {ANY}
-   make
+   execute, make
 
 feature {ANY}
 
@@ -17,6 +17,8 @@ feature {ANY}
    res: POINTER;
 
    current_row: INTEGER;
+
+   last_row: ARRAY[STRING];
 
    connect(host, db: STRING): BOOLEAN is
       -- Make a database connection
@@ -42,7 +44,7 @@ feature {ANY}
          end;
       end -- query
 
-   get_row: ARRAY[STRING] is
+   get_row: BOOLEAN is
       -- Get the next row of data back
       require
          no_results: res /= Void;
@@ -51,27 +53,32 @@ feature {ANY}
          s: STRING;
          p: POINTER;
       do
-         from
-            fields := pg_nfields(res);
-			!!Result.make(0,0);
-			Result.clear;
-            i := 0;
-         until
-            i >= fields
-         loop
-            p := pg_intersect(res,current_row,i);
-            !!s.from_external(p);
-			Result.add_last(s);
-            i := i + 1;
+         if current_row >= pg_ntuples(res) then
+            Result := false;
+         else
+            from
+               fields := pg_nfields(res);
+               !!last_row.make(0,0);
+               last_row.clear;
+               i := 0;
+            until
+               i >= fields
+            loop
+               p := pg_intersect(res,current_row,i);
+               !!s.from_external(p);
+               last_row.add_last(s);
+               i := i + 1;
+            end;
+            current_row := current_row + 1;
+            Result := true;
          end;
-         current_row := current_row + 1;
       end -- get_row
 
-   make is
+   execute is
       local
          b: BOOLEAN;
-		 a: ARRAY[STRING];
-		 i: INTEGER;
+         a: ARRAY[STRING];
+         i: INTEGER;
       do
          if not connect("bleu","machine") then
             io.put_string("NOT Connected%N");
@@ -82,19 +89,26 @@ feature {ANY}
             until
                current_row >= pg_ntuples(res)
             loop
-               a:=get_row;
-			   from
-				i:=0;
-			   until
-				i>=a.count
-			   loop
-				io.put_string(a @ i);
-				io.put_string("%T");
-				i:=i+1;
-			   end
-			   io.put_string("%N");
+               if get_row then
+                  a := last_row;
+               end;
+               from
+                  i := 0;
+               until
+                  i >= a.count
+               loop
+                  io.put_string(a @ i);
+                  io.put_string("%T");
+                  i := i + 1;
+               end;
+               io.put_string("%N");
             end;
          end;
+      end -- execute
+
+   make is
+      do
+		execute;
       end -- make
 
 feature {NONE}
