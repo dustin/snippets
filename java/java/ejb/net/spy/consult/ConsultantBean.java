@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ConsultantBean.java,v 1.2 2000/01/22 11:42:51 dustin Exp $
+// $Id: ConsultantBean.java,v 1.3 2000/01/22 11:46:39 dustin Exp $
 
 package net.spy.consult;
 
@@ -33,6 +33,7 @@ public class ConsultantBean implements EntityBean {
 		PreparedStatement ps=null;
 
 		try {
+			// Get the next ID from the database.
 			con=getConnection();
 			ps=con.prepareStatement(
 				"select nextval('consultant_consultant_id_seq')");
@@ -56,7 +57,7 @@ public class ConsultantBean implements EntityBean {
 
 	public void ejbPostCreate(String fn, String ln) {
 		// ConsultantPK pk=(ConsultantPK)context.getPrimaryKey();
-		id=pk.id;
+		// id=pk.id;
 	}
 
 	public void setEntityContext(EntityContext ctx) {
