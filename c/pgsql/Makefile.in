@@ -7,7 +7,7 @@ LDFLAGS=@LDFLAGS@
 POSTGRESLIB=@POSTGRESLIB@
 RRDLIB=@RRDLIB@
 
-all: tablecounter tablelister
+all: tablecounter tablelister logcopy
 
 tablecounter: tablecounter.o array.o
 	$(CC) -o $@ tablecounter.o array.o $(LDFLAGS) $(RRDLIB) $(POSTGRESLIB)
@@ -15,5 +15,9 @@ tablecounter: tablecounter.o array.o
 tablelister: tablelister.o array.o
 	$(CC) -o $@ tablelister.o array.o $(LDFLAGS) $(POSTGRESLIB)
 
+logcopy: logcopy.o
+	$(CC) -o $@ logcopy.o $(LDFLAGS) $(POSTGRESLIB)
+
 clean:
-	rm -f tablelister tablelister.o tablecounter tablecounter.o array.o
+	rm -f tablelister tablelister.o tablecounter tablecounter.o array.o \
+		logcopy logcopy.o
