@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.7 2000/12/14 20:52:02 dustin Exp $
+ * $Id: main.c,v 1.8 2003/07/29 18:18:55 dustin Exp $
  */
 
 #include <stdio.h>
@@ -272,16 +272,19 @@ int parse_headers(char *buf, int *size)
 			str_append(&grow, "\r\n");
 		}
 
-		if(strncasecmp(left, "Content-Type", 12)==0) {
-			str_append(&grow, "Content-Type");
-			str_append(&grow, left+12);
-			str_append(&grow, "\r\n");
+		#define startsWith(haystack, needle) \
+			(strncasecmp(haystack, needle, strlen(needle)) == 0)
+
+		if(startsWith(left, "Content-Type")) {
+			str_append(&grow, left);
 		}
 
-		if(strncasecmp(left, "Content-Length", 14)==0) {
-			str_append(&grow, "Content-Length");
-			str_append(&grow, left+14);
-			str_append(&grow, "\r\n");
+		if(startsWith(left, "Content-Length")) {
+			str_append(&grow, left);
+		}
+
+		if(startsWith(left, "Content-Encoding")) {
+			str_append(&grow, left);
 		}
 
 		/* Find the next left */
