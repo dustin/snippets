@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.5 1998/04/20 17:54:15 dustin Exp $
+ * $Id: checkweb.c,v 1.6 1998/05/04 01:54:56 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -19,6 +19,25 @@
 #include <assert.h>
 #include <ctype.h>
 
+#ifdef USE_SSLEAY
+#include "rsa.h"
+#include "crypto.h"
+#include "x509.h"
+#include "pem.h"
+#include "ssl.h"
+#include "err.h"
+
+#define CHK_NULL(x) if ((x)==NULL) {printf("Got NULL\n"); exit (1);}
+#define CHK_ERR(err,s) if ((err)==-1) { perror(s); exit(1); }
+#define CHK_SSL(err) if ((err)==-1) { ERR_print_errors_fp(stderr); exit(2); }
+
+/* Yeah, my handlers are global. */
+
+SSL*     ssl;
+SSL_CTX* ctx;
+
+#endif /* USE_SSLEAY */
+
 /*
  * It was this or a global variable.  It'll probably change in the future
  */
@@ -31,6 +50,7 @@ struct url {
     char *host;
     int port;
     char *req;
+    int ssl;
 };
 
 /*
@@ -49,11 +69,16 @@ struct status {
  * Open and return a tcp socket to host:port, -1 if it fails.
  */
 
-int openhost(char *host, int port)
+int openhost(char *host, int port, int dossl)
 {
   struct hostent *hp;
   register int s;
   struct sockaddr_in sin;
+#ifdef USE_SSLEAY
+  int err;
+  X509*    server_cert;
+  char*    str;
+#endif
 
   if ((hp = gethostbyname(host)) == NULL)
     {
@@ -75,6 +100,32 @@ int openhost(char *host, int port)
   if(connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0)
       return(-1);
   alarm(0);
+
+#ifdef USE_SSLEAY
+  if(dossl)
+  {
+    SSLeay_add_ssl_algorithms();
+    SSL_load_error_strings();
+    ctx = SSL_CTX_new (SSLv2_method());          CHK_NULL(ctx);
+
+    ssl = SSL_new (ctx);                         CHK_NULL(ssl);
+    SSL_set_fd (ssl, s);
+    err = SSL_connect (ssl);                     CHK_SSL(err);
+
+    server_cert = SSL_get_peer_certificate (ssl); CHK_NULL(server_cert);
+
+    str = X509_NAME_oneline (X509_get_subject_name (server_cert), NULL, 0);
+    CHK_NULL(str);
+    Free (str);
+
+    str = X509_NAME_oneline (X509_get_issuer_name  (server_cert), NULL, 0);
+    CHK_NULL(str);
+    Free (str);
+
+    if(server_cert)
+        X509_free (server_cert);
+  }
+#endif /* USE_SSLEAY */
 
   return (s);
 }
@@ -101,12 +152,20 @@ struct url parseurl(char *url)
     u.req=NULL;
     u.port=-1;
 
-    /* We only do http urls */
-    if(strncmp(url, "http://", 7) != 0)
-	return(u);
+    /* We only do http and maybe https urls */
+    if(strncmp(url, "http://", 7) == 0) {
+	u.ssl=0;
+    } else {
+#ifdef USE_SSLEAY
+	if(strncmp(url, "https://", 7) == 0)
+	    u.ssl=1;
+	else
+#endif
+	    return(u);
+    }
 
-    /* Host is the first thing, after http:// */
-    u.host=strdup(url+7);
+    /* Host is the first thing, after http:// or https:// */
+    u.host=strdup(url+7+u.ssl);
 
     /*
      * OK, request comes along eventually, so let's mark it as host, and
@@ -124,7 +183,7 @@ struct url parseurl(char *url)
     {
         case NULL:                /* format http://host.domain.com */
             u.req=strdup("/");
-            port=80;
+            port=(u.ssl?443:80);
             break;
         case ':':                 /* format http://host.domain:port/ */
             port=atoi(u.req+1);
@@ -136,7 +195,7 @@ struct url parseurl(char *url)
             u.req=*u.req?strdup(u.req) : "/";
             break;
         case '/':                 /* format http://host.domain.com/ */
-            port=80;
+            port=(u.ssl?443:80);
             tmp=u.req;
             u.req=strdup(u.req);
             *tmp=NULL;
@@ -194,7 +253,7 @@ struct status getstatus(char *url)
 	return(st);
     }
 
-    s=openhost(u.host, u.port);
+    s=openhost(u.host, u.port, u.ssl);
 
     if(s<0)
     {
@@ -202,12 +261,27 @@ struct status getstatus(char *url)
 	return(st);
     }
 
-    send(s, "GET ", 4, 0);
-    send(s, u.req, strlen(u.req), 0);
-    send(s, " HTTP/1.0\n\n", 11, 0);
+    if(u.ssl) {
+#ifdef USE_SSLEAY
+        SSL_write(ssl, "GET ", 4);
+	SSL_write(ssl, u.req, strlen(u.req));
+        SSL_write(ssl, " HTTP/1.0\n\n", 11);
+#endif
+    } else {
+        send(s, "GET ", 4, 0);
+        send(s, u.req, strlen(u.req), 0);
+        send(s, " HTTP/1.0\n\n", 11, 0);
+    }
 
     alarm(120);
-    i=recv(s, line, 1024, 0);
+    if(u.ssl)
+#ifdef USE_SSLEAY
+	i=SSL_read(ssl, line, 1024);
+#else
+	assert(u.ssl==0);
+#endif
+    else
+        i=recv(s, line, 1024, 0);
     alarm(0);
     if(i<1)
     {
@@ -234,9 +308,23 @@ struct status getstatus(char *url)
     st.message=strdup(p+1);
 
     /* Eat the rest of the page */
-    while(i=recv(s, line, 1024, 0))
-	line[i]=NULL;
+    if(u.ssl)
+#ifdef USE_SSLEAY
+        while(SSL_read(ssl, line, 1024));
+#else
+	assert(u.ssl==0);
+#endif
+    else
+        while(recv(s, line, 1024, 0));
 
+#ifdef USE_SSLEAY
+    if(u.ssl) {
+        if(ssl)
+            SSL_free (ssl);
+        if(ctx)
+	    SSL_CTX_free (ctx);
+    }
+#endif
     close(s);
     freeurl(u);
     return(st);
@@ -305,7 +393,7 @@ void main(int argc, char **argv)
     if(argc < 2)
     {
 	printf("checkweb, copyright (c) 1997  Dustin Sallings\n"
-	    "$Id: checkweb.c,v 1.5 1998/04/20 17:54:15 dustin Exp $\n");
+	    "$Id: checkweb.c,v 1.6 1998/05/04 01:54:56 dustin Exp $\n");
 	printf("Error, argument required.  Usage:\n%s filename\n"
 	       "Where filename is the file containing the url list.\n",
 	       argv[0]);
