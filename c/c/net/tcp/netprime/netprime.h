@@ -3,8 +3,7 @@
 
 #define PRIME_PORT 1052
 #define BUFLEN 1024
-#define NGEN 500
-#define REMHOST "bleu"
+#define NGEN 60
 
 struct listthing {
     char *name;

@@ -33,7 +33,7 @@ void generate(int s, char *arg)
     {
         sprintf(out, "%d\n", i);
         write(s, out, strlen(out));
-        usleep(2600);
+        sleep(1);
     }
 }
 
