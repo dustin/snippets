@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.5 2001/07/03 09:15:30 dustin Exp $
+// $Id: Debug.java,v 1.6 2001/07/03 09:30:27 dustin Exp $
 
 package net.spy.util;
 
@@ -64,28 +64,14 @@ public class Debug extends Object {
 	 * Log a debug message.
 	 */
 	public void debug(String msg) {
-		synchronized(debug_mutex) {
-			PrintWriter debugOut=(PrintWriter)debugs.get(propname);
-			if(debugOut!=null) {
-				String tmsg=getTimestamp() + " " + msg;
+		PrintWriter debugOut=(PrintWriter)debugs.get(propname);
+		if(debugOut!=null) {
+			String tmsg=getTimestamp() + " " + msg;
+			synchronized(debugOut) {
 				debugOut.println(tmsg);
 				debugOut.flush();
 			}
 		}
-	}
-
-	/**
-	 * Close a file when this object goes away.
-	 */
-	public void finalize() throws Throwable {
-		synchronized(debug_mutex) {
-			PrintWriter debugOut=(PrintWriter)debugs.get(propname);
-			if(debugOut!=null) {
-				debugOut.close();
-				debugs.remove(propname);
-			}
-		}
-		super.finalize();
 	}
 
 }
