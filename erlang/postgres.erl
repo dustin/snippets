@@ -253,6 +253,7 @@ handle_packet($D, Length, Data, query_pending, Info) ->
 	Rest2 = print_cols(NCols, Rest, Info),
 	{next_state, query_pending, Info};
 
+% Command complete
 handle_packet($C, Length, Data, query_pending, Info) ->
 	{S, Rest} = getString(Data),
 	io:format("Command complete:  ~p~n", [S]),
@@ -290,7 +291,7 @@ handle_packet([Type|Data], State, Info) ->
 % Callbacks
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Auth request
+% TCP packet
 handle_info({tcp, _Port, Data}, State, Info) ->
 	handle_packet(Data, State, Info).
 
