@@ -1,0 +1,174 @@
+#!/usr/local/bin/perl
+
+$debug=0;
+
+$rcsid='$Id: alarmserver,v 1.1 1998/03/07 07:02:51 dustin Exp $';
+@info=split(' ', $rcsid);
+
+use Socket;
+
+push(@INC, '/home/monitor/lib');
+require "statlib.pl";
+
+$sockaddr='S n a4 x8';
+
+sub netinit
+{
+my ($port)=@_;
+my ($name, $aliases, $proto, $type, $len);
+
+    print "port is $port\n" if $debug;
+    ($name, $aliases, $proto)=getprotobyname('tcp');
+
+    $me=pack($sockaddr, AF_INET, $port, "\0\0\0\0");
+
+    print "Building socket\n" if $debug;
+    if(!socket(NS, PF_INET, SOCK_STREAM, $proto))
+    {
+        print "Can't open socket: $!\n";
+        exit(1);
+    }
+
+    print "Binding socket\n" if $debug;
+    if(!bind(NS, $me))
+    {
+        print "Can't bind socket: $!\n";
+        exit(1);
+    }
+}
+
+sub printhelp
+{
+    print S <<EOF;
+214 The following commands are recognized here:
+214
+214 class <classid>
+214     Send alarm to class <classid>.
+214 message <message>
+214     Message to send.
+214 send
+214     Send message.
+214 help
+214     This help.
+214 quit
+214     Quit.
+250 End of help.
+EOF
+}
+
+sub process
+{
+    my($class, $message, $cmd, $arg, @alrm);
+
+    $class=""; $message="";
+    @alrm=optimalAlarms();
+    alarm(60);
+
+    print S "220 So you want to send an alarm?\n";
+
+    while(1)
+    {
+	$cmd=<S>;
+	chop($cmd);
+	chop($cmd);
+
+	($cmd, $arg)=split(/\s+/, $cmd, 2);
+
+	print "$cmd ``$arg''\n" if($debug);
+	$cmd=lc($cmd);
+
+	if($cmd eq "class")
+	{
+	     if(defined($alrm[1]{$arg})||defined($alrm[0]{$arg}))
+	     {
+	         $class=$arg;
+	         print S "250 Got class:  $class\n";
+	     }
+	     else
+	     {
+		 print S "550 No such user:  $arg\n";
+	     }
+	}
+	elsif($cmd eq "message")
+	{
+	    my($s);
+	    $message=$arg;
+	    $s=length($message);
+	    print S "250 Got message:  $s bytes\n";
+	}
+	elsif($cmd eq "send")
+	{
+	    if( ($class=~/\w+/) && ($message=~/\w+/))
+	    {
+	        print S "250 Sending message, thanks for shopping.\n";
+	        doalarms($class, $message);
+                print "Class:\n\t$class\nMessage:\n\t$message\n" if($debug);
+	        exit;
+	    }
+	    else
+	    {
+		print S "503 Class and/or message incomplete.\n";
+	    }
+	}
+	elsif($cmd eq "help")
+	{
+	    &printhelp;
+	}
+	elsif($cmd eq "quit")
+	{
+	    print S "221 Byebye\n";
+            exit;
+	}
+        else
+	{
+	    print S "500 Unknown command:  $cmd\n";
+	}
+    }
+}
+
+sub waitfor
+{
+    print "Listening...\n" if $debug;
+    if(!listen(NS, 5))
+    {
+        print STDERR "What?: $!\n";
+        exit(1);
+    }
+
+    print "Making selections\n" if $debug;
+    select(NS); $|=1;
+    select(S); $|=1;
+    select(STDOUT);
+
+    print "Accepting...\n" if $debug;
+    if(!accept(S, NS))
+    {
+        print "accept: $!\n" if $debug;
+        exit(1);
+    }
+
+    print "Got\n" if $debug;
+
+    if(fork()==0)
+    {
+        close(NS);
+        &process;
+    }
+    else
+    {
+	close(S);
+    }
+}
+
+fork and exit;
+
+&netinit($ARGV[0]);
+
+# $SIG{PIPE}='IGNORE';
+$SIG{HUP}='IGNORE';
+$SIG{CHLD}=sub { wait };
+
+while(1)
+{
+    &waitfor();
+}
