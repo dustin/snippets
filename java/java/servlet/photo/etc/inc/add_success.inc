@@ -3,7 +3,7 @@
 Your file has made it to the database!  It's ID is %ID% for future
 reference.  It can be seen via the following link:
 <a
-href="%SELF_URI%?func=display&oid=%ID%">%SELF_URI%?func=display&id=%ID%</a>
+href="%SELF_URI%?func=display&id=%ID%">%SELF_URI%?func=display&id=%ID%</a>
 
 <!--
 
