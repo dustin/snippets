@@ -1,0 +1,164 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1998  Dustin Sallings
+#
+# $Id: gettemp,v 1.1 2002/04/24 08:30:55 dustin Exp $
+#
+# Temperature reporting and alerting script.
+#
+
+use LWP::UserAgent;
+use Data::Dumper;
+use Net::SNPP;
+use Net::NNTP;
+use Net::SMTP;
+
+use strict;
+
+sub gettemp
+{
+    my($ua,$req,$res, $r);
+    $ua=LWP::UserAgent->new;
+    $ua->agent('DustinPlayer/0.1' . $ua->agent);
+    $req=HTTP::Request->new('GET', $_[0]);
+    $res=$ua->request($req);
+	$r=$res->content;
+	chomp($r); chomp($r);
+    return($r);
+}
+
+sub locations
+{
+	my(%ret);
+	my($url)="http://bleu/servlet/Temperature";
+
+	my($list)=gettemp($url);
+
+	for(split(/[\s\r\n]/m, $list)) {
+		$ret{$_}="$url?temp=$_";
+	}
+	return(%ret);
+}
+
+sub getSNPP
+{
+	return(Net::SNPP->new('dhcp-104', Port=>'1041'));
+}
+
+sub pageNormal
+{
+	my %temps=@_;
+	my $text="SPYENV:";
+	for(sort(keys(%temps))) {
+		my $tmp=sprintf("%.02f", $temps{$_});
+		$text.=" $_:  $tmp,";
+	}
+	chop($text);
+	my $snpp=getSNPP();
+	# People to page
+	$snpp->send(Pager => 'dustin', Message => $text);
+	$snpp->_RESE();
+	# $snpp->send(Pager => 'brandonk', Message => $text);
+	$snpp->quit();
+}
+
+sub nntpNormal()
+{
+	my %temps=@_;
+	my $text="";
+	for(sort(keys(%temps))) {
+		my $tmp=sprintf("%15s %.02f", $_, $temps{$_});
+		$text.="$tmp\n";
+	}
+	chop($text);
+	my(@t)=localtime();
+	$t[4]++;
+	$t[5]+=1900;
+	my $t=sprintf("%04d/%02d/%02d %02d:%02d",
+		$t[5], $t[4], $t[3], $t[2], $t[1]);
+	# Post it
+	my(@msg)=(
+		"From: Dustin's Thermometers <dustin+therm\@spy.net>\n",
+		"Newsgroups: spy.temp\n",
+		"Subject: SPY Temp - $t\n",
+		"\n",
+		"$text"
+	);
+	my $nntp=Net::NNTP->new('news');
+	$nntp->post(@msg);
+}
+
+sub report
+{
+	my(%temps)=@_;
+	# print Dumper(\%temps);
+	pageNormal(%temps);
+	nntpNormal(%temps);
+}
+
+sub alert
+{
+	my @alerts=@_;
+
+	my @emails=('dustin@spy.net', 'noelani@spy.net',
+		'knitterb@blandsite.org',
+		'4087681988@mobile.mycingular.com');
+	my @pagers=('dustin', 'noelani', 'brandonk');
+
+	# The base message
+	my $msg=join(', ', @alerts);
+
+	#
+	# Do the emails
+	#
+	my $smtp=Net::SMTP->new('mail');
+	for(@emails) {
+		$smtp->mail('dustin+temperature@spy.net');
+		$smtp->to($_);
+		$smtp->data();
+		$smtp->datasend("From: dustin+temperature\@spy.net\n");
+		$smtp->datasend("To: $_\n");
+		$smtp->datasend("Subject: Temperature Alarm\n");
+		$smtp->datasend("\n$msg\n");
+		$smtp->dataend();
+	}
+	$smtp->quit();
+
+	#
+	# Do the pagers
+	#
+	my $snpp=getSNPP();
+	# People to page
+	for(@pagers) {
+		$snpp->_RESE();
+		$snpp->send(Pager => $_, Message => 'Temperature Alarm:  ' . $msg);
+	}
+	$snpp->quit();
+
+	# print "$msg\n";
+}
+
+my (%l)=locations();
+my %temps=map { $_, gettemp($l{$_}) } keys(%l);
+
+# Specify the normal ranges for various rooms here.
+my %normal=(
+	'newmachineroom' => [15, 28]
+	);
+
+report(%temps);
+
+for(keys(%normal)) {
+	my $temp=$temps{$_};
+	my $low=$normal{$_}[0];
+	my $high=$normal{$_}[1];
+	my @alert=();
+
+	if($temp < $low || $temp > $high) {
+		# print "!!!Temperature Alert!!!\n";
+		push(@alert, sprintf("$_: %.02f", $temp));
+	}
+
+	if(@alert) {
+		alert(@alert);
+	}
+}
