@@ -37,4 +37,22 @@ isPrime2 a = rprime(primes)
 		| otherwise    = rprime(xs)  -- Recurse
 
 -- Print out the hundred thousandth prime
-main = putStr(show (primes !! 100000) ++ "\n")
+-- main = putStr(show (primes !! 100000) ++ "\n")
+
+-- Create a list of the primes that are furthest away from powers of two
+
+powersOfTwo = [ 2 ^ x | x <- [1..32]]
+
+primeBetween :: Integer -> Integer -> Integer
+
+-- Find the next prime greater than the number in the middle of these
+primeBetween a b = [ x | x <- primes ,
+						x >= (a +
+							(truncate(fromIntegral(b - a)/2))::Integer) ] !! 0
+
+
+-- This one works a lot better
+primeBetween2 :: Integer -> Integer -> Integer
+primeBetween2 a b = [ x |
+						x <- [(a+(truncate(fromIntegral(b - a)/2))::Integer)..],
+						isPrime2(x) ] !! 0
