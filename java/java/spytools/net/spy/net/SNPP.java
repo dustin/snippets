@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.5 2000/01/27 05:43:47 dustin Exp $
+// $Id: SNPP.java,v 1.6 2000/01/27 10:23:02 dustin Exp $
 
 package net.spy.net;
 
@@ -212,8 +212,10 @@ public class SNPP {
 		}
 		try {
 			cmd("quit");
+			s.close();
 		} catch(Exception e) {
 		}
+		s=null;
 		super.finalize();
 	}
 
