@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.11 2000/03/03 23:16:15 dustin Exp $
+# $Id: ldap_audit,v 1.12 2000/03/04 00:05:45 dustin Exp $
 
 use strict;
 
@@ -11,7 +11,7 @@ use LDAPSlave;
 # Where to put the configuration
 my(%config)=();
 # Ignore patterns (if available)
-my(@ignore);
+my(@ignore)=();
 
 my($configfile);
 if(@ARGV) {
@@ -94,8 +94,11 @@ sub audit {
 
 				if($master_data ne $slave_data) {
 					# Free the Dumper output.
-					$slave_data="";
 					print "!!! $dn is not the same on $t !!!\n";
+					if($config{'debug'}>0) {
+						# print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
+					}
+					$slave_data="";
 					if($config{'fixit'}==1) {
 						# find and fix the differences
 						print "Fixing\n";
@@ -106,9 +109,6 @@ sub audit {
 						if($@) {
 							print "Failed to fix record:  $@\n";
 						}
-					}
-					if($config{'debug'}>0) {
-						print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
 					}
 				}
 			};
@@ -200,6 +200,7 @@ sub fixRecord {
 			next if($_ eq "modifiersname");
 
 			# The attribute was not defined, so we need to add the whole thing.
+			print "Replacing $key\n";
 			push(@replace, [ $key, $master{$key} ] );
 			next;
 		}
@@ -207,30 +208,46 @@ sub fixRecord {
 		my %sh=map { $_, 1}@s;
 		# First, check for values that're in the master, but not the slave.
 		for(keys %mh) {
+			next if($_ eq "creatorsname");
+			next if($_ eq "createtimestamp");
+			next if($_ eq "modifytimestamp");
+			next if($_ eq "modifiersname");
 			if(!defined($sh{$_})) {
 				print "Attribute $key with $_ is not in the slave:\n";
 				my $patcheck="attribute=$key=$_";
+				my $match=0;
 				for(@ignore) {
-					if($patcheck=~/$_/) {
+					if($patcheck=~/$_/i) {
 						print "Matched pattern $_, ignoring\n";
+						$match=1;
 						next;
 					}
 				}
-				push(@add, [$key, $_ ]);
+				if($match==0) {
+					push(@add, [$key, $_ ]);
+				}
 			}
 		}
 		# Now do it the other way around
 		for(keys %sh) {
+			next if($_ eq "creatorsname");
+			next if($_ eq "createtimestamp");
+			next if($_ eq "modifytimestamp");
+			next if($_ eq "modifiersname");
 			if(!defined($mh{$_})) {
 				print "Attribute $key with $_ is not in the master:\n";
 				my $patcheck="attribute=$key=$_";
+				my $match=0;
 				for(@ignore) {
-					if($patcheck=~/$_/) {
+					if($patcheck=~/$_/i) {
 						print "Matched pattern $_, ignoring\n";
+						$match=1;
 						next;
 					}
 				}
-				push(@deletes, [$key, [$_] ]);
+				if($match==0) {
+					push(@deletes, [$key, [$_] ]);
+				}
 			}
 		}
 	}
@@ -261,7 +278,7 @@ sub fixRecord {
 	}
 
 	# do the modify
-	print Dumper(\@mods);
+	print Dumper(\@mods) if($config{'debug'}>1);
 	my $res=$slave_ldap->modify($dn, 'changes' => \@mods );
 	if($res->code()!=0) {
 		print "WARNING!  Modify of $dn failed:  " . $res->code() . "\n";
