@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.28 2002/08/16 06:13:37 dustin Exp $
+	$Id: build.xml,v 1.29 2002/08/17 01:02:49 dustin Exp $
 
 	-->
 
@@ -34,10 +34,6 @@
 	<property name="DEPRECATION" value="on"/>
 	<property name="DEBUG" value="on"/>
 	<property name="VERBOSE" value="off"/>
-
-	<taskdef name="spgen" classname="net.spy.util.SPGenTask">
-		<classpath refid="myclasses"/>
-	</taskdef>
 
 	<!-- end setup -->
 
@@ -168,7 +164,13 @@
 		</javac>
 	</target>
 
-	<target name="test-spfiles" depends="all">
+	<target name="spgen" depends="all">
+		<taskdef name="spgen" classname="net.spy.util.SPGenTask">
+			<classpath refid="myclasses"/>
+		</taskdef>
+	</target>
+
+	<target name="test-spfiles" depends="all,spgen">
 		<spgen srcdir="tests" destdir="tests"/>
 	</target>
 
