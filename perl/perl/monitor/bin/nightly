@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PIDS=`ps -ef | egrep monitor/bin | egrep -v "grep|nightly" | awk '{print $2}'`
+
+kill -ALRM $PIDS
+
+find /home/monitor/logs -mtime +7 -exec rm -f {} \;
