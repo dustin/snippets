@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.3 1999/11/26 05:28:25 dustin Exp $
+ * $Id: PhotoSession.java,v 1.4 1999/12/15 03:49:33 dustin Exp $
  */
 
 package net.spy.photo;
@@ -19,7 +19,6 @@ import com.oreilly.servlet.*;
 
 import net.spy.*;
 import net.spy.util.*;
-import PhotoServlet;
 
 // The class
 public class PhotoSession extends Object
@@ -730,8 +729,8 @@ public class PhotoSession extends Object
 	protected void doFind(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
-		String query, output = "";
-		int i, start=0, max=0;
+		String query, output = "", middle = "";
+		int i, start=0, max=0, total=0;;
 		Integer itmp;
 		String stmp;
 		Connection photo;
@@ -739,11 +738,6 @@ public class PhotoSession extends Object
 		PhotoSearch ps = new PhotoSearch();
 
 		query=ps.buildQuery(request, remote_uid);
-
-		h.put("SEARCH", ps.encodeSearch(request));
-		h.put("QUERY", query);
-
-		output += tokenize("find_top.inc", h);
 
 		stmp=request.getParameter("qstart");
 		if(stmp != null) {
@@ -770,6 +764,7 @@ public class PhotoSession extends Object
 			ResultSet rs = st.executeQuery(query);
 			i = 0;
 			while(rs.next()) {
+				total++;
 				if (i >= start && ( ( max == 0 ) || ( i < (max+start) ) ) ) {
 					h = new Hashtable();
 
@@ -784,12 +779,12 @@ public class PhotoSession extends Object
 					h.put("ADDEDBY",  rs.getString(9));
 
 					if( ((i+1) % 2) == 0) {
-						output += "</tr>\n<tr>\n";
+						middle += "</tr>\n<tr>\n";
 					}
 
-					output += "<td>\n";
-					output += tokenize("findmatch.inc", h);
-					output += "</td>\n";
+					middle += "<td>\n";
+					middle += tokenize("findmatch.inc", h);
+					middle += "</td>\n";
 				}
 				i++;
 			}
@@ -799,6 +794,14 @@ public class PhotoSession extends Object
 				"\n" + query);
 		}
 		finally { freeDBConn(photo); }
+
+		h.put("SEARCH", ps.encodeSearch(request));
+		h.put("QUERY", query);
+		h.put("TOTAL", "" + total);
+
+		output += tokenize("find_top.inc", h);
+
+		output += middle;
 
 		// Do we have anymore?
 		if(i > max+start && max > 0) {
@@ -848,7 +851,8 @@ public class PhotoSession extends Object
 		response.setContentType("image/jpeg");
 		java.util.Date d=new java.util.Date();
 		long l=d.getTime();
-		l+=36000000L;
+		// This is thirty days
+		l+=25920000000L;
 		response.setDateHeader("Expires", l);
 
 		String s = request.getParameter("photo_id");

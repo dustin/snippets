@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.2 1999/11/26 00:59:11 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.3 1999/12/15 03:49:35 dustin Exp $
  */
 
 package net.spy.photo;
@@ -17,22 +17,7 @@ public class PhotoUtil
 {
 	// Split that shit
 	public static String[] split(String on, String input) {
-		Vector v = new Vector();
-		StringTokenizer st = new StringTokenizer(input, on);
-		String ret[];
-		int i;
-
-		while( st.hasMoreTokens() ) {
-			v.addElement(st.nextToken());
-		}
-
-		ret=new String[v.size()];
-
-		for(i=0; i<v.size(); i++) {
-			ret[i]=(String)v.elementAt(i);
-		}
-
-		return(ret);
+		return(SpyUtil.split(on, input));
 	}
 
 	// Make a strings safe for the database.

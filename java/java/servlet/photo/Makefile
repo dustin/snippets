@@ -12,18 +12,17 @@ C4=$(MYLIB)/ImageServer.jar
 CLASSPATH=$(C1):$(C2):$(C3):$(C4):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
-SCP=scp
+SCP=rcp
 DEST=bleu.west.spy.net:/usr/local/apache/java
-# DEST=170.1.69.194:/usr/local/apache/java
+DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=PhotoServlet.class net/spy/photo/PhotoHelper.class \
-	net/spy/photo/PhotoUtil.class \
-	net/spy/photo/PhotoImage.class \
+CLASSES=net/spy/photo/PhotoServlet.class net/spy/photo/PhotoHelper.class \
+	net/spy/photo/PhotoUtil.class net/spy/photo/PhotoImage.class \
 	net/spy/photo/PhotoLogFlusher.class net/spy/photo/PhotoLogView.class \
 	net/spy/photo/PhotoLogImageEntry.class net/spy/photo/PhotoUser.class \
 	net/spy/photo/PhotoSecurity.class net/spy/photo/PhotoConfig.class \
-	net/spy/photo/PhotoSearch.class \
-	net/spy/photo/PhotoStorerThread.class net/spy/photo/PhotoSession.class
+	net/spy/photo/PhotoSearch.class net/spy/photo/PhotoStorerThread.class \
+	net/spy/photo/PhotoSession.class
 
 .SUFFIXES: .java .class .jar
 
@@ -39,7 +38,7 @@ setpw: net/spy/photo/SetPW.class
 	env CLASSPATH=$(CLASSPATH) $(JAVA) net.spy.photo.SetPW
 
 install: all
-	$(SCP) PhotoServlet.class photo.jar $(DEST)
+	$(SCP) photo.jar $(DEST)
 
 clean:
 	rm -f $(CLASSES) photo.jar
