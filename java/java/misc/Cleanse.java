@@ -1,44 +1,37 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.6 2001/03/16 11:23:17 dustin Exp $
+// $Id: Cleanse.java,v 1.7 2001/03/16 19:11:08 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
 
 public class Cleanse extends Object {
 
-	private Vector wordList=null;
+	private Word wordList[]=null;
 	private Vector toremove=null;
-	private Hashtable removed=null;
 	private int nremoved=0;
 	private static final String SOURCE="jdbc:postgresql://dhcp-104/dustin";
 
 	// How many passes before we run flush()
-	private static final int BATCHSIZE=1000;
+	private static final int BATCHSIZE=500;
 
 	private static final String REMOVE="REMOVE";
 
 	public Cleanse() {
 		super();
-		this.wordList=new Vector(250000);
 		this.toremove=new Vector(BATCHSIZE);
-		this.removed=new Hashtable(100000);
 	}
 
-	private void remove(Word w) {
-		wordList.removeElement(w);
-		toremove.addElement(w);
-		removed.put(w.getWord(), REMOVE);
-	}
-
-	private void remove(Word a, Word b) {
-		if(a.getWord().length() > b.getWord().length()) {
-			System.out.println("Removing " + b + " because of " + a);
-			remove(b);
-		} else {
-			System.out.println("Removing " + a + " because of " + b);
-			remove(a);
+	private void remove(Word w, Word because) {
+		System.out.println("Removing " + w + " because of " + because);
+		boolean done=false;
+		for(int i=0; i<wordList.length && !done; i++) {
+			if(wordList[i]!=null && wordList[i].equals(w)) {
+				wordList[i]=null;
+				done=true;
+			}
 		}
+		toremove.addElement(w);
 	}
 
 	// Save the state permanently
@@ -67,26 +60,24 @@ public class Cleanse extends Object {
 	}
 
 	private void killWords() throws Exception {
-		CleanseStats stats=new CleanseStats(wordList.size());
-		System.out.println("Operating on " + wordList.size() + " words.");
-		int i=0;
-		for(Enumeration e=wordList.elements(); e.hasMoreElements(); ) {
-			Word current=(Word)e.nextElement();
+		CleanseStats stats=new CleanseStats(wordList.length);
+		System.out.println("Operating on " + wordList.length + " words.");
+		for(int i=0; i<wordList.length; i++) {
+			Word current=wordList[i];
 			String current_s=current.getWord();
+			boolean current_removed=false;
 
 			System.out.println("Examining " + current);
 
 			stats.click();
 			stats.start();
-			for(Enumeration e2=wordList.elements(); e2.hasMoreElements(); ) {
-				Word checking=(Word)e2.nextElement();
+			for(int j=i+1; j<wordList.length; j++) {
+				Word checking=wordList[j];
 
-				// Make sure it's not the word we're looking at, and that
-				// the words both still exist (haven't been added to the
-				// removed hash)
-				if((current.getKey() != checking.getKey() )
-					&& (removed.get(current_s)==null)
-					&& (removed.get(checking.getWord())==null) ) {
+				// Make sure the word we're checking still exists, and that
+				// they're not from the same celeb_row
+				if( (!current_removed)
+					&& current.getKey()!=checking.getKey() ) {
 
 					String checking_s=checking.getWord();
 
@@ -95,15 +86,15 @@ public class Cleanse extends Object {
 						+ " to " + checking_s);
 					*/
 
-					if( (current_s.indexOf(checking_s)>=0)
-						|| (checking_s.indexOf(current_s)>=0) ) {
+					// Only need to check in one direction
+					if( checking_s.indexOf(current_s) >= 0) {
 						remove(current, checking);
+						current_removed=true;
 					}
 
 				}
 			} // inner loop
 
-			i++;
 			if( (i % BATCHSIZE) == 0) {
 				flush();
 			}
@@ -123,21 +114,22 @@ public class Cleanse extends Object {
 		System.out.println("Executing query.");
 
 		ResultSet rs=st.executeQuery(
-			"select celeb_key, word\n"
+			"select celeb_key, word, length(word) as l\n"
 			+ " from wordlist\n"
 			+ " where not exists (\n"
 			+ "  select badword from badwords\n"
 			+ "   where badwords.badword=wordlist.word\n"
 			+ " )\n"
-			+ " order by word\n"
+			+ " order by l, word\n"
 			);
 		System.out.println("Fetching results.");
 		int i=0;
+		Vector vtmp=new Vector(250000);
 		while(rs.next()) {
 			int key=rs.getInt("celeb_key");
 			String tmp=rs.getString("word");
 			String word=tmp.substring(0, tmp.indexOf(':'));
-			wordList.addElement(new Word(key, word));
+			vtmp.addElement(new Word(key, word));
 			if(i % 100 == 0) {
 				System.out.println("Read " + i + " thingies.");
 			}
@@ -146,6 +138,16 @@ public class Cleanse extends Object {
 		rs.close();
 		st.close();
 		conn.close();
+
+		System.out.println("Copying vector to array.");
+		wordList=new Word[vtmp.size()];
+		for(i=0; i<vtmp.size(); i++) {
+			wordList[i]=(Word)vtmp.elementAt(i);
+		}
+
+		// Clean this up real quick.
+		vtmp.removeAllElements();
+		vtmp=null;
 
 		// Don't need a DB connection during this
 		killWords();
@@ -230,6 +232,12 @@ public class Cleanse extends Object {
 
 		public String toString() {
 			return(word + "@" + key);
+		}
+
+		public boolean equals(Word w) {
+			return( (this.getKey() == w.getKey())
+				&& (this.getWord().equals(w.getWord()))
+			);
 		}
 	}
 
