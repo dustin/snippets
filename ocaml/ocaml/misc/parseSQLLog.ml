@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.4 2002/12/11 08:21:03 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.5 2002/12/11 11:18:54 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
@@ -18,9 +18,6 @@ type stats = {
 	mutable total_time: int;
 };;
 
-(* Global regexes that will be used *)
-let g_timesep = Str.regexp "[-: ]";;
-
 (* True if the line looks like a SQL log entry *)
 let is_log_entry(l: string): bool =
 	(* Look for the exact location since there's no strstr in ocaml *)
@@ -30,7 +27,7 @@ let is_log_entry(l: string): bool =
 
 (* Parse time from the given timestamp *)
 let parse_time(l: string): int =
-	let times = Str.split g_timesep l in
+	let times = split_chars(l, [' '; ':'; '-']) in
 	int_of_float(fst(Unix.mktime {
 		tm_sec = int_of_string(List.nth times 5);
 		tm_min = int_of_string(List.nth times 4);
