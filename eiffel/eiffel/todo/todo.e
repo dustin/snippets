@@ -1,6 +1,6 @@
 indexing
 	description: "Todo!";
-	revision: "$Revision: 1.2 $";
+	revision: "$Revision: 1.3 $";
 
 class TODO
 
@@ -12,14 +12,35 @@ feature
 		do
 			io.put_string("Content-type: text/html%N%N");
 			connect_to_db;
+
+			io.put_string("<h2>Unfinished only</h2>");
+			unset_limiters;
+			set_current(true);
 			show_all;
+
+			io.put_string("<h2>Finished only</h2>");
+			unset_limiters;
+			set_finished(true);
+			show_all;
+
+			unset_limiters;
+			io.put_string("<h2>Dustin</h2>");
+			set_username("dustin");
+			show_all;
+
+			unset_limiters;
+			io.put_string("<h2>Jason</h2>");
+			set_username("thanatos");
+			show_all;
+
 		end
 
 feature {ANY} -- Looking stuff up
 
 	entries: ARRAY[TODO_ENTRY] is
+		-- Get matching entries.
 		local
-			query, w: STRING;
+			query, w, tmp: STRING;
 			b: BOOLEAN;
 			e: TODO_ENTRY;
 		do
@@ -28,6 +49,47 @@ feature {ANY} -- Looking stuff up
 			!!w.copy("where"); -- We change this when we need and.
 
 			!!query.copy("select * from task_view ");
+
+			if p_username /= Void then
+				-- Only get entries for one user.
+				tmp:=db.quote(p_username);
+				query.append(w);
+				query.append(" user_name=");
+				query.append(tmp);
+				query.append("%N");
+				!!w.copy("and");
+			end
+
+			if p_current_only then
+				-- Only get current entries.
+				query.append(w);
+				query.append(" finished is null%N");
+				!!w.copy("and");
+			end
+
+			if p_finished_only then
+				-- Only get finished entries.
+				query.append(w);
+				query.append(" finished is not null%N");
+				!!w.copy("and");
+			end
+
+			if p_latest /= Void then
+				-- Don't get items due before this date
+				tmp:=db.quote(p_latest);
+				query.append(w);
+				query.append(" latest < ");
+				query.append(tmp);
+				query.append("%N");
+				!!w.copy("and");
+			end
+
+			if p_sortby /= Void then
+				query.append("order by ")
+				query.append(p_sortby);
+			else
+				query.append("order by priority, latest%N")
+			end
 
 			if db.query(query) then
 				!!Result.make(0, 0);
@@ -47,6 +109,60 @@ feature {ANY} -- Looking stuff up
 			end -- Query worked
 		end
 
+feature {ANY} -- Entry limiters
+
+	set_username(s: STRING) is
+		-- Only look up this user's todo list
+		do
+			p_username:=s;
+		end;
+
+	set_current(b: BOOLEAN) is
+		-- Do we only want current entries (i.e. not finished)?
+		do
+			p_current_only:=b;
+		end
+
+	set_finished(b: BOOLEAN) is
+		-- Do we only want finished entries?
+		do
+			p_finished_only:=b;
+		end
+
+	set_latest(s: STRING) is
+		-- Don't get entries due before this date.
+		do
+			p_latest:=s;
+		end
+
+	set_sortby(s: STRING) is
+		-- Don't get entries due before this date.
+		do
+			p_sortby:=s;
+		end
+
+	unset_limiters is
+		-- Unset all restrictions, get everything.
+		do
+			p_username:=Void;
+			p_current_only:=false;
+			p_finished_only:=false;
+			p_latest:=Void;
+			p_sortby:=Void;
+		end;
+
+feature {TODO} -- private stuff for querying
+
+	p_username: STRING;
+
+	p_current_only: BOOLEAN;
+
+	p_finished_only: BOOLEAN;
+
+	p_latest: STRING;
+
+	p_sortby: STRING;
+
 feature {ANY} -- Status
 
 	is_connected: BOOLEAN is
@@ -58,7 +174,7 @@ feature {ANY} -- Status
 feature {ANY} -- Misc debug type stuff
 
 	show_all is
-		-- Dump it all in HTML.
+		-- Dump all matching entries in HTML.
 		local
 			a: ARRAY[TODO_ENTRY];
 			i: INTEGER;
@@ -77,7 +193,7 @@ feature {ANY} -- Misc debug type stuff
 			show_th("Latest");
 			show_th("Priority");
 			show_th("Summary");
-			show_td("Description");
+			show_th("Description");
 			show_th("Finished");
 			show_th("Created");
 
