@@ -1,0 +1,7 @@
+RT No L A 1 1 1 Record Type
+FILE No L N 2 6 5 File Code
+FEAT No R N 7 14 8 Line Name Identification Number
+FEDIRP Yes L A 15 16 2 Feature Direction, Prefix
+FENAME Yes L A 17 46 30 Feature Name
+FETYPE Yes L A 47 50 4 Feature Type
+FEDIRS Yes L A 51 52 2 Feature Direction, Suffix

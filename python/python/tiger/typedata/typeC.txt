@@ -1,0 +1,17 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+STATE Yes L N 6 7 2 FIPS State Code
+COUNTY Yes L N 8 10 3 FIPS County Code
+DATAYR Yes L N 11 14 4 FIPS Code, Name, and/or Attribute Data Applicable Year
+FIPS Yes L N 15 19 5 FIPS PUB 55-3 Code
+FIPSCC Yes L A 20 21 2 FIPS 55 Class Code
+PLACEDC Yes L A 22 22 1 Place Description Code
+LSADC Yes L A 23 24 2 Legal/Statistical Area Description Code
+ENTITY No L A 25 25 1 Entity Type Code
+MA Yes L N 26 29 4 Metropolitan Area Code
+SD Yes L N 30 34 5 School District Code
+AIANHHCE Yes L N 35 38 4 Census American Indian/Alaska Native Area/Hawaiian Home Land Code
+VTDTRACT Yes R A 39 44 6 Census Voting District Code/Census Tract Code
+UAUGA Yes L N 45 49 5 Census Urban Area Code*/Urban Growth Area Code
+AITSCE Yes L N 50 52 3 Census American Indian Tribal Subdivision Code
+NAME No L A 53 112 60 Name of Geographic Area

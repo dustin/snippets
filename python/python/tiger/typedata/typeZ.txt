@@ -1,0 +1,6 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+RTSQ No R N 16 18 3 Record Sequence Number
+ZIP4L Yes L N 19 22 4 +4 Postal Add-On Code, Left
+ZIP4R Yes L N 23 26 4 +4 Postal Add-On Code, Right

@@ -1,0 +1,23 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+CENID No L A 11 15 5 Census File Identification Code
+POLYID No R N 16 25 10 Polygon Identification Code
+AIANHH90 Yes L N 26 30 5 FIPS 55 Code (American Indian/Alaska Native Area/Hawaiian Home Land*), 1990
+COUSUB90 Yes L N 31 35 5 FIPS 55 Code (County Subdivision), 1990
+PLACE90 Yes L N 36 40 5 FIPS 55 Code (Place/CDP), 1990
+TRACT90 Yes L N 41 46 6 Census Tract/BNA Code, 1990
+BLOCK90 Yes L A 47 50 4 Census Block Number, 1990
+CD106 Yes R N 51 52 2 Congressional District Code, 106th
+CD108 Yes R N 53 54 2 Congressional District Code, 108th (not filled)
+SDELM Yes L A 55 59 5 School District Code, Elementary School
+PUMA1 Yes L N 60 64 5 Public Use Microdata Area File, 1990
+SDSEC Yes L A 65 69 5 School District Code, Secondary School
+SDUNI Yes L A 70 74 5 School District Code, Unified District
+TAZ Yes R A 75 80 6 Traffic Analysis Zone Code, 2000
+UA90 Yes L N 81 84 4 Census Urbanized Area Code, 1990
+UR90 Yes L A 85 85 1 Urban/Rural Indicator, 1990
+RS5 Yes L A 86 89 4 Reserved Space 5
+STATE90 Yes L N 90 91 2 FIPS State Code, 1990
+COUNTY90 Yes L N 92 94 3 FIPS County Code, 1990
+AIANHHCE90 Yes L N 95 98 4 Census Code (American Indian/Alaska Native Area/Hawaiian Home Land*), 1990

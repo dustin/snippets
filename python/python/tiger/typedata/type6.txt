@@ -1,0 +1,14 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+RTSQ No R N 16 18 3 Record Sequence Number
+FRADDL Yes R A 19 29 11 Start Address, Left
+TOADDL Yes R A 30 40 11 End Address, Left
+FRADDR Yes R A 41 51 11 Start Address, Right
+TOADDR Yes R A 52 62 11 End Address, Right
+FRIADDL Yes L A 63 63 1 Start Imputed Address Flag, Left
+TOIADDL Yes L A 64 64 1 End Imputed Address Flag, Left
+FRIADDR Yes L A 65 65 1 Start Imputed Address Flag, Right
+TOIADDR Yes L A 66 66 1 End Imputed Address Flag, Right
+ZIPL Yes L N 67 71 5 ZIP Code®, Left
+ZIPR Yes L N 72 76 5 ZIP Code®, Right

@@ -1,0 +1,24 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+RTSQ No R N 16 18 3 Record Sequence Number
+LONG1 No R N 19 28 10 Point 1, Longitude
+LAT1 No R N 29 37 9 Point 1, Latitude
+LONG2 Yes R N 38 47 10 Point 2, Longitude
+LAT2 Yes R N 48 56 9 Point 2, Latitude
+LONG3 Yes R N 57 66 10 Point 3, Longitude
+LAT3 Yes R N 67 75 9 Point 3, Latitude
+LONG4 Yes R N 76 85 10 Point 4, Longitude
+LAT4 Yes R N 86 94 9 Point 4, Latitude
+LONG5 Yes R N 95 104 10 Point 5, Longitude
+LAT5 Yes R N 105 113 9 Point 5, Latitude
+LONG6 Yes R N 114 123 10 Point 6, Longitude
+LAT6 Yes R N 124 132 9 Point 6, Latitude
+LONG7 Yes R N 133 142 10 Point 7, Longitude
+LAT7 Yes R N 143 151 9 Point 7, Latitude
+LONG8 Yes R N 152 161 10 Point 8, Longitude
+LAT8 Yes R N 162 170 9 Point 8, Latitude
+LONG9 Yes R N 171 180 10 Point 9, Longitude
+LAT9 Yes R N 181 189 9 Point 9, Latitude
+LONG10 Yes R N 190 199 10 Point 10, Longitude
+LAT10 Yes R N 200 208 9 Point 10, Latitude

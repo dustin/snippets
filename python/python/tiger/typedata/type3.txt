@@ -1,0 +1,28 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+STATE90L Yes L N 16 17 2 FIPS State Code, 1990 Left
+STATE90R Yes L N 18 19 2 FIPS State Code, 1990 Right
+COUNTY90L Yes L N 20 22 3 FIPS County Code, 1990 Left
+COUNTY90R Yes L N 23 25 3 FIPS County Code, 1990 Right
+COUSUB90L Yes L N 26 30 5 FIPS 55 Code (County Subdivision), 1990 Left
+COUSUB90R Yes L N 31 35 5 FIPS 55 Code (County Subdivision), 1990 Right
+PLACE90L Yes L N 36 40 5 FIPS 55 Code (Place/CDP), 1990 Left
+PLACE90R Yes L N 41 45 5 FIPS 55 Code (Place/CDP), 1990 Right
+TRACT90L Yes L N 46 51 6 Census Tract/BNA Code, 1990 Left
+TRACT90R Yes L N 52 57 6 Census Tract/BNA Code, 1990 Right
+AIANHHCE90L Yes L N 58 61 4 Census Code (American Indian/Alaska Native Area/Hawaiian Home Land*), 1990 Left
+AIANHHCE90R Yes L N 62 65 4 Census Code (American Indian/Alaska Native Area/Hawaiian Home Land*), 1990 Right
+AIHHTLI90L Yes L A 66 66 1 American Indian/Hawaiian Home Land* Trust Land Indicator, 1990 Left
+AIHHTLI90R Yes L A 67 67 1 American Indian /Hawaiian Home Land* Trust Land Indicator, 1990 Right
+RS1 Yes L A 68 69 2 Reserved Space 1
+BLOCK90L Yes L A 70 73 4 Census Block Number, 1990 Left
+BLOCK90R Yes L A 74 77 4 Census Block Number, 1990 Right
+AIANHHCEL Yes L N 78 81 4 Census Code (American Indian/Alaska Native Area/Hawaiian Home Land), 2000 Left
+AIANHHCER Yes L N 82 85 4 Census Code (American Indian/Alaska Native Area/Hawaiian Home Land*), 2000 Right
+ANRCL Yes L N 86 90 5 FIPS 55 Code (ANRC), 2000 Left
+ANRCR Yes L N 91 95 5 FIPS 55 Code (ANRC), 2000 Right
+AITSCEL Yes L N 96 98 3 Census Code (American Indian Tribal Subdivision), 2000 Left
+AITSCER Yes L N 99 101 3 Census Code (American Indian Tribal Subdivision), 2000 Right
+AITSL Yes L N 102 106 5 FIPS 55 Code (American Indian Tribal Subdivision), 2000 Left
+AITSR Yes L N 107 111 5 FIPS 55 Code (American Indian Tribal Subdivision), 2000 Right

@@ -1,0 +1,10 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+LAND No R N 11 20 10 Landmark Identification Number
+SOURCE Yes L A 21 21 1 Source or First Source Code to Update
+CFCC Yes L A 22 24 3 Census Feature Class Code
+LANAME Yes L A 25 54 30 Landmark Name
+LALONG Yes R N 55 64 10 Longitude
+LALAT Yes R N 65 73 9 Latitude
+FILLER Yes L A 74 74 1 Filler (to make even character count)

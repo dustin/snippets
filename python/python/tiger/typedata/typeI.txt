@@ -1,0 +1,10 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+FILE No L N 16 20 5 File Code
+RTLINK No L A 21 21 1 Record Type of Link
+CENIDL Yes L A 22 26 5 Census File Identification Code, Left
+POLYIDL Yes R N 27 36 10 Polygon Identification Code, Left
+CENIDR Yes L A 37 41 5 Census File Identification Code, Right
+POLYIDR Yes R N 42 51 10 Polygon Identification Code, Right
+FILLER Yes L A 52 52 1 Filler (to make even character count)

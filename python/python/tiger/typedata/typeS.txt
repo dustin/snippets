@@ -1,0 +1,33 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+CENID No L A 11 15 5 Census File Identification Code
+POLYID No R N 16 25 10 Polygon Identification Code
+WATER Yes L N 26 26 1 Water Flag
+MSACMSA Yes L N 27 30 4 FIPS Consolidated Metropolitan Statistical Area/Metropolitan Statistical Area Code, 2000
+PMSA Yes L N 31 34 4 FIPS Primary Metropolitan Statistical Area Code, 2000
+AIANHH Yes L N 35 39 5 FIPS 55 Code (American Indian/Alaska Native Area/Hawaiian Home Land), 2000
+AIANHHCE Yes L N 40 43 4 Census Code (American Indian/ Alaska Native Area/Hawaiian Home Land), 2000
+AIHHTLI Yes L A 44 44 1 American Indian/Hawaiian Home Land Trust Land Indicator, 2000
+RS6 Yes L A 45 46 2 Reserved Space 6
+STATE Yes L N 47 48 2 FIPS State Code, 2000
+COUNTY Yes L N 49 51 3 FIPS County Code, 2000
+CONCIT Yes L N 52 56 5 FIPS 55 Code (Consolidated City), 2000
+COUSUB Yes L N 57 61 5 FIPS 55 Code (County Subdivision), 2000
+SUBMCD Yes L N 62 66 5 FIPS 55 Code (Subbarrio), 2000
+PLACE Yes L N 67 71 5 FIPS 55 Code (Incorporated Place/CDP), 2000
+TRACT Yes L N 72 77 6 Census Tract Code, 2000
+BLOCK Yes L N 78 81 4 Census Block Number, 2000
+CENSUS6 Yes R N 82 82 1 Census Use 6
+CDCU Yes R N 83 84 2 Congressional District Code, Current
+SLDU Yes R A 85 87 3 State Legislative District Code (Upper Chamber), 2000
+SLDL Yes R A 88 90 3 State Legislative District Code (Lower Chamber), 2000
+UGA Yes L A 91 95 5 Oregon Urban Growth Area, 2000
+BLKGRP Yes L N 96 96 1 Census Block Group, 2000
+VTD Yes R A 97 102 6 Census Voting District Code, 2000
+STATECOL Yes L N 103 104 2 Census 2000 Collection State FIPS Code
+COUNTYCOL Yes L N 105 107 3 Census 2000 Collection County FIPS Code
+BLOCKCOL Yes R N 108 112 5 Census 2000 Collection Block Number
+BLKSUFCOL Yes L A 113 113 1 Census 2000 Collection Block Number Suffix
+ZCTA5 Yes L A 114 118 5 ZIP Code® Tabulation Area, 2000
+RS8 Yes L A 119 120 2 Reserved Space 8

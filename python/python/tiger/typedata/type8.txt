@@ -1,0 +1,7 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+CENID No L A 11 15 5 Census File Identification Code
+POLYID No R N 16 25 10 Polygon Identification Code
+LAND No R N 26 35 10 Landmark Identification Number
+FILLER Yes L A 36 36 1 Filler (to make even character count)

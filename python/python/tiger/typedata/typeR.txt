@@ -1,0 +1,8 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+CENID No L A 11 15 5 Census File Identification Code
+MAXID No R N 16 25 10 TIGER/Line® ID, Maximum Permanent ID for Census File
+MINID No R N 26 35 10 TIGER/Line® ID, Minimum Permanent ID for Census File
+HIGHID No R N 36 45 10 TIGER/Line® ID, Current High ID for Census File
+FILLER Yes L A 46 46 1 Filler (to make even character count)

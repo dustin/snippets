@@ -1,0 +1,10 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+FILE No L N 6 10 5 File Code
+TLID No R N 11 20 10 TIGER/Line® ID, Permanent Record Number
+HIST Yes L A 21 21 1 History or Last Source Code to Update
+SOURCE Yes L A 22 22 1 Source or First Source Code to Update
+TLIDFR1 Yes R N 23 32 10 TIGER/Line® ID, Created From Number 1
+TLIDFR2 Yes R N 33 42 10 TIGER/Line® ID, Created From Number 2
+TLIDTO1 Yes R N 43 52 10 TIGER/Line® ID, Became Number 1
+TLIDTO2 Yes R N 53 62 10 TIGER/Line® ID, Became Number 2

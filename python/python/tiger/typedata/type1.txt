@@ -1,0 +1,44 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+SIDE1 Yes R N 16 16 1 Single-Side Complete Chain Code
+SOURCE Yes L A 17 17 1 Linear Segment Source Code
+FEDIRP Yes L A 18 19 2 Feature Direction, Prefix
+FENAME Yes L A 20 49 30 Feature Name
+FETYPE Yes L A 50 53 4 Feature Type
+FEDIRS Yes L A 54 55 2 Feature Direction, Suffix
+CFCC Yes L A 56 58 3 Census Feature Class Code
+FRADDL Yes R A 59 69 11 Start Address, Left
+TOADDL Yes R A 70 80 11 End Address, Left
+FRADDR Yes R A 81 91 11 Start Address, Right
+TOADDR Yes R A 92 102 11 End Address, Right
+FRIADDL Yes L A 103 103 1 Start Imputed Address Flag, Left
+TOIADDL Yes L A 104 104 1 End Imputed Address Flag, Left
+FRIADDR Yes L A 105 105 1 Start Imputed Address Flag, Right
+TOIADDR Yes L A 106 106 1 End Imputed Address Flag, Right
+ZIPL Yes L N 107 111 5 ZIP Code®, Left
+ZIPR Yes L N 112 116 5 ZIP Code®, Right
+AIANHHL Yes L N 117 121 5 FIPS 55 Code (American Indian/ Alaska Native Area/Hawaiian Home Land), 2000 Left
+AIANHHR Yes L N 122 126 5 FIPS 55 Code (American Indian/ Alaska Native Area/Hawaiian Home Land), 2000 Right
+AIHHTLIL Yes L A 127 127 1 American Indian/Hawaiian Home Land Trust Land Indicator, 2000 Left
+AIHHTLIR Yes L A 128 128 1 American Indian/Hawaiian Home Land Trust Land Indicator, 2000 Right
+CENSUS1 Yes L A 129 129 1 Census Use 1
+CENSUS2 Yes L A 130 130 1 Census Use 2
+STATEL Yes L N 131 132 2 FIPS State Code, 2000 Left
+STATER Yes L N 133 134 2 FIPS State Code, 2000 Right
+COUNTYL Yes L N 135 137 3 FIPS County Code, 2000 Left
+COUNTYR Yes L N 138 140 3 FIPS County Code, 2000 Right
+COUSUBL Yes L N 141 145 5 FIPS 55 Code (County Subdivision), 2000 Left
+COUSUBR Yes L N 146 150 5 FIPS 55 Code (County Subdivision), 2000 Right
+SUBMCDL Yes L N 151 155 5 FIPS 55 Code (Subbarrio), 2000 Left
+SUBMCDR Yes L N 156 160 5 FIPS 55 Code (Subbarrio), 2000 Right
+PLACEL Yes L N 161 165 5 FIPS 55 Code (Place/CDP), 2000 Left
+PLACER Yes L N 166 170 5 FIPS 55 Code (Place/CDP), 2000 Right
+TRACTL Yes L N 171 176 6 Census Tract Code, 2000 Left
+TRACTR Yes L N 177 182 6 Census Tract Code, 2000 Right
+BLOCKL Yes L N 183 186 4 Census Block Number, 2000 Left
+BLOCKR Yes L N 187 190 4 Census Block Number, 2000 Right
+FRLONG No R N 191 200 10 Start Longitude
+FRLAT No R N 201 209 9 Start Latitude
+TOLONG No R N 210 219 10 End Longitude
+TOLAT No R N 220 228 9 End Latitude

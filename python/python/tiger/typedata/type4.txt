@@ -1,0 +1,9 @@
+RT No L A 1 1 1 Record Type
+VERSION No L N 2 5 4 Version Number
+TLID No R N 6 15 10 TIGER/Line® ID, Permanent Record Number
+RTSQ No R N 16 18 3 Record Sequence Number
+FEAT1 No R N 19 26 8 Line Additional Name Identification Number, First
+FEAT2 Yes R N 27 34 8 Line Additional Name Identification Number, Second
+FEAT3 Yes R N 35 42 8 Line Additional Name Identification Number, Third
+FEAT4 Yes R N 43 50 8 Line Additional Name Identification Number, Fourth
+FEAT5 Yes R N 51 58 8 Line Additional Name Identification Number, Fifth
