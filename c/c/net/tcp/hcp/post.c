@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.11 1998/11/11 09:11:37 dustin Exp $
+ * $Id: post.c,v 1.12 1998/11/11 16:58:55 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,7 +16,7 @@
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.11 $"
+#define USERAGENT "DUpload/$Revision: 1.12 $"
 
 /* Generate a MIME delimiter */
 static void
@@ -123,6 +123,19 @@ postfile(char *url, char *path)
 	return (st);
 }
 
+static void
+usage(char *progname)
+{
+	printf("Usage:  %s filename [filename...] desturl\n", progname);
+	printf("hcp $Revision: 1.12 $\n"
+	       "This build supports the following protocols:  http "
+#ifdef USE_SSLEAY
+		"https "
+#endif
+		"\n"
+	);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -133,7 +146,7 @@ main(int argc, char **argv)
 	signal(SIGALRM, timeout);
 
 	if (argc < 3) {
-		printf("Usage:  %s filename [filename...] desturl\n", argv[0]);
+		usage(argv[0]);
 		exit(1);
 	}
 	for (i = 1; i < (argc - 1); i++) {
