@@ -1,0 +1,18 @@
+# Copyright (c) 1997  Dustin Sallings
+# $Id: Makefile.in,v 1.1 2002/01/21 02:31:49 dustin Exp $
+
+SHELL=/bin/sh
+
+DIRS=src
+AUTOCRAP=Makefile src/Makefile include/config.h config.status \
+	config.log config.cache
+
+all:
+	for i in $(DIRS); do cd $$i && $(MAKE) ; cd .. ; done
+
+clean:
+	for i in $(DIRS); do cd $$i && $(MAKE) $@ ; cd .. ; done
+
+distclean:
+	for i in $(DIRS); do cd $$i && $(MAKE) clean ; cd .. ; done
+	-rm -f $(AUTOCRAP)
