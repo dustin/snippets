@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.6 2002/03/20 19:38:33 dustin Exp $
+# $Id: nntpsucka.py,v 1.7 2002/03/20 19:47:27 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -26,8 +26,9 @@ class Stats:
 		self.other+=1
 
 	def __str__(self):
-		return "Moved:  " + self.moved + ", duplicate:  " + self.dup \
-			+ ", Other:  " + self.other
+		return "Moved:  " + str(self.moved) \
+			+ ", duplicate:  " + str(self.dup) \
+			+ ", Other:  " + str(self.other)
 
 class NNTPSucka:
 	headers=['From', 'Subject', 'Message-Id', 'Sender', 'MIME-Version', \
@@ -79,7 +80,7 @@ class NNTPSucka:
 		self.dest.group(groupname)
 		resp, count, first, last, name = self.src.group(groupname)
 		print "Copying " + str(count) + " articles:  " \
-			+ str(first) + "-" + str(last)
+			+ str(first) + "-" + str(last) + " in " + groupname
 		ids=dict()
 		resp, list = self.src.xhdr('message-id', first + "-" + last)
 		for set in list:
@@ -114,7 +115,6 @@ class NNTPSucka:
 		for l in list:
 			group=l[0]
 			try:
-				print "Copying " + group
 				self.copyGroup(group)
 			except nntplib.NNTPTemporaryError, e:
 				print "Error on group " + group + ":  " + str(e)
