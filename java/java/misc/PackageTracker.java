@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PackageTracker.java,v 1.1 2000/06/15 22:14:06 dustin Exp $
+// $Id: PackageTracker.java,v 1.2 2000/06/15 22:26:01 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -68,6 +68,7 @@ public abstract class PackageTracker extends Object {
 		SNPP snpp=new SNPP("snpp.skytel.com", 444);
 		for(Enumeration e=changes.keys(); e.hasMoreElements(); ) {
 			String key=(String)e.nextElement();
+			String short_status=null;
 
 			// Delete it just in case.
 			PreparedStatement st = conn.prepareStatement(
@@ -85,7 +86,11 @@ public abstract class PackageTracker extends Object {
 			Info u=(Info)changes.get(key);
 			st.setString(1, key);
 			st.setInt(2, carrier_id);
-			st.setString(3, u.get("Package Status"));
+			short_status = u.get("Package Status");
+			if(short_status==null) {
+				short_status="Unknown";
+			}
+			st.setString(3, short_status);
 			st.setString(4, u.toString());
 			st.executeUpdate();
 
