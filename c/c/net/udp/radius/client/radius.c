@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.6 1998/06/22 01:42:05 dustin Exp $
+ * $Id: radius.c,v 1.7 1998/06/22 02:13:52 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -106,10 +106,10 @@ attribute_t *rad_find_att(radius *r, unsigned char type)
     len=ntohs(r->rad->length)-RADIUS_HEADER_LENGTH;
 
     while(att->attribute!=type) {
-	if( (len-=ntohs(att->length))<=0) {
+	if( (len-=att->length)<=0) {
 	    return(NULL);
 	}
-	att=(attribute_t *) ((char *)att+ntohs(att->length));
+	att=(attribute_t *) ((char *)att+att->length);
     }
     return(att);
 }
@@ -123,15 +123,18 @@ void rad_dump_att(radius *r)
     att=&(r->rad->att);
     len=ntohs(r->rad->length)-RADIUS_HEADER_LENGTH;
 
+    printf("Packet was %d bytes, %d in attributes\n",
+           ntohs(r->rad->length), len);
+
     while(len>0) {
 	/* HACK!!! */
 	memcpy(&value, att->data, 4);
 	printf("Attribute %d, length %d, value: %d\n",
-	       ntohs(att->attribute), ntohs(att->length),
-	       ntohs(value)
+	       att->attribute, att->length,
+	       ntohl(value)
 	      );
-	len-=ntohs(att->length);
-	att=(attribute_t *) ((char *)att+ntohs(att->length));
+	len-=att->length;
+	att=(attribute_t *) ((char *)att+att->length);
     }
 }
 
@@ -242,7 +245,7 @@ radius *rad_init(char *hostname, int port, char *secret)
     r->rad=calloc(1, RADIUS_PACKET_SIZE);
     r->server=strdup(hostname);
     r->secret=strdup(secret);
-    r->port=port;
+    r->port=htons(port);
 
     srand(time(NULL));
     i=rand()^getpid();
