@@ -13,6 +13,7 @@
 
 }
 
+-(void)processFile: (NSString *)file;
 -(void)processFiles: (NSArray *)fileList withProgressBar:progressBar;
 
 @end

@@ -1,6 +1,7 @@
 /* DumpBox */
 
 #import <Cocoa/Cocoa.h>
+#import "ThumbNailer.h"
 
 @interface DumpBox : NSBox
 {

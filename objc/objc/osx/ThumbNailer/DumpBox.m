@@ -19,11 +19,15 @@
 
     NSPasteboard *pboard=[sender draggingPasteboard];
     NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-    int i=0;
-    for(i=0; i<[files count]; i++) {
-        NSLog(@"Got %@\n", [files objectAtIndex: i]);
+    ThumbNailer *nailer=[[ThumbNailer alloc] init];
+    NSEnumerator *e=[files objectEnumerator];
+    NSString *str=nil;
+    while(str=[e nextObject]) {
+        NSLog(@"Got %@\n", str);
+        [nailer processFile: str];
     }
 
+    [nailer release];
     return (TRUE);
 }
 

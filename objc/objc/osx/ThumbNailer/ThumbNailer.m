@@ -11,6 +11,19 @@
 
 @implementation ThumbNailer
 
+-(void)processFile: (NSString *)imgFile
+{
+    // Get the image
+    NSImage *image=[[NSImage alloc] initWithContentsOfFile: imgFile];
+    IconFamily *iconFamily=[[IconFamily alloc] initWithThumbnailsOfImage:image];
+
+    // [IconFamily removeCustomIconFromFile:imgFile];
+    [iconFamily setAsCustomIconForFile:imgFile];
+
+    [image release];
+    [iconFamily release];
+}
+
 -(void)processFiles: (NSArray *)images
     withProgressBar:(NSProgressIndicator *)progressBar
 {
@@ -36,16 +49,7 @@
         [string release];
         // [processingText displayIfNeeded];
 
-
-        // Get the image
-        NSImage *image=[[NSImage alloc] initWithContentsOfFile: imgFile];
-        IconFamily *iconFamily=[[IconFamily alloc] initWithThumbnailsOfImage:image];
-
-        // [IconFamily removeCustomIconFromFile:imgFile];
-        [iconFamily setAsCustomIconForFile:imgFile];
-
-        [image release];
-        [iconFamily release];
+        [self processFile: imgFile];
     }
 }
 
