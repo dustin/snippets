@@ -203,7 +203,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "/Users/dustin/prog/eprojects/objcxmlrpc/ed/EDCommon/build /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDMessage/build /Users/dustin/prog/eprojects/objcxmlrpc/znek/XMLRPC/build";
 				HEADER_SEARCH_PATHS = "";
-				INSTALL_PATH = "$(HOME)/Applications";
+				INSTALL_PATH = "/Users/dustin/My Apps";
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = PhotoUpload;
@@ -215,7 +215,7 @@
 			);
 			isa = PBXApplicationTarget;
 			name = PhotoUpload;
-			productInstallPath = "$(HOME)/Applications";
+			productInstallPath = "/Users/dustin/My Apps";
 			productName = PhotoUpload;
 			productReference = 17587328FF379C6511CA2CBB;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -226,16 +226,22 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>PhotoUpload</string>
+	<key>CFBundleGetInfoString</key>
+	<string>PhotoUpload</string>
 	<key>CFBundleIconFile</key>
 	<string>PhotoUpload.icns</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>PhotoUpload</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>PhotoUpload</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.1</string>
+	<string>0.2</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
@@ -336,6 +342,7 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				OPTIMIZATION_CFLAGS = "-Os";
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -596,7 +603,7 @@
 		F5601B9B035373AB0109FEFA = {
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 7;
+			dstSubfolderSpec = 10;
 			files = (
 				F5601B9E035373B80109FEFA,
 				F5601B9F035373B80109FEFA,
