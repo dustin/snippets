@@ -1,0 +1,30 @@
+<html><head><title>Upload file test</title></head>
+<body bgcolor="fFfFfF">
+
+<h2>File upload test</h2>
+
+<form enctype="multipart/form-data" action="/cgi-bin/dustin/getfile.cgi"
+method="post">
+
+<table>
+
+<tr>
+    <td>Send this file:</td> <td><input name="thisfile" type="file"> <br></td>
+</tr>
+<tr>
+    <td>Send to:</td>
+    <td>
+	<select name="to">
+	<!--#exec cgi="/cgi-bin/dustin/listusers.cgi"-->
+	</select>
+    </td>
+</tr>
+
+<tr>
+    <td><input type="submit" value="send file"></td>
+    <td><input type="reset" value="Clear Form"></td>
+</tr>
+</table>
+</form>
+
+</body></html>

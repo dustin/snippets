@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+# use CGI;
+# $query = new CGI;
+
+# 1 for BSD style Unix, 2 for SysV
+$hosttype=2;
+
+sub timeout
+{
+    print "WTF?  I timed out\n";
+    exit(1);
+}
+
+sub hookmyassupwithasocketbitch
+{
+    local($host, $port)=@_;
+    local(@a, $proto, $sockaddr);
+
+    $sockaddr='S n a4 x8';
+
+    # You got 20 seconds to do this:
+    alarm(20);
+
+    @a=getprotobyname('tcp');
+    $proto=$a[2];
+
+    @a=gethostbyname($host);
+
+    if($a[0] eq "")
+    {
+	print "It's a lie, there is no $host\n";
+	exit(1);
+    }
+
+    if(!socket(S, 2, $hosttype, $proto))
+    {
+	print "Ain't got naw socket: $!\n";
+	exit(1);
+    }
+
+    $rem=pack($sockaddr, 2, $port, $a[4]);
+
+    if(!connect(S, $rem))
+    {
+	print "Didn't connect: $!\n";
+	exit(1);
+    }
+    alarm;
+    select(S); $|=1; select(stdout); $|=1;
+    return(S);
+}
+
+sub kickthatshithomey
+{
+    local($socket)=@_;
+
+    print $socket "GET / HTTP/1.0\n\n";
+
+    while(<$socket>)
+    {
+        chop;
+        last if(!/[A-z0-9]/);
+        if(/:/)
+        {
+            @a=split(/:/);
+	    $a[1]=~s/\s+(.+)/$1/g;
+            $hash{$a[0]}=$a[1];
+        }
+    }
+
+    while(<$socket>) {;}
+
+    close( S );
+
+    print "The date there is $hash{'Date'}\n";
+    print "That machine is running $hash{'Server'}\n";
+
+    # do this to show all vars
+    # while( ($k, $v)=each(%hash) )
+    # {
+    #     print "$k = $v\n";
+    # }
+
+    #print "</pre>\n\n</body>\n</html>\n";
+}
+
+# program starts here
+
+# $host = $query->param('host');
+
+# commandline version
+($host, $port)=@ARGV;
+
+# initialize $port if hasn't been already
+$port=80 if($port eq "");
+
+# set alarm handler
+$SIG{'ALRM'}= 'timeout';
+
+# get a socket
+$socket=&hookmyassupwithasocketbitch($host, 80);
+
+# do stuff to it
+&kickthatshithomey($socket);
+
+# go away
+exit 0;

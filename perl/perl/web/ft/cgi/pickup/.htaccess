@@ -1,0 +1,7 @@
+AuthType Basic
+AuthName File Pickup
+AuthUserFile /home/dustins/lib/filething.pass
+
+<Limit GET POST>
+require valid-user
+</Limit>

@@ -1,0 +1,282 @@
+#!/usr/bin/perl
+
+$sockaddr='S n a4 x8';
+$hostname="bleu";
+$hosttype=2;
+$socket="";
+
+sub timeout
+{
+	print STDERR "Connection timed out.\n";
+	exit(1);
+}
+
+sub openhost
+{
+local ($machine, $what, $portnum, $depth)=@_;
+local ($port, $name, $aliases, $proto, $type, $len);
+
+	alarm 20;
+	$socket=$depth;
+
+	($name, $aliases, $proto)=getprotobyname('tcp');
+	($name, $aliases, $port)=getservbyname($portnum, 'tcp');
+
+	($name, $aliases, $type, $len, $thisaddr)=gethostbyname($hostname);
+	print STDERR "Looking up $machine\n";
+	($name, $aliases, $type, $len, $thataddr)=gethostbyname($machine);
+	if($name eq "")
+	{
+		print STDERR "Unable to resolve hostname.\n";
+		exit(1);
+	}
+	print STDERR "Connecting to $name:$portnum\n";
+
+	$me=pack($sockaddr, 2, 0, $thisaddr);
+	$rem=pack($sockaddr, 2, $portnum, $thataddr);
+if(!socket($socket, 2, $hosttype, $proto))
+	{
+		print STDERR "Can't open socket: $!\n";
+		exit(1);
+	}
+
+	if(!bind($socket, $me))
+	{
+		print STDERR "Can't bind socket: $!\n";
+		exit(1);
+	}
+
+	$rem =~ /(.*)/;
+	if(!connect($socket, $rem))
+	{
+		print STDERR "Can't connect: $!\n";
+		exit(1);
+	}
+
+	select($socket); $|=1; select(stdout); $|=1;
+	print $socket "GET $what HTTP/1.0\n\n";
+	alarm;
+}
+
+sub beendone
+{
+	local($name)=@_;
+
+	for(@total)
+	{
+		if(/$name/)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+sub newurls
+{
+	local(@blah)=@_;
+	local(@ary);
+
+	for(@blah)
+	{
+		s/\"//g;
+		study;
+		if(/href=([\w\/~\-\.]+)/gi)
+		{
+			next if($1 eq "http");
+			next if($1 eq "ftp");
+			next if($1 eq "mailto");
+			if(!&beendone($1))
+			{
+				printf("Pushing (1) $1\n");
+				push(@ary, $1);
+				push(@total, $1);
+			}
+		}
+
+		if(/$host[^\/:]+:\/\/([\w\/~\-\.]+)/gi)
+		{
+			if(!&beendone($1))
+			{
+				printf("Pushing (2) $1\n");
+				push(@ary, $1);
+				push(@total, $1);
+			}
+		}
+		if(/src=([\w\/~\-\.]+)/gi)
+		{
+			next if($1 eq "http");
+			next if($1 eq "ftp");
+			next if($1 eq "mailto");
+			if(!&beendone($1))
+			{
+				printf("Pushing (3) $1\n");
+				push(@ary, $1);
+				push(@total, $1);
+			}
+		}
+	}
+	return(@ary);
+}
+
+sub getdir
+{
+	local($path)=@_;
+	local(@ary);
+
+	$_=$path;
+
+	return $path if(/\/$/);
+
+	@ary=split('/', $path);
+	$path="";
+
+	for(0..$#ary-1)
+	{
+		$path="$path$ary[$_]/";
+	}
+
+	$path =~ s/\.\./\./g;
+
+	return $path;
+}
+
+sub makedirs
+{
+	local($path)=@_;
+	local(@ary, $trim);
+
+	$path=&getdir($path);
+	@ary=split('/', $path);
+	$path="";
+
+	for(@ary)
+	{
+		$path="$path$_/";
+		$trim=$path;
+		chop($trim);
+		if(! -d $trim)
+		{
+			print "Making directory $trim\n";
+			mkdir($trim, 0700) || print "FAILED $trim:  $!\n";
+		}
+	}
+}
+
+sub spit
+{
+	local($file, $rec)=@_;
+	local(@rest, @urls, @urls2, $blah, $dir, $u);
+
+	$dir=&getdir($file);
+
+	print "Filename is $file\n";
+	$file=~s/^\/(.*)/$1/;
+#	$file=~s/\//_/g;
+
+	if($file eq "")
+	{
+		$file="index.html";
+	}
+
+	$_=$file;
+	if(/\/$/)
+	{
+		$file.="/index.html";
+	}
+
+	$_=$file;
+	if(/[\/]/)
+	{
+		&makedirs($file);
+	}
+
+	print "Writing to $file\n";
+
+	open(OUT, ">$file");
+
+	while(<$socket>)
+	{
+		if(!/\w/)
+		{
+			last;
+		}
+		$line++;
+	}
+	@rest=<$socket>;
+	close($socket);
+	$socket--;
+	print OUT @rest;
+
+	close(OUT);
+
+	@urls=&newurls(@rest);
+	print "$#urls urls\n";
+	for $u (@urls)
+	{
+		$_=$u;
+		if(!/^\//)
+		{
+			push(@urls2,"$dir$_");
+		}
+		else
+		{
+		    push(@urls2,$_);
+		}
+	}
+
+	return(@urls2);
+}
+
+sub getinfo
+{
+	local($str)=@_;
+	local($port, $doc);
+
+	$_=$str;
+	/([\w\.]+):*(.*)/;
+
+	$host=$1; $_=$2;
+
+	if(/([0-9]*)(.*)/)
+		{ $port=$1; $doc=$2; }
+	else
+		{ $port=80; $doc=$_; }
+
+	if($doc eq "" || $doc eq "/")
+		{ $doc="/"; }
+
+	if($port eq "")
+		{ $port=80; }
+
+	print "machine: $host\nwhat: $doc\nport: $port\n";
+	return ($doc, $port);
+}
+
+sub doit
+{
+	local($dowhat, $depth)=@_;
+	local($doc, $port)=&getinfo($dowhat);
+	local(@tmp);
+
+	&openhost($host, $doc, $port, $depth);
+	@tmp=&spit($doc);
+
+	for(@tmp)
+	{
+		print "Going to do $doc\n";
+		&doit("$host:$port$_", $depth+1);
+	}
+}
+
+$SIG{'ALRM'}= 'timeout';
+
+if($#ARGV<0)
+{
+	print "Usage suckweb host [port]\n";
+	print "What you lookin' for?\n";
+	exit(1);
+}
+
+&doit($ARGV[0], 4);

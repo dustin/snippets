@@ -1,0 +1,10 @@
+<html><head><title>File Transfer Index</title></head>
+
+<body bgcolor="fFfFff">
+
+<h2>File Transfer Index</h2>
+
+<ul>
+    <li><a href="upload.shtml">Send a file</a></li>
+    <li><a href="/cgi-bin/dustin/pickup/listfiles.cgi">Pick up files</a></li>
+</ul>
