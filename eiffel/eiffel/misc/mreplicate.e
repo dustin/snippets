@@ -1,6 +1,6 @@
 indexing
 	description: "The Replicator...";
-	version: "$Revision: 1.4 $";
+	version: "$Revision: 1.5 $";
 
 class MREPLICATE
 
@@ -39,26 +39,15 @@ feature {NONE}
 			query: STRING;
 			a: ARRAY[STRING];
 		do
-			!!query.copy("select max(");
-			query.append(col);
-			query.append(")+1 from ");
-			query.append(tbl);
+			query:="select max(" + col + ")+1 from " + tbl;
 
 			db_to.query(query);
 			check db_to.get_row end;
 			a:=db_to.last_row;
 
-			!!query.copy("select setval(");
-			query.append(seq);
-			query.append("(");
-			query.append(a.item(0));
-			query.append(")");
+			query:="select setval(" + seq + "(" + (a @ 0) + ")";
 
-			io.put_string("Setting next ");
-			io.put_string(seq);
-			io.put_string(" to ");
-			io.put_string(a.item(0));
-			io.put_string(".%N");
+			io.put_string("Setting next " + seq + " to " + a @ 0 + ".%N");
 
 			db_to.query(query);
 		end
@@ -76,21 +65,18 @@ feature {NONE}
 			io.put_string(".%N");
 
 			db_to.begin;
-			!!query.copy("delete from ");
-			query.append(table);
+			query:="delete from " + table;
 			db_to.query(query);
 
-			!!query.copy("select * from ");
-			query.append(table);
+			query:="select * from " + table;
 			db_from.query(query);
 
 			from b:=db_from.get_row until b = false loop
 				a:=db_from.last_row;
-				!!query.copy("insert into ");
-				query.append(table);
-				query.append(" values(");
-				query.append(join(", ", a));
-				query.append(")");
+
+				query:="insert into " + table + " values(" + join(", ", a) +
+					")";
+
 				db_to.query(query);
 				b:=db_from.get_row
 			end
