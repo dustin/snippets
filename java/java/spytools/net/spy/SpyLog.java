@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.3 2000/01/25 06:41:09 dustin Exp $
+ * $Id: SpyLog.java,v 1.4 2000/07/05 21:40:50 dustin Exp $
  */
 
 package net.spy;
@@ -71,22 +71,28 @@ public class SpyLog extends Object {
 	 * @param msg SpyLogEntry object to be logged.
 	 */
 	public void log(SpyLogEntry msg) {
-		log_buffer[current_buffer].addElement(msg);
+		synchronized(log_buffer) {
+			log_buffer[current_buffer].addElement(msg);
+		}
 	}
 
 	/**
 	 * Flush the current log entries -- DO NOT CALL THIS.  This is for
 	 * internal use only, and should only be called by a SpyLogFlusher.
 	 */
-	public synchronized Vector flush() {
-		int last_buffer = current_buffer;
-		if(current_buffer == 0) {
-			current_buffer=1;
-		} else {
-			current_buffer=0;
+	public Vector flush() {
+		Vector ret=null;
+		synchronized(log_buffer) {
+			int last_buffer = current_buffer;
+			if(current_buffer == 0) {
+				current_buffer=1;
+			} else {
+				current_buffer=0;
+			}
+			log_buffer[current_buffer] = new Vector();
+			ret=log_buffer[last_buffer];
 		}
-		log_buffer[current_buffer] = new Vector();
-		return(log_buffer[last_buffer]);
+		return(ret);
 	}
 
 	protected synchronized void initialize() {

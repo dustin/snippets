@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.6 2000/01/25 06:41:10 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.7 2000/07/05 21:40:51 dustin Exp $
  */
 
 package net.spy;
@@ -55,7 +55,7 @@ public class SpyLogFlusher extends Thread {
 		this.setDaemon(true);
 	}
 
-	protected synchronized void doFlush() {
+	protected void doFlush() {
 		Vector v = log_object.flush();
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
