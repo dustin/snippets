@@ -86,10 +86,10 @@ class Host:
 
 def signed(x):
     rv=""
-    if rv < 0:
-        rv = "-" + `x`
-    else:
+    if x > 0:
         rv = "+" + `x`
+    else:
+        rv=`x`
     return rv
 
 def mergeDicts(dicts):
