@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.13 2001/06/14 00:00:30 dustin Exp $
+// $Id: SpyUtil.java,v 1.14 2001/08/08 08:27:25 dustin Exp $
 
 package net.spy;
 
@@ -149,7 +149,17 @@ public class SpyUtil {
 		params[0]=args;
 
 		// Run it!
-		m.invoke(tclass, params);
+		try {
+			m.invoke(tclass, params);
+		} catch(InvocationTargetException ite) {
+			ite.printStackTrace();
+			Throwable t=ite.getTargetException();
+			if(t instanceof Exception) {
+				throw (Exception)t;
+			} else {
+				t.printStackTrace();
+			}
+		}
 
 	}
 }
