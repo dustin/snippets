@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.8 2002/02/20 11:27:27 dustin Exp $
+// $Id: RObjectImpl.java,v 1.9 2002/02/21 01:32:32 dustin Exp $
 
 package net.spy.rmi;
 
@@ -39,18 +39,8 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 			throw new Error("There's no SHA?");
 		}
 		md.update(key.getBytes());
-		byte data[]=md.digest();
 
-		StringBuffer sb=new StringBuffer();
-		for(int i=0; i<data.length; i++) {
-			int bai=(int)data[i] & 0xff;
-			if(bai<10) {
-				sb.append('0');
-			}
-			sb.append(Integer.toHexString(bai));
-		}
-
-		String hashed=sb.toString();
+		String hashed=net.spy.SpyUtil.byteAToHexString(md.digest());
 
 		String base=basedir+"/"+hashed.substring(0,2);
 		String path=basedir+"/"+hashed.substring(0,2)+"/"+hashed;

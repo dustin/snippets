@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.15 2002/01/10 02:23:11 dustin Exp $
+// $Id: SpyUtil.java,v 1.16 2002/02/21 01:32:30 dustin Exp $
 
 package net.spy;
 
@@ -153,6 +153,26 @@ public class SpyUtil {
 		}
 		// Dump the system group.
 		last.list();
+	}
+
+	/**
+	 * Get a string representing the hexidecimal value of the given byte
+	 * array.
+	 *
+	 * @param me the byte array that needs hexified.
+	 */
+	public static String byteAToHexString(byte me[]) {
+		StringBuffer sb=new StringBuffer();
+
+		for(int i=0; i<me.length; i++) {
+			int bai=(int)me[i] & 0xff;
+			if(bai<0x10) {
+				sb.append('0');
+			}
+			sb.append(Integer.toHexString(bai));
+		}
+
+		return(sb.toString());
 	}
 
 	/**
