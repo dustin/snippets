@@ -226,8 +226,7 @@ XmlRpcProxy setURL = method(u,
 // Perform the required POST
 XmlRpcProxy sendRequest = method(xml,
 	h = Host clone setName(url host) address
-	// s = Socket clone setHost(h) setPort(80) connect
-	s = Socket clone setHost(h) setPort(8456) connect
+	s = Socket clone setHost(h) setPort(80) connect
 	if(s error, raiseException("XmlRpc.ConnectError", s error))
 	s write("POST " ..(url path) ..(" HTTP/1.0\r\n"))
 	s write("User-Agent: Dustin's Io XMLRPC Client\r\n")
