@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.2 2002/02/27 10:23:12 dustin Exp $
+ * $Id: tablecounter.c,v 1.3 2002/02/27 10:31:19 dustin Exp $
  */
 
 #include <stdio.h>
@@ -52,8 +52,9 @@ void printResults(struct checkspec query, time_t t, int nrows)
 /*
 	printf("%lu %s.%s: %d\n", (int)t, query.dbname, query.table, nrows);
 */
-	printf("update %s.%s.rrd %d:%d\n",
-	query.dbname, query.table, (int)t, nrows);
+	printf("rrdupdate %s.%s.rrd %d:%d\n",
+		query.dbname, query.table, (int)t, nrows);
+	fflush(stdout);
 }
 
 void process(struct checkspec query)
