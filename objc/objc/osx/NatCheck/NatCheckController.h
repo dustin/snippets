@@ -4,6 +4,8 @@
 
 #include <natcheck.h>
 
+#define _str(a) NSLocalizedString(a, nil)
+
 @interface NatCheckController : NSObject
 {
     IBOutlet NSTextField *consistentTrans;

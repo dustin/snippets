@@ -128,6 +128,7 @@
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -170,6 +171,7 @@
 				F53CD8D904B0CF560109FEFA,
 				29B97318FDCFA39411CA2CEA,
 				089C165CFE840E0CC02AAC07,
+				DADA434004B16F4800A80132,
 			);
 			isa = PBXGroup;
 			name = Resources;
@@ -264,7 +266,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 1;
 		};
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -281,6 +282,7 @@
 				080E96DCFE201CFB7F000001,
 				089C165EFE840E0CC02AAC07,
 				F53CD8DB04B0CF560109FEFA,
+				DADA434104B16F4800A80132,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,22 +347,56 @@
 //4A2
 //4A3
 //4A4
+//DA0
+//DA1
+//DA2
+//DA3
+//DA4
+		DADA433E04B16F4000A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Localizable.strings;
+			refType = 4;
+		};
+		DADA434004B16F4800A80132 = {
+			children = (
+				DADA433E04B16F4000A80132,
+			);
+			isa = PBXVariantGroup;
+			name = Localizable.strings;
+			refType = 4;
+		};
+		DADA434104B16F4800A80132 = {
+			fileRef = DADA434004B16F4800A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//DA0
+//DA1
+//DA2
+//DA3
+//DA4
 //F50
 //F51
 //F52
 //F53
 //F54
 		F52BCD5804B0BD9B0109FEFA = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = "natcheck-darwin.c";
 			refType = 4;
 		};
 		F52BCD5A04B0C04A0109FEFA = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = NatCheckController.m;
 			refType = 4;
 		};
 		F52BCD5B04B0C04A0109FEFA = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = NatCheckController.h;
 			refType = 4;
@@ -378,6 +414,7 @@
 			};
 		};
 		F52BCD5E04B0C1250109FEFA = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			path = natcheck.h;
 			refType = 4;
@@ -404,6 +441,7 @@
 			refType = 4;
 		};
 		F53CD8DA04B0CF560109FEFA = {
+			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = English;
 			path = English.lproj/Credits.html;

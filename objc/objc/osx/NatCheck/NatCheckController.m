@@ -18,9 +18,9 @@ void perrordie(const char *msg) {
 
 - (void)clearResults
 {
-    [natType setStringValue: @"Unknown"];
-    [consistentTrans setStringValue: @"Unknown"];
-    [unsolicitedFilt setStringValue: @"Unknown"];
+    [natType setStringValue: _str(@"Unknown")];
+    [consistentTrans setStringValue: _str(@"Unknown")];
+    [unsolicitedFilt setStringValue: _str(@"Unknown")];
 }
 
 - (void)performTest:(id)sender
@@ -38,23 +38,19 @@ void perrordie(const char *msg) {
         [self clearResults];
     } else {
         if(res.nat_type == BASIC) {
-            [natType setStringValue: @"Basic NAT (IP address only)"];
+            [natType setStringValue: _str(@"BNAT")];
         } else {
-            [natType setStringValue: @"NAPT (Network address and port translation)"];
+            [natType setStringValue: _str(@"NAPT")];
         }
         if(res.consistent == 1) {
-            [consistentTrans setStringValue:
-                @"Consistent translation (good for P2P)"];
+            [consistentTrans setStringValue: _str(@"CONSISTENT")];
         } else {
-            [consistentTrans setStringValue:
-                @"Inconsistent translation (bad for P2P)"];
+            [consistentTrans setStringValue: _str(@"INCONSISTENT")];
         }
         if(res.unsolicitedFilt == 1) {
-            [unsolicitedFilt setStringValue:
-                @"Unsolicited messages filtered (good for security)"];
+            [unsolicitedFilt setStringValue: _str(@"UNSOLFILT")];
         } else {
-            [unsolicitedFilt setStringValue:
-                @"Unsolicited messages not filtered (bad for security)"];
+            [unsolicitedFilt setStringValue: _str(@"NOUNSOLFILT")];
         }
     }
 }
@@ -63,7 +59,7 @@ void perrordie(const char *msg) {
 {
     [goButton setEnabled: false];
     [self clearResults];
-    [natType setStringValue: @"Calculating..."];
+    [natType setStringValue: _str(@"Checking...")];
 
     [self performSelector: @selector(performTest:) withObject: nil afterDelay:0];
 }
@@ -72,7 +68,7 @@ void perrordie(const char *msg) {
 {
     [self clearResults];
     [goButton setEnabled: false];
-    [natType setStringValue: @"Calculating..."];
+    [natType setStringValue: _str(@"Checking...")];
     [self performSelector: @selector(performTest:) withObject: nil afterDelay:0];
 }
 
