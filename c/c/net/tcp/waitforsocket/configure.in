@@ -1,8 +1,9 @@
-dnl $Id: configure.in,v 1.1 2003/06/12 17:05:42 dustin Exp $
+dnl $Id: configure.in,v 1.2 2003/06/12 18:54:45 dustin Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(main.c)
 AC_CONFIG_HEADER(config.h)
 
+AC_PROG_CC()
 dnl Checks for programs.
 AC_PROGRAM_CHECK(UNAMEPROG, uname, uname, )
 AC_PROGRAM_CHECK(TRPROG, tr, tr, )
