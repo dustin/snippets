@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: mergeGatwayList.py,v 1.1 2003/09/26 01:13:25 dustin Exp $
+$Id: mergeGatwayList.py,v 1.2 2003/09/11 00:54:12 dustin Exp $
 """
 
 import anydbm
@@ -21,39 +21,46 @@ if len(sys.argv) > 1:
 	f=file(sys.argv[1])
 	l=f.readline()
 	while l != '':
-		wanted[l.strip()]=1
+		wanted[string.strip(l)]=1
 		l=f.readline()
 	f.close()
 	sys.stderr.write("Only want " + `len(wanted)` + " records\n")
 
 # Skip header
-l=sys.stdin.readline()
+# l=sys.stdin.readline()
+# l=sys.stdin.readline()
 l=sys.stdin.readline()
 while l != '':
-	a=map(string.strip, l.strip().split(","))
-	if wanted is not None and not wanted.has_key(a[0]):
-		# sys.stderr.write("Don't want " + a[0] + "\n")
+	a=map(string.strip, string.split(string.strip(l), ","))
+	batch=a[0]
+	org=a[1]
+	sn=a[2]
+	ver=a[3]
+	# hpip=a[4]
+	# sip=a[5]
+	if len(a) < 3:
+		sys.stderr.write("This line looks dumb:  " + `a` + "\n")
+	elif wanted is not None and not wanted.has_key(sn):
+		# sys.stderr.write("Don't want " + sn + "\n")
 		pass
-	elif a[2] != a[3]:
-		sys.stderr.write(a[2] + " != " + a[3] + "\n")
 	else:
-		ev=map(int, a[1].split("."))
+		ev=map(int, string.split(ver, "."))
 		if ev >= min_ver:
-			if(db.has_key(a[0])):
-				authinfo=db[a[0]].split("\t")
+			if(db.has_key(sn)):
+				authinfo=string.split(db[sn], "\t")
 				prot="http://"
 				if ev >= https_ver:
 					prot="https://"
-				url = prot + a[2] + ":50001/"
+				url = prot + sn + ".mdc.cms.2wire.com" + ":50001/"
 				authIndex=0
 				if ev >= new_auth:
 					authIndex=1
-				print a[0], a[1], authinfo[authIndex], url
+				print org, sn, ver, authinfo[authIndex], url
 			else:
-				sys.stderr.write("No auth for " + a[0] + "\n")
+				sys.stderr.write("No auth for " + sn + "\n")
 		else:
-			sys.stderr.write(a[0] + " does not meet version requirements: "
-				+ a[1] + "\n")
+			sys.stderr.write(sn + " does not meet version requirements: "
+				+ ver + "\n")
 	l=sys.stdin.readline()
 
 db.close()
