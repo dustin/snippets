@@ -1,7 +1,7 @@
 /*
  * Copyright 1997 SPY Internetworking
  *
- * $id$
+ * $Id: getstatus.c,v 1.5 1997/01/08 06:46:21 dustin Exp $
  */
 
 #include <stdio.h>
