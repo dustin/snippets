@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+use Msql;
+
+$dbh=Msql->Connect;
+$dbh->SelectDB('spy');
+
+$date=time()-180;
+
+$query="select hostname from host where lastupdate < $date";
+$s=$dbh->Query($query) || die("$Msql::db_errstr\n$query\n\n");
+
+while( ($host)=$s->FetchRow)
+{
+    $query="delete from user where hostname='$host'";
+    print "$query\n";
+    $dbh->Query($query)||die("$Msql::db_errstr\n");
+
+    $query="delete from host where hostname='$host'";
+    print "$query\n";
+    $dbh->Query($query)||die("$Msql::db_errstr\n");
+}
