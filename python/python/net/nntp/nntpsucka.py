@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.18 2002/03/21 04:53:52 dustin Exp $
+# $Id: nntpsucka.py,v 1.19 2002/03/21 05:25:38 dustin Exp $
 
 import nntplib
 import time
@@ -133,7 +133,7 @@ class NNTPClient(nntplib.NNTP):
 				self.putline('')
 			else:
 				if headers:
-					if self.headerMatches(l):
+					if self.__headerMatches(l):
 						self.putline(l)
 				else:
 					if l == '.':
