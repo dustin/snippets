@@ -1,10 +1,9 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: missing.cgi,v 1.2 1998/09/18 08:36:31 dustin Exp $
+# $Id: missing.cgi,v 1.3 1998/09/18 09:05:25 dustin Exp $
 
 use CGI;
 use LWP::UserAgent;
-use Data::Dumper;
 use strict;
 
 sub readConfig
