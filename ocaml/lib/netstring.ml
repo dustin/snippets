@@ -18,17 +18,19 @@ let max_string_length_length =
 ;;
 
 (** Get the next netstring from the given stream. *)
-let decode in_stream =
-	let rec loop l =
-		if (List.length l > max_string_length_length) then
+let decode (in_stream: char Stream.t) =
+	let sizebuf = (Buffer.create max_string_length_length) in
+	let rec loop n =
+		if (n > max_string_length_length) then
 			failwith "Size too long";
 		let c = Stream.next in_stream in
 		if (c = ':') then (
-			int_of_string (Extstring.string_of_chars (List.rev l))
+			int_of_string (Buffer.contents sizebuf)
 		) else (
-			loop (c::l)
+			Buffer.add_char sizebuf c;
+			loop (succ n)
 		) in
-	let size = loop [] in
+	let size = loop 0 in
 	if (size > Sys.max_string_length) then
 		failwith ("Won't read a nestring of length " ^ (string_of_int size));
 	let data = Stream.npeek size in_stream in
