@@ -28,7 +28,7 @@
 		}
 	#else
 		camera {
-			location <0, 1.8, -15>
+			location <0, -0.8, -15>
 			look_at <0, 0, 0>
 		}
 	#end
