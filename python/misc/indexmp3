@@ -34,7 +34,7 @@ class Mirror:
 		# Split the path into the components
 		a=path.split('/')
 		# Strip off the first four path components
-		newa=a[4:]
+		newa=a[-3:]
 		# Add the target directory to what's left
 		newa.insert(0, self.dest)
 		# Grab the directory part of the destination
@@ -45,10 +45,15 @@ class Mirror:
 		self.mkdirs(newdira)
 		# Make sure the destination file does *not* exist
 		if os.path.exists(newpath):
-			raise ExistingFile(newpath)
-		# Display and link
-		print path + " -> " + newpath
-		os.link(path, newpath)
+			# raise ExistingFile(newpath)
+			print "NOT LINKING " + newpath
+		else:
+			if path.endswith(".mp3"):
+				# Display and link
+				print path + " -> " + newpath
+				os.link(path, newpath)
+			else:
+				print "Ignoring " + path
 
 	def process(self, path):
 		"""Process the path.  If it's a directory, recurse across each
