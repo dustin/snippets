@@ -1,0 +1,30 @@
+#!/usr/local/bin/perl
+#
+# $Id: agealarm,v 1.1 2001/08/14 23:14:53 dustin Exp $
+
+use strict;
+
+my $dir=$ARGV[0];
+my $maxtime=$ARGV[1];
+
+my $msg="";
+
+my $mailto='dustin@spy.net';
+
+opendir(DIR, $dir);
+for(readdir(DIR)) {
+	next if(/^\./);
+
+	my $tdiff=(time()-(stat($dir . "/" . $_))[9]);
+
+	if($tdiff>$maxtime) {
+		$msg.="$_ is too old ($tdiff seconds)\n";
+	}
+}
+closedir(DIR);
+
+if($msg=~/\w/) {
+	open(OUT, "|mail -s 'Age Alarm' $mailto");
+	print OUT $msg;
+	close(OUT);
+}
