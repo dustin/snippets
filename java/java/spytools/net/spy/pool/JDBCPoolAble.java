@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.1 2000/07/04 05:40:36 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.2 2000/07/25 07:11:17 dustin Exp $
 
 package net.spy.pool;
 
@@ -19,6 +19,20 @@ public class JDBCPoolAble extends PoolAble {
 
 	public JDBCPoolAble(Object the_object, long max_age) {
 		super(the_object, max_age);
+	}
+
+	public void discard() {
+		available=false;
+		if(the_object!=null) {
+			try {
+				Connection c=(Connection)the_object;
+				c.close();
+				the_object=null;
+			} catch(Exception e) {
+				System.err.println("Error on finalize!  " + e);
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**

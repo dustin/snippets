@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.11 2000/07/07 06:42:39 dustin Exp $
+// $Id: ObjectPool.java,v 1.12 2000/07/25 07:11:19 dustin Exp $
 
 package net.spy.pool;
 
@@ -62,7 +62,7 @@ public class ObjectPool extends Object {
 			}
 
 			// Grab a PoolContainer
-			PoolContainer pc=new PoolContainer(name, pf, conf);
+			PoolContainer pc=new PoolContainer(name, pf);
 
 			// add it to our pool list
 			pools.put(name, pc);

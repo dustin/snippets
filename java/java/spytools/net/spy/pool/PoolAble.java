@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.5 2000/07/04 05:59:40 dustin Exp $
+// $Id: PoolAble.java,v 1.6 2000/07/25 07:11:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -55,6 +55,13 @@ public class PoolAble extends Object {
 	 */
 	public boolean isAlive() {
 		return(true);
+	}
+
+	/**
+	 * Tell the object in the PoolAble that we don't need it anymore.
+	 */
+	public void discard() {
+		return;
 	}
 
 	/**

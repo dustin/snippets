@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.11 2000/07/24 07:46:51 dustin Exp $
+// $Id: PoolContainer.java,v 1.12 2000/07/25 07:11:22 dustin Exp $
 
 package net.spy.pool;
 
@@ -44,6 +44,30 @@ public class PoolContainer extends Object {
 		this.conf=conf;
 		this.name=name;
 		this.filler=pf;
+
+		initialize();
+	}
+
+	/**
+	 * Create a new PoolContainer for a pool with a given name, and filler.
+	 *
+	 * The following optional config parameters will be used:
+	 * <ul>
+	 *  <li>&lt;poolname&gt;.min - minimum number of items in the pool</li>
+	 *  <li>&lt;poolname&gt;.max - maximum number of items in the pool</li>
+	 * </li>
+	 *
+	 * @param name name of the pool
+	 * @param pf the PoolFiller to use
+	 *
+	 * @exception PoolException when something bad happens
+	 */
+	public PoolContainer(String name, PoolFiller pf)
+		throws PoolException {
+		super();
+		this.name=name;
+		this.filler=pf;
+		this.conf=pf.getConfig();
 
 		initialize();
 	}
@@ -164,12 +188,14 @@ public class PoolContainer extends Object {
 	public void prune() throws PoolException {
 		synchronized (pool) {
 			int i=0;
-			// We're going to flip through thiw twice...once to remove
+			// We're going to flip through this twice...once to remove
 			// things that we *have* to, then once to remove things that we
 			// can.
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()==2) {
+					// Tell it that it can go away now.
+					p.discard();
 					pool.removeElement(p);
 				}
 			}
@@ -178,6 +204,8 @@ public class PoolContainer extends Object {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()==1) {
 					if(currentObjects()>_min_objects) {
+						// Tell it that it can go away now.
+						p.discard();
 						pool.removeElement(p);
 					}
 				}
@@ -202,6 +230,7 @@ public class PoolContainer extends Object {
 
 	// Populate with the minimum number of objects.
 	protected void getMinObjects() throws PoolException{
+		debug("Pool " + name + " wants at least " + _min_objects +" objects.");
 		for(int i=currentObjects(); i<_min_objects; i++) {
 			getNewObject();
 		}

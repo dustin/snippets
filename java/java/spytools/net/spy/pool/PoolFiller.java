@@ -1,5 +1,5 @@
 //
-// $Id: PoolFiller.java,v 1.3 2000/07/04 05:59:43 dustin Exp $
+// $Id: PoolFiller.java,v 1.4 2000/07/25 07:11:23 dustin Exp $
 
 package net.spy.pool;
 
@@ -49,6 +49,13 @@ public abstract class PoolFiller extends Object {
 	 */
 	public void setConfig(SpyConfig conf) {
 		this.conf=conf;
+	}
+
+	/**
+	 * Get the config this uses.
+	 */
+	public SpyConfig getConfig() {
+		return(conf);
 	}
 
 	/**
