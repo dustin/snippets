@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: spy.pov,v 1.2 2003/04/20 08:19:04 dustin Exp $
+// $Id: spy.pov,v 1.3 2003/04/20 08:29:50 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -11,8 +11,8 @@
 #include "spy_words.inc"
 
 camera {
-  location <0, -1.8, -10>
-  look_at <0, 0, 0>
+	location <0, -1.8, -10>
+	look_at <0, 0, 0>
 }
 
 sky_sphere { S_Cloud5 }
