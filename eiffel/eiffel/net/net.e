@@ -1,4 +1,9 @@
 -- Networking Classes
+--
+-- $Id: net.e,v 1.2 1999/05/18 07:57:27 dustin Exp $
+
+indexing
+	description: "Network library $Version$";
 
 class TCP creation make
 
@@ -7,6 +12,7 @@ feature
 	socket: INTEGER;
 
 	listen(port: INTEGER): BOOLEAN is
+		-- Create a listening socket on the given port.
 		require port_too_large: port<65535;
 			port_too_small: port>1;
 		do
@@ -17,10 +23,6 @@ feature
 			end
 		end -- listen
 
-	do_listen(port: INTEGER): INTEGER is
-		external "C" alias "getservsocket"
-		end;
-
 	make is
 		do
 			if (listen(8080)) then
@@ -30,4 +32,11 @@ feature
 				io.put_string("Didn't get connected...%N");
 			end
 		end
+
+feature {NONE}
+
+	do_listen(port: INTEGER): INTEGER is
+		external "C" alias "getservsocket"
+		end;
+
 end
