@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.1 2000/01/18 23:41:14 dustin Exp $
+// $Id: SpyTemp.java,v 1.2 2000/01/24 10:11:52 dustin Exp $
 
 package net.spy.temperature;
 
@@ -9,15 +9,26 @@ import java.lang.*;
 
 import net.spy.net.*;
 
+/**
+ * A simple interface to my temperature servlet at home.
+ */
+
 public class SpyTemp extends Object {
 
-	static String temp_base="http://bleu.west.spy.net/servlet/"
+	protected static String temp_base="http://bleu.west.spy.net/servlet/"
 		+ "net.spy.temperature.Temperature";
 
 	public SpyTemp() {
 		super();
 	}
 
+	/**
+	 * List all available thermometers.
+	 *
+	 * @return list of available thermometers
+	 *
+	 * @exception Exception if there's a failure getting the list.
+	 */
 	public String[] listTherms() throws Exception {
 		String ret[]=null;
 		try {
@@ -33,6 +44,13 @@ public class SpyTemp extends Object {
 		return(ret);
 	}
 
+	/**
+	 * Get the current reading for a given thermometer.
+	 *
+	 * @param which which thermometer (from the above list) to read
+	 *
+	 * @exception Exception if there's a problem getting the reading.
+	 */
 	public double getTemp(String which) throws Exception {
 		String tmpurl= temp_base + "?temp=" + which;
 		String s=null;

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.6 2000/01/24 06:40:30 dustin Exp $
+ * $Id: SpyDB.java,v 1.7 2000/01/24 10:10:20 dustin Exp $
  */
 
 package net.spy;
@@ -257,12 +257,7 @@ public class SpyDB extends Object {
 		return(scopy);
 	}
 
-	/**
-	 * Object finalization.  Ignore this, please.
-	 *
-	 * @exception Throwable yeah, it could throw an exception.
-	 */
-	public void finalize() throws Throwable {
+	protected void finalize() throws Throwable {
 		if(auto_free && conn!=null) {
 			try {
 				freeDBConn();

@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.3 2000/01/24 06:40:41 dustin Exp $
+// $Id: SNPP.java,v 1.4 2000/01/24 10:11:26 dustin Exp $
 
 package net.spy.net;
 
@@ -105,12 +105,7 @@ public class SNPP {
 		}
 	}
 
-	/**
-	 * Object finalization.
-	 *
-	 * @exception Throwable Thrown if finalization fails.
-	 */
-	public void finalize() throws Throwable {
+	protected void finalize() throws Throwable {
 		if(debug) {
 			System.out.println("Finalizing...");
 		}

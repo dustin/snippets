@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.4 2000/01/24 06:40:34 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.5 2000/01/24 10:11:07 dustin Exp $
  */
 
 package net.spy;
@@ -81,13 +81,7 @@ public class SpyLogFlusher extends Thread {
 		}
 	}
 
-	/**
-	 * Object finalization.
-	 *
-	 * @exception Throwable An exception might be thrown, but you won't
-	 * catch it, so it doesn't matter.
-	 */
-	public void finalize() throws Throwable {
+	protected void finalize() throws Throwable {
 		doFlush();
 		super.finalize();
 	}

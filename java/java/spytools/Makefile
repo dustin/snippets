@@ -24,8 +24,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/rmi/DoBindings.class net/spy/RHash.class \
 	net/spy/temperature/SpyTemp.class net/spy/SpyRunner.class
 
-SOURCES=net/spy/*.java net/spy/*/*.java
-
+PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature net.spy.util
 
 FDEST=/home/dustin/lib/java
 SCP=scp
@@ -35,8 +34,8 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 all: spy.jar
 
-docs: $(SOURCES)
-	$(JAVADOC) -public -d doc $(SOURCES)
+docs:
+	$(JAVADOC) -public -d doc $(PACKAGES)
 
 spy.jar: $(CLASSES)
 	$(JAR) cv0f $@ $(CLASSES)
