@@ -12,7 +12,8 @@ SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java
 
 CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
-	PhotoImage.class Toker.class
+	PhotoImage.class Toker.class PhotoLogEntry.class \
+	PhotoLogFlusher.class PhotoLogger.class
 
 .SUFFIXES: .java .class .jar
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.15 1999/09/28 06:51:38 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.16 1999/09/29 07:15:09 dustin Exp $
  */
 
 import java.io.*;
@@ -25,6 +25,7 @@ public class PhotoServlet extends HttpServlet
 	DbConnectionBroker dbs;
 	RHash rhash;
 	MultipartRequest multi;
+	PhotoLogger logger;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
@@ -46,6 +47,8 @@ public class PhotoServlet extends HttpServlet
 		} catch(Exception e) {
 			rhash = null;
 		}
+
+		logger = new PhotoLogger();
 	}
 
 	// Do a GET request (just call doPost)
@@ -945,6 +948,8 @@ public class PhotoServlet extends HttpServlet
 		response.setContentType("image/jpeg");
 		String s = request.getParameter("photo_id");
 		which = Integer.valueOf(s).intValue();
+
+		logger.log(new PhotoLogEntry(remote_uid.intValue(), which, request));
 
 		try {
 			// Need a binary output thingy.
