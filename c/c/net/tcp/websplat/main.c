@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.3 1998/06/27 05:31:03 dustin Exp $
+ * $Id: main.c,v 1.4 1998/06/27 20:08:25 dustin Exp $
  */
 
 #include <config.h>
@@ -112,12 +112,12 @@ struct url parseurl(char *url)
 
 void usage(char **argv)
 {
-    printf("Usage:  %s -r request_url\n", argv[0]);
+    printf("Usage:  %s [-d] [-n max_conns] request_url\n", argv[0]);
 }
 
 int main(int argc, char **argv)
 {
-    int s, selected, size, c, i;
+    int s, selected, size, c, i, maxhits=65535, n=0;
     fd_set fdset, tfdset;
     char buf[8192];
     struct url req;
@@ -125,18 +125,15 @@ int main(int argc, char **argv)
 
     req.port=-1;
 
-    while( (c=getopt(argc, argv, "r:d")) >=0) {
+    while( (c=getopt(argc, argv, "dn:")) >=0) {
 	switch(c) {
-	    case 'r':
-		req=parseurl(optarg);
-		if(req.port==-1) {
-		    printf("Invalid URL format:  %s\n", optarg);
-		    return(1); /* I don't like exit */
-		}
-	        break;
 
 	    case 'd':
 		_debug=3;
+		break;
+
+	    case 'n':
+		maxhits=atoi(optarg);
 		break;
 
 	    case '?':
@@ -146,14 +143,20 @@ int main(int argc, char **argv)
 	}
     }
 
-    if(req.port==-1) {
+    if(optind>=argc) {
 	printf("Nothing to do\n");
 	usage(argv);
 	return(1);
     }
 
-    printf("Host:  %s\nPort:  %d\nFile:  %s\n", req.host, req.port,
-           req.req);
+    req=parseurl(argv[optind]);
+    if(req.port==-1) {
+        printf("Invalid URL format:  %s\n", argv[optind]);
+        return(1); /* I don't like exit */
+    }
+
+    printf("Host:  %s\nPort:  %d\nFile:  %s\nMax:   %d\n",
+	   req.host, req.port, req.req, maxhits);
 
     FD_ZERO(&tfdset);
 
@@ -161,14 +164,18 @@ int main(int argc, char **argv)
 
     for(;;)
     {
-        s=getclientsocket(req.host, req.port);
-	if(s>0) {
-	    printf("Got one: %d...\n", s);
-	    FD_SET(s, &tfdset);
+	if(n<maxhits) {
+            s=getclientsocket(req.host, req.port);
+	    if(s>0) {
+	        printf("Got one: %d...\n", s);
+	        FD_SET(s, &tfdset);
 
-	    /* Sending */
-	    i=send(s, req.httpreq, strlen(req.httpreq), 0);
-	    printf("Sent %d out of %d bytes\n", i, strlen(req.httpreq));
+	        /* Sending */
+	        i=send(s, req.httpreq, strlen(req.httpreq), 0);
+	        _ndebug (2, ("Sent %d out of %d bytes\n",
+			 i, strlen(req.httpreq)));
+	        n++;
+	    }
 	}
 
 	fdset=tfdset;
@@ -192,6 +199,7 @@ int main(int argc, char **argv)
 			_ndebug(2, ("Lost %d\n", i));
 			close(i);
 			FD_CLR(i, &fdset);
+			n--;
 		    }
 		    else
 		    {
