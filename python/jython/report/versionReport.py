@@ -30,7 +30,10 @@ def dotify(compatibilities):
     for vc in compatibilities.values():
         n=vc.getName()
         f=open('/tmp/dotify/' + n + '.dot', 'w')
-        dotifyMappings2(compatibilities, vc, f)
+        dotifyMappings(compatibilities, vc, f)
+        f.close()
+        f=open('/tmp/dotify/' + n + '-rev.dot', 'w')
+        dotifyRevMap(compatibilities, vc, f)
         f.close()
 
     f=open('/tmp/dotify/versions.tex', 'w')
@@ -64,26 +67,6 @@ def createVersionIndex(compatibilities, tofile=sys.stdout):
 
 def dotifyMappings(compatibilities, vc, tofile=sys.stdout):
     tofile.write("digraph " + `vc.getId()` + " {\n")
-    tofile.write("\trankdir=LR;\n")
-    tofile.write('\tpage="8.5,11";\n')
-    tofile.write('\tsize="8.5,11";\n')
-
-    for ovc in compatibilities.values():
-        if vc.getName() != ovc.getName():
-            nh=vc.getNextHop(ovc)
-            if nh is not None:
-                frm=vc.getName()
-                to=ovc.getName()
-                via=nh.getTo().getName()
-                tofile.write('\t"' + frm + '" -> "' + to + '";\n');
-                tofile.write('\t"' + to \
-                    + '" [label="' + to \
-                    + ' via ' + via + '"];\n')
-
-    tofile.write("}\n")
-
-def dotifyMappings2(compatibilities, vc, tofile=sys.stdout):
-    tofile.write("digraph " + `vc.getId()` + " {\n")
     tofile.write('\tpage="8.5,11";\n')
     tofile.write('\tsize="8.5,11";\n')
     tofile.write("\trankdir=LR;\n")
@@ -103,6 +86,28 @@ def dotifyMappings2(compatibilities, vc, tofile=sys.stdout):
 
     tofile.write("}\n")
 
+def dotifyRevMap(compatibilities, vc, tofile=sys.stdout):
+    tofile.write("digraph " + `vc.getId()` + " {\n")
+    tofile.write('\tpage="8.5,11";\n')
+    tofile.write('\tsize="8.5,11";\n')
+    tofile.write("\trankdir=LR;\n")
+
+    tofile.write('\t"' + vc.getName() + '";')
+
+    for ovc in compatibilities.values():
+        if vc.getName() != ovc.getName():
+			# Figure out if we can get to the one destination from here
+            nh=ovc.getNextHop(vc)
+            if nh is not None:
+				# We can reach it, find the path
+                sp=net.spy.util.ShortestPath(ovc, vc)
+                op=ovc
+                for p in sp:
+                    tofile.write('\t"' + op.getName() + '" -> "' \
+                        + p.getName() + '";\n')
+                    op=p
+
+    tofile.write("}\n")
 
 def dotifyVersionMap(compatibilities, tofile=sys.stdout):
     tofile.write("digraph versionMap {\n")
