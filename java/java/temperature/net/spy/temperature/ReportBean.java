@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ReportBean.java,v 1.2 2000/10/15 10:09:12 dustin Exp $
+// $Id: ReportBean.java,v 1.3 2001/06/02 08:59:58 dustin Exp $
 
 package net.spy.temperature;
 
@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Bean used for Temperature reports.
  */
-public class ReportBean extends Object {
+public class ReportBean extends Object implements java.io.Serializable {
 
 	// Report types
 	/**

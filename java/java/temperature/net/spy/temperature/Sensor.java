@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Sensor.java,v 1.2 2001/06/01 08:52:02 dustin Exp $
+// $Id: Sensor.java,v 1.3 2001/06/02 08:59:59 dustin Exp $
 
 package net.spy.temperature;
 
@@ -8,7 +8,7 @@ import net.spy.*;
 import java.sql.*;
 import java.util.*;
 
-public class Sensor extends Object {
+public class Sensor extends Object implements java.io.Serializable {
 
 	private int sensor_id=-1;
 	private String serial=null;

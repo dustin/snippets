@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Loader.java,v 1.3 2001/06/01 08:52:01 dustin Exp $
+// $Id: Loader.java,v 1.4 2001/06/02 08:59:56 dustin Exp $
 
 package net.spy.temperature;
 
@@ -63,18 +63,14 @@ public class Loader {
 
 	protected static void initSensors(Connection conn) throws Exception {
 		sensors = new Hashtable();
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs =
-				st.executeQuery("select sensor_id, serial from sensor");
-			while(rs.next()) {
-				int id=rs.getInt("sensor_id");
-				String serial=rs.getString("serial");
-				Integer i=new Integer(id);
-				sensors.put(serial, i);
-			}
-		} catch(Exception e) {
-			throw new Exception("Exception:  " + e);
+		Statement st = conn.createStatement();
+		ResultSet rs =
+			st.executeQuery("select sensor_id, serial from sensors");
+		while(rs.next()) {
+			int id=rs.getInt("sensor_id");
+			String serial=rs.getString("serial");
+			Integer i=new Integer(id);
+		sensors.put(serial, i);
 		}
 	}
 
