@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Gatherer.java,v 1.1 2002/11/25 01:48:11 dustin Exp $
+// $Id: Gatherer.java,v 1.2 2002/11/25 01:54:19 dustin Exp $
 
 package net.spy.temperature;
 
@@ -29,6 +29,7 @@ public class Gatherer extends SpyThread {
 	private int port=-1;
 	private boolean running=true;
 
+	private int updates=0;
 	private Map seen=null;
 	private ResourceBundle serials=null;
 
@@ -52,6 +53,22 @@ public class Gatherer extends SpyThread {
 		setName("Temperature Gatherer");
 		setDaemon(true);
 		start();
+	}
+
+	/**
+	 * String me.
+	 */
+	public String toString() {
+		StringBuffer sb=new StringBuffer(128);
+
+		sb.append(super.toString());
+		sb.append(" - has read ");
+		sb.append(updates);
+		sb.append(" updates, currently tracking ");
+		sb.append(seen.size());
+		sb.append(" thermometers");
+
+		return(sb.toString());
 	}
 
 	/**
@@ -116,6 +133,8 @@ public class Gatherer extends SpyThread {
 			getLogger().warn("Unknown serial number seen:  " + serial, e);
 			seen.put(serial, sample);
 		}
+
+		updates++;
 	}
 
 	/**
