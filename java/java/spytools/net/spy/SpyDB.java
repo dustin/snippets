@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.21 2000/11/02 22:19:37 dustin Exp $
+ * $Id: SpyDB.java,v 1.22 2000/11/28 10:21:31 dustin Exp $
  */
 
 package net.spy;
@@ -298,8 +298,9 @@ public class SpyDB extends Object {
 	public void init() {
 	}
 
+	// This is a debug routine
 	protected void log(String msg) {
-		System.err.println("DB:  " + msg);
+		// System.err.println("DB:  " + msg);
 	}
 
 	protected void getDBConn() throws SQLException {
