@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.2 2000/07/19 23:36:39 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.3 2000/07/27 01:59:22 dustin Exp $
  */
 
 package net.spy.log;
@@ -74,6 +74,18 @@ public class SpyLogQueue extends Object {
 				}
 			}
 		} // if we have no data
+	}
+
+	/**
+	 * Return the current size of the queue.  This may change before you
+	 * can do anything about it, so use it wisely.
+	 */
+	public int size() {
+		int size=-1;
+		synchronized(log_mutex) {
+			size=log_buffer.size();
+		}
+		return(size);
 	}
 
 	/**
