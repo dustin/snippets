@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.7 1999/09/16 06:46:21 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.8 1999/09/19 07:29:25 dustin Exp $
  */
 
 import java.io.*;
@@ -558,14 +558,6 @@ public class PhotoServlet extends HttpServlet
 		return(ret);
 	}
 
-	// Top of the html...
-	private String start_html(String title) {
-		String ret = "<html><head><title>" + title + "</title>\n<head>\n" +
-		"</head><body bgcolor=\"#fFfFfF\">";
-
-		return(ret);
-	}
-
 	// Find and display images.
 	private void doDisplay(
 		HttpServletRequest request, HttpServletResponse response)
@@ -649,12 +641,13 @@ public class PhotoServlet extends HttpServlet
 		Integer itmp;
 		String stmp;
 		Connection photo;
-
-		output += start_html("Find Results");
+		Hashtable h = new Hashtable();
 
 		query=buildQuery(request);
 
-		output += "<!--\n" + query + "\n-->";
+		h.put("QUERY", query);
+
+		output += tokenize("find_top.inc", h);
 
 		stmp=request.getParameter("qstart");
 		if(stmp != null) {
@@ -667,8 +660,6 @@ public class PhotoServlet extends HttpServlet
 			itmp=Integer.valueOf(stmp);
 			max=itmp.intValue();
 		}
-
-		output += "<table><tr>\n";
 
 		try {
 			photo=getDBConn();
@@ -684,7 +675,7 @@ public class PhotoServlet extends HttpServlet
 			i = 0;
 			while(rs.next()) {
 				if (i >= start && ( ( max == 0 ) || ( i < (max+start) ) ) ) {
-					Hashtable h = new Hashtable();
+					h = new Hashtable();
 
 					h.put("KEYWORDS", rs.getString(1));
 					h.put("DESCR",    rs.getString(2));
@@ -713,11 +704,14 @@ public class PhotoServlet extends HttpServlet
 		}
 		finally { freeDBConn(photo); }
 
-		output += "</tr></table>\n";
 		// Do we have anymore?
 		if(i > max+start && max > 0) {
-			output += linktomore(request, start, max);
+			h.put("LINKTOMORE", linktomore(request, start, max));
+		} else {
+			h.put("LINKTOMORE", "");
 		}
+
+		output += tokenize("find_bottom.inc", h);
 
 		send_response(response, output);
 	}
