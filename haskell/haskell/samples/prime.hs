@@ -1,4 +1,5 @@
 
+-- Simple prime implementation
 isPrime :: Integer -> Bool
 
 isPrime 0 = False
@@ -35,4 +36,5 @@ isPrime2 a = rprime(primes)
 		| mod a x == 0 = False       -- composite if divisible
 		| otherwise    = rprime(xs)  -- Recurse
 
-main = putStr(show ([ x | x <- [0..], isPrime2(x)] !! 100000) ++ "\n")
+-- Print out the hundred thousandth prime
+main = putStr(show (primes !! 100000) ++ "\n")
