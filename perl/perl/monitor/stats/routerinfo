@@ -1,0 +1,51 @@
+#!/bin/sh
+# Copyright (c) 1997  SPY Internetworking
+# $Id: routerinfo,v 1.1 1997/12/14 21:33:06 dustin Exp $
+
+set kludge { $*
+    shift
+    shift
+    if test -f ../scotty ; then
+      exec ../scotty -nf $0 $*
+    else
+      exec /usr/local/bin/scotty -nf $0 $*
+    fi
+}
+
+mib load rfc1213.mib
+mib load rfc1696.mib
+mib load cisco.mib
+
+set file [lindex $argv 0]
+
+if [catch {open $file} input] {
+    exit 1
+}
+
+set vars { "chassisId.0" "freeMem.0" "avgBusy5.0" "sysUpTime.0" "whyReload.0" }
+
+while {[gets $input line] != -1} {
+    set host "[lindex $line 0]"
+    set community [expr {[llength $line] == 2 ? [lindex $line 1] : "public"}]
+
+    set pt [lindex [lindex [icmp echo $host] 0] 1]
+
+    if { $pt>-1 } {
+
+        set code [catch {snmp session -address $host -community $community} s]
+
+        puts -nonewline "<tr><td><a href=\"hosts/$host.shtml\">"
+	puts -nonewline "$host</a></td>"
+
+        foreach what $vars {
+            set code [catch {set resp [lindex [lindex [$s get $what] 0] 2]}]
+            if $code {
+                set resp "N/A"
+            }
+            puts -nonewline "<td>$resp</td>"
+        }
+        puts "</tr>"
+    }
+}
+
+exit 0

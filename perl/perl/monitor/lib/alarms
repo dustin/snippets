@@ -1,34 +1,20 @@
 # alarms these are the regular alarms.  They are a key followed by a
 # list of contact info
 
-dustin.red       E:dustin@cybersource.com P:dustin
-sarah.red        E:sarah@cybersource.com P:sarah
-taosops.red      E:dustin@cybersource.com P:dustin
+dustin.red       E:dustin@west.spy.net P:dustin
+dustin.yellow    E:dustin@west.spy.net
 
-dustin.yellow    E:dustin@cybersource.com E:dustin@spy.net
-sarah.yellow     E:sarah@cybersource.com
+scott.red        E:smelly@spy.net P:scott
+scott.yellow     E:smelly@spy.net
 
-scott.red        E:scotts@cybersource.com P:scott
-scott.yellow     E:scotts@cybersource.com
-
-oncall           E:oncall@cybersource.com P:oncall
-
-preview          E:cybersource_alert@previewsoft.com
-
-# A class is a key followed by a list of classes and alarms
-# this next line must be here to do alarm classes
 CLASSES
 
-bigpain         taosops.red oncall sarah.red scott.red
-lilpain         dustin.yellow sarah.yellow scott.yellow
+bigpain         dustin.red
+lilpain         dustin.yellow
 
-appmon.red      oncall
-
-goldengate.red	dustin.red preview oncall
-
-locald.red	dustin.red oncall
+appmon.red      dustin.red
 
 disk.red        bigpain
 disk.yellow     lilpain
 
-ports           bigpain
+ports           lilpain

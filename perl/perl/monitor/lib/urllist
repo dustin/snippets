@@ -1,8 +1,14 @@
 # This is a list of URLs that checkwebserver looks at.
 
 # Do this three times to try to return a status from all three servers.
-# http://www.software.net/
-# http://www.software.net/
-# http://www.software.net/
+http://www.software.net/
+http://www.cybersource.com/
 
+http://www.antigates.com/
+http://www.antigates.com/HolidayInnCambodia
 http://www.spy.net/
+http://bleu.west.spy.net/cgi-bin/dustin/mach/showall.cgi
+# http://bleu.west.spy.net/cgi-bin/dustin/radius/snapshot.cgi?date=May+1+00:40:38+1997
+http://bleu.west.spy.net/cgi-bin/dustin/broken.cgi
+
+http://submission.west.spy.net/WhereIsMyServer

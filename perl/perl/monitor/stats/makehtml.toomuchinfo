@@ -1,0 +1,82 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  SPY Internetworking
+# $Id: makehtml.toomuchinfo,v 1.1 1997/12/14 21:33:05 dustin Exp $
+
+push(@INC, "/home/monitor/lib");
+require "statlib.pl";
+
+$dir="$webroot/stats/hosts";
+
+sub makenewfile
+{
+    local($host, $num)=@_;
+
+    open(FILE, ">$dir/$host.shtml");
+
+    print FILE <<EOF;
+<html><head><title>Stats for $host</title></head>
+<body bgcolor="ffffff">
+
+<h2>Stats for $host ($num interfaces)</h2>
+
+Updated <!--#echo var="LAST_MODIFIED"-->
+<p>
+EOF
+}
+
+sub fixnum
+{
+    local($n)=@_;
+    $n="0$n" if($n<10);
+    return($n);
+}
+
+sub closefile
+{
+    print FILE <<EOF;
+</body></html>
+EOF
+    close(FILE);
+}
+
+@things=(
+"Interface","Description", "Hardware Type", "Line Protocol",
+"Last Input", "Last Output", "In Bits/sec", "Out Bits/sec",
+"Collisions",
+"CRC Errors", "Framing Errors", "Ignored", "Aborts", "Resets",
+"Last change reason"
+);
+
+@date=localtime;
+
+$date=&fixnum($date[4]+1).&fixnum($date[3]).&fixnum($date[5]);
+
+while(<>)
+{
+    @a=split(/;/);
+
+    $host=shift(@a);
+    $num=shift(@a);
+    $nattr=($#a+1)/$num if($num>0);
+
+    &makenewfile($host, $num);
+
+    for $c (0..($num-1))
+    {
+	printf(FILE "<a name=\"%s\"></a>", $a[$c*$nattr]);
+	print FILE "<table colspan=\"2\" border=\"2\"\n";
+	printf(FILE "<tr><td>%s</td><td><a
+		href=\"/cgi-bin/stats/dustin/getload.cgi?%s+%s+%s\">%s</a></td>
+		</tr> \n", $things[0], $host, $a[($nattr*$c)], $date,
+		$a[($nattr*$c)]);
+	for $b (1..($nattr-1))
+	{
+	    printf(FILE "<tr><td>%s</td><td>%s</td></tr>\n", $things[$b],
+		$a[$b + ($nattr * $c)]);
+	}
+	print FILE "</table><p>\n";
+    }
+
+    &closefile();
+
+}

@@ -1,0 +1,18 @@
+#!/usr/local/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require "statlib.pl";
+
+@hs=optimalAlarms();
+
+print "Alarms:\n\n";
+
+foreach $key (keys(%{$hs[0]}))
+{
+    print "$key\n";
+    foreach $line (@{ $hs[0]{$key} })
+    {
+	print "\t$line\n";
+    }
+
+}

@@ -1,0 +1,17 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  SPY Internetworking
+# $Id: makehtml.info,v 1.1 1997/12/14 21:33:02 dustin Exp $
+
+while(<>)
+{
+    @a=split(/;/);
+
+    print "<tr>";
+    $host=$shift(@a);
+    print "<td><a href=\"hosts/$host.shtml\">$host<\a></td>";
+    foreach(@a)
+    {
+	print "<td>$_</td>";
+    }
+    print "</tr>\n";
+}

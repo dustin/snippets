@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set kludge { $*
+    shift
+    shift
+    exec /usr/local/bin/scotty -nf $0 $*
+}
+
+set file [lindex $argv 0]
+
+if [catch {open $file} input] {
+    puts "ERROR: Unable to open thelist"
+    exit
+}
+
+while {[gets $input line] != -1} {
+    set list ""
+    set list2 ""
+    set count 0
+
+    set machine [lindex $line 0]
+
+    set pt [lindex [lindex [icmp echo $machine] 0] 1]
+
+    if { $pt>-1 } {
+	if {[llength $line]>1} {
+	    for { set i 1 } { $i<[llength $line] } { incr i } {
+		set port [lindex $line $i]
+	        if [catch {tcp connect $machine $port} socket] {
+		    puts "$machine:$port:0"
+		    incr count 1
+	            # exec /home/monitor/bin/alarm &
+	        } else {
+	            tcp close $socket
+	        }
+	    }
+	}
+    } else {
+        puts "$machine:$pt:0"
+	incr count 1
+	# exec /home/monitor/bin/alarm &
+    }
+}

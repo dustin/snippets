@@ -1,5 +1,5 @@
 # This is a library type thing of all the routines to grab stat data.
-# $Id: statlib.pl,v 1.3 1997/12/12 21:15:18 dustin Exp $
+# $Id: statlib.pl,v 1.4 1997/12/14 21:32:47 dustin Exp $
 
 # this reads in a file ignoring lines starting with # and empty lines
 
@@ -160,33 +160,20 @@ sub display3dlol
 sub decodeAlarm
 {
     my($recipient, @alrm)=@_;
-    my($alarms, $alarm, @out);
+    my($alarms, $alarm);
 
     if(defined($alrm[1]{$recipient}))
     {
         foreach $alarm (@{$alrm[1]{$recipient}})
         {
-            if($alarm ne $recipient)
-            {
-                push(@alrmDecoded, decodeAlarm($alarm, @alrm));
-            }
+	    decodeAlarm($alarm, @alrm);
         }
     }
     else
     {
         if(defined($alrm[0]{$recipient}))
         {
-            foreach $alarm (@{$alrm[0]{$recipient}})
-            {
-		if(defined($alrm[0]{$recipient}))
-		{
-                    push(@alrmDecoded, $alarm);
-		}
-		else
-		{
-                    push(@out, $alarm);
-		}
-            }
+	    push(@alrmDecoded, @{$alrm[0]{$recipient}});
         }
 	else
 	{
@@ -194,7 +181,7 @@ sub decodeAlarm
 	}
     }
 
-    return(@out);
+    return(@alrmDecoded);
 }
 
 sub makeOptimalAlarmList
@@ -229,7 +216,7 @@ sub makeOptimalAlarmList
 	push(@email, "E:" . (join(',',@{$doms{$_}}) . "\@$_") );
     }
 
-    if($#pages>0)
+    if($#pages>=0)
     {
 	push(@ret, "P:" . join(',', @pages));
     }
@@ -589,9 +576,9 @@ sub appmonInit
 
 sub openhost
 {
-local ($remote, $portnum)=@_;
-local ($port, $name, $aliases, $proto, $type, $len);
-local ($sockaddr, $hostname);
+my ($remote, $portnum)=@_;
+my ($port, $name, $aliases, $proto, $type, $len);
+my ($sockaddr, $hostname);
 
         $sockaddr='S n a4 x8';
         $hostname="0.0.0.0";

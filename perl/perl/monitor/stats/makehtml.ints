@@ -1,0 +1,113 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  SPY Internetworking
+# $Id: makehtml.ints,v 1.1 1997/12/14 21:33:03 dustin Exp $
+
+push(@INC, "/home/monitor/lib");
+require 'statlib.pl';
+
+sub timeout
+{
+	print "Connection timed out.\n";
+	exit(1);
+}
+
+sub pushqueue
+{
+    local($name, $message)=@_;
+
+	$name=~s/[\n\r]//g;
+	$message=~s/[\n\r]//g;
+
+	alarm 20;
+	&openhost("molly.ipa.net");
+	alarm 20;
+	print S "mash\r\n";
+	print S "$name\r\n";
+	print S "$message\r\n";
+	$ary=<S>;
+	shutdown(S, 2);
+	alarm 0;
+}
+
+sub openhost
+{
+local ($remote)=@_;
+local ($port, $name, $aliases, $proto, $type, $len);
+local ($portnum, $sockaddr, $hostname);
+
+$sockaddr='S n a4 x8';
+$hostname="dogbert";
+$portnum=1029;
+
+	 print "Portnum is $portnum\n" if($debug);
+	($name, $aliases, $proto)=getprotobyname('tcp');
+	($name, $aliases, $port)=getservbyname($portnum, 'tcp');
+
+	($name, $aliases, $type, $len, $thisaddr)=gethostbyname($hostname);
+	print "Looking up $remote\n" if ($debug);
+	($name, $aliases, $type, $len, $thataddr)=gethostbyname($remote);
+	if($name eq "")
+	{
+		print "Unable to resolve hostname.\n";
+		exit(1);
+	}
+	print "Connecting to $name:$portnum\n" if($debug);
+
+	$me=pack($sockaddr, 2, 0, $thisaddr);
+	$rem=pack($sockaddr, 2, $portnum, $thataddr);
+
+	if(!socket(S, 2, 1, $proto))
+	{
+		print "Can't open socket: $!\n";
+		exit(1);
+	}
+
+	if(!bind(S, $me))
+	{
+		print "Can't bind socket: $!\n";
+		exit(1);
+	}
+
+	$rem =~ /(.*)/;
+	if(!connect(S, $rem))
+	{
+		print "Can't connect: $!\n";
+		exit(1);
+	}
+
+	select(S); $|=1; select(stdout); $|=1;
+}
+
+$SIG{'ALRM'}= 'timeout';
+
+
+
+$count=0;
+
+while(<>)
+{
+    @a=split(/:/);
+    $count++;
+    print <<EOF;
+<tr><td>$a[0]</td><td><a href="$webtop/stats/hosts/$a[0].shtml#$a[1]">
+$a[1]</a></td><td>$a[2]</td></tr>
+EOF
+}
+
+if($count==0)
+{
+    $color="#007f00";
+}
+else
+{
+    $color="#ff0000";
+}
+
+print "<tr><td colspan=\"2\">Total:</td><td>";
+print "<font color=\"$color\">$count</font></td></tr>\n";
+
+if($count>0)
+{
+    # &pushqueue("dustin", "Links down:  $count");
+    # &pushqueue("dlaser", "Links down:  $count");
+}

@@ -16,22 +16,6 @@ diskwarn2
 disk not responding to selection
 Disks not responding to selection
 
-webdeny
-deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ (80|443)
-Web server filtered
-
-telnet
-deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ 23
-Telnet attempts
-
-ftp
-deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ (20|21|115)
-FTP attempts
-
-tftp
-deny udp out [0-9\.]+ [0-9]+ in [0-9\.]+ 69
-tFTP attempts
-
 badtrap
 BAD TRAP
 Bad Traps
@@ -59,3 +43,19 @@ SCSI device giving up
 nisnoreach
 NIS.*unreachable
 NIS+ Servers unreachable
+
+sshpassauth
+sshd.*Password authentication for.*accepted
+SSH Password Auth
+
+sshconn
+sshd.*Connection from
+SSH Connections
+
+sshbadown
+sshd.*bad ownership or modes
+SSH Bad ownerships/perms
+
+namedaxfr
+named.*approved AXFR from
+Named Transfers

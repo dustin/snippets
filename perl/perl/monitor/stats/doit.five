@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. /home/monitor/lib/shellconf
+
+HTML="$webroot/stats"
+
+cd $STATSDIR
+
+# ./checkport  $portScanFile | ./makehtml.ports > $HTML/out/ports.out
+
+chmod 644 $HTML/out/*

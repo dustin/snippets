@@ -1,0 +1,67 @@
+#!/bin/sh
+# Copyright (c) 1997  SPY Internetworking
+# $Id: checkrouters,v 1.1 1997/12/14 21:32:59 dustin Exp $
+
+set kludge { $*
+    shift
+    shift
+    if test -f ../scotty ; then
+      exec ../scotty -nf $0 $*
+    else
+      exec /usr/local/bin/scotty -nf $0 $*
+    fi
+}
+
+mib load rfc1213.mib
+mib load rfc1696.mib
+mib load cisco.mib
+
+set file [lindex $argv 0 ]
+
+if [catch {open $file} input] {
+    exit 1
+}
+
+while {[gets $input line] != -1} {
+    set host "[lindex $line 0]"
+    set community [expr {$line == 2 ? [lindex $argv 1] : "public"}]
+
+    set pt [lindex [lindex [icmp echo $host] 0] 1]
+
+    if { $pt>-1 } {
+
+        set code [catch {snmp session -address $host -community $community} s]
+
+        set what "ifNumber.0"
+        set code [catch {set nint [lindex [lindex [$s get $what] 0] 2]}]
+        if $code {
+            set nint 0
+        }
+
+        for {set i 1} {$i <= $nint} {incr i} {
+            set what "ifDescr.$i"
+            set code [catch {set desc [lindex [lindex [$s get $what] 0] 2]}]
+            if $code {
+                set desc "$i"
+            }
+            set what "ifAdminStatus.$i"
+            set code [catch {set ans [lindex [lindex [$s get $what] 0] 2]}]
+            if {[string compare $ans "up"] == 0} {
+                set what "ifOperStatus.$i"
+                set code [catch {set ans [lindex [lindex [$s get $what] 0] 2]}]
+
+                set what "ifOperStatus.$i"
+                set code [catch {set reason [lindex [lindex [$s get $what] 0] 2]}]
+                if $code {
+                    set reason "unknown"
+                }
+
+                if {[string compare $ans "down"] == 0} {
+                    puts "$host:$desc:$reason:0"
+                }
+            }
+        }
+    }
+}
+
+exit 0

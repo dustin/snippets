@@ -1,0 +1,29 @@
+#!/usr/local/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require "statlib.pl";
+
+@hs=readInAlarms();
+
+print "Alarms:\n\n";
+
+foreach $key (keys(%{$hs[0]}))
+{
+    print "$key\n";
+    foreach $line (@{ $hs[0]{$key} })
+    {
+	print "\t$line\n";
+    }
+
+}
+
+print "\nClasses:\n\n";
+
+foreach $key (keys(%{$hs[1]}))
+{
+    print "$key\n";
+    foreach $line (@{ $hs[1]{$key} })
+    {
+	print "\t$line\n";
+    }
+}

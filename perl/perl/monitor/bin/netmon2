@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: netmon2,v 1.2 1997/12/12 18:37:46 dustin Exp $
+# $Id: netmon2,v 1.3 1997/12/14 21:32:35 dustin Exp $
 
 push(@INC, "/home/monitor/lib");
 require 'statlib.pl';
@@ -27,7 +27,7 @@ while(<HSTS>)
         /^#/ && ($hout .= $_) && next;
         chop($record); #Chop lf
         chop($record); #Chop Data From end
-        open(PING,"/usr/sbin/ping -s $host $bytes $packets|")
+        open(PING,"/usr/etc/ping -s $bytes -c $packets $host|")
 		|| die "Can't ping $hst";
 
         while(<PING>)

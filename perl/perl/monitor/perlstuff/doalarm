@@ -1,0 +1,10 @@
+#!/usr/local/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require "statlib.pl";
+
+$message=<<EOF;
+This is a test alarm sent to $ARGV[0]
+EOF
+
+doalarms($ARGV[0], $message);

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+. /home/monitor/lib/shellconf
+
+HTML="$webroot/stats"
+
+cd $STATSDIR
+
+./checkrouters  $routersFile | ./makehtml.ints > $HTML/out/routers.out
+
+# moved to 5
+./checkport  $portScanFile | ./makehtml.ports > $HTML/out/ports.out
+
+./routerinfo $routersFile > $HTML/out/info.out
+
+./routersinfo $routersFile | ./makehtml.toomuchinfo
+
+# ./dohp-hub > $HTML/out/hp-hub.out
+
+chmod 644 $HTML/hosts/*
+chmod 644 $HTML/out/*
+
+chmod 755 $BWLOGS/*
+chmod 644 $BWLOGS/*/*

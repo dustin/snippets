@@ -1,0 +1,174 @@
+#!/usr/local/bin/perl
+
+push(@INC, "/home/monitor/lib");
+require "statlib.pl";
+
+$stupidout=$quickDisk;
+
+sub pulldisk
+{
+    my($host, $disk, $open)=@_;
+
+    if($open==1)
+    {
+	$SIG{'ALRM'}= 'timeout';
+	&openhost($host, 6013);
+    }
+
+    print S "disk $disk\r\n";
+
+    return(split(/;/, <S>));
+}
+
+sub setalert
+{
+    my($host, $disk, $value, $thresh, $wtype, $color)=@_;
+    my($ret);
+
+    $value+=0;
+    $thresh+=0;
+
+    $ret="A $color alert has been detected on ${host}'s $disk,\n";
+    $ret.="It is at ${value}$wtype and has a threshhold set to ";
+    $ret.="${thresh}$wtype.\n\n";
+
+    return($ret);
+}
+
+sub getdiskinfo
+{
+    my($n, $warn, $crit, $warntype, $crittype, $against, $disk, $host);
+    my($i, $j, $open, $color);
+    my(@lol, @a);
+
+    @lol=list_diskinfos();
+
+    for $i ( 0.. $#lol)
+    {
+	$host=$lol[$i][0][0];
+
+	# Start loop of disks for a particular host
+	for $j (0 .. $#{$lol[$i]} )
+	{
+	    ($host, $disk, $warn, $crit)=@{$lol[$i][$j]};
+
+	    # This is to tell whether to open a connection to the host or not
+	    if($j==0)
+	    {
+		$open=1;
+	    }
+	    else
+	    {
+		$open=0;
+	    }
+
+	    # Go get the info
+	    @a=pulldisk($host, $disk, $open);
+
+	    # Set warn information
+	    $warn=~/([0-9]+)(.)/;
+	    $warn=$1;
+	    $warntype=$2;
+	    if($warntype=~/[Mm]/)
+	    {
+		$warn *= 1024;
+		$warntype="k";
+            }
+
+	    # Set critical information
+	    $crit=~/([0-9]+)(.)/;
+	    $crit=$1;
+	    $crittype=$2;
+	    if($crittype=~/[Mm]/)
+	    {
+		$crit *= 1024;
+		$crittype="k";
+            }
+
+	    $color='blue';
+
+            # Set field to show warnings
+            if($warntype eq "%")
+            {
+                $against=4;
+
+                # Set colors for warnings.
+                if($a[$against] >= $warn)
+                {
+                    if($a[$against] >= $crit)
+                    {
+			$color='red';
+                    }
+                    else
+                    {
+			$color='yellow';
+                    }
+                }
+            }
+            else
+            {
+                $against=3;
+
+                # Set colors for warnings.
+                if($a[$against] <= $warn)
+                {
+                    if($a[$against] <= $crit)
+                    {
+			$color='red';
+                    }
+                    else
+                    {
+			$color='yellow';
+                    }
+                }
+            }
+
+            if($color eq "red")
+	    {
+	        $alarms{$color}=setalert($host, $disk, $a[$against],
+	            $crit, $wtype, $color);
+	    }
+	    elsif($color eq "yellow")
+	    {
+	        $alarms{$color}=setalert($host, $disk, $a[$against],
+	            $warn, $wtype, $color);
+	    }
+	}
+
+	# end of host.  End table, end connection.
+	print S "quit\r\n";
+	close(S);
+    }
+}
+
+%alarms=(
+    "yellow" => "",
+    "red"    => ""
+);
+
+&getdiskinfo();
+
+open(OUT, ">$stupidout");
+
+$problems=0;
+
+foreach $key (keys(%alarms))
+{
+    if($alarms{$key} ne "")
+    {
+	print "Sending $key alert...\n";
+	# print $alarms{$key};
+	doalarms("disk.$key", $alarms{$key});
+	if($key eq 'red')
+	{
+	    print OUT "<br><font color=\"ff0000\">$alarms{$key}</font>";
+	    $problems++;
+	}
+    }
+}
+    if($problems==0)
+    {
+	print OUT "<font color=\"007f00\">No problems on disks</font>\n";
+    }
+
+close(OUT);

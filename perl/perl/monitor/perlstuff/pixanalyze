@@ -1,0 +1,203 @@
+#!/usr/local/bin/perl
+
+@Okports=(
+    123,
+    137,
+    113,
+    37,
+);
+
+%Fromstat=();
+%Portstat=();
+%Services=();
+%Tomap=();
+
+sub isin
+{
+    local($what, @a)=@_;
+    local($ret);
+
+    $ret=0;
+
+    foreach(@a)
+    {
+	if($_ == $what)
+	{
+	    $ret=1;
+	    last;
+	}
+    }
+
+    return($ret);
+}
+
+sub lognet
+{
+    local($src, $port, $prot)=@_;
+    local(@a, $srcnet, $svc);
+
+    return if(isin($port, @Okports));
+
+    $svc="$port/$prot";
+    $svc="$Services{$svc}/tcp" if(defined($Services{$svc}));
+
+    # Fromstats
+
+    if(defined($Fromstat{$src})) { $Fromstat{$src}[0]++; }
+        else { $Fromstat{$src}[0]=1; }
+
+    if(defined($Fromstat{$src}[1]{$svc})) { $Fromstat{$src}[1]{$svc}++; }
+        else { $Fromstat{$src}[1]{$svc}=1; }
+
+    # Portstats
+
+    if(defined($Portstat{$svc})) { $Portstat{$svc}[0]++; }
+        else { $Portstat{$svc}[0]=1; }
+
+    if(defined($Portstat{$svc}[1]{$src})) { $Portstat{$svc}[1]{$src}++; }
+        else { $Portstat{$svc}[1]{$src}=1; }
+
+    # Tomap
+
+    if(defined($Tomap{"$src:$svc"}{$dst})) { $Tomap{"$src:$svc"}{$dst}++; }
+	else { $Tomap{"$src:$svc"}{$dst}=1; }
+}
+
+sub ReadServices
+{
+    local(@a);
+
+    open(SRV, "/etc/services");
+    while(<SRV>)
+    {
+	chop;
+
+	next if(/^#/);
+	next if(!/[A-z0-9]/);
+
+	@a=split(/\s+/);
+
+	$Services{$a[1]}=$a[0];
+    }
+    close(SRV);
+}
+
+sub showentry
+{
+    local($date, $pix, $action, $proto, $src, $srcport, $dst, $dstport)=@_;
+    local($f);
+
+    lognet($src, $dstport, $proto);
+}
+
+sub byval_from
+{
+    return($Fromstat{$b}[0] <=> $Fromstat{$a}[0]);
+}
+
+sub byval_port
+{
+    return($Portstat{$b}[0] <=> $Portstat{$a}[0]);
+}
+
+sub byval_port2
+{
+    return($Portstat{$sortval}[1]{$b} <=> $Portstat{$sortval}[1]{$a});
+}
+
+sub byval_to
+{
+    return($Tomap{"$list[$_]:$port"}{$b} <=> $Tomap{"$list[$_]:$port"}{$a});
+}
+
+$sortval=0;
+
+if(defined($ENV{REQUEST_METHOD}))
+{
+    $iscgi=1;
+}
+else
+{
+    $iscgi=0;
+}
+
+if($iscgi)
+{
+print <<EOF;
+Content-type: text/html
+
+<pre>
+EOF
+}
+
+open(IN, "/var/log/pixlog");
+
+while(<IN>)
+{
+    @a=split(/\s+/);
+
+    if($#a>=11)
+    {
+        $date="$a[0] $a[1] $a[2]";
+        showentry($date, $a[3], $a[4], $a[5], $a[7], $a[8], $a[10], $a[11]);
+    }
+}
+
+close(IN);
+
+&ReadServices;
+
+@list=sort byval_from (keys(%Fromstat));
+
+print "Top 20 troublemakers:\n";
+
+for(0..19)
+{
+    # print "$list[$_] ...\t$Fromstat{$list[$_]}[0]\n";
+    printf "%-16s   %d\n", $list[$_], $Fromstat{$list[$_]}[0];
+
+    for $port (keys(%{$Fromstat{$list[$_]}[1]}))
+    {
+	@a=sort byval_to (keys(%{$Tomap{"$list[$_]:$port"}}));
+
+	printf "\t%-10s -> %-16s    %d\n", $port, $a[0],
+		$Tomap{"$list[$_]:$port"}{$a[0]};
+		# $Fromstat{$list[$_]}[1]{$port};
+	shift(@a);
+	foreach $el (@a)
+	{
+	    printf "\t%10s -> %-16s    %d\n", "",  $el,
+		$Tomap{"$list[$_]:$port"}{$el};
+	}
+    }
+}
+
+@list=sort byval_port (keys(%Portstat));
+
+print "\nTop 20 attacked ports:\n";
+
+for $i (0..19)
+{
+    printf "%-16s   %d\n", $list[$i], $Portstat{$list[$i]}[0];
+
+    $sortval=$list[$i];
+    @tmplist=sort byval_port2 (keys(%{$Portstat{$list[$i]}[1]}));
+
+    if($#tmplist<5)
+    {
+	$n=$#tmplist+1;
+    }
+    else
+    {
+	$n=5;
+    }
+
+    print "\tTop $n attackers on this port:\n";
+
+    for(@tmplist[0..$n-1])
+    {
+	printf("\t\t\t%-16s  %d\n","$_:",$Portstat{$list[$i]}[1]{$_});
+    }
+}
+
+print "</pre>\n" if($iscgi);

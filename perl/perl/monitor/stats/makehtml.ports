@@ -1,0 +1,38 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  SPY Internetworking
+# $Id: makehtml.ports,v 1.1 1997/12/14 21:33:04 dustin Exp $
+push(@INC, '/home/monitor/lib');
+require 'statlib.pl';
+
+$count=0;
+$deadportmsg="Dead ports:  ";
+
+%portmap=();
+
+while(<>)
+{
+    @a=split(/:/);
+    $count++;
+    print <<EOF;
+<tr><td>$a[0]</td><td>$a[1]</td></tr>
+EOF
+    $a[1]="unreachable" if($a[1]==-1);
+    $deadportmsg.="$a[0]:$a[1] ";
+}
+
+if($count==0)
+{
+    $color="#007f00";
+}
+else
+{
+    $color="#ff0000";
+}
+
+print "<tr><td>Total:</td><td><font color=\"$color\">";
+print "$count</font></td></tr>\n";
+
+if($count>0)
+{
+    &doalarms("ports", $deadportmsg);
+}
