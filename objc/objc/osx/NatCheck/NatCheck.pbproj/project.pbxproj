@@ -13,6 +13,8 @@
 		};
 		080E96DDFE201D6D7F000001 = {
 			children = (
+				F52BCD5A04B0C04A0109FEFA,
+				F52BCD5B04B0C04A0109FEFA,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -150,8 +152,6 @@
 			children = (
 				F52BCD5804B0BD9B0109FEFA,
 				29B97316FDCFA39411CA2CEA,
-				F52BCD5A04B0C04A0109FEFA,
-				F52BCD5B04B0C04A0109FEFA,
 				F52BCD5E04B0C1250109FEFA,
 			);
 			isa = PBXGroup;
@@ -167,6 +167,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				F53CD8D904B0CF560109FEFA,
 				29B97318FDCFA39411CA2CEA,
 				089C165CFE840E0CC02AAC07,
 			);
@@ -279,6 +280,7 @@
 			files = (
 				080E96DCFE201CFB7F000001,
 				089C165EFE840E0CC02AAC07,
+				F53CD8DB04B0CF560109FEFA,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,6 +390,27 @@
 		};
 		F52BCD6004B0C2160109FEFA = {
 			fileRef = F52BCD5804B0BD9B0109FEFA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53CD8D904B0CF560109FEFA = {
+			children = (
+				F53CD8DA04B0CF560109FEFA,
+			);
+			isa = PBXVariantGroup;
+			name = Credits.html;
+			path = Help;
+			refType = 4;
+		};
+		F53CD8DA04B0CF560109FEFA = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Credits.html;
+			refType = 2;
+		};
+		F53CD8DB04B0CF560109FEFA = {
+			fileRef = F53CD8D904B0CF560109FEFA;
 			isa = PBXBuildFile;
 			settings = {
 			};
