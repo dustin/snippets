@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.4 2000/07/19 08:18:54 dustin Exp $
+# $Id: 1921graph.tk,v 1.5 2000/07/19 08:56:17 dustin Exp $
 
 set width 640
 set height 480
@@ -103,16 +103,17 @@ proc showGraph { width height } {
 	# Temp lines
 	######################################################################
 
-	# Draw the five-degree lines.
-	set v [expr int($min_v/5)*5]
-	for { set i $v } { $i < $max_v } { set i [expr $i + 5]} {
+	set dashwidth 2
+	# Draw the $dashwidth-degree lines.
+	set v [expr (int($min_v/$dashwidth)*$dashwidth)+$dashwidth]
+	for { set i $v } { $i < $max_v } { set i [expr $i + $dashwidth]} {
 		set nadj [expr ($i-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
 		.c create line $minx $y $maxx $y -dash . -fill grey
 	}
 
 	# Draw the ten-degree lines.
-	set v [expr int($min_v/10)*10]
+	set v [expr (int($min_v/10)*10)+10]
 	for { set i $v } { $i < $max_v } { set i [expr $i + 10 ] } {
 		set nadj [expr ($i-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
