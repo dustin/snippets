@@ -4,7 +4,7 @@
  * arch-tag: 222185e2-7d45-4a8e-b6cb-6422c569c8c3
  *)
 
-open MfgCdb;;
+open Mfgcdb;;
 
 let print_rec m =
 	Printf.printf "%s\t%s\t%s\n" m.sn m.id_string
@@ -12,15 +12,15 @@ let print_rec m =
 ;;
 
 let whole_file cdbFile =
-	let db = MfgCdb.open_mfg_db cdbFile in
-	MfgCdb.iter print_rec db;
-	MfgCdb.close_mfg_db db;
+	let db = Mfgcdb.open_mfg_db cdbFile in
+	Mfgcdb.iter print_rec db;
+	Mfgcdb.close_mfg_db db;
 ;;
 
 let specific_sns cdbFile a =
-	let db = MfgCdb.open_mfg_db cdbFile in
-	Array.iter (fun sn -> print_rec (MfgCdb.lookup db sn)) a;
-	MfgCdb.close_mfg_db db;
+	let db = Mfgcdb.open_mfg_db cdbFile in
+	Array.iter (fun sn -> print_rec (Mfgcdb.lookup db sn)) a;
+	Mfgcdb.close_mfg_db db;
 ;;
 
 let main() =

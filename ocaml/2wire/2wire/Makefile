@@ -7,7 +7,7 @@ OCAMLC=ocamlc
 PROFILE=
 
 PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot \
-	mfgCdb mfgCdb.cmi extractAuthInfo
+	mfgcdb mfgcdb.cmi extractAuthInfo
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -37,11 +37,11 @@ indexGWAuth: indexGWAuth.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa dbm.cmxa spy.cmxa indexGWAuth.ml
 
-mfgCdb: mfgCdb.ml
+mfgcdb: mfgcdb.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa mfgCdb.ml
+		unix.cmxa spy.cmxa mfgcdb.ml
 
-extractAuthInfo: extractAuthInfo.ml mfgCdb.cmi
+extractAuthInfo: extractAuthInfo.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa mfgcdb.cmx extractAuthInfo.ml
 
