@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: find.c,v 1.2 1997/06/16 23:57:25 dustin Exp $
+ * $Id: find.c,v 1.3 1997/07/15 13:50:27 dustin Exp $
  */
 
 #include <stdio.h>
@@ -149,6 +149,7 @@ void FindCB(Widget w, XtPointer client_data, XtPointer call_data)
     strcat(query, "'");
 
     CreateTrans(query, "your query");
+    doQuery(query);
 }
 
 void CloseFindWindow(Widget w, XtPointer client_data, XtPointer call_data)

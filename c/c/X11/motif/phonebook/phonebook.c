@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: phonebook.c,v 1.2 1997/06/16 23:57:25 dustin Exp $
+ * $Id: phonebook.c,v 1.3 1997/07/15 13:50:28 dustin Exp $
  */
 
 #include <stdio.h>
@@ -225,6 +225,8 @@ int main(int argc, char **argv)
     infotype info;
 
     initfields();
+
+    dbConnect();
 
     app_shell = XtAppInitialize(&app_context, "Phonebook", NULL, 0, &argc,
 	  argv, NULL, NULL, 0);

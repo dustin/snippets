@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: phonebook.h,v 1.3 1997/06/16 23:57:26 dustin Exp $
+ * $Id: phonebook.h,v 1.4 1997/07/15 13:50:29 dustin Exp $
  */
 
 #ifndef PHONEBOOK_H
@@ -17,6 +17,7 @@ typedef struct {
 
 typedef struct {
     Widget parent;
+    int dbh;
 } progdata;
 
 typedef struct {
@@ -43,6 +44,7 @@ I help others who help themselves.  (RTFM)"
 
 void About(Widget w, XtPointer client_data, XtPointer call_data);
 void CloseFindWindow(Widget w, XtPointer client_data, XtPointer call_data);
+void CreateTrans(char *text, char *name);
 void Find(Widget w, XtPointer client_data, XtPointer call_data);
 void FindCB(Widget w, XtPointer client_data, XtPointer call_data);
 void FindSetFrom(Widget w, XtPointer client_data, XtPointer call_data);
@@ -52,6 +54,8 @@ void Quit(Widget w, XtPointer client_data, XtPointer call_data);
 void ShowFields(Widget w, XtPointer client_data, XtPointer call_data);
 void Store(Widget w, XtPointer client_data, XtPointer call_data);
 void UnImplemented(Widget w, XtPointer client_data, XtPointer call_data);
+void dbConnect(void);
+void doQuery(char *query);
 
 void initfields(void);
 void freefields(void);
