@@ -1,13 +1,14 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.20 $";
-author: "Dustin Sallings <dustin@spy.net>";
-copyright: "1999";
-license: "See forum.txt.";
+   version: "$Revision: 1.21 $";
+   author: "Dustin Sallings <dustin@spy.net>";
+   copyright: "1999";
+   license: "See forum.txt.";
+
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.20 1999/06/03 22:25:34 dustin Exp $
+-- $Id: pg.e,v 1.21 1999/06/16 07:16:27 dustin Exp $
 --
 class PG
 
@@ -27,6 +28,7 @@ feature {PG} -- Creation is private
          current_row := 0;
          !!last_row.make(0,16);
          last_row.clear;
+         c_buffer := c_buffer.calloc(c_buffer_len);
          conn := nullpointer;
       end -- make
 
@@ -122,16 +124,18 @@ feature {ANY} -- Query features
       -- Query on an open database connection
       require
          is_connected;
+         q /= Void;
       local
          retry_attempts: INTEGER;
       do
          current_row := 0;
          debug
-            io.put_string("PG: Doing query:  ");
-            io.put_string(q);
-            io.put_string("%N-------------------------%N");
+            io.put_string("PG: Doing query:  " + q);
          end;
          res := pg_query(conn,q.to_external);
+         debug
+            io.put_string("%NPG: -------------------------%N");
+         end;
       ensure
          query_successful;
       rescue
@@ -179,6 +183,107 @@ feature {ANY} -- Query features
             Result := true;
          end;
       end -- get_row
+
+feature {ANY} -- Copy stuff
+
+   copy_to(table: STRING) is
+      -- Begin a copy to the database.
+      require
+         is_connected;
+         table /= Void;
+      local
+         q: STRING;
+      do
+         q := "copy " + table + " from STDIN";
+         query(q);
+         tocopy := true;
+      ensure
+         copy_in_ready;
+      end -- copy_to
+
+   copy_from(table: STRING) is
+      -- Begin a copy from the database.
+      require
+         is_connected;
+         table /= Void;
+      local
+         q: STRING;
+      do
+         q := "copy " + table + " to STDOUT";
+         query(q);
+      ensure
+         copy_out_ready;
+      end -- copy_from
+
+   putline(line: STRING) is
+      -- Send a line to the database.
+      require
+         line /= Void;
+         is_connected;
+      do
+         debug
+            io.put_string("PG-Line: " + line);
+         end;
+         check
+            pg_putline(conn,line.to_external) = 0;
+         end;
+      rescue
+         io.put_string("Line error:  " + host + " " + errmsg + "%N");
+      end -- putline
+
+   last_line: STRING;
+      -- last line from getline
+
+   getline: BOOLEAN is
+      -- Get a line from the database.
+      require
+         is_connected;
+      local
+         size: INTEGER;
+      do
+         size := pg_getline(conn,c_buffer.to_external,c_buffer_len);
+         !!last_line.from_external_copy(c_buffer.to_external);
+         Result := not last_line.is_equal("\.") or size < 0;
+         debug
+            if Result then
+               io.put_string("PG-Line: Got -> " + last_line + "%N");
+            else
+               io.put_string("PG-Line: End");
+            end;
+         end;
+      end -- getline
+
+   endcopy is
+      -- End a copy to/from
+      require
+         is_connected;
+      local
+         tmp: STRING;
+      do
+         if tocopy then
+            debug
+               io.put_string("PG: Ending TO copy%N");
+            end;
+            !!tmp.copy("\.%N");
+            debug
+               io.put_string("PG-Line: " + tmp);
+            end;
+            check
+               pg_putline(conn,tmp.to_external) = 0;
+            end;
+            tocopy := false;
+         else
+            debug
+               io.put_string("PG: Ending FROM copy%N");
+            end;
+         end;
+         debug
+            io.put_string("PG: Ending copy.%N");
+         end;
+         check
+            pg_endcopy(conn) = 0;
+         end;
+      end -- endcopy
 
 feature {ANY} -- Transaction
 
@@ -288,7 +393,7 @@ feature {ANY} -- Database Information
          Result /= Void;
       end -- sequences
 
-feature {ANY} -- status
+feature {ANY} -- Status
 
    is_connected: BOOLEAN is
       -- Find out if we're connected.
@@ -313,8 +418,32 @@ feature {ANY} -- status
       require
          has_results;
       do
-         Result := pg_command_ok(res) or pg_tuples_ok(res);
+         Result := not (pg_nonfatal_error(res) or pg_fatal_error(res) or pg_bad_response(res));
       end -- query_successful
+
+   copy_in_ready: BOOLEAN is
+      -- Are we ready for a copy in?
+      require
+         has_results;
+      do
+         Result := pg_copy_in(res);
+      end -- copy_in_ready
+
+   copy_out_ready: BOOLEAN is
+      -- Are we ready for a copy out?
+      require
+         has_results;
+      do
+         Result := pg_copy_out(res);
+      end -- copy_out_ready
+
+   errmsg: STRING is
+      -- Get the last error message.
+      require
+         is_connected;
+      do
+         !!Result.from_external_copy(pg_errmsg(conn));
+      end -- errmsg
 
 feature {ANY} -- Available data
 
@@ -337,6 +466,15 @@ feature {PG} -- Internal data stuff
 
    nullpointer: POINTER;
       -- Result holder for C library.
+
+   c_buffer: NATIVE_ARRAY[CHARACTER];
+      -- buffer for C
+
+   c_buffer_len: INTEGER is 4096;
+      -- length of buffer for C
+
+   tocopy: BOOLEAN;
+      -- Are we doing a to_copy?
 
    host: STRING;
       -- Database host
@@ -460,5 +598,25 @@ feature {PG} -- C bindings
       external "C_WithoutCurrent"
       alias "PQfinish"
       end -- pg_finish
+
+   pg_putline(c, r: POINTER): INTEGER is
+      external "C_WithoutCurrent"
+      alias "PQputline"
+      end -- pg_putline
+
+   pg_getline(c, r: POINTER; length: INTEGER): INTEGER is
+      external "C_WithoutCurrent"
+      alias "PQgetline"
+      end -- pg_getline
+
+   pg_endcopy(c: POINTER): INTEGER is
+      external "C_WithoutCurrent"
+      alias "PQendcopy"
+      end -- pg_endcopy
+
+   pg_errmsg(c: POINTER): POINTER is
+      external "C_WithoutCurrent"
+      alias "PQerrorMessage"
+      end -- pg_errmsg
 
 end -- class PG

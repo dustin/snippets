@@ -1,6 +1,6 @@
 indexing
    description: "Postgres database replication...";
-   version: "$Revision: 1.6 $";
+   version: "$Revision: 1.7 $";
    author: "Dustin Sallings <dustin@spy.net>";
    copyright: "1999";
    license: "See forum.txt.";
@@ -41,7 +41,9 @@ feature {ANY} -- Replication services
          end;
          a := db_from.last_row;
          query := "select setval(" + db_from.quote(seq) + ", " + a @ 0 + ")";
-         io.put_string("Setting " + seq + " to " + a @ 0 + ".%N");
+         debug
+            io.put_string("Setting " + seq + " to " + a @ 0 + ".%N");
+         end;
          db_to.query(query);
       end -- rep_seq
 
@@ -50,48 +52,37 @@ feature {ANY} -- Replication services
       require
          table /= Void;
       local
-         a: ARRAY[STRING];
          b: BOOLEAN;
          query: STRING;
          retry_attempt: INTEGER;
       do
-         io.put_string("Replicating ");
-         io.put_string(table);
-         io.put_string(".%N");
          debug
+            io.put_string("Replicating ");
+            io.put_string(table);
+            io.put_string(".%N");
             io.put_string("Beginning transaction on the to thing.%N");
          end;
+         db_from.copy_from(table);
          db_to.begin;
-         query := "delete from " + table;
-         db_to.query(query);
-         debug
-            io.put_string("Beginning transaction on the from thing.%N");
-         end;
-         db_from.begin;
-         query := "declare c cursor for select * from " + table;
-         db_from.query(query);
+         db_to.query("delete from " + table);
+         db_to.copy_to(table);
          from
-            db_from.query("fetch 1000 in c");
+            b := db_from.getline;
          until
-            db_from.num_rows < 1
+            b = false
          loop
-            from
-               b := db_from.get_row;
-            until
-               b = false
-            loop
-               a := db_from.last_row;
-               query := "insert into " + table + " values(" + join(", ",a) + ")";
-               db_to.query(query);
-               b := db_from.get_row;
-            end;
-            db_from.query("fetch 1000 in c");
+            db_to.putline(db_from.last_line + "%N");
+            b := db_from.getline;
          end;
+         db_to.endcopy;
+         db_from.endcopy;
          db_to.commit;
-         db_from.query("end");
       rescue
          if retry_attempt < max_retry_attempts then
             retry_attempt := retry_attempt + 1;
+            debug
+               io.put_string("PG_REPLICATE: Retrying...%N");
+            end;
             retry;
          end;
       end -- rep_table
@@ -198,11 +189,12 @@ feature {NONE}
          until
             i >= a.upper
          loop
-            Result.append(db_to.quote(a @ i));
+            -- Result.append(db_to.quote(a @ i));
+            Result.append(a @ i);
             Result.append(with);
             i := i + 1;
          end;
-         Result.append(db_to.quote(a @ a.upper));
+         Result.append(a @ a.upper);
       end -- join
 
    max_retry_attempts: INTEGER is 3;
