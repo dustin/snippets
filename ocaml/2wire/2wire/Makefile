@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth
+PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -27,6 +27,10 @@ parseTimingLogbc: parseTimingLog.ml
 rrdIndex: rrdIndex.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa dbm.cmxa stringutils.cmx fileutils.cmx rrdIndex.ml
+
+spreadsheetPivot: spreadsheetPivot.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa stringutils.cmx fileutils.cmx spreadsheetPivot.ml
 
 indexGWAuth: indexGWAuth.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
