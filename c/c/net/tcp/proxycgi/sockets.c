@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 2000/01/16 04:37:14 dustin Exp $
+ * $Id: sockets.c,v 1.2 2000/12/14 01:57:00 dustin Exp $
  */
 
 #include <stdio.h>
@@ -55,7 +55,7 @@ getclientsocket(char *host, int port)
 		flag = 1;
 		if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
 			sizeof(int)) < 0) {
-			puts("Nagle algorithm not dislabled.");
+			puts("Nagle algorithm not disabled.");
 		}
 		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 			sleep(1);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: main.c,v 1.5 2000/01/18 02:53:59 dustin Exp $
+ * $Id: main.c,v 1.6 2000/12/14 01:56:57 dustin Exp $
  */
 
 #include <stdio.h>
@@ -128,7 +128,7 @@ struct ProxyStruct parseuri(char *uri)
 	/* we prepend each part with a / in the for loop */
 	str_append(&grow, "http:/");
 	atmp=split('/', uri);
-	for(i=5; atmp[i]!=NULL; i++) {
+	for(i=3; atmp[i]!=NULL; i++) {
 		str_append(&grow, "/");
 		str_append(&grow, atmp[i]);
 	}
@@ -152,6 +152,46 @@ struct ProxyStruct parseuri(char *uri)
 	freeptrlist(atmp);
 
 	return(ret);
+}
+
+int check_auth(struct ProxyStruct p)
+{
+	int rv=FALSE;
+	char linebuf[80];
+	struct growstring grow;
+	FILE *f=NULL;
+
+	/* Initialize a growstring */
+	grow.size=80*sizeof(char);
+	grow.string=calloc(sizeof(char), grow.size);
+
+	/* Look for ok=host:port */
+	str_append(&grow, "ok=");
+	str_append(&grow, p.url.host);
+	sprintf(linebuf, ":%d", p.url.port);
+	str_append(&grow, linebuf);
+
+#ifdef UGLY_DEBUG
+	fprintf(stderr, "Looking in %s for %s\n", CONFFILE, grow.string);
+#endif
+
+	/* Open the config file and try to find a matching entry */
+	f=fopen(CONFFILE, "r");
+	/* If we opened the file, all's well, else rv will remain false */
+	if(f!=NULL) {
+		/* For each line in the file (as long as we haven't found it */
+		while(rv==FALSE && (fgets(linebuf, sizeof(linebuf), f)!=NULL) ) {
+			if(strncmp(grow.string, linebuf, strlen(grow.string))==0) {
+				/* Found it! */
+				rv=TRUE;
+			}
+		}
+		fclose(f);
+	} else {
+		perror("proxycgi config error:  " CONFFILE);
+	}
+
+	return(rv);
 }
 
 int start_request(struct ProxyStruct proxystruct)
@@ -214,9 +254,13 @@ int parse_headers(char *buf, int *size)
 		if(strncasecmp(left, "HTTP/1.1", 8)==0) {
 			char *ptmp;
 			/* We need to output this directly,
-			   but not let it appear in the file. */
+			 * but not let it appear in the file.
+			 * ...well, sometimes.
+			 */
+			/*
 			write(1, left, strlen(left));
 			write(1, "\r\n", 2);
+			*/
 			left=strchr(left, ' ');
 			assert(left);
 			left++;
@@ -273,6 +317,12 @@ int parse_headers(char *buf, int *size)
 	return(1);
 }
 
+void
+do_error(char *type, char *msg)
+{
+	printf("Status: 500\r\nContent-type: %s\r\n\r\n%s\r\n", type, msg);
+}
+
 int main(int argc, char **argv)
 {
 	struct ProxyStruct proxystruct;
@@ -282,37 +332,43 @@ int main(int argc, char **argv)
 	proxystruct=parseuri(GETENV("REQUEST_URI"));
 
 #ifdef UGLY_DEBUG
-	printf("URL:  %s\nURI:  %s\nFile:  %s\n",
+	fprintf(stderr, "URL:  %s\nURI:  %s\nFile:  %s\n",
 		proxystruct.request_url, proxystruct.request_uri, proxystruct.file);
-	printf("URL Structure:\n\tHost:  %s\n\tPort:  %d\n\tURI:  %s\n",
+	fprintf(stderr, "URL Structure:\n\tHost:  %s\n\tPort:  %d\n\tURI:  %s\n",
 		proxystruct.url.host, proxystruct.url.port, proxystruct.url.req);
-	printf(proxystruct.url.httpreq);
+	fprintf(stderr, proxystruct.url.httpreq);
 #endif /* UGLY_DEBUG */
 
-	ensurepath(proxystruct.file);
-	f=open(proxystruct.tmpfile, O_WRONLY|O_CREAT|O_EXCL, 0644);
-	if(f<0) {
-		perror(proxystruct.tmpfile);
-	}
-
-	s=start_request(proxystruct);
-
-	while( (size=recv(s, recv_buf, sizeof(recv_buf), 0)) > 0) {
-		if(parsed_headers==0) {
-			parsed_headers=parse_headers(recv_buf, &size);
+	/* Make sure we allow access to this host and port (and what not) */
+	if(check_auth(proxystruct)==FALSE) {
+		do_error("text/plain", "You are not authorized to do get this.");
+	} else {
+		ensurepath(proxystruct.file);
+		f=open(proxystruct.tmpfile, O_WRONLY|O_CREAT|O_EXCL, 0644);
+		if(f<0) {
+			perror(proxystruct.tmpfile);
 		}
 
-		rv=write(1, recv_buf, size);
-		assert(rv=size);
+		s=start_request(proxystruct);
 
-		if(f>=0) {
-			rv=write(f, recv_buf, size);
-			assert(rv=size);
+		while( (size=recv(s, recv_buf, sizeof(recv_buf), 0)) > 0) {
+			if(parsed_headers==0) {
+				parsed_headers=parse_headers(recv_buf, &size);
+			}
+
+			rv=write(1, recv_buf, size);
+			assert(rv==size);
+
+			if(f>=0) {
+				rv=write(f, recv_buf, size);
+				assert(rv==size);
+			}
 		}
-	}
 
-	if(rename(proxystruct.tmpfile, proxystruct.file)<0) {
-		perror(proxystruct.file);
+		/* Save it */
+		if(rename(proxystruct.tmpfile, proxystruct.file)<0) {
+			perror(proxystruct.file);
+		}
 	}
 
 	return(0);

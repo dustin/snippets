@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: proxycgi.h,v 1.2 2000/01/17 23:41:42 dustin Exp $
+ * $Id: proxycgi.h,v 1.3 2000/12/14 01:56:58 dustin Exp $
  */
 
 #ifndef PROXYCGI_H
@@ -9,6 +9,18 @@
 
 #define ENVCOMPARE(a, b) (getenv(a)!=NULL) && (strcmp(getenv(a), b)==0)
 #define GETENV(a) getenv(a)!=NULL?getenv(a):""
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef CONFFILE
+#define CONFFILE "/usr/local/etc/proxycgi.conf"
+#endif
 
 struct growstring {
 	size_t size;
