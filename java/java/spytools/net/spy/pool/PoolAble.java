@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.16 2001/08/29 18:09:20 dustin Exp $
+// $Id: PoolAble.java,v 1.17 2001/08/29 18:14:51 dustin Exp $
 
 package net.spy.pool;
 
@@ -259,6 +259,7 @@ public abstract class PoolAble extends Object {
 		StringBuffer out=new StringBuffer();
 		out.append("PoolAble ");
 		out.append(object_id);
+		out.append('@');
 		out.append(Integer.toHexString(hashCode()));
 		if(isCheckedOut()) {
 			out.append(" is checked out");
