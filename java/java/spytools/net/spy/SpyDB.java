@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.19 2000/07/27 19:21:45 dustin Exp $
+ * $Id: SpyDB.java,v 1.20 2000/10/15 08:27:40 dustin Exp $
  */
 
 package net.spy;
@@ -77,6 +77,7 @@ public class SpyDB extends Object {
 			initStuff();
 		} catch(Exception e) {
 			log("Error initializing SpyDB:  " + e);
+			e.printStackTrace();
 		}
 		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
@@ -97,6 +98,7 @@ public class SpyDB extends Object {
 			initStuff();
 		} catch(Exception e) {
 			log("Error initializing SpyDB:  " + e);
+			e.printStackTrace();
 		}
 		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
