@@ -1,6 +1,6 @@
 indexing
    description: "Postgres database replication...";
-   version: "$Revision: 1.7 $";
+   version: "$Revision: 1.8 $";
    author: "Dustin Sallings <dustin@spy.net>";
    copyright: "1999";
    license: "See forum.txt.";
@@ -53,13 +53,12 @@ feature {ANY} -- Replication services
          table /= Void;
       local
          b: BOOLEAN;
-         query: STRING;
          retry_attempt: INTEGER;
       do
-         debug
             io.put_string("Replicating ");
             io.put_string(table);
             io.put_string(".%N");
+         debug
             io.put_string("Beginning transaction on the to thing.%N");
          end;
          db_from.copy_from(table);

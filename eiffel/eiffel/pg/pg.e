@@ -1,6 +1,6 @@
 indexing
    description: "Postgres database access...";
-   version: "$Revision: 1.21 $";
+   version: "$Revision: 1.22 $";
    author: "Dustin Sallings <dustin@spy.net>";
    copyright: "1999";
    license: "See forum.txt.";
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.21 1999/06/16 07:16:27 dustin Exp $
+-- $Id: pg.e,v 1.22 1999/09/14 22:25:05 dustin Exp $
 --
 class PG
 
@@ -322,9 +322,9 @@ feature {ANY} -- Utility
          if s.index_of('%'') < s.count then
             -- We only need to do this slow copy if we've got a quote
             from
-               i := 0;
+               i := 1;
             until
-               i > tmp.count
+               i > s.count
             loop
                if s.item(i) = '%'' then
                   tmp.append_character('%'');
@@ -352,7 +352,12 @@ feature {ANY} -- Database Information
       do
          !!Result.with_capacity(0,16);
          Result.clear;
-         q := "select tablename from pg_tables " + "where tablename not like 'pg_%%'";
+         q := "select tablename from pg_tables " +
+			"where tablename not like 'pg_%%'";
+		 q := "select C.relname from pg_class C where relkind = 'r' " +
+			" and C.relname not like 'pg_%%' " +
+			" and not exists (select rulename from pg_rewrite where " +
+			" ev_class = C.oid and ev_type = '1') ";
          query(q);
          from
             b := get_row;
