@@ -109,6 +109,7 @@ let split s c limit =
 
 (**
  Split a string into a list of Strings.
+
  @param s the original string
  @param l the list of characters on which to split
  @param limit the maximum number of splits to do
@@ -128,6 +129,7 @@ let split_chars s l limit =
 
 (**
  Locate a string in another string.
+
  @param haystack the string in which we are searching
  @param needle the thing for which we are looking
  @param offset where to begin the search (0 for the beginning)
