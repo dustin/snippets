@@ -1,0 +1,85 @@
+#!/bin/sh
+
+set kludge { $*
+    shift
+    shift
+    exec /usr/local/bin/scotty -nf $0 $*
+}
+
+set machines { bob bleu submission www.antigates.com }
+
+proc masscalc {list who} {
+    set timediff [expr [lindex [lindex $list 22] 2] - \
+        [lindex [lindex $list 21 ] 2]]
+    return [expr [lindex [lindex $list $who] 2] / $timediff.0]
+}
+
+proc diffent { ent1 ent2 who } {
+    return [expr [ lindex [lindex $ent2 $who] 2] - \
+        [lindex [lindex $ent1 $who ] 2 ]]
+}
+
+proc load {list} {
+    set l1m [expr [lindex [lindex $list 18] 2]  / 256.0 ];
+    set l5m [expr [lindex [lindex $list 19] 2]  / 256.0 ];
+    set l15m [expr [lindex [lindex $list 20] 2] / 256.0 ];
+
+    return "$l1m $l5m $l15m";
+}
+
+proc displayloads { vals } {
+    foreach val $vals {
+        puts -nonewline ":$val"
+    }
+}
+
+proc cpu { list list2 } {
+    set timediff [diffent $list $list2 22];
+
+    set liluser [expr [diffent $list $list2 0] / $timediff.0];
+    set lilnice [expr [diffent $list $list2 1] / $timediff.0];
+    set lilsys  [expr [diffent $list $list2 2] / $timediff.0];
+    set lilidle [expr [diffent $list $list2 3] / $timediff.0];
+
+    set biguser [masscalc $list2 0];
+    set bignice [masscalc $list2 1];
+    set bigsys  [masscalc $list2 2];
+    set bigidle [masscalc $list2 3];
+
+    return "$liluser $lilnice $lilsys $lilidle \
+        $biguser $bignice $bigsys $bigidle "
+}
+
+proc displaycpu { vals } {
+    for { set i 0 } { $i<4 } { incr i 1 } {
+        puts -nonewline ":[lindex $vals $i ]"
+    }
+}
+
+# Initial run to get the shit on
+foreach machine $machines {
+    set list2($machine) [ sunrpc stat $machine ]
+}
+
+for { set i 0 } { $i<60 } { incr i 1 } {
+
+    foreach machine $machines {
+        set list1($machine) $list2($machine)
+    }
+
+    sleep 1;
+
+    foreach machine $machines {
+        puts -nonewline "$machine:[getclock]"
+        set list2($machine) [ sunrpc stat $machine ]
+
+        set cpuvals [ cpu $list1($machine) $list2($machine) ]
+
+        displaycpu $cpuvals
+
+        set loads [ load $list2($machine) ]
+        displayloads $loads
+
+        puts ""
+    }
+}
