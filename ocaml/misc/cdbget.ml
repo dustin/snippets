@@ -17,7 +17,7 @@ let main() =
 			try
 				let v = (Cdb.find cdb k) in
 				Printf.printf "``%s'' = ``%s''\n" k v;
-			with Stream.Failure ->
+			with Not_found ->
 				Printf.printf "``%s'' = NOT FOUND\n" k;
 		) (Extlist.nthtail (Array.to_list Sys.argv) 2);
 		Cdb.close_cdb_in cdb
