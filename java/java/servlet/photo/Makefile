@@ -11,7 +11,7 @@ SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java
 
-CLASSES=PhotoServlet.class Toker.class UploadServlet.class
+CLASSES=PhotoServlet.class Toker.class
 
 .SUFFIXES: .java .class .jar
 
