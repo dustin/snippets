@@ -53,16 +53,17 @@ let open_out fn =
 
 (** Add a value to the cdb *)
 let add cdc k v =
+	(* Add the hash to the list *)
+	let h = hash k in
+	cdc.pointers <- cdc.pointers @ [(h, pos_out cdc.out)];
+	cdc.table_count.(h land 0xff) <- cdc.table_count.(h land 0xff) + 1;
+
 	(* Add the data to the file *)
 	write_le cdc (String.length k);
 	write_le cdc (String.length v);
 	output_string cdc.out k;
 	output_string cdc.out v;
 
-	(* Add the hash to the list *)
-	let h = hash k in
-	cdc.pointers <- cdc.pointers @ [(h, pos_out cdc.out)];
-	cdc.table_count.(h land 0xff) <- cdc.table_count.(h land 0xff) + 1;
 ;;
 
 (** Is this option none? *)
@@ -107,7 +108,8 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 				if ((where + 1) = len) then (find_where 0)
 				else (find_where (where + 1))
 			) in
-		let where = find_where (((fst hp) / 256) mod len) in
+		(* Do an lsr 8 to divide by 256 without breaking negs *)
+		let where = find_where (((fst hp) lsr 8) mod len) in
 		ht.(where) <- Some hp;
 	done;
 	(* Write this hash table *)
@@ -156,6 +158,7 @@ let main() =
 	add c "a" "1";
 	add c "b" "2";
 	add c "c" "3";
+	add c "dustin" "We're number one!";
 	close_cdb_out c;
 ;;
 
