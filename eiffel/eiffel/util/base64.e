@@ -1,111 +1,130 @@
 indexing
-	description: "Base64 stuff.";
-
+   description: "Base64 stuff.";
 class BASE64
 
-creation
-	make
+creation {ANY}
+   make
 
-feature
-	-- Constructors
+feature {ANY} -- Constructors
 
-	make is
-		local
-			s: STRING;
-		do
-			s:=encode("ABC");
-			io.put_string("ABC encoded is ");
-			io.put_string(s);
-			io.put_string("%N");
-		end
+   make is
+      -- Initialization
+      local
+         s: STRING;
+      do
+         init_const;
+         s := encode(argument(1));
+         io.put_string("Encoding:%N");
+         io.put_string(argument(1));
+         io.put_string("%NResults:%N");
+         io.put_string(s);
+         io.put_string("%N");
+      end -- make
 
-feature {ANY}
-	-- Actual encode/decode stuff
-	encode(in: STRING): STRING is
-		local
-			ab, bb, cb, db, tmpa, tmpb, lasttwo,
-				lastfour, lastsix, firsttwo, outa, outb, outc, outd: BIT 8;
-			i: INTEGER;
-			a, b, c: CHARACTER;
-		do
-			!!Result.make(0);
-			Result.clear;
+feature {ANY} -- Actual encode/decode stuff
 
-			lasttwo:= truncate ((("00000011").binary_to_integer).to_bit);
-			lastfour:= truncate ((("00001111").binary_to_integer).to_bit);
-			lastsix:= truncate((("00111111").binary_to_integer).to_bit);
-			firsttwo:= truncate((("11000000").binary_to_integer).to_bit);
+   encode(in: STRING): STRING is
+      -- Base64 Encode.
+      local
+         ab, bb, cb, db, tmpa, tmpb: BIT 8;
+         i, o: INTEGER;
+         a, b, c: CHARACTER;
+         second, third: BOOLEAN;
+      do
+         !!Result.make(0);
+         Result.clear;
+         from
+            i := 1;
+            o := 0;
+         until
+            i > in.count
+         loop
+            a := in.item(i);
+            ab := a.to_bit;
+            if in.valid_index(i + 1) then
+               second := true;
+               b := in.item(i + 1);
+               bb := b.to_bit;
+               if in.valid_index(i + 2) then
+                  third := true;
+                  c := in.item(i + 2);
+                  cb := c.to_bit;
+               else
+                  third := false;
+               end;
+            else
+               second := false;
+            end;
+            tmpa := ab;
+            Result.add_last(get_char(tmpa @>> 2));
+            tmpa := (ab and lasttwo) @<< 4;
+            if second then
+               tmpb := bb @>> 4;
+               Result.add_last(get_char(tmpb or tmpa));
+               tmpa := bb and lastfour;
+               tmpa := tmpa @<< 2;
+               if third then
+                  tmpb := cb and firsttwo;
+                  tmpb := tmpb @>> 6;
+                  Result.add_last(get_char(tmpa or tmpb));
+                  Result.add_last(get_char(cb and lastsix));
+               else
+                  Result.add_last(get_char(tmpa));
+                  Result.add_last('=');
+               end;
+            else
+               Result.add_last(get_char(tmpa));
+               Result.add_last('=');
+               Result.add_last('=');
+            end;
+            i := i + 3;
+            o := o + 4;
+            if o \\ 76 = 0 then
+               -- Base64 says lines should be 76 characters.
+               Result.add_last('%N');
+            end;
+         end;
+      end -- encode
 
-			from
-				i:=1;
-			until
-				i>in.count
-			loop
-				a:=in.item(i);
-				b:=in.item(i+1);
-				c:=in.item(i+2);
-
-				ab:=a.to_bit;
-				bb:=b.to_bit;
-				cb:=c.to_bit;
-
-				-- start on first byte
-				tmpa:=ab;
-				outa:= (tmpa @>> 2);
-
-				-- start on second byte
-				tmpa:= (ab and lasttwo) @<< 4;
-				tmpb:= bb @>> 4;
-				outb:= (tmpb or tmpa);
-
-				-- start on third byte
-				tmpa:=bb and lastfour;
-				tmpa:= tmpa @<< 2;
-
-				tmpb:=cb and firsttwo;
-				tmpb:= tmpb @>> 6;
-
-				outc:= (tmpa or tmpb);
-
-				-- start on fourth byte
-				outd:= (cb and lastsix) ;
-
-				display(outa, outb, outc, outd);
-
-				i:=i+3;
-			end
-		end
-
-	decode(in: STRING): STRING is
-		do
-		end
+   decode(in: STRING): STRING is
+      -- Base64 Decode.
+      do
+      end -- decode
 
 feature {NONE}
 
-	display(a, b, c, d: BIT 8) is
-		local
-			i: INTEGER;
-		do
-			i:=a.to_integer;
-			io.put_character(charmap.item(i+1));
+   get_char(b: BIT 8): CHARACTER is
+      -- Get the character this bit pattern represents.
+      local
+         i: INTEGER;
+      do
+         i := b.to_integer;
+         Result := charmap.item(i + 1);
+      end -- get_char
 
-			i:=b.to_integer;
-			io.put_character(charmap.item(i+1));
+   truncate(in: BIT 32): BIT 8 is
+      -- Truncate a BIT 32 to a BIT 8
+      do
+         Result := in.to_integer.to_character.to_bit;
+      end -- truncate
 
-			i:=c.to_integer;
-			io.put_character(charmap.item(i+1));
+   init_const is
+      -- Set up some constants, can't find a better way.
+      once
+         lasttwo := truncate(("00000011").binary_to_integer.to_bit);
+         lastfour := truncate(("00001111").binary_to_integer.to_bit);
+         lastsix := truncate(("00111111").binary_to_integer.to_bit);
+         firsttwo := truncate(("11000000").binary_to_integer.to_bit);
+      end -- init_const
 
-			i:=d.to_integer;
-			io.put_character(charmap.item(i+1));
+   lasttwo: BIT 8;
 
-			io.put_string("%N");
-		end
+   lastfour: BIT 8;
 
-	truncate(in: BIT 32): BIT 8 is
-		do
-			Result:=((in.to_integer).to_character).to_bit;
-		end
+   lastsix: BIT 8;
 
-	charmap: STRING is
-	  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
-end
+   firsttwo: BIT 8;
+
+   charmap: STRING is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+end -- class BASE64
