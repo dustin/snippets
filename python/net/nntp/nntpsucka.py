@@ -10,6 +10,7 @@ import anydbm
 import signal
 import os
 import sys
+import re
 
 # My pidlock
 import pidlock
@@ -255,13 +256,20 @@ class NNTPSucka:
                 print "Failed:  " + str(e)
         self.db.setLastId(groupname, last)
 
-    def copyServer(self):
+    def shouldProcess(self, group, ignorelist):
+        rv = True
+        for i in ignorelist:
+            if i.match(group) is not None:
+                rv = False
+        return rv
+
+    def copyServer(self, ignorelist=[]):
         """Copy all groups that appear on the destination server to the
         destination server from the source server."""
         resp, list = self.dest.list()
         for l in list:
             group=l[0]
-            if group != 'control.cancel':
+            if self.shouldProcess(group, ignorelist):
                 try:
                     self.copyGroup(group)
                 except nntplib.NNTPTemporaryError, e:
@@ -279,6 +287,14 @@ def alarmHandler(sig, frame):
     """Do nothing but raise a timeout."""
     raise Timeout
 
+def getIgnoreList(fn):
+    rv=[]
+    f=open(fn)
+    for l in f.readlines():
+        l=l.strip()
+        rv.append(re.compile(l))
+    return rv
+
 def main():
     # Lock to make sure only one is running at a time.
     lock=pidlock.PidLock("nntpsucka.pid")
@@ -293,10 +309,14 @@ def main():
     try:
         s=NNTPClient(sys.argv[1])
         d=NNTPClient(sys.argv[2])
+        ign=[re.compile('^control\.')]
+        if len(sys.argv) > 2:
+            ign=getIgnoreList(sys.argv[3])
         sucka=NNTPSucka(s,d)
-        sucka.copyServer()
+        sucka.copyServer(ign)
     except IndexError:
-        sys.stderr.write("Usage:  " + sys.argv[0] + " srchost desthost.\n")
+        sys.stderr.write("Usage:  " + sys.argv[0] \
+            + " srchost desthost [ignorelist].\n")
     except Timeout:
         sys.stderr.write("Took too long.\n")
     # Mark the stop time
