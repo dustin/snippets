@@ -6,6 +6,7 @@ JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
+COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
 C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
@@ -44,6 +45,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/SpyIntegerComparable.class \
 	net/spy/util/SpyLDIFReader.class \
 	net/spy/util/InterfaceImplementor.class \
+	net/spy/util/QuickRun.class \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/pool/PoolAble.class \
@@ -132,4 +134,4 @@ net/spy/db/CachePreparedStatement.java: \
 		-outputclass net.spy.db.CachePreparedStatement
 
 .java.class:
-	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
+	env CLASSPATH=$(CLASSPATH) $(COMPILE) $<
