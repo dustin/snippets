@@ -133,14 +133,13 @@ char *TranslateKeyCode(XEvent *ev)
         else
           strcpy(key_buff, "");
       }
-
      return key_buff;
    }
   else
     return NULL;
 }
 
-#define _dump(a) printf("%s:  %u\n", #a, xke->a);
+#define _dump(a) printf("%s:  0x%x\n", #a, xke->a);
 
 void dumpEvent(XKeyEvent *xke)
 {
