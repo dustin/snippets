@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.2 2002/05/23 18:49:53 dustin Exp $
+	$Id: build.xml,v 1.3 2002/05/23 20:43:11 dustin Exp $
 
   -->
 
@@ -25,6 +25,17 @@
 			</fileset>
 		</delete>
 	</target>
+
+  <target name="docs">
+    <javadoc destdir="docs"
+      author="true"
+      version="true"
+      use="true"
+      sourcePath="."
+      packagenames="net.spy.*"
+      windowtitle="Spy.jar Documentation">
+    </javadoc>
+  </target>
 
 	<target name="spy.jar" depends="all">
 		<jar jarfile="spy.jar" basedir=".">
