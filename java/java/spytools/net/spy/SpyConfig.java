@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.9 2000/06/27 08:00:21 dustin Exp $
+ * $Id: SpyConfig.java,v 1.10 2000/06/28 23:22:35 dustin Exp $
  */
 
 package net.spy;
@@ -12,9 +12,11 @@ import java.io.*;
 
 /**
  * SpyConfig - an abstracted config file maintainer.
- * <p>
- * Currently, the config file must be in XML, in a specific format.
- * I'll fix that.
+ *
+ * The current config file format is that of a java Properties file.  This
+ * class makes it easier to load them, caches them, and gives a good base
+ * for extensions that load default config files for projects that are hard
+ * to pass config filepaths into.
  */
 
 public class SpyConfig extends Hashtable {
@@ -49,6 +51,15 @@ public class SpyConfig extends Hashtable {
 		}
 	}
 
+	/**
+	 * Try to load a config file.  This function exists primarily for
+	 * classes that extend SpyConfig and want to have multiple default
+	 * locations for config files.
+	 *
+	 * @param conffile Path to the configuration file to load.
+	 *
+	 * @return true if the config loaded successfully.
+	 */
 	public boolean loadConfig(String conffile) {
 		boolean loaded=false;
 
@@ -147,8 +158,16 @@ public class SpyConfig extends Hashtable {
 		return(r);
 	}
 
-	// Assign a value to a key if there isn't already one.
-	protected void orput(String key, String value) {
+	/**
+	 * Assign a value to the config only if it doesn't already exist.
+	 * Useful for setting defaults.
+	 *
+	 * @param key config key
+	 * @param value config value
+	 *
+	 */
+
+	public void orput(String key, String value) {
 		if(!containsKey(key)) {
 			put(key, value);
 		}
