@@ -4,6 +4,11 @@
  * arch-tag: D078EA68-1252-11D8-9231-000393CFE6B8
  *)
 
+(**
+ A doubly linked list implementation.
+ *)
+
+(** Type for doubly linked lists. *)
 type 'a node = {
 	data: 'a;
 	mutable prev: 'a node;
@@ -107,5 +112,3 @@ let pop_first l =
 	remove l l.l;
 	first
 ;;
-
-let debug_print = (fun x -> print_endline("Node: " ^ (string_of_int x)));;
