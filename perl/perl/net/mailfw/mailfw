@@ -11,7 +11,7 @@ use strict;
 # * path to the configuration file
 my(%conf, @files, @badParts, $conf_file);
 
-$conf_file="/usr/local/etc/mailfw.conf";
+$conf_file="mailfw.conf";
 
 # Make sure the mime type is acceptable according to our ``good'' list.
 sub checkType
@@ -227,8 +227,18 @@ eval {
 		my(@parts)=($e2, $entity->parts());
 		$entity->parts(\@parts);
 
+		# Add our headers, and sync everything up.
+		my $head = $entity->head;
+		$head->add('X-Firewalled', 'Portions removed');
+		$entity->head($head);
+		$entity->sync_headers(Length=>'COMPUTE');
+
 		sendMessage($to, $from,
 			$entity->stringify_header(), $entity->stringify_body());
+		if( defined($conf{'rejects_to'}) && $conf{'rejects_to'}=~/\w/) {
+			sendMessage($conf{'rejects_to'}, $from,
+				$entity->stringify_header(), $entity->stringify_body());
+		}
 	} else {
 		# It was good, just send the message as it came to us.
 		sendMessage($to, $from, <$tmpfile>);
