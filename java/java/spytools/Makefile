@@ -65,7 +65,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/SpyCacheDB.class
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
-	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util
+	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util \
+	net.spy.db
 
 FDEST=/home/dustin/lib/java
 SCP=scp
