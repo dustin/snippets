@@ -10,15 +10,9 @@ feature {ANY} -- Constructors
    make is
       -- Initialization
       local
-         s: STRING;
+         s, d: STRING;
       do
          init_const;
-         s := encode(argument(1));
-         io.put_string("Encoding:%N");
-         io.put_string(argument(1));
-         io.put_string("%NResults:%N");
-         io.put_string(s);
-         io.put_string("%N");
       end -- make
 
 feature {ANY} -- Actual encode/decode stuff
@@ -88,10 +82,92 @@ feature {ANY} -- Actual encode/decode stuff
 
    decode(in: STRING): STRING is
       -- Base64 Decode.
+      local
+         ab, bb, cb, db, tmpa, tmpb: BIT 8;
+         o: INTEGER;
+         a, b, c: CHARACTER;
+         second, third: BOOLEAN;
       do
+         !!Result.make(0);
+         Result.clear;
+         from
+            current_char := 0;
+            o := 0;
+         until
+            current_char > in.count
+         loop
+            if find_next(in) then
+               ab := the_bits(in);
+            end;
+            if find_next(in) then
+               bb := the_bits(in);
+            end;
+            if find_next(in) then
+               if is_padding(in) then
+                  second := false;
+               else
+                  cb := the_bits(in);
+                  second := true;
+               end;
+            end;
+            if find_next(in) then
+               if is_padding(in) then
+                  third := false;
+               else
+                  db := the_bits(in);
+                  third := true;
+               end;
+            end;
+            tmpa := ab @<< 2;
+            tmpb := bb @>> 4 and lasttwo;
+            Result.add_last((tmpa or tmpb).to_character);
+            if second then
+               -- second byte
+               tmpa := bb @<< 4;
+               tmpb := cb @>> 2 and lastfour;
+               Result.add_last((tmpa or tmpb).to_character);
+               if third then
+                  -- third byte
+                  Result.add_last((db or cb @<< 6).to_character);
+               end;
+            end;
+         end;
       end -- decode
 
 feature {NONE}
+
+   the_bits(s: STRING): BIT 8 is
+      -- The bits of the current data
+      require
+         current_char <= s.count;
+      local
+         i: INTEGER;
+      do
+         i := charmap.index_of(s.item(current_char)) - 1;
+         Result := truncate(i.to_bit);
+      end -- the_bits
+
+   is_padding(s: STRING): BOOLEAN is
+      do
+         Result := s.item(current_char).is_equal('=');
+      end -- is_padding
+
+   find_next(s: STRING): BOOLEAN is
+      -- Find the next decodeable character
+      do
+         current_char := current_char + 1;
+         from
+            Result := false;
+         until
+            current_char > s.count or Result = true
+         loop
+            if charmap.has(s.item(current_char)) then
+               Result := true;
+            else
+               current_char := current_char + 1;
+            end;
+         end;
+      end -- find_next
 
    get_char(b: BIT 8): CHARACTER is
       -- Get the character this bit pattern represents.
@@ -124,6 +200,8 @@ feature {NONE}
    lastsix: BIT 8;
 
    firsttwo: BIT 8;
+
+   current_char: INTEGER;
 
    charmap: STRING is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
