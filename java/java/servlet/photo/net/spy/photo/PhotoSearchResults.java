@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSearchResults.java,v 1.1 2000/03/17 09:41:23 dustin Exp $
+ * $Id: PhotoSearchResults.java,v 1.2 2000/06/06 06:00:32 dustin Exp $
  */
 
 package net.spy.photo;
@@ -43,6 +43,11 @@ public class PhotoSearchResults extends Object {
 	// Get the current entry
 	public PhotoSearchResult get() {
 		return((PhotoSearchResult)results.elementAt(current));
+	}
+
+	// Get a specific
+	public PhotoSearchResult get(int which) {
+		return((PhotoSearchResult)results.elementAt(which));
 	}
 
 	// Get the next result, or null if we're done

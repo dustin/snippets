@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.11 2000/05/01 04:32:36 dustin Exp $
+ * $Id: PhotoSession.java,v 1.12 2000/06/06 06:00:34 dustin Exp $
  */
 
 package net.spy.photo;
@@ -661,9 +661,8 @@ public class PhotoSession extends Object
 	protected void doDisplayBySearchId() throws ServletException {
 		PhotoSearchResults results=null;
 		results=(PhotoSearchResults)session.getValue("search_results");
-		int to=Integer.parseInt(request.getParameter("search_id"));
-		results.set(to);
-		PhotoSearchResult r = results.get();
+		int which=Integer.parseInt(request.getParameter("search_id"));
+		PhotoSearchResult r = results.get(which);
 		Hashtable h = new Hashtable();
 
 		h.put("IMAGE",     r.image);
@@ -676,18 +675,18 @@ public class PhotoSession extends Object
 		h.put("CATNUM",    r.catnum);
 		h.put("ADDEDBY",   r.addedby);
 
-		if(results.nResults() > to+1) {
+		if(results.nResults() > which+1) {
 			h.put("NEXT",
-				"<a href=\"" + self_uri + "?func=display&search_id=" + (to+1)
-				+ "\">&gt;&gt;&gt;</a><br>");
+				"<a href=\"" + self_uri + "?func=display&search_id="
+				+ (which+1) + "\">&gt;&gt;&gt;</a><br>");
 		} else {
 			h.put("NEXT", "");
 		}
 
-		if(to>0) {
+		if(which>0) {
 			h.put("PREV",
-				"<a href=\"" + self_uri + "?func=display&search_id=" + (to-1)
-				+ "\">&lt;&lt;&lt;</a><br>");
+				"<a href=\"" + self_uri + "?func=display&search_id="
+				+ (which-1) + "\">&lt;&lt;&lt;</a><br>");
 		} else {
 			h.put("PREV", "");
 		}
