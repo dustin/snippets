@@ -175,6 +175,25 @@ int process(struct tcp_stream *ts, int which,
 	return(rv);
 }
 
+/*
+ * Return 1 if a request is OK.
+ */
+int ok_request(char *req) {
+	int rv=0;
+
+	if(req!=NULL) {
+		if(strncmp(req, "GET", 3)==0) {
+			rv=1;
+		} else if(strncmp(req, "POST", 4)==0) {
+			rv=1;
+		} else if(strncmp(req, "HEAD", 4)==0) {
+			rv=1;
+		}
+	}
+
+	return(rv);
+}
+
 void log_request(struct http_param *param)
 {
 	char *ref=NULL;
@@ -182,7 +201,7 @@ void log_request(struct http_param *param)
 	char *agent=NULL;
 
 	/* Only log of a request came through */
-	if(param->req) {
+	if(param->req && ok_request(param->req)) {
 		ref=param->ref;
 		host=param->vhost;
 		agent=param->agent;
@@ -259,7 +278,13 @@ void logger(int type, int errnum, struct ip *iph, void *data)
 
 int main(int argc, char **argv)
 {
+	if(argc>1) {
+		nids_params.pcap_filter=argv[1];
+		fprintf(stderr, "Set filter to \"%s\"\n", nids_params.pcap_filter);
+	}
+	/*
 	nids_params.syslog = logger;
+	*/
 	nids_params.scan_num_hosts=0;
 	nids_params.scan_num_ports=0;
 	nids_init();
