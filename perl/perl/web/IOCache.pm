@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.7 1998/12/15 18:51:10 dustin Exp $
+# $Id: IOCache.pm,v 1.8 2000/04/25 23:25:49 dustin Exp $
 
 =pod
 
@@ -57,7 +57,7 @@ Dustin Sallings <dustin@spy.net>
 
 =head1 VERSION
 
-$Id: IOCache.pm,v 1.7 1998/12/15 18:51:10 dustin Exp $
+$Id: IOCache.pm,v 1.8 2000/04/25 23:25:49 dustin Exp $
 
 =cut
 
@@ -110,7 +110,7 @@ use MD5;
 
 		open(__IOCACHE_SAVESTDOUT, ">&STDOUT");
 		$self->{'stdout'}=__IOCACHE_SAVESTDOUT;
-		open(STDOUT, ">/tmp/iocache.$fkey.tmp.$$");
+		open(STDOUT, ">/tmp/iocache.$fkey.tmp.$$", 0600);
 
 		return($self);
 	}
@@ -123,6 +123,12 @@ use MD5;
 
 		$md=MD5->new;
 		$md->add($key);
+		$md->add($$);
+		$md->add($<);
+		$md->add($();
+		$md->add($^T);
+		$md->add(time());
+		$md->add(rand());
 		$dig=$md->hexdigest;
 		return($dig);
 	}
@@ -145,7 +151,7 @@ use MD5;
 		# if we have any output, cache it.
 		if(-s "/tmp/iocache.$fkey.tmp.$$") {
 			# read it in
-			open(__IOCACHE_READIN, "/tmp/iocache.$fkey.tmp.$$");
+			open(__IOCACHE_READIN, "/tmp/iocache.$fkey.tmp.$$", 0600);
 			# unlink here, just in case.
 			unlink("/tmp/iocache.$fkey.tmp.$$");
 			$stuff=join('', <__IOCACHE_READIN>);
