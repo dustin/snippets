@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Geo.java,v 1.2 2002/03/06 06:43:04 dustin Exp $
+// $Id: Geo.java,v 1.3 2002/03/06 06:45:53 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -66,6 +66,18 @@ public class Geo extends Object {
 
 			h.put("center_longitude", new Double(center.getLongitude()));
 			h.put("center_latitude", new Double(center.getLatitude()));
+
+			String source=poly.getSource();
+			String type="unknown";
+			if(source.startsWith("zt")) {
+				type="zipcode";
+			} else if(source.startsWith("co")) {
+				type="county";
+			} else if(source.startsWith("st")) {
+				type="state";
+			}
+
+			h.put("type", type);
 
 			rv.addElement(h);
 		}
