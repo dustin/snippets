@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.9 2002/08/21 00:53:02 dustin Exp $
+// $Id: DBSP.java,v 1.10 2002/08/21 22:27:14 dustin Exp $
 
 package net.spy.db;
 
@@ -113,24 +113,19 @@ public abstract class DBSP extends SpyCacheDB {
 		prepare();
 
 		ResultSet rs=null;
-		try {
-			rs=pst.executeQuery();
+		rs=pst.executeQuery();
 
-			if (debug) {
-				System.err.print("Returned: ");
-				ResultSetMetaData rsmd=rs.getMetaData();
-				String cols="";
-				for (int x=1; x<=rsmd.getColumnCount(); x++) {
-					if (x>1) {
-						cols+=", ";
-					}
-					cols+=rsmd.getColumnName(x)+"="+rsmd.getColumnTypeName(x);
+		if (debug) {
+			System.err.print("Returned: ");
+			ResultSetMetaData rsmd=rs.getMetaData();
+			String cols="";
+			for (int x=1; x<=rsmd.getColumnCount(); x++) {
+				if (x>1) {
+					cols+=", ";
 				}
-				System.err.println(cols);
+				cols+=rsmd.getColumnName(x)+"="+rsmd.getColumnTypeName(x);
 			}
-		} catch (SQLException se) {
-			String msg="Problem executing update: " + se;
-			throw new SQLException(msg);
+			System.err.println(cols);
 		}
 
 		return(rs);
@@ -297,12 +292,7 @@ public abstract class DBSP extends SpyCacheDB {
 	protected void prepare() throws SQLException {
 
 		// Make sure all the arguments are there.
-		try {
-			checkArgs();
-		} catch (SQLException se) {
-			String msg="When checking args got the following error: " + se;
-			throw new SQLException(msg);
-		}
+		checkArgs();
 
 		// Get ready to build our query.
 		StringBuffer querySb=new StringBuffer(256);
@@ -333,12 +323,7 @@ public abstract class DBSP extends SpyCacheDB {
 		if(cachetime>0) {
 			pst=prepareStatement(query, cachetime);
 		} else {
-			try {
-				pst=prepareStatement(query);
-			} catch (SQLException se) {
-				String msg="Error preparing statement: " + se;
-				throw new SQLException (msg);
-			}
+			pst=prepareStatement(query);
 		}
 
 		// Fill in the arguments.
@@ -393,12 +378,7 @@ public abstract class DBSP extends SpyCacheDB {
 		if(cachetime>0) {
 			pst=prepareStatement(query, cachetime);
 		} else {
-			try {
-				pst=prepareStatement(query);
-			} catch (SQLException se) {
-				String msg="Error preparing statement: " + se;
-				throw new SQLException (msg);
-			}
+			pst=prepareStatement(query);
 		}
 
 		// Use this iterator for the now positional arguments
@@ -467,6 +447,8 @@ public abstract class DBSP extends SpyCacheDB {
 							+ TypeNames.getTypeName(type) + "(" + type + ")"
 							+ " seems to have been overlooked.");
 				}
+			} catch(SQLException se) {
+				throw se;
 			} catch (Exception applyException) {
 				applyException.printStackTrace();
 				String msg="Problem setting " + key

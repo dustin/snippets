@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSQL.java,v 1.3 2002/07/10 05:41:21 dustin Exp $
+// $Id: DBSQL.java,v 1.4 2002/08/21 22:27:16 dustin Exp $
 
 package net.spy.db;
 
@@ -34,12 +34,7 @@ public abstract class DBSQL extends DBSP {
 	protected void prepare() throws SQLException {
 		// Make sure all the arguments are there.
 
-		try {
-			checkArgs();
-		} catch (SQLException se) {
-			String msg="Found an error when checking the arguments: " + se;
-			throw new SQLException(msg);
-		}
+		checkArgs();
 		applyArgs(getRequiredInorder());
 	}
 }

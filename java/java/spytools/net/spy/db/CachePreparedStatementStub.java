@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.14 2002/08/21 00:53:00 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.15 2002/08/21 22:27:13 dustin Exp $
  */
 
 package net.spy.db;
@@ -120,12 +120,7 @@ public class CachePreparedStatementStub extends Object {
 		SpyCache cache=SpyCache.getInstance();
 		CachedResultSet crs=(CachedResultSet)cache.get(key);
 		if(crs==null) {
-			try {
-				crs=realExecuteQuery();
-			} catch(Exception e) {
-				e.printStackTrace();
-				throw new SQLException("Error getting stuff from db:  " + e);
-			}
+			crs=realExecuteQuery();
 			cache.store(key, crs, cacheTime*1000);
 		}
 		ResultSet crsret=(ResultSet)crs.newCopy();
@@ -134,7 +129,7 @@ public class CachePreparedStatementStub extends Object {
 
 	// OK, here's what happens when we determine that we really don't have
 	// the data and need to come up with it.
-	private CachedResultSet realExecuteQuery() throws Exception {
+	private CachedResultSet realExecuteQuery() throws SQLException {
 		PreparedStatement pst=db.prepareStatement(queryStr);
 
 		// Set allllllll the types

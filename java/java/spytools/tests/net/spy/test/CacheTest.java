@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings
  *
- * $Id: CacheTest.java,v 1.4 2002/08/17 04:02:28 dustin Exp $
+ * $Id: CacheTest.java,v 1.5 2002/08/21 22:27:19 dustin Exp $
  */
 
 package net.spy.test;
@@ -21,6 +21,8 @@ public class CacheTest extends TestCase {
 
 	// The ever-increasing value that will be stored in the cache.
 	private int val=0;
+
+	private SpyCache cache=null;
 
     /**
      * Get an instance of CacheTest.
@@ -43,9 +45,21 @@ public class CacheTest extends TestCase {
 		junit.textui.TestRunner.run(suite());
 	}
 
-	public void testBasicCaching() throws InterruptedException {
-		SpyCache cache=SpyCache.getInstance();
+	/**
+	 * Get the cache.
+	 */
+	protected void setUp() {
+		cache=SpyCache.getInstance();
+	}
 
+	/**
+	 * Get rid of the cache.
+	 */
+	protected void tearDown() {
+		cache = null;
+	}
+
+	public void testBasicCaching() throws InterruptedException {
 		String key="testInt";
 
 		Integer i=(Integer)cache.get(key);
@@ -70,8 +84,6 @@ public class CacheTest extends TestCase {
 	}
 
 	public void testReferenceCaching() throws InterruptedException {
-		SpyCache cache=SpyCache.getInstance();
-
 		String key="testInt";
 
 		Integer i=(Integer)cache.get(key);

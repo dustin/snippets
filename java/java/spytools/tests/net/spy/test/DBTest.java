@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTest.java,v 1.2 2002/08/15 07:12:56 dustin Exp $
+// $Id: DBTest.java,v 1.3 2002/08/21 22:27:20 dustin Exp $
 
 package net.spy.test;
 
@@ -33,6 +33,7 @@ public class DBTest extends TestCase {
 	 */
 	public DBTest(String name) {
 		super(name);
+		conf=new SpyConfig(new java.io.File("test.conf"));
 	}
 
 	/**
@@ -47,13 +48,6 @@ public class DBTest extends TestCase {
 	 */
 	public static void main(String args[]) {
 		junit.textui.TestRunner.run(suite());
-	}
-
-	/**
-	 * Get the config.
-	 */
-	protected void setUp() {
-		conf=new SpyConfig(new java.io.File("test.conf"));
 	}
 
 	private void checkRow(ResultSet rs) throws SQLException {

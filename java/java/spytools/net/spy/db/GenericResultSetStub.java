@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: GenericResultSetStub.java,v 1.4 2002/08/21 00:53:04 dustin Exp $
+ * $Id: GenericResultSetStub.java,v 1.5 2002/08/21 22:27:17 dustin Exp $
  */
 
 package net.spy.db;
@@ -279,12 +279,8 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		boolean rv=false;
 		Object o=getResultColumn(index);
 		if(o!=null) {
-			try {
-				Boolean b=(Boolean)o;
-				rv=b.booleanValue();
-			} catch(Exception e) {
-				throw new SQLException("Error getting boolean value:  " + e);
-			}
+			Boolean b=(Boolean)o;
+			rv=b.booleanValue();
 		}
 
 		return(rv);
@@ -339,7 +335,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		if(o!=null) {
 			try {
 				n=(Number)o;
-			} catch(Exception e) {
+			} catch(ClassCastException e) {
 				throw new SQLException("Error getting Number value:  " + e);
 			}
 		} else {
@@ -358,7 +354,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		if(o!=null) {
 			try {
 				rv=(BigDecimal)o;
-			} catch(Exception e) {
+			} catch(ClassCastException e) {
 				throw new SQLException("Error getting date value:  " + e);
 			}
 		}
@@ -375,7 +371,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		if(o!=null) {
 			try {
 				rv=(java.sql.Date)o;
-			} catch(Exception e) {
+			} catch(ClassCastException e) {
 				throw new SQLException("Error getting date value:  " + e);
 			}
 		}
@@ -391,7 +387,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		if(o!=null) {
 			try {
 				rv=(java.sql.Time)o;
-			} catch(Exception e) {
+			} catch(ClassCastException e) {
 				throw new SQLException("Error getting time value:  " + e);
 			}
 		}
@@ -407,7 +403,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 		if(o!=null) {
 			try {
 				rv=(java.sql.Timestamp)o;
-			} catch(Exception e) {
+			} catch(ClassCastException e) {
 				throw new SQLException("Error getting timestamp value:  " + e);
 			}
 		}

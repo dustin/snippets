@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcherTest.java,v 1.4 2002/08/21 07:09:05 dustin Exp $
+// $Id: URLWatcherTest.java,v 1.5 2002/08/21 22:27:21 dustin Exp $
 
 package net.spy.test;
 
@@ -21,6 +21,8 @@ import net.spy.cron.SimpleTimeIncrement;
  * Test the URLWatcher thing.
  */
 public class URLWatcherTest extends TestCase {
+
+	private URLWatcher uw=null;
 
 	/**
 	 * Get an instance of URLWatcherTest.
@@ -44,12 +46,25 @@ public class URLWatcherTest extends TestCase {
 	}
 
 	/**
+	 * Get the URLWatcher.
+	 */
+	protected void setUp() {
+		uw=URLWatcher.getInstance();
+	}
+
+	/**
+	 * Get rid of the URLWatcher.
+	 */
+	protected void tearDown() {
+		uw.shutdown();
+	}
+
+	/**
 	 * Test basic URL watching functionality.
 	 */
 	public void testBasicURLWatching()
 		throws IOException, InterruptedException {
 
-		URLWatcher uw=URLWatcher.getInstance();
 		URL u=new URL("http://bleu.west.spy.net/~dustin/util/getdate.jsp");
 		String c1=uw.getContent(u);
 		assertNotNull(c1);
@@ -59,8 +74,6 @@ public class URLWatcherTest extends TestCase {
 
 		assertSame("Different results", c1, c2);
 		assertEquals(c1 + "!=" + c2, c1, c2);
-
-		uw.shutdown();
 	}
 
 	/**
@@ -69,7 +82,6 @@ public class URLWatcherTest extends TestCase {
 	public void testManualURLWatching()
 		throws IOException, InterruptedException {
 
-		URLWatcher uw=URLWatcher.getInstance();
 		URL u=new URL("http://bleu.west.spy.net/~dustin/util/getdate.jsp");
 
 		if(uw.isWatching(u)) {
@@ -93,8 +105,6 @@ public class URLWatcherTest extends TestCase {
 		String s3=uw.getContent(u);
 		assertNotNull("Third content not returned", s3);
 		assertTrue("Expected different results on third run", (!s2.equals(s3)));
-
-		uw.shutdown();
 	}
 
 	/**
@@ -112,7 +122,6 @@ public class URLWatcherTest extends TestCase {
 			"http://bleu.west.spy.net/~dustin/projects/spytest.xtp",
 			"http://bleu.west.spy.net/~dustin/projects/spyjar.xtp"};
 
-		URLWatcher uw=URLWatcher.getInstance();
 		HashMap content=new HashMap();
 
 		for(int i=0; i<urls.length; i++) {
@@ -143,7 +152,5 @@ public class URLWatcherTest extends TestCase {
 			assertEquals("Second run was different for " + u, s1, s);
 			assertSame("Second run was a different instance for " + u, s1, s);
 		}
-
-		uw.shutdown();
 	}
 }
