@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseTimingLog.scm,v 1.2 2002/12/28 12:10:20 dustin Exp $
+; $Id: parseTimingLog.scm,v 1.3 2002/12/28 21:11:03 dustin Exp $
 
 (module parse-timing-log
 	(import
@@ -8,6 +8,10 @@
 	  (loglib "loglib.scm")
 	  (stringlib "../stringlib.scm"))
 	(main main))
+
+; ----------------------------------------------------------------------
+; Struct definitions
+; ----------------------------------------------------------------------
 
 ; Individual log entry
 (define-struct log-entry
@@ -21,6 +25,10 @@
 (define-struct per-block
 			   ts counts times total)
 
+; ----------------------------------------------------------------------
+; Globals.
+; ----------------------------------------------------------------------
+
 ; The different types of logs
 (define *log-types* '("HB" "BOOT" "KICK" "XMLRPC"))
 
@@ -29,6 +37,10 @@
 
 ; Here we track the current list of objects to print
 (define *perblock* (make-hashtable))
+
+; ----------------------------------------------------------------------
+; Miscellaneous support routines.
+; ----------------------------------------------------------------------
 
 ; Parse a log entry
 (define (parse-log-entry line)
@@ -55,7 +67,7 @@
 	(log-timing-nearest-ts-set! rv (log-entry-nearest-ts start))
 	rv))
 
-; Print a log entry
+; Print a log entry (debug)
 (define (print-log-entry le)
   (print "Log entry - ts:"
 		 (log-entry-timestamp le)
@@ -82,7 +94,8 @@
 	  *log-types*)
 	rv))
 
-; Get the block for the given timestamp
+; Get the block for the given timestamp.
+; Will create a block if there isn't one for the given timestamp.
 (define (get-block ts)
   (let ((rv (hashtable-get *perblock* (real->string ts))))
 	(if (not rv)
@@ -90,6 +103,10 @@
 		(set! rv (init-per-block ts))
 		(hashtable-put! *perblock* (real->string ts) rv)))
 	rv))
+
+; Dump a hashtable
+(define (dump-hash h)
+  (hashtable-for-each h (lambda (k v) (print (cons k v)))))
 
 ; Record a log entry (has no time, but is a start or end)
 (define (record-log-entry block t)
@@ -120,11 +137,7 @@
 					  old))
 	  0)))
 
-; Dump a hashtable
-(define (dump-hash h)
-  (hashtable-for-each h (lambda (k v) (print (cons k v)))))
-
-; Record a timestamp or log entry
+; Record a timestamp or log entry (polymorphic, uses the above two routines)
 (define (record-timing t)
   (cond
 	((log-entry? t)
@@ -136,30 +149,6 @@
 	(else (error "record-timing"
 				 "Don't know what to do with this item"
 				 t))))
-
-; Collect a log entry.
-(define (collect le)
-  (record-timing le)
-  (let ((key (string-append
-			   (log-entry-serial le)
-			   " . "
-			   (log-entry-type le))))
-	(if (string=? (log-entry-state le) "start")
-	  ; Update the hashtable, checks for duplicates
-	  (hashtable-update!
-		*eventcache*
-		key
-		(lambda (old)
-		  (warning (string-append
-					 "Duplicate start for " (log-entry-serial le)))
-		  le)
-		le)
-	  (let ((start (hashtable-get *eventcache* key)))
-		(if start
-		  (begin
-			(record-timing (get-timing start le))
-			(hashtable-remove! *eventcache* key))
-		  (warning (list "No start for end " key)))))))
 
 ; Print the block header (regular rrdtool stuff and the columns)
 (define (print-block-header filename)
@@ -196,7 +185,44 @@
 		*log-types*))))
   (newline))
 
-; Dump out the results
+; ----------------------------------------------------------------------
+; Main Routines
+; ----------------------------------------------------------------------
+
+; Collect a log entry.
+;
+; For each entry, figure out the state.  If it's a start, record it in the
+; event cache as a start.
+;
+; If it's an end, try to find the start to calculate the transaction time,
+; and then remove the start from the event cache.
+(define (collect le)
+  (record-timing le)
+  (let ((key (string-append
+			   (log-entry-serial le)
+			   " . "
+			   (log-entry-type le))))
+	(if (string=? (log-entry-state le) "start")
+	  ; Update the hashtable, checks for duplicates
+	  (hashtable-update!
+		*eventcache*
+		key
+		(lambda (old)
+		  (warning (string-append
+					 "Duplicate start for " (log-entry-serial le)))
+		  le)
+		le)
+	  (let ((start (hashtable-get *eventcache* key)))
+		(if start
+		  (begin
+			(record-timing (get-timing start le))
+			(hashtable-remove! *eventcache* key))
+		  (warning (list "No start for end " key)))))))
+
+
+; Dump out the results.
+;
+; Get the sorted list of collected blocks and print each block.
 (define (print-output filename)
   (for-each
 	(lambda (block) (print-block block filename))
@@ -208,6 +234,9 @@
 			   (per-block-ts y))))))
 
 ; Process the file
+; First, collect all of the log entries from lines that contain
+; TransactionTiming (see collect).
+; Second, print out the collected lines.
 (define (process-to-rrd filename)
   (conditional-input-loop
 	(lambda (line) (strstr line "TransactionTiming" 40))
