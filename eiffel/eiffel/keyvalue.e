@@ -1,5 +1,10 @@
 indexing
 	description: "Key/value pair."
+	author: "Dustin Sallings <dustin@spy.net>";
+	version: "$Revision: 1.3 $";
+	copyright: "1999";
+	license: "See forum.txt";
+
 
 class KEYVALUE creation
 	make
