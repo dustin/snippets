@@ -1,7 +1,7 @@
 *
 * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 *
-* $Id: test.mixal,v 1.1 2002/12/02 08:27:37 dustin Exp $
+* $Id: test.mixal,v 1.2 2002/12/03 09:05:31 dustin Exp $
 *
 OUTDEV	EQU	19
 EXITVAL EQU 25
@@ -16,14 +16,14 @@ START	IOC 0(OUTDEV)
 		LD1 =25=
 		ST1	EXITADDR(1:5)
 
-LOOP	STA TMP				* Make a copy of the accumulator
+1H		STA TMP				* Make a copy of the accumulator
 		CHAR				* to characters (in X)
 		STX PRINTME			* Store X into PRINTME
 		OUT PRINTME(OUTDEV) * Send PRINTME to the output device
 		LDA TMP				* Put the original accumulator value back
 		INCA 1				* Increment the accumulator
 		CMPA	EXITADDR	* See if it's as many as we planned to do
-		JL	LOOP			* If we're done, we're done
+		JL	1B				* If we're done, we're done
 
-DONE	HLT
+		HLT					* Finished, end
 		END START
