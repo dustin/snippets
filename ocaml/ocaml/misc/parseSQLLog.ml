@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.5 2002/12/11 11:18:54 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.6 2002/12/12 00:23:43 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
@@ -27,7 +27,7 @@ let is_log_entry(l: string): bool =
 
 (* Parse time from the given timestamp *)
 let parse_time(l: string): int =
-	let times = split_chars(l, [' '; ':'; '-']) in
+	let times = split_chars(l, [' '; ':'; '-'], 7) in
 	int_of_float(fst(Unix.mktime {
 		tm_sec = int_of_string(List.nth times 5);
 		tm_min = int_of_string(List.nth times 4);
@@ -44,8 +44,8 @@ let parse_time(l: string): int =
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
 
-	let parts = split(l, ' ') in
-	let tparts = split((List.nth parts 10), '/') in
+	let parts = split(l, ' ', 12) in
+	let tparts = split((List.nth parts 10), '/', 3) in
 		{
 			(* line[0:19] *)
 			time = parse_time(String.sub l 0 19);
