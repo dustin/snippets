@@ -78,7 +78,7 @@ let block_diff prevdir newdir prog n data digest old_digest =
 		 "NEWPATH=" ^ (makefn newdir n)]) in
 	(* Open the subprocess *)
 	let pout,pin,perr = Unix.open_process_full prog args in
-	(* Send the data, but ignore the return value *)
+	(* Send the data to the subprocess *)
 	output pin data 0 (String.length data);
 	(* Check the result of the subprocess *)
 	(match Unix.close_process_full(pout,pin,perr) with
