@@ -38,13 +38,13 @@
   (set! x
 	(cond
 	  ((< x 2) 2)
-	  ((divisble? x 2) (+ x 1))
-	  ((prime? x) (+ x 2))
+	  ((divisible? x 2) (+ x 1))
+	  ((learning-prime? x) (+ x 2))
 	  (else x)))
   ; Find the next prime
   (do
 	((i x (+ i 2)))
-	( (prime? i) i)))
+	( (learning-prime? i) i)))
 
 ; Get the last value in a list
 (define
@@ -121,15 +121,11 @@
 	  (+ (car l) (sum (cdr l)))))
 
 (define
-  deltas
-  (lambda (l)
-	(let ((lastn #f) (tmp '()))
-	  (for-each (lambda(i)
-				  (cond
-					((number? lastn)
-					 (set! tmp
-					   (append tmp
-							   (list (- i lastn)))))
-					(else #t))
-				  (set! lastn i)) l)
-	  tmp)))
+  (deltas l)
+  (let ((lastn #f) (tmp '()))
+	(for-each (lambda(i)
+				(if (number? lastn)
+				  (set! tmp (append tmp (list (- i lastn))))
+				  #t)
+				(set! lastn i))
+			  l) tmp))
