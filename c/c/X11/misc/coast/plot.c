@@ -29,6 +29,7 @@
 Display *display;
 Window rootwindow, window;
 GC gc;
+Cursor normal_cursor, busy_cursor;
 int screen, font_height, have_font;
 XFontStruct *font;
 
@@ -68,7 +69,7 @@ define_bounds(void)
 #ifdef DEBUG
   printf("%i points\nmin_lat=%f max_lat=%f\nmin_lng=%f max_lng=%f\n\
 lat_diff/lng_diff=%f\n", header.num_points, min_lat, max_lat, min_lng,
-max_lng, (float)( (max_lat-min_lat) / (max_lng-min_lng) ));
+	 max_lng, (float) ((max_lat - min_lat) / (max_lng - min_lng)));
 #endif
   fclose(infile);
 }
@@ -174,17 +175,17 @@ main(int argc, char *argv[])
 	   * For an expose event, I just replot the whole thing.
 	   */
 	case MappingNotify:
-          XRefreshKeyboardMapping(&event.xmapping);
-          break;
+	  XRefreshKeyboardMapping(&event.xmapping);
+	  break;
 	case Expose:
 	  xplot();
 	  break;
 	case KeyPress:
-          keyevent(&event.xkey);
-          break;
+	  keyevent(&event.xkey);
+	  break;
 	case MotionNotify:
-          reportpos(event.xmotion.x, event.xmotion.y);
-          break;
+	  reportpos(event.xmotion.x, event.xmotion.y);
+	  break;
 	case ButtonPress:
 	  buttonevent(event.xbutton.x, event.xbutton.y, event.xbutton.button);
 	  break;
