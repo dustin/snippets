@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.8 1998/07/06 01:57:07 dustin Exp $
+-- $Id: photo.sql,v 1.9 1998/07/19 20:26:15 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -14,7 +14,8 @@ create table album(
     ts       timestamp default now(),
     cat      int,
     taken    date,
-    size     int
+    size     int,
+    addedby  varchar(16)
 );
 
 create unique index album_byoid on album(oid);
