@@ -8,9 +8,9 @@ do
 	if [ ! -d "$d" ]
 	then
 		echo "New entry in config, building $d"
-		tc=tmpconf.$$
+		tc=,,tmpconf.$$
 		rm -f $tc
-		echo $d > $tc
+		tla cat-config $1 | egrep "^($d)" > $tc
 		tla build-config $tc
 		rm -f $tc
 	else
