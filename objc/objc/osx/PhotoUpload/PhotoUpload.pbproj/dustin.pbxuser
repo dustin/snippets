@@ -13,14 +13,14 @@
 			F5601AEE035372CE0109FEFA,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 55840636;
+			PBXPerProjectTemplateStateSaveDate = 55841782;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F56F8FA30354123C01A801C4;
+									bookmark = F5B4D2BA0354141B01A801C4;
 									history = (
 										F5DA9BA90353F87301A801C4,
 										F5DA9BAA0353F87301A801C4,
@@ -31,7 +31,7 @@
 										F52C09B903540F7601A801C4,
 										F56F8F9E0354123C01A801C4,
 										F56F8F9F0354123C01A801C4,
-										F56F8FA00354123C01A801C4,
+										F56F8FA30354123C01A801C4,
 									);
 									nextStack = (
 										F56F8FA10354123C01A801C4,
@@ -216,10 +216,10 @@
 					StatusViewVisible = YES;
 					Template = F5F68CF101725D4C0D7A8F4C;
 					ToolbarVisible = YES;
-					WindowLocation = "{-35, 37}";
+					WindowLocation = "{22, 30}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 55840636;
+			PBXWorkspaceStateSaveDate = 55841782;
 		};
 		perUserProjectItems = {
 			F52C09B803540F7601A801C4 = F52C09B803540F7601A801C4;
@@ -235,10 +235,10 @@
 			F5601BA50353748D0109FEFA = F5601BA50353748D0109FEFA;
 			F56F8F9E0354123C01A801C4 = F56F8F9E0354123C01A801C4;
 			F56F8F9F0354123C01A801C4 = F56F8F9F0354123C01A801C4;
-			F56F8FA00354123C01A801C4 = F56F8FA00354123C01A801C4;
 			F56F8FA10354123C01A801C4 = F56F8FA10354123C01A801C4;
 			F56F8FA20354123C01A801C4 = F56F8FA20354123C01A801C4;
 			F56F8FA30354123C01A801C4 = F56F8FA30354123C01A801C4;
+			F5B4D2BA0354141B01A801C4 = F5B4D2BA0354141B01A801C4;
 			F5DA9BA90353F87301A801C4 = F5DA9BA90353F87301A801C4;
 			F5DA9BAA0353F87301A801C4 = F5DA9BAA0353F87301A801C4;
 			F5DA9BAB0353F87301A801C4 = F5DA9BAB0353F87301A801C4;
@@ -361,24 +361,6 @@
 		fRef = F52C09B603540EAB01A801C4;
 		isa = PBXBookmark;
 	};
-	F56F8FA00354123C01A801C4 = {
-		isa = PBXTargetBookmark;
-		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {362, 66}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {140, 368}}";
-			TOCViewSelectedItems = (
-				PBXProductIconSettingsModule,
-			);
-		};
-	};
 	F56F8FA10354123C01A801C4 = {
 		fRef = F5601B14035373480109FEFA;
 		isa = PBXTextBookmark;
@@ -396,8 +378,12 @@
 	F56F8FA30354123C01A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = 29B97326FDCFA39411CA2CEA;
+	};
+	F5B4D2BA0354141B01A801C4 = {
+		isa = PBXTargetBookmark;
+		trg = 29B97326FDCFA39411CA2CEA;
 		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {364, 187}}";
+			TOCViewDetailVisibleRect = "{{0, 0}, {362, 119}}";
 			TOCViewExpandedItems = (
 				"com.apple.target-editor-pane.settings",
 				"com.apple.target-editor-pane.settings.simple",
@@ -405,9 +391,9 @@
 				"com.apple.target-editor-pane.info-plist.simple",
 				"com.apple.target-editor-pane.buildphases",
 			);
-			TOCViewMasterVisibleRect = "{{0, 94}, {138, 368}}";
+			TOCViewMasterVisibleRect = "{{0, 96}, {140, 368}}";
 			TOCViewSelectedItems = (
-				29B9732BFDCFA39411CA2CEA,
+				29B9732DFDCFA39411CA2CEA,
 			);
 		};
 	};
