@@ -8,8 +8,6 @@ PROGS=parseSQLLog
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
-.PHONY: $(PROGS)
-
 all: $(PROGS)
 
 parseSQLLog: parseSQLLog.ml
