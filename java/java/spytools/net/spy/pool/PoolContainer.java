@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.24 2001/05/25 00:21:21 dustin Exp $
+// $Id: PoolContainer.java,v 1.25 2001/06/01 22:58:04 dustin Exp $
 
 package net.spy.pool;
 
@@ -239,6 +239,8 @@ public class PoolContainer extends Object {
 				}
 			}
 			// OK, now let's get rid of the ones we can.
+			// Let's not do this for now...
+			/*
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()>=PoolAble.MAY_CLEAN) {
@@ -250,6 +252,7 @@ public class PoolContainer extends Object {
 					}
 				}
 			} // Getting rid of stuff
+			*/
 
 			// If we don't have enough objects, go get more!  They're cheap!
 			if(totalObjects()<_min_objects) {
