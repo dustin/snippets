@@ -15,6 +15,8 @@
 #define _setcolor(x) XSetForeground(display, gc, x)
 #define _setpixel(x, y) XDrawPoint(display, window, gc, x, y)
 
+char X11rcsid[] = "$Id: X11.c,v 1.16 1996/01/17 21:02:30 dustin Exp $";
+
 extern Display *display;
 extern Window window, rootwindow;
 extern GC gc;

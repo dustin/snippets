@@ -13,8 +13,6 @@
 #define safe_vga_drawpixel(x, y) \
 	if (x >= 0 && y >= 0 && x < MAX_X && y < MAX_Y) vga_drawpixel(x,y)
 
-char rcsid[] = "$Id: vga.c,v 1.6 1995/08/02 18:24:21 dustin Exp $";
-
 extern float max_lat, min_lat, max_lng, min_lng;
 extern int color;
 extern char *filename;
@@ -166,13 +164,25 @@ void
 init_vga()
 {
   float aspect;
+  Head header;
+  FILE *infile;
   vga_init();			/*
 				 * init vgalib graphics
 				 */
   vga_setmode(VGAMODE);
   setup_palette();
 
-  aspect = fabs((lat_diff / (float) ((float) max_x / (float) max_y) - lng_diff));
+  if (NULL == (infile = fopen(filename, "rb")))
+    {
+      perror(filename);
+      exit(12);
+    }
+
+  fread(&header, sizeof(header), 1, infile);
+
+  fclose(infile);
+
+  aspect = fabs((header.lat_diff / (float) ((float) MAX_X / (float) MAX_Y) - header.lng_diff));
   max_lat += aspect;
   min_lat -= aspect;
 }
