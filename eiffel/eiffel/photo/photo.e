@@ -5,8 +5,7 @@ class PHOTO
 inherit
    MORE_FILE_TOOLS;
    BASE64
-      rename encode as base64_encode, decode as base64_decode,
-		init_const as base64_init_const
+      rename encode as base64_encode, decode as base64_decode, init_const as base64_init_const
       redefine make
       end;
 
@@ -21,7 +20,7 @@ feature {ANY} -- Creation
          !!db.make;
          db.set_host("bleu");
          db.set_dbname("photo");
-		 base64_init_const;
+         base64_init_const;
       end -- make
 
 feature {ANY} -- Misc stuff
@@ -36,22 +35,22 @@ feature {ANY} -- Misc stuff
          retry_attempts: INTEGER;
       do
          Result := - 1;
-            check
-               db.connect;
+         check
+            db.connect;
+         end;
+         !!query.copy("select getwwwuser(");
+         query.append(db.quote(get_environment_variable("REMOTE_USER")));
+         query.append(")");
+         if db.query(query) then
+            if db.get_row then
+               a := db.last_row;
+               Result := a.item(0).to_integer;
             end;
-            !!query.copy("select getwwwuser(");
-            query.append(db.quote(get_environment_variable("REMOTE_USER")));
-            query.append(")");
-            if db.query(query) then
-               if db.get_row then
-                  a := db.last_row;
-                  Result := a.item(0).to_integer;
-               end;
-            end;
+         end;
       rescue
          if retry_attempts < max_retry_attempts then
-		retry_attempts := retry_attempts + 1;
-		retry;
+            retry_attempts := retry_attempts + 1;
+            retry;
          end;
       end -- getuid
 
