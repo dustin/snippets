@@ -1,19 +1,25 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64OutputStream.java,v 1.2 2001/03/31 10:13:03 dustin Exp $
+// $Id: Base64OutputStream.java,v 1.3 2001/03/31 10:37:09 dustin Exp $
 
 package net.spy.util;
 
 import java.io.*;
 
+/**
+ * A FilterOutputStream that encodes data into Base64.
+ */
 public class Base64OutputStream extends FilterOutputStream {
 
-	Base64 base64=null;
-	int currentByte=0;
-	int currentOutput=0;
-	byte buffer[]=null;
-	byte crlf[]=null;
+	private Base64 base64=null;
+	private int currentByte=0;
+	private int currentOutput=0;
+	private byte buffer[]=null;
+	private byte crlf[]=null;
 
+	/**
+	 * Get a new Base64OutputStream encoding the given OutputStream.
+	 */
 	public Base64OutputStream(OutputStream os) {
 		super(os);
 		base64=new Base64();
@@ -23,12 +29,22 @@ public class Base64OutputStream extends FilterOutputStream {
 		crlf[1]='\n';
 	}
 
+	/**
+	 * Writes len bytes from the specified byte array starting at offset off
+	 * to this output stream.  See the documentation for FilterOutputStream
+	 * for more details.
+	 *
+	 * @see FilterOutputStream
+	 */
 	public void write(byte data[], int offset, int length) throws IOException {
 		for(int i=offset; i<offset+length; i++) {
 			write(data[i]);
 		}
 	}
 
+	/**
+	 * Close this stream and finish up the Base64.
+	 */
 	public void close() throws IOException {
 		if(currentByte>0) {
 			byte tmp[]=new byte[currentByte];
@@ -44,6 +60,9 @@ public class Base64OutputStream extends FilterOutputStream {
 		super.close();
 	}
 
+	/**
+	 * Write the given byte to the underlying OutputStream.
+	 */
 	public void write(byte datum) throws IOException {
 		buffer[currentByte++]=datum;
 		if(currentByte==3) {
