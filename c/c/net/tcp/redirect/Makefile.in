@@ -1,0 +1,29 @@
+# Copyright (c) 1998  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1998/01/02 05:41:46 dustin Exp $
+
+SHELL=/bin/sh
+CC=@CC@
+INCLUDES=-Ireadconfig -I.
+DEFINES=
+CFLAGS=@CFLAGS@ $(INCLUDES) $(DEFINES)
+LIBS=@LIBS@ readconfig/readconfig.a
+
+OBJS=main.o sockets.o
+SRCS=main.c sockets.c
+EXES=redirect
+AUTOJUNK=config.h config.status config.cache config.log Makefile
+JUNK=$(OBJS) $(EXES)
+
+redirect: readconfig $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+readconfig: readconfig/readconfig.a
+
+readconfig/readconfig.a:
+	cd @top_srcdir@/readconfig && make && cd @top_srcdir@
+
+clean:
+	rm -f $(JUNK) core
+
+ultrabrite: clean
+	rm -f $(AUTOJUNK)
