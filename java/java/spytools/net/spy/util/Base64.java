@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.5 2001/03/31 08:49:02 dustin Exp $
+// $Id: Base64.java,v 1.6 2001/03/31 10:01:38 dustin Exp $
 
 package net.spy.util;
 
@@ -131,6 +131,15 @@ public class Base64 extends Object {
 		}
 
 		return(rv);
+	}
+
+	/**
+	 * Is this character a valid Base64 character?
+	 *
+	 * @return true if this character is in our Base64 character map.
+	 */
+	public boolean isValidBase64Char(char c) {
+		return(mapIndex(c)>=0);
 	}
 
 	private int mapIndex(char c) {

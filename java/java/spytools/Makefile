@@ -48,6 +48,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/QuickRun.class \
 	net/spy/util/Debug.class \
 	net/spy/util/Base64.class \
+	net/spy/util/Base64OutputStream.class \
+	net/spy/util/Base64InputStream.class \
 	net/spy/util/SPGen.class \
 	'net/spy/util/SPGen$$Parameter.class' \
 	net/spy/pool/ObjectPool.class \
