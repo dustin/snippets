@@ -1,12 +1,16 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: rstat.c,v 1.5 1998/05/15 07:37:26 dustin Exp $
+ * $Id: rstat.c,v 1.6 1998/05/24 10:14:07 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpcsvc/rstat.h>
+
+#ifdef THREADED
+#include <pthread.h>
+#endif
 
 #ifndef FSCALE
 #define FSHIFT  8
@@ -41,6 +45,11 @@
 
 #define DO_ALL (DO_CPU|DO_DISK|DO_PAGE|DO_SWAP|DO_INTR|DO_NET|DO_SWTCH| \
                 DO_LOAD|DO_BOOT|DO_TIME|DO_UPTIME)
+
+struct input {
+    char *host;
+    int flags;
+};
 
 static void printuptime(int secs)
 {
@@ -158,23 +167,23 @@ static void printstatp(struct statstime statp[2], int flags)
     }
 }
 
-static void dohost(char *host, int flags)
+static void dohost(struct input *i)
 {
     struct statstime statp[2];
     int r=0;
-    r+=rstat(host, &statp[0]);
-    if(flags&(DO_CPU|DO_DISK|DO_PAGE|DO_SWAP|DO_INTR|DO_NET|DO_SWTCH)) {
+    r+=rstat(i->host, &statp[0]);
+    if(i->flags&(DO_CPU|DO_DISK|DO_PAGE|DO_SWAP|DO_INTR|DO_NET|DO_SWTCH)) {
         sleep(1);
-        r+=rstat(host, &statp[1]);
+        r+=rstat(i->host, &statp[1]);
     } else {
 	statp[1]=statp[0];
     }
 
     if(r == 0) {
-        printf("%s:\n", host);
-	printstatp(statp, flags);
+        printf("%s:\n", i->host);
+	printstatp(statp, i->flags);
     } else {
-       printf("rstat of %s was unsuccessful\n", host);
+       printf("rstat of %s was unsuccessful\n", i->host);
     }
 }
 
@@ -182,6 +191,10 @@ int main(int argc, char **argv)
 {
     int flags=0, c;
     extern int optind;
+    struct input input;
+#ifdef THREADED
+    pthread_t rthread;
+#endif
 
     while( (c=getopt(argc, argv, "acdpsinvlbtu")) != -1) {
 	switch(c) {
@@ -207,7 +220,13 @@ int main(int argc, char **argv)
     }
 
     while(optind<argc) {
-	dohost(argv[optind++], flags);
+	input.host=argv[optind++];
+	input.flags=flags;
+#ifdef THREADED
+        pthread_create(&rthread, NULL, dohost, &input);
+#else
+	dohost(&input);
+#endif
     }
 
     return(0);
