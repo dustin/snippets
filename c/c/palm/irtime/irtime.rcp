@@ -1,17 +1,8 @@
 #include "irtime.h"
 
-VERSION ID 1 "0.10"
+VERSION ID 1 "1.0"
 ICON "irtime.bmp"
 SMALLICON "irtime_small.bmp"
-
-FORM ID formID_MainForm AT (0 0 160 160)
-NOFRAME
-USABLE
-BEGIN
-  TITLE "IR Time"
-
-  BUTTON "Send Time" ID ctlID_SendButton AT (5 20 AUTO AUTO) USABLE FRAME
-END
 
 ALERT ID alertID_Info
 ERROR

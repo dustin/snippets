@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.3 2000/08/22 07:45:41 dustin Exp $
+ * $Id: irtime.c,v 1.4 2000/08/22 08:29:36 dustin Exp $
  */
 
 #include <Common.h>
@@ -17,38 +17,13 @@
 #define myAppId 'IRTM'
 #define TimeType "application/x-irtm-seconds"
 
-typedef struct
+void alertPopup(CharPtr msg)
 {
-  RectangleType bounds;
-  SWord X, Y;
-} TtyGadget;
-
-static TtyGadget tty;
-
-static void
-Print(CharPtr msg)
+	FrmCustomAlert(alertID_Error, msg, " ", " ");
+}
+void infoPopup(CharPtr msg)
 {
-  RectangleType vacated;
-
-  while (*msg) {
-    switch (*msg) {
-    case '\n':
-      if (tty.Y >= tty.bounds.extent.y - FntCharHeight()) {
-	WinScrollRectangle(&tty.bounds, up, FntCharHeight(), &vacated);
-	WinEraseRectangle(&vacated, 0);
-	tty.X = 0; tty.Y -= FntCharHeight();
-      } else {
-	tty.X = 0; tty.Y += FntCharHeight();
-      }
-      break;
-    default:
-      WinDrawChars(msg, 1, tty.bounds.topLeft.x + tty.X,
-		   tty.bounds.topLeft.y + tty.Y);
-      tty.X += FntCharWidth(*msg);
-      break;
-    }
-    msg++;
-  }
+	FrmCustomAlert(alertID_Info, msg, " ", " ");
 }
 
 #define exgErrThing(a) case a: msg=#a "\n"; break;
@@ -90,10 +65,8 @@ void displayExgError(Err e)
 	char *msg=NULL;
 
 	msg=getExgError(e);
-	if(msg==NULL) {
-		Print("no error\n");
-	} else {
-		Print(msg);
+	if(msg!=NULL) {
+		alertPopup(msg);
 	}
 }
 
@@ -114,8 +87,6 @@ void do_send()
 	exgsocket.length=sizeof(t);
 	exgsocket.target=myAppId;
 
-	Print("Sending...\n");
-
 	err=ExgPut(&exgsocket);
 	displayExgError(err);
 	if(err==0) {
@@ -124,93 +95,6 @@ void do_send()
 		err=ExgDisconnect(&exgsocket, err);
 		displayExgError(err);
 	}
-
-	Print("Done\n");
-}
-
-static Boolean
-MainFormHandleEvent(EventPtr event)
-{
-  FormPtr form;
-
-  switch (event->eType) {
-  case frmOpenEvent:
-    form = FrmGetActiveForm();
-    FrmDrawForm(form);
-    return true;
-
-  case ctlSelectEvent:
-    switch (event->data.ctlEnter.controlID) {
-    case ctlID_SendButton:
-      do_send();
-      return true;
-    }
-    break;
-  }
-
-  return false;
-}
-
-static Boolean
-AppHandleEvent(EventPtr event)
-{
-  Word formID;
-  FormPtr form;
-
-  if (event->eType == frmLoadEvent)    {
-    formID = event->data.frmLoad.formID;
-    form = FrmInitForm(formID);
-    FrmSetActiveForm(form);
-    switch (formID) {
-    case formID_MainForm:
-      FrmSetEventHandler(form, (FormEventHandlerPtr) MainFormHandleEvent);
-      return true;
-    default:
-      ErrDisplay("unhandled form ID");
-      return false;
-    }
-  }
-  return false;
-}
-
-static void
-EventLoop(void)
-{
-  Word err;
-  EventType event;
-
-  do {
-    EvtGetEvent(&event, evtWaitForever);
-
-    if (SysHandleEvent(&event)) continue;
-    if (MenuHandleEvent((void *)0, &event, &err)) continue;
-    if (AppHandleEvent(&event)) continue;
-    FrmDispatchEvent(&event);
-  } while (event.eType != appStopEvent);
-}
-
-static Err
-StartApplication(void)
-{
-  Err err;
-
-  /* Initialize the tty gadget. */
-  RctSetRectangle(&tty.bounds, 0, 70, 160, 8 * FntCharHeight());
-  WinEraseRectangle(&tty.bounds, 0);
-  tty.X = tty.Y = 0;
-
-  FrmGotoForm(formID_MainForm);
-  return 0;
-}
-
-void alertPopup(CharPtr msg)
-{
-	FrmCustomAlert(alertID_Error, msg, " ", " ");
-}
-
-void infoPopup(CharPtr msg)
-{
-	FrmCustomAlert(alertID_Info, msg, " ", " ");
 }
 
 static void
@@ -265,10 +149,7 @@ PilotMain (Word cmd, Ptr cmdPBP, Word launchFlags)
 
   switch(cmd) {
 	case sysAppLaunchCmdNormalLaunch:
-		if(!StartApplication()) {
-			EventLoop();
-			StopApplication();
-		}
+		do_send();
 		break;
 	case sysAppLaunchCmdExgAskUser:
 		askparam=(ExgAskParamType *)cmdPBP;
