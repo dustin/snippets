@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.1 2001/03/30 09:20:56 dustin Exp $
+// $Id: Base64.java,v 1.2 2001/03/30 09:34:23 dustin Exp $
 
 package net.spy.util;
 
@@ -11,8 +11,7 @@ public class Base64 extends Object {
 		'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 		'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '=',
-		'"'
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
 	};
 
 	/**
@@ -88,11 +87,14 @@ public class Base64 extends Object {
 		int pos=0;
 		int count=0;
 		int packer=0;
+		int invalid=0;
 
 		for(int i=0; i<insize; i++) {
 			int x=mapIndex(input.charAt(i));
 
+			// Skip over invalid characters.
 			if(x<0) {
+				invalid++;
 				continue;
 			}
 
@@ -113,12 +115,20 @@ public class Base64 extends Object {
 
 		// Any remainders?
 		if(count==2) {
-			System.err.println("Remainder 2");
 			rv[pos++]=(byte)(( (packer << 12) >> 16)&0xFF);
 		} else if(count==3) {
-			System.err.println("Remainder 3");
 			rv[pos++]=(byte)(( (packer << 6) >> 16)&0xFF);
 			rv[pos++]=(byte)(( (packer << 6) >> 8) & 0xFF);
+		}
+
+		// If there were any invalid characters, our size was wrong.
+		if(invalid>0) {
+			System.err.println("There were invalid characters, copying");
+			byte tmp[]=new byte[pos];
+			System.arraycopy(rv, 0, tmp, 0, pos);
+			System.out.println("Old size:  " + rv.length);
+			rv=tmp;
+			System.out.println("New size:  " + rv.length);
 		}
 
 		return(rv);
@@ -155,7 +165,7 @@ public class Base64 extends Object {
 
 	public static void main(String args[]) throws Exception {
 		String testStr="";
-		for(int i=0; i<100; i++) {
+		for(int i=0; i<1000; i++) {
 			test(testStr);
 			testStr+=(i%10);
 		}
