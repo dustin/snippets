@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# $Id: grState.cgi,v 1.1 1997/12/12 21:36:01 dustin Exp $
+# $Id: grState.cgi,v 1.2 1997/12/15 09:06:49 dustin Exp $
 
 use GIFgraph::lines;
 
@@ -93,7 +93,8 @@ while(<IN>)
 
 close(IN);
 
-$ymax = int($ymax)+1;
+$realmax=sprintf("%.3f", $ymax);
+$ymax = int(10*($ymax+.1))/10;
 # $ymax = 100 if ($ymax > 100);
 
 chdir($libdir);
@@ -102,7 +103,7 @@ $my_graph = new GIFgraph::lines(800, 300);
 
 $my_graph->set( 'y_label' => "$field for $host",
                 'x_label' => 'Time',
-                'title' => "$field for $host",
+                'title' => "$field for $host (max $realmax)",
                 'y_max_value' => $ymax,
                 'y_min_value' => 0,
 		'x_label_skip' => 8,
