@@ -3,11 +3,11 @@
 <!--
 	Build file for spy.jar
 
-	Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.4 2002/05/29 20:21:35 dustin Exp $
+	$Id: build.xml,v 1.5 2002/05/30 04:05:37 dustin Exp $
 
-  -->
+	-->
 
 <project name="spy.jar" default="spy.jar" basedir=".">
 
@@ -24,23 +24,26 @@
 		<delete>
 			<fileset dir="net">
 				<include name="**/*.class"/>
+				<include name="spy/db/CachePreparedStatement.java"/>
+				<include name="spy/db/CachedResultSet.java"/>
 			</fileset>
-      <fileset dir=".">
-        <include name="spy.jar"/>
-      </fileset>
+			<fileset dir=".">
+				<include name="spy.jar"/>
+			</fileset>
 		</delete>
 	</target>
 
-  <target name="docs">
-    <javadoc destdir="docs"
-      author="true"
-      version="true"
-      use="true"
-      sourcePath="."
-      packagenames="net.spy.*"
-      windowtitle="Spy.jar Documentation">
-    </javadoc>
-  </target>
+	<target name="docs">
+		<mkdir dir="docs"/>
+		<javadoc destdir="docs"
+			author="true"
+			version="true"
+			use="true"
+			sourcePath="."
+			packagenames="net.spy.*"
+			windowtitle="Spy.jar Documentation">
+		</javadoc>
+	</target>
 
 	<target name="thinjar" depends="all">
 		<jar jarfile="spy.jar" basedir=".">
@@ -69,11 +72,11 @@
 	<target name="dbstuff" depends="resultset,preparedstatement">
 	</target>
 
-  <target name="resultset" depends="interfaceimplementor">
-    <javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
-      <classpath refid="myclasses"/>
-      <include name="net/spy/db/CachedResultSetStub.java"/>
-    </javac>
+	<target name="resultset" depends="interfaceimplementor">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/db/CachedResultSetStub.java"/>
+		</javac>
 		<java classname="net.spy.util.InterfaceImplementor" >
 			<arg value="-interface"/>
 				<arg value="java.sql.ResultSet"/>
@@ -83,13 +86,13 @@
 				<arg value="net.spy.db.CachedResultSet"/>
 			<classpath refid="myclasses"/>
 		</java>
-  </target>
+	</target>
 
-  <target name="preparedstatement" depends="resultset,interfaceimplementor">
-    <javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
-      <classpath refid="myclasses"/>
-      <include name="net/spy/db/CachePreparedStatementStub.java"/>
-    </javac>
+	<target name="preparedstatement" depends="resultset,interfaceimplementor">
+		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/db/CachePreparedStatementStub.java"/>
+		</javac>
 
 		<java classname="net.spy.util.InterfaceImplementor" >
 				<arg value="-interface"/>
@@ -98,10 +101,10 @@
 					<arg value="net.spy.db.CachePreparedStatementStub"/>
 				<arg value="-outputclass"/>
 					<arg value="net.spy.db.CachePreparedStatement"/>
-			  <classpath refid="myclasses"/>
+				<classpath refid="myclasses"/>
 		</java>
 
-  </target>
+	</target>
 
 	<target name="interfaceimplementor">
 		<javac srcdir="." destdir="." deprecation="on" depend="on" verbose="off">
