@@ -41,6 +41,9 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/PoolFiller.class \
 	net/spy/pool/PooledObject.class \
 	net/spy/pool/JDBCPoolFiller.class \
+	net/spy/pool/JDBCPoolAble.class \
+	net/spy/pool/SNPPPoolFiller.class \
+	net/spy/pool/SNPPPoolAble.class \
 
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
