@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: getpic.e,v 1.1 1999/05/27 07:01:40 dustin Exp $
+-- $Id: getpic.e,v 1.2 1999/05/27 15:54:41 dustin Exp $
 --
 class PHOTO_GET
 
@@ -31,14 +31,23 @@ feature {ANY}
          if db.query("select * from image_store where id=501 order by line")
 		 then
             from
+			   i:=1;
                b := db.get_row;
             until
                b = false
             loop
                a := db.last_row;
-			   io.put_string(base64.decode(a.item(2)));
+			   decoded:=base64.decode(a.item(2));
+			   std_error.put_string("Output ");
+			   std_error.put_integer(decoded.count);
+			   std_error.put_string(" bytes.%N");
+			   io.put_string(decoded);
                b := db.get_row;
+			   i:=i+1;
             end;
+			std_error.put_string("Got ");
+			std_error.put_integer(i);
+			std_error.put_string(" blocks.%N");
          end;
       end -- make
 
