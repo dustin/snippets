@@ -1,0 +1,25 @@
+#!/bin/sh
+# arch-tag: FBDA7425-461F-11D8-A7A2-000393CFE6B8
+#
+# Update the 2wire p4 -> arch mirror on noc13.
+
+TOP=`pwd`
+
+JPATH=$HOME/prog/twjava
+CPATH=$HOME/prog/twcms
+
+JARCH="dustin@spy.net--2wire/twowire--head--1.0"
+CARCH="dustin@spy.net--2wire/twowire--cms--1.0"
+
+JP4="//depot/tw2/src/java/0/"
+CP4="//depot/tw2/src/content/cms/0/"
+
+JLAST=`tla revisions -sr $JARCH | grep "p4#" \
+	| head -1 | awk '{print $1}' | cut -f2 -d#`
+CLAST=`tla revisions -sr $CARCH | grep "p4#" \
+	| head -1 | awk '{print $1}' | cut -f2 -d#`
+
+echo "Last seen:  Java: $JLAST.  CMS:  $CLAST"
+
+$HOME/prog/p4-gateway/domigrate.py $JP4 $JPATH $JLAST
+$HOME/prog/p4-gateway/domigrate.py $CP4 $CPATH $CLAST
