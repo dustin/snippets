@@ -29,7 +29,8 @@
 Display *display;
 Window rootwindow, window;
 GC gc;
-int screen;
+int screen, font_height, have_font;
+XFontStruct *font;
 
 #endif
 
@@ -179,6 +180,9 @@ main(int argc, char *argv[])
 	  max_y = event.xresizerequest.height;
 	  XResizeWindow(display, window, max_x, max_y);
 	  break;
+	case MotionNotify:
+          reportpos(event.xmotion.x, event.xmotion.y);
+          break;
 	case ButtonPress:
 	  buttonevent(event.xbutton.x, event.xbutton.y, event.xbutton.button);
 	  break;

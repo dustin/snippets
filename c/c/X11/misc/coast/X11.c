@@ -20,8 +20,8 @@ extern char *filename;
 
 extern float max_lat, min_lat, max_lng, min_lng;
 
-XFontStruct *font;
-int font_height, have_font;
+extern XFontStruct *font;
+extern int font_height, have_font;
 
 void
 init_window(void)
@@ -66,7 +66,8 @@ init_window(void)
  * but they are supposed to return different colors.
  */
 
-  event_mask = ButtonPressMask | ExposureMask | ResizeRedirectMask;
+  event_mask = ButtonPressMask | ExposureMask | ResizeRedirectMask |
+    PointerMotionMask;
 
   attributes.event_mask = event_mask;
   attributes.border_pixel = BlackPixel(display, screen);
@@ -149,13 +150,22 @@ init_window(void)
 
   font = XLoadQueryFont(display, FONT);
 
+  have_font=True;
+
   if (font == NULL)
     font = XLoadQueryFont(display, BACKFONT);
   if (font == NULL)
     have_font = False;
 
   if (have_font)
+  {
     font_height = font->ascent + font->descent;
+#ifdef DEBUG
+    printf("font height: %d\n", font_height);
+#endif
+    XSetFont(display, gc, font->fid);
+   }
+
 
 /*
  * This makes the window visible on the screen.
@@ -170,6 +180,27 @@ init_window(void)
 
   XFlush(display);
 
+}
+
+void reportpos(int x, int y)
+{
+float lng, lat;
+char string[80];
+float lat_diff, lng_diff;
+
+	lat_diff = max_lat - min_lat;
+	lng_diff = max_lng - min_lng;
+
+	lat=( (( (float) x/max_x) * lat_diff) + max_lat-lat_diff);
+	lng=( -( ( (float) y/max_y) * lng_diff) + max_lng);
+
+	sprintf(string, "Latitude: %f", lat);
+	XDrawImageString(display, window, gc, 7, font_height+7, string,
+strlen(string));
+
+	sprintf(string, "Longitude: %f", lng);
+	XDrawImageString(display, window, gc, 7, 2*font_height+7, string,
+strlen(string));
 }
 
 void
