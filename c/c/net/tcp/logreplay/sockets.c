@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 1998/12/06 09:37:17 dustin Exp $
+ * $Id: sockets.c,v 1.2 1998/12/07 20:03:21 dustin Exp $
  */
 
 #include <stdio.h>

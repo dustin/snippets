@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.10 1998/12/07 20:01:49 dustin Exp $
+ * $Id: main.c,v 1.11 1998/12/07 20:03:24 dustin Exp $
  */
 
 #include <config.h>
@@ -135,39 +135,40 @@ usage(char **argv)
 struct http_status
 getstatus(char *response)
 {
-    char *p, *p2, *in;
-    struct http_status status;
+	char   *p, *p2, *in;
+	struct http_status status;
 
-	status.status=-1;
-	status.string=NULL;
+	status.status = -1;
+	status.string = NULL;
 
-    in=strdup(response);
+	in = strdup(response);
 
-    p=strchr(in, ' ');
-    assert(p);
-    p++;
+	p = strchr(in, ' ');
+	assert(p);
+	p++;
 
-    p2=p;
+	p2 = p;
 
-    while(*p2 && (*p2!='\r' || *p2!='\n')) p2++;
-    *p2=NULL;
+	while (*p2 && (*p2 != '\r' || *p2 != '\n'))
+		p2++;
+	*p2 = NULL;
 
-    status.status=atoi(p);
-    p=strchr(p, ' ');
-    assert(p);
-    p++;
+	status.status = atoi(p);
+	p = strchr(p, ' ');
+	assert(p);
+	p++;
 
-    status.string=strdup(p);
-    assert(status.string);
+	status.string = strdup(p);
+	assert(status.string);
 
-    free(in);
+	free(in);
 
-    return(status);
+	return (status);
 }
 
 void
 dostats(int i, struct timeval timers[3], int bytes,
-		int flags, char *response, int maxhits)
+    int flags, char *response, int maxhits)
 {
 	int     a, b, c;
 	char    times[3][50];
@@ -177,7 +178,7 @@ dostats(int i, struct timeval timers[3], int bytes,
 
 	static int whatsup = 0;
 
-	status=getstatus(response);
+	status = getstatus(response);
 
 	/* label machine stats if we're doing them */
 	if (flags & MACHINE_STATS) {
@@ -228,27 +229,27 @@ dostats(int i, struct timeval timers[3], int bytes,
 	/* Bytes and bps */
 	if (flags & MACHINE_STATS)
 		printf("%d:%.2f:%d\n", bytes, (float) ((float) bytes / tmpf),
-			status.status);
+		    status.status);
 	else
 		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
 
 	if (flags & FLUSH_OUT)
 		fflush(stdout);
 
-	if(status.string)
+	if (status.string)
 		free(status.string);
 }
 
 int
 str_append(struct growstring *s, char *buf)
 {
-    while( (strlen(s->string)+strlen(buf)) > s->size) {
-        s->size+=(1024*(sizeof(char)));
-        s->string=realloc(s->string, s->size);
-        assert(s->string);
-    }
+	while ((strlen(s->string) + strlen(buf)) > s->size) {
+		s->size += (1024 * (sizeof(char)));
+		s->string = realloc(s->string, s->size);
+		assert(s->string);
+	}
 
-    strcat(s->string, buf);
+	strcat(s->string, buf);
 }
 
 int
@@ -326,7 +327,7 @@ main(int argc, char **argv)
 
 	/* hit will be incremented on the inside, we count a hit by a closed
 	 * connection */
-	for (hit=0;hit<totalhits;) {
+	for (hit = 0; hit < totalhits;) {
 		if (n < maxhits) {
 
 			if (flags & DO_STATS)
@@ -343,11 +344,11 @@ main(int argc, char **argv)
 				bytes[s] = 0;
 				FD_SET(s, &tfdset);
 
-                if(strings[s].string==NULL) {
-                    strings[s].size=1024*sizeof(char);
-                    strings[s].string=malloc(strings[s].size);
-                }
-                strings[s].string[0]=0x00;
+				if (strings[s].string == NULL) {
+					strings[s].size = 1024 * sizeof(char);
+					strings[s].string = malloc(strings[s].size);
+				}
+				strings[s].string[0] = 0x00;
 
 				/* Sending */
 				i = send(s, req.httpreq, strlen(req.httpreq), 0);
@@ -375,10 +376,10 @@ main(int argc, char **argv)
 						if (flags & DO_STATS) {
 							gettimeofday(&timers[i][2], tzp);
 							dostats(i, timers[i], bytes[i],
-									flags, strings[i].string, maxhits);
-							if(strings[i].string) {
+							    flags, strings[i].string, maxhits);
+							if (strings[i].string) {
 								free(strings[i].string);
-								strings[i].string=NULL;
+								strings[i].string = NULL;
 							}
 						}
 						FD_CLR(i, &fdset);

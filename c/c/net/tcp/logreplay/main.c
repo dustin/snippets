@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.5 1998/12/07 20:00:29 dustin Exp $
+ * $Id: main.c,v 1.6 1998/12/07 20:03:18 dustin Exp $
  */
 
 #include <config.h>
@@ -142,34 +142,35 @@ usage(char *progname)
 struct http_status
 getstatus(char *response, char *IP)
 {
-	char *p, *p2, *in;
+	char   *p, *p2, *in;
 	struct http_status status;
 
-	status.status=-1;
-	status.string=NULL;
+	status.status = -1;
+	status.string = NULL;
 
-	in=strdup(response);
+	in = strdup(response);
 
-	p=strchr(in, ' ');
+	p = strchr(in, ' ');
 	assert(p);
 	p++;
 
-	p2=p;
+	p2 = p;
 
-	while(*p2 && (*p2!='\r' || *p2!='\n')) p2++;
-	*p2=NULL;
+	while (*p2 && (*p2 != '\r' || *p2 != '\n'))
+		p2++;
+	*p2 = NULL;
 
-	status.status=atoi(p);
-	p=strchr(p, ' ');
+	status.status = atoi(p);
+	p = strchr(p, ' ');
 	assert(p);
 	p++;
 
-	status.string=strdup(p);
+	status.string = strdup(p);
 	assert(status.string);
 
 	free(in);
 
-	return(status);
+	return (status);
 }
 
 void
@@ -180,7 +181,7 @@ dostats(int i, char *request, struct timeval timers[3],
 	char    times[3][50];
 	char    tmp[20];
 	float   tmpf;
-	struct	http_status status;
+	struct http_status status;
 
 	static int whatsup = 0;
 
@@ -192,15 +193,14 @@ dostats(int i, char *request, struct timeval timers[3],
 			    "trans_time:bytes:bps:status:request\n");
 		}
 	}
-
-	status=getstatus(response, "127.0.0.1");
+	status = getstatus(response, "127.0.0.1");
 
 	/* descriptor and number of connections */
 	if (flags & MACHINE_STATS)
 		printf("%d:%d:", i, delay);
 	else
 		printf("Stats for %d (delay %d, status (%d %s))\n",
-			i, delay, status.status, status.string);
+		    i, delay, status.status, status.string);
 
 	strcpy(times[0], ctime(&timers[0].tv_sec));
 	strcpy(times[1], ctime(&timers[1].tv_sec));
@@ -237,14 +237,14 @@ dostats(int i, char *request, struct timeval timers[3],
 	/* Bytes and bps */
 	if (flags & MACHINE_STATS)
 		printf("%d:%.2f:%d:%s\n", bytes, (float) ((float) bytes / tmpf),
-			status.status, request);
+		    status.status, request);
 	else
 		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
 
 	if (flags & FLUSH_OUT)
 		fflush(stdout);
 
-	if(status.string)
+	if (status.string)
 		free(status.string);
 }
 
@@ -265,9 +265,9 @@ open_connection(char *host, int port, struct log_entry log)
 int
 str_append(struct growstring *s, char *buf)
 {
-	while( (strlen(s->string)+strlen(buf)) > s->size) {
-		s->size+=(1024*(sizeof(char)));
-		s->string=realloc(s->string, s->size);
+	while ((strlen(s->string) + strlen(buf)) > s->size) {
+		s->size += (1024 * (sizeof(char)));
+		s->string = realloc(s->string, s->size);
 		assert(s->string);
 	}
 
@@ -330,11 +330,11 @@ process(char *host, int port, FILE * f, int flags)
 
 				/* Go ahead and pre-allocate 1k, if it's allocated already,
 				 * just prepare to use it again */
-				if(strings[s].string==NULL) {
-					strings[s].size=1024*sizeof(char);
-					strings[s].string=malloc(strings[s].size);
+				if (strings[s].string == NULL) {
+					strings[s].size = 1024 * sizeof(char);
+					strings[s].string = malloc(strings[s].size);
 				}
-				strings[s].string[0]=0x00;
+				strings[s].string[0] = 0x00;
 
 				bytes[s] = 0;
 				connected++;
@@ -364,11 +364,11 @@ process(char *host, int port, FILE * f, int flags)
 						gettimeofday(&timers[i][2], tzp);
 						dostats(i, requests[i], timers[i], bytes[i],
 						    delays[i], strings[i].string, flags);
-						if(requests[i])
+						if (requests[i])
 							free(requests[i]);
-						if(strings[i].string) {
+						if (strings[i].string) {
 							free(strings[i].string);
-							strings[i].string=NULL;
+							strings[i].string = NULL;
 						}
 						close(i);
 						connected--;
@@ -388,11 +388,10 @@ main(int argc, char **argv)
 {
 	FILE   *f;
 
-	if(argc<4) {
+	if (argc < 4) {
 		usage(argv[0]);
-		return(1);
+		return (1);
 	}
-
 	if (strcmp(argv[3], "-") == 0) {
 		f = stdin;
 	} else {
