@@ -1,6 +1,6 @@
 indexing
 	description: "The Replicator...";
-	version: "$Revision: 1.3 $";
+	version: "$Revision: 1.4 $";
 
 class MREPLICATE
 
@@ -17,6 +17,7 @@ feature
 
 			!!db_to.make;
 			db_to.set_dbname("modems");
+			db_to.set_host("bleu");
 			db_to.connect;
 
 			rep_table("mod");
