@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.3 1999/11/26 05:28:22 dustin Exp $
+ * $Id: PhotoImage.java,v 1.4 2000/01/01 03:34:39 dustin Exp $
  */
 
 package net.spy.photo;
@@ -48,7 +48,7 @@ public class PhotoImage extends PhotoHelper
 		if(data.image_data == null) {
 			throw new Exception("Contents were null!");
 		}
-		log("Returning image data");
+		log("Returning image data (" + data.image_data.size() + " lines)");
 		return(data.image_data);
 	}
 

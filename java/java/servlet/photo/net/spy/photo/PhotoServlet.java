@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.2 1999/12/15 04:18:55 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.3 2000/01/01 03:34:40 dustin Exp $
  */
 
 package net.spy.photo;
@@ -65,6 +65,7 @@ public class PhotoServlet extends HttpServlet
 
 		try {
 			storer_thread = new PhotoStorerThread();
+			storer_thread.setPriority(storer_thread.getPriority()-2);
 			storer_thread.start();
 		} catch(Exception e) {
 			throw new ServletException("Can't get storer thread");

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.3 1999/11/26 05:28:27 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.4 2000/01/01 03:34:42 dustin Exp $
  */
 
 package net.spy.photo;
@@ -22,6 +22,18 @@ public class PhotoStorerThread extends Thread {
 		this.setDaemon(true);
 	}
 
+	// Query to store an image
+	protected void storeQuery(int image_id, int line,
+		Statement st, String data) throws Exception {
+		String query = "insert into image_store values(" + image_id
+			+ ", " + line + ", '" + data + "')";
+
+		// Print out the query for debug.
+		System.err.println(query);
+
+		st.executeUpdate(query);
+	}
+
 	// Takes and image_id, pulls in the image from cache, and goes about
 	// encoding it to put it into the database in a transaction.  The last
 	// query in the transaction records the image having been stored.
@@ -31,19 +43,36 @@ public class PhotoStorerThread extends Thread {
 		Connection db = null;
 		Statement st = null;
 		Vector v = p.getImage();
-		System.err.println("Got image for " + image_id );
+		System.err.println("Storer: Got image for " + image_id + " "
+			+ v.size() + " lines of data to store.");
 		try {
+			int i=0, n=0;
 			db = pdb.getConn();
 			db.setAutoCommit(false);
 			st = db.createStatement();
 			BASE64Encoder base64=new BASE64Encoder();
+			String data = "";
 
-			for(int i = 0; i<v.size(); i++) {
+			for(; i<v.size(); i++) {
 				String tmp = base64.encodeBuffer((byte[])v.elementAt(i));
-				String query = "insert into image_store values(" + image_id
-					+ ", " + i + ", '" + tmp + "')";
-				st.executeUpdate(query);
+				tmp=tmp.trim();
+
+				if(data.length() < 2048) {
+					data+=tmp+"\n";
+				} else {
+					storeQuery(image_id, n, st, data);
+					data="";
+					n++;
+				}
 			}
+			// OK, this is sick, but another one right now for the spare.
+			if(data.length() > 0) {
+				System.err.println("Storer:  Storing spare.");
+				storeQuery(image_id, n, st, data);
+				n++;
+			}
+			System.err.println("Storer:  Stored " + n + " lines of data for "
+				+ image_id + ".");
 			st.executeUpdate("update upload_log set stored=datetime(now())\n"
 				+ "\twhere photo_id = " + image_id);
 			db.commit();
