@@ -50,6 +50,8 @@ class Mirror:
 		newdira=newa[:-1]
 		# Get the string form of the new path
 		newdir=string.lower(apply(os.path.join, newdira))
+		newdir=string.translate(newdir, lettertrans)
+		# Deal with the path
 		newpath=os.path.join(newdir, newa[-1])
 		newpath=string.translate(newpath, lettertrans)
 		# Make sure the destination directory exists
