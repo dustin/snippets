@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.9 2001/02/08 06:06:00 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.10 2001/02/08 06:06:57 dustin Exp $
  */
 
 package net.spy.log;
@@ -106,7 +106,7 @@ public class SpyLogFlusher extends Thread {
 	/**
 	 * Get the current size of the queue.
 	 */
-	public int size() {
+	public int queueSize() {
 		return(log_queue.size());
 	}
 
