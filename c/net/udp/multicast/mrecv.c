@@ -1,8 +1,6 @@
 /*
- * listener.c -- joins a multicast group and echoes all data it receives from
- *		the group to its stdout...
- *
- * Antony Courtney,	25/11/94
+ * Listen for multicast packets and emit them as lines prefixed with the
+ * sender's IP address.
  */
 
 #include <string.h>
