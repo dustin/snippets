@@ -185,8 +185,8 @@ search(struct config_t config, unsigned int ip)
 	int     i, addr;
 	struct	hash_container *h;
 
-	/* The list is sorted by specifics of netmask.  We start with the
-	 * most specific netmask, and go down to 0. */
+	/* We have an array of integer hashes of all of our known networks.  The
+	 * array offset is the netmask (CIDR), so lookups are quick and accurate */
 	for (i = 32; i >= 0; i--) {
 		addr=ip&config.masks[i];
 		h=hash_find(config.hash[i], addr);
