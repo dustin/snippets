@@ -4,6 +4,8 @@ import gzip
 import time
 import string
 import sys
+# In-place sorting
+import bisect
 
 class LogFile:
 	"""Represents an individual log file."""
@@ -38,6 +40,10 @@ class LogFile:
 		"""Get the current timestamp."""
 		return(self.__timestamp)
 
+	def __cmp__(self, other):
+		"""Compare two objects by timestamp."""
+		return(cmp(self.getTimestamp(), other.getTimestamp()))
+
 	def __getTimestamp(self):
 		"""Parse the timestamp"""
 
@@ -64,33 +70,27 @@ class LogMux:
 
 	def addLogFile(self, lf):
 		"""Add a new logfile to the mux."""
-		self.__logfiles.append(lf)
+		# Keep it in sequence
+		bisect.insort(self.__logfiles, lf)
 
 	def next(self):
 		"""Get the next log entry"""
 
-		mints=time.time()
-		readfrom=None
+		rv=''
 
-		for f in self.__logfiles:
-			line=f.getLine()
-			if line == '':
-				sys.stderr.write("### Removing " + repr(f) + "\n")
-				self.__logfiles.remove(f)
+		if len(self.__logfiles) > 0:
+			# Remove it from the list
+			old=self.__logfiles[0]
+			del(self.__logfiles[0])
+			# Get the value
+			rv=old.getLine()
+			# Seek forward
+			old.next()
+			# Add it back (sorted) if there's more data
+			if old.getLine() != '':
+				bisect.insort(self.__logfiles, old)
 			else:
-				if f.getTimestamp() < mints:
-					mints=f.getTimestamp()
-					# Remember this one as the minimum timestamp
-					readfrom=f
-
-		rv=None
-		if readfrom==None:
-			rv=''
-		else:
-			# Get the current line
-			rv=readfrom.getLine()
-			# Seek to the next line
-			readfrom.next()
+				sys.stderr.write("### finished " + repr(old) + "\n")
 
 		return rv
 
