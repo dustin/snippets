@@ -6,6 +6,7 @@
 </center>
 <p>
 
+<font face="Ariel,Helvetica">
 Category: %CAT%
 <p>
 
@@ -22,7 +23,9 @@ Keywords:<br>
 %KEYWORDS%
 <p>
 
+
 Info:<br>
+</font>
 %INFO%
 
 <hr>
