@@ -26,6 +26,7 @@ let lookupName n =
 let main() =
 	let fn = Sys.argv.(1) in
 	Printf.eprintf "Updating %s\n" fn;
+	flush stderr;
 	Fileutils.iter_lines (fun l ->
 			try
 				let a = Extstring.split l ' ' 99999 in
@@ -41,7 +42,8 @@ let main() =
 					(Int32.to_string ts) (String.concat ":" (List.rev vals));
 			with x ->
 				Printf.eprintf "%s on line:  %s (ignoring)\n"
-					(Printexc.to_string x) l
+					(Printexc.to_string x) l;
+				flush stderr
 		) stdin;
 ;;
 
