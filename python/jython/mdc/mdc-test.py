@@ -14,71 +14,19 @@ import net
 # To register the protocol
 from org.apache.commons.httpclient.protocol import Protocol
 
-# Errors
-from org.apache.commons.httpclient import HttpRecoverableException
-from org.apache.commons.httpclient.HttpConnection import ConnectionTimeoutException
-from javax.net.ssl import SSLException
-
 # SSL stuff
 from com.twowire.app.mdcscrape import MDCSSLSocketFactory
 
 # Handlers and stuff
 from com.twowire.app.mdcscrape import MDCPageHandlerRegistry
 from com.twowire.app.mdcscrape import MDCProcessor
-from com.twowire.app.mdcscrape import SerializationQueue
 
 from com.twowire.app.mdcscrape import MDCSystemSummaryHandler
 from com.twowire.app.mdcscrape import MDCLinkSummaryHandler
 from com.twowire.app.mdcscrape import MDCLinkStatsHandler
 from com.twowire.app.mdcscrape import MDCLinkDetailedStatsHandler
 from com.twowire.app.mdcscrape import MDCDeviceListHandler
-
-class Recorder(net.spy.util.ThreadPoolObserver):
-
-	def __init__(self):
-		net.spy.util.ThreadPoolObserver.__init__(self)
-		self.stats=net.spy.util.ProgressStats(4430)
-		self.stats.start()
-
-		os=java.io.FileOutputStream("results.srz")
-		gos=java.util.zip.GZIPOutputStream(os)
-		oos=java.io.ObjectOutputStream(gos);
-		self.serQueue=SerializationQueue("Serializer", oos)
-		# Slightly higher than normal priority for these
-		self.serQueue.setPriority(java.lang.Thread.NORM_PRIORITY + 1)
-		self.serQueue.start()
-
-		self.errors=java.io.PrintWriter(java.io.FileWriter("error.log"))
-
-	def jobComplete(self, j):
-		if j.wasSuccessful():
-			sn=j.getSerialNumber()
-			self.errors.println("Successful:  " + j.getSerialNumber());
-			q=self.serQueue
-			o=java.util.ArrayList()
-			o.add(sn)
-			o.add(j.getResults())
-			q.addObjects(o)
-		else:
-			self.errors.print("Failed:  " + j.getSerialNumber() + "  ")
-			# Figure out what to do with the exception
-			e=j.getException()
-			if isinstance(e, ConnectionTimeoutException):
-				self.errors.println("timed out")
-			elif isinstance(e, java.io.IOException):
-				self.errors.println(e.getClass().getName()
-					+ ": " + e.getMessage())
-			else:
-				self.errors.println("Exception:")
-				j.getException().printStackTrace(self.errors)
-		self.errors.flush()
-		self.stats.stop()
-		print "#", self.stats
-		self.stats.start()
-
-	def finished(self):
-		self.serQueue.close()
-		self.errors.close()
+from com.twowire.app.mdcscrape import SerializingRecorder
 
 # Start registering handlers and stuff
 
@@ -99,18 +47,19 @@ Protocol.registerProtocol("https",
 	Protocol("https", MDCSSLSocketFactory(), 443))
 
 # The pool monitor (that saves the stuff)
-recorder=Recorder()
+recorder=SerializingRecorder("error.log", "results.srz", int(sys.argv[1]))
 
-tp=net.spy.util.ThreadPool("Fetcher", 50)
-tp.setStartThreads(50)
+tp=net.spy.util.ThreadPool("Fetcher", 10)
+tp.setStartThreads(10)
 tp.setMinIdleThreads(5)
 tp.setMonitor(recorder)
 tp.start()
 
 pageList=java.util.ArrayList(2)
-pageList.add("network_device_list.html")
-pageList.add("link_summary.html")
 pageList.add("link_detailed_statistics.html")
+pageList.add("link_statistics.html")
+pageList.add("link_summary.html")
+pageList.add("network_device_list.html")
 pageList.add("system_summary.html")
 
 l=sys.stdin.readline()

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for i in $@
+do
+	echo "Doing $i"
+	./autoreport.py $i/results.srz | gzip -9vc > $i/report.gz
+done
