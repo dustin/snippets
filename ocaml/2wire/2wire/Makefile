@@ -28,19 +28,23 @@ parseTimingLogbc: parseTimingLog.ml
 
 extractKeys: extractKeys.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa spy.cmxa mfgcdb.cmx extractKeys.ml
+		unix.cmxa spy.cmxa mfgcdb.cmx extractKeys.ml
 
 cdbprefix: cdbprefix.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa spy.cmxa cdbprefix.ml
+		unix.cmxa spy.cmxa cdbprefix.ml
 
-buildMfgCache: buildMfgCache.ml mfgcdb.cmi
+buildMfgCache: buildMfgCache.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa spy.cmxa mfgcdb.cmx buildMfgCache.ml
+		unix.cmxa spy.cmxa buildMfgCache.ml
+
+buildMfgCachebc: buildMfgCache.ml
+	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
+		unix.cma spy.cma buildMfgCache.ml
 
 rrdIndex: rrdIndex.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa spy.cmxa rrdIndex.ml
+		unix.cmxa spy.cmxa rrdIndex.ml
 
 spreadsheetPivot: spreadsheetPivot.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \

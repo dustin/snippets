@@ -96,7 +96,14 @@ let makeRecord modelMap ts l =
 					in_password=parts 4;
 					in_wirelessid=parts 5} in
 	try
-		let mr_rec = Hashtbl.find modelMap record.in_model in
+		let mr_rec = (try
+				Hashtbl.find modelMap record.in_model
+			with x ->
+				if String.length record.in_model = 15 then
+					Hashtbl.find modelMap (String.sub record.in_model 0 11)
+				else
+					raise x
+			) in
 		(* Convenience function for updating the hashtable *)
 		let htr = Hashtbl.replace ht in
 		htr "boxnum" (string_of_int
@@ -169,7 +176,7 @@ let main () =
 		let destcdb = Cdb.open_out Sys.argv.(1) in
 		loadMfgKeys Sys.argv.(2);
 		let modelMap = Hashtbl.create 1 in
-		print_endline(makeMetaInf());
+		Cdb.add destcdb magic_key (makeMetaInf());
 		Fileutils.iter_file_lines (parseModelMap modelMap) Sys.argv.(3);
 		processArgs destcdb modelMap
 			(Extlist.nthtail (Array.to_list Sys.argv) 4);
