@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.6 1999/10/19 07:11:33 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.7 1999/10/20 02:15:02 dustin Exp $
  */
 
 import java.lang.*;
@@ -65,14 +65,14 @@ public class PhotoUtil
 		PhotoConfig conf = new PhotoConfig();
 
 		vars.put("SELF_URI", p.self_uri);
-		vars.put("HTML_URI", conf.html_uriroot);
+		vars.put("HTML_URI", conf.get("html_uriroot"));
 		vars.put("REMOTE_USER", p.remote_user);
 		vars.put("REMOTE_UID", p.remote_uid.toString());
 		vars.put("LAST_MODIFIED", "recently");
 		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
 			+ "/servlet/root/PhotoServlet?func=getstylesheet\">");
 
-		ret = t.tokenize(conf.includes + file, vars);
+		ret = t.tokenize(conf.get("includes") + file, vars);
 		return(ret);
 	}
 

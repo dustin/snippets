@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogImageEntry.java,v 1.3 1999/10/12 22:54:08 dustin Exp $
+ * $Id: PhotoLogImageEntry.java,v 1.4 1999/10/20 02:14:54 dustin Exp $
  */
 
 
@@ -12,7 +12,9 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class PhotoLogImageEntry extends PhotoLogEntry {
+import net.spy.*;
+
+public class PhotoLogImageEntry extends SpyLogEntry {
 
 	private int photo_id;
 	private int wwwuser_id;
@@ -45,7 +47,7 @@ public class PhotoLogImageEntry extends PhotoLogEntry {
 			+ "', '" + server_host
 			+ "', get_agent('" + PhotoUtil.dbquote_str(user_agent) + "'), '"
 			+ cached + "', '" + f.format(timestamp) + " "
-			+ conf.timezone + "')";
+			+ conf.get("timezone") + "')";
 
 		return(r);
 	}

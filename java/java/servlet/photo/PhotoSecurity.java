@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSecurity.java,v 1.4 1999/10/12 22:54:11 dustin Exp $
+ * $Id: PhotoSecurity.java,v 1.5 1999/10/20 02:14:57 dustin Exp $
  */
 
 import java.security.*;
@@ -108,7 +108,7 @@ public class PhotoSecurity extends PhotoHelper {
 	protected String sign(String input) throws Exception {
 		byte dataB[]=input.getBytes();
 		byte secretB[]=secret.getBytes();
-		MessageDigest md = MessageDigest.getInstance(conf.cryptohash);
+		MessageDigest md = MessageDigest.getInstance(conf.get("cryptohash"));
 		md.update(secretB);
 		md.update(dataB);
 		BASE64Encoder base64=new BASE64Encoder();
@@ -125,7 +125,7 @@ public class PhotoSecurity extends PhotoHelper {
 	// Get a digest for a string
 	public String getDigest(String input) throws Exception {
 		byte dataB[]=input.getBytes();
-		MessageDigest md = MessageDigest.getInstance(conf.cryptohash);
+		MessageDigest md = MessageDigest.getInstance(conf.get("cryptohash"));
 		md.update(dataB);
 		BASE64Encoder base64=new BASE64Encoder();
 		String out = base64.encodeBuffer(md.digest());

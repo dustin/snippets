@@ -1,30 +1,25 @@
 /*
  * Copyright (C) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoConfig.java,v 1.8 1999/10/19 06:24:47 dustin Exp $
+ * $Id: PhotoConfig.java,v 1.9 1999/10/20 02:14:46 dustin Exp $
  */
 
-public class PhotoConfig extends Object {
+import net.spy.*;
 
-	// Database Stuff
-	public String dbDriverName="postgresql.Driver";
-	public String dbSource="jdbc:postgresql://dhcp-104/photo";
-	// public String dbSource="jdbc:postgresql://localhost/photo";
-	public String dbUser="nobody";
-	public String dbPass="";
+public class PhotoConfig extends SpyConfig {
 
-	// Objectserver
-	public String objectserver="//dhcp-104/RObjectServer";
-	// public String objectserver="//localhost/RObjectServer";
-
-	// Includes
-	public String includes="/home/dustin/public_html/jphoto/inc/";
-
-	// References
-	public String html_uriroot="/~dustin/jphoto/";
-
-	// Timezone that the servlet engine thinks we're in.
-	public String timezone="GMT";
-
-	public String cryptohash="SHA";
+	public PhotoConfig() {
+		super("/tmp/config");
+		orput("dbDriverName", "postgresql.Driver");
+		// this.put("dbSource", "jdbc:postgresql://dhcp-104/photo");
+		orput("dbSource", "jdbc:postgresql://localhost/photo");
+		orput("dbUser", "nobody");
+		orput("dbPass", "");
+		// this.put("objectserver", "//localhost/RObjectServer");
+		orput("objectserver", "//dhcp-104/RObjectServer");
+		orput("includes", "/home/dustin/public_html/jphoto/inc/");
+		orput("html_uriroot", "/~dustin/jphoto/");
+		orput("timezone", "GMT");
+		orput("cryptohash", "SHA");
+	}
 }

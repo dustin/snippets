@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.2 1999/10/19 09:21:42 dustin Exp $
+ * $Id: PhotoSession.java,v 1.3 1999/10/20 02:15:00 dustin Exp $
  */
 
 import java.io.*;
@@ -15,6 +15,8 @@ import javax.servlet.http.*;
 
 import com.oreilly.servlet.*;
 
+import net.spy.*;
+
 // The class
 public class PhotoSession extends Object
 {
@@ -23,7 +25,7 @@ public class PhotoSession extends Object
 	protected String remote_user=null, self_uri=null;
 	protected RHash rhash=null;
 	protected MultipartRequest multi=null;
-	protected PhotoLogger logger=null;
+	protected SpyLog logger=null;
 	protected PhotoSecurity security = null;
 
 	protected PhotoStorerThread storer_thread = null;

@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.7 1999/10/12 22:54:04 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.8 1999/10/20 02:14:48 dustin Exp $
  */
 
 import java.sql.*;
 import java.util.*;
 import java.lang.*;
 
+import net.spy.*;
+
 // The class
 public class PhotoHelper
 {
-	PhotoLogger logger;
+	SpyLog logger;
 	PhotoConfig conf;
 
 	public PhotoHelper() throws Exception {
@@ -21,7 +23,7 @@ public class PhotoHelper
 	}
 
 	protected void initlog() {
-		logger = new PhotoLogger();
+		logger = new SpyLog(new PhotoLogFlusher());
 	}
 
 	protected void log(String message) {

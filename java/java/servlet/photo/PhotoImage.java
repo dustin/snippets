@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.10 1999/10/19 06:24:48 dustin Exp $
+ * $Id: PhotoImage.java,v 1.11 1999/10/20 02:14:50 dustin Exp $
  */
 
 import java.io.*;
@@ -22,7 +22,7 @@ public class PhotoImage extends PhotoHelper
 		// Get an rhash to cache images and shite.
 		try {
 			PhotoConfig conf = new PhotoConfig();
-			rhash = new RHash(conf.objectserver);
+			rhash = new RHash(conf.get("objectserver"));
 		} catch(Exception e) {
 			rhash = null;
 		}

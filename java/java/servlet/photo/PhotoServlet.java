@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.36 1999/10/19 07:11:31 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.37 1999/10/20 02:14:59 dustin Exp $
  */
 
 import java.io.*;
@@ -13,6 +13,8 @@ import sun.misc.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import net.spy.*;
+
 // The class
 public class PhotoServlet extends HttpServlet
 {
@@ -23,7 +25,7 @@ public class PhotoServlet extends HttpServlet
 
 	protected PhotoStorerThread storer_thread = null;
 
-	protected PhotoLogger logger = null;
+	protected SpyLog logger = null;
 
 	// Users
 	protected Hashtable userdb=null;
@@ -53,7 +55,7 @@ public class PhotoServlet extends HttpServlet
 
 		// Get an rhash to cache images and shite.
 		try {
-			rhash = new RHash(conf.objectserver);
+			rhash = new RHash(conf.get("objectserver"));
 		} catch(Exception e) {
 			rhash = null;
 		}
@@ -65,7 +67,7 @@ public class PhotoServlet extends HttpServlet
 			throw new ServletException("Can't get storer thread");
 		}
 
-		logger = new PhotoLogger();
+		logger = new SpyLog(new PhotoLogFlusher());
 	}
 
 	protected void init_userdb() throws Exception {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.5 1999/10/19 06:24:50 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.6 1999/10/20 02:14:53 dustin Exp $
  */
 
 import java.sql.*;
@@ -9,13 +9,17 @@ import java.lang.*;
 import java.util.*;
 import java.io.*;
 
-public class PhotoLogFlusher extends Thread {
+import net.spy.*;
 
-	// private static BufferedWriter log_file=null;
-	private static PhotoLogger log_object;
+public class PhotoLogFlusher extends SpyLogFlusher {
 
 	public PhotoLogFlusher(ThreadGroup t) {
-		super(t, "log_flusher");
+		super(t);
+		this.setDaemon(true);
+	}
+
+	public PhotoLogFlusher() {
+		super(new ThreadGroup(SpyLog.getSystemGroup(), "logging"));
 		this.setDaemon(true);
 	}
 
@@ -31,9 +35,9 @@ public class PhotoLogFlusher extends Thread {
 				db=photodb.getConn();
 				st=db.createStatement();
 				for(int i = 0; i<v.size(); i++) {
-					PhotoLogEntry l = null;
+					SpyLogEntry l = null;
 					try {
-						l = (PhotoLogEntry)v.elementAt(i);
+						l = (SpyLogEntry)v.elementAt(i);
 							st.executeUpdate(l.toString());
 					} catch(SQLException e) {
 						System.err.println("Error writing log:  "
@@ -46,25 +50,5 @@ public class PhotoLogFlusher extends Thread {
 				photodb.freeDBConn(db);
 			}
 		}
-	}
-
-	public void run() {
-		log_object = new PhotoLogger();
-
-		for(;;) {
-			try {
-				// Wait a second before continuing
-				sleep(1000);
-			} catch(Exception e) {
-			} finally {
-				doFlush();
-
-			}
-		}
-	}
-
-	public void finalize() throws Throwable {
-		doFlush();
-		super.finalize();
 	}
 }
