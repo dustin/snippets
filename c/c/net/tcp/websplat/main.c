@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.7 1998/08/26 03:02:53 dustin Exp $
+ * $Id: main.c,v 1.8 1998/12/03 19:33:24 dustin Exp $
  */
 
 #include <config.h>
@@ -28,6 +28,7 @@ int     _debug = 0;
 
 #define DO_STATS      1
 #define MACHINE_STATS 2
+#define FLUSH_OUT     3
 
 #define TVDIFF(tv1, tv2, a, b, c) \
 	c=0; \
@@ -127,62 +128,81 @@ parseurl(char *url)
 void
 usage(char **argv)
 {
-	printf("Usage:  %s [-dsS] [-n max_conns] request_url\n", argv[0]);
+	printf("Usage:  %s [-fdsS] [-n max_conns] [-t total_hits] request_url\n",
+	    argv[0]);
 }
 
 void
-dostats(int i, struct timeval timers[3], int bytes, int flags)
+dostats(int i, struct timeval timers[3], int bytes, int flags, int maxhits)
 {
 	int     a, b, c;
 	char    times[3][50];
 	char    tmp[20];
 	float   tmpf;
 
-	if (flags & MACHINE_STATS) {
-		static int whatsup = 0;
+	static int whatsup = 0;
 
+	/* label machine stats if we're doing them */
+	if (flags & MACHINE_STATS) {
 		if (whatsup == 0) {
 			whatsup = 1;
-			/* Show what's up */
-			printf("# descriptor:start_sec:start_usec:connect_sec:connect_usec"
-			    ":end_sec:end_usec\n");
+			printf("# descriptor:conns:start_sec:con_time:"
+			    "trans_time:bytes:bps\n");
 		}
-		printf("%d:%u:%u:%u:%u:%u:%u:%d\n",
-		    i, timers[0].tv_sec, times[0],
-		    timers[1].tv_sec, times[1],
-		    timers[2].tv_sec, times[2], bytes);
+	}
+	/* descriptor and number of connections */
+	if (flags & MACHINE_STATS)
+		printf("%d:%d:", i, maxhits);
+	else
+		printf("Stats for %d (%d connections)\n", i, maxhits);
 
+	strcpy(times[0], ctime(&timers[0].tv_sec));
+	strcpy(times[1], ctime(&timers[1].tv_sec));
+	strcpy(times[2], ctime(&timers[2].tv_sec));
+
+	/* timestamps */
+	if (flags & MACHINE_STATS) {
+		printf("%d:", timers[0].tv_sec);
 	} else {
-
-		printf("Stats for %d\n", i);
-
-		strcpy(times[0], ctime(&timers[0].tv_sec));
-		strcpy(times[1], ctime(&timers[1].tv_sec));
-		strcpy(times[2], ctime(&timers[2].tv_sec));
-
 		printf("\t%d/%u %s\t%d/%u %s\t%d/%u %s",
 		    timers[0].tv_usec, timers[0].tv_sec, times[0],
 		    timers[1].tv_usec, timers[1].tv_sec, times[1],
 		    timers[2].tv_usec, timers[2].tv_sec, times[2]);
+	}
 
-		TVDIFF(timers[0], timers[1], a, b, c);
+	TVDIFF(timers[0], timers[1], a, b, c);
 
+	/* Connect time */
+	if (flags & MACHINE_STATS)
+		printf("%u.%u:", a, b);
+	else
 		printf("\tConnect time: %u.%u seconds\n", a, b);
 
-		TVDIFF(timers[1], timers[2], a, b, c);
+	TVDIFF(timers[1], timers[2], a, b, c);
 
+	/* Transfer time */
+	if (flags & MACHINE_STATS)
+		printf("%u.%u:", a, b);
+	else
 		printf("\tTransfer time: %u.%u seconds\n", a, b);
-		sprintf(tmp, "%u.%u", a, b);
-		tmpf = atof(tmp);
+	sprintf(tmp, "%u.%u", a, b);
+	tmpf = atof(tmp);
 
+	/* Bytes and bps */
+	if (flags & MACHINE_STATS)
+		printf("%d:%.2f\n", bytes, (float) ((float) bytes / tmpf));
+	else
 		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
-	}
+
+	if (flags & FLUSH_OUT)
+		fflush(stdout);
 }
 
 int
 main(int argc, char **argv)
 {
-	int     s, selected, size, c, i, maxhits = 65535, n = 0, flags = 0;
+	int     s, selected, size, c, i, maxhits = 65535, totalhits = 0,
+	        n = 0, flags = 0;
 	fd_set  fdset, tfdset;
 	struct timeval timers[MAXSEL][3];
 	int     bytes[MAXSEL];
@@ -193,7 +213,7 @@ main(int argc, char **argv)
 
 	req.port = -1;
 
-	while ((c = getopt(argc, argv, "dn:sS")) >= 0) {
+	while ((c = getopt(argc, argv, "fdt:n:sS")) >= 0) {
 		switch (c) {
 
 		case 'd':
@@ -204,12 +224,20 @@ main(int argc, char **argv)
 			maxhits = atoi(optarg);
 			break;
 
+		case 't':
+			totalhits = atoi(optarg);
+			break;
+
 		case 's':
 			flags |= DO_STATS;
 			break;
 
 		case 'S':
 			flags |= (DO_STATS | MACHINE_STATS);
+			break;
+
+		case 'f':
+			flags |= (FLUSH_OUT);
 			break;
 
 		case '?':
@@ -223,6 +251,9 @@ main(int argc, char **argv)
 		printf("Nothing to do\n");
 		usage(argv);
 		return (1);
+	}
+	if (totalhits < 1) {
+		totalhits = 1024 * 1024 * 2;	/* a few */
 	}
 	req = parseurl(argv[optind]);
 	if (req.port == -1) {
@@ -277,7 +308,7 @@ main(int argc, char **argv)
 
 						if (flags & DO_STATS) {
 							gettimeofday(&timers[i][2], tzp);
-							dostats(i, timers[i], bytes[i], flags);
+							dostats(i, timers[i], bytes[i], flags, maxhits);
 						}
 						FD_CLR(i, &fdset);
 						n--;
