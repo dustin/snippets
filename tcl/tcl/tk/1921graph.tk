@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.3
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: 1921graph.tk,v 1.6 2000/07/19 20:08:44 dustin Exp $
+# $Id: 1921graph.tk,v 1.7 2000/07/20 00:04:07 dustin Exp $
 
 set width 640
 set height 480
@@ -13,6 +13,9 @@ proc ctof { c } {
 
 proc showGraph { width height } {
 	global dumpData gmtoffset
+
+	canvas .g -relief raised -width $width -height $height
+	pack .g -side top -fill x
 
 	set min_t [expr $dumpData(mission_start)+($gmtoffset*3600)]
 	set max_t [expr $min_t+($dumpData(sample_rate)*60*$dumpData(mission_samples))]
@@ -64,10 +67,10 @@ proc showGraph { width height } {
 	set maxy [expr ($height-20)]
 
 	# Draw the box.
-	.c create line $minx $miny $minx $maxy
-	.c create line $maxx $miny $maxx $maxy
-	.c create line $minx $miny $maxx $miny
-	.c create line $minx $maxy $maxx $maxy
+	.g create line $minx $miny $minx $maxy
+	.g create line $maxx $miny $maxx $maxy
+	.g create line $minx $miny $maxx $miny
+	.g create line $minx $maxy $maxx $maxy
 
 	######################################################################
 	# Time lines
@@ -77,15 +80,15 @@ proc showGraph { width height } {
 	set firstline [expr (($min_t / 3600)+1) * 3600 ]
 	for { set i $firstline } { $i < $max_t } { set i [expr $i + 3600 ] } {
 		set x [expr (($i-$min_t)/$xfactor)+$xleft]
-		.c create line $x $maxy $x $miny -dash . -fill grey
+		.g create line $x $maxy $x $miny -dash . -fill grey
 	}
 
 	set firstline [expr (($min_t / 86400)+1) * 86400 ]
 	# Draw the day lines.
 	for { set i $firstline } { $i < $max_t } { set i [expr $i + 86400 ] } {
 		set x [expr (($i-$min_t)/$xfactor)+$xleft]
-		.c create line $x $maxy $x $miny -fill grey
-		.c addtag text withtag [.c create text $x [expr ($height-10)] \
+		.g create line $x $maxy $x $miny -fill grey
+		.g addtag text withtag [.g create text $x [expr ($height-10)] \
 			-text [clock format $i -format %m/%d]]
 	}
 
@@ -101,7 +104,7 @@ proc showGraph { width height } {
 	for { set i $v } { $i < $max_v } { set i [expr $i + $dashwidth]} {
 		set nadj [expr ($i-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
-		.c create line $minx $y $maxx $y -dash . -fill grey
+		.g create line $minx $y $maxx $y -dash . -fill grey
 	}
 
 	# Draw the ten-degree lines.
@@ -109,8 +112,8 @@ proc showGraph { width height } {
 	for { set i $v } { $i < $max_v } { set i [expr $i + 10 ] } {
 		set nadj [expr ($i-$min_v)]
 		set y [expr ($height-40)-($nadj*$yfactor)]
-		.c create line $minx $y $maxx $y -fill grey
-		.c addtag text withtag [.c create text [expr $xleft/2] $y -text $i]
+		.g create line $minx $y $maxx $y -fill grey
+		.g addtag text withtag [.g create text [expr $xleft/2] $y -text $i]
 	}
 
 	######################################################################
@@ -125,7 +128,7 @@ proc showGraph { width height } {
 		set y [expr ($height-40)-($nadj*$yfactor)]
 
 		if { $lastx >= 0 } {
-			.c create line $lastx $lasty $x $y -width 1
+			.g create line $lastx $lasty $x $y -width 1
 		}
 
 		set lastx $x
@@ -135,6 +138,9 @@ proc showGraph { width height } {
 
 proc showHistogram { width height } {
 	global dumpData
+
+	canvas .h.g -relief raised -width $width -height $height
+	pack .h.g -side top -fill x
 
 	set input {}
 	# Find the histogram entries.
@@ -195,14 +201,19 @@ proc showHistogram { width height } {
 			set color red
 		}
 
-		.c create rectangle [expr $x-$bwidth] [expr $height-20] \
+		.h.g create rectangle [expr $x-$bwidth] [expr $height-20] \
 			[expr $x+$bwidth] $y \
 			-fill $color -width 1 -outline black
 
-		.c addtag text withtag [.c create text $x [expr ($height-10)] \
+		.h.g addtag text withtag [.h.g create text $x [expr ($height-10)] \
 			-text [ctof $min]]
-		.c addtag text withtag [.c create text $x [expr ($y+10)] \
-			-text $n]
+		if { $n < 5 } {
+			.h.g addtag text withtag [.h.g create text $x [expr ($y-10)] \
+				-text $n]
+		} else {
+			.h.g addtag text withtag [.h.g create text $x [expr ($y+10)] \
+				-text $n]
+		}
 	}
 }
 
@@ -228,9 +239,8 @@ proc readDump { file } {
 
 wm title . "Temperature Graph"
 wm iconname . "1921"
-canvas .c -relief raised -width $width -height $height
-pack .c -side top -fill x
 
 readDump /tmp/dump
-# showHistogram $width $height
 showGraph $width $height
+toplevel .h -width 320 -height 200
+showHistogram 320 200
