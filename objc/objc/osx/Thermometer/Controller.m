@@ -7,7 +7,7 @@
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
     while (object = [enumerator nextObject]) {
-        if([to isEqualTo: @"f"]) {
+        if((to!=nil) && [to isEqualTo: @"f"]) {
             [object setFarenheit];
         } else {
             [object setCelsius];
@@ -86,19 +86,10 @@
         [object setCelsius];
     }
 
-    bool unitsSet=false;
     // Check the defaults, make sure this is what the user wants
     id defaults=[NSUserDefaults standardUserDefaults];
     id defaultUnit=[defaults objectForKey:@"units"];
-    if(defaultUnit != nil) {
-        if([defaultUnit isEqualTo: @"f"]) {
-            [self setFarenheit: nil];
-            unitsSet=true;
-        }
-    }
-    if(unitsSet==false) {
-        [self setCelsius: nil];
-    }
+    [self setUnits: defaultUnit];
 
     [self update];
 
