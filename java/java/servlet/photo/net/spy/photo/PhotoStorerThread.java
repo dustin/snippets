@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.6 2000/01/06 00:22:26 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.7 2000/03/09 04:29:07 dustin Exp $
  */
 
 package net.spy.photo;
@@ -154,5 +154,11 @@ public class PhotoStorerThread extends Thread {
 				doFlush();
 			}
 		}
+	}
+
+	// In case it's run as its own little thingy.
+	public static void main(String args[]) {
+		PhotoStorerThread storer=new PhotoStorerThread();
+		storer.run();
 	}
 }
