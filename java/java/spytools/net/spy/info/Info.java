@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.4 2000/06/16 20:08:35 dustin Exp $
+// $Id: Info.java,v 1.5 2000/06/16 21:46:03 dustin Exp $
 
 package net.spy.info;
 
@@ -105,6 +105,8 @@ public abstract class Info extends Object {
 	 * Get a value out of the info hash.
 	 *
 	 * @param what which variable to get
+	 *
+	 * @exception Exception will be thrown if the info cannot be parsed
 	 */
 	public String get(String what) throws Exception {
 		if(hinfo==null) {
@@ -120,6 +122,8 @@ public abstract class Info extends Object {
 	 *
 	 * @param what which variable to get
 	 * @param def default value
+	 *
+	 * @exception Exception will be thrown if the info cannot be parsed
 	 */
 	public String get(String what, String def) throws Exception {
 		String ret=(String) get(what);

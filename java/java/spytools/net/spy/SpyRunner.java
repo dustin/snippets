@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.4 2000/01/25 06:41:12 dustin Exp $
+// $Id: SpyRunner.java,v 1.5 2000/06/16 21:46:02 dustin Exp $
 
 package net.spy;
 
@@ -38,7 +38,7 @@ public class SpyRunner extends Thread {
 	String args[]=null;
 	String classname=null;
 
-	static Properties prop=null;
+	static SpyConfig conf=null;
 
 	public SpyRunner(ThreadGroup tg, String object, String args[]) {
 		super(tg, "main");
@@ -81,8 +81,8 @@ public class SpyRunner extends Thread {
 	}
 
 	public static void main(String args[]) throws Exception {
-		initProperties(args[0]);
-		String apps=prop.getProperty("apps");
+		conf=new SpyConfig(args[0]);
+		String apps=conf.get("apps");
 
 		ThreadGroup system=getSystemGroup();
 
@@ -90,8 +90,8 @@ public class SpyRunner extends Thread {
 		for(int i=0; i<a.length; i++) {
 			// System.out.println("Got app:  " + a[i]);
 
-			String classname=prop.getProperty(a[i] + ".class");
-			String argstring=prop.getProperty(a[i] + ".args");
+			String classname=conf.get(a[i] + ".class");
+			String argstring=conf.get(a[i] + ".args");
 			String cargs[]=null;
 			if(argstring!=null && argstring.length() > 0) {
 				// System.out.println("Got an argstring:  " + argstring);
@@ -116,11 +116,6 @@ public class SpyRunner extends Thread {
 			}
 		}
 		// system.list();
-	}
-
-	protected static void initProperties(String from) throws Exception {
-		prop=new Properties();
-		prop.load(new FileInputStream(from));
 	}
 
     // Get the system threadgroup for initialize

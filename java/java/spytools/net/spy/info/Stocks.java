@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Stocks.java,v 1.2 2000/03/20 22:42:54 dustin Exp $
+// $Id: Stocks.java,v 1.3 2000/06/16 21:46:06 dustin Exp $
 
 package net.spy.info;
 
@@ -85,6 +85,8 @@ public class Stocks extends Object {
 
 	/**
 	 * Test program, call it with ticker symbols on the commandline.
+	 *
+	 * @exception Exception when something goes terribly wrong.
 	 */
 	public static void main(String args[]) throws Exception {
 		Stocks s=new Stocks();

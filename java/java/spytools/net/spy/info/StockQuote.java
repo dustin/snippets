@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.4 2000/03/22 21:40:58 dustin Exp $
+// $Id: StockQuote.java,v 1.5 2000/06/16 21:46:05 dustin Exp $
 
 package net.spy.info;
 
@@ -29,7 +29,7 @@ public class StockQuote extends Object {
 	 *
 	 * @param csv line of csv from yahoo
 	 *
-	 * @throws Exception for an invalid cvs line
+	 * @exception Exception for an invalid cvs line
 	 */
 	public StockQuote(String csv) throws Exception {
 		super();
