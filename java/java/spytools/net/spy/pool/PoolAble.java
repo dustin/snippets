@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.12 2001/03/17 21:58:52 dustin Exp $
+// $Id: PoolAble.java,v 1.13 2001/03/19 20:27:32 dustin Exp $
 
 package net.spy.pool;
 
@@ -24,10 +24,7 @@ public abstract class PoolAble extends Object {
 	private long max_age=0;
 	private long start_time=0;
 	private String pool_name=null;
-
-	// Whether we've been globally initialized
-	private static boolean ginitialized=false;
-	private static PrintWriter debugOut=null;
+	private PoolDebug pooldebug=null;
 
 	/**
 	 * Availability flag.
@@ -39,7 +36,6 @@ public abstract class PoolAble extends Object {
 	 */
 	public PoolAble(Object the_object) {
 		super(); // thanks for asking.
-		globalInit();
 		this.the_object=the_object;
 		start_time=System.currentTimeMillis();
 		debug("New object");
@@ -55,33 +51,10 @@ public abstract class PoolAble extends Object {
 	 */
 	public PoolAble(Object the_object, long max_age) {
 		super(); // thanks for asking.
-		globalInit();
 		this.the_object=the_object;
 		this.max_age=max_age;
 		start_time=System.currentTimeMillis();
 		debug("New object.");
-	}
-
-	// Global initialization stuff.  This allows us to setup debugging
-	// stuff and all that.
-	private static synchronized void globalInit() {
-		if(ginitialized==false) {
-
-			String of=System.getProperty("net.spy.pool.debug");
-			if(of!=null) {
-				try {
-					FileOutputStream fos=new FileOutputStream(of);
-					debugOut=new PrintWriter(fos);
-
-					debugOut.println(getTimestamp() + ":  Initialized.");
-				} catch(Exception e) {
-					System.err.println("Cannot initialize debugging:  " + e);
-					e.printStackTrace();
-				}
-			}
-
-			ginitialized=true;
-		}
 	}
 
 	/**
@@ -239,32 +212,24 @@ public abstract class PoolAble extends Object {
 		the_object=null;
 	}
 
-	// Get a timestamp for logging
-	private static String getTimestamp() {
-		return("[" + new Date().toString() + "]");
-	}
-
 	/**
 	 * Debugging info.
 	 */
 	protected final void debug(String msg) {
-		if(debugOut!=null) {
-			String classname=getClass().getName();
-			String objectClassname="n/a";
-			if(the_object!=null) {
-				objectClassname=the_object.getClass().getName();
-			}
-
-			String tmsg=getTimestamp()
-				+ " Poolable=" + classname + ", oid=" + object_id
-				+ " in " + pool_name
-				+ ", object=" + objectClassname + ":  " + msg;
-
-			synchronized(debugOut) {
-				debugOut.println(tmsg);
-				debugOut.flush();
-			}
+		if(pooldebug==null) {
+			pooldebug=new PoolDebug();
 		}
+
+		String classname=getClass().getName();
+		String objectClassname="n/a";
+		if(the_object!=null) {
+			objectClassname=the_object.getClass().getName();
+		}
+
+		String tmsg= "Poolable=" + classname + ", oid=" + object_id
+			+ " in " + pool_name + ", object=" + objectClassname + ":  " + msg;
+
+		pooldebug.debug(tmsg);
 	}
 
 	/**

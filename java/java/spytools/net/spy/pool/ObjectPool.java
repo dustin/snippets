@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.20 2001/03/18 19:47:45 dustin Exp $
+// $Id: ObjectPool.java,v 1.21 2001/03/19 20:27:30 dustin Exp $
 
 package net.spy.pool;
 
@@ -234,10 +234,11 @@ public class ObjectPool extends Object {
 		}
 
 		private void doPrune() throws Exception {
-			System.out.println("Cleaning at " + new Date() + ":\n" + op);
+			PoolDebug debug=new PoolDebug();
+			debug.debug("Cleaning at " + new Date() + ":\n" + op);
 			op.prune();
 			numCleans++;
-			System.out.println("Now looks like this:\n" + op);
+			debug.debug("Now looks like this:\n" + op);
 		}
 
 		public void run() {

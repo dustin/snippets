@@ -1,5 +1,5 @@
 //
-// $Id: PooledObject.java,v 1.5 2001/02/07 06:31:40 dustin Exp $
+// $Id: PooledObject.java,v 1.6 2001/03/19 20:27:35 dustin Exp $
 
 package net.spy.pool;
 
@@ -14,7 +14,7 @@ public class PooledObject extends Object {
 
 	private PoolAble p=null;
 
-	private boolean _debug=false;
+	private PoolDebug pooldebug=null;
 
 	/**
 	 * Get a new PooledObject containing the given PoolAble
@@ -72,8 +72,9 @@ public class PooledObject extends Object {
 	}
 
 	private void debug(String what) {
-		if(_debug) {
-			System.out.println(what);
+		if(pooldebug==null) {
+			pooldebug=new PoolDebug();
 		}
+		pooldebug.debug(what);
 	}
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.20 2001/03/17 21:58:54 dustin Exp $
+// $Id: PoolContainer.java,v 1.21 2001/03/19 20:27:33 dustin Exp $
 
 package net.spy.pool;
 
@@ -21,7 +21,7 @@ public class PoolContainer extends Object {
 
 	private static int _object_id=0;
 
-	private boolean _debug=false;
+	private PoolDebug pooldebug=null;
 
 	/**
 	 * Create a new PoolContainer for a pool with a given name, and filler.
@@ -320,8 +320,9 @@ public class PoolContainer extends Object {
 	}
 
 	private void debug(String msg) {
-		if(_debug) {
-			System.out.println(msg);
+		if(pooldebug==null) {
+			pooldebug=new PoolDebug();
 		}
+		pooldebug.debug(msg);
 	}
 }
