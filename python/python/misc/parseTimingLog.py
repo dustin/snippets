@@ -102,6 +102,12 @@ class PerBlock:
         else:
             raise "Invalid log type:  " + `ob.__class__`
 
+    def getTimes(self, k):
+        return str(self.__times[k])
+
+    def getCount(self, k):
+        return str(self.__count[k])
+
     def printEntries(self, rrd, ts):
         a=[]
         keys=[]
@@ -124,12 +130,17 @@ class Printer:
 
     LogTypes=('HB', 'BOOT', 'KICK', 'XMLRPC')
 
-    def __init__(self, rrd, rate=60):
+    def __init__(self, rrd, rate=60, perBlockClass=PerBlock):
         self.__rrd=rrd
         self.__pb={}
         self.__rate=rate
+        self.__perBlockClass=perBlockClass
+
+    def printHeader(self):
+        pass
 
     def printEntries(self):
+        self.printHeader()
         l=self.__pb.keys()
         l.sort()
         for k in l:
@@ -143,7 +154,7 @@ class Printer:
         if self.__pb.has_key(t):
             pb=self.__pb[t]
         else:
-            pb=PerBlock()
+            pb=self.__perBlockClass()
             self.__pb[t]=pb
 
         pb.addObject(ob)
@@ -205,25 +216,34 @@ class Collector:
         sys.stderr.write("Saw " + str(self.__starts) + " starts\n");
         sys.stderr.write("Saw " + str(self.__ends) + " ends\n");
 
-if __name__ == '__main__':
+class LogProcessor:
+    def __init__(self, args, printerClass=Printer, collectorClass=Collector):
+        self.__printerClass=printerClass
+        self.__collectorClass=collectorClass
+        self.__args=args
 
-    p=Printer(sys.argv[1], 300)
-    c=Collector()
+    def run(self):
+        p=apply(self.__printerClass, self.__args)
+        c=self.__collectorClass()
 
-    l=sys.stdin.readline()
-    while l != '':
-        try:
-            le=LogEntry(l)
-            c.addEntry(le)
-            while c.ready():
-                p.anObject(c.getEntry())
-            p.anObject(le)
-        except:
-            e=sys.exc_info()
-            sys.stderr.write(l + "\n");
-            traceback.print_exception(e[0], e[1], e[2])
         l=sys.stdin.readline()
+        while l != '':
+            try:
+                le=LogEntry(l)
+                c.addEntry(le)
+                while c.ready():
+                    p.anObject(c.getEntry())
+                p.anObject(le)
+            except:
+                e=sys.exc_info()
+                sys.stderr.write(l + "\n");
+                traceback.print_exception(e[0], e[1], e[2])
+            l=sys.stdin.readline()
 
-    p.printEntries()
+        p.printEntries()
 
-    c.dump()
+        c.dump()
+
+if __name__ == '__main__':
+    lp=LogProcessor(sys.argv[1:])
+    lp.run()
