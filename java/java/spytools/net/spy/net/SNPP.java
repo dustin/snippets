@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.1 1999/10/21 03:18:27 dustin Exp $
+// $Id: SNPP.java,v 1.2 2000/01/19 08:03:42 dustin Exp $
 
 package net.spy.net;
 
@@ -75,7 +75,7 @@ public class SNPP {
 		if(debug) {
 			System.out.println(">> " + command);
 		}
-		prout.println(command);
+		prout.print(command + "\r\n");
 		prout.flush();
 		getaline();
 		if(!ok()) {

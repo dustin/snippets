@@ -20,7 +20,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/rmi/ImageServerImpl_Stub.class \
 	net/spy/rmi/ImageServerImpl_Skel.class net/spy/rmi/RObjectImpl.class \
 	net/spy/rmi/RObjectImpl_Stub.class net/spy/rmi/RObjectImpl_Skel.class \
-	net/spy/rmi/DoBindings.class net/spy/RHash.class
+	net/spy/rmi/DoBindings.class net/spy/RHash.class \
+	net/spy/temperature/SpyTemp.class
 
 
 FDEST=/home/dustin/lib/java
