@@ -1,15 +1,16 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/java
+JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 RMIC=$(JAVAHOME)/bin/rmic
 JAVADOC=$(JAVAHOME)/bin/javadoc
-C1=/home/dustin/lib/java/jsdk.jar:/home/dustin/lib/java/DBCB.jar
-C2=/home/dustin/lib/java/RHash.jar:/home/dustin/lib/java/cos.jar
-C3=/home/dustin/lib/java/xml4j.jar
-CLASSPATH=$(C1):$(C2):$(C3):/home/dustin/lib/java/postgresql.jar:.
+MYLIB=/home/dustin/lib/java
+C1=$(MYLIB)/jsdk.jar:$(MYLIB)/DBCB.jar:$(MYLIB)/postgresql.jar
+C2=$(MYLIB)/RHash.jar:$(MYLIB)/cos.jar
+C3=$(MYLIB)/xml4j.jar:$(MYLIB)/oromatcher.jar
+CLASSPATH=$(C1):$(C2):$(C3):.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
@@ -28,7 +29,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/Stocks.class net/spy/info/StockQuote.class
 
 
-PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature net.spy.util
+PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature net.spy.util \
+	net.spy.info
 
 FDEST=/home/dustin/lib/java
 SCP=scp
