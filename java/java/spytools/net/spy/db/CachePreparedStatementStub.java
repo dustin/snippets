@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachePreparedStatementStub.java,v 1.4 2001/03/03 11:25:56 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.5 2001/03/10 22:42:14 dustin Exp $
  */
 
 package net.spy.db;
@@ -247,5 +247,12 @@ public class CachePreparedStatementStub extends Object {
 	public void setTime(int a0,Time a1)
 		throws SQLException {
 		setArg(a0, a1, Types.TIME);
+	}
+
+	// Implemented
+	public void close() throws SQLException {
+	    query_str=null;
+		args=null;
+		types=null;
 	}
 }
