@@ -140,5 +140,5 @@ let main() =
 		streamfn oldfn newfn
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;

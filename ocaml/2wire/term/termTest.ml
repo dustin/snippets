@@ -60,5 +60,5 @@ let main() =
 	printer "vstop " (string_of_char tio.c_vstop);
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;

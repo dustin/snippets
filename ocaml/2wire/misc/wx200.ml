@@ -188,5 +188,5 @@ let main() =
 	main_loop (Stream.of_channel (in_channel_of_descr s));
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;

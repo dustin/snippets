@@ -27,5 +27,5 @@ let main =
 		Fileutils.walk_dir Sys.argv.(1) (linkto Sys.argv.(2)) Sys.argv.(1))
 ;;
 
-(* Start main if we're interactive. *)
+(* Start main unless we're interactive. *)
 if !Sys.interactive then () else begin main() end;;
