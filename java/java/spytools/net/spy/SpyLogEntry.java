@@ -1,19 +1,16 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SpyLogEntry.java,v 1.3 2000/01/24 10:10:47 dustin Exp $
+// $Id: SpyLogEntry.java,v 1.4 2000/01/25 04:39:28 dustin Exp $
 
 package net.spy;
 
-/**
- * A SpyLogEntry.  Things should look like this to be logged.
- */
+public class SpyLogEntry extends Object {
+	public SpyLogEntry() {
+		// Do nothing.
+	}
 
-public interface SpyLogEntry {
-	/**
-	 * Prepare a LogEntry for representation in the log store.
-	 *
-	 * @return SpyLog-ready representation of the LogEntry, for example, a
-	 * SQL query if the SpyLog store is a SQL database.
-	 */
-	public String toString();
+	// This really needs to be overridden.
+	public String toString() {
+		return("ERROR:  Method should be overridden");
+	}
 }

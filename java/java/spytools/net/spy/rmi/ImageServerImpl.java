@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.3 2000/01/12 07:59:09 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.4 2000/01/25 04:39:29 dustin Exp $
 
 package net.spy.rmi;
 
@@ -73,21 +73,28 @@ public class ImageServerImpl extends UnicastRemoteObject
 
 		try {
 			int i=-1;
-			Runtime run = Runtime.getRuntime();
+			log("Creating " + tmpfilename);
 			FileOutputStream f = new FileOutputStream(tmpfilename);
 			for(i=0;i<in.image_data.size(); i++) {
 				f.write( (byte[])in.image_data.elementAt(i));
 			}
+			log("Wrote " + i + " vector parts");
+			f.flush();
+			f.close();
 
-			log("Converting image");
-			Process p = run.exec("convert -size 100x100 "
-				+ tmpfilename + " " + thumbfilename);
+			log("Converting image (75x75)");
+			String command="/usr/local/bin/convert -size 75x75 "
+				+ tmpfilename + " " + thumbfilename;
+			Runtime run = Runtime.getRuntime();
+			Process p = run.exec(command);
 			p.waitFor();
-			log("done converting image");
+			log("done converting image, created " + thumbfilename);
 
 			byte b[]=new byte[8192];
 			FileInputStream fin = new FileInputStream(thumbfilename);
 			int size;
+
+			log("Reading image back in.");
 
 			v=new Vector();
 
