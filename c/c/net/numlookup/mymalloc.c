@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: mymalloc.c,v 1.2 1999/05/08 08:35:47 dustin Exp $
+ * $Id: mymalloc.c,v 1.3 1999/05/10 05:03:36 dustin Exp $
  */
 
 #include <stdio.h>
@@ -207,8 +207,7 @@ _my_free(void *p, char *file, int line)
 	tmp = _lookup_mem(p);
 	if (tmp == NULL) {
 		printf("Trying to free something that isn't mine:  %p (%s) (%s:%d)\n",
-		    p, (char *) p,
-		    file, line);
+		    p, (char *) p, file, line);
 		_mdebug_dump();
 		abort();
 	}
