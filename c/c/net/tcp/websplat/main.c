@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.4 1998/06/27 20:08:25 dustin Exp $
+ * $Id: main.c,v 1.5 1998/07/02 21:01:05 dustin Exp $
  */
 
 #include <config.h>
@@ -25,6 +25,16 @@ static RETSIGTYPE serv_conn_alrm(int sig);
 int _debug=0;
 
 #define MAXSEL 1024
+
+#define DO_STATS 1
+
+#define TVDIFF(tv1, tv2, a, b) \
+    a=tv2.tv_sec-tv1.tv_sec; \
+    if(tv2.tv_usec<tv1.tv_usec) { \
+        a--; \
+        tv2.tv_usec+=1000000; \
+    } \
+    b=tv2.tv_usec-tv1.tv_usec;
 
 static void resettraps(void)
 {
@@ -112,20 +122,47 @@ struct url parseurl(char *url)
 
 void usage(char **argv)
 {
-    printf("Usage:  %s [-d] [-n max_conns] request_url\n", argv[0]);
+    printf("Usage:  %s [-ds] [-n max_conns] request_url\n", argv[0]);
+}
+
+void dostats(int i, struct timeval timers[3])
+{
+    int a, b;
+    char times[3][50];
+
+    printf("Stats for %d\n", i);
+
+    strcpy(times[0], ctime(&timers[0].tv_sec));
+    strcpy(times[1], ctime(&timers[1].tv_sec));
+    strcpy(times[2], ctime(&timers[2].tv_sec));
+
+    printf("\t%d/%s\t%d/%s\t%d/%s",
+                  timers[0].tv_usec, times[0],
+                  timers[1].tv_usec, times[1],
+                  timers[2].tv_usec, times[2]);
+
+    TVDIFF(timers[0], timers[1], a, b);
+
+    printf("\tConnect time: %d.%d seconds\n", a, b);
+
+    TVDIFF(timers[1], timers[2], a, b);
+
+    printf("\tTransfer time: %d.%d seconds\n", a, b);
 }
 
 int main(int argc, char **argv)
 {
-    int s, selected, size, c, i, maxhits=65535, n=0;
+    int s, selected, size, c, i, maxhits=65535, n=0, flags=0;
     fd_set fdset, tfdset;
+    struct timeval timers[MAXSEL][3];
+    struct timeval tmptime, t;
     char buf[8192];
     struct url req;
-    struct timeval t;
+    void *tzp;
 
     req.port=-1;
 
-    while( (c=getopt(argc, argv, "dn:")) >=0) {
+    while( (c=getopt(argc, argv, "dn:s")) >=0) {
 	switch(c) {
 
 	    case 'd':
@@ -134,6 +171,10 @@ int main(int argc, char **argv)
 
 	    case 'n':
 		maxhits=atoi(optarg);
+		break;
+
+	    case 's':
+                flags|=DO_STATS;
 		break;
 
 	    case '?':
@@ -165,7 +206,17 @@ int main(int argc, char **argv)
     for(;;)
     {
 	if(n<maxhits) {
+
+            if(flags&DO_STATS)
+                gettimeofday(&tmptime, tzp);
+
             s=getclientsocket(req.host, req.port);
+
+            if(flags&DO_STATS) {
+                gettimeofday(&timers[s][1], tzp);
+                timers[s][0]=tmptime;
+            }
+
 	    if(s>0) {
 	        printf("Got one: %d...\n", s);
 	        FD_SET(s, &tfdset);
@@ -198,6 +249,12 @@ int main(int argc, char **argv)
 		    {
 			_ndebug(2, ("Lost %d\n", i));
 			close(i);
+
+                        if(flags&DO_STATS) {
+                            gettimeofday(&timers[i][2], tzp);
+                            dostats(i, timers[i]);
+			}
+
 			FD_CLR(i, &fdset);
 			n--;
 		    }
