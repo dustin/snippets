@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: mbk.c,v 1.4 1998/10/03 08:20:21 dustin Exp $
+ * $Id: mbk.c,v 1.5 1998/10/03 08:23:26 dustin Exp $
  */
 
 #include <config.h>
@@ -112,7 +112,7 @@ _mbk_sign_data(MBK * mbk_packet)
 	if (strlen(mbk_packet->pkt.data) >= (MAXPACKETLEN - 40)) {
 		return;
 	}
-	sprintf(buf, "%d", time(NULL));
+	sprintf(buf, "%d", (int)time(NULL));
 
 	mbk_packet->append(mbk_packet, "time", buf);
 
@@ -174,6 +174,7 @@ _mbk_send_pkt(MBK * mbk_packet)
 		0, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		perror("sendto");
 	}
+	return(0);
 }
 
 static void
