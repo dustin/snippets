@@ -33,7 +33,7 @@ setpw: SetPW.class
 	env CLASSPATH=$(CLASSPATH) $(JAVA) SetPW
 
 install: all
-	$(SCP) $(CLASSES) $(DEST)
+	$(SCP) PhotoServlet.class photo.jar $(DEST)
 
 clean:
 	rm -f $(CLASSES) photo.jar
