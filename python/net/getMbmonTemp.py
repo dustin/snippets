@@ -34,7 +34,7 @@ def mcast(msg):
 
 def getAndReport():
     t=time.time()
-    ts=time.strftime("%Y/%m/%d %H:%M:%S")
+    ts=time.strftime("%Y/%m/%d %H:%M:%S.0")
     names=['mb', 'cpu', 'chip']
     temps=getTemps('purple', 1984)
     for i in range(len(temps)):
