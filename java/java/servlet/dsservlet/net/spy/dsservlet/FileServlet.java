@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileServlet.java,v 1.3 2000/11/07 10:49:00 dustin Exp $
+// $Id: FileServlet.java,v 1.4 2002/07/08 17:54:35 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -45,7 +45,7 @@ public class FileServlet extends HttpServlet {
 			// Get a Show object for this request
 			show=new Show(show_id, dsbean.getUsername());
 		} catch(Exception e) {
-			throw new ServletException("Error getting Show:  " + e);
+			throw new ServletException("Error getting Show", e);
 		}
 
 		log(dsbean.getUsername() + " requested " + show_id);
@@ -91,7 +91,7 @@ public class FileServlet extends HttpServlet {
 		try {
 			os.close();
 		} catch(IOException e) {
-			// Oh well...
+			e.printStackTrace();
 		}
 	}
 
@@ -101,7 +101,7 @@ public class FileServlet extends HttpServlet {
 			try {
 				show.markSent();
 			} catch(Exception e) {
-				// Not a lot we can do at this point, we tried
+				e.printStackTrace();
 			}
 		}
 		// Send mail about it, let us know when a file's been picked up
@@ -115,6 +115,7 @@ public class FileServlet extends HttpServlet {
 			outstr.print(" to " + dsbean.getUsername() + ".");
 			mail.sendAndClose();
 		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
