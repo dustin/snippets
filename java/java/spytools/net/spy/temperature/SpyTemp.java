@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.2 2000/01/24 10:11:52 dustin Exp $
+// $Id: SpyTemp.java,v 1.3 2000/03/20 06:20:42 dustin Exp $
 
 package net.spy.temperature;
 
@@ -15,8 +15,8 @@ import net.spy.net.*;
 
 public class SpyTemp extends Object {
 
-	protected static String temp_base="http://bleu.west.spy.net/servlet/"
-		+ "net.spy.temperature.Temperature";
+	protected static String temp_base=
+		"http://bleu.west.spy.net/servlet/Temperature";
 
 	public SpyTemp() {
 		super();
