@@ -35,8 +35,11 @@ case "$OS" in
 	fi
 	;;
 	'netbsd')
-	echo "NetBSD!  One of my favs, setting -Wall"
-	CFLAGS="$CFLAGS -Wall"
+		echo "NetBSD!  One of my favs, setting -Wall"
+		CFLAGS="$CFLAGS -Wall -fPIC"
+		MAKESO="ld -x -shared"
+		DYNLIBS=1
+		NEEDUNDERSCORE=1
 	;;
 	'solaris')
 		echo "Hmm...Solaris"
@@ -59,20 +62,30 @@ case "$OS" in
 		BSDLIKE=0
 		;;
 	'irix')
-	echo "Looks like IRIX it's going to be..."
-	if test "$GCC" = "yes"
-	then
-		echo "That's odd, we're using gcc...  OK."
-		echo "If you have the IDO, please set the environ CC to cc"
-		echo "to use the native compiler."
-	else
-		echo "Using the native IDO, let's set some CFLAGS"
-		CFLAGS="$CFLAGS -fullwarn"
-		DYNLIBS=1
-		NEEDUNDERSCORE=0
-		MAKESO="ld -shared"
-	fi
+		echo "Looks like IRIX it's going to be..."
+		if test "$GCC" = "yes"
+		then
+			echo "That's odd, we're using gcc...  OK."
+			echo "If you have the IDO, please set the environ CC to cc"
+			echo "to use the native compiler."
+		else
+			echo "Using the native IDO, let's set some CFLAGS"
+			CFLAGS="$CFLAGS -fullwarn"
+			DYNLIBS=1
+			NEEDUNDERSCORE=0
+			MAKESO="ld -shared"
+		fi
 	;;
+	*)
+		if test "$GCC" = "yes"
+		then
+			echo "I'm not familiar, but we're using GCC,"
+			echo "let's try to make shared libs."
+			DYNLIBS=1
+			NEEDUNDERSCORE=0
+			MAKESO="$CC -shared"
+			CFLAGS="$CFLAGS -Wall -fPIC"
+		fi
 esac
 
 AC_DEFINE_UNQUOTED(DYNLIBS, $DYNLIBS)

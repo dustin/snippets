@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.7 1999/05/11 02:37:12 dustin Exp $
+ * $Id: parselist.h,v 1.8 1999/05/11 06:23:12 dustin Exp $
  */
 
 #include <syslog.h>
@@ -21,7 +21,9 @@
 
 /* Amount of time (in seconds) to run library loop before checking the
  * library */
+#ifndef LIFETIME
 #define LIFETIME 60
+#endif
 
 /* How long to run the emergency function (in seconds) if the library
  * doesn't load */

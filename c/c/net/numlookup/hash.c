@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.4 1999/05/11 02:37:07 dustin Exp $
+ * $Id: hash.c,v 1.5 1999/05/11 06:23:10 dustin Exp $
  */
 
 #include <stdio.h>
@@ -77,8 +77,11 @@ hash_store(struct hashtable *hash,
 		}
 	}
 
-	c->value=realloc(c->value, (c->size<<=1)*sizeof(char *) );
-	assert(c->value);
+	/* If we're to the edge of our allocated list size, grow it */
+	if(c->index == c->size-1) {
+		c->value=realloc(c->value, (c->size<<=1)*sizeof(char *) );
+		assert(c->value);
+	}
 	c->value[c->index++]=strdup(value);
 
 	return (c);
@@ -158,8 +161,9 @@ hash_destroy(struct hashtable *hash)
 			for (; p;) {
 				next = p->next;
 				if (p->value) {
-					for(j=0; j<p->index; j++)
-						free(p->value[i]);
+					for(j=0; j<p->index; j++) {
+						free(p->value[j]);
+					}
 					free(p->value);
 				}
 				free(p);
