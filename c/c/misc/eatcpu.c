@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 1997  Dustin Sallings
  *
- * $Id: eatcpu.c,v 1.1 1997/04/30 04:49:36 dustin Exp $
+ * $Id: eatcpu.c,v 1.2 1998/01/14 07:30:12 dustin Exp $
  */
 
 #include <stdio.h>
@@ -11,25 +11,38 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int n, *list;
+int b, n, *list;
 
-void killthem(void)
+void killthem(int which)
 {
     int i;
 
-    for(i=0; i<n; i++)
+    for(i=0; i<which; i++)
     {
-	printf("Getting %d (%d)\n", i, list[i]);
-	kill(list[i], SIGINT);
-	waitpid(list[i], NULL, 0);
+	if(list[i]>0)
+	{
+	    printf("Getting %d (%d)\n", i, list[i]);
+	    kill(list[i], SIGINT);
+	    waitpid(list[i], NULL, 0);
+	    list[i]=0;
+	}
     }
 }
 
 void sigtrap(int sig)
 {
-    killthem();
+    printf("Signal caught, exiting...\n");
+    killthem(b);
     free(list);
     exit(0);
+}
+
+void alrmtrap(int sig)
+{
+    printf("Killing off extra kids...\n");
+    killthem(b-n);
+    alarm(0);
+    signal(SIGALRM, sigtrap);
 }
 
 void main(int argc, char **argv)
@@ -43,8 +56,9 @@ void main(int argc, char **argv)
     }
 
     n=atoi(argv[1]);
+    b=n+(n/2);
 
-    while(size<n)
+    while(size<b) /* 50% head start */
     {
 	size<<=2;
     }
@@ -56,13 +70,18 @@ void main(int argc, char **argv)
     signal(SIGTERM, sigtrap);
     signal(SIGKILL, sigtrap);
     signal(SIGINT, sigtrap);
-    signal(SIGALRM, sigtrap);
+    signal(SIGALRM, alrmtrap);
 
-    for(i=0;i<n;i++)
+    alarm(30);
+
+    for(i=0;i<b;i++)
     {
 	if( (pid=fork())==0)
 	{
 	    signal(SIGINT, SIG_DFL);
+	    /* we can reuse i without affecting the parent */
+	    for(i=0; i<255; i++)
+		close(i);
 	    for(;;);
 	}
 	else
@@ -71,5 +90,8 @@ void main(int argc, char **argv)
 	    list[i]=pid;
 	}
     }
-    pause();
+
+    /* Just to keep the parent busy waiting for signals */
+    for(;;)
+	pause();
 }
