@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.19 1999/05/12 18:07:42 dustin Exp $
+ * $Id: libparselist.c,v 1.20 1999/06/07 23:37:40 dustin Exp $
  */
 
 #include <stdio.h>
@@ -82,7 +82,7 @@ getCleanLine(char *data, int size, FILE * infile)
 
 /* Read the config */
 static struct config_t
-readconfig(void)
+readconfig(char *config_file)
 {
 	char    line[LINELEN];
 	struct config_t config;
@@ -91,9 +91,9 @@ readconfig(void)
 	/* allocate a new config */
 	config = initConfig();
 
-	f = fopen(CONFIGFILE, "r");
+	f = fopen(config_file, "r");
 	if (f == NULL) {
-		perror(CONFIGFILE);
+		perror(config_file);
 		return (config);
 	}
 	/* We've got a macro for appending to the address list */
@@ -180,11 +180,17 @@ int
 main(int argc, char **argv)
 {
 	struct config_t config;
-	char   *val, *tmp;
+	char   *val, *tmp, *config_file;
 	char    buf[LINELEN];
 	time_t	t;
 
-	config = readconfig();
+	if(argc<2) {
+		config_file=CONFIGFILE;
+	} else {
+		config_file=argv[1];
+	}
+
+	config = readconfig(config_file);
 	t=time(0);
 
 	_log("Beginning main lib loop at %d\n", (int)t);
