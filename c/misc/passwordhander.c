@@ -9,6 +9,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -67,6 +68,7 @@ usage(char *name)
 int main(int argc, char **argv)
 {
 	pid_t p=0;
+	int i=0;
 	int pipeparts[2];
 	int readFd=-1;
 
@@ -78,18 +80,28 @@ int main(int argc, char **argv)
 	/* Setup signal handlers */
 	signal(SIGCHLD, sigChildHandler);
 
+	/* Close all (most) file descriptors above stderr */
+	for(i=3; i<1024; i++) {
+		close(i); /* Ignore the result */
+	}
+
 	/* Open the file */
 	readFd=open(argv[1], O_RDONLY);
 	if(readFd<0) {
 		perror(argv[1]);
 		exit(1);
 	}
+	/* We expect this to be three */
+	assert(readFd==3);
 
 	/* create the pipe */
 	if(pipe(pipeparts) < 0) {
 		perror("pipe");
 		exit(1);
 	}
+	/* We expect these pipe parts to always be in the same place */
+	assert(pipeparts[0] == 4);
+	assert(pipeparts[1] == 5);
 
 	/*
 	fprintf(stderr, "Read will be available on fd %d\n", pipeparts[0]);
@@ -118,4 +130,7 @@ int main(int argc, char **argv)
 			pause();
 			break;
 	}
+
+	/* Unreachable */
+	exit(1);
 }
