@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.9 2002/08/20 08:04:35 dustin Exp $
+// $Id: Cron.java,v 1.10 2002/08/21 05:22:42 dustin Exp $
 
 package net.spy.cron;
 
@@ -69,7 +69,7 @@ public class Cron extends Thread {
 			// Check all the running jobs.
 			for(Iterator i=jq.getReadyJobs(); i.hasNext(); ) {
 				Job j=(Job)i.next();
-				System.err.println("CRON: Starting job " + j);
+				debug("Starting job " + j);
 				Thread t=new Thread(j);
 				t.setName(j.getName());
 				t.setDaemon(true);
@@ -89,11 +89,11 @@ public class Cron extends Thread {
 			if(next==null) {
 				// If it's been too long, shut down
 				if( (now-validJobFound) > maxIdleTime) {
-					System.err.println("CRON:  Been a long time "
+					debug("Been a long time "
 						+ "since I had a job.  Shutting down.");
 					shutdown();
 				}
-				soonestJob=1000;
+				soonestJob=60000;
 			} else {
 				soonestJob=next.getTime()-now;
 				validJobFound=now;
@@ -101,22 +101,41 @@ public class Cron extends Thread {
 
 			try {
 				if(next!=null) {
-					System.err.println("CRON: Sleeping "
+					debug("Sleeping "
 						+ soonestJob + "ms (next job at " + next + ").");
 				} else {
-					System.err.println("CRON: Sleeping "
+					debug("Sleeping "
 						+ soonestJob + "ms (no good date found).");
 				}
 				// If we're still running at this point, wait for a job
 				if(stillRunning) {
+					// Take a second off of the sleep (will use it later)
+					soonestJob-=1000;
+					// Make sure it's greater than 1, or it'll sleep forever
+					if(soonestJob < 1) {
+						soonestJob = 1;
+					}
+					debug("Sleeping for " + soonestJob);
+					// Sleep on the job
 					synchronized(jq) {
 						jq.wait(soonestJob);
 					}
+					// Wait the remaining second
+					sleep(1000);
+					debug("Finished sleep.");
+				} else {
+					debug("Not sleeping, game over.");
 				}
 			} catch(Exception e) {
 				// Don't care, flip faster
+				e.printStackTrace();
 			}
 		} // still running
+		debug("shut down");
+	}
+
+	private void debug(String msg) {
+		System.err.println("CRON:  " + msg);
 	}
 
 	/**

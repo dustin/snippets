@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLItem.java,v 1.3 2002/08/20 08:04:38 dustin Exp $
+// $Id: URLItem.java,v 1.4 2002/08/21 05:22:46 dustin Exp $
 
 package net.spy.net;
 
@@ -61,6 +61,7 @@ public class URLItem extends Job {
 	public URLItem(URL u, Date startDate, TimeIncrement ti) {
 		super(u.toString(), startDate, ti);
 		this.url=u;
+		lastRequest=System.currentTimeMillis();
 	}
 
 	/**

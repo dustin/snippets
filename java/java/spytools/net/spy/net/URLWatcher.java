@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLWatcher.java,v 1.4 2002/08/21 02:03:11 dustin Exp $
+// $Id: URLWatcher.java,v 1.5 2002/08/21 05:22:48 dustin Exp $
 
 package net.spy.net;
 
@@ -71,17 +71,15 @@ public class URLWatcher extends Object {
 
 		JobQueue jq=cron.getJobQueue();
 		synchronized(jq) {
+			// Look at each item for the match
 			for(Iterator i=jq.iterator(); ui==null && i.hasNext(); ) {
 				URLItem tmp=(URLItem)i.next();
 
-				System.err.println("Looking at " + tmp);
 				if(tmp.getURL().equals(u)) {
 					ui=tmp;
-				} else {
-					System.err.println("Not it.");
-				}
-			}
-		}
+				} // It's a match
+			} // All items
+		} // lock
 
 		return(ui);
 	}
@@ -138,9 +136,9 @@ public class URLWatcher extends Object {
 		// If we don't have one for this URL yet, create it.
 		if(ui==null) {
 			ui=new URLItem(u);
-			startWatching(ui);
 			// Load the content
 			ui.run();
+			startWatching(ui);
 		}
 		// Return the current content.
 		return(ui.getContent());

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Job.java,v 1.4 2002/08/20 08:04:36 dustin Exp $
+// $Id: Job.java,v 1.5 2002/08/21 05:22:44 dustin Exp $
 
 package net.spy.cron;
 
@@ -26,9 +26,7 @@ public abstract class Job extends Object implements Runnable {
 	 * Get a new Job with the given name and start date.
 	 */
 	public Job(String name, Date startDate) {
-		super();
-		setName(name);
-		nextStart=startDate;
+		this(name, startDate, null);
 	}
 
 	/**
