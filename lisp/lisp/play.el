@@ -1,24 +1,24 @@
-; $Id: play.el,v 1.1 2001/11/03 01:49:52 dustin Exp $
+; $Id: play.el,v 1.2 2001/11/14 10:12:22 dustin Exp $
 
-(defun dustin-for-each (p l) "Dustin's for-each test."
-  (if l
-      (progn
-	(funcall p (car l))
-	(dustin-for-each p (cdr l))))
-  'Done)
+; (defun dustin-for-each (p l) "Dustin's for-each test."
+;   (if l
+;       (progn
+; 	(funcall p (car l))
+; 	(dustin-for-each p (cdr l))))
+;   'Done)
 
 
-(if '() 'true 'false)
+; (if '() 'true 'false)
 
-(dustin-for-each 'print '(1 2 3))
+; (dustin-for-each 'print '(1 2 3))
 
-(symbol-function 'print)
+; (symbol-function 'print)
 
 ; recursive
-(defun pow (x y) "Calculate x^y"
-  (if (< y 1)
-      1
-    (* x (pow x (- y 1)))))
+; (defun pow (x y) "Calculate x^y"
+;   (if (< y 1)
+;       1
+;     (* x (pow x (- y 1)))))
 
 ; Iterative
 (defun pow (x y) "Calculate x^y"
@@ -27,5 +27,7 @@
 	  (setq rv (* rv x)))
     rv))
 
-(pow 2.0 128)
+(pow 2.0 512)
+
+
 

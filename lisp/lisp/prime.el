@@ -1,4 +1,4 @@
-; $Id: prime.el,v 1.1 2001/11/03 10:51:30 dustin Exp $
+; $Id: prime.el,v 1.2 2001/11/14 10:12:23 dustin Exp $
 
 ; Prime number generation in emacs lisp
 
@@ -59,6 +59,9 @@
 
 ; play with the stuff here
 
+(build-primes-to 1000)
+(print primelist)
+
 ;; This is so lisp won't bitch
 ; (setq max-specpdl-size 8192)
 ; (setq max-lisp-eval-depth 8192)
@@ -69,5 +72,11 @@
 ; (end-of-list primelist)
 ; (list-length primelist)
 ; primelist
+
+
+
+
+
+
 
 
