@@ -90,7 +90,7 @@ static float ctof(float c)
     float rad, angle;
     int over=bounds.origin.x + (bounds.size.width/2);
     // int up=(bounds.size.height/2);
-    int up=bounds.origin.y + 68; // This is where the dot is
+    int up=bounds.origin.y + 69; // This is where the dot is
 
     angle=([self reading] * 1.8);
     NSLog(@"Calculated angle:  %.2f", angle);
@@ -194,7 +194,8 @@ static float ctof(float c)
     wordSize=[readingStr sizeWithAttributes: attribs];
     p=NSMakePoint(
         cellFrame.origin.x + ((cellFrame.size.width/2) - (wordSize.width/2)),
-        cellFrame.origin.y + ((cellFrame.size.height/2) - (wordSize.height - 3)));
+        cellFrame.origin.y + ((cellFrame.size.height/2)
+								- (wordSize.height + 15)));
     [readingStr drawAtPoint:p withAttributes:attribs];
     [readingStr release];
 
