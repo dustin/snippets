@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.5 1998/01/15 07:41:41 dustin Exp $
+# $Id: DCache.pm,v 1.6 1998/04/24 18:08:48 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -34,8 +34,8 @@ sub getname
     $md=MD5->new;
     $md->add($in);
     $dig=$md->hexdigest;
-    $dig=~s/(.{2})(.{16}).*/\1\/\2/g;
-    $dig=$self->{cachedir}."/$dig";
+    $dig=~s/(.{2})(.{16}).*/$1\/$2/g;
+    $dig=$self->{'cachedir'}."/$dig";
     return($dig);
 }
 
