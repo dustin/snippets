@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.17 2000/07/04 07:20:35 dustin Exp $
+ * $Id: SpyDB.java,v 1.18 2000/07/04 07:42:25 dustin Exp $
  */
 
 package net.spy;
@@ -78,7 +78,7 @@ public class SpyDB extends Object {
 		} catch(Exception e) {
 			log("Error initializing SpyDB:  " + e);
 		}
-		System.out.println("Debug:  " + pool + "\n" + connections);
+		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class SpyDB extends Object {
 		} catch(Exception e) {
 			log("Error initializing SpyDB:  " + e);
 		}
-		System.out.println("Debug:  " + pool + "\n" + connections);
+		// System.out.println("Debug:  " + pool + "\n" + connections);
 	}
 
 	// Warning, this contains a bunch of nasty backward-compatibility
