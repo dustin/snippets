@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.15 2001/08/08 06:58:38 dustin Exp $
+// $Id: SNPP.java,v 1.16 2001/08/08 07:01:21 dustin Exp $
 
 package net.spy.net;
 
@@ -327,6 +327,11 @@ public class SNPP extends Object {
 
 		// Get the line
 		currentline = din.readLine();
+
+		// make sure we read something
+		if(currentline==null) {
+			throw new IOException("Read returned null, disconnected?");
+		}
 
 		if(debug) {
 			System.out.println("<< " + currentline);
