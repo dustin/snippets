@@ -146,9 +146,11 @@ main(int argc, char *argv[])
 #ifndef X11COMPILE
   long c;
 
-#endif
+#else
   long x = MAX_X / 2;
   long y = MAX_Y / 2;
+
+#endif
 
 #ifdef X11COMPILE
   XEvent event;
@@ -300,9 +302,9 @@ main(int argc, char *argv[])
 
 	}
 
-        _setcolor(color);
-        vga_drawpixel(x, y);
-     }
+      _setcolor(color);
+      vga_drawpixel(x, y);
+    }
 #endif
 
 #ifdef VGACOMPILE
