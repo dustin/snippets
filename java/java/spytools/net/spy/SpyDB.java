@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.9 2000/04/17 01:30:58 dustin Exp $
+ * $Id: SpyDB.java,v 1.10 2000/04/17 18:48:56 dustin Exp $
  */
 
 package net.spy;
@@ -216,6 +216,13 @@ public class SpyDB extends Object {
 	public void freeDBConn(Connection c) {
 		log("Freeing");
 		dbs.freeConnection(c);
+	}
+
+	/**
+	 *  Free an established database connection - alias to freeDBConn()
+	 */
+	public void close() {
+		freeDBConn();
 	}
 
 	/**
