@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.11 2002/03/12 23:04:31 dustin Exp $
+ * $Id: tablecounter.c,v 1.12 2002/03/15 01:31:59 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <time.h>
 #include <assert.h>
 #include <libpq-fe.h>
@@ -21,12 +22,15 @@
 #define DBUSER "dustin"
 #define DBPASS "blahblah"
 
+#define MAKEDBSPEC4(dbname, table, tscolumn, query) \
+	{ DBSERVER, DBUSER, DBPASS, NULL, dbname, NULL, table, tscolumn, query }
 #define MAKEDBSPEC3(dbname, table, tscolumn) \
-	{ DBSERVER, DBUSER, DBPASS, NULL, dbname, NULL, table, tscolumn}
+	MAKEDBSPEC4(dbname, table, tscolumn, "select count(*) from " #table)
 #define MAKEDBSPEC(dbname, table) MAKEDBSPEC3(dbname, table, "ts")
 
 #define TIGERDB(table) \
-	{ "disk", DBUSER, DBPASS, NULL, "tiger", "2345", table, "ts" }
+	{ "disk", DBUSER, DBPASS, NULL, "tiger", "2345", table, "ts", \
+		"select count(*) from " #table }
 
 #define INCREMENT 3600
 
@@ -40,6 +44,8 @@ struct checkspec {
 
 	char *table;
 	char *ts;
+
+	char *query;
 } checkspec;
 
 static PGconn *getConn(struct checkspec query)
@@ -94,14 +100,42 @@ void process(struct checkspec query)
 	PGconn *dbConn=NULL;
 	PGresult *res=NULL;
 	char querystr[8192];
-	int rv=0;
+	int rv=0, i=0, j=0;
 
 	dbConn=getConn(query);
 	if(dbConn==NULL) {
 		goto finished;
 	}
 
+	/* Build the query */
+	memset(querystr, 0x00, sizeof(querystr));
+	for(i=0; i<strlen(query.query); i++) {
+		switch(query.query[i]) {
+			case '%':
+				i++;
+				switch(query.query[i]) {
+					case 't':
+						strcat(querystr, query.table);
+						j=strlen(querystr);
+						break;
+					case '%':
+						querystr[j++]='%';
+						break;
+					default:
+						fprintf(stderr,
+							"WARNING:  Unknown character ``%c'' in %s\n",
+							query.query[i], query.query);
+
+				} /* inner switch */
+			default:
+				querystr[j++]=query.query[i];
+		} /* Outer switch */
+	}
+	assert(strlen(querystr) < sizeof(querystr));
+
+	/*
 	sprintf(querystr, "select count(*) from %s", query.table);
+	*/
 
 	res=PQexec(dbConn, querystr);
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -172,7 +206,8 @@ void realmain(time_t backfill_time)
 {
 	int i=0;
 	struct checkspec queries[]={
-		MAKEDBSPEC("photo", "photo_logs"),
+		MAKEDBSPEC4("photo", "photo_logs", "ts",
+			"select last_value from photo_logs_log_id_seq"),
 		MAKEDBSPEC3("music", "music_download_log", "timestamp"),
 		MAKEDBSPEC("music", "music_mp3_downloads"),
 		MAKEDBSPEC("music", "music_subscribers"),
