@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.6 1999/09/04 06:37:38 dustin Exp $
+# $Id: sendpage.tcl,v 1.7 1999/09/04 06:40:45 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -153,7 +153,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.6 $ }
+	set rev { $Revision: 1.7 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -266,6 +266,8 @@ proc read_config {} {
 	while { [ gets $fd line ] != -1 } {
 		eval $line
 	}
+
+	catch { [ close $fd ] }
 }
 
 # Save the running config to disk.
