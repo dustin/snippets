@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.25 2002/03/26 20:10:29 dustin Exp $
+# $Id: nntpsucka.py,v 1.26 2002/03/26 21:14:33 dustin Exp $
 
 import nntplib
 import time
@@ -300,7 +300,7 @@ def main():
 
 	if sucka:
 		print sucka.getStats()
-		sys.stderr.write("Total time spent:  " + str(stop-start) + "s\n")
+		print "Total time spent:  " + str(stop-start) + "s"
 
 if __name__ == '__main__':
 	try:
