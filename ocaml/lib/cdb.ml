@@ -82,9 +82,9 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 
 		(* Find an available hash bucket *)
 		let rec find_where where =
-			if (Extoption.is_none ht.(where)) then
+			if (Extoption.is_none ht.(where)) then (
 				where
-			else (
+			) else (
 				if ((where + 1) = len) then (find_where 0)
 				else (find_where (where + 1))
 			) in
@@ -94,13 +94,11 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	done;
 	(* Write this hash table *)
 	Array.iter (fun hpp ->
-		match hpp with
-		  None ->
-			write_le cdc 0;
-			write_le cdc 0;
-		| Some(hp) ->
-			write_le cdc (fst hp);
-			write_le cdc (snd hp)
+			let h,t = match hpp with
+				None -> 0,0
+				| Some(h,t) -> h,t;
+			in
+			write_le cdc h; write_le cdc t
 		) ht;
 ;;
 
