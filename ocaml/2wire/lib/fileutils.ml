@@ -4,7 +4,12 @@
  * arch-tag: D336A06C-0A9C-11D8-988A-000393CFE6B8
  *)
 
-(** Functions for processing lines of files. *)
+open Unix;;
+open Filename;;
+
+(** Functions for processing files. *)
+
+(** {1 Functions for processing lines of files} *)
 
 (**
  Apply the given function to each line in the giving channel.
@@ -12,7 +17,7 @@
  @param f the function to apply to each line
  @param ch the in_channel to read
 *)
-let fold_lines f ch =
+let iter_lines f ch =
 	try
 		while true do
 			let l = (input_line ch) in
@@ -29,6 +34,75 @@ let fold_lines f ch =
  @param c the condition to test on the line
  @param ch the in_channel to read
 *)
-let conditional_fold_lines f c ch =
-	fold_lines (function x -> if c x then f x) ch;
+let conditional_iter_lines f c ch =
+	iter_lines (function x -> if c x then f x) ch;
+;;
+
+(** {1 Functions for processing directories} *)
+
+(**
+ Debug routine to pass to a directory folding routine.
+ *)
+let debug_dir_print d l a =
+	List.iter (fun x -> print_endline(Filename.concat d x)) l
+;;
+
+(**
+ Private recursive routine for creating a list from readdir.
+ *)
+let rec pvt_lsdir d a =
+	try
+		pvt_lsdir d ((readdir d) :: a)
+	with End_of_file -> a
+;;
+
+(**
+ Get a list of files in a directory (excluding . and ..).
+
+ @param dn the name (path) of the directory
+ *)
+let lsdir dn =
+	let d = opendir dn in
+	let rv = List.filter (fun x -> not (x = "." || x = ".."))
+							(pvt_lsdir d []) in
+	closedir d;
+	rv
+;;
+
+(**
+ Is this path a directory?
+
+ @param p the path to check
+ *)
+let isdir p =
+	(stat p).st_kind = S_DIR
+;;
+
+(**
+ Iterate all of the files in a directory.
+
+ @param dir the name of the directory to process
+ @param func a function that will receive the directory name, list of filenames and an argument
+ @param arg an arbitrary argument that will be passed to the function
+ *)
+let dir_iter dir func arg =
+	func dir (lsdir dir) arg
+;;
+
+(**
+ Walk a directory tree.
+
+ @param dir the directory to search
+ @param func function to call (see fold_directory)
+ @param arg the argument to pass to the function
+ *)
+let rec walk_dir dir func arg =
+	dir_iter dir
+		(fun d l a ->
+			let fq = List.map (fun x -> Filename.concat d x) l in
+			List.iter (fun x -> walk_dir x func arg)
+				(List.filter isdir fq);
+			func d (List.filter (fun x ->
+				not (isdir (Filename.concat d x))) l) arg)
+	arg
 ;;

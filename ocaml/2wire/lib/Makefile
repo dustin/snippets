@@ -1,6 +1,8 @@
 # arch-tag: 879F039C-05DC-11D8-B67C-000393DC8AE4
 MKLIB=ocamlmklib
+OCAMLMKTOP=ocamlmktop
 OCAMLOPT=ocamlopt
+OCAMLC=ocamlc
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -11,6 +13,9 @@ all: stringutils fileutils docs
 fileutils: fileutils.cmi fileutils.mli
 
 stringutils: stringutils.cmi stringutils.mli
+
+testtop: stringutils fileutils
+	$(OCAMLMKTOP) -o testtop unix.cma fileutils.cmo stringutils.cmo
 
 docs:
 	mkdir -p doc

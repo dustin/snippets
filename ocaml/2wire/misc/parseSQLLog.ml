@@ -136,7 +136,7 @@ let process_line rrd servers l =
 let main() =
 	let rrd = (Array.get Sys.argv 1)
 	and servers = List.map (fun x -> make_stats x) ["CMS";"LOG";"CAT"] in
-	conditional_fold_lines
+	conditional_iter_lines
 		(fun l -> process_line rrd servers l)
 		(fun l -> String.length l > 60
 						&& ((String.sub l 36 22) = "database.DBManager.sql"))
