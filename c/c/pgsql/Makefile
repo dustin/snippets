@@ -1,8 +1,8 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile,v 1.2 2002/02/27 10:15:35 dustin Exp $
+# $Id: Makefile,v 1.3 2002/02/27 10:23:10 dustin Exp $
 
-CFLAGS=-I/usr/local/pgsql/include
-LDFLAGS=-L/usr/local/pgsql/lib -lpq
+CFLAGS=-I/usr/pkg/pgsql/include
+LDFLAGS=-L/usr/pkg/pgsql/lib -lpq -lcrypt
 
 all: test tablecounter
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.1 2002/02/27 10:15:37 dustin Exp $
+ * $Id: tablecounter.c,v 1.2 2002/02/27 10:23:12 dustin Exp $
  */
 
 #include <stdio.h>
@@ -49,7 +49,11 @@ static void cleanConn(PGconn *dbConn) {
 
 void printResults(struct checkspec query, time_t t, int nrows)
 {
+/*
 	printf("%lu %s.%s: %d\n", (int)t, query.dbname, query.table, nrows);
+*/
+	printf("update %s.%s.rrd %d:%d\n",
+	query.dbname, query.table, (int)t, nrows);
 }
 
 void process(struct checkspec query)
@@ -137,11 +141,16 @@ void realmain(time_t backfill_time)
 		MAKEDBSPEC(NULL, NULL),
 		};
 
-	for(i=0; queries[i].table!=NULL; i++) {
-		if(backfill>0) {
+	if(backfill_time>0) {
+		for(i=0; queries[i].table!=NULL; i++) {
 			backfill(backfill_time, queries[i]);
-		} else {
-			process(queries[i]);
+		}
+	} else {
+		for(;;) {
+			for(i=0; queries[i].table!=NULL; i++) {
+				process(queries[i]);
+			}
+			sleep(INCREMENT);
 		}
 	}
 }
