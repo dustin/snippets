@@ -24,12 +24,25 @@ type hum_type = {
 	indoor_hum: int;
 };;
 
+type prediction = Sunny | Cloudy | Partly_cloudy | Rainy;;
+
+type barometer_trends = Rising | Steady | Falling;;
+
+type bar_type = {
+	pred: prediction;
+	bar_trend: barometer_trends;
+	pressure: int;
+	in_dew: int;
+	out_dew: int;
+};;
+
 type reading = None
 	| Temp_reading of temp_reading
 	| Rain_reading of int
 	| Wind_reading of int
 	| Time_reading of time_type
 	| Hum_reading of hum_type
+	| Bar_reading of bar_type
 ;;
 
 let construct_type n = match n with
@@ -62,11 +75,28 @@ let print_reading r =
 	| Wind_reading(wr) ->
 		Printf.printf "Wind reading:  %dmps\n" wr
 	| Time_reading(tr) ->
+		(*
 		Printf.printf "Time reading:  %02d:%02d:%02d\n"
 			tr.time_hr tr.time_min tr.time_sec
+		*)
+		()
 	| Hum_reading(hr) ->
 		Printf.printf "Humidity reading:  in=%d%% out=%d%%\n"
 			hr.indoor_hum hr.outdoor_hum
+	| Bar_reading(br) ->
+		Printf.printf "Barometer reading:  %dMBAR (%s) - Prediction: %s\n"
+			br.pressure
+			(match br.bar_trend with
+				Rising -> "rising"
+				| Steady -> "steady"
+				| Falling -> "falling")
+			(match br.pred with
+				Sunny -> "sunny"
+				| Cloudy -> "cloudy"
+				| Partly_cloudy -> "partly cloudy"
+				| Rainy -> "rainy");
+		Printf.printf "\tDew points:  indoor=%d outdoor=%d\n"
+			br.in_dew br.out_dew
 	| _ ->
 		print_endline("Unhandled print type")
 ;;
@@ -85,9 +115,8 @@ let decode_temp i1 i2 =
 		0.0 -. d
 ;;
 
-let rec main_loop s =
+let decoder s =
 	let first_byte = Stream.next s in
-	let r = (
 	match construct_type(int_of_char first_byte) with
 		Time_humidity ->
 			let bytes = List.map int_of_char (nget s 34) in
@@ -96,7 +125,6 @@ let rec main_loop s =
 				outdoor_hum = bcd_int (List.nth bytes 19)
 			}
 		| Temp ->
-			(* print_endline("temp"); *)
 			let bytes = List.map int_of_char (nget s 33) in
 			Temp_reading {
 				indoor_temp =
@@ -105,18 +133,32 @@ let rec main_loop s =
 					decode_temp (List.nth bytes 15) (List.nth bytes 16);
 			}
 		| Barometer_dew ->
-			print_endline("barometer/dew");
-			njunk s 30;
-			None;
+			let bytes = List.map int_of_char (nget s 30) in
+			Bar_reading ( {
+				bar_trend=(match ((0x70 land (List.nth bytes 5)) lsr 4) with
+					1 -> Falling
+					| 2 -> Steady
+					| 4 -> Rising
+					| x -> failwith("Invalid bar trend: " ^ (string_of_int x)));
+				pred=(match (0x0f land (List.nth bytes 5)) with
+					1 -> Sunny
+					| 2 -> Cloudy
+					| 4 -> Partly_cloudy
+					| 8 -> Rainy
+					| x -> failwith("Invalid prediction: "
+						^ (string_of_int x)));
+				pressure=((bcd_int (List.nth bytes 1)) * 100)
+					+ (bcd_int (List.nth bytes 0));
+				in_dew = (bcd_int (List.nth bytes 6));
+				out_dew = (bcd_int (List.nth bytes 17));
+			} )
 		| Rain ->
-			(* print_endline("rain"); *)
 			let bytes = List.map int_of_char (nget s 13) in
 			Rain_reading (
 				(bcd_int (List.nth bytes 0)) +
 				(100 * (bcd_int (0xf land (List.nth bytes 1))))
 			)
 		| Wind ->
-			(* print_endline("wind"); *)
 			let bytes = List.map int_of_char (nget s 26) in
 			Wind_reading (
 				(bcd_int (List.nth bytes 0)) +
@@ -128,8 +170,11 @@ let rec main_loop s =
 				{time_hr = bcd_int (List.nth bytes 2);
 				 time_min = bcd_int (List.nth bytes 1);
 				 time_sec = bcd_int (List.nth bytes 0); })
-	) in
-	print_reading r;
+;;
+
+let rec main_loop s =
+	print_reading (decoder s);
+	flush Pervasives.stdout;
 	main_loop s
 ;;
 
