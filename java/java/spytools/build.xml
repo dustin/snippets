@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.27 2002/08/16 06:03:43 dustin Exp $
+	$Id: build.xml,v 1.28 2002/08/16 06:13:37 dustin Exp $
 
 	-->
 
@@ -81,6 +81,9 @@
 		<property name="docs.upToDate" value="true"/>
 	</target>
 
+	<!-- install everywhere -->
+	<target name="full-install" depends="install,spy-install"/>
+
 	<!-- Install various locations I use the jar around the house. -->
 	<target name="spy-install" depends="spy.jar">
 		<copy file="spy.jar" tofile="/afs/.spy.net/misc/web/java/jar/spy.jar"/>
@@ -138,9 +141,9 @@
 
 	<!-- Build properties, memorabilia, etc... -->
 	<target name="properties" unless="properties.upToDate">
-		<delete file="net/spy/build.properties"/>
+		<delete file="${BUILDDIR}/net/spy/build.properties"/>
 		<buildnumber file="etc/build.number"/>
-		<propertyfile file="net/spy/build.properties">
+		<propertyfile file="${BUILDDIR}/net/spy/build.properties">
 			<entry key="java.vendor" value="${java.vendor}"/>
 			<entry key="java.version" value="${java.version}"/>
 			<entry key="os.name" value="${os.name}"/>
@@ -148,6 +151,7 @@
 			<entry key="build.number" value="${build.number}"/>
 			<entry key="build.date" type="date" value="now"/>
 		</propertyfile>
+		<property file="${BUILDDIR}/net/spy/build.properties"/>
 		<property name="properties.upToDate" value="true"/>
 	</target>
 
