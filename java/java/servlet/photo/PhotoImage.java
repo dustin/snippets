@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.3 1999/09/28 06:37:17 dustin Exp $
+ * $Id: PhotoImage.java,v 1.4 1999/09/29 07:37:23 dustin Exp $
  */
 
 import java.io.*;
@@ -16,6 +16,7 @@ public class PhotoImage extends PhotoHelper
 {
 	RHash rhash;
 	Vector image_data;
+	boolean wascached;
 
 	private void getRhash() {
 		// Get an rhash to cache images and shite.
@@ -38,6 +39,11 @@ public class PhotoImage extends PhotoHelper
 		rhash=r;
 	}
 
+	// Find out if the last fetch was cached.
+	public boolean wasCached() {
+		return(wascached);
+	}
+
 	// Show an image
 	public Vector fetchImage(int id) throws Exception {
 
@@ -51,8 +57,10 @@ public class PhotoImage extends PhotoHelper
 
 		if(rhash!=null) {
 			image_data = (Vector)rhash.get(key);
+			wascached=true;
 		} else {
 			log("No rhash for image cache, must use database directly");
+			wascached=false;
 		}
 
 		if(image_data==null) {
@@ -76,6 +84,7 @@ public class PhotoImage extends PhotoHelper
 				ResultSet rs = st.executeQuery(query);
 
 				log("Getting image " + id + " from database.");
+				wascached=false;
 
 				while(rs.next()) {
 					byte data[];

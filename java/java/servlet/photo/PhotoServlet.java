@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.16 1999/09/29 07:15:09 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.17 1999/09/29 07:37:25 dustin Exp $
  */
 
 import java.io.*;
@@ -949,13 +949,14 @@ public class PhotoServlet extends HttpServlet
 		String s = request.getParameter("photo_id");
 		which = Integer.valueOf(s).intValue();
 
-		logger.log(new PhotoLogEntry(remote_uid.intValue(), which, request));
 
 		try {
 			// Need a binary output thingy.
 			out = response.getOutputStream();
 
 			v=p.fetchImage(which);
+			logger.log(new PhotoLogEntry(remote_uid.intValue(),
+				which, p.wasCached(), request));
 			for(i = 0; i<v.size(); i++) {
 				out.write( (byte[])v.elementAt(i));
 			}
