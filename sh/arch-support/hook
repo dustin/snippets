@@ -7,7 +7,8 @@ hookLog() {
 HO=/tmp/hook.out
 touch $HO
 echo "$@" >> $HO
-env >> $HO
+env | sort >> $HO
+echo "" >> $HO
 
 # For commits
 if [ "$1" == "commit" ]
@@ -16,7 +17,7 @@ then
 	# mirror will never be out of date.
 	if [ "$ARCH_ARCHIVE" = "dustin@spy.net--projects-2004" ]
 	then
-		lim="${ARCH_CATEGORY}-${ARCH_BRANCH}"
+		lim=`echo $ARCH_REVISION | sed -e 's,--,;,g' | cut -f-2 -d';' | sed 's,;,--,g'`
 		hookLog "Replicating $ARCH_ARCHIVE with limit $lim"
 		tla archive-mirror -s $ARCH_ARCHIVE $lim
 	else
