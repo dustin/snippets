@@ -1,0 +1,82 @@
+#!/usr/local/bin/perl
+# Make an ldapmodify thingy out of an aliases file.
+
+use Data::Dumper;
+
+sub resolveAlias
+{
+    my($alias, $a)=@_;
+    my(%a, @r, %loop, %tmp);
+    %a=%{$a};
+    %loop=();
+    @r=();
+    shift;shift;
+    %loop=@_ if(@_);
+
+    map {
+        if(!defined($loop{$_})) {
+            $loop{$_}=1;
+            if(defined($a{$_})) {
+                push(@r, resolveAlias($_, {%a}, %loop));
+            } else {
+                push(@r, $_);
+            }
+        } else {
+           # print "Already did $_\n";
+        }
+    } split(/\s*,\s*/,$a{$alias});
+    %tmp=map { $_, 1 } @r;
+    return(keys(%tmp));
+}
+
+sub reverseAliases
+{
+	my($aliasFile)=@_;
+    my(%a, %r);
+    my($alias);
+
+    %a=getAliases($aliasFile);
+
+    for $alias (keys(%a)) {
+	map { push(@{$r{$_}}, $alias) } resolveAlias($alias, {%a});
+    }
+    return(%r);
+}
+
+sub getAliases
+{
+	my($aliasFile)=@_;
+    my(%ret);
+	open(IN, $aliasFile);
+	while(<IN>) {
+		next if(/^#/);
+		next unless(/:/);
+		chomp;
+		my($alias, $dest)=split(/\s*:\s*/);
+		$ret{$alias}=$dest;
+	}
+	close(IN);
+    return(%ret);
+}
+
+%r=reverseAliases(@ARGV);
+
+for $key (keys(%r)) {
+	($uid)=split('@', $key);
+	print "dn: uid=$uid, ou=Agents, dc=spy, dc=net\n";
+	print "changetype: modify\n";
+	print "replace: maildrop\n";
+	print "maildrop: $key\n";
+
+	my @tmp=();
+	for(@{$r{$key}}) {
+		next if($_ eq $uid);
+		push(@tmp, $_);
+	}
+
+	if(@tmp) {
+		print "-\nadd: mailacceptinggeneralid\n";
+		print map { "mailacceptinggeneralid: $_\n" } @tmp;
+	}
+	print "\n";
+}
