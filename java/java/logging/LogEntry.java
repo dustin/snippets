@@ -1,6 +1,7 @@
 // Object to store the shite properly.
 
 import java.util.*;
+import java.text.*;
 import java.io.*;
 
 public class LogEntry extends Object {
@@ -45,8 +46,9 @@ public class LogEntry extends Object {
 
 	public String toString() {
 		String r;
+		SimpleDateFormat f = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
 
-		r="[" + timestamp + "] " + message + "\n{ " + getStack() + "\n}" ;
+		r=f.format(timestamp) + " " + message + "\n{ " + getStack() + "\n}" ;
 		return(r);
 	}
 
