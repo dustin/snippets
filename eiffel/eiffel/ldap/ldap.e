@@ -2,7 +2,7 @@ indexing
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "1997 Dustin Sallings <dustin@spy.net>";
 	license: "See forum.txt";
-	version: "$Revision: 1.6 $";
+	version: "$Revision: 1.7 $";
 
 class
 	LDAP -- LDAP Access Routines.
@@ -22,6 +22,8 @@ feature {NONE} -- data and destruction
 	ldap_got_entry: BOOLEAN;
 
 	ldap_got_search: BOOLEAN;
+
+	ldap_have_mods: BOOLEAN;
 
 	dispose is
 		-- go away
@@ -193,30 +195,81 @@ feature {ANY} -- Compare
 				attr.to_external, value.to_external);
 		end
 
-feature {ANY} -- Add
+feature {ANY} -- Add/modify
 
-	add_mod(attr, value: STRING) is
+	mod_add(attr, value: STRING) is
+		-- Store an entry to be added in a modify or add
 		require
 			attr /= Void;
 			value /= Void;
 			connected;
 		do
-			c_ldap_add_mod(ldap_handle, attr.to_external,
+			c_ldap_mod_add(ldap_handle, attr.to_external,
 				value.to_external, value.count);
+			ldap_have_mods:=true;
+		end
+
+	mod_replace(attr, value: STRING) is
+		-- Store an entry to be replaced in a modify
+		require
+			attr /= Void;
+			value /= Void;
+			connected;
+		do
+			c_ldap_mod_replace(ldap_handle, attr.to_external,
+				value.to_external, value.count);
+			ldap_have_mods:=true;
+		end
+
+	mod_delete(attr, value: STRING) is
+		-- Store an entry to be deleted in a modify
+		require
+			attr /= Void;
+			value /= Void;
+			connected;
+		do
+			c_ldap_mod_delete(ldap_handle, attr.to_external,
+				value.to_external, value.count);
+			ldap_have_mods:=true;
 		end
 
 	add(dn: STRING) is
+		-- Add an LDAP entry for the given DN and predefined set of mods
 		require
 			connected;
 			dn /= Void;
+			have_mods;
 		do
 			check
 				c_ldap_add(ldap_handle, dn.to_external);
 			end
-			c_ldap_mod_clean(ldap_handle);
+			mod_clean;
 		rescue
 			-- For rescue, we're just going to run the mod_clean
 			-- and let the assertion ride back.
+			mod_clean;
+		end
+
+	modify(dn: STRING) is
+		-- Modify an LDAP entry for the given DN and predefined set of mods
+		require
+			connected;
+			dn /= Void;
+			have_mods;
+		do
+			check
+				c_ldap_add(ldap_handle, dn.to_external);
+			end
+			mod_clean;
+		rescue
+			-- For rescue, we're just going to run the mod_clean
+			-- and let the assertion ride back.
+			mod_clean;
+		end
+
+	mod_clean is
+		-- Clean up mod list.
+		do
 			c_ldap_mod_clean(ldap_handle);
 		end
 
@@ -250,6 +303,12 @@ feature {ANY} -- Status
 		-- Are we connected to an LDAP server?
 		do
 			Result:=ldap_handle.is_not_null;
+		end
+
+	have_mods: BOOLEAN is
+		-- Do we have a mod list yet?  (for add/modify)
+		do
+			Result:=ldap_have_mods;
 		end
 
 feature {NONE} -- C functions
@@ -319,12 +378,27 @@ feature {NONE} -- C functions
 		external "C"
 		end
 
-	c_ldap_add_mod(ld, attr, value: POINTER; vlen: INTEGER) is
-		-- Add an attr/value for a doing an add
+	c_ldap_mod_add(ld, attr, value: POINTER; vlen: INTEGER) is
+		-- Add an attr/value for a doing an add/modify
+		external "C"
+		end
+
+	c_ldap_mod_replace(ld, attr, value: POINTER; vlen: INTEGER) is
+		-- Replace an attr/value for a doing an add/modify
+		external "C"
+		end
+
+	c_ldap_mod_delete(ld, attr, value: POINTER; vlen: INTEGER) is
+		-- Delete an attr/value for a doing an add/modify
 		external "C"
 		end
 
 	c_ldap_add(ld, dn: POINTER): BOOLEAN is
+		-- Add
+		external "C"
+		end
+
+	c_ldap_modify(ld, dn: POINTER): BOOLEAN is
 		-- Add
 		external "C"
 		end

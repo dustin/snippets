@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: openldap_stuff.c,v 1.6 1999/06/07 05:42:35 dustin Exp $
+ * $Id: openldap_stuff.c,v 1.7 1999/06/07 05:56:10 dustin Exp $
  * See forum.txt for licensing information.
  */
 
@@ -301,9 +301,21 @@ _c_ldap_add_something(LDAP_HANDLE *ldap, char *attr, char *value,
 }
 
 void
-c_ldap_add_mod(LDAP_HANDLE *ldap, char *attr, char *value, int vlen)
+c_ldap_mod_add(LDAP_HANDLE *ldap, char *attr, char *value, int vlen)
 {
 	_c_ldap_add_something(ldap, attr, value, vlen, LDAP_MOD_ADD);
+}
+
+void
+c_ldap_mod_replace(LDAP_HANDLE *ldap, char *attr, char *value, int vlen)
+{
+	_c_ldap_add_something(ldap, attr, value, vlen, LDAP_MOD_REPLACE);
+}
+
+void
+c_ldap_mod_delete(LDAP_HANDLE *ldap, char *attr, char *value, int vlen)
+{
+	_c_ldap_add_something(ldap, attr, value, vlen, LDAP_MOD_DELETE);
 }
 
 int
@@ -316,6 +328,20 @@ c_ldap_add(LDAP_HANDLE *ldap, char *dn)
 	assert(ldap->mods);
 
 	rc=ldap_add_s(ldap->ld, dn, ldap->mods);
+
+	return(rc == LDAP_SUCCESS);
+}
+
+int
+c_ldap_modify(LDAP_HANDLE *ldap, char *dn)
+{
+	int rc;
+
+	assert(ldap);
+	assert(ldap->ld);
+	assert(ldap->mods);
+
+	rc=ldap_modify_s(ldap->ld, dn, ldap->mods);
 
 	return(rc == LDAP_SUCCESS);
 }

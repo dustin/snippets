@@ -2,7 +2,7 @@ indexing
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "1997 Dustin Sallings <dustin@spy.net>";
 	license: "See forum.txt";
-	version: "$Revision: 1.6 $";
+	version: "$Revision: 1.7 $";
 
 class
 	LDAPTEST -- Test LDAP program
@@ -126,19 +126,19 @@ feature {NONE} -- make and data
 
 			do_search;
 			do_compare;
-			-- do_add;
+			do_add;
 			do_delete;
 
-		-- rescue
-			-- if not bound then
-				-- io.put_string("Incorrect password%N");
-			-- else
-				-- io.put_string("Search failed%N");
-			-- end
-			-- if retries < 2 then
-				-- retries:=retries+1;
-				-- retry;
-			-- end
+		rescue
+			if not bound then
+				io.put_string("Incorrect password%N");
+			else
+				io.put_string("Something broke%N");
+			end
+			if retries < 2 then
+				retries:=retries+1;
+				retry;
+			end
 		end
 
 end
