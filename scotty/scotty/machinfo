@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id: machinfo,v 1.2 1997/12/11 08:28:21 dustin Exp $
 
 set kludge { $*
     shift
@@ -6,7 +7,7 @@ set kludge { $*
     exec /usr/local/bin/scotty -nf $0 $*
 }
 
-set machines { bob bleu submission www.antigates.com }
+set machines $argv
 
 proc masscalc {list who} {
     set timediff [expr [lindex [lindex $list 22] 2] - \
