@@ -20,13 +20,8 @@ extern char *filename;
 
 extern float max_lat, min_lat, max_lng, min_lng;
 
-/*
- * This is how you set a foreground color in X11, except you have to have
- * allocated the color you want to set first and call the function with the
- * color handle or something like that.  I've never done that, although
- * I've typed a program that did.  They said it was hard in the book, but it
- * didn't look to hard.
- */
+XFontStruct *font;
+int font_height, have_font;
 
 void
 init_window(void)
@@ -144,6 +139,23 @@ init_window(void)
   xgcvalues.background = WhitePixel(display, screen);
   gc = XCreateGC(display, (Drawable) window, (GCForeground | GCBackground),
 		 &xgcvalues);
+
+/*
+ * I'm also going to try to load a font while I'm here.  I'll try to load
+ * the default font, but if that doesn't work, I'll try another one.  If
+ * that doesn't work either, I'll just tell it that I don't have any fonts
+ * loaded.
+ */
+
+  font = XLoadQueryFont(display, FONT);
+
+  if (font == NULL)
+    font = XLoadQueryFont(display, BACKFONT);
+  if (font == NULL)
+    have_font = False;
+
+  if (have_font)
+    font_height = font->ascent + font->descent;
 
 /*
  * This makes the window visible on the screen.
