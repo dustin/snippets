@@ -1,11 +1,12 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: misclib.scm,v 1.4 2002/12/28 06:58:12 dustin Exp $
+; $Id: misclib.scm,v 1.5 2002/12/28 10:51:43 dustin Exp $
 
 (module misclib
 		(export
 		  input-loop
-		  conditional-input-loop))
+		  conditional-input-loop
+		  flatten-list))
 
 ; Loop on input, pass each line to function f.
 ; Optional argument should be either a port, or a filename.  If not
@@ -47,6 +48,17 @@
 	(if (null? other)
 	  (input-loop r)
 	  (input-loop r (car other)))))
+
+; Take lists of lists of lists and make them into a single flat list
+(define (flatten-list l)
+  (let ((rv '()))
+	(for-each (lambda (x)
+				(set! rv (append rv
+						 (if (pair? x)
+						   (flatten-list x)
+						   (list x)))))
+			  l)
+	rv))
 
 ; Example
 (define (misclib-main args)

@@ -1,13 +1,16 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: stringlib.scm,v 1.2 2002/12/28 03:15:26 dustin Exp $
+; $Id: stringlib.scm,v 1.3 2002/12/28 10:51:45 dustin Exp $
 
 (module stringlib
+		(import
+		  (misclib "misclib.scm"))
 		(export
 		  string-split-chars
 		  string-split
 		  strstr
-		  string-remove-chars))
+		  string-remove-chars
+		  string-join))
 
 ; Skip characters in s that contain one of the letters in l starting at
 ; position i
@@ -79,3 +82,14 @@
 ; Split a string on a single character
 (define (string-split s c limit)
   (string-split-chars s (list c) limit))
+
+; Interleave object e into list l
+(define (interleave rv e l)
+  (if (< (length l) 2)
+	(append rv (list (car l)))
+	(append rv (list (car l) e (interleave rv e (cdr l))))))
+
+; Join a list on a string
+; s is the join string, l is the list
+(define (string-join s l)
+  (apply string-append (flatten-list (interleave '() s l))))
