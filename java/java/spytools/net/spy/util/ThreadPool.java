@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.2 2001/07/28 04:46:56 dustin Exp $
+// $Id: ThreadPool.java,v 1.3 2001/09/13 21:11:10 dustin Exp $
 
 package net.spy.util;
 
@@ -28,15 +28,19 @@ public class ThreadPool extends Object {
 	 *
 	 * @param n the number of threads to pool
 	 */
-	public ThreadPool(int n) {
+	public ThreadPool(String name, int n) {
 		super();
 		tasks=new Stack();
 		threads=new Vector();
 		monitor=new Object();
 
+		// Get the group for this threadpool.
+		ThreadGroup tg=new ThreadGroup(name);
+		tg.setDaemon(true);
+
 		// Initialize all of the threads.
 		for(int i=0; i<n; i++) {
-			RunThread rt=new RunThread(tasks, monitor);
+			RunThread rt=new RunThread(tg, tasks, monitor);
 			threads.addElement(rt);
 		}
 	}
@@ -121,11 +125,12 @@ public class ThreadPool extends Object {
 	 * Testing and what not.
 	 */
 	public static void main(String args[]) throws Exception {
-		ThreadPool tp=new ThreadPool(15);
+		ThreadPool tp=new ThreadPool("TestThreadPool", 15);
 
 		// Toss a hunded tasks into the thing.
 		for(int i=0; i<100; i++) {
 			tp.addTask(getTestRunnable());
+			Thread.currentThread().getThreadGroup().list();
 		}
 
 		// Add another 100 tasks, but only if the task count is below 50
@@ -154,9 +159,14 @@ public class ThreadPool extends Object {
 		private boolean going=true;
 		private int thread_id=0;
 
-		public RunThread(Stack tasks, Object monitor) {
-			super();
+		private String runningMutex=null;
+		private Object running=null;
+		private long start=0;
 
+		public RunThread(ThreadGroup tg, Stack tasks, Object monitor) {
+			super(tg, "RunThread");
+
+			runningMutex=new String("runningMutex");
 			this.tasks=tasks;
 			this.monitor=monitor;
 
@@ -164,9 +174,28 @@ public class ThreadPool extends Object {
 
 			System.out.println("RunThread " + thread_id + " going online.");
 
+			// Adjust the name to include the thread number
 			setName("RunThread#" + thread_id);
-			// This should not be a daemon thread.
+			// Note:  This should not be a daemon thread.
 			start();
+		}
+
+		public String toString() {
+			StringBuffer sb=new StringBuffer();
+			sb.append(super.toString());
+
+			synchronized(runningMutex) {
+				if(running==null) {
+					sb.append(" - idle");
+				} else {
+					sb.append(" - running ");
+					sb.append(running.getClass().getName());
+					sb.append(" for ");
+					sb.append(System.currentTimeMillis() - start);
+					sb.append("ms");
+				}
+			}
+			return(sb.toString());
 		}
 
 		// I shut 'em down!
@@ -176,10 +205,16 @@ public class ThreadPool extends Object {
 
 		private void run(Runnable r) {
 			try {
+				// Record the runnable
+				running=r;
+				start=System.currentTimeMillis();
 				// Run the runnable.
 				r.run();
 			} catch(Throwable t) {
 				t.printStackTrace();
+			}
+			synchronized(runningMutex) {
+				running=null;
 			}
 		}
 
