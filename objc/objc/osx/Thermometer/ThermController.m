@@ -25,6 +25,9 @@
 
 -(void)update
 {
+	// Get an autorelease pool for this update
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
     NSLog(@"Updating.");
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
@@ -47,6 +50,8 @@
         [updater invalidate];
         [self scheduleTimer];
     }
+	// Release the autorelease pool
+	[pool release];
 }
 
 -(IBAction)launchPreferences:(id)sender

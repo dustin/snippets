@@ -58,18 +58,6 @@ static float ctof(float c)
     return(rv);
 }
 
--(void)setCelsius
-{
-    celsius=true;
-    [self setImage: cImage];
-}
-
--(void)setFarenheit
-{
-    celsius=false;
-    [self setImage: fImage];
-}
-
 -(void)setCImage: (NSImage *)to
 {
     [to retain];

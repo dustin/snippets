@@ -13,13 +13,18 @@
 
 -(id)initWithName:(NSString *)theName url:(NSString *)ustr;
 {
+	// Super initialization
     id rv=[super init];
+	// Set the name
     name=theName;
     [name retain];
+	// Set the update URL
     url=ustr;
     [url retain];
     _t_delegate=nil;
-    lastReadings=[[NSMutableArray alloc] initWithCapacity: 5];
+	// Initialize the array of previous readings
+    lastReadings=[[NSMutableArray alloc] initWithCapacity: 10];
+	// And return
     return(rv);
 }
 
@@ -28,11 +33,6 @@
     [lastReadings release];
     [name release];
     [super dealloc];
-}
-
--(bool) readingIsValid: (float)r
-{
-    return( (r>-100) && (r<100) );
 }
 
 -(void)setValidReading:(float)r
@@ -64,9 +64,15 @@
     trend=r - [n floatValue];
 }
 
+// Check for valid values
+static bool isValidReading(float r)
+{
+    return( (r>-100) && (r<100) );
+}
+
 -(void)setReading:(float)r
 {
-    if([self readingIsValid: r]) {
+    if(isValidReading(r)) {
         [self setValidReading: r];
     }
 }
