@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.8 1998/01/05 00:20:27 dustin Exp $
+ * $Id: main.c,v 1.9 1998/01/06 05:27:29 dustin Exp $
  */
 
 #include <config.h>
@@ -358,8 +358,8 @@ void _main(void)
                          _ndebug(4, ("Select done\n"));
                          break;
                      }
-                 }
-             }
+                 } /* End of ``that bastard i's selected'' if statement */
+             } /* End of ``flip through select'' loop */
          }
          else
          {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.3 1998/01/05 00:23:30 dustin Exp $
+ * $Id: cluster.c,v 1.4 1998/01/06 05:27:26 dustin Exp $
  */
 
 #include <config.h>
@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <assert.h>
 
+/* A macro to append a new entry to a cluster list. */
 #define lAPPEND(a) if(current==size-1) \
     { \
         _ndebug(4, ("Reallocating, now need %d bytes for %d\n", \
@@ -32,6 +33,10 @@
 extern struct confType *cf;
 extern int _debug;
 
+/*
+ * Duplicate a cluster and everything in it and return a pointer to
+ * the new cluster.
+ */
 struct cluster *clusterDup(struct cluster a)
 {
     struct cluster *c;
@@ -44,6 +49,9 @@ struct cluster *clusterDup(struct cluster a)
     return(c);
 }
 
+/*
+ * Free memory associated with a cluster.
+ */
 void freeCluster(struct cluster **c)
 {
     int i;
@@ -62,6 +70,11 @@ void freeCluster(struct cluster **c)
     free(c);
 }
 
+/*
+ * Look up an entry from the config file.
+ * p1 is the cluster name, p2 is the element name.
+ * defalrm is the default tcp timeout alarm time
+ */
 struct cluster lookupClusterEnt(char *p1, char *p2, int defalrm)
 {
     char key[80];
@@ -89,7 +102,10 @@ struct cluster lookupClusterEnt(char *p1, char *p2, int defalrm)
     return(element);
 }
 
-struct cluster **getcluster(char *p, int stats)
+/*
+ * Round robin clustering.
+ */
+struct cluster **clustRoundRobin(char *p, int stats)
 {
     char **list=NULL;
     char key[80];
@@ -132,4 +148,13 @@ struct cluster **getcluster(char *p, int stats)
 
     cluster[current]=NULL;
     return(cluster);
+}
+
+/*
+ * This will eventually decide the best algorithm and return the cluster
+ * for it.
+ */
+struct cluster **getcluster(char *p, int stats)
+{
+    return(clustRoundRobin(p, stats));
 }
