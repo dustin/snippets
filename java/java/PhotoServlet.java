@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.1 1999/09/12 08:28:23 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.2 1999/09/12 08:51:46 dustin Exp $
  */
 
 import java.io.*;
@@ -27,13 +27,13 @@ public class PhotoServlet extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 
-		String source;
+		String source, func;
 
 		// Let's see what's up before we continue...
 		remote_user = request.getRemoteUser();
 
 		if(remote_user == null) {
-			// throw new UnavailableException(this, "Not authenticated...");
+			// throw new ServletException("Not authenticated...");
 			remote_user = "guest";
 		}
 
@@ -43,7 +43,7 @@ public class PhotoServlet extends HttpServlet
 		try {
 			Class.forName("postgresql.Driver");
 		} catch(ClassNotFoundException e) {
-			throw new UnavailableException (this, "Can't load Postgres " +
+			throw new ServletException ("Can't load Postgres " +
 				"driver, shit...");
 		}
 
@@ -55,16 +55,31 @@ public class PhotoServlet extends HttpServlet
 			photo = DriverManager.getConnection(source, "dustin", "");
 			st = photo.createStatement();
 		} catch(SQLException e) {
-			throw new UnavailableException (this, "Can't connect to " +
-				"database, shit...");
+			throw new ServletException ("Can't connect to database, shit...");
 		}
 
 		// Get the UID for the username now that we have a database
 		// connection.
 		getUid();
 
-		doFind(request, response);
+		func=request.getParameter("func");
+		if(func == null) {
+			throw new ServletException("No function given.");
+		}
 
+		if(func.equalsIgnoreCase("search")) {
+			doFind(request, response);
+		} else if(func.equalsIgnoreCase("getimage")) {
+			response.setContentType("image/jpeg");
+			String s = request.getParameter("photo_id");
+			try {
+				showImage(Integer.valueOf(s), response);
+			} catch(Exception e) {
+				throw new ServletException ("Mother fucker...");
+			}
+		} else {
+			throw new ServletException("No known function.");
+		}
 
 /*
 		response.setContentType("image/jpeg");
@@ -73,7 +88,7 @@ public class PhotoServlet extends HttpServlet
 		try {
 			showImage(Integer.valueOf(s), response);
 		} catch(Exception e) {
-			throw new UnavailableException (this, "Mother fucker...");
+			throw new ServletException ("Mother fucker...");
 		}
 */
 	}
@@ -186,7 +201,7 @@ public class PhotoServlet extends HttpServlet
 				sub += "\n     (";
 				for(i=0; i<atmp.length; i++) {
 					if(needjoin) {
-						sub += " or";
+						sub += join;
 					} else {
 						needjoin=true;
 					}
@@ -354,6 +369,8 @@ public class PhotoServlet extends HttpServlet
 				h.put("CATNUM", rs.getString(8));
 				h.put("ADDEDBY", rs.getString(9));
 
+				System.out.println("Matched:  " + rs.getString(1));
+
 				output += "<td>\n";
 				output += t.tokenize("/tmp/findmatch.inc", h);
 				output += "</td>\n";
@@ -365,7 +382,7 @@ public class PhotoServlet extends HttpServlet
 		output += "</tr></table>\n";
 
 		// set content type and other response header fields first
-		response.setContentType("text/plain");
+		response.setContentType("text/html");
 		try {
 			PrintWriter out = response.getWriter();
 			out.print(output);
