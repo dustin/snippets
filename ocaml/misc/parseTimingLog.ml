@@ -28,18 +28,20 @@ type log_timing = {
 
 (* The stuff we store in the massive per-block hash table *)
 type per_block = {
-	mutable pb_count: int;
 	mutable pb_time: float;
+	mutable pb_count: int;
+	mutable pb_start: int;
+	mutable pb_end: int;
 };;
 
 (* The types of logs we consider *)
-let logTypes = ["HB"; "BOOT"; "KICK"; "XMLRPC";];;
+let log_types = ["HB"; "BOOT"; "KICK"; "XMLRPC";];;
 
 (* Log times with time/count/start/end appended *)
 let extended_log_types =
 	List.concat (List.map (function x ->
 		(List.map (function y -> x ^ y) ["time";"count";"start";"end"]))
-		logTypes)
+		log_types)
 ;;
 
 (* This is the hashtable that will hold the state and stuff *)
@@ -47,7 +49,7 @@ let eventCache=Hashtbl.create 1;;
 let perBlock=Hashtbl.create 1;;
 
 (* Parse time from the given timestamp *)
-let parse_time(l: string): float =
+let parse_time l =
 	let times = split_chars l [' '; ':'; '-'; ','] 8 in
 	fst(Unix.mktime {
 		tm_sec = int_of_string(List.nth times 5);
@@ -65,8 +67,7 @@ let parse_time(l: string): float =
 let approx_time t = 60 * ((int_of_float t) / 60) ;;
 
 (* Get a log entry from the line *)
-let get_log_entry(l: string): log_entry =
-
+let get_log_entry l =
 	let parts = split l ' ' 12 in
 		{
 			(* line[0:23] *)
@@ -86,50 +87,47 @@ let get_log_timing le1 le2 =
 	}
 ;;
 
-(* Block maker *)
-let make_block() = { pb_count = 0; pb_time = 0.0; }
-
 (* Get the block that contains the counts for the given log entry.
  * This will also create any tables it needs.
  *)
 let get_block le =
 	try
 		(* Look for the thing that matches this timestamp *)
-		let dateBlock = Hashtbl.find perBlock (approx_time le.le_time) in
-		Hashtbl.find dateBlock le.le_ttype;
+		Hashtbl.find perBlock (approx_time le.le_time)
 	with Not_found ->
 		(* If we didn't have a match, build it all out *)
-		let tmpHash = Hashtbl.create 1 in
-		List.iter (function x -> Hashtbl.add tmpHash x (make_block())) logTypes;
-		Hashtbl.add perBlock (approx_time le.le_time) tmpHash;
-		Hashtbl.find tmpHash le.le_ttype;
+		let tmpBlock = Hashtbl.create 1 in
+		List.iter (function x -> Hashtbl.add tmpBlock x {
+			pb_time = 0.0;
+			pb_count = 0;
+			pb_start = 0;
+			pb_end = 0;
+			}) log_types;
+		Hashtbl.add perBlock (approx_time le.le_time) tmpBlock;
+		tmpBlock
+;;
+
+(* Get the item for recording the individual item *)
+let get_item le =
+	Hashtbl.find (get_block le) le.le_ttype
 ;;
 
 (* Record the timing for this mofo *)
 let record_timing le_old le_new =
-	(*
-	prerr_string("Recording " ^ le_old.le_ttype ^ " of "
-		^ le_old.le_serial ^ " from ");
-	prerr_float(le_old.le_time);
-	prerr_string(" to ");
-	prerr_float(le_new.le_time);
-	prerr_string(" ");
-	prerr_float(le_new.le_time -. le_old.le_time);
-	prerr_endline("s");
-	*)
-
-	let lt = get_log_timing le_old le_new in
-	let pb = get_block le_old in
-	pb.pb_count <- pb.pb_count + 1;
-	pb.pb_time <- pb.pb_time +. (lt.lt_stop -. lt.lt_stop);
+	let lt = get_log_timing le_old le_new
+	and li = get_item le_old in
+	li.pb_count <- li.pb_count + 1;
+	li.pb_time <- li.pb_time +. (lt.lt_stop -. lt.lt_start);
 	();
 ;;
 
 (* Process a given log entry *)
-let process(le: log_entry) =
+let process le =
 	match le.le_state with
 	| "start" ->
 		begin
+			let itmp = get_item le in
+			itmp.pb_start <- itmp.pb_start + 1;
 			try
 				Hashtbl.find eventCache le.le_serial;
 				prerr_endline("Duplicate start for " ^ le.le_serial);
@@ -139,6 +137,8 @@ let process(le: log_entry) =
 		end;
 	| "end" ->
 		begin
+			let itmp = get_item le in
+			itmp.pb_end <- itmp.pb_end + 1;
 			try
 				let old = Hashtbl.find eventCache le.le_serial in
 				record_timing old le;
@@ -157,16 +157,37 @@ let print_block_header filename =
 	print_string(" ");
 ;;
 
+let print_entry ts fn =
+	let block = Hashtbl.find perBlock ts in
+	print_block_header fn;
+	print_int(ts);
+	print_string(":");
+	print_string(String.concat ":"
+		(List.concat
+			(List.map (function ltype ->
+				let pb = Hashtbl.find block ltype in
+				[string_of_float pb.pb_time;
+				string_of_int pb.pb_count;
+				string_of_int pb.pb_start;
+				string_of_int pb.pb_end; ]) log_types)));
+	print_newline()
+;;
+
 let print_output filename =
-	print_block_header filename;
-	(* XXX:  Print map here *)
+	List.iter (function e -> print_entry e filename)
+		(List.sort compare (hashtbl_keys perBlock));
 ;;
 
 (* do it *)
 let main() =
 	let rrd = (Array.get Sys.argv 1) in
 	conditional_fold_lines
-		(function l -> process(get_log_entry(l)))
+		(function l ->
+			let le = get_log_entry(l) in
+			try
+				process(le);
+			with Not_found -> prerr_endline("Type not found:  " ^ le.le_ttype);
+			)
 		(function l -> (strstr l "TransactionTiming" 40) >= 40)
 		Pervasives.stdin;
 	print_output rrd;
