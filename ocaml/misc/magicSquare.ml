@@ -61,9 +61,15 @@ let get_diag_up m =
 
 (* Display the matrix from the flat list *)
 let display_matrix m =
+	let length = String.length (string_of_int (!size * !size)) in
+	(* A routine to left pad a string with spaces *)
+	let rec pad x = (if (String.length x < length) then
+		(pad (" " ^ x))
+		else x) in
 	for rn = 0 to (!size -1) do
 		print_string("|");
-		List.iter (fun i -> print_int(i); print_string("|")) (get_row m rn);
+		List.iter (fun i -> print_string(pad (string_of_int i));
+			print_string("|")) (get_row m rn);
 		print_newline()
 	done;
 	print_endline("-------");
