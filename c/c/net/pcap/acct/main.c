@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: main.c,v 1.1 2000/07/29 10:33:41 dustin Exp $
+ * $Id: main.c,v 1.2 2000/07/29 11:02:22 dustin Exp $
  */
 
 #include <stdlib.h>
@@ -16,7 +16,7 @@
 void
 usage(char *name)
 {
-	printf("Usage:  %s [-p] -f <filter>\n", name);
+	printf("Usage:  %s [-p] [-f <filter>]\n", name);
 	printf("    -p turns on promiscious sniffing.\n");
 	printf("    -f <filter> Filter.\n");
 }
@@ -45,8 +45,7 @@ main(int argc, char **argv)
 	}
 
 	if (filter == NULL) {
-		usage(argv[0]);
-		exit(-1);
+		filter = "ip";
 	}
 	process(flags, filter);
 	return (0);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.1 2000/07/29 10:33:39 dustin Exp $
+ * $Id: filter.c,v 1.2 2000/07/29 11:02:21 dustin Exp $
  */
 
 #include <stdio.h>
@@ -29,11 +29,8 @@ static pcap_t  *pcap_socket = NULL;
 static int      dlt_len = 0;
 
 static void     filter_packet(u_char *, struct pcap_pkthdr *, u_char *);
-static char    *log_tcp(struct ip *, struct tcphdr *);
-static char    *log_udp(struct ip *, struct udphdr *);
-static char    *log_ip(struct ip * ip);
+static char    *log_pkt(struct ip *, char *, int, int);
 static void     showStats();
-static char    *hostlookup(char *buf, unsigned int);
 static void     signal_handler(int);
 static char    *itoa(int in);
 
@@ -159,51 +156,27 @@ filter_packet(u_char * u, struct pcap_pkthdr * p, u_char * packet)
 	switch (ip->ip_p) {
 	case IPPROTO_TCP:{
 			struct tcphdr  *tcp;
-			tcp = (struct tcphdr *) ( (char *)ip + IP_SIZE + ip_options);
-			strcat(out_buf, log_tcp(ip, tcp));
+			tcp = (struct tcphdr *) ((char *) ip + IP_SIZE + ip_options);
+			strcat(out_buf,
+			       log_pkt(ip, "TCP",
+			       ntohs(tcp->th_sport), ntohs(tcp->th_dport)));
 			break;
 		}
 	case IPPROTO_UDP:{
 			struct udphdr  *udp;
-			udp = (struct udphdr *) ( (char *)ip + IP_SIZE + ip_options);
-			strcat(out_buf, log_udp(ip, udp));
+			udp = (struct udphdr *) ((char *) ip + IP_SIZE + ip_options);
+			strcat(out_buf,
+			       log_pkt(ip, "UDP",
+			       ntohs(udp->uh_sport), ntohs(udp->uh_dport)));
 			break;
 		}
 	default:{
-			strcpy(out_buf, log_ip(ip));
+			strcat(out_buf, log_pkt(ip, itoa(ip->ip_p), -1, -1));
 			break;
 		}
 	}
 	assert(strlen(out_buf) < sizeof(out_buf));
 	fputs(out_buf, stdout);
-}
-
-static char    *
-hostlookup(char *buf, unsigned int in)
-{
-	struct in_addr  i;
-	assert(buf);
-	i.s_addr = in;
-	strcpy(buf, inet_ntoa(i));
-	return buf;
-}
-
-static char    *
-log_ip(struct ip * ip)
-{
-	char            saddr[4096], daddr[4096];
-	static char     ret[8192];
-
-	assert(ip);
-
-	sprintf(ret, "time=%d s=%s d=%s l=%d PROTO=%d\n",
-		(int) time(NULL),
-		hostlookup(saddr, ip->ip_src.s_addr),
-		hostlookup(daddr, ip->ip_dst.s_addr),
-		ntohs(ip->ip_len),
-		ip->ip_p
-		);
-	return (ret);
 }
 
 static char    *
@@ -230,32 +203,33 @@ itoa(int in)
 	return (buf + i + 1);
 }
 
-static char *mynet_ntoa(struct in_addr in)
+static char    *
+mynet_ntoa(struct in_addr in)
 {
-	static char ret[40];
-	int a=0;
+	static char     ret[40];
+	int             a = 0;
 
-	a=ntohl(in.s_addr);
+	a = ntohl(in.s_addr);
 
-	ret[0]=0x00;
-	strcat(ret, itoa( (a & 0xff000000) >> 24));
+	ret[0] = 0x00;
+	strcat(ret, itoa((a & 0xff000000) >> 24));
 	strcat(ret, ".");
-	strcat(ret, itoa( (a & 0x00ff0000) >> 16));
+	strcat(ret, itoa((a & 0x00ff0000) >> 16));
 	strcat(ret, ".");
-	strcat(ret, itoa( (a & 0x0000ff00) >> 8));
+	strcat(ret, itoa((a & 0x0000ff00) >> 8));
 	strcat(ret, ".");
 	strcat(ret, itoa(a & 0x000000ff));
 
-	return(ret);
+	return (ret);
 }
 
 static char    *
-log_tcp(struct ip * ip, struct tcphdr * tcp)
+log_pkt(struct ip * ip, char *proto, int sport, int dport)
 {
 	static char     ret[8192];
 
 	assert(ip);
-	assert(tcp);
+	assert(proto);
 
 	/* Time */
 	strcpy(ret, "time=");
@@ -273,32 +247,22 @@ log_tcp(struct ip * ip, struct tcphdr * tcp)
 	strcat(ret, " l=");
 	strcat(ret, itoa(ntohs(ip->ip_len)));
 
-	/* Protocol and source port */
-	strcat(ret, " PROTO=TCP sp=");
-	strcat(ret, itoa(ntohs(tcp->th_sport)));
+	/* Protocol */
+	strcat(ret, " PROTO=");
+	strcat(ret, proto);
 
+	/* Source port */
+	if (sport >= 0) {
+		strcat(ret, " sp=");
+		strcat(ret, itoa(sport));
+	}
 	/* destination port */
-	strcat(ret, " dp=");
-	strcat(ret, itoa(ntohs(tcp->th_dport)));
-
+	if (dport >= 0) {
+		strcat(ret, " dp=");
+		strcat(ret, itoa(dport));
+	}
 	strcat(ret, "\n");
 
-	return (ret);
-}
-
-static char    *
-log_udp(struct ip * ip, struct udphdr * udp)
-{
-	char            saddr[4096], daddr[4096];
-	static char     ret[8192];
-	assert(ip);
-	assert(udp);
-	sprintf(ret, "time=%d s=%s d=%s l=%d PROTO=UDP sp=%d dp=%d\n",
-		(int) time(NULL),
-		hostlookup(saddr, ip->ip_src.s_addr),
-		hostlookup(daddr, ip->ip_dst.s_addr),
-		ntohs(ip->ip_len),
-		ntohs(udp->uh_sport), ntohs(udp->uh_dport));
 	return (ret);
 }
 
