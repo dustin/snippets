@@ -28,6 +28,6 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(socket strdup)
+AC_CHECK_FUNCS(socket strdup snprintf vsnprintf)
 
 AC_OUTPUT(Makefile)
