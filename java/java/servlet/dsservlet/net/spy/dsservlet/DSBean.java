@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DSBean.java,v 1.2 2000/11/06 10:04:49 dustin Exp $
+// $Id: DSBean.java,v 1.3 2003/09/08 01:33:53 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -38,6 +38,8 @@ public class DSBean extends Object {
 		users=new Hashtable();
 		users.put("dustin", "blah");
 		users.put("jennifer", "blah");
+		users.put("noelani", "blah");
+		users.put("kim", "blah");
 	}
 
 	public Enumeration listAll() throws Exception {

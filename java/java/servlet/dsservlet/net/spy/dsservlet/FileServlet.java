@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileServlet.java,v 1.4 2002/07/08 17:54:35 dustin Exp $
+// $Id: FileServlet.java,v 1.5 2003/09/08 01:33:54 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -29,7 +29,7 @@ public class FileServlet extends HttpServlet {
 		}
 
 		// Get the DSBean out of the session
-		DSBean dsbean=(DSBean)session.getValue("dsbean");
+		DSBean dsbean=(DSBean)session.getAttribute("dsbean");
 		if(dsbean==null) {
 			throw new ServletException("No DSBean in session");
 		}

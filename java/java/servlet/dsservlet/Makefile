@@ -1,8 +1,8 @@
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr
 JAR=$(JAVAHOME)/bin/jar
-JAVAC=$(JAVAHOME)/bin/javac
+JAVAC=$(JAVAHOME)/bin/javac -deprecation
 JAVA=$(JAVAHOME)/bin/java
-MYLIB=/home/dustin/lib/java
+MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/gifservlet.jar
 C2=$(MYLIB)/spy.jar:$(MYLIB)/cos.jar
 CLASSPATH=$(C1):$(C2):.
