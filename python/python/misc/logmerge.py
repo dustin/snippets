@@ -11,6 +11,9 @@ import bisect
 class LogFile:
 	"""Represents an individual log file."""
 
+	# Translation for common log format timestamp parsing
+	clftstranslation=string.maketrans(":/", "  ")
+
 	def __init__(self, filename):
 		"""Initialize a new logfile object."""
 
@@ -66,11 +69,33 @@ class LogFile:
 	def __getTimestamp(self):
 		"""Parse the timestamp"""
 
+		try:
+			self.__oldGetTimestamp()
+		except ValueError:
+			self.__clfGetTimestamp()
+
+	def __clfGetTimestamp(self):
+		"""Parse a timestamp in Common Log Format."""
+
+		months={'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6,
+			'Jul':7, 'Aug':8, 'Sep':9, 'Oct':10, 'Nov':11, 'Dec':12}
+
+		s=self.__currentLine
+		ts=s[string.index(s,"[")+1:string.index(s,"]")]
+
+		ts=string.split(string.translate(ts, self.clftstranslation))
+
+		rv=time.mktime(int(ts[2]), months[ts[1]], int(ts[0]),
+			int(ts[3]), int(ts[4]), int(ts[5]), 0, 0, -1)
+
+		return(rv)
+
+	def __oldGetTimestamp(self):
+		"""Parse the timestamp in the old format."""
 		stuff=string.split(self.__currentLine, " ")
 		d,t=string.split(stuff[0], 'T')
 		y,m,d=string.split(d,'-')
 		H,M,S=string.split(t,':')
-
 		return(time.mktime((int(y),int(m),int(d),int(H),int(M),int(S),0,0,-1)))
 
 	def __repr__(self):
