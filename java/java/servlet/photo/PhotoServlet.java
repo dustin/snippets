@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.29 1999/10/10 19:00:02 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.30 1999/10/10 19:44:19 dustin Exp $
  */
 
 import java.io.*;
@@ -15,7 +15,6 @@ import javax.servlet.http.*;
 
 import com.oreilly.servlet.*;
 import com.javaexchange.dbConnectionBroker.*;
-
 
 // The class
 public class PhotoServlet extends HttpServlet
@@ -34,17 +33,8 @@ public class PhotoServlet extends HttpServlet
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		// Load a postgres driver.
-		try {
-			PhotoConfig pconfig = new PhotoConfig();
-			Class.forName(pconfig.dbDriverName);
-			dbs = new DbConnectionBroker(pconfig.dbDriverName,
-				pconfig.dbSource, pconfig.dbUser, pconfig.dbPass,
-				2, 6, "/tmp/pool.log", 0.01);
-		} catch(Exception e) {
-			// System.err.println("dbs broke:  " + e.getMessage());
-			throw new ServletException ("dbs broke: " + e.getMessage());
-		}
+
+		initDBS();
 
 		// Populate the userdb hash
 		try {
@@ -71,6 +61,29 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		logger = new PhotoLogger();
+	}
+
+	protected void initDBS() throws ServletException {
+		// Kill it if it exists.
+		if(dbs!=null) {
+			dbs.destroy();
+		}
+		// Nullify it.
+		dbs = null;
+		// Get rid of garbage.
+		System.runFinalization();
+		System.gc();
+		// Load a postgres driver.
+		try {
+			PhotoConfig pconfig = new PhotoConfig();
+			Class.forName(pconfig.dbDriverName);
+			dbs = new DbConnectionBroker(pconfig.dbDriverName,
+				pconfig.dbSource, pconfig.dbUser, pconfig.dbPass,
+				2, 6, "/tmp/pool.log", 0.01);
+		} catch(Exception e) {
+			// System.err.println("dbs broke:  " + e.getMessage());
+			throw new ServletException ("dbs broke: " + e.getMessage());
+		}
 	}
 
 	protected void init_userdb() throws Exception {
@@ -176,7 +189,6 @@ public class PhotoServlet extends HttpServlet
 		} else {
 			throw new ServletException("No known function.");
 		}
-
 	}
 
 	protected void getCreds(HttpServletRequest request)
@@ -229,17 +241,39 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
+
+	// We need to reinitialize if something bad happens and we can tell..
+	protected void reInitialize() {
+		log("Application would like to reinitialize.");
+		try {
+			initDBS();
+		} catch(Exception e) {
+			// Do nothing.
+		}
+	}
+
 	// Grab a connection from the pool.
-	private Connection getDBConn() throws SQLException {
+	protected Connection getDBConn() throws SQLException {
 		Connection photo;
+
+		if(dbs == null) {
+			reInitialize();
+		}
 
 		// The path to the database...
 		photo = dbs.getConnection();
+		if(photo == null) {
+			reInitialize();
+			photo = dbs.getConnection();
+			if(photo == null) {
+				reInitialize();
+			}
+		}
 		return(photo);
 	}
 
 	// Gotta free the connection
-	private void freeDBConn(Connection conn) {
+	protected void freeDBConn(Connection conn) {
 		dbs.freeConnection(conn);
 	}
 
