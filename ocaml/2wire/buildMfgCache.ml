@@ -187,11 +187,17 @@ let processFile destcdb modelMap filename =
 
 ;;
 
+(* Return the listing of a directory in a predictable order so we process
+   files in the same order *)
+let sorted_ls d =
+	List.sort compare (Fileutils.lsdir d)
+;;
+
 (* Process the files and directories passed in as anonymous arguments *)
 let processPaths destcdb modelMap paths =
 	List.iter (fun path ->
 			if Fileutils.isdir path then (
-				Fileutils.walk_dir path (fun d files arg ->
+				Fileutils.walk_dir_via sorted_ls path (fun d files arg ->
 						List.iter (processFile destcdb modelMap)
 							(List.map (Filename.concat d) files)) ()
 			) else (
@@ -222,8 +228,6 @@ let main () =
 			("-k", Arg.String(setupReserved),
 					"Location of the reserved mfg keys cdb")
 		] (fun s -> anon := s :: !anon)  "Build manufacturing cache";
-	Printf.eprintf "destpath is %s, modelpath is %s\n" !destpath !modelpath;
-	Printf.eprintf "%d anonymous args:\n" (List.length !anon);
 	List.iter (fun s -> Printf.eprintf "\t%s\n" s) (List.rev !anon);
 	if("" = !destpath) then
 		usage();
