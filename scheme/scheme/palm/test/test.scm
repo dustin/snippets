@@ -174,34 +174,3 @@
             ; Do this for all other buttons
             (else (display "Unknown button:  ")(display args)(newline))))
         (else #f))))))
-
-; Edit the test thingies
-(define (edit-test)
-  (set-resdb "TestTaker")
-  (let ( (testdata (normal-test)) )
-    (edit-records (normal-test))))
-
-; Edit a given record
-(define (edit-records test-data)
-  (let ( (current-item 0) (data (list-ref test-data 0)))
-  (frm-popup edit-frm
-    (lambda (event . args)
-      (case event
-        ((menu) (frm-return 'bye))
-        ; When we open the form, populate it with the nth record from the DB
-        ((frm-open)
-            (populate-fields data)
-            (set-select-button (string->object (list-ref data 5))))
-        ; Buttons
-        ((ctl-select)
-          ; I don't know how to do this with case...
-          (cond
-            ; Do this if it's the ``next'' button
-            ((eqv? (car args) next-btn)
-             (set! current-item (next-item current-item #t))
-             (set! data (list-ref test-data current-item))
-             (populate-fields data)
-             (set-select-button (string->object (list-ref data 5))))
-            ; Do this for all other buttons
-            (else (display "Unknown button:  ")(display args)(newline))))
-        (else #f))))))
