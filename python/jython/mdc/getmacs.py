@@ -26,7 +26,7 @@ def report(sn, data):
         if i[1] != '--':
             try:
                 k=types[i[1]]
-                macs.append(i[2] + "\t" + k)
+                macs.append(i[2] + "\t" + k + "\t" + i[0])
             except KeyError, e:
                 sys.stderr.write("Broken record for " + sn + ":  " + `i` + "\n")
 
