@@ -13,6 +13,7 @@ public class Pager implements Runnable {
 	JTextField snpp_id = null;
 	JTextField message = null;
 	JCheckBox twoway = null;
+	static JLabel status_bar = null;
 
 	static Hashtable queue=null;
 
@@ -20,11 +21,23 @@ public class Pager implements Runnable {
 		super();
 	}
 
+	protected synchronized void setStatus(String to) {
+		int size = 0;
+
+		if(queue!=null) {
+			size = queue.size();
+		}
+
+		String status=size + " left.  " + to;
+		status_bar.setText(status);
+		status_bar.updateUI();
+	}
+
 	protected void sendPage() throws Exception {
 		boolean goes_both_ways=twoway.isSelected();
 
+		setStatus("Connecting to SNPP server");
 		SNPP snpp=new SNPP("snpp.skytel.com", 444);
-		snpp.debug=true;
 
 		if(goes_both_ways) {
 			snpp.twoWay();
@@ -45,20 +58,16 @@ public class Pager implements Runnable {
 	protected Component bottom() throws Exception {
 		JPanel bottom = new JPanel();
 		bottom.setLayout( new BoxLayout(bottom, BoxLayout.X_AXIS));
-		bottom.setBorder(BorderFactory.createEmptyBorder(14,14,14,14));
+		bottom.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 		JButton send = new JButton("Send Page");
 		JButton quit = new JButton("Quit");
 
 		send.addActionListener ( new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(snpp_id.getText());
-				System.out.println(message.getText());
-				System.out.println("Sending Page...");
-				System.out.println("Two-way is " + twoway.isSelected());
 				try {
 					sendPage();
 				} catch(Exception ception) {
-					System.out.println("Damn:  " + ception);
+					System.err.println("Damn:  " + ception);
 				}
 			}
 		} );
@@ -73,9 +82,10 @@ public class Pager implements Runnable {
 		bottom.add(quit);
 		return(bottom);
 	}
+
 	protected Component level1() throws Exception {
 		JPanel pane=new JPanel();
-		pane.setBorder(BorderFactory.createEmptyBorder(14,14,14,14));
+		pane.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 		pane.setLayout( new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		JLabel label=new JLabel("SNPP ID:  ");
@@ -92,6 +102,15 @@ public class Pager implements Runnable {
 		twoway = new JCheckBox("Two-Way");
 		pane.add(twoway);
 
+		return(pane);
+	}
+
+	protected Component status() throws Exception {
+		JPanel pane=new JPanel();
+		pane.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+		pane.setLayout( new BoxLayout(pane, BoxLayout.Y_AXIS));
+		status_bar = new JLabel("STATUS");
+		pane.add(status_bar);
 		return(pane);
 	}
 
@@ -112,11 +131,15 @@ public class Pager implements Runnable {
         frame.setVisible(true);
 		base=frame;
 	Component pane_1 = level1();
+		Component status = status();
 		Component bottom = bottom();
 		Container c = frame.getContentPane();
-		Container c_1 = frame.getContentPane();
-		c.add(pane_1,"North");
-		c.add(bottom,"South");
+		// c.add(pane_1,"North");
+		// c.add(status,"South");
+		// c.add(bottom,"South");
+		c.add(pane_1, "North");
+		c.add(bottom, "Center");
+		c.add(status, "South");
 
 		WindowListener l =  new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -130,6 +153,8 @@ public class Pager implements Runnable {
 		// no wonder it won't resize!
         frame.pack();
 
+		setStatus("Ready!");
+
 		Thread t = new Thread(this);
 		t.start();
     }
@@ -137,7 +162,6 @@ public class Pager implements Runnable {
 	protected void popUp(String original, String response) {
 		String rr="";
 		rr=response + "\n\nIn reply to:  " + original;
-		System.out.println(rr);
 
 		final JFrame jf = new JFrame();
 		jf.setBackground(new Color(255, 255, 255));
@@ -192,17 +216,18 @@ public class Pager implements Runnable {
 				} catch(Exception e) {
 					// Blah
 				}
-				s.debug=true;
 			}
 
 			for(Enumeration e=queue.keys(); e.hasMoreElements(); ) {
 				String msta = (String)e.nextElement();
 				String text = (String)queue.get(msta);
 				String msg=null;
+				setStatus("Checking on " + msta);
 				try {
 					msg=s.getResponse(msta);
 					if(msg!=null) {
 						queue.remove(msta);
+						setStatus("Got response for " + msta);
 						popUp(text, msg);
 					}
 				} catch(Exception cept) {
