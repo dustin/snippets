@@ -8,7 +8,7 @@ PROFILE=
 
 PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot \
 	mfgcdb mfgcdb.cmi extractAuthInfo snmap statutils statutils.cmi statRollup \
-	rrdAggregate extractKeys buildMfgCache cdbprefix
+	rrdAggregate extractKeys buildMfgCache cdbprefix indexSnAndKey
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -33,6 +33,10 @@ extractKeys: extractKeys.ml mfgcdb.cmi
 cdbprefix: cdbprefix.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa cdbprefix.ml
+
+indexSnAndKey: indexSnAndKey.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa indexSnAndKey.ml
 
 buildMfgCache: buildMfgCache.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
