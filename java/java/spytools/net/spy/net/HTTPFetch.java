@@ -5,6 +5,7 @@ package net.spy.net;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,23 +38,46 @@ public class HTTPFetch {
 	 * @param u String representation of the URL we'll be connecting to.
 	 *
 	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
+	 *
+	 * @deprecated don't pass Strings, pass URLs
 	 */
 	public HTTPFetch(String u) throws MalformedURLException {
-		url=new URL(u);
+		this(new URL(u), null);
 	}
 
 	/**
 	 * Create a new HTTPFetch object for a given string representation of a
-	 * URL, including a hash describing extra headers to add.
+	 * URL, including a Map describing extra headers to add.
 	 *
 	 * @param u String representation of the URL we'll be connecting to.
 	 * @param head Map containing headers to set.
 	 *
 	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
+	 *
+	 * @deprecated don't pass Strings, pass URLs
 	 */
 	public HTTPFetch(String u, Map head) throws MalformedURLException {
+		this(new URL(u), head);
+	}
+
+	/**
+	 * Get an HTTPFetch instance for the given URL.
+	 *
+	 * @param u the URL to fetch
+	 */
+	public HTTPFetch(URL u) {
+		this(u, null);
+	}
+
+	/**
+	 * Get an HTTPFetch instance for the given URL and headers.
+	 *
+	 * @param u URL to fetch
+	 * @param head Map containing the headers to fetch
+	 */
+	public HTTPFetch(URL u, Map head) {
 		super();
-		url=new URL(u);
+		url=u;
 		headers=head;
 	}
 
@@ -80,9 +104,8 @@ public class HTTPFetch {
 	 *
 	 * @exception Exception thrown when something fails.
 	 */
-	public String getData() throws Exception {
+	public String getData() throws IOException {
 		if(contents==null) {
-			contents="";
 			StringBuffer sb=new StringBuffer();
 			BufferedReader br = getReader();
 			String line;
@@ -127,7 +150,7 @@ public class HTTPFetch {
 	}
 
 	// Get a reader for the above routines.
-	private BufferedReader getReader() throws Exception {
+	private BufferedReader getReader() throws IOException {
 		URLConnection uc = url.openConnection();
 		if(headers!=null) {
 			for(Iterator i=headers.keySet().iterator(); i.hasNext(); ) {

@@ -1,10 +1,12 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.8 2002/08/16 07:27:10 dustin Exp $
+// $Id: SpyTemp.java,v 1.9 2002/08/19 07:08:32 dustin Exp $
 
 package net.spy.temperature;
 
 import java.util.List;
+
+import java.net.URL;
 
 import net.spy.net.HTTPFetch;
 
@@ -46,7 +48,8 @@ public class SpyTemp extends Object {
 	 */
 	public String[] listTherms() throws Exception {
 		String ret[]=null;
-		HTTPFetch f = new HTTPFetch(tempBase);
+		URL u=new URL(tempBase);
+		HTTPFetch f = new HTTPFetch(u);
 		List v=f.getLines();
 		ret=new String[v.size()];
 		for(int i=0; i<v.size(); i++) {
@@ -67,12 +70,9 @@ public class SpyTemp extends Object {
 		String s=null;
 		double t;
 
-		try {
-			HTTPFetch f = new HTTPFetch(tmpurl);
-			s=f.getData();
-		} catch(Exception e) {
-			throw new Exception ("Error getting temperature:  " + e);
-		}
+		URL u=new URL(tmpurl);
+		HTTPFetch f = new HTTPFetch(u);
+		s=f.getData();
 
 		// Make it look like a Double
 		s=s.trim();
