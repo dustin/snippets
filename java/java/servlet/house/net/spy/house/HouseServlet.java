@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.9 2002/05/04 08:36:52 dustin Exp $
+ * $Id: HouseServlet.java,v 1.10 2002/05/04 08:50:07 dustin Exp $
  */
 
 package net.spy.house;
@@ -35,9 +35,19 @@ public class HouseServlet extends PngServlet implements ImageObserver
 	private Image baseImage=null;
 	private boolean imageLoaded=false;
 
+	// The house config file path
+	private String houseConfig=null;
+
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
+		// Find the house config
+		houseConfig=config.getInitParameter("houseConfig");
+		if(houseConfig.startsWith("/WEB-INF")) {
+			houseConfig=getServletContext().getRealPath(houseConfig);
+		}
+		log("Using the following config file:  " + houseConfig);
 
 		String bi=config.getInitParameter("baseImage");
 
@@ -85,14 +95,8 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		String tempUrl=sconf.getInitParameter("tempServlet");
 		SpyTemp spytemp=new SpyTemp(tempUrl);
 
-		// Find the description
-		String descrFile=sconf.getInitParameter("houseConfig");
-		if(descrFile.startsWith("/WEB-INF")) {
-			descrFile=getServletContext().getRealPath(descrFile);
-		}
-
 		// The description of what we're drawing.
-		SpyConfig conf=new SpyConfig(new File(descrFile));
+		SpyConfig conf=new SpyConfig(new File(houseConfig));
 
 		// Find all the things we need to colorize
 		String things[]=SpyUtil.split(" ", conf.get("colorize", ""));
