@@ -14,6 +14,7 @@
 
 extern float max_lat, min_lat, max_lng, min_lng;
 extern int color;
+extern char *filename;
 
 void
 setrange(int start, int end, int startred, int startgreen,
@@ -266,7 +267,7 @@ vga_plot()
 
   FILE *infile;
 
-  if (NULL == (infile = fopen("coast.dat", "r")))
+  if (NULL == (infile = fopen(filename, "r")))
     exit(12);
 
   lat_diff = max_lat - min_lat;
