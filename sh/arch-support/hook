@@ -4,6 +4,11 @@ hookLog() {
 	echo "hook:  $@"
 }
 
+HO=/tmp/hook.out
+touch $HO
+echo "$@" >> $HO
+env >> $HO
+
 # For commits
 if [ "$1" == "commit" ]
 then
