@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.9 2002/06/06 18:35:13 dustin Exp $
+ * $Id: logmerge.c,v 1.10 2003/10/06 19:03:44 dustin Exp $
  */
 
 #include <stdio.h>
@@ -227,8 +227,10 @@ static time_t parseTimestamp(struct logfile *lf)
 	p=lf->line;
 
 	/* The shortest line I can parse is about 32 characters. */
-	assert(strlen(p) > 32);
-	if(p[10]=='T') {
+	if(strlen(p) < 32) {
+		/* This is a broken entry */
+		fprintf(stderr, "Broken log entry (too short):  %s\n", p);
+	} else if(p[10]=='T') {
 		/* fprintf("**** Parsing %s\n", p); */
 
 		lf->tm.tm_year=atoi(p);
@@ -322,10 +324,11 @@ static char *nextLine(struct logfile *lf)
 		/* Make sure the line is short enough */
 		assert(strlen(lf->line) < LINE_BUFFER);
 		/* Make sure we read a line */
-		assert(p[strlen(p)-1] == '\n');
-
-		/* Parse it */
-		if(parseTimestamp(lf) == -1) {
+		if(p[strlen(p)-1] != '\n') {
+			fprintf(stderr, "*** BROKEN LOG ENTRY IN %s (no newline)\n",
+				lf->filename);
+			p=NULL;
+		} else if(parseTimestamp(lf) == -1) {
 			/* If we can't parse the timestamp, give up */
 			p=NULL;
 		}
@@ -381,7 +384,8 @@ static void destroyLogfile(struct logfile *lf)
  */
 struct logfile *createLogfile(const char *filename)
 {
-	struct logfile *rv;
+	struct logfile *rv=NULL;
+	char *p=NULL;
 
 	rv=calloc(1, sizeof(struct logfile));
 	assert(rv != NULL);
@@ -399,9 +403,14 @@ struct logfile *createLogfile(const char *filename)
 		rv=NULL;
 	} else {
 		/* If it's opened succesfully, read the next (first) line */
-		nextLine(rv);
+		p=nextLine(rv);
 		/* Now close the logfile */
 		closeLogfile(rv);
+		/* If nextLine didn't return a record, this entry is invalid. */
+		if(p == NULL) {
+			destroyLogfile(rv);
+			rv=NULL;
+		}
 	}
 
 	return(rv);
@@ -534,14 +543,26 @@ int main(int argc, char **argv)
 	int i=0;
 	int entries=0;
 
-	assert(argc>1);
-
-	for(i=1; i<argc; i++) {
-		lf=createLogfile(argv[i]);
-		if(lf!=NULL) {
-			list=addToList(list, lf);
-		} else {
-			fprintf(stderr, "Error opening logfile ``%s''\n", argv[i]);
+	if(argc>1) {
+		for(i=1; i<argc; i++) {
+			lf=createLogfile(argv[i]);
+			if(lf!=NULL) {
+				list=addToList(list, lf);
+			} else {
+				fprintf(stderr, "Error opening logfile ``%s''\n", argv[i]);
+			}
+		}
+	} else {
+		char buf[8192];
+		fprintf(stderr, "No logfiles given, accepting list from stdin\n");
+		while(fgets((char*)&buf, sizeof(buf)-1, stdin)) {
+			buf[strlen(buf)-1]=0x00;
+			lf=createLogfile(buf);
+			if(lf!=NULL) {
+				list=addToList(list, lf);
+			} else {
+				fprintf(stderr, "Error opening logfile ``%s''\n", buf);
+			}
 		}
 	}
 
