@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PackageTracker.java,v 1.2 2000/06/15 22:26:01 dustin Exp $
+// $Id: PackageTracker.java,v 1.3 2000/06/15 23:06:23 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -138,6 +138,7 @@ public abstract class PackageTracker extends Object {
 	}
 
 	protected void process() throws Exception {
+		System.out.println("Processing package carrier " + carrier_id + "...");
 		// Ensure we have an open database connection.
 		openDB();
 		cleanup();
