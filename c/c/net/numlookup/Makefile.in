@@ -4,6 +4,11 @@ LDFLAGS=$(LIBS)
 OBJS=libparselist.o mymalloc.o hash.o parselist.o
 MYLIBS=libparselist.so
 EXES=parselist
+LINT=@LINT@
+LINTFLAGS=@DEFS@
+LINTS=parselist.ln libparselist.ln mymalloc.ln hash.ln parselist.ln
+
+.SUFFIXES: .c .o .l .a .ln .so
 
 all: parselist libparselist.so
 
@@ -16,4 +21,10 @@ libparselist.so: libparselist.o mymalloc.o hash.o parselist.h
 	$(LD) -x -shared -o libparselist.so libparselist.o mymalloc.o hash.o
 
 clean:
-	rm -f $(EXES) $(MYLIBS) $(OBJS)
+	rm -f $(EXES) $(MYLIBS) $(OBJS) $(LINTS)
+
+lint: $(LINTS)
+
+.c.ln: $<
+	$(LINT) $(LINTFLAGS) -c $<
+

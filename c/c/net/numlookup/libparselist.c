@@ -20,10 +20,12 @@
 int
 snprintf(char *s, size_t n, const char *format,...)
 {
+	int r;
 	va_list ap;
 	va_start(ap, format);
-	vsnprintf(s, n - 1, format, ap);
+	r=vsnprintf(s, n - 1, format, ap);
 	va_end(ap);
+	return(r);
 }
 
 #endif
