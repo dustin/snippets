@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.6 2002/08/21 03:18:12 dustin Exp $
+// $Id: RSSServlet.java,v 1.7 2003/03/24 19:56:44 dustin Exp $
 
 package net.spy.rss;
 
@@ -17,7 +17,14 @@ import net.spy.net.*;
 
 public class RSSServlet extends HttpServlet {
 
-	// Process get requests only.
+	// process post requests
+	public void doPost(
+		HttpServletRequest request, HttpServletResponse response
+	) throws ServletException, IOException {
+		doGet(request, response);
+	}
+
+	// Process get requests.
 	public void doGet(
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
