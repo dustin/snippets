@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.10 2002/03/20 20:01:30 dustin Exp $
+# $Id: nntpsucka.py,v 1.11 2002/03/20 20:19:29 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -56,6 +56,14 @@ class NewsDB:
 	def __del__(self):
 		self.db.close()
 
+	def getGroupRange(self, group, start, end):
+		myfirst=self.getLastId(groupname)
+		if int(myfirst) < int(first) || int(myfirst) > int(last)
+			myfirst=first
+		mycount=(int(last)-int(myfirst))
+
+		return myfirst, mylast, mycount
+
 ######################################################################
 
 class NNTPSucka:
@@ -104,17 +112,19 @@ class NNTPSucka:
 	def copyGroup(self, groupname):
 		self.dest.group(groupname)
 		resp, count, first, last, name = self.src.group(groupname)
+
+		# Figure out where we are
+		myfirst, mylast, mycount= self.db.getGroupRange(groupname, first, last)
+		print "Copying " + str(mycount) + " articles:  " \
+			+ str(myfirst) + "-" + str(mylast) + " in " + groupname
+
+		# Grab the IDs
+		resp, list = self.src.xhdr('message-id', myfirst + "-" + mylast)
 		ids=dict()
-		resp, list = self.src.xhdr('message-id', first + "-" + last)
 		for set in list:
 			ids[set[0]]=set[1]
-		myfirst=self.db.getLastId(groupname)
-		if int(myfirst) < int(first):
-			myfirst=first
-		mycount=(int(last)-int(myfirst))
-		print "Copying " + str(mycount) + " articles:  " \
-			+ str(myfirst) + "-" + str(last) + " in " + groupname
-		for i in range(int(myfirst), int(last)):
+
+		for i in range(int(myfirst), int(mylast)):
 			try:
 				messid="*empty*"
 				messid=ids[str(i)]
