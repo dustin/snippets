@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.13 2001/04/04 08:45:23 dustin Exp $
+// $Id: SNPP.java,v 1.14 2001/04/15 07:05:29 dustin Exp $
 
 package net.spy.net;
 
@@ -351,7 +351,7 @@ public class SNPP extends Object {
 	 */
 	public static void main(String args[]) throws Exception {
 		SNPP snpp=new SNPP(args[0], Integer.parseInt(args[1]));
-		snpp.debug=true;
+		// snpp.debug=true;
 		snpp.sendpage(args[2], args[3]);
 		snpp.close();
 	}

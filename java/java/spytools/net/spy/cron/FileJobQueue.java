@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileJobQueue.java,v 1.3 2001/04/13 18:20:38 dustin Exp $
+// $Id: FileJobQueue.java,v 1.4 2001/04/15 07:05:27 dustin Exp $
 
 package net.spy.cron;
 
@@ -135,7 +135,7 @@ public class FileJobQueue extends JobQueue {
 		} else if(field_name.equals("SECOND")) {
 			rv=Calendar.SECOND;
 		} else if(field_name.equals("ONCE")) {
-			// Just run this job once
+			// This is an ``at'' job
 			rv=-1;
 		} else {
 			System.err.println("WARNING!  " + field_name
