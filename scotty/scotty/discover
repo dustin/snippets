@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: discover,v 1.1 2000/05/11 00:03:49 dustin Exp $ \
+# $Id: discover,v 1.2 2000/05/11 01:22:40 dustin Exp $ \
 exec /usr/local/bin/scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -9,9 +9,17 @@ mib load cisco.mib
 mib load cisco-smi.mib
 mib load CISCO-CDP-MIB-V1SMI.mib
 
-set donePeers() ()
+# set donePeers() ()
+# set communities() ()
 
-set communities() ()
+set node_id 0
+
+# set nodes() ()
+# set nodes_rev() ()
+
+set links {}
+
+set opmode text
 
 # load the communities from the communities file
 proc loadCommunities { } {
@@ -26,6 +34,38 @@ proc loadCommunities { } {
 		set communities($host) $comm
 	}
 	close $input
+}
+
+proc nextNode { } {
+	global node_id
+	return [incr node_id]
+}
+
+proc getNode { host } {
+	global nodes
+	global nodes_rev
+	if { [ catch { set this_node $nodes($host) } ] } {
+		set this_node [nextNode]
+		set nodes($host) $this_node
+		set nodes_rev($this_node) $host
+	}
+	return $this_node
+}
+
+proc link { from to } {
+	global links
+	set from_node [getNode $from]
+	set to_node [getNode $to]
+
+	if {$from_node > $to_node} {
+		set a $to_node
+		set b $from_node
+	} else {
+		set a $from_node
+		set b $to_node
+	}
+
+	lappend links [ list $a $b ]
 }
 
 # get the community for a host
@@ -85,6 +125,10 @@ proc peerName { s i peer } {
 
 # Display the peer
 proc displayPeer { s i peer offset name } {
+	global opmode
+	if { [ string compare $opmode tki ] == 0 } {
+		return
+	}
 	set what "cdpCachePlatform.$i.$peer"
 	set code [catch {set platform [lindex [lindex [$s get $what] 0] 2]}]
 	set what "cdpCacheDevicePort.$i.$peer"
@@ -106,6 +150,7 @@ proc makeRoom { offset } {
 proc walk { offset host } {
 	# puts "Walking $host"
 	global donePeers
+	global opmode
 
 	set donePeers($host) 1
 
@@ -136,8 +181,10 @@ proc walk { offset host } {
 					set desc "$i"
 				}
 
-				# puts "[makeRoom $offset]$host interface $i ($desc)"
-				puts "[makeRoom $offset]$host $desc"
+				# If we're not in tki mode
+				if { [ string compare $opmode tki ] != 0 } {
+					puts "[makeRoom $offset]$host $desc"
+				}
 
 				set peers [ getPeers $s $i ]
 				foreach peer $peers {
@@ -147,6 +194,7 @@ proc walk { offset host } {
 					catch { set doneit $donePeers($name) }
 					if { $doneit == 0 } {
 						walk [expr $offset + 2 ] $name
+						link $host $name
 					}
 				}
 			# Operational interfaces
@@ -159,10 +207,47 @@ proc walk { offset host } {
 # for each router
 }
 
+proc makeTki { } {
+	global nodes
+	global links
+	puts "##
+## This file was created by tkined version 1.3.4        >> DO NOT EDIT <<
+##
+## This may look like TCL code but it is definitely not!
+##
+
+ined page A4 landscape
+
+"
+
+	foreach v [array names nodes ] {
+		set node_id node$nodes($v)
+		puts "set $node_id \[ ined -noupdate create NODE \]"
+		puts "ined -noupdate icon \$$node_id cisco.xbm"
+		puts "ined -noupdate name \$$node_id $v"
+		puts "ined -noupdate label \$$node_id name"
+		puts ""
+	}
+	set i 0
+	foreach l $links {
+		incr i
+		set a [lindex $l 0]
+		set b [lindex $l 1]
+		puts "set link$i \[ ined -noupdate create LINK \$node$a \$node$b \]"
+	}
+}
+
+# Figure out what we're doing
+catch { set opmode [lindex $argv 1] }
+
 # Load the communities
 loadCommunities
 
 # Start with an offset of 0 and whatever host we said to start on
 walk 0 [lindex $argv 0]
+
+if { [string compare $opmode "tki" ] == 0 } {
+	makeTki
+}
 
 exit 0
