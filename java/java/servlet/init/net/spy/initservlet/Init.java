@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Init.java,v 1.2 2002/12/04 09:25:57 dustin Exp $
+ * $Id: Init.java,v 1.3 2002/12/04 09:30:43 dustin Exp $
  */
 
 package net.spy.initservlet;
@@ -44,8 +44,9 @@ public class Init extends HttpServlet
 
 	private void startCron() {
 		JobQueue jq=new JobQueue();
-		cron=new Cron(jq);
+		cron=new Cron("InitCron", jq);
 		jq.addJob(getJob());
+		log("Cron is initialized.");
 	}
 
 	private Job getJob() {
