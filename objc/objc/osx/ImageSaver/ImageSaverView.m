@@ -6,6 +6,8 @@
 //  Copyright (c) 2003, SPY internetworking. All rights reserved.
 //
 
+#include <stdlib.h>
+
 #import "ImageSaverView.h"
 #import "SizeScaler.h"
 
@@ -17,7 +19,7 @@
     NSLog(@"Initializing");
     self = [super initWithFrame:frame isPreview:isPreview];
     if (self) {
-        [self setAnimationTimeInterval:300.0];
+        [self setAnimationTimeInterval:5.0];
     }
 
     ScreenSaverDefaults *defaults =
@@ -56,9 +58,23 @@
     [super stopAnimation];
 }
 
+- (NSPoint)getRandomPoint: (NSSize) outer inner: (NSSize) inner
+{
+    NSPoint rv;
+    int diffx=inner.width - outer.width;
+    int diffy=inner.height - outer.height;
+    // NSLog(@"Image size diff is %dx%d", diffx, diffy);
+    int distancex=random()%diffx;
+    int distancey=random()%diffy;
+
+    rv=NSMakePoint(0.0+distancex, 0.0+distancey);
+    // NSLog(@"Distance is %dx%d", distancex, distancey);
+    return(rv);
+}
+
 - (void)drawRect:(NSRect)rect
 {
-    NSLog(@"Drawing.");
+    // NSLog(@"Drawing.");
     [super drawRect:rect];
     if(currentImage != nil) {
         // Make sure the image has been scaled.
@@ -68,7 +84,7 @@
             imageSize=[ss scaleTo: rect.size];
             [currentImage setSize: imageSize];
         }
-        NSPoint p=NSMakePoint(0-distancex, 0-distancey);
+        NSPoint p=[self getRandomPoint: rect.size inner: imageSize];
         NSRect theRect=NSMakeRect(0, 0, imageSize.width, imageSize.height);
         [currentImage drawAtPoint: p fromRect: theRect
             operation: NSCompositeCopy fraction: 1.0];
@@ -83,8 +99,6 @@
         [currentImage release];
     }
     NSLog(@"Fetching image from %@", u);
-    distancex=0.0;
-    distancey=0.0;
     currentImage=[[NSImage alloc] initWithContentsOfURL: u];
     [currentImage setScalesWhenResized: TRUE];
     [u release];
@@ -94,12 +108,7 @@
 - (void)animateOneFrame
 {
     // NSLog(@"Animating");
-    /*
-    distancex+=2;
-    distancey+=0.5;
-
     [self setNeedsDisplay: YES];
-    */
     return;
 }
 
@@ -116,6 +125,7 @@
     }
     [urlField setStringValue: urlString];
     // Update the interval display
+    [intervalField setFloatValue: updateInterval];
     [self intervalChanged: self];
     return sheet;
 }

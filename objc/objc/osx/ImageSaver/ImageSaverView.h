@@ -16,9 +16,6 @@
 
     NSTimer *updateTimer;
 
-    float distancex;
-    float distancey;
-
     IBOutlet NSSlider *intervalField;
     IBOutlet NSTextField *updateLabel;
     IBOutlet NSTextField *urlField;
