@@ -45,14 +45,14 @@ type reading = None
 	| Bar_reading of bar_type
 ;;
 
-let construct_type n = match n with
+let construct_type = function
 	  0x8f -> Time_humidity
 	| 0x9f -> Temp
 	| 0xaf -> Barometer_dew
 	| 0xbf -> Rain
 	| 0xcf -> Wind
 	| 0xff -> Time
-	| _ -> failwith("Unknown type: " ^ (string_of_int n))
+	| n -> failwith("Unknown type: " ^ (string_of_int n))
 ;;
 
 let njunk s n =
@@ -65,25 +65,24 @@ let nget s n =
 	rv
 ;;
 
-let print_reading r =
-	match r with
-	  Temp_reading(tr) ->
+let print_reading = function
+	  Temp_reading tr ->
 		Printf.printf "Temp reading:  in=%f out=%f\n"
 			tr.indoor_temp tr.outdoor_temp
-	| Rain_reading(rr) ->
+	| Rain_reading rr ->
 		Printf.printf "Rain reading:  %dmm\n" rr
-	| Wind_reading(wr) ->
+	| Wind_reading wr ->
 		Printf.printf "Wind reading:  %dmps\n" wr
-	| Time_reading(tr) ->
+	| Time_reading tr ->
 		(*
 		Printf.printf "Time reading:  %02d:%02d:%02d\n"
 			tr.time_hr tr.time_min tr.time_sec
 		*)
 		()
-	| Hum_reading(hr) ->
+	| Hum_reading hr ->
 		Printf.printf "Humidity reading:  in=%d%% out=%d%%\n"
 			hr.indoor_hum hr.outdoor_hum
-	| Bar_reading(br) ->
+	| Bar_reading br ->
 		Printf.printf "Barometer reading:  %dMBAR (%s) - Prediction: %s\n"
 			br.pressure
 			(match br.bar_trend with
