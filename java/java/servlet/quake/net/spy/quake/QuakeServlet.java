@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuakeServlet.java,v 1.1 2001/03/05 08:09:24 dustin Exp $
+// $Id: QuakeServlet.java,v 1.2 2002/08/16 07:18:37 dustin Exp $
 
 package net.spy.quake;
 
@@ -37,7 +37,7 @@ public class QuakeServlet extends HttpServlet {
 		String qurl="http://quake.wr.usgs.gov/recenteqs/Maps/SF_Bay.html";
 		HTTPFetch hf=new HTTPFetch(qurl);
 		String data=hf.getData();
-		Vector useful=new Vector();
+		ArrayList useful=new ArrayList();
 		StringBuffer rss=new StringBuffer();
 
 		StringTokenizer st=new StringTokenizer(data, "\r\n");
@@ -100,7 +100,7 @@ public class QuakeServlet extends HttpServlet {
 
 					piece.append("\t\t</item>\n");
 
-					useful.addElement(piece.toString());
+					useful.add(piece.toString());
 				}
 			}
 		}
@@ -129,8 +129,8 @@ public class QuakeServlet extends HttpServlet {
 		rss.append("</url>\n");
 		rss.append("\t\t</image>\n");
 
-		for(Enumeration e=useful.elements(); e.hasMoreElements(); ) {
-			String tmp=(String)e.nextElement();
+		for(Iterator i=useful.iterator(); i.hasNext(); ) {
+			String tmp=(String)i.next();
 
 			rss.append(tmp);
 		}
