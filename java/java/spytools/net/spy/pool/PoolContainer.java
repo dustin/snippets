@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.32 2001/08/31 00:17:20 dustin Exp $
+// $Id: PoolContainer.java,v 1.33 2001/08/31 18:33:22 dustin Exp $
 
 package net.spy.pool;
 
@@ -258,7 +258,7 @@ public class PoolContainer extends Object {
 			}
 			// Remove them from the pool now
 			for(Enumeration e=toDelete.elements(); e.hasMoreElements();) {
-				pool.remove(e.nextElement());
+				pool.removeElement(e.nextElement());
 			}
 
 			// If we don't have enough objects, go get more!  They're cheap!
