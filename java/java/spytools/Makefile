@@ -43,6 +43,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/SpyDoubleComparable.class \
 	net/spy/util/SpyIntegerComparable.class \
 	net/spy/util/SpyLDIFReader.class \
+	net/spy/util/InterfaceImplementor.class \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/pool/PoolAble.class \
@@ -59,7 +60,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	'net/spy/cache/SpyCache$$SpyCacheItem.class'
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
-	net.spy.info net.spy.pool net.spy.log net.spy.cache
+	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util
 
 FDEST=/home/dustin/lib/java
 SCP=scp

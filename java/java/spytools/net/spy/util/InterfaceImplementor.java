@@ -10,6 +10,21 @@ import java.lang.reflect.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Think Java Interfaces are even more stupid than the lack of multiple
+ * inheritence?  SO DO I!  That's why this class exists.
+ * <p>
+ * Using InterfaceImplementor, you can write code that's portable among
+ * different API specs.  You simply implement what you need out of an
+ * interface, and InterfaceImplementor writes a class that extends from the
+ * class you wrote, and fills in all the blanks for you.
+ * <p>
+ * Here's the way you use it:
+ * <p>
+ * java net.spy.util.InterfaceImplementor -interface java.sql.ResultSet
+ * -superclass test.TestSet -outputclass test.TestSetImpl
+ */
+
 public class InterfaceImplementor extends Object {
 
 	// Functions that are already defined.
@@ -253,6 +268,11 @@ public class InterfaceImplementor extends Object {
 		return(ret);
 	}
 
+	/**
+	 * Generate the source code for the class this object represents.
+	 *
+	 * @exception Exception now and then
+	 */
 	public String makeSource() throws Exception {
 		String ret="";
 
