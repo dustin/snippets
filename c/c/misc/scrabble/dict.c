@@ -55,6 +55,7 @@ makeDictEntry(const char *word)
 	assert(rv);
 
 	rv->word=strdup(word);
+	assert(rv->word);
 	rv->score=scoreWord(rv->word);
 
 	return(rv);
@@ -66,8 +67,8 @@ freeDictEntry(struct dict_entry *freeMe)
 	assert(freeMe);
 	assert(freeMe->word);
 
-	free(freeMe);
 	free(freeMe->word);
+	free(freeMe);
 }
 
 #ifndef BOOTSTRAP

@@ -1,9 +1,10 @@
 # PROFILE=-pg
+MYMALLOC=-DMYMALLOC
 CC=@CC@
-CFLAGS=@CFLAGS@ @DEFS@ $(PROFILE)
+CFLAGS=@CFLAGS@ @DEFS@ $(PROFILE) -Imymalloc $(MYMALLOC)
 LDFLAGS=@LDFLAGS@
-BOOTSTRAPOBJ=scoring_bootstrap.o dict_bootstrap.o
-OBJ=dictionary.o scores.o scoring.o dict.o search.o
+BOOTSTRAPOBJ=scoring_bootstrap.o dict_bootstrap.o mymalloc/mymalloc.o
+OBJ=dictionary.o scores.o scoring.o dict.o search.o mymalloc/mymalloc.o
 LIB=-L. -lscrabble
 RANLIB=@RANLIB@
 AR=@AR@
@@ -11,13 +12,13 @@ AR=@AR@
 all: search
 
 search: libscrabble.a search_main.o
-	$(CC) $(PROFILE) $(LDFLAGS) -o $@ search_main.o $(LIB)
+	$(CC) $(PROFILE) $(CFLAGS) -o $@ search_main.o $(LDFLAGS) $(LIB)
 
 dict: dict_main.o libscrabble.a
-	$(CC) $(PROFILE) $(LDFLAGS) -o $@ dict_main.o $(LIB)
+	$(CC) $(PROFILE) $(CFLAGS) -o $@ dict_main.o $(LDFLAGS) $(LIB)
 
 scoring: scoring_main.o libscrabble.a
-	$(CC) $(PROFILE) $(LDFLAGS) -o $@ scoring_main.o $(LIB)
+	$(CC) $(PROFILE) $(CFLAGS) -o $@ scoring_main.o $(LDFLAGS) $(LIB)
 
 libscrabble.a: $(OBJ)
 	$(AR) rc $@ $(OBJ)
@@ -59,6 +60,9 @@ buildit: buildit.o libbscrabble.a
 
 buildit.o:
 	$(CC) $(CFLAGS) $(PROFILE) -DBOOTSTRAP -c -o $@ buildit.c
+
+mymalloc/mymalloc.o: mymalloc/mymalloc.c mymalloc/mymalloc.h
+	cd mymalloc && $(CC) $(MYMALLOC) -o mymalloc.o -c mymalloc.c
 
 clean:
 	rm -f libscrabble.a dict_main.o search_main.o scoring_main.o \
