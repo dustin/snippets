@@ -44,7 +44,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/SpyIntegerComparable.class \
 	net/spy/util/SpyLDIFReader.class \
 	net/spy/pool/ObjectPool.class \
-	net/spy/pool/ObjectPoolCleaner.class \
+	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/pool/PoolAble.class \
 	net/spy/pool/PoolContainer.class \
 	net/spy/pool/PoolException.class \
@@ -53,10 +53,10 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/JDBCPoolFiller.class \
 	net/spy/pool/JDBCPoolAble.class \
 	net/spy/pool/SNPPPoolFiller.class \
-	net/spy/pool/SNPPPoolAble.class
-
-# I couldn't figure out how to get $'s in the variables to work right.
-CACHE_CLASSES=net/spy/cache/SpyCache.class
+	net/spy/pool/SNPPPoolAble.class \
+	net/spy/cache/SpyCache.class \
+	'net/spy/cache/SpyCache$$SpyCacheCleaner.class' \
+	'net/spy/cache/SpyCache$$SpyCacheItem.class'
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
 	net.spy.info net.spy.pool net.spy.log net.spy.cache
@@ -67,7 +67,7 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 .SUFFIXES: .java .class .jar
 
-all: $(CLASSES) $(CACHE_CLASSES)
+all: $(CLASSES)
 
 doc: $(CLASSES)
 	$(JAVADOC) -public -d doc $(PACKAGES)
@@ -75,14 +75,14 @@ doc: $(CLASSES)
 jar: spy.jar
 
 spy.jar: $(CLASSES)
-	$(JAR) cv0f $@ $(CLASSES) net/spy/cache/*class
+	$(JAR) cv0f $@ $(CLASSES)
 
 install: all
 	cp spy.jar $(FDEST)
 	$(SCP) spy.jar $(SDEST)
 
 clean:
-	rm -f $(CLASSES) spy.jar net/spy/cache/*class
+	rm -f $(CLASSES) spy.jar
 
 net/spy/rmi/RObjectImpl_Skel.class: \
 	net/spy/rmi/RObjectImpl.class
@@ -90,6 +90,13 @@ net/spy/rmi/RObjectImpl_Skel.class: \
 
 net/spy/rmi/RObjectImpl_Stub.class: \
 	net/spy/rmi/RObjectImpl_Skel.class
+
+'net/spy/cache/SpyCache$$SpyCacheItem.class': net/spy/cache/SpyCache.class
+
+'net/spy/cache/SpyCache$$SpyCacheCleaner.class': net/spy/cache/SpyCache.class
+
+'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class': \
+	net/spy/pool/ObjectPool.class
 
 .java.class:
 	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.1 2000/10/17 06:54:58 dustin Exp $
+ * $Id: SpyCache.java,v 1.2 2000/10/18 19:52:27 dustin Exp $
  */
 
 package net.spy.cache;
@@ -97,9 +97,10 @@ public class SpyCache extends Object {
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////
+	//                       Private Classes                          //
+	////////////////////////////////////////////////////////////////////
 
-
-	// Private classes
 	private class SpyCacheCleaner extends Thread {
 		protected Hashtable cacheStore=null;
 
@@ -144,6 +145,7 @@ public class SpyCache extends Object {
 		}
 	} // Cleaner class
 
+	// Cache item storage
 
 	private class SpyCacheItem extends Object {
 		protected Object key=null;

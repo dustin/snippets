@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.14 2000/10/13 06:50:19 dustin Exp $
+// $Id: ObjectPool.java,v 1.15 2000/10/18 19:52:28 dustin Exp $
 
 package net.spy.pool;
 
@@ -196,4 +196,52 @@ public class ObjectPool extends Object {
 			cleaner=new ObjectPoolCleaner(this);
 		}
 	}
-}
+
+
+	// This is a private class that keeps the pool clean.
+	private class ObjectPoolCleaner extends Thread {
+
+		// The object pool reference we'll be cleaning.
+		protected ObjectPool op=null;
+
+		// How many times we've cleaned so far.
+		protected int numCleans=0;
+
+		// Create (and start) the ObjectPoolCleaner.
+		public ObjectPoolCleaner(ObjectPool op) {
+			super();
+			this.op=op;
+			setDaemon(true);
+			setName("ObjectPoolCleaner");
+			start();
+		}
+
+	// Look like a normal thread, but report number of times the thing's
+	// cleaned.
+		public String toString() {
+			return(super.toString() + " - " + numCleans + " served.");
+		}
+
+		protected void doPrune() throws Exception {
+			System.out.println("Cleaning at " + new Date() + ":\n" + op);
+			op.prune();
+			numCleans++;
+			System.out.println("Now looks like this:\n" + op);
+		}
+
+		public void run() {
+			// Only do six cleans (sleeping ten minutes, that's an hour!)
+			while(numCleans<6) {
+				try {
+					// Prune every once in a while.
+					sleep(5*60*1000);
+					doPrune();
+				} catch(Exception e) {
+					System.err.println("***\nCleaner got an exception:  "
+						+ e + "\n***");
+				}
+			}
+		}
+	} // ObjectPoolCleaner
+
+} // ObjectPool
