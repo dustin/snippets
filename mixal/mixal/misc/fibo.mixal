@@ -1,0 +1,48 @@
+*
+* Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+*
+* $Id: fibo.mixal,v 1.1 2002/12/03 09:06:03 dustin Exp $
+*
+OUTDEV	EQU	19
+VA		EQU 1000
+VB		EQU VA+1
+BUF		EQU	VB+1
+		ORIG 3000
+
+START	IOC 0(OUTDEV)
+
+* Initialize the sequence
+		LDA =0=
+		STA VA
+		LDA =1=
+		STA VB
+
+		LD1 =BUF= 			* Destination for the move
+		MOVE ALLZEROS(2)	* Move these words into the buffer
+		OUT BUF(OUTDEV)		* Print out all zeros
+
+1H		LDA VB				* Load the VB into rA and print it
+		CHAR
+		STA BUF
+		STX BUF+1
+		OUT BUF(OUTDEV)
+
+		LDA VA				* OK, load VA into rA
+		ADD VB				* Add VB to it
+		JOV 1F				* If overflow, end
+
+		LD1 =VA=			* This is the destination address for the move
+		MOVE VB(1)			* Move it
+
+		STA	VB				* Store the new VB
+
+		JMP 1B				* Repeat
+
+1H		HLT
+
+* BEGIN symbol table
+ALLZEROS ALF "00000"
+		ALF "00000"
+* END symbol table
+
+		END START
