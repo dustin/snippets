@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.7 2002/03/20 19:47:27 dustin Exp $
+# $Id: nntpsucka.py,v 1.8 2002/03/20 19:59:30 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -30,6 +30,34 @@ class Stats:
 			+ ", duplicate:  " + str(self.dup) \
 			+ ", Other:  " + str(self.other)
 
+######################################################################
+
+class NewsDB:
+	def __init__(self):
+		self.db=anydbm.open("newsdb", "c")
+
+	def hasArticle(self, message_id):
+		return self.db.has_key("a/" + message_id)
+
+	def markArticle(self, message_id):
+		self.db["a/" + message_id] = str(time.time())
+
+	def getLastId(self, group):
+		rv=0
+		try:
+			rv=self.db["l/" + group]
+		except KeyError:
+			pass
+		return rv
+
+	def setLastId(self, group, id):
+		self.db["l/" + group]=id
+
+	def __del__(self):
+		self.db.close()
+
+######################################################################
+
 class NNTPSucka:
 	headers=['From', 'Subject', 'Message-Id', 'Sender', 'MIME-Version', \
 		'Path', 'Newsgroups', 'Organization', 'Approved', 'Sender', \
@@ -39,11 +67,8 @@ class NNTPSucka:
 	def __init__(self, src, dest):
 		self.src=src
 		self.dest=dest
-		self.db=anydbm.open("seen", "c")
+		self.db=NewsDB()
 		self.stats=Stats()
-
-	def __del__(self):
-		self.db.close()
 
 	def headerMatches(self, h):
 		rv=None
@@ -79,23 +104,26 @@ class NNTPSucka:
 	def copyGroup(self, groupname):
 		self.dest.group(groupname)
 		resp, count, first, last, name = self.src.group(groupname)
-		print "Copying " + str(count) + " articles:  " \
-			+ str(first) + "-" + str(last) + " in " + groupname
 		ids=dict()
 		resp, list = self.src.xhdr('message-id', first + "-" + last)
 		for set in list:
 			ids[set[0]]=set[1]
-		for i in range(int(first), int(last)):
+		myfirst=self.db.getLastId(groupname)
+		if int(myfirst) < int(first):
+			myfirst=first
+		mycount=(int(last)-int(myfirst))
+		print "Copying " + str(mycount) + " articles:  " \
+			+ str(myfirst) + "-" + str(last) + " in " + groupname
+		for i in range(int(myfirst), int(last)):
 			try:
 				messid="*empty*"
 				messid=ids[str(i)]
-				if self.db.has_key(messid):
-					# Too noisy, but kind of interesting.
-					# print "Already seen " + messid
+				if self.db.hasArticle(messid):
+					print "Already seen " + messid
 					self.stats.addDup()
 				else:
 					self.moveArticle(groupname, i)
-					self.db[messid]=str(time.time())
+					self.markArticle(messid)
 					self.stats.addMoved()
 			except KeyError, e:
 				# Couldn't find the header, article probably doesn't
@@ -109,6 +137,7 @@ class NNTPSucka:
 				else:
 					self.stats.addOther()
 				print "Failed:  " + str(e)
+		self.db.setLastId(groupname, last)
 
 	def copyServer(self):
 		resp, list = self.dest.list()
