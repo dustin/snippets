@@ -96,7 +96,9 @@ main(int argc, char **argv)
   printf("Encrypted:   %s\n", stat.encrypted);
   printf("Last try:    %s\n", stat.curpass);
   printf("Start time:  %s", ctime(&t));
-  printf("Runtime:     %d\n\n", ntohl(stat.curtime) - ntohl(stat.starttime));
+  printf("Runtime:     %d\n", ntohl(stat.curtime) - ntohl(stat.starttime));
+  printf("Average:     %.2f\n\n", ((float)ntohl(stat.tries)/
+	(ntohl(stat.curtime) - ntohl(stat.starttime))));
 
   for (i = 0; i < MAXCONS; i++)
     {
