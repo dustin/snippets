@@ -1,7 +1,8 @@
 #!/bin/sh
-# Primitive shell script locking
 #
-# $Id: shelllock.sh,v 1.1 2002/06/27 18:55:01 dustin Exp $
+# arch-tag: D03E70D6-4162-11D8-85EE-000393CFE6B8
+#
+# Primitive shell script locking
 
 # Lock with a pid file
 # Returns 0 if lock succeeds
