@@ -12,7 +12,8 @@ SCP=rcp
 DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/temperature/
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=net/spy/dsservlet/DSBean.class net/spy/dsservlet/Show.class
+CLASSES=net/spy/dsservlet/DSBean.class net/spy/dsservlet/Show.class \
+	net/spy/dsservlet/FileServlet.class
 
 .SUFFIXES: .java .class .jar
 
