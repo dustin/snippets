@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: gofetch.py,v 1.4 2002/03/29 09:05:17 dustin Exp $
+$Id: gofetch.py,v 1.5 2002/04/04 08:40:24 dustin Exp $
 """
 
 # Python's scheduling stuff
@@ -65,26 +65,54 @@ class ThreadSafeStorage(Storage):
 	"""Base class for storage mechanisms that are thread safe."""
 	pass
 
-class VolatileStorage(NonThreadSafeStorage):
-	"""Storage for mechanism for volatile data sources."""
+class DBMStorage(NonThreadSafeStorage):
+	"""Storage mechanism for any DBM data."""
 
-	db=None
-	logfile=None
+	dbs={}
+	initialized=None
 
-	def __init__(self):
+	def __init__(self, filename):
 		# Super constructor
 		NonThreadSafeStorage.__init__(self)
+		self.filename=filename
 		# Init the DB
-		if VolatileStorage.db == None:
-			VolatileStorage.db=anydbm.open('volatile.db', 'c')
+		if not DBMStorage.dbs.has_key(self.filename):
+			DBMStorage.dbs[self.filename]=anydbm.open(self.filename, 'c')
+		# Register the handler if it's not already registered
+		if not DBMStorage.initialized:
 			atexit.register(self.__exitHandler)
-		# Init the log file
-		if VolatileStorage.logfile == None:
-			VolatileStorage.logfile = file('volatile.log', 'a')
+			DBMStorage.initialized=1
 
 	def __exitHandler(self):
 		print "Exit handler closing DB."
-		VolatileStorage.db.close()
+		for v in DBMStorage.dbs.itervalues():
+			print "Closing " + str(v)
+			v.close()
+
+	def __getitem__(self, which):
+		"""Get the value of a particular key from the underlying DBM."""
+		return(DBMStorage.dbs[self.filename][which])
+
+	def __setitem__(self, which, value):
+		"""Set the value of a particular key from the underlying DBM."""
+		DBMStorage.dbs[self.filename][which]=value
+
+	def has_key(self, which):
+		"""Return true of the underlying DBM has the given key."""
+		return(DBMStorage.dbs[self.filename].has_key(which))
+
+class VolatileStorage(DBMStorage):
+	"""Storage for mechanism for volatile data sources."""
+
+	logfile=None
+
+	def __init__(self):
+		"""Initialize DBMStorage with the volatile db"""
+		DBMStorage.__init__(self, "volatile.db");
+
+		# Init the log file
+		if VolatileStorage.logfile == None:
+			VolatileStorage.logfile = file('volatile.log', 'a')
 
 	def recordState(self, key, value):
 		"""Record the state of a given item, logging when it changes."""
@@ -93,8 +121,8 @@ class VolatileStorage(NonThreadSafeStorage):
 		# Aquire a lock
 		try:
 			self.lock()
-			if VolatileStorage.db.has_key(key):
-				oldvalue=VolatileStorage.db[key]
+			if self.has_key(key):
+				oldvalue=self[key]
 			else:
 				oldvalue=''
 			if str(value) != oldvalue:
@@ -102,7 +130,7 @@ class VolatileStorage(NonThreadSafeStorage):
 				VolatileStorage.logfile.write(str(ts) + '\t' \
 					+ str(key) + '\t' + str(value) + '\n')
 				VolatileStorage.logfile.flush()
-				VolatileStorage.db[key]=str(value)
+				self[key]=str(value)
 		finally:
 			self.unlock()
 
@@ -172,9 +200,17 @@ class RRDStorage(NonThreadSafeStorage):
 class Job:
 	"""Superclass of all jobs."""
 
+	db=None
+
 	def __init__(self, freq):
 		"""Get a job that repeats at the given frequency."""
 		self.frequency=freq
+		if Job.db == None:
+			Job.db=DBMStorage('hostmarks.db')
+
+	def mark(self, host):
+		"""Mark activity on a host."""
+		Job.db[host]=str(time.time())
 
 	def go(self):
 		"""This method is called when it's time to perform the job."""
@@ -204,13 +240,6 @@ class SNMPJob(Job):
 		self.community=community
 		self.oid=oid
 
-	def go(self):
-		"""Perform this job."""
-		s=snmplib.SnmpSession(self.host, self.community)
-		rv=s.get(self.oid)
-		print str(self.community) + "@" + str(self.host) \
-			+ ":" + str(self.oid) + " => " + str(rv)
-
 class VolatileSNMPJob(VolatileJob, SNMPJob):
 	"""An SNMP job that records its state in the volatile DB."""
 
@@ -221,10 +250,13 @@ class VolatileSNMPJob(VolatileJob, SNMPJob):
 
 	def go(self):
 		"""Get and record the data."""
+		# Get the data and record the state
 		s=snmplib.SnmpSession(self.host, self.community)
 		rv=s.get(self.oid)
 		k='snmp:' + self.host + ':' + self.oid
 		self.recordState(k, rv)
+		# Mark it
+		self.mark(self.host)
 
 class SNMPWalkCountJob(VolatileSNMPJob):
 	"""An SNMP job that walks a tree and records the number of things it saw."""
@@ -236,10 +268,13 @@ class SNMPWalkCountJob(VolatileSNMPJob):
 
 	def go(self):
 		"""Get and record the data."""
+		# Get the data and record it
 		s=snmplib.SnmpSession(self.host, self.community)
 		rv=s.countBranch(self.oid, self.match)
 		k='snmpwalk:' + self.host + ':' + self.oid
 		self.recordState(k, rv)
+		# Mark it
+		self.mark(self.host)
 
 class RRDJob(Job):
 	"""Base class for jobs that record data via RRD."""
@@ -268,9 +303,12 @@ class RRDSNMPJob(RRDJob, SNMPJob):
 
 	def go(self):
 		"""Get and record the data."""
+		# Get the data and record it
 		s=snmplib.SnmpSession(self.host, self.community)
 		oids, rvs=s.multiGet(self.oid)
 		self.recordState(self.rrdfile, rvs)
+		# Mark it
+		self.mark(self.host)
 
 class SMTPBannerJob(VolatileJob):
 	"""A volatile job to monitor SMTP banners."""
@@ -319,6 +357,8 @@ class SMTPBannerJob(VolatileJob):
 		banner=f.readline()
 		f.close()
 		sock.close()
+		# Mark it
+		self.mark(self.host)
 
 		k='smtp:' + self.host + ':' + `self.port`
 		self.recordState(k, banner.rstrip())
@@ -346,6 +386,7 @@ class NetworkCollector:
 		# Schedule the job to run immediately, it will be rescheduled to
 		# run at its proper frequency in the future.
 		self.schedular.enter(0, 5, self.__runJob, [job])
+		print "Added " + str(job)
 
 	def run(self):
 		"""Loop forever, processing jobs."""

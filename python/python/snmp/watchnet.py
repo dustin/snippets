@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: watchnet.py,v 1.1 2002/03/29 09:26:11 dustin Exp $
+# $Id: watchnet.py,v 1.2 2002/04/04 08:40:26 dustin Exp $
 
 import gofetch
 
@@ -11,7 +11,15 @@ if __name__ == '__main__':
 		# speed changes.  Check again every hour
 		for i in range(1,26):
 			nc.addJob(gofetch.VolatileSNMPJob(
-				'sw1', 'public', 'ifSpeed.' + `i`, 3600))
+				'sw1', 'public', 'ifSpeed.' + `i`, 60))
+			nc.addJob(gofetch.VolatileSNMPJob(
+				'sw1', 'public', 'ifLastChange.' + `i`, 60))
+			nc.addJob(gofetch.VolatileSNMPJob(
+				'sw1', 'public', 'ifInDiscards.' + `i`, 60))
+			nc.addJob(gofetch.VolatileSNMPJob(
+				'sw1', 'public', 'ifInErrors.' + `i`, 60))
+			nc.addJob(gofetch.VolatileSNMPJob(
+				'sw1', 'public', 'ifOutErrors.' + `i`, 60))
 		# Juan's default route
 		nc.addJob(gofetch.VolatileSNMPJob(
 			'juan', 'public', 'ipRouteNextHop.0.0.0.0', 300))
