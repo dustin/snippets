@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.12 2000/06/06 06:00:34 dustin Exp $
+ * $Id: PhotoSession.java,v 1.13 2000/06/24 08:03:16 dustin Exp $
  */
 
 package net.spy.photo;
@@ -788,6 +788,18 @@ public class PhotoSession extends Object
 		String middle="";
 		Hashtable h=null;
 		int i=0;
+		// if we have a starting point, let's start there.
+		try {
+			String startingS=request.getParameter("startfrom");
+			if(startingS==null) {
+				int starting=Integer.parseInt(startingS);
+				results.set(starting);
+			}
+		} catch(Exception e) {
+			// If there's an exception, something went wrong with finding
+			// where to start from.  This is OK, we'll just start from
+			// where we were when we last displayed a page.
+		}
 
 		for(i=0; i<5; i++) {
 			PhotoSearchResult r=results.next();
@@ -819,7 +831,7 @@ public class PhotoSession extends Object
 		h.put("SEARCH", (String)session.getValue("encoded_search"));
 		String output = tokenize("find_top.inc", h);
 		output += middle;
-		h.put("LINKTOMORE", linkToMore(results.nRemaining()));
+		h.put("LINKTOMORE", linkToMore(results));
 		output += tokenize("find_bottom.inc", h);
 		send_response(response, output);
 	}
@@ -847,8 +859,9 @@ public class PhotoSession extends Object
 	}
 
 	// Link to more search results
-	protected String linkToMore(int remaining) {
+	protected String linkToMore(PhotoSearchResults results) {
 		String ret = "";
+		int remaining=results.nRemaining();
 
 		if(remaining>0) {
 			int nextwhu=5;
@@ -858,6 +871,8 @@ public class PhotoSession extends Object
 
 			ret += "<form method=\"POST\" action=\"" + self_uri + "\">\n";
 			ret += "<input type=hidden name=func value=nextresults>\n";
+			ret += "<input type=hidden name=startfrom value="
+				+ results.current() + ">\n";
 
 			ret += "<input type=\"submit\" value=\"Next " + nextwhu + "\">\n";
 			ret += "</form>\n";

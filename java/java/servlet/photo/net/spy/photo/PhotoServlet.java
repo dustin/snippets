@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.9 2000/05/01 04:32:34 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.10 2000/06/24 08:03:15 dustin Exp $
  */
 
 package net.spy.photo;
@@ -43,7 +43,9 @@ public class PhotoServlet extends HttpServlet
 			init_userdb();
 			log("Finished userdb");
 		} catch(Exception e) {
-			throw new ServletException("Can't get userdb:  " + e);
+			log("Error getting user database:  " + e);
+			e.printStackTrace();
+			throw new ServletException("Couldn't get userdb:  " + e);
 		}
 
 		// Security stuff
@@ -112,7 +114,6 @@ public class PhotoServlet extends HttpServlet
 	// Verify we have a valid rhash, if not, reopen it.
 	protected void verify_rhash() {
 		boolean needy=false;
-		log("Is the rhash connected?");
 		if(!rhash.connected()) {
 			log("Need a new rhash");
 			try {

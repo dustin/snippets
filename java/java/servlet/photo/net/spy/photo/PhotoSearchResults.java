@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSearchResults.java,v 1.2 2000/06/06 06:00:32 dustin Exp $
+ * $Id: PhotoSearchResults.java,v 1.3 2000/06/24 08:03:13 dustin Exp $
  */
 
 package net.spy.photo;
@@ -14,49 +14,50 @@ import javax.servlet.http.*;
 import net.spy.*;
 
 public class PhotoSearchResults extends Object {
-	protected Vector results=null;
-	protected int current=0;
-	protected int max=0;
+	protected Vector _results=null;
+	protected int _current=0;
+	protected int _max=0;
 
 	public PhotoSearchResults() {
-		results=new Vector();
+		super();
+		_results=new Vector();
 	}
 
 	// Add a search result to the list.
 	public void add(PhotoSearchResult r) {
 		// Set the result id
-		r.id=max;
-		results.addElement(r);
+		r.id=_max;
+		_results.addElement(r);
 
-		max++;
+		_max++;
 	}
 
 	// Set the search result we're lookin' at.
 	public void set(int to) {
-		if(to>max) {
-			current=max;
+		if(to>_max) {
+			_current=_max;
 		} else {
-			current=to;
+			_current=to;
 		}
 	}
 
 	// Get the current entry
 	public PhotoSearchResult get() {
-		return((PhotoSearchResult)results.elementAt(current));
+		return((PhotoSearchResult)_results.elementAt(_current));
 	}
 
 	// Get a specific
 	public PhotoSearchResult get(int which) {
-		return((PhotoSearchResult)results.elementAt(which));
+		return((PhotoSearchResult)_results.elementAt(which));
 	}
 
 	// Get the next result, or null if we're done
 	public PhotoSearchResult next() {
 		PhotoSearchResult r=null;
 
-		if(current<max) {
-			r=(PhotoSearchResult)results.elementAt(current);
-			current++;
+		if(_current<_max) {
+			r=(PhotoSearchResult)_results.elementAt(_current);
+			_current++;
 		}
 		return(r);
 	}
@@ -65,20 +66,25 @@ public class PhotoSearchResults extends Object {
 	public PhotoSearchResult prev() {
 		PhotoSearchResult r=null;
 
-		if(current>0) {
-			current--;
-			r=(PhotoSearchResult)results.elementAt(current);
+		if(_current>0) {
+			_current--;
+			r=(PhotoSearchResult)_results.elementAt(_current);
 		}
 		return(r);
 	}
 
 	// Find out how many results total are in this result set
 	public int nResults() {
-		return(max);
+		return(_max);
 	}
 
 	// Find out how many results are remaining
 	public int nRemaining() {
-		return(max-current);
+		return(_max-_current);
+	}
+
+	// Find out which one we're on
+	public int current() {
+		return(_current);
 	}
 }
