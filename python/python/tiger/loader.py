@@ -21,11 +21,11 @@ def load(c, zipfile, fn):
 	data=zipfile.read(fn).split('\r\n')
 	i=0
 	stats=Stats.Stats(len(data))
-	stats.start()
 	for line in data:
 		i=i+1
 		datum=parseDatum(line)
 		if isinstance(datum, TigerTypes.ParsedField):
+			stats.start()
 			c.execute(datum.toSql())
 			stats.click()
 			stats.stop()

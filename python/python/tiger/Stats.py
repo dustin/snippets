@@ -18,8 +18,7 @@ class Stats:
 		self.lasttime = time.time()
 
 	def stop(self):
-		t=time.time()
-		self.lastproctime = t-self.lasttime
+		self.lastproctime = time.time()-self.lasttime
 		self.done= self.done +1
 		self.totaltime = self.totaltime + self.lastproctime
 
@@ -29,8 +28,6 @@ class Stats:
 	def getStats(self):
 		avgproctime= self.totaltime / self.done
 		estimate = avgproctime * self.left
-
-		print "Total time is " + str(self.totaltime)
 
 		rv="Avg=%.2fs, Remaining: %d, est %.2fs (%s)" % \
 			(avgproctime, self.left, estimate, \
