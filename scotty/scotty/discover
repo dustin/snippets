@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking <dustin@spy.net>
-# $Id: discover,v 1.7 2000/05/18 09:27:32 dustin Exp $ \
+# $Id: discover,v 1.8 2000/08/10 05:40:24 dustin Exp $ \
 exec scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -113,31 +113,40 @@ proc getPeers { s i } {
 proc peerName { s i peer } {
 	set what "cdpCacheDeviceId.$i.$peer"
 	catch {set name [lindex [lindex [$s get $what] 0] 2]}
-	# puts stderr "$name"
-	set nameparts [ split $name . ]
-	set newparts {}
-	# Things that indicate we've found the domain
-	set domainparts { beyond software }
-	# Rip out the domain
-	foreach p $nameparts {
-		set found 0
-		foreach dp $domainparts {
-			if { [ string compare $p $dp ] == 0 } {
-				set found 1
-			}
-		}
-		if { $found == 1 } {
-			break;
-		}
-		lappend newparts $p
-	}
+
 	# This is a hack for those cisco switches that put ()'s in the name
-	set name [ join $newparts . ]
+	# set name [ join $newparts . ]
 	set n [ string first \( $name ]
+	set e [ string last \) $name ]
 	if { $n > 0 } {
-		set name [ string range $name [expr $n + 1 ] end ]
+		if { $e > 0 } {
+			set e [expr $e - 1 ]
+		} else {
+			set e "end"
+		}
+		set name [ string range $name [expr $n + 1 ] $e ]
 	}
 	return $name
+}
+
+# Get the peer's IP address
+proc peerAddr { s i peer } {
+	set what "cdpCacheAddressType.$i.$peer"
+	set type 0
+	set raddr 0
+	catch {set type [lindex [lindex [$s get $what] 0] 2]}
+
+	if { $type == 1 } {
+		set what "cdpCacheAddress.$i.$peer"
+		catch {set addr [lindex [lindex [$s get $what] 0] 2]}
+		scan $addr "%x:%x:%x:%x" a b c d
+
+		set raddr "$a.$b.$c.$d"
+	} else {
+		error "Not IP ($type)!"
+	}
+
+	return $raddr
 }
 
 # Display the peer
@@ -152,6 +161,7 @@ proc displayPeer { s i peer offset name } {
 	set code [catch {set port [lindex [lindex [$s get $what] 0] 2]}]
 
 	puts "[makeRoom $offset]$name@$port ($platform)"
+	flush stdout
 }
 
 # Create a space offset so's that we can read this.
@@ -164,19 +174,20 @@ proc makeRoom { offset } {
 }
 
 # This does the actual work.
-proc walk { offset host } {
+proc walk { offset host addr } {
 	# puts "Walking $host"
 	global donePeers
 	global opmode
 
-	set donePeers($host) 1
+	set donePeers($addr) 1
 
-	set pt [lindex [lindex [icmp echo $host] 0] 1]
+	set pt [lindex [lindex [icmp echo $addr] 0] 1]
 
 	if { $pt>-1 } {
 
-		set community [getCommunity $host]
-		set code [catch {snmp session -address $host -community $community} s]
+		set community [getCommunity $addr]
+		set code [catch {snmp session -timeout 15 -address $addr \
+			-community $community} s]
 
 		set what "ifNumber.0"
 		set code [catch {set nint [lindex [lindex [$s get $what] 0] 2]}]
@@ -184,9 +195,20 @@ proc walk { offset host } {
 			set nint 0
 		}
 
+		# Find all interfaces.
+		set interfaces {}
+		catch {
+			$s walk vbl "ifIndex" {
+				set vb    [lindex $vbl 0]
+				set oid [lindex $vb  0]
+				set id [lindex [ split $oid . ] end]
+				lappend interfaces $id
+			}
+		}
+
 		# flip through all interfaces figuring out whether they're worthy
 		# or not.
-		for {set i 1} {$i <= $nint} {incr i} {
+		foreach i $interfaces {
 			# We only care about operational interfaces.
 			set what "ifOperStatus.$i"
 			set code [catch {set ans [lindex [lindex [$s get $what] 0] 2]}]
@@ -201,16 +223,21 @@ proc walk { offset host } {
 				# If we're not in tki mode
 				if { [ string compare $opmode tki ] != 0 } {
 					puts "[makeRoom $offset]$host $desc ($i)"
+					flush stdout
 				}
 
 				set peers [ getPeers $s $i ]
 				foreach peer $peers {
 					set name [ peerName $s $i $peer ]
+					set addr [ peerAddr $s $i $peer ]
+					if { [ string length $name ] < 1 } {
+						set name $addr
+					}
 					displayPeer $s $i $peer [expr $offset + 1 ] $name
 					set doneit 0
-					catch { set doneit $donePeers($name) }
+					catch { set doneit $donePeers($addr) }
 					if { $doneit == 0 } {
-						walk [expr $offset + 2 ] $name
+						walk [expr $offset + 2 ] $name $addr
 						link $host $name $desc
 					}
 				}
@@ -244,6 +271,7 @@ ined page A4 landscape
 		puts "ined -noupdate name \$$node_id $v"
 		puts "ined -noupdate label \$$node_id name"
 		puts ""
+		flush stdout
 	}
 	set i 0
 	foreach l $links {
@@ -254,6 +282,7 @@ ined page A4 landscape
 		puts "set link$i \[ ined -noupdate create LINK \$node$a \$node$b \]"
 		puts "ined -noupdate color \$link$i $color"
 		puts ""
+		flush stdout
 	}
 }
 
@@ -263,8 +292,9 @@ catch { set opmode [lindex $argv 1] }
 # Load the communities
 loadCommunities
 
-# Start with an offset of 0 and whatever host we said to start on
-walk 0 [lindex $argv 0]
+# Start with an offset of 0 and whatever host we said to start on (twice,
+# since we need the IP address, too)
+walk 0 [lindex $argv 0] [lindex $argv 0]
 
 if { [string compare $opmode "tki" ] == 0 } {
 	makeTki
