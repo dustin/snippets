@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.21 2001/03/19 20:27:33 dustin Exp $
+// $Id: PoolContainer.java,v 1.22 2001/05/23 22:53:33 dustin Exp $
 
 package net.spy.pool;
 
@@ -87,7 +87,8 @@ public class PoolContainer extends Object {
 	 * @exception PoolException when something bad happens
 	 */
 	public PooledObject getObject() throws PoolException {
-		PoolAble ret=null;
+		PooledObject rv=null;
+		PoolAble poolable=null;
 
 		// How many times we're flipping through the object pool
 		int retries=6;
@@ -95,11 +96,11 @@ public class PoolContainer extends Object {
 		// Synchronize on the pool object.
 		synchronized(pool) {
 			// We'll try up to three seconds to get an object from the pool
-			for(int retry=0; ret==null && retry<retries; retry++) {
+			for(int retry=0; poolable==null && retry<retries; retry++) {
 
 				// Find the next available object.
 				for(Enumeration e=pool.elements();
-					ret==null && e.hasMoreElements(); ) {
+					poolable==null && e.hasMoreElements(); ) {
 
 					PoolAble p=(PoolAble)e.nextElement();
 
@@ -107,19 +108,19 @@ public class PoolContainer extends Object {
 					if(p.isAvailable() && (p.isAlive())) {
 						// Since we got one from the pool, we want to move it
 						// to the end of the vector.
-						ret=p;
+						poolable=p;
 					}
 				} // Flipping through the current pool
 
 				// If we didn't get anything, and we're not at least
 				// half-way through our max object size, open a new
 				// connection
-				if(ret==null && totalObjects()<(_max_objects/2) ) {
-					ret=getNewObject();
+				if(poolable==null && totalObjects()<(_max_objects/2) ) {
+					poolable=getNewObject();
 				}
 
 				// If we didn't get anything, deal with that situation.
-				if(ret==null) {
+				if(poolable==null) {
 
 					try {
 						debug("*** No free entries in pool, sleeping ***");
@@ -138,14 +139,19 @@ public class PoolContainer extends Object {
 					}
 				}
 			}// Retries for an object in the existing pool.
+
+			// Check it out right now.
+			rv=new PooledObject(poolable);
+
 		} // End of pool synchronization
 
 		// If the above didn't get us an object, we'll resort to getting a
 		// new one.
-		if(ret==null) {
+		if(rv==null) {
 			// OK, got nothing from the pool, in a desperate attempt, we'll
 			// be grabbing a new object.
-			ret=getNewObject();
+			poolable=getNewObject();
+			rv=new PooledObject(poolable);
 		}
 
 		// OK, let's stick it at the end of the vector (may already be, but
@@ -153,14 +159,12 @@ public class PoolContainer extends Object {
 
 		// Hold it still whlie we do this...
 		synchronized(pool) {
-			debug("Moving " + ret);
-			pool.removeElement(ret);
-			pool.addElement(ret);
+			debug("Moving " + poolable);
+			pool.removeElement(poolable);
+			pool.addElement(poolable);
 		}
 
-		// We're going to return a brand new PooledObject representing this
-		// checked out entry.
-		return(new PooledObject(ret));
+		return(rv);
 	}
 
 	/**
