@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBCP.java,v 1.2 2002/08/27 20:29:40 dustin Exp $
+// $Id: DBCP.java,v 1.3 2002/08/27 20:54:44 dustin Exp $
 
 package net.spy.db;
 
@@ -52,12 +52,20 @@ public abstract class DBCP extends DBSP {
 		return(rv);
 	}
 
+	/**
+	 * Optional parameters are not currently supported for DBCP objects.
+	 * This method will always throw a SQLException when called.
+	 *
+	 * @param name name of the parameter
+	 * @param type type of the parameter
+	 * @throws SQLException Optional Parameters are not supported
+	 */
 	protected void setOptional(String name, int type) throws SQLException {
-		throw new Error("Optional Parameters Not Supported on DBCP");
+		throw new SQLException("Optional Parameters Not Supported on DBCP");
 	}
 
 	/**
-	 *  This is just cause I'm lazy.
+	 * Get the CallableStatement for fetching output args.
 	 * TODO get the get* methods implemented
 	 *
 	 * @return The CallableStatement for getting the RC's from.
@@ -185,7 +193,6 @@ public abstract class DBCP extends DBSP {
 
 		}
 	}
-
 
 	/**
 	 * Prepare the statement for execution.
