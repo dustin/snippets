@@ -1,5 +1,4 @@
-// Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.2 2000/07/26 00:26:41 dustin Exp $
+// Copyright (c) 2000  Dustin Sallings <dustin@spy.net> // $Id: SpyLDIF.java,v 1.3 2000/07/26 02:43:51 dustin Exp $
 
 package net.spy.util;
 
@@ -7,17 +6,58 @@ import java.util.*;
 import sun.misc.*;
 
 public class SpyLDIF extends Hashtable {
-	public SpyLDIF(String ldif) {
+
+	/**
+	 * Return a new SpyLDIF object from the passed in LDIF entry
+	 */
+	public SpyLDIF(String ldif_entry) {
 		super();
 
-		parseLDIF(ldif);
+		parseLDIFEntry(ldif_entry);
 	}
 
+	/**
+	 * Parse the data from an LDIF file, may include multiple entries.
+	 */
+	public static Vector parseLDIF(String ldifdata) {
+		Vector v=new Vector();
+
+		String chunk=ldifdata;
+		int mark=chunk.indexOf("\r\n\r\n");
+		if(mark<0) {
+			mark=chunk.indexOf("\n\n");
+		}
+		while(mark>=0) {
+			SpyLDIF ldif=new SpyLDIF(chunk.substring(0, mark).trim());
+			v.addElement(ldif);
+
+			chunk=chunk.substring(mark+1).trim();
+
+			mark=chunk.indexOf("\r\n\r\n");
+			if(mark<0) {
+				mark=chunk.indexOf("\n\n");
+			}
+
+		}
+		if(chunk.length() > 0) {
+			SpyLDIF ldif=new SpyLDIF(chunk);
+			v.addElement(ldif);
+		}
+
+		return(v);
+	}
+
+	/**
+	 * Get a string value from the LDIF entry
+	 */
 	public String getString(String key) {
 		String res=(String)super.get(key);
 		return(res);
 	}
 
+	/**
+	 * Get an int value from the LDIF entry
+	 */
 	public int getInt(String key) {
 		String res=(String)super.get(key);
 		return(Integer.parseInt(res));
@@ -51,8 +91,7 @@ public class SpyLDIF extends Hashtable {
 		}
 	}
 
-	protected void parseLDIF(String ldif) {
-		// Vector v=new Vector();
+	protected void parseLDIFEntry(String ldif) {
 		StringTokenizer onlines=new StringTokenizer(ldif, "\r\n");
 		String chunk="";
 
@@ -72,5 +111,5 @@ public class SpyLDIF extends Hashtable {
 		if(chunk.length()>0) {
 			decodeAndStore(chunk);
 		}
-	} // parseLDIF
+	} // parseLDIFEntry
 }
