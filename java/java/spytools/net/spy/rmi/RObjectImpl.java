@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.5 2000/06/30 02:27:03 dustin Exp $
+// $Id: RObjectImpl.java,v 1.6 2000/06/30 05:59:14 dustin Exp $
 
 package net.spy.rmi;
 
@@ -12,6 +12,9 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+/**
+ * Implementation for RObjectServer
+ */
 public class RObjectImpl extends UnicastRemoteObject implements RObject {
 
 	// Number of hash directory levels.
@@ -83,8 +86,16 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 		return(true);
 	}
 
+	/**
+	 * main can be invoked to run an RObjectServer.  It takes as an
+	 * argument, the path where it will be storing its objects.
+	 *
+	 * @param args Uh, yeah, the arguments
+	 *
+	 * @throws Exception if anything blows up
+	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length() < 1) {
+		if(args.length < 1) {
 			System.err.println("RCache path not given.");
 			throw new Exception("RCache path not given.");
 		}

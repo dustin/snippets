@@ -17,12 +17,10 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
 	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
 	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
-	net/spy/util/ImageData.class net/spy/rmi/ImageServer.class \
-	net/spy/rmi/ImageServerImpl.class net/spy/rmi/RObject.class \
-	net/spy/rmi/ImageServerImpl_Stub.class \
-	net/spy/rmi/ImageServerImpl_Skel.class net/spy/rmi/RObjectImpl.class \
+	net/spy/rmi/RObject.class \
+	net/spy/rmi/RObjectImpl.class \
 	net/spy/rmi/RObjectImpl_Stub.class net/spy/rmi/RObjectImpl_Skel.class \
-	net/spy/rmi/DoBindings.class net/spy/RHash.class \
+	net/spy/RHash.class \
 	net/spy/temperature/SpyTemp.class net/spy/SpyRunner.class \
 	net/spy/nmap/NmapEntry.class net/spy/nmap/NmapPort.class \
 	net/spy/nmap/NmapParser.class net/spy/WatchDog.class \
@@ -37,7 +35,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/UPS.class net/spy/info/Weather.class
 
 
-PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature net.spy.util \
+PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
 	net.spy.info
 
 FDEST=/home/dustin/lib/java
@@ -60,13 +58,6 @@ install: all
 
 clean:
 	rm -f $(CLASSES) spy.jar
-
-net/spy/rmi/ImageServerImpl_Skel.class: \
-	net/spy/rmi/ImageServerImpl.class
-	$(RMIC) -d . net.spy.rmi.ImageServerImpl
-
-net/spy/rmi/ImageServerImpl_Stub.class: \
-        net/spy/rmi/ImageServerImpl_Skel.class
 
 net/spy/rmi/RObjectImpl_Skel.class: \
 	net/spy/rmi/RObjectImpl.class
