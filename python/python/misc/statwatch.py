@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: statwatch.py,v 1.2 2003/07/17 00:33:52 dustin Exp $
+$Id: statwatch.py,v 1.3 2003/07/17 16:26:09 dustin Exp $
 """
 
 import sys
@@ -25,7 +25,8 @@ def updateHost(url, h, prefix=""):
 			h[k] = (v+ov)
 
 def updateAll(urls, h, prefix=""):
-	"""Update all of the URLs into the given dict"""
+	"""Update all of the URLs into the given dict.  Return the deltas"""
+	deltas={}
 	tmp={}
 	for u in urls:
 		try:
@@ -42,8 +43,12 @@ def updateAll(urls, h, prefix=""):
 		v=tmp[k]
 		ov=h.get(k, 0)
 		if v != ov:
-			print k + ":  " + `(v-ov)`
+			d=(v-ov)
+			deltas[k]=d
+			# Display the current value
+			print k + ":  " + `v`
 		h[k]=v
+	return deltas
 
 def showTimes(times, readings):
 	for timeset in times:
@@ -123,8 +128,8 @@ if __name__ == '__main__':
 	while 1:
 		print "--------------------------------------- " \
 			+ time.ctime(time.time())
-		updateAll(u, h, prefix)
+		deltas=updateAll(u, h, prefix)
 		print ""
-		showTimes(timeCalcs, h)
+		showTimes(timeCalcs, deltas)
 		print ""
 		time.sleep(60)
