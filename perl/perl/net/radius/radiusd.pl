@@ -395,6 +395,44 @@ sub read_pool {
     mlog("Pool read. $entries entries, $vacant vacant, $cleaned cleaned.\n");
 } # '
 
+sub getLDAPRadiusAttrs
+{
+	my($ldap, $dn)=@_;
+	my(%ret, $res, $entry);
+	%ret=();
+
+	$res=$ldap->search('base' => $dn, 'scope' => 'base',
+		'filter' => '(objectclass=*)',
+		'attrs' => ['seeAlso' ,'radiusAttribute']); # '
+	if($res->code()==0) {
+		my($sa);
+		$sa=undef;
+		# there's only one entry here
+		for $entry ($res->all_entries()) {
+			my(@a)=$entry->get('radiusAttribute');
+
+			for(@a) {
+				my(@b)=split(/\s*=\s*/, $_, 2);
+				$ret{$b[0]}=$b[1];
+			}
+			@a=$entry->get('seeAlso');
+			if(@a) {
+				$sa=$a[0];
+			}
+		}
+		if(defined($sa)) {
+			my(%tmp)=getLDAPRadiusAttrs($ldap, $sa);
+			# Populate with the stuff from the seeAlso
+			for(keys(%tmp)) {
+				if(!defined($ret{$_})) {
+					$ret{$_}=$tmp{$_};
+				}
+			}
+		}
+	}
+	return(%ret);
+}
+
 sub digInLDAP
 {
 	my($u, $p)=@_;
@@ -428,20 +466,8 @@ sub digInLDAP
 			# This is where we put stuff.
 			my(%ret);
 
-			$res=$ldap->search('base' => $dn, 'scope' => 'base',
-				'filter' => '(objectclass=*)',
-				'attrs' => ['seeAlso' ,'radiusAttribute']); # '
-
-			if($res->code()==0) {
-				# there's only one entry here
-				for $entry ($res->all_entries()) {
-					my(@a)=$entry->get('radiusAttribute');
-
-					for(@a) {
-						my(@b)=split(/\s*=\s*/, $_, 2);
-						$ret{$b[0]}=$b[1];
-					}
-				}
+			%ret=getLDAPRadiusAttrs($ldap, $dn);
+			if(%ret) {
 				$ret=\%ret;
 			}
 		}
