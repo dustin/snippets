@@ -25,6 +25,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/log/MessageOutputStream.class \
 	net/spy/SpyToker.class \
 	'net/spy/SpyConfig$$SpyConfigReader.class' net/spy/net/SNPP.class \
+	net/spy/net/TimedSocket.class \
 	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
 	net/spy/rmi/RObject.class \
 	net/spy/rmi/RObjectImpl.class \
