@@ -148,7 +148,8 @@ let makeRecord modelMap ts l =
 		htr "modelnum" mr_rec.mr_id;
 		htr "pca" mr_rec.mr_id;
 		htr "version" record.in_version;
-		htr "authcode" record.in_secret;
+		htr "authcode" record.in_password;
+		htr "idstring" record.in_secret;
 		htr "moddate" ts;
 		Some (makeOutRecord mr_rec.mr_product_line record.in_sn ht)
 	with Not_found ->
