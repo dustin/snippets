@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.5 2000/02/10 21:58:54 dustin Exp $
+# $Id: ldap_audit,v 1.6 2000/02/11 04:21:00 dustin Exp $
 
 use strict;
 
@@ -58,7 +58,8 @@ sub audit {
 				print "!!! $_ is not in the slave ($t) !!!\n";
 				if($config{'fixit'}==1) {
 					print "Fixing\n";
-					addEntry($slave->ldap(), gettree($master, $_));
+					my(%h)=gettree($master, $_);
+					addEntry($slave->ldap(), %h);
 				}
 			}
 		}
@@ -69,11 +70,11 @@ sub audit {
 	for $dn (@master_dns) {
 		# We want a string and a hash of each.
 		my $master_data="";
-		my %master_data=();
+		my @master_data=();
 		my $t="";
 		eval {
-			%master_data=gettree($master, $dn);
-			$master_data=Dumper(\%master_data);
+			@master_data=gettree($master, $dn);
+			$master_data=Dumper(\@master_data);
 		};
 		if($@) {
 			print "Failed on $dn\n";
@@ -81,15 +82,18 @@ sub audit {
 		for $slave (@slaves) {
 			$t = $slave->name();
 			eval {
-				my %slave_data=gettree($slave->ldap(), $dn);
-				my $slave_data=Dumper(\%slave_data);
+				my @slave_data=gettree($slave->ldap(), $dn);
+				my $slave_data=Dumper(\@slave_data);
 
 				if($master_data ne $slave_data) {
 					print "!!! $dn is not the same on $t !!!\n";
 					if($config{'fixit'}==1) {
 						# find and fix the differences
 						print "Fixing\n";
-						fixRecord($slave->ldap(), \%master_data, \%slave_data);
+						my(%m, %s);
+						%m=@master_data;
+						%s=@slave_data;
+						fixRecord($slave->ldap(), \%m, \%s);
 					}
 					if($config{'debug'}>0) {
 						print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
@@ -128,7 +132,13 @@ sub gettree {
 		}
 	}
 
-	return(%h);
+	# Sort the entries so the compare will be the same.
+	my(@h)=();
+	for(sort(keys(%h))) {
+		push(@h, $_, $h{$_});
+	}
+
+	return(@h);
 }
 
 sub getDns {
@@ -141,7 +151,6 @@ sub getDns {
 
 	if($result->code) {
 		print STDERR "Error getting DNs: " . $result->error . "\n";
-		print Dumper($result);
 		die $result->error;
 	}
 
@@ -201,7 +210,9 @@ sub fixRecord {
 	my(@replace) = ();
 	# we always have to modify these.
 	for('creatorsname', 'createtimestamp', 'modifiersname', 'modifytimestamp'){
-		push(@replace, [ $_, $master{$_} ]);
+		if(defined($master{$_})) {
+			push(@replace, [ $_, $master{$_} ]);
+		}
 	}
 
 	for(@atts) {
@@ -246,7 +257,7 @@ sub addEntry {
 
 sub get_slaves {
 	my(@slaves);
-	for(split(/,/, $config{'slave_servers'})) {
+	for(split(/\s*,\s*/, $config{'slave_servers'})) {
 		my($hostname, $binddn, $bindpw);
 
 		if(defined($config{'slave.' . $_ . '.hostname'})) {
@@ -267,7 +278,6 @@ sub get_slaves {
 			$bindpw=$config{'bindpw'};
 		}
 
-		print "Opening $hostname $binddn/$bindpw\n";
 		my $tmp=Net::LDAP->new($hostname) or die "$@";
 		$tmp->bind( dn => $binddn, password => $bindpw);
 		push(@slaves, new LDAPSlave($_, $tmp));
@@ -277,8 +287,6 @@ sub get_slaves {
 
 sub read_config {
 	my($file)=@_;
-
-	print "Reading $file\n";
 
 	open(IN, $file) || die("Can't open $file:  $!\n");
 	while(<IN>) {
