@@ -1,9 +1,11 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.16 1998/11/09 06:49:16 dustin Exp $
+-- $Id: photo.sql,v 1.17 1999/06/04 04:38:23 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
+
+begin transaction;
 
 -- add support for PL/pgsql
 
@@ -155,3 +157,5 @@ create function catsum (integer)
 
 -- select distinct id from image_store where id not in
 --	(select id from album);
+
+commit;
