@@ -2,6 +2,7 @@
 
 application/mac-binhex40
 application/ms-tnef
+application/octet-stream
 application/pdf
 application/pgp.*
 application/pkcs.*
@@ -9,9 +10,10 @@ application/postscript
 application/rtf
 application/x-gtar
 application/x-gzip
+application/x-pkcs7.*
 application/x-tar
 application/zip
 image/.*
-message/rfc822
+message/.*
 multipart/.*
 text/.*
