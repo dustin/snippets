@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#
+# $Id: gettemp.py,v 1.2 2002/12/06 05:32:28 dustin Exp $
 
 import xmlrpclib
 import smtplib
