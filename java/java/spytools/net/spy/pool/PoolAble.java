@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.6 2000/07/25 07:11:20 dustin Exp $
+// $Id: PoolAble.java,v 1.7 2000/07/28 23:19:54 dustin Exp $
 
 package net.spy.pool;
 
@@ -177,12 +177,15 @@ public class PoolAble extends Object {
 	public String toString() {
 		String out=null;
 		if(isCheckedOut()) {
-			out="PoolAble " + object_id + " is checked out ";
+			out="PoolAble " + object_id + " is checked out";
 		} else {
-			out="PoolAble " + object_id + " is not checked out ";
+			out="PoolAble " + object_id + " is not checked out";
 		}
 		if(max_age>0) {
-			out+="expires " + new Date(start_time + max_age);
+			out+=" expires " + new Date(start_time + max_age);
+		}
+		if(!available) {
+			out+=" (not available)";
 		}
 		return(out);
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.15 2000/07/26 09:49:35 dustin Exp $
+// $Id: PoolContainer.java,v 1.16 2000/07/28 23:19:55 dustin Exp $
 
 package net.spy.pool;
 
@@ -162,7 +162,7 @@ public class PoolContainer extends Object {
 		String out="Pool " + name + "\n";
 		synchronized (pool) {
 			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				out+="\t" + e.nextElement() + "\n";
+				out+="    " + e.nextElement() + "\n";
 			}
 		}
 		return(out);
@@ -237,7 +237,7 @@ public class PoolContainer extends Object {
 		pool=new Vector();
 
 		// Get the min and max args.
-		_min_objects=getPropertyInt("min", 1);
+		_min_objects=getPropertyInt("min", 0);
 		_max_objects=getPropertyInt("max", 5);
 
 		getMinObjects();
@@ -255,6 +255,13 @@ public class PoolContainer extends Object {
 	// need more objects.
 	protected PoolAble getNewObject() throws PoolException {
 		PoolAble p=null;
+
+		// First, if we're at capacity, do a prune and see if we can shrink
+		// it down a bit.
+		if(currentObjects()>=_max_objects) {
+			prune();
+		}
+
 		// Don't add an object if we're at capacity.
 		if(currentObjects()<_max_objects) {
 			debug("*** Getting a new object in the "
