@@ -172,6 +172,9 @@ main(int argc, char *argv[])
 	  /*
 	   * For an expose event, I just replot the whole thing.
 	   */
+	case MappingNotify:
+          XRefreshKeyboardMapping(&event.xmapping);
+          break;
 	case Expose:
 	  xplot();
 	  break;
@@ -180,6 +183,9 @@ main(int argc, char *argv[])
 	  max_y = event.xresizerequest.height;
 	  XResizeWindow(display, window, max_x, max_y);
 	  break;
+	case KeyPress:
+          keyevent(&event.xkey);
+          break;
 	case MotionNotify:
           reportpos(event.xmotion.x, event.xmotion.y);
           break;
