@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: etherealMuxTrace.py,v 1.2 2003/04/16 23:59:11 dustin Exp $
+$Id: etherealMuxTrace.py,v 1.3 2003/04/17 01:20:08 dustin Exp $
 """
 
 import sys
@@ -223,25 +223,6 @@ def commandFactory(tuple):
 	cmd = typeMap[chr(tuple[0])](tuple[1:])
 	return (cmd, cmd.getUnused())
 
-class MuxStream:
-	"""A stream of mux data representing one end of the connection."""
-
-	def __init__(self, name):
-		"""Initialize with its name."""
-		self.name=name
-		self.commands=[]
-
-	def addData(self, data):
-		"""Add a tuple of data.  Return the commands that were represented."""
-		theseCommands=[]
-		a=data
-		while len(a) > 0:
-			cmd, a = commandFactory(a)
-			theseCommands.append(cmd)
-		self.commands = self.commands + theseCommands
-
-		return theseCommands
-
 class MuxPrinter:
 	"""Take data data EtherealStream and produce a mux trace."""
 
@@ -251,9 +232,8 @@ class MuxPrinter:
 		if len(names) < 2:
 			raise "Need at least two names for a MuxPrinter"
 		self.names=names
-		self.streams=[]
-		for n in names:
-			self.streams.append(MuxStream(n))
+		# Get the initial levels
+		self.levels=map(lambda x: 1, names)
 		self.current=0
 		self.data=()
 
@@ -271,13 +251,26 @@ class MuxPrinter:
 
 	def printData(self):
 		"""Print the current data."""
-		theseCommands=self.streams[self.current].addData(self.data)
-		for cmd in theseCommands:
+		a=self.data
+		# Get the commands
+		while len(a) > 0:
+			cmd, a = commandFactory(a)
+			# Starting HTML
 			if self.current == 0:
 				print "<tr><td>"
 			else:
 				print "<tr><td>&nbsp;</td><td>"
+			print """<div class="level""" + `self.levels[self.current]` \
+				+ """">"""
+			# Print the command
 			print cmd.toHTML() + "<br>\n"
+			# Check for level changes
+			if isinstance(cmd, YieldCommand):
+				self.levels[self.current]=1
+			elif isinstance(cmd, ChannelSelectCommand):
+				self.levels[self.current]=2
+			# Ending HTML
+			print "</div>"
 			if self.current == 0:
 				print "</td><td>&nbsp;</td></tr>"
 			else:
@@ -289,7 +282,11 @@ if __name__ == '__main__':
 	p=MuxPrinter( ('client', 'server'))
 
 	print """<html>
-		<head><title>Mux Trace</title></head>
+		<head>
+			<title>Mux Trace</title>
+			<link rel="stylesheet" type="text/css"
+				href="http://bleu.west.spy.net/~dustin/tmp/mux.css">
+		</head>
 
 		<body>
 		<table border="1" width="100%">
