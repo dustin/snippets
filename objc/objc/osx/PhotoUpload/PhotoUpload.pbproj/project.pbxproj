@@ -162,7 +162,7 @@
 				F52C09B603540EAB01A801C4,
 				F5601B13035373480109FEFA,
 				F5601B15035373480109FEFA,
-				F5601AEF0353732F0109FEFA,
+				F5D196110362933F01A801C4,
 				F5A4F4180356A6BE01A801C4,
 			);
 			isa = PBXGroup;
@@ -265,7 +265,7 @@
 		29B97328FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
 			files = (
-				F5601AFE0353732F0109FEFA,
+				F5D196120362933F01A801C4,
 				F5D1960E0362871101A801C4,
 				F5601B17035373480109FEFA,
 				F56F8F9D035410E801A801C4,
@@ -357,7 +357,8 @@
 		};
 		F5601AEF0353732F0109FEFA = {
 			isa = PBXFileReference;
-			path = Credits.html;
+			name = Credits.html;
+			path = English.lproj/Credits.html;
 			refType = 4;
 		};
 		F5601AF00353732F0109FEFA = {
@@ -429,12 +430,6 @@
 			isa = PBXFileReference;
 			path = UploadThread.m;
 			refType = 4;
-		};
-		F5601AFE0353732F0109FEFA = {
-			fileRef = F5601AEF0353732F0109FEFA;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F5601AFF0353732F0109FEFA = {
 			fileRef = F5601AF00353732F0109FEFA;
@@ -727,6 +722,20 @@
 		};
 		F5D1961003628AC801A801C4 = {
 			fileRef = F5D1960F03628AC801A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D196110362933F01A801C4 = {
+			children = (
+				F5601AEF0353732F0109FEFA,
+			);
+			isa = PBXVariantGroup;
+			name = Credits.html;
+			refType = 4;
+		};
+		F5D196120362933F01A801C4 = {
+			fileRef = F5D196110362933F01A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};
