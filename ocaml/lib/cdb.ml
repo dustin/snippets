@@ -167,6 +167,16 @@ let read_le f =
 	a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24)
 ;;
 
+(* Int32 version of read_le *)
+let read_le32 f =
+	let a = (input_byte f) in
+	let b = (input_byte f) in
+	let c = (input_byte f) in
+	let d = (input_byte f) in
+	Int32.logor (Int32.of_int (a lor (b lsl 8) lor (c lsl 16)))
+				(Int32.shift_left (Int32.of_int d) 24)
+;;
+
 (**
  Iterate a CDB.
 
@@ -251,7 +261,7 @@ let get_matches cdf key =
 		) else (
 			let spos = (lslot * 8) + (Int32.to_int hpos) in
 			seek_in cdf.f spos;
-			let h = Int32.of_int (read_le cdf.f) in
+			let h = read_le32 cdf.f in
 			let pos = read_le cdf.f in
 			(* validate that we a real bucket *)
 			if (h = kh) && (pos > 0) then (
