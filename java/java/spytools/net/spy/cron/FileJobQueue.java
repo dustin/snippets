@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileJobQueue.java,v 1.1 2001/04/03 07:37:23 dustin Exp $
+// $Id: FileJobQueue.java,v 1.2 2001/04/08 21:42:20 dustin Exp $
 
 package net.spy.cron;
 
@@ -102,6 +102,7 @@ public class FileJobQueue extends JobQueue {
 			TimeIncrement ti=new TimeIncrement();
 			ti.setField(cf);
 			ti.setIncrement(Integer.parseInt(incr_s));
+			startDate=ti.nextDate(startDate);
 
 			rv=new MainJob(class_s, args, startDate, ti);
 		} else {
