@@ -130,17 +130,18 @@
 		NSString *str=[[NSString alloc] initWithData: data
 			encoding:NSUTF8StringEncoding];
 		NSArray *splitList=[str componentsSeparatedByString: @"\n"];
-		newList=[[NSMutableArray alloc] initWithCapacity: [splitList count]];
+		NSMutableArray *mutList=[[NSMutableArray alloc] initWithCapacity: [splitList count]];
 
 		// Copy the things that look like URLs
 		NSEnumerator *enumerator = [splitList objectEnumerator];
 		id anObject=nil;
 		while (anObject = [enumerator nextObject]) {
 			if([anObject hasPrefix: @"http"]) {
-				[newList addObject: anObject];
+				[mutList addObject: anObject];
 			}
 		}
-		[self shuffleArray: newList];
+		[self shuffleArray: mutList];
+        newList=mutList;
 	} else {
 		NSLog(@"Doesn't look like a URL list, assuming it's an image");
 		newList=[[NSArray alloc] initWithObjects: urlString, nil];
