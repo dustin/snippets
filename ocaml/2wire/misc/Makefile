@@ -14,15 +14,15 @@ all: $(PROGS)
 
 parseSQLLog: parseSQLLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa stringutils.cmx parseSQLLog.ml
+		unix.cmxa stringutils.cmx fileutils.cmx parseSQLLog.ml
 
 parseTimingLog: parseTimingLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa stringutils.cmx parseTimingLog.ml
+		unix.cmxa stringutils.cmx fileutils.cmx parseTimingLog.ml
 
 parseTimingLogbc: parseTimingLog.ml
 	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
-		unix.cma stringutils.cmo parseTimingLog.ml
+		unix.cma stringutils.cmo fileutils.cmo parseTimingLog.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o

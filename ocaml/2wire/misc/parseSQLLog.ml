@@ -4,6 +4,7 @@
 
 open Unix;;
 open Stringutils;;
+open Fileutils;;
 
 (** Log entry representing a single line from the file *)
 type log_entry = {
@@ -19,13 +20,6 @@ type stats = {
 	mutable total_calls: int;
 	mutable total_time: int;
 };;
-
-(* True if the line looks like a SQL log entry *)
-let is_log_entry(l: string): bool =
-	(* Look for the exact location since there's no strstr in ocaml *)
-	String.length l > 60
-		&& ((String.sub l 36 22) = "database.DBManager.sql")
-;;
 
 (* Parse time from the given timestamp *)
 let parse_time(l: string): int =
@@ -85,7 +79,7 @@ let make_stats(name: string): stats =
 ;;
 
 (* Process the line *)
-let process_line rrd_prefix stuff le =
+let process_entry rrd_prefix stuff le =
 	let t = get_approx_time(le) in
 
 	(* print_log_entry(le); *)
@@ -126,28 +120,27 @@ let error_line(s: string) =
 	prerr_endline(s);
 ;;
 
+(* Process an individual line *)
+let process_line rrd servers l =
+	try
+		let le = get_log_entry(l) in
+		let stuff = List.find (function n -> n.db_server = le.server) servers in
+		process_entry rrd stuff le;
+	with
+		Failure("int_of_string") -> error_line(l);
+		| Failure("nth") -> error_line(l);
+		| Not_found -> error_line(l);
+;;
+
 (* Do the main thing *)
 let main() =
 	let rrd = (Array.get Sys.argv 1)
 	and servers = List.map (function x -> make_stats x) ["CMS";"LOG";"CAT"] in
-	try
-		while true do
-			let l = (read_line()) in
-			if is_log_entry(l) then
-			begin
-				try
-					let le = get_log_entry(l) in
-					let stuff = List.find
-									(function n -> n.db_server = le.server)
-									servers in
-					process_line rrd stuff le;
-				with
-					Failure("int_of_string") -> error_line(l);
-					| Failure("nth") -> error_line(l);
-					| Not_found -> error_line(l);
-			end;
-		done;
-	with End_of_file -> ignore();
+	conditional_fold_lines
+		(function l -> process_line rrd servers l)
+		(function l -> String.length l > 60
+						&& ((String.sub l 36 22) = "database.DBManager.sql"))
+		Pervasives.stdin;
 ;;
 
 if !Sys.interactive then () else begin main() end;;

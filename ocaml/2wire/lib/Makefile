@@ -6,7 +6,9 @@ OCAMLOPT=ocamlopt
 
 .PHONY: stringutils
 
-all: stringutils docs
+all: stringutils fileutils docs
+
+fileutils: fileutils.cmi fileutils.mli
 
 stringutils: stringutils.cmi stringutils.mli
 
