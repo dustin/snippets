@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.6 1998/05/04 01:54:56 dustin Exp $
+ * $Id: checkweb.c,v 1.7 1998/05/13 06:16:08 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -82,7 +82,7 @@ int openhost(char *host, int port, int dossl)
 
   if ((hp = gethostbyname(host)) == NULL)
     {
-      printf("ERR: gethostbyname\n");
+      fprintf(stderr, "ERR: gethostbyname: %s\n", host);
       return(-1);
     }
 
@@ -393,7 +393,7 @@ void main(int argc, char **argv)
     if(argc < 2)
     {
 	printf("checkweb, copyright (c) 1997  Dustin Sallings\n"
-	    "$Id: checkweb.c,v 1.6 1998/05/04 01:54:56 dustin Exp $\n");
+	    "$Id: checkweb.c,v 1.7 1998/05/13 06:16:08 dustin Exp $\n");
 	printf("Error, argument required.  Usage:\n%s filename\n"
 	       "Where filename is the file containing the url list.\n",
 	       argv[0]);
