@@ -1,0 +1,42 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {
+            CLASS = HideableProgressIndicator;
+            LANGUAGE = ObjC;
+            SUPERCLASS = NSProgressIndicator;
+        },
+        {CLASS = HideableTextField; LANGUAGE = ObjC; SUPERCLASS = NSTextField; },
+        {
+            ACTIONS = {
+                authenticate = id;
+                openAuthWindow = id;
+                openUploadWindow = id;
+                selectFiles = id;
+                stopUpload = id;
+                upload = id;
+            };
+            CLASS = UploadController;
+            LANGUAGE = ObjC;
+            OUTLETS = {
+                authWindow = NSWindow;
+                categories = NSPopUpButton;
+                dateTaken = NSTextField;
+                description = NSTextField;
+                fileCount = NSTextField;
+                imgMatrix = NSMatrix;
+                keywords = NSTextField;
+                password = NSSecureTextField;
+                progressBar = HideableProgressIndicator;
+                scroller = NSScrollView;
+                uploadButton = NSButton;
+                uploadWindow = NSWindow;
+                uploadingText = HideableTextField;
+                url = NSTextField;
+                username = NSTextField;
+            };
+            SUPERCLASS = "java.lang.Object";
+        }
+    );
+    IBVersion = 1;
+}
