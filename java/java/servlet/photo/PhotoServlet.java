@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.6 1999/09/16 01:07:27 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.7 1999/09/16 06:46:21 dustin Exp $
  */
 
 import java.io.*;
@@ -23,6 +23,7 @@ public class PhotoServlet extends HttpServlet
 	Integer remote_uid;
 	String remote_user, self_uri;
 	DbConnectionBroker dbs;
+	RHash rhash;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
@@ -32,10 +33,17 @@ public class PhotoServlet extends HttpServlet
 			Class.forName("postgresql.Driver");
 			String source="jdbc:postgresql://dhcp-104/photo";
 			dbs = new DbConnectionBroker("postgresql.Driver",
-				source, "dustin", "", 2, 10, "/tmp/pool.log", 0.1);
+				source, "dustin", "", 2, 6, "/tmp/pool.log", 0.01);
 		} catch(Exception e) {
 			// System.err.println("dbs broke:  " + e.getMessage());
 			throw new ServletException ("dbs broke: " + e.getMessage());
+		}
+
+		// Get an rhash to cache images and shite.
+		try {
+			rhash = new RHash("//dhcp-104/RObjectServer");
+		} catch(Exception e) {
+			rhash = null;
 		}
 	}
 
@@ -262,11 +270,16 @@ public class PhotoServlet extends HttpServlet
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
-		String query;
+		String query, catstuff="";
+		Hashtable h = new Hashtable();
+		Connection photo;
 
-		output += "<html><head><title>View Images by Category</title></head>";
-		output += "<body bgcolor=\"#fFfFfF\">\n";
-		output += "<h2>Category List</h2>\n";
+		try {
+			photo = getDBConn();
+		} catch(Exception e) {
+			throw new ServletException("Can't get database connection:  "
+				+ e.getMessage());
+		}
 
 		query = "select name,id,catsum(id) as cs from cat\n"
 			  + "where id in\n"
@@ -274,10 +287,7 @@ public class PhotoServlet extends HttpServlet
 			  + "   userid=" + remote_uid + ")\n"
 			  + " order by cs desc";
 
-		output += "<ul>\n";
-
 		try {
-			Connection photo = getDBConn();
 			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
@@ -288,16 +298,18 @@ public class PhotoServlet extends HttpServlet
 					t = " images";
 				}
 
-				output += "<li>" + rs.getString(1) + ":  <a href=\"" + self_uri
+				catstuff += "<li>" + rs.getString(1) + ":  <a href=\""+self_uri
 					+ "?func=search&searchtype=advanced&cat="
 					+ rs.getString(2) + "&maxret=5\">"
 					+ rs.getString(3) + t + "</a></li>\n";
 			}
-			freeDBConn(photo);
 		} catch(Exception e) {
 		}
+		finally { freeDBConn(photo); }
 
-		output += "</ul>\n";
+		h.put("CATSTUFF", catstuff);
+
+		output += tokenize("catview.inc", h);
 		send_response(response, output);
 	}
 
@@ -322,10 +334,16 @@ public class PhotoServlet extends HttpServlet
 		// This is our exception, in case we need it.
 		ServletException x;
 		x = new ServletException("Unknown user: " + remote_user);
+		Connection photo;
+
+		try {
+			photo=getDBConn();
+		} catch(Exception e) {
+			throw x;
+		}
 
 		query = "select getwwwuser('" + remote_user + "')";
 		try {
-			Connection photo=getDBConn();
 			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			if(rs.next()) {
@@ -333,11 +351,11 @@ public class PhotoServlet extends HttpServlet
 			} else {
 				throw x;
 			}
-			freeDBConn(photo);
 		} catch(SQLException e) {
 			System.out.println(e.getSQLState());
 			throw x;
 		}
+		finally { freeDBConn(photo); }
 	}
 
 	// Build the bigass complex search query.
@@ -557,6 +575,14 @@ public class PhotoServlet extends HttpServlet
 		Integer image_id;
 		String stmp;
 		Hashtable h = new Hashtable();
+		Connection photo;
+
+		try {
+			photo=getDBConn();
+		} catch(Exception e) {
+			throw new ServletException("Can't get database connection:  "
+				+ e.getMessage());
+		}
 
 		stmp = request.getParameter("id");
 		if(stmp == null) {
@@ -574,7 +600,6 @@ public class PhotoServlet extends HttpServlet
 		output += "<!-- Query:\n" + query + "\n-->\n";
 
 		try {
-			Connection photo=getDBConn();
 			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
@@ -591,10 +616,10 @@ public class PhotoServlet extends HttpServlet
 			h.put("CAT",       rs.getString(7));
 			h.put("CATNUM",    rs.getString(8));
 			h.put("ADDEDBY",   rs.getString(9));
-			freeDBConn(photo);
 		} catch(SQLException e) {
 			throw new ServletException("Some kinda SQL problem.");
 		}
+		finally { freeDBConn(photo); }
 		output += tokenize("display.inc", h);
 
 		send_response(response, output);
@@ -623,6 +648,7 @@ public class PhotoServlet extends HttpServlet
 		int i, start=0, max=0;
 		Integer itmp;
 		String stmp;
+		Connection photo;
 
 		output += start_html("Find Results");
 
@@ -645,8 +671,14 @@ public class PhotoServlet extends HttpServlet
 		output += "<table><tr>\n";
 
 		try {
+			photo=getDBConn();
+		} catch(Exception e) {
+			throw new ServletException("Can't get database connection:  "
+				+ e.getMessage());
+		}
+
+		try {
 			// Go through the matches.
-			Connection photo=getDBConn();
 			Statement st = photo.createStatement();
 			ResultSet rs = st.executeQuery(query);
 			i = 0;
@@ -675,12 +707,11 @@ public class PhotoServlet extends HttpServlet
 				i++;
 			}
 
-			freeDBConn(photo);
-
 		} catch(SQLException e) {
 			throw new ServletException("Database problem: " + e.getMessage() +
 				"\n" + query);
 		}
+		finally { freeDBConn(photo); }
 
 		output += "</tr></table>\n";
 		// Do we have anymore?
@@ -719,38 +750,82 @@ public class PhotoServlet extends HttpServlet
 	private void showImage(HttpServletRequest request,
 		HttpServletResponse response) throws ServletException {
 
-		String query;
+		String query, key;
 		ServletOutputStream		out;
-
+		Vector v = null;
 		BASE64Decoder base64 = new BASE64Decoder();
 
 		response.setContentType("image/jpeg");
 		String s = request.getParameter("photo_id");
 		Integer which = Integer.valueOf(s);
 
-		query = "select * from image_store where id = " + which +
-			" order by line";
-
-		System.out.print("Doing query:  " + query + "\n");
-
 		try {
 			// Need a binary output thingy.
 			out = response.getOutputStream();
-
-			Connection photo=getDBConn();
-			Statement st = photo.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			while(rs.next()) {
-				byte data[];
-				data=base64.decodeBuffer(rs.getString(3));
-				out.write(data);
-			}
-			freeDBConn(photo);
-		} catch(Exception e) {
-			throw new ServletException("Problem getting image.");
+		} catch(IOException e) {
+			throw new ServletException("IOException:  " + e.getMessage());
 		}
 
-		// out.close();
+		key = "photo_" + which.toString();
+
+		if(rhash!=null) {
+			v = (Vector)rhash.get(key);
+		} else {
+			log("No rhash for image cache, must use database directly");
+		}
+
+		if(v==null) {
+
+			v = new Vector();
+			Connection photo;
+			try {
+				photo=getDBConn();
+			} catch(Exception e) {
+				throw new ServletException("Can't get database connection: "
+					+ e.getMessage());
+			}
+			query = "select * from image_store where id = " + which +
+				" order by line";
+
+			System.out.print("Doing query:  " + query + "\n");
+
+			try {
+
+				Statement st = photo.createStatement();
+				ResultSet rs = st.executeQuery(query);
+
+				log("Getting image " + which + " from database.");
+
+				while(rs.next()) {
+					byte data[];
+					data=base64.decodeBuffer(rs.getString(3));
+					v.addElement(data);
+					out.write(data);
+				}
+				if(rhash != null) {
+					log("Storing " + key + " in RHash");
+					rhash.put(key, v);
+				} else {
+					log("No RHash, can't cache data.");
+				}
+			} catch(Exception e) {
+				throw new ServletException("Problem getting image: " +
+					e.getMessage());
+			}
+			finally { freeDBConn(photo); }
+		} else {
+			int i;
+
+			log("Getting image " + which + " from RHash.");
+
+			try {
+				for( i = 0 ; i < v.size(); i++) {
+					out.write( (byte[])v.elementAt(i));
+				}
+			} catch(IOException e) {
+				throw new ServletException("IOException:  " + e.getMessage());
+			}
+		}
 	}
 
 	private String dbquote_str(String thing) {
