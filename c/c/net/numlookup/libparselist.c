@@ -6,36 +6,7 @@
 #include <assert.h>
 
 #include "mymalloc.h"
-
-#define HAVE_VSPRINTF 1
-
-#if !defined(HAVE_VSNPRINTF)
-#if defined(HAVE_VSPRINTF)
-#define vsnprintf(a, b, c, d) vsprintf(a, c, d)
-#else
-#error No vsnprintf *OR* vsprintf?  Call your vendor.
-#endif
-#endif
-
-/* Length of a line */
-#define LINELEN 90
-#define CONFIGFILE "list"
-#define LIFETIME 10
-
-/* The address list */
-struct addr {
-	unsigned int addr;
-	int     mask;
-	unsigned int intmask;
-	char   *data;
-};
-
-/* The config structure */
-struct config_t {
-	int     size;
-	int     index;
-	struct addr **addr;
-};
+#include "parselist.h"
 
 /* Logging code */
 #if !defined(HAVE_SNPRINTF)
@@ -134,6 +105,34 @@ addrsort(struct config_t config)
 	quicksort(config.addr, 0, config.index - 1);
 }
 
+/*
+ * I usually call this routine ``killwhitey,'' but I stole it from
+ * Nathan, so I'll keep the name.
+ */
+char *
+getCleanLine(char *data, int size, FILE * infile)
+{
+	char *first_char, *comment, *last_char;
+
+	if (fgets(data, size, infile) == NULL)
+		return(NULL);
+
+	comment = strchr(data, '#');
+
+	if (comment != NULL)
+		comment[0]=0x00;
+
+	first_char = data + strspn(data, " \t");
+
+	last_char = first_char + strlen(first_char) - 1;
+	while (last_char >= first_char && index(" \t\n", *last_char)) {
+		*last_char = 0x00;
+		last_char--;
+	}
+	strcpy(data, first_char);
+	return(data);
+}
+
 /* Read the config */
 struct config_t
 readconfig(void)
@@ -160,12 +159,10 @@ readconfig(void)
 	} \
 	config.addr[config.index++]=a;
 
-	while (fgets(line, LINELEN - 1, f)) {
+	while (getCleanLine(line, LINELEN - 1, f)) {
 		int     a[4], mask, n;
 		char    data[LINELEN];
 		struct addr *addr;
-
-		line[strlen(line) - 1] = 0x00;
 
 		n = sscanf(line, "%d.%d.%d.%d/%d:%s", &a[0], &a[1], &a[2], &a[3], &mask, data);
 		if (n != 6) {
@@ -248,6 +245,7 @@ main(int argc, char **argv)
 	for (i = 0; i < LIFETIME; i++) {
 		tmp = fgets(buf, LINELEN - 1, stdin);
 		if (tmp == NULL) {
+			sleep(1);
 			break;
 		}
 		buf[strlen(buf) - 1] = 0x00;
