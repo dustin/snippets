@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.6 2000/06/30 05:59:14 dustin Exp $
+// $Id: RObjectImpl.java,v 1.7 2000/07/21 07:19:51 dustin Exp $
 
 package net.spy.rmi;
 
@@ -36,15 +36,12 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 		String pathto;
 		File f;
 
-		System.out.println("Saving the object: " + name);
-
 		hash=name.hashCode();
 		subhash=hash%levels;
 		pathto=basedir + "/" + subhash + "/" + hash;
 
 		f=new File(basedir + "/" + subhash);
 		if(!f.isDirectory()) {
-			System.out.println("Making directories for " + f.getPath());
 			f.mkdirs();
 		}
 
@@ -55,7 +52,8 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 			p.flush();
 			ostream.close();
 		} catch(Exception e) {
-			System.err.println("Got an exception:  " + e.getMessage());
+			System.err.println("RObject exception while storing object:  "
+				+ e);
 			throw new RemoteException(e.getMessage());
 		}
 	}
@@ -63,8 +61,6 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
     public Object getObject(String name) throws RemoteException {
 		int hash, subhash;
 		String pathto;
-
-		System.out.println("Giving the object '" + name + "' back...");
 
 		hash=name.hashCode();
 		subhash=hash%levels;
@@ -77,7 +73,8 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 			o = p.readObject();
 			return(o);
 		} catch(Exception e) {
-			System.err.println("Got an exception:  " + e.getMessage());
+			System.err.println("RObject exception while getting object:  "
+				+ e);
 		}
 		return(null);
 	}
