@@ -48,6 +48,7 @@ class PolicyEngine(object):
 
                 self.log.debug("Response is %s", response)
                 output.write("action=" + response + "\n\n")
+                output.flush()
                 # Reset the attributes for the next request
                 attrs={}
             else:
@@ -111,16 +112,19 @@ class GreylistPolicyEngine(PolicyEngine):
 
     def process(self, attributes):
         rv = None
-        # Calculate a key from these fields
-        keys=['client_address', 'sender', 'recipient']
-        key = "/".join([attributes[k] for k in keys])
+        try:
+            # Calculate a key from these fields
+            keys=['client_address', 'sender', 'recipient']
+            key = "/".join([attributes[k] for k in keys])
 
-        age=self.getAge(key)
-        if age is None or age < self.delay:
-            self.log.info("Requesting %s to be deferred", key)
-            rv = PolicyResponse.DEFER_IF_PERMIT
-            self.storeKey(key)
-        else:
-            self.log.debug("Passing %s", key)
+            age=self.getAge(key)
+            if age is None or age < self.delay:
+                self.log.info("Requesting %s to be deferred", key)
+                rv = PolicyResponse.DEFER_IF_PERMIT
+                self.storeKey(key)
+            else:
+                self.log.debug("Passing %s", key)
+        except KeyError:
+            self.log.exception("Could not process %s", attributes)
 
         return rv

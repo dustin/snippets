@@ -32,10 +32,16 @@ class WriteSink:
     def write(self, x):
         pass
 
+    def flush(self):
+        pass
+
 class WriteCapture(UserList.UserList):
 
     def write(self, x):
         self.append(x)
+
+    def flush(self):
+        pass
 
 class PolicyTest(unittest.TestCase):
 
