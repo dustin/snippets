@@ -102,7 +102,8 @@ public class HTTPFetch {
 	/**
 	 * Return the contents of the URL as a whole string.
 	 *
-	 * @exception Exception thrown when something fails.
+	 * @return the contents from the URL as a String
+	 * @throws IOException if there is a problem accessing the URL
 	 */
 	public String getData() throws IOException {
 		if(contents==null) {
