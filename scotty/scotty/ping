@@ -1,0 +1,45 @@
+#!/bin/sh
+# $Id: ping,v 1.1 1997/12/11 09:13:59 dustin Exp $
+
+set kludge { $*
+    shift
+    shift
+    exec /usr/local/bin/scotty -nf $0 $*
+}
+
+set host [lindex $argv 0]
+set count 0
+set dead 0
+set sum 0
+set returned 0
+
+proc showstats { } {
+    global host count dead sum returned
+
+    set ave [expr $sum / $count.0]
+    set loss [expr ($dead/$count.0)*100.0]
+
+    puts -nonewline "*** Total pings:  $count, $dead dead "
+    puts -nonewline "($loss% loss)"
+    puts "  Average pingtime:  ${ave}ms"
+}
+
+while { 1 } {
+    set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
+
+    if { $pt<0 } {
+	incr dead 1
+    } else {
+        puts "$host seq=$count ${pt}ms"
+	incr returned 1
+	incr sum $pt
+    }
+
+    incr count 1
+
+    if { ($count%20) ==0 } {
+        showstats
+    }
+
+    sleep 1
+}
