@@ -54,15 +54,8 @@ create view zips.zipcode_view as
 		co.name as county,
 		z.longitude,
 		z.latitude
-	from
-		zips.zipcodes z,
-		zips.cities ci,
-		zips.counties co,
-		zips.states s
-	where
-		z.city_id=ci.city_id
-		and ci.county_id=co.county_id
-		and co.state_id=s.state_id
-	order by
-		z.zipcode
+	from zips.zipcodes z join zips.cities ci using (city_id)
+		join zips.counties co using (county_id)
+		join zips.states s using (state_id)
+	order by z.zipcode
 ;
