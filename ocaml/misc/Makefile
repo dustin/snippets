@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=parseSQLLog parseTimingLog mailCompress
+PROGS=parseSQLLog parseTimingLog mailCompress hlgrep
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -25,6 +25,10 @@ mailCompress: mailCompress.ml
 		unix.cmxa \
 		stringutils.cmx fileutils.cmx linkedlist.cmx lru.cmx gz.cmxa \
 		mailCompress.ml
+
+hlgrep: hlgrep.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa str.cmxa fileutils.cmx hlgrep.ml
 
 parseTimingLogbc: parseTimingLog.ml
 	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
