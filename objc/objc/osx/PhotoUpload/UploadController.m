@@ -27,16 +27,17 @@
     id connection=nil;
     NSURL *u=[[NSURL alloc] initWithString:[url stringValue]];
 
+    id catList=nil;
     NS_DURING
         connection = [[XRConnection alloc] initWithURL:u];
         NSArray *args=[NSArray arrayWithObjects:
                         [username stringValue], [password stringValue]];
-        id result = [connection performRemoteMethod:@"getCategories.getAddable"
+        catList = [connection performRemoteMethod:@"getCategories.getAddable"
                                         withObjects:args];
 
         /* Populate the categories */
         [categories removeAllItems];
-        [categories addItemsWithTitles:result];
+        [categories addItemsWithTitles:catList];
 
         /* Out with the auth */
         [authWindow orderOut: self];
@@ -47,6 +48,8 @@
         [self alert:@"Authentication Exception"
 			message:[localException description]];
     NS_ENDHANDLER
+
+    [defaults setObject: catList forKey:@"categories"];
 
     [u release];
     if(connection != nil) {
@@ -91,7 +94,32 @@
 
 - (IBAction)openBatch:(id)sender
 {
-    // XXX Open a batch
+    id filePanel=[NSOpenPanel openPanel];
+    [filePanel setAllowsMultipleSelection: FALSE];
+    [filePanel setCanChooseDirectories: FALSE];
+
+    id types=[NSArray arrayWithObjects:@"pbatch", nil];
+    int rv = [filePanel runModalForTypes:types];
+
+    if (rv == NSOKButton) {
+        id batch = [NSKeyedUnarchiver unarchiveObjectWithFile:
+            [[filePanel filenames] objectAtIndex: 0]];
+        [categories selectItemWithTitle: [batch category]];
+        [dateTaken setStringValue:
+            [[batch taken] descriptionWithCalendarFormat: @"%Y/%m/%d"
+                                                timeZone: nil
+                                                  locale: nil ]];
+        [description setStringValue: [batch description]];
+        [keywords setStringValue: [batch keywords]];
+
+        [imgMatrix clear];
+        NSEnumerator *e=[[batch files] objectEnumerator];
+        id object;
+        while(object = [e nextObject]) {
+            [imgMatrix addFile: object];
+        }
+        [imgMatrix update];
+    }
 }
 
 - (IBAction)openUploadWindow:(id)sender

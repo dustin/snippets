@@ -2,6 +2,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "DumpMatrix.h"
+#import "Batch.h"
 
 @interface BatchController : NSWindowController
 {
