@@ -13,7 +13,6 @@ val create_auto : int -> ('a -> 'b) -> ('a, 'b) t
 val empty : ('a, 'b) t -> bool
 val mem : ('a, 'b) t -> 'a -> bool
 val remove : ('a, 'b) t -> 'a -> unit
-val remove_if_full : ('a, 'b) t -> unit
 val add : ('a, 'b) t -> 'a -> 'b -> unit
 val find : ('a, 'b) t -> 'a -> 'b
 val iter_keys : ('a, 'b) t -> ('a -> 'c) -> unit

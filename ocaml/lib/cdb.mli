@@ -1,6 +1,6 @@
 
 (** CDB Implementation.
-	http://cr.yp.to/cdb/cdb.txt
+ {{:http://cr.yp.to/cdb/cdb.txt} http://cr.yp.to/cdb/cdb.txt}
  *)
 
 (** {1 Building a CDB } *)
