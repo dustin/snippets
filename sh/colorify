@@ -1,0 +1,11 @@
+#!/bin/sh
+# arch-tag: 21AFD523-5359-11D8-BB2C-000393CFE6B8
+
+for i in "$@"
+do
+	vim -e \
+		-c "set bg=dark" \
+		-c 'so $VIMRUNTIME/syntax/2html.vim' \
+		-c "w" \
+		-c "qa!" "$i"
+done
