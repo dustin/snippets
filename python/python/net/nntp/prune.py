@@ -4,6 +4,7 @@ from __future__ import generators
 
 import anydbm
 import time
+import os
 
 import pidlock
 
@@ -36,7 +37,7 @@ for k,v in walkDbm(olddb):
 				newdb[k]=v
 				kept+=1
 			else:
-				print "Age of " + k + ":  " + str(age) + ", removing."
+				# print "Age of " + k + ":  " + str(age) + ", removing."
 				pruned+=1
 		else:
 			# Not an article
