@@ -1,6 +1,6 @@
 indexing
    description: "The Replicator...";
-   version: "$Revision: 1.2 $";
+   version: "$Revision: 1.3 $";
 class PG_REPLICATE
 
 creation {ANY}
@@ -42,7 +42,7 @@ feature {ANY} -- Replication services
             db_from.get_row;
          end;
          a := db_from.last_row;
-         query := "select setval(" + seq + "(" + a @ 0 + ")";
+         query := "select setval(" + db_from.quote(seq) + ", " + a @ 0 + ")";
          io.put_string("Setting " + seq + " to " + a @ 0 + ".%N");
          db_to.query(query);
       end -- rep_seq
