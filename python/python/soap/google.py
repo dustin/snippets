@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: google.py,v 1.2 2002/04/16 00:25:05 dustin Exp $
+# $Id: google.py,v 1.3 2002/04/16 03:04:44 dustin Exp $
 
 from __future__ import generators
 
@@ -69,7 +69,7 @@ class GoogleSearch:
 
 		lastId=0
 		while 1:
-			currentId=results['startIndex']
+			currentId=self['startIndex']
 			startId=currentId
 
 			currentId=startId
