@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.10 2002/07/10 07:36:06 dustin Exp $
+	$Id: build.xml,v 1.11 2002/07/10 20:00:24 dustin Exp $
 
 	-->
 
@@ -90,6 +90,30 @@
 			<include name="net/spy/**/*.java"/>
 		</javac>
 	</target>
+
+  <target name="tests" depends="test-classes">
+    <java classname="net.spy.test.PoolTest">
+      <classpath refid="myclasses"/>
+			<classpath>
+				<fileset dir="${user.home}/lib/java">
+					<include name="junit.jar"/>
+				</fileset>
+        <pathelement path="tests"/>
+			</classpath>
+    </java>
+  </target>
+
+  <target name="tests-gui" depends="test-classes">
+    <java classname="junit.swingui.TestRunner" fork="yes">
+      <classpath refid="myclasses"/>
+			<classpath>
+				<fileset dir="${user.home}/lib/java">
+					<include name="junit.jar"/>
+				</fileset>
+        <pathelement path="tests"/>
+			</classpath>
+    </java>
+  </target>
 
 	<target name="dbstuff" depends="resultset,preparedstatement">
 	</target>

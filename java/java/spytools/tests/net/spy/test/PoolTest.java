@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PoolTest.java,v 1.2 2002/07/10 07:39:34 dustin Exp $
+// $Id: PoolTest.java,v 1.3 2002/07/10 20:00:30 dustin Exp $
 
 package net.spy.test;
 
@@ -78,26 +78,46 @@ public class PoolTest extends TestCase {
 			tp.addTask((Runnable)e.nextElement());
 		}
 		try {
-			tp.waitForTaskCount(0);
-			tp.shutdown();
-			tp.waitForThreads();
+			// Wait for all jobs to finish, *or* for an error to occur.
+			boolean finished=false;
+			boolean shutdown=false;
+			while(!finished) {
+				// If all of the tasks have been accepted, tell the pool we
+				// won't be sending in anymore
+				if(tp.getTaskCount()==0 && !shutdown) {
+					tp.shutdown();
+					shutdown=true;
+				}
+
+				// If all of the threads are gone, we're finished.
+				if(tp.getActiveThreadCount() == 0) {
+					finished=true;
+				}
+
+				// Check for errors
+				int errors=0;
+				for(Enumeration e=v.elements(); e.hasMoreElements();) {
+					TestTask tt=(TestTask)e.nextElement();
+					errors+=tt.getFailures();
+				}
+				assertTrue(errors == 0);
+
+				// Wait a second before looping
+				Thread.sleep(1000);
+			}
 		} catch(InterruptedException ie) {
 			ie.printStackTrace();
 			fail("Interrupted");
 		}
 
-		int errors=0;
+		// Count the successes
 		int successes=0;
 		for(Enumeration e=v.elements(); e.hasMoreElements();) {
 			TestTask tt=(TestTask)e.nextElement();
-			errors+=tt.getFailures();
 			successes+=tt.getSuccesses();
 		}
 
-		if(errors>0) {
-			fail("There were " + errors + " failures");
-		}
-
+		// Make sure there were enough successes
 		assertTrue(successes == (each * tasks));
 	}
 

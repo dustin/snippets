@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.35 2002/07/10 05:42:04 dustin Exp $
+// $Id: PoolContainer.java,v 1.36 2002/07/10 20:00:28 dustin Exp $
 
 package net.spy.pool;
 
@@ -138,8 +138,9 @@ public class PoolContainer extends Object {
 						// We're halfway through, or more!  Desperate measures!
 						if(retry==retries/2) {
 							debug("!!! Trying to force cleanup!");
-							System.gc();
-							System.runFinalization();
+							GarbageCollector gc=
+								GarbageCollector.getGarbageCollector();
+							gc.collect();
 						}
 						// Wait a half a second if the pool is full, in case
 						// something gets checked in
@@ -407,4 +408,5 @@ public class PoolContainer extends Object {
 		}
 		pooldebug.debug(msg);
 	}
+
 }
