@@ -1,8 +1,11 @@
 # PROFILE=-pg
-CFLAGS=-O2 -Wall $(PROFILE)
-LDFLAGS=-g
+CC=@CC@
+CFLAGS=@CFLAGS@ @DEFS@ $(PROFILE)
+LDFLAGS=@LDFLAGS@
 OBJ=scoring.o dict.o search.o
 LIB=-L. -lscrabble
+RANLIB=@RANLIB@
+AR=@AR@
 
 all: search
 
@@ -16,8 +19,8 @@ scoring: scoring_main.o libscrabble.a
 	$(CC) $(PROFILE) $(LDFLAGS) -o $@ scoring_main.o $(LIB)
 
 libscrabble.a: $(OBJ)
-	ar rc $@ $(OBJ)
-	ranlib libscrabble.a
+	$(AR) rc $@ $(OBJ)
+	$(RANLIB) libscrabble.a
 
 dict_main.o: dict.c
 	$(CC) $(CFLAGS) $(PROFILE) -DDICT_MAIN -c -o $@ dict.c

@@ -1,0 +1,53 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(search.c)
+
+dnl Checks for programs.
+AC_PROG_CC(-g)
+AC_PROG_RANLIB
+AC_PATH_PROG(AR, ar, /bin/ar, $PATH)
+
+DICTIONARY=""
+AC_ARG_WITH(dict, [  --with-dict             path to dictionary list],
+	[
+		DICTIONARY=$withval
+		echo "Dictionary is $DICTIONARY"
+	], [
+		AC_MSG_CHECKING(dictionary list)
+		D=""
+		for d in /usr/share/dict/words /usr/dict/words
+		do
+			if test -f $d
+			then
+				D=$d
+			fi
+		done
+		if test "$D" != ""
+		then
+			DICTIONARY=$D
+			AC_MSG_RESULT($DICTIONARY)
+		else
+			AC_MSG_RESULT(not found)
+			echo ""
+			echo "A dictionary is required"
+			echo "Use --with-dict to provide the location"
+			echo ""
+			exit 1
+		fi
+	])
+dnl AC_DEFINE(DICTIONARY, $DICTIONARY)
+AC_SUBST(DICTIONARY)
+
+
+dnl Checks for libraries.
+dnl Replace `main' with a function in -lscrabble:
+
+dnl Checks for header files.
+AC_HEADER_STDC
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(strdup)
+
+AC_OUTPUT(Makefile)
