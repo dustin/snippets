@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.9 2000/03/17 09:41:28 dustin Exp $
+ * $Id: PhotoSession.java,v 1.10 2000/03/17 09:52:42 dustin Exp $
  */
 
 package net.spy.photo;
@@ -775,8 +775,14 @@ public class PhotoSession extends Object
 	// Display search results
 	// This whole thing will fail if there's no session.
 	protected void displaySearchResults() throws ServletException {
+		if(session==null) {
+			throw new ServletException("There's no session!");
+		}
 		PhotoSearchResults results=
 			(PhotoSearchResults)session.getValue("search_results");
+		if(results==null) {
+			throw new ServletException("There are no search results!");
+		}
 
 		String middle="";
 		Hashtable h=null;
