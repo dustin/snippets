@@ -1,6 +1,8 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.14 2000/10/18 03:15:02 dustin Exp $
+# $Id: sendpage.tcl,v 1.15 2000/10/20 08:48:08 dustin Exp $
+# This software is free for non-commercial use.  Any modifications of this
+# software should be sent back to me.
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -235,7 +237,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.14 $ }
+	set rev { $Revision: 1.15 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
