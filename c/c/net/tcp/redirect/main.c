@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.11 1998/01/10 03:33:41 dustin Exp $
+ * $Id: main.c,v 1.12 1998/01/31 00:10:55 dustin Exp $
  */
 
 #include <config.h>
@@ -20,10 +20,10 @@
 #include <sys/socket.h>
 #include <assert.h>
 
+static void resettraps(void);
+
 struct confType *cf;
 int _debug;
-
-static void resettraps(void);
 
 static RETSIGTYPE serv_sigint(int sig)
 {
@@ -105,7 +105,8 @@ static void writepid(int pid)
            break;
         case PID_ACTIVE:
            puts("Active PID file found, exiting...");
-           kill(pid, SIGTERM);
+           if(kill(pid, SIGTERM)<0)
+               puts("Couldn't kill child, you might have a problem.");
            exit(1);
     }
     if(NULL ==(f=fopen(pidfile, "w")) )

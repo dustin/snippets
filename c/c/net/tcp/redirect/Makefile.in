@@ -1,16 +1,19 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.4 1998/01/10 03:33:37 dustin Exp $
+# $Id: Makefile.in,v 1.5 1998/01/31 00:10:51 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
+LINT=lint
 INCLUDES=-Ireadconfig -I.
 DEFINES=
 CFLAGS=@CFLAGS@ $(INCLUDES) $(DEFINES)
 LIBS=@LIBS@ readconfig/readconfig.a
 LDFLAGS=$(LIBS)
 
+.SUFFIXES: .c .o .l .a .ln
 OBJS=main.o sockets.o cluster.o
 SRCS=main.c sockets.c cluster.c
+LINTS=main.ln sockets.ln cluster.ln
 EXES=redirect
 AUTOJUNK=config.h config.status config.cache config.log Makefile
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.6 1998/01/10 03:33:38 dustin Exp $
+ * $Id: cluster.c,v 1.7 1998/01/31 00:10:53 dustin Exp $
  */
 
 #include <config.h>
@@ -184,7 +184,7 @@ struct cluster **getcluster(char *p, int stats)
     char key[80];
     int i;
     char *al;
-    void *(*f)(char *p, int stats);
+    struct cluster **(*f)(char *p, int stats);
     struct namedfunc funclist[]={
 	{ "roundrobin", clustRoundRobin },
 	{ "topdown", clustTopDown },
@@ -205,13 +205,13 @@ struct cluster **getcluster(char *p, int stats)
     if(funclist[i].func==NULL)
     {
 	_ndebug(2, ("Warning:  No clustering algorithm known named %s\n", al));
-	f=(void *)funclist[0].func;
+	f=funclist[0].func;
     }
     else
     {
 	_ndebug(2, ("Using a %s algorithm for clustering.\n", al));
-	f=(void *)funclist[i].func;
+	f=funclist[i].func;
     }
 
-    return((struct cluster **)f(p, stats));
+    return(f(p, stats));
 }
