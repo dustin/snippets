@@ -40,11 +40,9 @@ for type in (1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'C', 'H', 'I', 'P', 'R', 'S','Z'):
 
 print """-- For looking at stuff.
 create view counts as
-	select 'loaded_files' as Table, count(*) from loaded_files
-	union"""
-for type in (1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'C', 'H', 'I', 'P', 'R', 'S','Z'):
-	print "\tselect 'type_" + str(type).lower() \
-		+ "' as Table, count(*) from type_" + str(type).lower()
-	if type != 'Z':
-		print "\tunion"
-print ";"
+	select a.tablename, sum(rows) as rows
+		from all_files a, loaded_files l
+		where a.filename = l.filename
+		group by a.tablename
+;
+"""

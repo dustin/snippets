@@ -34,15 +34,24 @@ def main():
 	c = counter.Counter()
 	totalsize = 0
 	bytype=dict()
+	states=dict()
+	processed_states=dict()
 
 	for d in argv[1:]:
 		todo = 0
 		for ftmp in os.listdir(d):
 			if string.find(ftmp, ".zip") >= 0:
 				f= d + "/" + ftmp
-				if not pc.isFinished(f):
+				if pc.isFinished(f):
+					processed_states[os.path.basename(d)]=1
+				else:
 					nr, nrbytype=c.count(f)
 					todo += nr
+					k = os.path.basename(d)
+					if states.has_key(k):
+						states[k]+=nr
+					else:
+						states[k]=nr
 					for k in nrbytype.keys():
 						if bytype.has_key(k):
 							bytype[k] += nrbytype[k]
@@ -56,6 +65,12 @@ def main():
 	a.sort()
 	for k in a:
 		print "Records of type " + k + ":  " + str(bytype[k])
+	print "Have not added any records for the following states:"
+	a=states.keys()
+	a.sort()
+	for k in a:
+		if not processed_states.has_key(k):
+			print "\t" + k + "\t" + str(states[k])
 
 if __name__ == '__main__':
 	main()
