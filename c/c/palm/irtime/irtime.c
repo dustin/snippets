@@ -1,19 +1,10 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.7 2003/03/12 09:02:40 dustin Exp $
+ * $Id: irtime.c,v 1.8 2003/03/12 09:25:17 dustin Exp $
  */
 
 #include <PalmOS.h>
-
-/*
-#include <Common.h>
-#include <System/SysAll.h>
-#include <System/ExgMgr.h>
-#include <System/ErrorMgr.h>
-#include <System/StringMgr.h>
-#include <UI/UIAll.h>
-*/
 
 #include "irtime.h"
 #include "callback.h"
