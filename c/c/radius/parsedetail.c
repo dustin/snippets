@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.5 1997/09/22 16:47:10 dustin Exp $
+ * $Id: parsedetail.c,v 2.6 1997/09/22 18:29:18 dustin Exp $
  */
 
 #include <stdio.h>
@@ -134,11 +134,12 @@ void display(void)
 
 void help(char *me)
 {
+    char str[32];
     char *p;
-    p="$Revision: 2.5 $";
 
     /* Pull out version info */
-    for(; *p!=' '; p++);
+    strcpy(str, "$Revision: 2.6 $");
+    for(p=str; *p!=' '; p++);
     p++; p[strlen(p)-1]=0x00;
 
     printf("%s %s Copyright (c) 1996-1997  Dustin Sallings\n", me, p);
