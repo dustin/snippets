@@ -1,55 +1,29 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: pdo.c,v 1.2 1998/10/18 10:00:45 dustin Exp $
+ * $Id: pdo.c,v 1.3 1998/10/18 21:42:38 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 #include <sys/wait.h>
 #include <getopt.h>
 #include <assert.h>
 
-/* Work to do is global so the signal handler can handle it. */
-static char **jobs = 0;
-static int job_index = 0;
-
-int
-dowork()
+/* spawn a child to do the work */
+void
+dowork(char *job)
 {
 	int     pid, ret;
-	if (jobs[job_index]) {
-		pid = fork();
-		assert(pid >= 0);
-		if (pid == 0) {
-			signal(SIGCHLD, SIG_DFL);
-			printf("system(%s)\n", jobs[job_index]);
-			system(jobs[job_index]);
-			exit(0);
-		} else {
-			job_index++;
-			ret = 0;
-		}
-	} else {
-		ret = -1;
+	pid = fork();
+	assert(pid >= 0);
+	if (pid == 0) {
+		printf("%05d: system(%s)\n", getpid(), job);
+		system(job);
+		exit(0);
 	}
-	return (ret);
-}
-
-void
-will_work_for_food(int sig)
-{
-	int     pid;
-	pid = 1;
-	while (pid > 0) {
-		pid = waitpid(0, NULL, WUNTRACED | WNOHANG);
-		if (pid > 0)
-			dowork();
-	}
-	signal(SIGCHLD, will_work_for_food);
 }
 
 char   *
@@ -74,7 +48,7 @@ void
 usage(char *progname)
 {
 	printf("Parallel Do\n"
-	    "$Id: pdo.c,v 1.2 1998/10/18 10:00:45 dustin Exp $\n"
+	    "$Id: pdo.c,v 1.3 1998/10/18 21:42:38 dustin Exp $\n"
 	    "Usage:  %s [-j n_jobs] jobfile\n", progname);
 }
 
@@ -83,8 +57,13 @@ main(int argc, char **argv)
 {
 	extern char *optarg;
 	extern int optind;
-	int     c, i, maxkids = 1, index = 0, size = 64;
+	int     pid, c, i, maxkids = 1, index = 0, size = 64;
 	char    buf[8192];
+
+	/* the job holder */
+	char **jobs = 0;
+	int job_index = 0;
+
 	FILE   *f;
 
 	while ((c = getopt(argc, argv, "j:")) != -1) {
@@ -127,18 +106,29 @@ main(int argc, char **argv)
 		}
 	}
 
-	signal(SIGCHLD, will_work_for_food);
+	printf("Found %d jobs, maxkids is %d\n", index, maxkids);
 
 	/* fork off the initial kids */
-	for (i = 0; i < maxkids; i++) {
-		if (dowork() < 0)
-			break;
+	for (job_index = 0; job_index < maxkids && jobs[job_index]; job_index++) {
+		dowork(jobs[job_index]);
 	}
 
-	/* Rest of the program just sits here, letting the signal handler do
-	 * the processing.
-	 */
+	/* Do the processing */
 	while (jobs[job_index]) {
-		pause();
+		pid = waitpid(0, NULL, WUNTRACED);
+		if (pid > 0) {
+			printf("%05d finished\n", pid);
+			dowork(jobs[job_index]);
+			job_index++; /* get the next job */
+		}
+	}
+	/* wait for the last children */
+	for(i=0; i<maxkids; i++) {
+		pid = waitpid(0, NULL, WUNTRACED);
+		if(pid>0) {
+			printf("%05d finished\n", pid);
+		} else {
+			break; /* we're done */
+		}
 	}
 }
