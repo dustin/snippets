@@ -1,10 +1,10 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: DEM_A.java,v 1.1 2000/07/30 10:42:23 dustin Exp $
+// $Id: DEM_A.java,v 1.2 2001/02/03 22:41:24 dustin Exp $
 
 import java.io.*;
 import java.util.*;
 
-public class DEM_A extends Object {
+public class DEM_A extends Object implements Serializable {
 
 	protected String name=null;
 	protected String descr=null;
@@ -144,7 +144,84 @@ public class DEM_A extends Object {
 		// Rows and columns
 		rows=Integer.parseInt(type_a.substring(852, 858).trim());
 		columns=Integer.parseInt(type_a.substring(858, 864).trim());
+		if(rows==1) {
+			rows=columns;
+		}
 
 		// That's the end of the A block.
+	}
+
+	// Gets
+
+	public String getName() {
+		return(name);
+	}
+
+	public String getDescr() {
+		return(descr);
+	}
+
+	public int getDemLevel() {
+		return(dem_level);
+	}
+
+	public int getPatternCode() {
+		return(pattern_code);
+	}
+
+	public int getPlaniMetric() {
+		return(planimetric);
+	}
+
+	public int getZoneCode() {
+		return(zone_code);
+	}
+
+	public int getGroundUnits() {
+		return(units_code_g);
+	}
+
+	public int getElevationUnits() {
+		return(units_code_e);
+	}
+
+	public int getNSides() {
+		return(n_sides);
+	}
+
+	public int getAccuracyCode() {
+		return(accuracy_code);
+	}
+
+	public int getRows() {
+		return(rows);
+	}
+
+	public int getColumns() {
+		return(columns);
+	}
+
+	public double[][] getCorners() {
+		return(corners);
+	}
+
+	public double getMinElevation() {
+		return(min_elevation);
+	}
+
+	public double getMaxElevation() {
+		return(max_elevation);
+	}
+
+	public double getAngle() {
+		return(angle);
+	}
+
+	public double[] getSpacialResolution() {
+		return(spacial_resolution);
+	}
+
+	public double[] getProjectionParameters() {
+		return(proj_params);
 	}
 }
