@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.27 2001/08/30 00:51:20 dustin Exp $
+// $Id: PoolContainer.java,v 1.28 2001/08/30 00:57:53 dustin Exp $
 
 package net.spy.pool;
 
@@ -247,13 +247,13 @@ public class PoolContainer extends Object {
 			// We're going to flip through this twice...once to remove
 			// things that we *have* to, then once to remove things that we
 			// can.
-			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				PoolAble p=(PoolAble)e.nextElement();
+			for(Iterator it=pool.iterator(); it.hasNext();) {
+				PoolAble p=(PoolAble)it.next();
 				if(p.pruneStatus()>=PoolAble.MUST_CLEAN) {
 					// Tell it that it can go away now.
 					debug("Removing " + p);
 					p.discard();
-					pool.removeElement(p);
+					it.remove();
 				}
 			}
 			// OK, now let's get rid of the ones we can.
