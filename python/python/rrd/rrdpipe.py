@@ -3,7 +3,7 @@
 A pipe interface to rrdtool.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: rrdpipe.py,v 1.2 2002/03/28 10:35:10 dustin Exp $
+$Id: rrdpipe.py,v 1.3 2002/03/28 10:38:28 dustin Exp $
 """
 
 import os
@@ -115,7 +115,12 @@ class RRDPipe:
 		p, e=os.waitpid(self.pid, os.WNOHANG)
 		if p==self.pid:
 			self.pid=0
-			raise SubprocessBroken("Exit code:  " + str(os.WEXITSTATUS(e)))
+			msg=''
+			if os.WIFSIGNALED(e):
+				msg="Exited with signal " + str(os.WTERMSIG(e))
+			else:
+				msg="Exit code:  " + str(os.WEXITSTATUS(e))
+			raise SubprocessBroken(msg)
 
 	def sendCommand(self, cmd):
 		"""Send an arbitrary command to the rrdtool backend."""
