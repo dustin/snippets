@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.6 2000/09/05 08:07:13 dustin Exp $
+// $Id: SpyLDIF.java,v 1.7 2000/10/05 23:38:45 dustin Exp $
 
 package net.spy.util;
 
@@ -8,6 +8,13 @@ import java.io.*;
 import sun.misc.*;
 
 public class SpyLDIF extends Hashtable {
+
+	/**
+	 * Get a new SpyLDIF object that's not initialized
+	 */
+	public SpyLDIF() {
+		super();
+	}
 
 	/**
 	 * Return a new SpyLDIF object from the passed in LDIF entry
@@ -59,6 +66,28 @@ public class SpyLDIF extends Hashtable {
 	public int getInt(String key) {
 		String res=(String)super.get(key);
 		return(Integer.parseInt(res));
+	}
+
+	/**
+	 * Get LDIF text from this LDIF object
+	 */
+	public String getLDIF() {
+		String ret="";
+		BASE64Encoder base64=new BASE64Encoder();
+
+		for(Enumeration e=keys(); e.hasMoreElements(); ) {
+			String k=null, v=null;
+			k=(String)e.nextElement();
+
+			// Don't do the encoded stuff
+			if(k.indexOf(":encoded")==-1) {
+				v=getString(k);
+				String v2=base64.encodeBuffer(v.getBytes());
+				ret+=k + ":: " + v2;
+			}
+		}
+
+		return(ret);
 	}
 
 	protected void decodeAndStore(String chunk) {
