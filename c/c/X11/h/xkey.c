@@ -119,7 +119,7 @@ char *TranslateKeyCode(XEvent *ev)
 	 /* dumpEvent(xke); */
 	 current_window=xke->window;
 	 if(current_window != last_window) {
-		printf("\nNew Window:  %u\n", current_window);
+		printf("\nNew Window:  0x%x\n", current_window);
 		last_window=current_window;
 	 }
      count = XLookupString(xke, key_buff, KEY_BUFF_SIZE, &ks,NULL);
