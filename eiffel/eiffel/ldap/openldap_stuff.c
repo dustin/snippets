@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: openldap_stuff.c,v 1.8 1999/06/07 07:35:05 dustin Exp $
+ * $Id: openldap_stuff.c,v 1.9 1999/06/07 19:50:35 dustin Exp $
  * See forum.txt for licensing information.
  */
 
@@ -113,6 +113,8 @@ c_ldap_search(LDAP_HANDLE * ldap, char *filter, int scope)
 
 	rc = ldap_search_st(ldap->ld, ldap->search_base, scope, filter, 0, 0, &tv,
 	    &(ldap->res));
+
+	ldap->last_error=ldap_result2error(ldap->ld, ldap->res, 0);
 
 	return (rc == LDAP_SUCCESS);
 }
@@ -380,6 +382,16 @@ c_ldap_mod_clean(LDAP_HANDLE * ldap)
 
 	if (p)
 		ldap_mods_free(p, 1);
+}
+
+/* Get a message describing the last error */
+char *
+c_ldap_err_msg(LDAP_HANDLE *ldap)
+{
+	assert(ldap);
+	assert(ldap->ld);
+
+	return(ldap_err2string(ldap->last_error));
 }
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: openldap_stuff.h,v 1.5 1999/06/07 07:35:07 dustin Exp $
+ * $Id: openldap_stuff.h,v 1.6 1999/06/07 19:50:37 dustin Exp $
  * See forum.txt for licensing information.
  */
 
@@ -29,6 +29,8 @@ typedef struct {
 	char   *value_tmp;
 
 	LDAP   *ld;
+
+	int     last_error;
 
 	LDAPMessage *res;
 	LDAPMessage *entry;

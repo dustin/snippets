@@ -2,7 +2,7 @@ indexing
    author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1997 Dustin Sallings <dustin@spy.net>";
 license: "See forum.txt";
-version: "$Revision: 1.8 $";
+version: "$Revision: 1.9 $";
 class LDAP
 -- LDAP Access Routines.
 
@@ -318,6 +318,14 @@ feature {ANY} -- Status
          Result := ldap_have_mods;
       end -- have_mods
 
+	error_message: STRING is
+		-- Get the last error message
+		require
+			connected;
+		do
+			Result.from_external_copy(c_ldap_err_msg(ldap_handle));
+		end
+
 feature {NONE}
    -- C functions
 
@@ -420,5 +428,10 @@ feature {NONE}
       -- delete
       external "C_WithoutCurrent"
       end -- c_ldap_delete
+
+	c_ldap_err_msg(ld: POINTER): POINTER is
+		-- Get the last error message
+		external "C"
+		end -- c_ldap_err_msg
 
 end -- class LDAP
