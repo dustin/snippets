@@ -19,16 +19,19 @@ CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
 
 .SUFFIXES: .java .class .jar
 
-all: $(CLASSES)
+all: photo.jar
 
-test: $(CLASSES)
+photo.jar: $(CLASSES)
+	$(JAR) cv0f $@ $(CLASSES)
+
+test: all
 	env CLASSPATH=$(CLASSPATH) $(SERVLETRUNNER) -d $(PWD)
 
-install: $(CLASSES)
+install: all
 	$(SCP) $(CLASSES) $(DEST)
 
 clean:
-	rm -f $(CLASSES)
+	rm -f $(CLASSES) photo.jar
 
 .java.class:
 	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<

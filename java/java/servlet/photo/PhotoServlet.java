@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.25 1999/10/05 04:11:58 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.26 1999/10/09 21:50:16 dustin Exp $
  */
 
 import java.io.*;
@@ -199,7 +199,7 @@ public class PhotoServlet extends HttpServlet
 			photo=getDBConn();
 			Statement st=photo.createStatement();
 
-			query = "select * from searches order by name,addedby\n";
+			query = "select * from searches order by name\n";
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
 				byte data[];
@@ -297,7 +297,7 @@ public class PhotoServlet extends HttpServlet
 			query = "insert into album(keywords,descr,cat,taken,addedby)\n"
 				  + "    values('" + keywords + "',\n\t'" + info + "',\n"
 				  + "    \t'" + category + "',\n\t'" + taken + "',\n"
-				  + "    '" + remote_user + "')\n";
+				  + "    '" + remote_uid + "')\n";
 			st.executeUpdate(query);
 			query = "select currval('album_id_seq')\n";
 			ResultSet rs = st.executeQuery(query);
@@ -605,8 +605,9 @@ public class PhotoServlet extends HttpServlet
 		sub = "";
 
 		query = "select a.keywords,a.descr,b.name,\n"
-			+ "   a.size,a.taken,a.ts,a.id,a.cat,a.addedby,b.id\n"
-			+ "   from album a, cat b\n   where a.cat=b.id\n"
+			+ "   a.size,a.taken,a.ts,a.id,a.cat,c.username,b.id\n"
+			+ "   from album a, cat b, wwwusers c\n   where a.cat=b.id\n"
+			+ "       and a.addedby=c.id\n"
 			+ "       and a.cat in (select cat from wwwacl\n"
 			+ "              where userid=" + remote_uid + ")";
 
@@ -800,10 +801,11 @@ public class PhotoServlet extends HttpServlet
 		image_id=Integer.valueOf(stmp);
 
 		query = "select a.id,a.keywords,a.descr,\n"
-			+ "   a.size,a.taken,a.ts,b.name,a.cat,a.addedby,b.id\n"
-			+ "   from album a, cat b\n"
+			+ "   a.size,a.taken,a.ts,b.name,a.cat,c.username,b.id\n"
+			+ "   from album a, cat b, wwwusers c\n"
 			+ "   where a.cat=b.id and a.id=" + image_id
-			+ "\n and a.cat in (select cat from wwwacl where "
+			+ "\n   and a.addedby=c.id\n"
+			+ "   and a.cat in (select cat from wwwacl where "
 			+ "userid=" + remote_uid + ")\n";
 
 		output += "<!-- Query:\n" + query + "\n-->\n";
