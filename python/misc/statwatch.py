@@ -31,7 +31,10 @@ try:
 
         def run(self):
             """Perform the update"""
-            self.host.update(self.prefix)
+            try:
+                self.host.update(self.prefix)
+            except:
+                self.host.setException(sys.exc_info())
 
     # Remember that we have threading support
     HAS_THREADING=True
@@ -46,6 +49,7 @@ class Host:
     def __init__(self, url):
         self.url=url
         self.vals={}
+        self.exception=None
 
     def update(self, prefix=""):
         """Update this host with values from the given URL"""
@@ -59,6 +63,20 @@ class Host:
                 v=int(v)
                 h[k] = v
         self.vals=h
+
+    def setException(self, e):
+        self.exception=e
+
+    def failed(self):
+        return self.exception is not None
+
+    def printExc(self):
+        if(self.failed()):
+            print "***  Error on " + str(self) + ":"
+            print "***   " + traceback.format_exception_only(\
+                self.exception[0], self.exception[1])[0]
+
+            self.exception=None
 
     def __repr__(self):
         return "<Host: " + self.url + ">"
@@ -107,16 +125,20 @@ else:
             try:
                 host.update(prefix)
             except IOError:
-                print "***  Error on " + str(host) + ":"
-                print "***   " + traceback.format_exception_only(\
-                    sys.exc_type, sys.exc_value)[0]
+                host.setException(sys.exc_info())
+                # print "***  Error on " + str(host) + ":"
+                # print "***   " + traceback.format_exception_only(\
+                    # sys.exc_type, sys.exc_value)[0]
 
 def updateAll(hosts, oldvals, prefix=""):
     """Update all of the hosts into the given dict.  Return the deltas"""
     doUpdate(hosts, prefix)
     dicts=[]
     for host in hosts:
-        dicts.append(host.vals)
+        if host.failed():
+            host.printExc()
+        else:
+            dicts.append(host.vals)
     # Merge all the dicts
     tmp=mergeDicts(dicts)
 
