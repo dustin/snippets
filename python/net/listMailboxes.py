@@ -8,6 +8,8 @@ import time
 import getpass
 import traceback
 
+import imaprange
+
 def boxParser(val):
     start=0
     for i in range(3):
@@ -19,27 +21,17 @@ def listBox(imap, box):
     sys.stderr.write("* Indexing %s\n" % box)
     rc, nm=imap.select(box, readonly=True)
     # print rc, nm
-    rc, stuff=imap.fetch('0:' + nm[0], '(body[header.fields (message-id)])')
-    ids=[]
-    for s in stuff:
-        # I would expect to get something for every chunk, but I get a blank
-        # paren between records
-        try:
-            if len(s) > 1:
-                headers=s[1].strip()
-                name, val=headers.split(': ')
-                ids.append(val)
-        except ValueError, e:
-            sys.stderr.write("! error on %s\n" % `s`)
-            traceback.print_exc()
-        except TypeError, e:
-            sys.stderr.write("! error on %s\n" % `s`)
-            traceback.print_exc()
-    ids.sort()
+    msgs=[]
+    for msgnum in imaprange.rangemaker(10, int(nm[0])+1):
+        rc, stuff=imap.fetch(str(msgnum), '(rfc822.size envelope body.peek[])')
+        for s in stuff:
+            mtmp=md5.new(`s`)
+            msgs.append(mtmp.hexdigest())
+    msgs.sort()
     m=md5.new()
-    for i in ids:
+    for i in msgs:
         m.update(i)
-    print box, nm, len(ids), m.hexdigest()
+    print box, nm, len(msgs), m.hexdigest()
 
 if __name__ == '__main__':
 
