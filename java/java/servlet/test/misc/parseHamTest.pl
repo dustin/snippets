@@ -44,7 +44,7 @@ while(($question_no, $answer)=findQuestion()) {
 			if($answer_id==-1) {
 				$question.=$_ . " ";
 			} else {
-				$answers[$answer_id].=$_;
+				$answers[$answer_id].=$_ . " ";
 			}
 		}
 	}
