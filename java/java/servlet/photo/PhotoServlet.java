@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.4 1999/09/15 22:46:54 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.5 1999/09/15 23:36:25 dustin Exp $
  */
 
 import java.io.*;
@@ -18,20 +18,20 @@ import javax.servlet.http.*;
 // The class
 public class PhotoServlet extends HttpServlet
 {
-	static Connection photo;
-	static Statement st;
-	static Integer remote_uid;
-	static String remote_user, self_uri;
+	Connection photo;
+	Statement st;
+	Integer remote_uid;
+	String remote_user, self_uri;
+
+	// Do a GET request (just call doPost)
+	public void doGet (
+		HttpServletRequest request, HttpServletResponse response
+	) throws ServletException, IOException {
+		doPost(request, response);
+	}
 
 	// Do a POST request
 	public void doPost (
-		HttpServletRequest request, HttpServletResponse response
-	) throws ServletException, IOException {
-		doGet(request, response);
-	}
-
-	// Do a GET request
-	public void doGet (
 		HttpServletRequest request, HttpServletResponse response
 	) throws ServletException, IOException {
 
@@ -100,7 +100,7 @@ public class PhotoServlet extends HttpServlet
 
 	}
 
-	private static String showSaved() throws SQLException, IOException {
+	private String showSaved() throws SQLException, IOException {
 		Statement st;
 		String query, out="";
 		BASE64Decoder base64 = new BASE64Decoder();
@@ -120,7 +120,7 @@ public class PhotoServlet extends HttpServlet
 		return(out);
 	}
 
-	private static String getCatList() throws SQLException, IOException {
+	private String getCatList() throws SQLException, IOException {
 		Statement st;
 		String query, out="";
 
@@ -139,7 +139,7 @@ public class PhotoServlet extends HttpServlet
 		return(out);
 	}
 
-	private static void doStyleForm (
+	private void doStyleForm (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output;
@@ -148,7 +148,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
-	private static void doGetStylesheet (
+	private void doGetStylesheet (
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		Cookie cookies[];
@@ -178,7 +178,7 @@ public class PhotoServlet extends HttpServlet
 		}
 	}
 
-	private static void doSetStyle(
+	private void doSetStyle(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		Cookie c;
@@ -228,11 +228,11 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, stmp);
 	}
 
-	private static String http_encode(String what) {
+	private String http_encode(String what) {
 		return(URLEncoder.encode(what));
 	}
 
-	private static void doFindForm(
+	private void doFindForm(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
@@ -247,7 +247,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
-	private static void doCatView(
+	private void doCatView(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");
@@ -287,7 +287,7 @@ public class PhotoServlet extends HttpServlet
 		send_response(response, output);
 	}
 
-	private static void doIndex(
+	private void doIndex(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String output = new String("");;
@@ -303,7 +303,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Get the UID
-	private static void getUid() throws ServletException {
+	private void getUid() throws ServletException {
 		String query;
 		// This is our exception, in case we need it.
 		ServletException x;
@@ -325,7 +325,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Build the bigass complex search query.
-	private static String buildQuery(HttpServletRequest request)
+	private String buildQuery(HttpServletRequest request)
 		throws ServletException {
 		String query, sub, stmp, order, odirection, fieldjoin, join;
 		boolean needao;
@@ -505,7 +505,7 @@ public class PhotoServlet extends HttpServlet
 
 
 	// Split that shit
-	private static String[] split(char on, String input) {
+	private String[] split(char on, String input) {
 		Vector v = new Vector();
 		StringTokenizer st = new StringTokenizer(input);
 		String ret[];
@@ -525,7 +525,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Top of the html...
-	private static String start_html(String title) {
+	private String start_html(String title) {
 		String ret = "<html><head><title>" + title + "</title>\n<head>\n" +
 		"</head><body bgcolor=\"#fFfFfF\">";
 
@@ -533,7 +533,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Find and display images.
-	private static void doDisplay(
+	private void doDisplay(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String query, output = "";
@@ -583,7 +583,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Send the response text...
-	private static void send_response(HttpServletResponse response, String text)
+	private void send_response(HttpServletResponse response, String text)
 	{
 		// set content type and other response header fields first
 		response.setContentType("text/html");
@@ -593,11 +593,12 @@ public class PhotoServlet extends HttpServlet
 			out.print(tokenize("tail.inc", new Hashtable()));
 			out.close();
 		} catch(Exception e) {
+			// I really don't care at this point if this doesn't work...
 		}
 	}
 
 	// Find and display images.
-	private static void doFind(
+	private void doFind(
 		HttpServletRequest request, HttpServletResponse response)
 		throws ServletException {
 		String query, output = "";
@@ -670,7 +671,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Link to more search results
-	private static String linktomore(HttpServletRequest request,
+	private String linktomore(HttpServletRequest request,
 		int start, int max) {
 		String ret = "";
 
@@ -694,7 +695,7 @@ public class PhotoServlet extends HttpServlet
 	}
 
 	// Show an image
-	private static void showImage(HttpServletRequest request,
+	private void showImage(HttpServletRequest request,
 		HttpServletResponse response) throws ServletException {
 
 		String query;
@@ -729,7 +730,7 @@ public class PhotoServlet extends HttpServlet
 		// out.close();
 	}
 
-	private static String dbquote_str(String thing) {
+	private String dbquote_str(String thing) {
 
 		// Quick...handle null
 		if(thing == null) {
@@ -754,7 +755,7 @@ public class PhotoServlet extends HttpServlet
 		return(scopy);
 	}
 
-	private static String tokenize(String file, Hashtable vars) {
+	private String tokenize(String file, Hashtable vars) {
 		Toker t=new Toker();
 		String ret;
 
