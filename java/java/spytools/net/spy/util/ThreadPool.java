@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.7 2002/07/10 05:42:28 dustin Exp $
+// $Id: ThreadPool.java,v 1.8 2002/07/10 18:37:27 dustin Exp $
 
 package net.spy.util;
 
@@ -169,8 +169,10 @@ public class ThreadPool extends Object {
 	 * Shuts down in case you didn't.
 	 */
 	protected void finalize() throws Throwable {
-		System.err.println(
-			"********** Shutting down abandoned thread pool **********");
+		if(!shutdown) {
+			System.err.println(
+				"********** Shutting down abandoned thread pool **********");
+		}
 		shutdown();
 	}
 
@@ -225,7 +227,7 @@ public class ThreadPool extends Object {
 
 			threadId=threadIds++;
 
-			System.out.println("RunThread " + threadId + " going online.");
+			// System.out.println("RunThread " + threadId + " going online.");
 
 			// Adjust the name to include the thread number
 			setName("RunThread#" + threadId);
