@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.10 2002/03/12 21:03:08 dustin Exp $
+ * $Id: tablecounter.c,v 1.11 2002/03/12 23:04:31 dustin Exp $
  */
 
 #include <stdio.h>
@@ -21,10 +21,12 @@
 #define DBUSER "dustin"
 #define DBPASS "blahblah"
 
-#define MAKEDBSPEC3(a, b, c) { DBSERVER, DBUSER, DBPASS, NULL, a, NULL, b, c}
-#define MAKEDBSPEC(a, b) MAKEDBSPEC3(a, b, "ts")
+#define MAKEDBSPEC3(dbname, table, tscolumn) \
+	{ DBSERVER, DBUSER, DBPASS, NULL, dbname, NULL, table, tscolumn}
+#define MAKEDBSPEC(dbname, table) MAKEDBSPEC3(dbname, table, "ts")
 
-#define TIGERDB(a) { "disk", DBUSER, DBPASS, NULL, "tiger", "2345", a, "ts" }
+#define TIGERDB(table) \
+	{ "disk", DBUSER, DBPASS, NULL, "tiger", "2345", table, "ts" }
 
 #define INCREMENT 3600
 
