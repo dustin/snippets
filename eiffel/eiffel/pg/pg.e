@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.7 1999/05/26 05:30:30 dustin Exp $
+-- $Id: pg.e,v 1.8 1999/05/26 06:01:45 dustin Exp $
 --
 class PG
 
@@ -105,10 +105,31 @@ feature {ANY}
 
    quote(s: STRING): STRING is
       -- Quote a string for safety.
+      require
+         s /= Void;
+      local
+         tmp: STRING;
+         i: INTEGER;
       do
-         !!Result.copy("'");
-         Result.append(s);
-         Result.append("'");
+         !!tmp.copy("'");
+         if s.index_of('%'') < s.count then
+            -- We only need to do this slow copy if we've got a quote
+            from
+               i := 0;
+            until
+               i > tmp.count
+            loop
+               if s.item(i) = '%'' then
+                  tmp.append_character('\');
+               end;
+               tmp.append_character(s.item(i));
+               i := i + 1;
+            end;
+         else
+            tmp.append(s);
+         end;
+         tmp.append("'");
+         Result := tmp;
       end -- quote
 
 feature {ANY} -- Connection options
