@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ZipCode.java,v 1.4 2002/11/11 18:22:23 dustin Exp $
+// $Id: ZipCode.java,v 1.5 2002/12/01 10:03:56 dustin Exp $
 
 package net.spy.rpc.services;
 
@@ -47,7 +47,7 @@ public class ZipCode extends Remote {
 
 		SpyCacheDB db=new SpyCacheDB(getConf());
 		PreparedStatement pst=db.prepareStatement(
-			"select * from zipcode_view where zipcode=?", 900);
+			"select * from zips.zipcode_view where zipcode=?", 900);
 		pst.setInt(1, zipcode);
 		ResultSet rs=pst.executeQuery();
 
@@ -106,7 +106,7 @@ public class ZipCode extends Remote {
 		}
 
 		StringBuffer query=new StringBuffer();
-		query.append("select * from zipcode_view ");
+		query.append("select * from zips.zipcode_view ");
 
 		if(keys.size() > 0) {
 			query.append("where ");
