@@ -14,8 +14,7 @@ SCP=rcp
 DEST=bleu.west.spy.net:/usr/local/apache/java/net/spy/temperature/
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=net/spy/temperature/Temperature.class \
-	net/spy/temperature/Thermometer.class
+CLASSES=net/spy/temperature/Temperature.class
 
 .SUFFIXES: .java .class .jar
 
