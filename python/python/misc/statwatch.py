@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: statwatch.py,v 1.3 2003/07/17 16:26:09 dustin Exp $
+$Id: statwatch.py,v 1.4 2003/07/17 16:37:44 dustin Exp $
 """
 
 import sys
@@ -23,6 +23,14 @@ def updateHost(url, h, prefix=""):
 			v=int(v)
 			ov=h.get(k, 0)
 			h[k] = (v+ov)
+
+def signed(x):
+	rv=""
+	if rv < 0:
+		rv = "-" + `x`
+	else:
+		rv = "+" + `x`
+	return rv
 
 def updateAll(urls, h, prefix=""):
 	"""Update all of the URLs into the given dict.  Return the deltas"""
@@ -46,7 +54,7 @@ def updateAll(urls, h, prefix=""):
 			d=(v-ov)
 			deltas[k]=d
 			# Display the current value
-			print k + ":  " + `v`
+			print k + ":  " + `v` + " (" + signed(d) + ")"
 		h[k]=v
 	return deltas
 
