@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.10 2000/06/28 23:22:35 dustin Exp $
+ * $Id: SpyConfig.java,v 1.11 2000/10/10 01:39:47 dustin Exp $
  */
 
 package net.spy;
@@ -80,6 +80,23 @@ public class SpyConfig extends Hashtable {
 		}
 
 		return(loaded);
+	}
+
+	/**
+	 * Try to load a config file.  This function allows an object to load a
+	 * config file from a list of files.  Only the first file in the list
+	 * that works is actually loaded.
+	 *
+	 * @param confFiles an array of config file paths to attempt to load
+	 *
+	 * @return true if a config file was loaded
+	 */
+	public boolean loadConfig(String confFiles[]) {
+		boolean gotit=false;
+		for(int i=0; i<confFiles.length && gotit==false; i++) {
+			gotit=loadConfig(confFiles[i]);
+		}
+		return(gotit);
 	}
 
 	// Check to see if we have current data on this file.
