@@ -1,34 +1,42 @@
 ; This is sort of what's needed for Noelani's blog.
 
 ; Config
-(setq template "~/tmp/template.shtml")
-(setq outdir "~/tmp/")
-(setq index "~/tmp/index.shtml")
-(setq ddateformat "%Y/%m/%d %H:%M")
-(setq fndateformat "%Y%m%d%H%M")
+(defvar blog-template "~/tmp/template.shtml" "The new blog entry template.")
+(defvar blog-outdir "~/tmp/" "The blog directory.")
+(defvar blog-index "~/tmp/index.shtml" "The index file.")
+(defvar blog-ddateformat "%Y/%m/%d %H:%M" "Visible timestamp format.")
+(defvar blog-fndateformat "%Y%m%d%H%M" "Filename timestamp format.")
+
+; Add an entry to an index.
+(defun blog-add-index (ixpath newfile)
+  "Add a reference to the new file in the given index."
+  (let ((inf (find-file ixpath)))
+    (switch-to-buffer inf)
+    (goto-char (point-min))
+    (search-forward "%LIVELIST%")
+    (end-of-line)
+    (insert "\n<!--#include virtual=\"" newfile "\"-->")
+    (save-buffer inf)))
 
 ; Do the work
-(defun make-blog-entry ()
-  "Make a new blog entry."
-  (interactive
-   (let ((thedate (format-time-string ddateformat))
-	 (newfile (concat (format-time-string fndateformat) ".shtml"))
-	 (inf (find-file index))
-	 (nef (find-file (concat outdir newfile))))
+(defun blog-new-entry () "Make a new blog entry."
+   (let* ((thedate (format-time-string blog-ddateformat))
+	 (newfile (concat (format-time-string blog-fndateformat) ".shtml"))
+	 (inf (find-file blog-index))
+	 (nef (find-file (concat blog-outdir newfile))))
      ; Create the new file and fill in the template
      (switch-to-buffer nef)
-     (insert-file-contents template nil nil nil 1)
+     (insert-file-contents blog-template nil nil nil 1)
      (goto-char (point-min))
      (while (re-search-forward "%THEDATE%" nil t)
        (replace-match thedate nil nil))
      (save-buffer nef)
      ; Update the index
-     (switch-to-buffer inf)
-     (goto-char (point-min))
-     (search-forward "%LIVELIST%")
-     (end-of-line)
-     (insert "\n<!--#include virtual=\"" newfile "\"-->")
-     (save-buffer inf)
+     (blog-add-index blog-index newfile)
      (switch-to-buffer nef)
-     nil
-     )))
+     nil))
+
+(defun blog-make-entry ()
+  "Make a new blog entry."
+  (interactive
+   (blog-new-entry)))
