@@ -113,5 +113,8 @@ def rewriteFile(filename):
 for f in sys.argv[1:]:
 	rewriteFile(f)
 
-# Exit with the number of things modified
-sys.exit(modified)
+# Exit 0 if we modified stuff, else exit 1 (unless there was an error)
+ev=0
+if modified == 0:
+	ev=1
+sys.exit(ev)
