@@ -65,6 +65,63 @@ let add cdc k v =
 	cdc.table_count.(h land 0xff) <- cdc.table_count.(h land 0xff) + 1;
 ;;
 
+(** Is this option none? *)
+let is_none = function
+	None -> true
+	| _ -> false
+;;
+
+(** Is this option some? *)
+let is_some = function
+	Some(x) -> true
+	| _ -> false
+;;
+
+exception Empty_option;;
+
+(** Get an option value  *)
+let get_option o = function
+	Some(x) -> x
+	| None -> raise Empty_option
+;;
+
+(** Process a hash table *)
+let process_table cdc table_start slot_table slot_pointers i tc =
+	(* Length of the table *)
+	let len = tc * 2 in
+	(* Store the table position *)
+	slot_table := !slot_table @ [(pos_out cdc.out, len)];
+	(* Build the hash table *)
+	let ht = Array.make len None in
+	let cur_p = ref table_start.(i) in
+	(* from 0 to tc-1 because the loop will run an extra time otherwise *)
+	for u = 0 to (tc - 1) do
+		let hp = slot_pointers.(!cur_p) in
+		cur_p := !cur_p + 1;
+
+		(* Find an available hash bucket *)
+		let rec find_where where =
+			if (is_none ht.(where)) then
+				where
+			else (
+				if ((where + 1) = len) then (find_where 0)
+				else (find_where (where + 1))
+			) in
+		let where = find_where (((fst hp) / 256) mod len) in
+		ht.(where) <- Some hp;
+	done;
+	(* Write this hash table *)
+	Array.iter (fun hpp ->
+		match hpp with
+		  None ->
+			write_le cdc 0;
+			write_le cdc 0;
+		| Some(hp) ->
+			write_le cdc (fst hp);
+			write_le cdc (snd hp)
+		) ht;
+;;
+
 (** Close and finish the cdb creator. *)
 let close_cdb_out cdc =
 	let cur_entry = ref 0 in
@@ -83,19 +140,17 @@ let close_cdb_out cdc =
 		) cdc.pointers;
 	(* Write the shit out *)
 	let slot_table = ref [] in
-	Array.iteri (fun i x ->
-		(* Length of the table *)
-		let len = x * 2 in
-		(* Store the table position *)
-		slot_table := !slot_table @ [(pos_out cdc.out, len)];
-		(* XXX Build the hash table *)
-		) cdc.table_count;
+	(* Write out the hash tables *)
+	Array.iteri (process_table cdc table_start slot_table slot_pointers)
+		cdc.table_count;
 	(* write out the pointer sets *)
+	seek_out cdc.out 0;
 	List.iter (fun x -> write_le cdc (fst x); write_le cdc (snd x))
 		!slot_table;
 	close_out cdc.out
 ;;
 
+(** test app to create ``test.cdb'' and put some stuff in it *)
 let main() =
 	let c = open_out "test.cdb" in
 	add c "a" "1";
