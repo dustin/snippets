@@ -6,10 +6,11 @@ from sys import argv
 import xmlrpclib
 import pprint
 
-server=xmlrpclib.Server(argv[1])
+if __name__ == '__main__':
+    server=xmlrpclib.Server(argv[1])
 
-method = getattr(server, argv[2])
-if len(argv)>2:
-    pprint.pprint(apply(method, argv[3:]))
-else:
-    pprint.pprint(method())
+    method = getattr(server, argv[2])
+    if len(argv)>2:
+        pprint.pprint(apply(method, argv[3:]))
+    else:
+        pprint.pprint(method())
