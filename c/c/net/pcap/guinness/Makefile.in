@@ -1,0 +1,9 @@
+CFLAGS=-I/usr/local/include -I/home/dustin/prog/c/net/udp/mbk/mbkd
+LIBS=@LIBS@
+guinness: filter.o main.o netbsd.o
+	$(CC) -o $@ filter.o main.o netbsd.o $(LIBS) \
+		/home/dustin/prog/c/net/udp/mbk/mbkd/libmbk.a
+
+clean:
+	@touch blahblah.o
+	rm -f *.o guinness

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.3 1998/10/04 09:48:46 dustin Exp $
+ * $Id: filter.c,v 1.4 1998/10/05 21:45:11 dustin Exp $
  */
 
 #include <stdio.h>
@@ -39,6 +39,7 @@ void process(int flags)
 	struct bpf_program prog;
 	bpf_u_int32 network, netmask;
 	char *filter=NULL;
+	int flagdef;
 
 	filter="tcp";
 
@@ -59,7 +60,12 @@ void process(int flags)
 		exit(-1);
 	}
 
-	pcap_socket=pcap_open_live(interface, 1024, /* promisc */ 0, 1024, errbuf);
+	if(flags&FLAG_BIT(FLAG_PROMISC)) /* find out if we want to be promisc */
+		flagdef=1;
+	else
+	    flagdef=0;
+
+	pcap_socket=pcap_open_live(interface, 1024, flagdef, 1024, errbuf);
 
 	if(pcap_socket==NULL) {
 	    fprintf(stderr, "pcap_open_live: %s\n", errbuf);
@@ -94,7 +100,8 @@ void process(int flags)
 		signal_handler(-1);
 	}
 
-	fprintf(stderr, "interface: %s, filter: %s\n", interface, filter);
+	fprintf(stderr, "interface: %s, filter: %s, promiscuous: %s\n",
+	        interface, filter, (flags&FLAG_BIT(FLAG_PROMISC))?"yes":"no");
 
 	for(;;)
 	    pcap_loop(pcap_socket, -1, (pcap_handler)filter_packet, NULL);
@@ -164,12 +171,16 @@ static void log_syn(struct ip *ip, struct tcphdr *tcp)
 	ip_src=ip->ip_src;
 	ip_dst=ip->ip_dst;
 
+#ifdef __NetBSD__
 	if(k_getuid (&ip_dst, tcp->th_dport, &ip_src, tcp->th_sport, &uid) < 0) {
 		if(k_getuid (&ip_src, tcp->th_sport,
 				     &ip_dst, tcp->th_dport, &uid) < 0) {
 			uid=-1; /* If I can't find it, set it to -1 */
 		}
 	}
+#else
+	uid=-1;
+#endif
 
     if(uid>=0) {
 		sprintf(buf, "%d", uid);

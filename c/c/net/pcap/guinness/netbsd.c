@@ -254,4 +254,4 @@ int k_getuid(faddr, fport, laddr, lport, uid)
   return -1;
 }
 
-#endif __NetBSD__
+#endif /* __NetBSD__ */

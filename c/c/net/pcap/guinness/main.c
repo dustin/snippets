@@ -1,10 +1,38 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: main.c,v 1.1 1998/10/04 07:01:56 dustin Exp $
+ * $Id: main.c,v 1.2 1998/10/05 21:45:13 dustin Exp $
  */
 
-void main(void)
+#include <stdlib.h>
+#include <getopt.h>
+#include "guinness.h"
+
+void
+usage(char *name)
 {
-    process(0);
+	printf("Usage:  %s [-p]\n", name);
+	printf("    -p turns on promiscious sniffing.\n");
+}
+
+void
+main(int argc, char **argv)
+{
+	int     flags = 0;
+	int     c;
+	extern char *optarg;
+
+	while ((c = getopt(argc, argv, "p")) != -1) {
+		switch (c) {
+		case 'p':
+			flags |= FLAG_BIT(FLAG_PROMISC);
+			break;
+		default:
+			usage(argv[0]);
+			exit(-1);
+			break;	/* not reached */
+		}
+	}
+
+	process(flags);
 }
