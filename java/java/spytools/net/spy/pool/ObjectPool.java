@@ -1,11 +1,12 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.21 2001/03/19 20:27:30 dustin Exp $
+// $Id: ObjectPool.java,v 1.22 2001/05/22 06:18:59 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.*;
 import net.spy.SpyConfig;
+import net.spy.util.TimeStampedHash;
 
 /**
  * ObjectPool is the entry point for all object pooling facilities in
@@ -37,7 +38,7 @@ public class ObjectPool extends Object {
 	private static String CLEANER_MUTEX="CLEANER_MUTEX";
 	// This is static because we want everyone to see the same pools, of
 	// course.
-	private static Hashtable pools=null;
+	private static TimeStampedHash pools=null;
 	private static String POOL_MUTEX="POOL_MUTEX";
 
 	public ObjectPool(SpyConfig conf) {
@@ -193,7 +194,7 @@ public class ObjectPool extends Object {
 		// Do we have a pool?
 		synchronized(POOL_MUTEX) {
 			if(pools==null) {
-				pools=new Hashtable();
+				pools=new TimeStampedHash();
 			}
 		}
 
