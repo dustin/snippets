@@ -3,7 +3,7 @@
 A pipe interface to rrdtool.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: rrdpipe.py,v 1.4 2002/03/28 10:48:37 dustin Exp $
+$Id: rrdpipe.py,v 1.5 2002/03/28 23:12:17 dustin Exp $
 """
 
 import os
@@ -132,7 +132,7 @@ class RRDPipe:
 		while line[0:2] != 'OK':
 			rv.append(line.rstrip())
 			line=self.pfile.readline()
-		if rv[0][0:5] == 'ERROR':
+		if len(rv)>0 and rv[0][0:5] == 'ERROR':
 			raise RRDError(rv[0])
 		return rv
 
