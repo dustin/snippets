@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.5 2001/09/21 07:48:05 dustin Exp $
+// $Id: RSSServlet.java,v 1.6 2002/08/21 03:18:12 dustin Exp $
 
 package net.spy.rss;
 
 import java.io.*;
+import java.net.URL;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -12,29 +13,9 @@ import javax.servlet.http.*;
 import com.caucho.transform.*;
 import com.caucho.xsl.*;
 
+import net.spy.net.*;
+
 public class RSSServlet extends HttpServlet {
-
-	// This is static because pages may directly request stuff from it as
-	// long as it's initialized and properly in a servlet engine.
-	private static RSSStore rssstore=null;
-
-	/**
-	 * Initialize this thingy.
-	 */
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		log("Initializing RSSStore");
-		rssstore=new RSSStore();
-		rssstore.start();
-	}
-
-	/**
-	 * What to do when the man shuts us down.
-	 */
-	public void destroy() {
-		log("Shutting down RSSStore");
-		rssstore.shutdown();
-	}
 
 	// Process get requests only.
 	public void doGet(
@@ -71,20 +52,21 @@ public class RSSServlet extends HttpServlet {
 	}
 
 	/**
-	 * Get the HTML for a specific RSS and stylesheet.  This only works in
-	 * a servlet environment when the RSSServlet has been properly
-	 * initialized.
+	 * Get the HTML for a specific RSS and stylesheet.
 	 */
 	public static String getHTML(String url, String stylesheet)
 		throws Exception {
 
-		// This only works under the proper conditions.
-		if(rssstore==null) {
-			throw new Exception("RSSStore has not been initialized.");
-		}
+		URL u=new URL(url);
 
-		// Get the content from the RSS store.
-		String xml=rssstore.getContent(url);
+		// Grab the URLWatcher
+		URLWatcher uw=URLWatcher.getInstance();
+
+		// Get the content from the URLWatcher
+		String xml=uw.getContent(u);
+		if(xml==null) {
+			xml="<no_data_found/>";
+		}
 		OutputStream out=new ByteArrayOutputStream();
 		StylesheetFactory factory=new Xsl();
 		Stylesheet style=factory.newStylesheet(stylesheet);
