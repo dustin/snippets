@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.2 1998/08/26 01:59:10 dustin Exp $
+ * $Id: splat.h,v 1.3 1998/12/07 20:01:51 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -43,6 +43,16 @@ struct status {
 	int     status;
 	int     bytesread;
 	char   *message;
+};
+
+struct growstring {
+	size_t size;
+	char *string;
+};
+
+struct http_status {
+	int status;
+	char *string;
 };
 
 int     getclientsocket(char *host, int port);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.9 1998/12/03 19:42:32 dustin Exp $
+ * $Id: main.c,v 1.10 1998/12/07 20:01:49 dustin Exp $
  */
 
 #include <config.h>
@@ -132,22 +132,59 @@ usage(char **argv)
 	    argv[0]);
 }
 
+struct http_status
+getstatus(char *response)
+{
+    char *p, *p2, *in;
+    struct http_status status;
+
+	status.status=-1;
+	status.string=NULL;
+
+    in=strdup(response);
+
+    p=strchr(in, ' ');
+    assert(p);
+    p++;
+
+    p2=p;
+
+    while(*p2 && (*p2!='\r' || *p2!='\n')) p2++;
+    *p2=NULL;
+
+    status.status=atoi(p);
+    p=strchr(p, ' ');
+    assert(p);
+    p++;
+
+    status.string=strdup(p);
+    assert(status.string);
+
+    free(in);
+
+    return(status);
+}
+
 void
-dostats(int i, struct timeval timers[3], int bytes, int flags, int maxhits)
+dostats(int i, struct timeval timers[3], int bytes,
+		int flags, char *response, int maxhits)
 {
 	int     a, b, c;
 	char    times[3][50];
 	char    tmp[20];
 	float   tmpf;
+	struct http_status status;
 
 	static int whatsup = 0;
+
+	status=getstatus(response);
 
 	/* label machine stats if we're doing them */
 	if (flags & MACHINE_STATS) {
 		if (whatsup == 0) {
 			whatsup = 1;
 			printf("# descriptor:conns:start_sec:con_time:"
-			    "trans_time:bytes:bps\n");
+			    "trans_time:bytes:bps:status\n");
 		}
 	}
 	/* descriptor and number of connections */
@@ -190,12 +227,28 @@ dostats(int i, struct timeval timers[3], int bytes, int flags, int maxhits)
 
 	/* Bytes and bps */
 	if (flags & MACHINE_STATS)
-		printf("%d:%.2f\n", bytes, (float) ((float) bytes / tmpf));
+		printf("%d:%.2f:%d\n", bytes, (float) ((float) bytes / tmpf),
+			status.status);
 	else
 		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
 
 	if (flags & FLUSH_OUT)
 		fflush(stdout);
+
+	if(status.string)
+		free(status.string);
+}
+
+int
+str_append(struct growstring *s, char *buf)
+{
+    while( (strlen(s->string)+strlen(buf)) > s->size) {
+        s->size+=(1024*(sizeof(char)));
+        s->string=realloc(s->string, s->size);
+        assert(s->string);
+    }
+
+    strcat(s->string, buf);
 }
 
 int
@@ -210,6 +263,10 @@ main(int argc, char **argv)
 	char    buf[8192];
 	struct url req;
 	void   *tzp;
+	struct growstring strings[MAXSEL];
+
+	/* zero the strings */
+	memset(&strings, 0x00, sizeof(strings));
 
 	req.port = -1;
 
@@ -286,6 +343,12 @@ main(int argc, char **argv)
 				bytes[s] = 0;
 				FD_SET(s, &tfdset);
 
+                if(strings[s].string==NULL) {
+                    strings[s].size=1024*sizeof(char);
+                    strings[s].string=malloc(strings[s].size);
+                }
+                strings[s].string[0]=0x00;
+
 				/* Sending */
 				i = send(s, req.httpreq, strlen(req.httpreq), 0);
 				_ndebug(2, ("Sent %d out of %d bytes\n",
@@ -311,12 +374,18 @@ main(int argc, char **argv)
 
 						if (flags & DO_STATS) {
 							gettimeofday(&timers[i][2], tzp);
-							dostats(i, timers[i], bytes[i], flags, maxhits);
+							dostats(i, timers[i], bytes[i],
+									flags, strings[i].string, maxhits);
+							if(strings[i].string) {
+								free(strings[i].string);
+								strings[i].string=NULL;
+							}
 						}
 						FD_CLR(i, &fdset);
 						n--;
 					} else {
 						bytes[i] += size;
+						str_append(&strings[i], buf);
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
 					}
 				}
