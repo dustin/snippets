@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpySort.java,v 1.1 2000/09/05 08:04:09 dustin Exp $
+// $Id: SpySort.java,v 1.2 2001/02/07 06:31:48 dustin Exp $
 
 package net.spy.util;
 
@@ -10,7 +10,7 @@ package net.spy.util;
 
 public class SpySort extends Object {
 
-	protected SpyComparable compare=null;
+	private SpyComparable compare=null;
 
 	/**
 	 * Get an SpySort object with the given comparable.
@@ -20,7 +20,7 @@ public class SpySort extends Object {
 		this.compare=c;
 	}
 
-	protected void quicksort(Object a[], int l, int r) {
+	private void quicksort(Object a[], int l, int r) {
 		int i=0, j=0;
 		Object v=null, t=null;
 

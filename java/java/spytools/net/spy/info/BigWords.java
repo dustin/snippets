@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: BigWords.java,v 1.1 2000/06/20 07:15:09 dustin Exp $
+// $Id: BigWords.java,v 1.2 2001/02/07 06:31:10 dustin Exp $
 
 package net.spy.info;
 
@@ -53,7 +53,7 @@ public class BigWords extends Info {
 		return(ret);
 	}
 
-	protected void parseInfo() throws Exception {
+	private void parseInfo() throws Exception {
 		hinfo=new Hashtable();
 		hinfo.put("isbn", arg);
 		getInfo();
@@ -103,7 +103,7 @@ public class BigWords extends Info {
 	} // if there's a need to find it at all.
 
 
-	protected void getInfo() throws Exception {
+	private void getInfo() throws Exception {
 		if(info==null) {
 			String url=
 				"http://bigwords.com/search/index.cfm?"

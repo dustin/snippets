@@ -17,12 +17,12 @@ import com.oroinc.text.regex.*;
 
 // Fetch the contents of a URL
 public class HTTPFetch {
-	protected URL url;
+	private URL url;
 
-	protected String contents=null;
-	protected String stripped=null;
+	private String contents=null;
+	private String stripped=null;
 
-	protected Hashtable headers=null;
+	private Hashtable headers=null;
 
 	/**
 	 * Create a new HTTPFetch object for a given string representation of a
@@ -129,7 +129,7 @@ public class HTTPFetch {
 	}
 
 	// Get a reader for the above routines.
-	protected BufferedReader getReader() throws Exception {
+	private BufferedReader getReader() throws Exception {
 		URLConnection uc = url.openConnection();
 		if(headers!=null) {
 			for(Enumeration e=headers.keys(); e.hasMoreElements(); ) {

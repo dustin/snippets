@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.10 2000/07/27 19:21:50 dustin Exp $
+// $Id: SNPP.java,v 1.11 2001/02/07 06:31:30 dustin Exp $
 
 package net.spy.net;
 
@@ -16,15 +16,15 @@ import net.spy.*;
  */
 
 public class SNPP {
-	protected Socket s;
-	protected InputStream in;
-	protected OutputStream out;
-	protected BufferedReader din;
-	protected PrintWriter prout;
+	private Socket s;
+	private InputStream in;
+	private OutputStream out;
+	private BufferedReader din;
+	private PrintWriter prout;
 
 	// 2way support
-	protected boolean goes_both_ways=true;
-	protected String msg_tag=null;
+	private boolean goes_both_ways=true;
+	private String msg_tag=null;
 
 	/**
 	 * Current full line received from the SNPP server.
@@ -300,7 +300,7 @@ public class SNPP {
 	}
 
 	// Return whether the current status number is within an OK range.
-	protected boolean ok() {
+	private boolean ok() {
 		boolean r = false;
 		if(currentstatus < 300 ) {
 			if(currentstatus >= 200) {
@@ -321,7 +321,7 @@ public class SNPP {
 	}
 
 	// Return a line from the SNPP server.
-	protected void getaline() throws IOException {
+	private void getaline() throws IOException {
 		String stmp;
 		Integer itmp;
 

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.2 2000/07/25 07:11:17 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.3 2001/02/07 06:31:35 dustin Exp $
 
 package net.spy.pool;
 
@@ -22,17 +22,17 @@ public class JDBCPoolAble extends PoolAble {
 	}
 
 	public void discard() {
-		available=false;
-		if(the_object!=null) {
-			try {
-				Connection c=(Connection)the_object;
+		try {
+			Connection c=(Connection)intGetObject();
+			if(c!=null) {
 				c.close();
-				the_object=null;
-			} catch(Exception e) {
-				System.err.println("Error on finalize!  " + e);
-				e.printStackTrace();
 			}
+		} catch(Exception e) {
+			System.err.println("Error on finalize!  " + e);
+			e.printStackTrace();
 		}
+		// Tell the parent to do the same.
+		super.discard();
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class JDBCPoolAble extends PoolAble {
 	public boolean isAlive() {
 		boolean ret=false;
 		try {
-			Connection c=(Connection)the_object;
+			Connection c=(Connection)intGetObject();
 			Statement st=c.createStatement();
 			ResultSet rs=st.executeQuery("select 7");
 			rs.next();

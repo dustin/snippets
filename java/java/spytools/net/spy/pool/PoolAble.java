@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.9 2001/01/25 07:56:25 dustin Exp $
+// $Id: PoolAble.java,v 1.10 2001/02/07 06:31:38 dustin Exp $
 
 package net.spy.pool;
 
@@ -12,12 +12,16 @@ import net.spy.SpyConfig;
  */
 
 public abstract class PoolAble extends Object {
-	protected int object_id=-1;
-	protected boolean checked_out=false;
+	private int object_id=-1;
+	private boolean checked_out=false;
+	private Object the_object=null;
+	private long max_age=0;
+	private long start_time=0;
+
+	/**
+	 * Availability flag.
+	 */
 	protected boolean available=true;
-	protected Object the_object=null;
-	protected long max_age=0;
-	protected long start_time=0;
 
 	/**
 	 * Get a PoolAble representation for an object.
@@ -58,11 +62,6 @@ public abstract class PoolAble extends Object {
 	}
 
 	/**
-	 * Tell the object in the PoolAble that we don't need it anymore.
-	 */
-	public abstract void discard();
-
-	/**
 	 * Get the object we're pooling.
 	 *
 	 * @return the object.
@@ -74,6 +73,14 @@ public abstract class PoolAble extends Object {
 		if(!checked_out) {
 			throw new PoolException("This PoolAble has not been checked out.");
 		}
+		return(the_object);
+	}
+
+	/**
+	 * Internal version of getObject().  Returns regardless of whether the
+	 * object has been checked out.
+	 */
+	protected Object intGetObject() {
 		return(the_object);
 	}
 
@@ -165,6 +172,15 @@ public abstract class PoolAble extends Object {
 		}
 
 		return(ret);
+	}
+
+	/**
+	 * Discard the object.  Anything that extends from this class needs to
+	 * call super.discard() when it's done.
+	 */
+	public void discard() {
+		available=false;
+		the_object=null;
 	}
 
 	/**

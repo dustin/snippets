@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.17 2000/10/13 06:50:23 dustin Exp $
+// $Id: PoolContainer.java,v 1.18 2001/02/07 06:31:39 dustin Exp $
 
 package net.spy.pool;
 
@@ -12,15 +12,15 @@ import net.spy.SpyConfig;
  * PoolContainer is the storage for a given pool.
  */
 public class PoolContainer extends Object {
-	protected Vector pool=null;
-	protected SpyConfig conf=null;
-	protected String name=null;
-	protected PoolFiller filler=null;
-	protected int _min_objects=-1;
-	protected int _max_objects=-1;
-	protected int _object_id=0;
+	private Vector pool=null;
+	private SpyConfig conf=null;
+	private String name=null;
+	private PoolFiller filler=null;
+	private int _min_objects=-1;
+	private int _max_objects=-1;
+	private int _object_id=0;
 
-	protected boolean _debug=false;
+	private boolean _debug=false;
 
 	/**
 	 * Create a new PoolContainer for a pool with a given name, and filler.
@@ -240,7 +240,7 @@ public class PoolContainer extends Object {
 		} // pool lock
 	}
 
-	protected void initialize() throws PoolException {
+	private void initialize() throws PoolException {
 		pool=new Vector();
 
 		// Get the min and max args.
@@ -251,7 +251,7 @@ public class PoolContainer extends Object {
 	}
 
 	// Populate with the minimum number of objects.
-	protected void getMinObjects() throws PoolException{
+	private void getMinObjects() throws PoolException{
 		debug("Pool " + name + " wants at least " + _min_objects +" objects.");
 		for(int i=currentObjects(); i<_min_objects; i++) {
 			getNewObject();
@@ -260,7 +260,7 @@ public class PoolContainer extends Object {
 
 	// Fetch a new object from the poolfiller, the pool is exhausted and we
 	// need more objects.
-	protected PoolAble getNewObject() throws PoolException {
+	private PoolAble getNewObject() throws PoolException {
 		PoolAble p=null;
 
 		// First, if we're at capacity, do a prune and see if we can shrink
@@ -289,7 +289,7 @@ public class PoolContainer extends Object {
 	}
 
 	// Find out how many objects we currently have.
-	protected int currentObjects() {
+	private int currentObjects() {
 		int ret=-1;
 		synchronized(pool) {
 			ret=pool.size();
@@ -297,19 +297,19 @@ public class PoolContainer extends Object {
 		return(ret);
 	}
 
-	protected int getPropertyInt(String what, int def) {
+	private int getPropertyInt(String what, int def) {
 		return(conf.getInt(name + "." + what, def));
 	}
 
-	protected String getProperty(String what, String def) {
+	private String getProperty(String what, String def) {
 		return(conf.get(name + "." + what, def));
 	}
 
-	protected String getProperty(String what) {
+	private String getProperty(String what) {
 		return(conf.get(name + "." + what));
 	}
 
-	protected void debug(String msg) {
+	private void debug(String msg) {
 		if(_debug) {
 			System.out.println(msg);
 		}

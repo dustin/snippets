@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.5 2000/06/16 21:46:03 dustin Exp $
+// $Id: Info.java,v 1.6 2001/02/07 06:31:14 dustin Exp $
 
 package net.spy.info;
 
@@ -58,7 +58,7 @@ public abstract class Info extends Object {
 	}
 
 	// Make sure we only have letters and numbers in the tag.
-	protected String xmlSafe(String key) {
+	private String xmlSafe(String key) {
 		String ret="";
 		key=key.toLowerCase();
 		char chars[]=key.toCharArray();
@@ -136,11 +136,11 @@ public abstract class Info extends Object {
 	/**
 	 * getInfo gets the data to be parsed.
 	 */
-	protected abstract void getInfo() throws Exception;
+	private abstract void getInfo() throws Exception;
 
 	/**
 	 * parseInfo parses the data into the hinfo Hashtable object.
 	 * It will be called when needed.
 	 */
-	protected abstract void parseInfo() throws Exception;
+	private abstract void parseInfo() throws Exception;
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FlightTracker.java,v 1.3 2000/06/27 19:17:17 dustin Exp $
+// $Id: FlightTracker.java,v 1.4 2001/02/07 06:31:13 dustin Exp $
 
 package net.spy.info;
 
@@ -77,7 +77,7 @@ public class FlightTracker extends Info {
 		return(ret);
 	}
 
-	protected void parseInfo() throws Exception {
+	private void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
 			hinfo.put("airline", airline);
@@ -122,7 +122,7 @@ public class FlightTracker extends Info {
 		} // if there's a need to find it at all.
 	}
 
-	protected void getInfo() throws Exception {
+	private void getInfo() throws Exception {
 		if(info==null) {
 			String url=
 				"http://www.trip.com/ft/results/1,2093,1-1,00.shtml?Airline=" + airline

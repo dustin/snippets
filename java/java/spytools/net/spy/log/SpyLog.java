@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.6 2000/11/02 22:19:41 dustin Exp $
+ * $Id: SpyLog.java,v 1.7 2001/02/07 06:31:25 dustin Exp $
  */
 
 package net.spy.log;
@@ -24,10 +24,10 @@ import java.util.*;
  */
 
 public class SpyLog extends Object {
-	protected SpyLogQueue queue=null;
-	protected static boolean initialized = false;
-	protected static Vector flushers=null;
-	protected String queue_name=null;
+	private SpyLogQueue queue=null;
+	private static boolean initialized = false;
+	private static Vector flushers=null;
+	private String queue_name=null;
 
 	/**
 	 * Instantiate a SpyLog entry with the default flusher.
@@ -138,7 +138,7 @@ public class SpyLog extends Object {
 		queue.addToQueue(msg);
 	}
 
-	protected static synchronized void initialize() {
+	private static synchronized void initialize() {
 		// Do this soon, we don't want anything else causing this to happen.
 		initialized = true;
 
@@ -147,10 +147,10 @@ public class SpyLog extends Object {
 		}
 
 		// Really need to make sure all finalization occurs.
-		System.runFinalizersOnExit(true);
-	}
-
-	protected void finalize() throws Throwable {
-		super.finalize();
+		try {
+			System.runFinalizersOnExit(true);
+		} catch(Exception e) {
+			// Well, we need to try, anyway...
+		}
 	}
 }

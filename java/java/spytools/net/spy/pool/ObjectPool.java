@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.17 2000/11/02 22:19:44 dustin Exp $
+// $Id: ObjectPool.java,v 1.18 2001/02/07 06:31:36 dustin Exp $
 
 package net.spy.pool;
 
@@ -30,15 +30,15 @@ import net.spy.SpyConfig;
  */
 
 public class ObjectPool extends Object {
-	protected Exception objectException=null;
-	protected SpyConfig conf=null;
+	private Exception objectException=null;
+	private SpyConfig conf=null;
 	// This is static so we can check up on it.
-	protected static ObjectPoolCleaner cleaner=null;
-	protected static String CLEANER_MUTEX="CLEANER_MUTEX";
+	private static ObjectPoolCleaner cleaner=null;
+	private static String CLEANER_MUTEX="CLEANER_MUTEX";
 	// This is static because we want everyone to see the same pools, of
 	// course.
-	protected static Hashtable pools=null;
-	protected static String POOL_MUTEX="POOL_MUTEX";
+	private static Hashtable pools=null;
+	private static String POOL_MUTEX="POOL_MUTEX";
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -174,7 +174,7 @@ public class ObjectPool extends Object {
 		}
 	}
 
-	protected static synchronized PoolContainer getPool(String name)
+	private static synchronized PoolContainer getPool(String name)
 		throws PoolException {
 
 		PoolContainer ret=null;
@@ -188,7 +188,7 @@ public class ObjectPool extends Object {
 		return(ret);
 	}
 
-	protected void initialize() {
+	private void initialize() {
 		// Do we have a pool?
 		synchronized(POOL_MUTEX) {
 			if(pools==null) {
@@ -208,10 +208,10 @@ public class ObjectPool extends Object {
 	private class ObjectPoolCleaner extends Thread {
 
 		// The object pool reference we'll be cleaning.
-		protected ObjectPool op=null;
+		private ObjectPool op=null;
 
 		// How many times we've cleaned so far.
-		protected int numCleans=0;
+		private int numCleans=0;
 
 		// Create (and start) the ObjectPoolCleaner.
 		public ObjectPoolCleaner(ObjectPool op) {
@@ -228,7 +228,7 @@ public class ObjectPool extends Object {
 			return(super.toString() + " - " + numCleans + " served.");
 		}
 
-		protected void doPrune() throws Exception {
+		private void doPrune() throws Exception {
 			System.out.println("Cleaning at " + new Date() + ":\n" + op);
 			op.prune();
 			numCleans++;

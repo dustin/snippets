@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapPort.java,v 1.1 2000/01/26 21:38:09 dustin Exp $
+// $Id: NmapPort.java,v 1.2 2001/02/07 06:31:34 dustin Exp $
 
 package net.spy.nmap;
 
@@ -10,15 +10,15 @@ import net.spy.*;
 
 public class NmapPort extends Object {
 
-	protected int _port=-1;
-	protected String _status=null;
-	protected String _proto=null;
+	private int _port=-1;
+	private String _status=null;
+	private String _proto=null;
 	// I don't know what this is
-	protected String _huh=null;
-	protected String _service=null;
+	private String _huh=null;
+	private String _service=null;
 	// I don't know what these are
-	protected String _huh2=null;
-	protected String _huh3=null;
+	private String _huh2=null;
+	private String _huh3=null;
 
 	/**
 	 * Construct an NmapPort object from an array of the stuff found

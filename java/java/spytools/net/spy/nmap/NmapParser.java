@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapParser.java,v 1.3 2000/01/28 19:25:43 dustin Exp $
+// $Id: NmapParser.java,v 1.4 2001/02/07 06:31:33 dustin Exp $
 
 package net.spy.nmap;
 
@@ -27,9 +27,9 @@ import net.spy.*;
  */
 
 public class NmapParser extends Object {
-	protected String inputFile=null;
-	protected Vector entries_v=null;
-	protected Hashtable entries_byip=null;
+	private String inputFile=null;
+	private Vector entries_v=null;
+	private Hashtable entries_byip=null;
 	/**
 	 * Construct an NmapParser object to parse a given text file.
 	 *

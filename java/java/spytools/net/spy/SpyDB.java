@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.25 2001/01/25 09:43:01 dustin Exp $
+ * $Id: SpyDB.java,v 1.26 2001/02/07 06:31:03 dustin Exp $
  */
 
 package net.spy;
@@ -21,41 +21,41 @@ import net.spy.pool.*;
 public class SpyDB extends Object {
 
 	// Object pool we store our objects in.
-	protected static ObjectPool pool=null;
+	private static ObjectPool pool=null;
 	// This isn't final because I want it to be referenced as a variable
-	protected static String POOL_MUTEX="POOL_MUTEX";
+	private static String POOL_MUTEX="POOL_MUTEX";
 
 	// Place where we keep up with connections so we can get rid of them
 	// manually if needed.
-	protected static Hashtable connections=null;
+	private static Hashtable connections=null;
 	// This isn't final because I want it to be referenced as a variable
-	protected static String CONNECTIONS_MUTEX="CONNECTIONS_MUTEX";
+	private static String CONNECTIONS_MUTEX="CONNECTIONS_MUTEX";
 
 	// Pooled Object container we got out of the pool.
-	protected PooledObject object=null;
+	private PooledObject object=null;
 
 	// The actual database connection from the PooledObject.
-	protected Connection conn=null;
+	private Connection conn=null;
 
 	// Our configuration.
-	protected SpyConfig conf = null;
+	private SpyConfig conf = null;
 
 	// Pool name.
-	protected String name=null;
+	private String name=null;
 
 	// Number of connections to start with.
-	protected int min_conns = 1;
+	private int min_conns = 1;
 	// Maximum number of connections to open.
-	protected int max_conns = 5;
+	private int max_conns = 5;
 	// How long (in milliseconds) to keep a connection open.
-	protected long recycle_time = 6 * 3600 * 60 * 1000;
+	private long recycle_time = 6 * 3600 * 60 * 1000;
 
 	// Whether we want the object to free stuff or not.
-	protected boolean auto_free=true;
+	private boolean auto_free=true;
 
 	// Whether we want to use a pool.
-	protected boolean use_pool=true;
-	protected boolean use_jndi=true;
+	private boolean use_pool=true;
+	private boolean use_jndi=true;
 
 	/**
 	 * Create a SpyDB object based on the description found in the passed
@@ -118,7 +118,7 @@ public class SpyDB extends Object {
 
 	// Warning, this contains a bunch of nasty backward-compatibility
 	// stuff.
-	protected synchronized void initStuff() throws PoolException {
+	private synchronized void initStuff() throws PoolException {
 
 		// If we haven't established our connections hash yet, do so
 		// Synchronize on the class to do this
@@ -167,7 +167,7 @@ public class SpyDB extends Object {
 	}
 
 	// Get a normalized config from the one we already have
-	protected SpyConfig getNormalizedConfig() {
+	private SpyConfig getNormalizedConfig() {
 		// We'll need a config to translate into
 		SpyConfig tmpconf=new SpyConfig();
 
@@ -218,7 +218,7 @@ public class SpyDB extends Object {
 	}
 
 	// Create a pool
-	protected void createPool() throws PoolException {
+	private void createPool() throws PoolException {
 		// Get a conf
 		SpyConfig conf=getNormalizedConfig();
 
@@ -386,11 +386,11 @@ public class SpyDB extends Object {
 	}
 
 	// This is a debug routine
-	protected void log(String msg) {
+	private void log(String msg) {
 		// System.err.println("DB:  " + msg);
 	}
 
-	protected void getDBConnFromSpyPool() throws SQLException {
+	private void getDBConnFromSpyPool() throws SQLException {
 		try {
 			object=pool.getObject(name);
 			conn=(Connection)object.getObject();
@@ -403,7 +403,7 @@ public class SpyDB extends Object {
 		}
 	}
 
-	protected void getDBConnFromJDBC() throws SQLException {
+	private void getDBConnFromJDBC() throws SQLException {
 		SpyConfig conf=getNormalizedConfig();
 		setDBOptions("", conf);
 
@@ -427,7 +427,7 @@ public class SpyDB extends Object {
 		conn=DriverManager.getConnection(source, conf);
 	}
 
-	protected void getDBConnFromJNDI() throws SQLException {
+	private void getDBConnFromJNDI() throws SQLException {
 		// Make sure the username and password are set
 		// Figure out what this guy's trying to get us to do.
 		String source=conf.get("dbSource");
@@ -442,7 +442,7 @@ public class SpyDB extends Object {
 		}
 	}
 
-	protected void getDBConn() throws SQLException {
+	private void getDBConn() throws SQLException {
 		// Different behavior whether we're using a pool or not
 		if(use_pool) {
 			getDBConnFromSpyPool();

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Stocks.java,v 1.3 2000/06/16 21:46:06 dustin Exp $
+// $Id: Stocks.java,v 1.4 2001/02/07 06:31:18 dustin Exp $
 
 package net.spy.info;
 
@@ -15,7 +15,7 @@ import net.spy.net.*;
 
 public class Stocks extends Object {
 
-	protected Hashtable quotes=null;
+	private Hashtable quotes=null;
 
 	/**
 	 * Get a stock quote gettin' object.
@@ -72,7 +72,7 @@ public class Stocks extends Object {
 		return(quotes);
 	}
 
-	protected void addQuotes(String sym) throws Exception {
+	private void addQuotes(String sym) throws Exception {
 		String url="http://quote.yahoo.com/d/quotes.csv?s="
 			+ sym + "&f=sl1d1t1c1ohgv&e=.csv";
 		HTTPFetch f = new HTTPFetch(url);

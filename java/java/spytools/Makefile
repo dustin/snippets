@@ -83,7 +83,7 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 all: $(CLASSES)
 
 doc: $(CLASSES)
-	$(JAVADOC) -public -d doc $(PACKAGES)
+	$(JAVADOC) -d doc $(PACKAGES)
 
 jar: spy.jar
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.7 2000/10/13 19:30:43 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.8 2001/02/07 06:31:26 dustin Exp $
  */
 
 package net.spy.log;
@@ -31,14 +31,14 @@ import java.io.*;
 public class SpyLogFlusher extends Thread {
 
 	// private static BufferedWriter log_file=null;
-	protected SpyLogQueue log_queue=null;
+	private SpyLogQueue log_queue=null;
 
 	/**
 	 * Path to the logfile.  The default logfile is /tmp/spy.log, but this
 	 * can be overridden.
 	 */
 	public String logfile = "/tmp/spy.log";
-	protected String queue_name=null;
+	private String queue_name=null;
 
 	/**
 	 * Get a SpyFlusher for the given queue.

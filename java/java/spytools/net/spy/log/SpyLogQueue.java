@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.6 2000/11/02 22:19:42 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.7 2001/02/07 06:31:27 dustin Exp $
  */
 
 package net.spy.log;
@@ -15,9 +15,9 @@ import java.util.Hashtable;
  */
 
 public class SpyLogQueue extends Object {
-	protected static Hashtable queues=null;
-	protected static String queue_mutex="Log Mutex";
-	protected String queue_name=null;
+	private static Hashtable queues=null;
+	private static String queue_mutex="Log Mutex";
+	private String queue_name=null;
 
 	/**
 	 * @deprecated Please specify a queue name.
@@ -35,7 +35,7 @@ public class SpyLogQueue extends Object {
 		init();
 	}
 
-	protected void init() {
+	private void init() {
 		synchronized(queue_mutex) {
 			if(queues==null) {
 				queues=new Hashtable();
@@ -49,7 +49,7 @@ public class SpyLogQueue extends Object {
 		}
 	}
 
-	protected Vector getQueue() {
+	private Vector getQueue() {
 		Vector v=null;
 		synchronized(queue_mutex) {
 			v=(Vector)queues.get(queue_name);

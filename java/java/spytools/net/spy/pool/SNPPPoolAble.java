@@ -1,5 +1,5 @@
 //
-// $Id: SNPPPoolAble.java,v 1.2 2000/07/25 07:11:25 dustin Exp $
+// $Id: SNPPPoolAble.java,v 1.3 2001/02/07 06:31:42 dustin Exp $
 
 package net.spy.pool;
 
@@ -22,14 +22,16 @@ public class SNPPPoolAble extends PoolAble {
 	}
 
 	public void discard() {
-		available=false;
 		try {
-			SNPP snpp=(SNPP)the_object;
-			snpp.close();
+			SNPP snpp=(SNPP)intGetObject();
+			if(snpp!=null) {
+				snpp.close();
+			}
 		} catch(Exception e) {
 			System.err.println("Error discarding SNPP object:  " + e);
 			e.printStackTrace();
 		}
+		super.discard();
 	}
 
 	/**
@@ -41,9 +43,11 @@ public class SNPPPoolAble extends PoolAble {
 	public boolean isAlive() {
 		boolean ret=false;
 		try {
-			SNPP snpp=(SNPP)the_object;
-			snpp.cmd("RESET");
-			ret=true;
+			SNPP snpp=(SNPP)intGetObject();
+			if(snpp!=null) {
+				snpp.cmd("RESET");
+				ret=true;
+			}
 		} catch(Exception e) {
 			// Turn off availability
 			available=false;

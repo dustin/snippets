@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RHash.java,v 1.3 2000/04/17 01:30:57 dustin Exp $
+// $Id: RHash.java,v 1.4 2001/02/07 06:31:01 dustin Exp $
 
 package net.spy;
 
@@ -85,7 +85,7 @@ public class RHash {
 		super.finalize();
 	}
 
-	protected RObject getobject() throws Exception {
+	private RObject getobject() throws Exception {
 		try {
 			RObject o = (RObject)Naming.lookup(rhashserver);
 			return(o);

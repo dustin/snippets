@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachePreparedStatementStub.java,v 1.2 2000/11/09 08:21:06 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.3 2001/02/07 06:31:07 dustin Exp $
  */
 
 package net.spy.db;
@@ -17,18 +17,18 @@ import net.spy.cache.*;
 public class CachePreparedStatementStub extends Object {
 
 	// Stored DB handle
-	protected SpyDB db=null;
+	private SpyDB db=null;
 
 	// Where we store the prepared query
-	protected String query_str=null;
+	private String query_str=null;
 
 	// Where we can put arguments.
-	protected Object args[]=null;
+	private Object args[]=null;
 	// What are our argument types
-	protected int types[]=null;
+	private int types[]=null;
 
 	// How long the results of this statement should be cached
-	protected long cacheTime=60*60*1000;
+	private long cacheTime=60*60*1000;
 
 	/**
 	 * Create a CachePreparedStatement object for the given query (you
@@ -47,7 +47,7 @@ public class CachePreparedStatementStub extends Object {
 	}
 
 	// Count the number of question marks
-	protected int countQs(String query) {
+	private int countQs(String query) {
 		int qs=0;
 		int currentIndex=-1;
 
@@ -62,7 +62,7 @@ public class CachePreparedStatementStub extends Object {
 	}
 
 	// Set a given argument
-	protected void setArg(int index, Object what, int type)
+	private void setArg(int index, Object what, int type)
 		throws SQLException {
 		// Our base is 0, JDBC base is 1
 		index--;
@@ -120,7 +120,7 @@ public class CachePreparedStatementStub extends Object {
 
 	// OK, here's what happens when we determine that we really don't have
 	// the data and need to come up with it.
-	protected CachedResultSet realExecuteQuery() throws Exception {
+	private CachedResultSet realExecuteQuery() throws Exception {
 		PreparedStatement pst=db.prepareStatement(query_str);
 
 		// Set allllllll the types

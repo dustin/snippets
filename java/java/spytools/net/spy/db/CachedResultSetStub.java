@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachedResultSetStub.java,v 1.4 2000/11/09 08:21:07 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.5 2001/02/07 06:31:09 dustin Exp $
  */
 
 package net.spy.db;
@@ -15,25 +15,24 @@ import java.sql.*;
  * This object represents a cached java.sql.ResultSet.  It will hopefully
  * only contain small results.
  */
-
 public class CachedResultSetStub extends Object implements Cloneable {
 	// Here is where the ResultSet data gets stored.
-	protected Vector results=null;
-	protected Enumeration resultEnum=null;
+	private Vector results=null;
+	private Enumeration resultEnum=null;
 
 	// Map column names to ints
-	protected Hashtable columns=null;
+	private Hashtable columns=null;
 
 	// This is the current result we're looking at.
-	protected Object result[]=null;
+	private Object result[]=null;
 
 	// We're going to keep a copy of the ResultSetMetaData from the
 	// original query.  Let's find out if those things require an active
 	// ResultSet, shall we?
-	protected ResultSetMetaData metadata=null;
+	private ResultSetMetaData metadata=null;
 
 	// Used for wasNull()
-	protected boolean _wasnull=false;
+	private boolean _wasnull=false;
 
 	/**
 	 * Magically transform the passed in ResultSet to a CachedResultSet
@@ -62,7 +61,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 
 	// Read in all of the results, and do our best to conver them to
 	// something meaningful to us.
-	protected void initResults(ResultSet rs) throws SQLException {
+	private void initResults(ResultSet rs) throws SQLException {
 		// Initialize the results vector
 		results=new Vector();
 		int ncolumns=metadata.getColumnCount();
@@ -156,7 +155,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 		} // results
 	} // initresults
 
-	protected Object getResultColumn(int index) throws SQLException {
+	private Object getResultColumn(int index) throws SQLException {
 		// (jdbc is offset at 1, we're offset at 0)
 		index--;
 		if(result==null) {
@@ -280,7 +279,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 		return(n.doubleValue());
 	}
 
-	protected Number getNumber(int index) throws SQLException {
+	private Number getNumber(int index) throws SQLException {
 		Number n=null;
 		Object o=getResultColumn(index);
 		if(o!=null) {

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.7 2000/06/27 08:00:55 dustin Exp $
+// $Id: Weather.java,v 1.8 2001/02/07 06:31:22 dustin Exp $
 
 package net.spy.info;
 
@@ -15,9 +15,9 @@ import net.spy.net.*;
 
 public class Weather extends Info {
 
-	protected String relevent=null;
-	protected String shortWeather=null;
-	protected String city=null;
+	private String relevent=null;
+	private String shortWeather=null;
+	private String city=null;
 
 	/**
 	 * Get a Weather object.
@@ -57,7 +57,7 @@ public class Weather extends Info {
 		return(shortWeather);
 	}
 
-	protected void parseInfo() throws Exception {
+	private void parseInfo() throws Exception {
 		if(hinfo==null) {
 			hinfo=new Hashtable();
 			hinfo.put("zip_code", arg);
@@ -142,7 +142,7 @@ public class Weather extends Info {
 		} // if there's a need to find it at all.
 	}
 
-	protected String stripDeg(String what) {
+	private String stripDeg(String what) {
 		int amp=what.indexOf("&");
 		String value=null;
 		if(amp>0) {
@@ -153,7 +153,7 @@ public class Weather extends Info {
 		return(value);
 	}
 
-	protected void getInfo() throws Exception {
+	private void getInfo() throws Exception {
 		if(info==null) {
 			String url="http://www.weather.com/weather/us/zips/";
 			url += arg + ".html";

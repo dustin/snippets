@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.6 2000/07/26 08:49:55 dustin Exp $
+// $Id: SpyRunner.java,v 1.7 2001/02/07 06:31:05 dustin Exp $
 
 package net.spy;
 
@@ -120,7 +120,7 @@ public class SpyRunner extends Thread {
 	}
 
     // Get the system threadgroup for initialize
-    protected static ThreadGroup getSystemGroup() {
+    private static ThreadGroup getSystemGroup() {
         ThreadGroup start=null, last=null;
 
         for(start=Thread.currentThread().getThreadGroup(); start!=null;) {

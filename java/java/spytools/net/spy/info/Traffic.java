@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Traffic.java,v 1.3 2000/06/20 07:14:31 dustin Exp $
+// $Id: Traffic.java,v 1.4 2001/02/07 06:31:19 dustin Exp $
 
 package net.spy.info;
 
@@ -46,7 +46,7 @@ public class Traffic extends Info {
 		return(ret);
 	}
 
-	protected void parseInfo() throws Exception {
+	private void parseInfo() throws Exception {
 		hinfo=new Hashtable();
 		hinfo.put("geo_loc", arg);
 		getInfo();
@@ -79,7 +79,7 @@ public class Traffic extends Info {
 		}
 	}
 
-	protected void getInfo() throws Exception {
+	private void getInfo() throws Exception {
 		if(info==null) {
 			String url=
 				"http://traffic.yahoo.com/traffic/";

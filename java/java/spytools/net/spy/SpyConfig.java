@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.13 2000/11/30 20:55:44 dustin Exp $
+ * $Id: SpyConfig.java,v 1.14 2001/02/07 06:31:02 dustin Exp $
  */
 
 package net.spy;
@@ -20,8 +20,8 @@ import java.io.*;
  */
 
 public class SpyConfig extends Properties {
-	protected static Hashtable configStore=null;
-	protected static Hashtable configTimeStamps=null;
+	private static Hashtable configStore=null;
+	private static Hashtable configTimeStamps=null;
 
 	/**
 	 * Construct a new SpyConfig object describing a config file.
@@ -44,7 +44,7 @@ public class SpyConfig extends Properties {
 		confInit();
 	}
 
-	protected synchronized void confInit() {
+	private synchronized void confInit() {
 		if(configStore==null) {
 			configStore=new Hashtable();
 			configTimeStamps=new Hashtable();
@@ -100,7 +100,7 @@ public class SpyConfig extends Properties {
 	}
 
 	// Check to see if we have current data on this file.
-	protected boolean isUpToDate(String file) {
+	private boolean isUpToDate(String file) {
 		boolean r = false;
 		try {
 			if(configStore.containsKey(file)) {
@@ -117,7 +117,7 @@ public class SpyConfig extends Properties {
 	}
 
 	// record stuff to keep up with config file status
-	protected void record(String file, Hashtable h) {
+	private void record(String file, Hashtable h) {
 		try {
 			File f = new File(file);
 			Long l = new Long(f.lastModified());
@@ -129,7 +129,7 @@ public class SpyConfig extends Properties {
 		}
 	}
 
-	protected void set(Hashtable h) {
+	private void set(Hashtable h) {
 		for(Enumeration e = h.keys(); e.hasMoreElements(); ) {
 			String key = (String)e.nextElement();
 			put(key, h.get(key));

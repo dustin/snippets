@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.5 2000/06/16 21:46:05 dustin Exp $
+// $Id: StockQuote.java,v 1.6 2001/02/07 06:31:17 dustin Exp $
 
 package net.spy.info;
 
@@ -12,17 +12,17 @@ import net.spy.*;
 
 public class StockQuote extends Object {
 
-	protected String symbol=null;
-	protected double price=0.0;
-	protected String date=null;
-	protected String time=null;
-	protected double change=0.0;
-	protected double open=0.0;
-	protected double high=0.0;
-	protected double low=0.0;
-	protected int volume=0;
+	private String symbol=null;
+	private double price=0.0;
+	private String date=null;
+	private String time=null;
+	private double change=0.0;
+	private double open=0.0;
+	private double high=0.0;
+	private double low=0.0;
+	private int volume=0;
 
-	String error=null;
+	private String error=null;
 
 	/**
 	 * Create a StockQuote object from a yahoo CSV output.

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.3 2000/11/02 22:19:39 dustin Exp $
+ * $Id: SpyCache.java,v 1.4 2001/02/07 06:31:06 dustin Exp $
  */
 
 package net.spy.cache;
@@ -12,10 +12,10 @@ import java.util.*;
  * Spy in-memory cache object.
  */
 public class SpyCache extends Object {
-	protected static Hashtable cacheStore=null;
-	protected static String CACHE_MUTEX="CACHE_MUTEX";
-	protected static SpyCacheCleaner cacheCleaner=null;
-	protected static String CLEANER_MUTEX="CLEANER_MUTEX";
+	private static Hashtable cacheStore=null;
+	private static String CACHE_MUTEX="CACHE_MUTEX";
+	private static SpyCacheCleaner cacheCleaner=null;
+	private static String CLEANER_MUTEX="CLEANER_MUTEX";
 
 	/**
 	 * Get a new SpyCache object.
@@ -88,7 +88,7 @@ public class SpyCache extends Object {
 		} // lock
 	}
 
-	protected synchronized void init() {
+	private synchronized void init() {
 		synchronized(CACHE_MUTEX) {
 			if(cacheStore==null) {
 				cacheStore=new Hashtable();
@@ -108,10 +108,10 @@ public class SpyCache extends Object {
 	////////////////////////////////////////////////////////////////////
 
 	private class SpyCacheCleaner extends Thread {
-		protected Hashtable cacheStore=null;
+		private Hashtable cacheStore=null;
 
 		// How many cleaning passes we've done.
-		protected int passes=0;
+		private int passes=0;
 
 		public SpyCacheCleaner(Hashtable cacheStore) {
 			super();
@@ -125,7 +125,7 @@ public class SpyCache extends Object {
 			return(super.toString() + " - " + passes + " runs");
 		}
 
-		protected void cleanup() throws Exception {
+		private void cleanup() throws Exception {
 			long now=System.currentTimeMillis();
 			synchronized(cacheStore) {
 				for(Enumeration e=cacheStore.elements(); e.hasMoreElements();){
@@ -154,9 +154,9 @@ public class SpyCache extends Object {
 	// Cache item storage
 
 	private class SpyCacheItem extends Object {
-		protected Object key=null;
-		protected Object value=null;
-		protected long exptime=0;
+		private Object key=null;
+		private Object value=null;
+		private long exptime=0;
 
 		public SpyCacheItem(Object key, Object value, long cache_time) {
 			super();

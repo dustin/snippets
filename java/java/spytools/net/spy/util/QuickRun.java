@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.2 2000/11/09 10:37:11 dustin Exp $
+// $Id: QuickRun.java,v 1.3 2001/02/07 06:31:46 dustin Exp $
 
 package net.spy.util;
 
@@ -18,14 +18,14 @@ import net.spy.SpyUtil;
 public class QuickRun extends Thread {
 
 	// Server stuff
-	protected ServerSocket server=null;
-	protected int port=11011;
+	private ServerSocket server=null;
+	private int port=11011;
 
 	// Client stuff
-	protected Socket client=null;
-	protected BufferedReader in=null;
-	protected PrintWriter out=null;
-	protected OutputStream ostream=null;
+	private Socket client=null;
+	private BufferedReader in=null;
+	private PrintWriter out=null;
+	private OutputStream ostream=null;
 
 	public QuickRun(Socket s) throws Exception {
 		super();
@@ -62,7 +62,7 @@ public class QuickRun extends Thread {
 		}
 	}
 
-	protected void processCmd(String line) throws Exception {
+	private void processCmd(String line) throws Exception {
 		String cmd=null, args=null;
 		int colon=line.indexOf(":");
 		cmd=line.substring(0, colon);
@@ -86,7 +86,7 @@ public class QuickRun extends Thread {
 		}
 	}
 
-	protected void runClass(String args[]) throws Exception {
+	private void runClass(String args[]) throws Exception {
 		String cn=args[0];
 		String cargs[]=new String[args.length-1];
 		// Copy the args over.

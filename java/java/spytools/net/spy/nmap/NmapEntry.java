@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapEntry.java,v 1.1 2000/01/26 21:38:08 dustin Exp $
+// $Id: NmapEntry.java,v 1.2 2001/02/07 06:31:31 dustin Exp $
 
 package net.spy.nmap;
 
@@ -10,13 +10,13 @@ import net.spy.*;
 
 public class NmapEntry extends Object {
 	// The actual line of data
-	protected String inputLine=null;
+	private String inputLine=null;
 
 	// The entries
-	protected Hashtable sections=null;
+	private Hashtable sections=null;
 
 	// The port entries, by port
-	protected Hashtable _ports=null;
+	private Hashtable _ports=null;
 
 	/**
 	 * Construct an NmapEntry object from a line in an nmap machine
@@ -90,7 +90,7 @@ public class NmapEntry extends Object {
 	}
 
 	// Parse the ports out of the section hash
-	protected void parsePorts() {
+	private void parsePorts() {
 		// Bypass if it's already been called.
 		if(_ports!=null) {
 			return;
@@ -110,7 +110,7 @@ public class NmapEntry extends Object {
 	}
 
 	// parse the passed in line.
-	protected void parse() {
+	private void parse() {
 		// Split into the tabed out shite.
 		String sections_str[]=SpyUtil.split("\t", inputLine);
 		for(int i=0; i<sections_str.length; i++) {

@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.9 2000/10/09 23:07:04 dustin Exp $
+// $Id: SpyLDIF.java,v 1.10 2001/02/07 06:31:47 dustin Exp $
 
 package net.spy.util;
 
@@ -113,7 +113,7 @@ public class SpyLDIF extends Hashtable {
 		return(ret);
 	}
 
-	protected void decodeAndStore(String chunk) {
+	private void decodeAndStore(String chunk) {
 		boolean decode=true;
 		int space=chunk.indexOf(" ");
 		int colon=chunk.indexOf(":: ");
@@ -142,7 +142,7 @@ public class SpyLDIF extends Hashtable {
 		}
 	}
 
-	protected void parseLDIFEntry(String ldif) {
+	private void parseLDIFEntry(String ldif) {
 		StringTokenizer onlines=new StringTokenizer(ldif, "\r\n");
 		String chunk="";
 

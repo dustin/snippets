@@ -28,11 +28,11 @@ import java.util.*;
 public class InterfaceImplementor extends Object {
 
 	// Functions that are already defined.
-	protected Hashtable definedFunctions=null;
-	protected Class interfaceClass=null;
-	protected Class superClass=null;
-	protected String outpackage=null;
-	protected String outclass="BLAH";
+	private Hashtable definedFunctions=null;
+	private Class interfaceClass=null;
+	private Class superClass=null;
+	private String outpackage=null;
+	private String outclass="BLAH";
 
 	/**
 	 * Get a new InterfaceImplementor to implement the passed in interface.
@@ -116,7 +116,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Extract the methods from the above.
-	protected void getMethods(Class c) throws Exception {
+	private void getMethods(Class c) throws Exception {
 		Method methods[]=c.getDeclaredMethods();
 		for(int i=0; i<methods.length; i++) {
 			int modifiers=methods[i].getModifiers();
@@ -127,7 +127,7 @@ public class InterfaceImplementor extends Object {
 		}
 	}
 
-	protected String decodeType(Class type) {
+	private String decodeType(Class type) {
 		String rv=null;
 		if(type.isArray()) {
 			rv=decodeType(type.getComponentType()) + "[]";
@@ -138,7 +138,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Get the method signature
-	protected String getSignature(Method method) throws Exception {
+	private String getSignature(Method method) throws Exception {
 		String ret="";
 
 		// Get the modifiers
@@ -184,7 +184,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Get the constructor signature
-	protected String getSignature(Constructor con) throws Exception {
+	private String getSignature(Constructor con) throws Exception {
 		String ret=null;
 
 		// Get the modifiers
@@ -218,7 +218,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Implement a constructor that tries to error out as best as possible
-	protected String implement(Method method) throws Exception {
+	private String implement(Method method) throws Exception {
 		// Start
 		String ret=null;
 		ret="\t// InterfaceImplementor added " + method.getName() + "\n";
@@ -250,7 +250,7 @@ public class InterfaceImplementor extends Object {
 	}
 
 	// Implement a constructor that calls the super constructor
-	protected String implementConstructor(Constructor con) throws Exception {
+	private String implementConstructor(Constructor con) throws Exception {
 		String ret=null;
 		ret="\t// InterfaceImplementor added constructor\n";
 		ret+="\t" + getSignature(con) + " {\n";

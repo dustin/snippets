@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.4 2000/06/16 20:42:28 dustin Exp $
+// $Id: FedEx.java,v 1.5 2001/02/07 06:31:12 dustin Exp $
 
 package net.spy.info;
 
@@ -53,7 +53,7 @@ public class FedEx extends PackageInfo {
 		return(ret);
 	}
 
-	protected void parseInfo() throws Exception {
+	private void parseInfo() throws Exception {
 		hinfo=new Hashtable();
 		hinfo.put("airbill_number", arg);
 		getInfo();
@@ -88,7 +88,7 @@ public class FedEx extends PackageInfo {
 	}
 
 	// 790827254891 - Tracking this...
-	protected void getInfo() throws Exception {
+	private void getInfo() throws Exception {
 		if(info==null) {
 			String url=
 				"http://www.fedex.com/cgi-bin/track_it?airbills=";
