@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.6 1998/06/29 05:54:36 dustin Exp $
+-- $Id: photo.sql,v 1.7 1998/06/29 05:57:44 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -86,10 +86,11 @@ create sequence search_seq;
 grant all on search_seq to nobody;
 
 create table searches (
-    id       int default nextval('search_seq'),
+    id      int default nextval('search_seq'),
     name    varchar,
     addedby varchar,
-    search  varchar
+    search  varchar,
+    ts      datetime default('now')
 );
 
 create unique index search_byid on searches(id);
