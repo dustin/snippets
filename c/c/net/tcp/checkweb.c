@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.7 1998/05/13 06:16:08 dustin Exp $
+ * $Id: checkweb.c,v 1.8 1998/06/05 17:55:33 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -41,7 +41,9 @@ SSL_CTX* ctx;
 /*
  * It was this or a global variable.  It'll probably change in the future
  */
+#ifndef HTMLOUT
 #define HTMLOUT 1
+#endif
 
 /*
  * URL request holder.
@@ -393,7 +395,7 @@ void main(int argc, char **argv)
     if(argc < 2)
     {
 	printf("checkweb, copyright (c) 1997  Dustin Sallings\n"
-	    "$Id: checkweb.c,v 1.7 1998/05/13 06:16:08 dustin Exp $\n");
+	    "$Id: checkweb.c,v 1.8 1998/06/05 17:55:33 dustin Exp $\n");
 	printf("Error, argument required.  Usage:\n%s filename\n"
 	       "Where filename is the file containing the url list.\n",
 	       argv[0]);
