@@ -34,6 +34,8 @@ let get_old_digest ch =
  @param ch the input stream we're comparing
  *)
 let do_blocks blocksize bs bd digestin digestout ch =
+	(* Eat the first line of the oldmd5 file (meta info) *)
+	ignore(get_old_digest digestin);
 	let buf = String.create blocksize in
 	let rec loop n =
 		let bytesread = Fileutils.input_block ch buf 0 blocksize in
@@ -52,19 +54,33 @@ let do_blocks blocksize bs bd digestin digestout ch =
 	loop 0
 ;;
 
-let block_same n data digest old_digest =
-	()
+let makefn = Printf.sprintf "%s/%05d";;
+
+let block_same prevdir newdir n data digest old_digest =
+	let oldpath = makefn prevdir n in
+	let newpath = makefn newdir n in
+	(* print_endline ("Linking " ^ oldpath ^ " -> " ^ newpath); *)
+	Unix.link oldpath newpath
 ;;
 
 exception Subprocess_error of int;;
 
-let block_diff prog n data digest old_digest =
+let block_diff prevdir newdir prog n data digest old_digest =
+	(*
 	Printf.printf "Difference at block %d - %s != %s\n" n digest old_digest;
+	*)
 	let args = (Array.of_list
-		["BLOCK=" ^ (string_of_int n);"DIGEST=" ^ digest]) in
+		["BLOCK=" ^ (string_of_int n);
+		 "DIGEST=" ^ digest;
+		 "PREVDIR=" ^ prevdir;
+		 "NEWDIR=" ^ newdir;
+		 "PREVPATH=" ^ (makefn prevdir n);
+		 "NEWPATH=" ^ (makefn newdir n)]) in
+	(* Open the subprocess *)
 	let pout,pin,perr = Unix.open_process_full prog args in
-	ignore(output pin data 0 (String.length data));
-	print_endline("Waiting...");
+	(* Send the data, but ignore the return value *)
+	output pin data 0 (String.length data);
+	(* Check the result of the subprocess *)
 	(match Unix.close_process_full(pout,pin,perr) with
 		Unix.WEXITED v ->
 			if v != 0 then raise (Subprocess_error v)
@@ -85,6 +101,9 @@ let block_diff prog n data digest old_digest =
  *)
 let process blocksize bs bd datafn oldmd5 tmpmd5 =
 	let newdigestch = (open_out tmpmd5) in
+	(* Write out the block size on the first line *)
+	output_string newdigestch ("# block size:  "
+		^ (string_of_int blocksize) ^ "\n");
 	Fileutils.operate_on_file_in
 		(do_blocks blocksize bs bd (open_in oldmd5) newdigestch) Sys.argv.(1);
 	close_out newdigestch;
@@ -95,10 +114,30 @@ let process blocksize bs bd datafn oldmd5 tmpmd5 =
  Args:  input_file digest_file diff_cmd
  *)
 let main() =
-	let newfn = (Sys.argv.(2) ^ ".new") in
+	(* Arg checking *)
+	if (Array.length Sys.argv) < 6 then (
+		prerr_endline("Usage:  " ^ Sys.argv.(0)
+			^ " streamfn digestfile diffscript prevdir newdir");
+		exit(1)
+	);
+	let blocksize = ref (8 * 1024 * 1024) in
+	if (Array.length Sys.argv) > 6 then (
+		blocksize := (int_of_string Sys.argv.(6))
+	);
+	if !blocksize > Sys.max_string_length then (
+		blocksize := Sys.max_string_length
+	);
+	(* Pop off the args *)
+	let streamfn = Sys.argv.(1) in
 	let oldfn = Sys.argv.(2) in
-	process (8 * 1024) block_same (block_diff Sys.argv.(3))
-		Sys.argv.(1) oldfn newfn
+	let newfn = (oldfn ^ ".new") in
+	let scriptname = Sys.argv.(3) in
+	let prevdir = Sys.argv.(4) in
+	let newdir = Sys.argv.(5) in
+	process !blocksize
+		(block_same prevdir newdir)
+		(block_diff prevdir newdir scriptname)
+		streamfn oldfn newfn
 ;;
 
 (* Start main if we're interactive. *)
