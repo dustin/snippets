@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: getstats.cgi,v 1.2 1997/12/14 21:31:46 dustin Exp $
+# $Id: getstats.cgi,v 1.3 1997/12/15 09:06:20 dustin Exp $
 
 set kludge { $*
     shift
@@ -44,9 +44,11 @@ proc showload {lv} {
 	puts -nonewline "\t<tr><td align=\"middle\" colspan=\"2\">"
 	    puts "<b>Load averages</b></td></tr>"
 	puts "\t<tr><td><a href=\"$stateplot?$machine+load1\">";
-	puts "\t1m Load</a></td><td>[lindex $lv 0]</td></tr>"
-	puts "\t<tr><td>5m Load</td><td>[lindex $lv 1]</td></tr>"
-	puts "\t<tr><td>15m Load</td><td>[lindex $lv 2]</td></tr>"
+	puts "1m Load</a></td><td>[lindex $lv 0]</td></tr>"
+	puts "\t<tr><td><a href=\"$stateplot?$machine+load5\">";
+	puts "5m Load</a></td><td>[lindex $lv 1]</td></tr>"
+	puts "\t<tr><td><a href=\"$stateplot?$machine+load15\">";
+	puts "15m Load</a></td><td>[lindex $lv 2]</td></tr>"
 	puts "\t</table>\n</td>\n"
     }
 }
