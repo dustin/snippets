@@ -56,6 +56,7 @@
 
 -(IBAction)launchPreferences:(id)sender
 {
+	// XXX:  This leaks memory every time the preferences panel is launched
     id prefc=[[PreferenceController alloc] initWithWindowNibName: @"Preferences"];
     [prefc startUp: defaults];
     NSLog(@"Initialized Test");
