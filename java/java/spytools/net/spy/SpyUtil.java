@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.9 2001/01/28 02:41:24 dustin Exp $
+// $Id: SpyUtil.java,v 1.10 2001/01/28 02:42:09 dustin Exp $
 
 package net.spy;
 
@@ -30,7 +30,7 @@ public class SpyUtil {
 			if(n<0) {
 				n=-n;
 			}
-			n=n%size;
+			n=n%ret.length;
 			tmp=ret[i];
 			ret[i]=ret[n];
 			ret[n]=tmp;
