@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.1 1998/01/02 05:41:49 dustin Exp $
+dnl $Id: configure.in,v 1.2 1998/01/02 06:49:58 dustin Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(redirect.h)
 AC_CONFIG_HEADER(config.h)
@@ -51,6 +51,13 @@ case "$OS" in
 	fi
 	;;
 esac
+
+dnl Do libraries
+if test "$OS" != "irix"
+then
+    AC_CHECK_LIB(nsl, main)
+    AC_CHECK_LIB(socket, main)
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
