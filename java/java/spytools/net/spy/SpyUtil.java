@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.6 2000/07/18 22:56:15 dustin Exp $
+// $Id: SpyUtil.java,v 1.7 2000/11/05 07:23:31 dustin Exp $
 
 package net.spy;
 
@@ -50,16 +50,13 @@ public class SpyUtil {
 	 * @see StringTokenizer
 	 */
 	public static String[] split(String on, String input) {
-		Vector v = new Vector();
 		StringTokenizer st = new StringTokenizer(input, on);
-		String ret[]=null;
+
+		String ret[]=new String[st.countTokens()];
+
 		int i=0;
-
-		ret=new String[st.countTokens()];
-
 		while( st.hasMoreTokens() ) {
-			ret[i]=st.nextToken();
-			i++;
+			ret[i++]=st.nextToken();
 		}
 
 		return(ret);
