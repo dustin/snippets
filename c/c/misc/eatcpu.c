@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 1997  Dustin Sallings
  *
- * $Id: eatcpu.c,v 1.2 1998/01/14 07:30:12 dustin Exp $
+ * $Id: eatcpu.c,v 1.3 1998/01/14 07:30:44 dustin Exp $
  */
 
 #include <stdio.h>
@@ -72,8 +72,6 @@ void main(int argc, char **argv)
     signal(SIGINT, sigtrap);
     signal(SIGALRM, alrmtrap);
 
-    alarm(30);
-
     for(i=0;i<b;i++)
     {
 	if( (pid=fork())==0)
@@ -90,6 +88,8 @@ void main(int argc, char **argv)
 	    list[i]=pid;
 	}
     }
+
+    alarm(30);
 
     /* Just to keep the parent busy waiting for signals */
     for(;;)
