@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: GetPK.java,v 1.2 2002/08/24 07:23:00 dustin Exp $
+// $Id: GetPK.java,v 1.3 2002/08/24 08:01:19 dustin Exp $
 
 package net.spy.db;
 
@@ -18,7 +18,49 @@ import net.spy.db.sp.UpdatePrimaryKey;
 import net.spy.db.sp.SelectPrimaryKey;
 
 /**
- * Primary key generator.
+ * Primary key generator.  This is an extensible singleton that provides
+ * access to a database-backed set of primary keys along with a fetch-ahead
+ * cache of those keys.
+ *
+ * <p>
+ *
+ * The default implementation assumes you have the following table in the
+ * database the configuration gets you into:
+ *
+ * </p>
+ * <p>
+ *
+ * <table border="1">
+ *  <tr>
+ *    <th>Column Name</th>
+ *    <th>Column Type</th>
+ *    <th>Column Description</th>
+ *  </tr>
+ *  <tr>
+ *    <td>table_name</td>
+ *    <td>varchar</td>
+ *    <td>The name of the table (or other resource) for which we are
+ *        generating the given primary key.
+ *    </td>
+ *  </tr>
+ *  <tr>
+ *    <td>primary_key</td>
+ *    <td>numeric</td>
+ *    <td>The next primary key value issued.</td>
+ *  </tr>
+ *  <tr>
+ *    <td>incr</td>
+ *    <td>numeric</td>
+ *    <td>The amount to increment the primary key each time.</td>
+ * </table>
+ *
+ * </p>
+ * <p>
+ *
+ * Other schemas may exist as long as they fit into the ``update something,
+ * select something'' model and they operate as described below.
+ *
+ * </p>
  */
 public class GetPK extends Object {
 
@@ -99,6 +141,8 @@ public class GetPK extends Object {
 	/**
 	 * Get the DBSP required for updating the primary key table.
 	 *
+	 * <p>
+	 *
 	 * A subclass may override this to change the behavior of the first
 	 * part of the ``fetch from db'' stage.  The DBSP returned will take
 	 * exactly one parameter:  <code>table_name</code> and will be called
@@ -106,9 +150,13 @@ public class GetPK extends Object {
 	 * Any more or fewer will cause the process to fail and an exception
 	 * will be thrown.
 	 *
-	 * <p/>
+	 * </p>
+	 * <p>
 	 *
-	 * For an example implementation, please see {@link UpdatePrimaryKey}.
+	 * For an example implementation, please see {@link UpdatePrimaryKey}
+	 * (this is the default).
+	 *
+	 * </p>
 	 *
 	 * @param conn the connection to use (already in a transaction)
 	 * @return the required DBSP
@@ -121,6 +169,8 @@ public class GetPK extends Object {
 	/**
 	 * Get the DBSP required for selecting primary key information back out
 	 * of the primary key table.
+	 *
+	 * <p>
 	 *
 	 * A subclass may override this method to change the behavior of the
 	 * select statement that finds the range of results for a table.  The
@@ -137,9 +187,13 @@ public class GetPK extends Object {
 	 * fewer will cause the process to fail and an exception will be
 	 * thrown.
 	 *
-	 * <p/>
+	 * </p>
+	 * <p>
 	 *
-	 * For an example implementation, please see {@link SelectPrimaryKey}.
+	 * For an example implementation, please see {@link SelectPrimaryKey}
+	 * (this is the default).
+	 *
+	 * <p>
 	 *
 	 * @param conn the connection to use (already in a transaction)
 	 * @return the required DBSP
