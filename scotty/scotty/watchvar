@@ -1,0 +1,44 @@
+#!/bin/sh
+# scotty parses like a girl\
+exec scotty -nf $0 $*
+
+proc safeload { mib } {
+	catch {mib load $mib }
+}
+
+proc usage {} {
+    error "usage: watchvar host var"
+}
+
+if {[llength $argv] != 2} { usage }
+
+# Try to every mib I've ever cared about.
+foreach mib { rfc1493.mib rfc1525.mib rfc1213.mib rfc1515.mib rfc1516.mib
+			cisco.mib cisco-smi.mib squid.mib sun.mib snmpdx.mib le38.mib
+			LOAD-BAL-SYSTEM-MIB.txt ld.mib CISCO-CDP-MIB-V1SMI.mib ics.mib
+			} {
+	safeload $mib
+}
+
+set host [lindex $argv 0]
+set var [lindex $argv 1]
+
+if {[lsearch [snmp alias] $host] >= 0} {
+	set s [snmp session -alias $host]
+} else {
+	puts stderr \
+	"no snmp alias for \"$host\": using SNMPv1 community public"
+	if {[catch {snmp session -address $host -community public} s]} {
+		puts stderr $s
+		exit
+	}
+}
+
+while { 1 } {
+	set blah [lindex [lindex [ $s get $var] 0 ] 2]
+
+	puts "$var: $blah"
+	sleep 1
+}
+
+exit

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: discover,v 1.5 2000/05/11 21:34:26 dustin Exp $ \
+# $Id: discover,v 1.6 2000/05/12 00:28:54 dustin Exp $ \
 exec /usr/local/bin/scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -113,6 +113,7 @@ proc getPeers { s i } {
 proc peerName { s i peer } {
 	set what "cdpCacheDeviceId.$i.$peer"
 	catch {set name [lindex [lindex [$s get $what] 0] 2]}
+	# puts stderr "$name"
 	set nameparts [ split $name . ]
 	set newparts {}
 	# Things that indicate we've found the domain
