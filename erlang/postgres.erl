@@ -23,9 +23,6 @@
 -export([handle_event/3, handle_sync_event/4,
 	handle_info/3, init/1, terminate/3]).
 
-% Testing
--export([test/0]).
-
 -record(conninfo, {host,port,user,pass,db}).
 -record(cancelinfo, {cpid,ckey}).
 -record(pginfo, {conninfo,cancelinfo,socket,sstat}).
