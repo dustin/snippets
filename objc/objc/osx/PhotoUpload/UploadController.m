@@ -17,9 +17,13 @@
     [defaults setObject: [username stringValue] forKey:@"username"];
     [defaults setObject: [url stringValue] forKey:@"url"];
 
+    id connection=nil;
+    NSURL *u=[[NSURL alloc] initWithString:[url stringValue]];
+
     NS_DURING
-        id connection = [XRConnection connectionWithURL:[NSURL URLWithString:[url stringValue]]];
-        NSArray *args=[NSArray arrayWithObjects: [username stringValue], [password stringValue]];
+        connection = [[XRConnection alloc] initWithURL:u];
+        NSArray *args=[NSArray arrayWithObjects:
+                        [username stringValue], [password stringValue]];
         id result = [connection performRemoteMethod:@"getCategories.getAddable"
                                         withObjects:args];
 
@@ -35,6 +39,11 @@
     NS_HANDLER
         [self alert:@"Authentication Exception" message:[localException description]];
     NS_ENDHANDLER
+
+    [u release];
+    if(connection != nil) {
+        [connection release];
+    }
 }
 
 - (IBAction)dateToToday:(id)sender
