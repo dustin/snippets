@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.10 1998/09/18 08:56:39 dustin Exp $
+# $Id: DCache.pm,v 1.11 1998/12/16 23:23:32 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -64,8 +64,10 @@ sub cache
     my($self, $id, $mime, $data)=@_;
     my($name);
 
-    $name=getname($self, $id);
+    $name=$self->getname($id);
     ensurepath($name);
+
+	$id=$self->fixid($id);
 
     open(DC_OUT, ">$name");
     print DC_OUT "X-Cache: $id\n";
@@ -76,17 +78,25 @@ sub cache
 
 sub getcache
 {
-    my($self, $id)=@_;
+    my($self, $id, $data)=@_;
     my($name, $out, $buf);
 
-    $name=getname($self, $id);
+    $name=$self->getname($id);
     open(DC_IN, $name) || return("");
     # Eat my tag
     <DC_IN>;
     $out="";
+    if(defined($data)) {
+	# Eat everything but the data
+	$_=<DC_IN>;
+	while(/\w/) {
+	    $_=<DC_IN>;
+        }
+    }
     while( read(DC_IN, $buf, 1024) ) {
 	$out.=$buf;
     }
+    print <DC_IN>;
     close(DC_IN);
     return($out);
 }
@@ -96,7 +106,7 @@ sub printcache
     my($self, $id)=@_;
     my($name, $buf);
 
-    $name=getname($self, $id);
+    $name=$self->getname($id);
     open(DC_IN, $name) || return("");
     # Eat my tag
     <DC_IN>;
@@ -107,6 +117,28 @@ sub printcache
     close(DC_IN);
 }
 
+sub getcache_only
+{
+    my $self=shift;
+    my $id=shift;
+    my($name, $buf, $ret);
+
+    $name=$self->getname($id);
+    open(DC_IN, $name) || return("");
+    # Eat everything but the data
+    $_=<DC_IN>;
+    while(/\w/) {
+		$_=<DC_IN>;
+    }
+	$ret="";
+    while( read(DC_IN, $buf, 1024) ) {
+		$ret.=$buf;
+    }
+    print <DC_IN>;
+    close(DC_IN);
+	return($ret);
+}
+
 sub printcache_only
 {
     my $self=shift;
@@ -114,7 +146,7 @@ sub printcache_only
     my $fd=shift || \*STDOUT;
     my($name, $buf);
 
-    $name=getname($self, $id);
+    $name=$self->getname($id);
     open(DC_IN, $name) || return("");
     # Eat everything but the data
     $_=<DC_IN>;
@@ -128,6 +160,14 @@ sub printcache_only
     close(DC_IN);
 }
 
+sub fixid
+{
+	my($self, $id)=@_;
+
+	$id=~s/[\s\n\r]/+/sog;
+	$id;
+}
+
 sub checkcache
 {
     my($self, $id, $compare)=@_;
@@ -137,8 +177,11 @@ sub checkcache
 	 $compare="";
     }
 
-    $r=0;
-    $name=getname($self, $id);
+    undef($r);
+    $name=$self->getname($id);
+
+	$id=$self->fixid($id);
+
     if(-f $name && (@a=stat(_))) {
 	$s1=$a[9];
 	if($compare ne "") {
