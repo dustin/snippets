@@ -23,3 +23,6 @@
 <input type="submit" value="Save"> <input type="reset" value="Reset">
 
 </form>
+
+<a href="%CGIDIR%/admin/admin.cgi?func=listrecent&cat=%CATID%">List all
+images in this category.</a>
