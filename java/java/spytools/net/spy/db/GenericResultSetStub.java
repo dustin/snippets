@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: GenericResultSetStub.java,v 1.1 2002/08/15 20:37:18 dustin Exp $
+ * $Id: GenericResultSetStub.java,v 1.2 2002/08/15 20:54:39 dustin Exp $
  */
 
 package net.spy.db;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
  * implementation.
  */
 public abstract class GenericResultSetStub extends Object implements Cloneable {
+
 	// Here is where the ResultSet data gets stored.
 	private List results=null;
 	private Iterator resultIter=null;
@@ -52,27 +53,28 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 	 */
 	public GenericResultSetStub(ResultSet rs) throws SQLException {
 		super();
-		metadata=rs.getMetaData();
+		setMetaData(rs.getMetaData());
 		initResults(rs);
 	}
 
 	/**
-	 * Initialize the ResultSet.
+	 * Get an instance of a GenericResultSetStub with no initialization.
 	 *
-	 * @param rs The incoming ResultSet
-	 * @throws SQLException if there's a problem reading the ResultSet
+	 * The subclass is expected to do whatever is necessary, and then call
+	 * setResults(List) and setMetaData(ResultSetMetaData) to make
+	 * everything happy.
+	 *
+	 * @throws SQLException (never)
 	 */
-	protected void initResults(ResultSet rs) throws SQLException {
+	protected GenericResultSetStub() throws SQLException {
+		super();
+	}
+
+	// result set initializer
+	private void initResults(ResultSet rs) throws SQLException {
 		// Initialize the results vector
 		ArrayList r=new ArrayList();
 		int ncolumns=metadata.getColumnCount();
-
-		// Initialize columns
-		columns=new HashMap();
-		for(int i=1; i<=ncolumns; i++) {
-			String name=metadata.getColumnName(i).toLowerCase();
-			columns.put(name, new Integer(i));
-		}
 
 		// Flip through each result
 		while(rs.next()) {
@@ -104,10 +106,29 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 	 *
 	 * @param results results list to use
 	 */
-	protected void setResults(List results)
-	{
+	protected void setResults(List results) {
 		this.results=results;
 		this.resultIter=null;
+	}
+
+	/**
+	 * Set the ResultSetMetaData used for this ResultSet.
+	 *
+	 * @param rsmd the ResultSetMetaData
+	 * @throws SQLException if there's a problem examining the signature
+	 */
+	protected void setMetaData(ResultSetMetaData rsmd) throws SQLException {
+		this.metadata=rsmd;
+
+		// Get the column count
+		int ncolumns=metadata.getColumnCount();
+
+		// Initialize columns
+		columns=new HashMap();
+		for(int i=1; i<=ncolumns; i++) {
+			String name=metadata.getColumnName(i).toLowerCase();
+			columns.put(name, new Integer(i));
+		}
 	}
 
 	/**
