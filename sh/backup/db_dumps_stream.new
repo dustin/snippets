@@ -11,9 +11,20 @@ unixtoday=`date +%s`
 unixyesterday=`expr $unixtoday - 86400`
 yesterday=`date -r $unixyesterday +%Y%m%d`
 
-touch $place/digests/$dbname
+blocksize=""
+if [ -f $HOME/.dump-params/$dbname ]
+then
+	blocksize=`cat $HOME/.dump-params/$dbname`
+else
+	if [ -f $HOME/.dump-params/=default ]
+	then
+		blocksize=`cat $HOME/.dump-params/=default`
+	fi
+fi
+
+touch $place/../db.digests/$dbname
 mkdir -p $today/$dbname
-$HOME/bin/blockDigest - $place/digests/$dbname $HOME/bin/encryptBlock \
-	$yesterday/$dbname $today/$dbname
+$HOME/bin/blockDigest - $place/../db.digests/$dbname $HOME/bin/encryptBlock \
+	$yesterday/$dbname $today/$dbname $blocksize
 
 du -sk $today/$dbname
