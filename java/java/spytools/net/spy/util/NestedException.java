@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NestedException.java,v 1.1 2001/06/07 07:51:13 dustin Exp $
+// $Id: NestedException.java,v 1.2 2001/06/07 08:00:19 dustin Exp $
 
 package net.spy.util;
 
 import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * An Exception that will allow chaining of another Throwable.
@@ -48,6 +49,17 @@ public class NestedException extends Exception {
 		}
 
 		return(rv);
+	}
+
+	/**
+	 * Print the stack and the root stack (if any).
+	 */
+	public void printStackTrace(PrintStream s) {
+		super.printStackTrace(s);
+		if(root!=null) {
+			s.println("*** Root Cause Stack:");
+			root.printStackTrace(s);
+		}
 	}
 
 	/**
