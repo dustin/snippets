@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.9 2000/03/01 09:58:37 dustin Exp $
+# $Id: ldap_audit,v 1.10 2000/03/03 21:05:14 dustin Exp $
 
 use strict;
 
@@ -46,6 +46,7 @@ sub audit {
 	for $slave (@slaves) {
 		my @dns=getDns($slave->ldap(), $base);
 		my %h=map { $_, 1 } @dns;
+		@dns=();
 
 		for(keys(%h)) {
 			if(!defined($master_hash{$_})) {
@@ -90,6 +91,8 @@ sub audit {
 				my $slave_data=Dumper(\%slave_data);
 
 				if($master_data ne $slave_data) {
+					# Free the Dumper output.
+					$slave_data="";
 					print "!!! $dn is not the same on $t !!!\n";
 					if($config{'fixit'}==1) {
 						# find and fix the differences
@@ -188,7 +191,8 @@ sub fixRecord {
 				my $mval=$m[$_];
 				my $sval=$s[$_];
 				if($mval ne $sval) {
-					print "Value $m[$_] on attribute $key is different, will adjust\n";
+					print "Attribute $key is different:\n";
+					print "MASTER:\n$mval\nSLAVE:\n$sval\nWill adjust.\n";
 					push(@atts, $key);
 				}
 			}
@@ -210,7 +214,9 @@ sub fixRecord {
 		}
 	}
 
-	for(@atts) {
+	# make sure we only get one of any given attribute.
+	my %atts=map { $_, 1 } @atts;
+	for(keys %atts) {
 		# Skip over the ``always'' ones.
 		next if($_ eq "creatorsname");
 		next if($_ eq "createtimestamp");
