@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.7 2000/10/03 10:07:37 dustin Exp $
+ * $Id: sockets.c,v 1.8 2001/05/28 08:38:07 dustin Exp $
  */
+
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +19,10 @@
 #include <netdb.h>
 #include <syslog.h>
 #include <netinet/tcp.h>
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif /* HAVE_SYS_TIME_H */
 
 #ifdef USE_SSLEAY
 # include <ssl.h>

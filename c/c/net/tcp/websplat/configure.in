@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.2 1999/06/16 06:33:26 dustin Exp $
+dnl $Id: configure.in,v 1.3 2001/05/28 08:38:05 dustin Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(main.c)
 AC_CONFIG_HEADER(config.h)
@@ -71,7 +71,7 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(unistd.h sys/select.h)
+AC_CHECK_HEADERS(unistd.h sys/time.h sys/select.h)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
