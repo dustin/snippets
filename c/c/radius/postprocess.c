@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: postprocess.c,v 1.1 1997/01/12 09:41:00 dustin Exp $
+ * $Id: postprocess.c,v 1.2 1997/09/20 07:04:40 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,21 +19,21 @@ char blah[15];
 int old;
 
 
-	name.dptr=what;
-	name.dsize=strlen(what);
+    name.dptr=what;
+    name.dsize=strlen(what);
 
-	val=dbm_fetch(db, name);
-	if(val.dptr == NULL)
-		old=0;
-	else
-		old=atoi(val.dptr);
+    val=dbm_fetch(db, name);
+    if(val.dptr == NULL)
+        old=0;
+    else
+        old=atoi(val.dptr);
 
-	sprintf(blah, "%d", value+old);
+    sprintf(blah, "%d", value+old);
 
-	val.dptr=blah;
-	val.dsize=strlen(blah);
+    val.dptr=blah;
+    val.dsize=strlen(blah);
 
-	dbm_store(db, name, val, DBM_REPLACE);
+    dbm_store(db, name, val, DBM_REPLACE);
 }
 
 void dothe(char *line)
@@ -41,19 +41,19 @@ void dothe(char *line)
 char line2[80];
 int i, j;
 
-	for(i=0; line[i]!=':'; i++)
-	{
-		line2[i]=line[i];
-	}
-	line2[i++]=0;
+    for(i=0; line[i]!=':'; i++)
+    {
+        line2[i]=line[i];
+    }
+    line2[i++]=0;
 
-	for(j=0; j<2; j++)
-	{
-		for(;+line[i]!=':'; i++);
-		i++;
-	}
+    for(j=0; j<2; j++)
+    {
+        for(;+line[i]!=':'; i++);
+        i++;
+    }
 
-	store(line2, atoi(line+i));
+    store(line2, atoi(line+i));
 }
 
 void main(int argc, char *argv[])
@@ -61,13 +61,21 @@ void main(int argc, char *argv[])
 FILE *f;
 char line[80];
 
-	db=dbm_open("usage", O_RDWR | O_CREAT, 0644);
-	f=fopen(argv[1], "r");
+    db=dbm_open("usage", O_RDWR | O_CREAT, 0644);
 
-	while(fgets(line, 80, f))
-	{
-		dothe(line);
-	}
+    if( (strcmp(argv[1], "-")==0))
+    {
+        f=stdin;
+    }
+    else
+    {
+        f=fopen(argv[1], "r");
+    }
 
-	dbm_close(db);
+    while(fgets(line, 80, f))
+    {
+        dothe(line);
+    }
+
+    dbm_close(db);
 }

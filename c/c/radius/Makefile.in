@@ -1,0 +1,17 @@
+#
+# Copyright (c) 1997  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1997/09/20 07:04:39 dustin Exp $
+#
+
+CFLAGS=-O2
+LIBS=
+LDFLAGS=$(LIBS)
+
+EXES=parsedetail   postprocess
+OBJS=parsedetail.o postprocess.o
+SRC= parsedetail.c postprocess.c
+
+all: $(EXES)
+
+clean:
+	rm -f $(EXES) $(OBJS)
