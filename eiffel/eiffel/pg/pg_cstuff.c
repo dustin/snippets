@@ -4,7 +4,7 @@
  * Licensed as according to the Eiffel Forum Freeware License, version 1
  * See forum.txt for more information.
  *
- * $Id: pg_cstuff.c,v 1.3 1999/05/28 04:50:56 dustin Exp $
+ * $Id: pg_cstuff.c,v 1.4 1999/06/03 07:39:48 dustin Exp $
  */
 
 #include <stdio.h>
@@ -39,7 +39,7 @@ pg_query(PGconn * conn, char *query)
 	res = PQexec(conn, query);
 
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-		puts(PQerrorMessage(conn));
+		/* puts(PQerrorMessage(conn)); */
 		return (NULL);
 	}
 

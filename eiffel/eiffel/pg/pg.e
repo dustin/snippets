@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.15 $";
+version: "$Revision: 1.16 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.15 1999/06/02 07:49:28 dustin Exp $
+-- $Id: pg.e,v 1.16 1999/06/03 07:39:46 dustin Exp $
 --
 class PG
 
@@ -80,6 +80,11 @@ feature {ANY}
          retry_attempts: INTEGER;
       do
          current_row := 0;
+		 debug
+			io.put_string("Doing query:  ");
+			io.put_string(q);
+			io.put_string("%N-------------------------%N");
+		 end
          res := pg_query(conn,q.to_external);
       ensure
          has_results;
@@ -192,6 +197,29 @@ feature {ANY} -- Connection options
       do
          !!password.copy(to);
       end -- set_password
+
+feature {ANY} -- Transaction
+
+	begin is
+		require
+			is_connected;
+		do
+			query("begin transaction");
+		end
+
+	commit is
+		require
+			is_connected;
+		do
+			query("commit");
+		end
+
+	rollback is
+		require
+			is_connected;
+		do
+			query("rollback");
+		end
 
 feature {ANY} -- status
 
