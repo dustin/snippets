@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.15 2002/03/20 20:23:15 dustin Exp $
+# $Id: nntpsucka.py,v 1.16 2002/03/20 20:26:20 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -62,7 +62,7 @@ class NewsDB:
 			myfirst=first
 		mycount=(int(last)-int(myfirst))
 
-		return myfirst, mylast, mycount
+		return myfirst, last, mycount
 
 ######################################################################
 
