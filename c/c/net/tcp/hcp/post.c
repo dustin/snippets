@@ -2,7 +2,7 @@
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.6 1998/11/11 07:03:35 dustin Exp $
+ * $Id: post.c,v 1.7 1998/11/11 07:21:09 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,13 +16,13 @@
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.6 $"
+#define USERAGENT "DUpload/$Revision: 1.7 $"
 
 void
 _gendelimit(char *d, size_t len)
 {
 	snprintf(d, len-1, "---------------------------%d%d",
-		time(NULL), getpid());
+		(int)time(NULL), getpid());
 }
 
 struct status
@@ -90,7 +90,7 @@ postfile(char *url, char *path)
 	fprintf(tmp, "\r\n--%s--\r\n", delimit);
 
 	/* tell how long tmp is */
-	snprintf(line, 1024, "Content-Length: %d\r\n\r\n", ftell(tmp));
+	snprintf(line, 1024, "Content-Length: %l\r\n\r\n", ftell(tmp));
 	send_data(conn, u, line);
 
 	/* rewind the file, we're going to send it now */
@@ -122,7 +122,7 @@ postfile(char *url, char *path)
 int main(int argc, char **argv)
 {
 	struct status st;
-	int i;
+	int i, ret=0;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGALRM, timeout);
@@ -136,5 +136,8 @@ int main(int argc, char **argv)
 		printf("Sending %s\n", argv[i]);
 		st=postfile(argv[1], argv[i]);
 		printf("Status for %s was %d (%s)\n", argv[i], st.status, st.message);
+		if(st.status!=200)
+			ret++;
 	}
+	return(ret);
 }
