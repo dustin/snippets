@@ -4,7 +4,9 @@ import zipfile
 import psycopg;
 from sys import argv
 import os
+
 import TigerTypes
+import Stats
 
 def parseDatum(input):
 	rv=None
@@ -18,14 +20,18 @@ def parseDatum(input):
 def load(c, zipfile, fn):
 	data=zipfile.read(fn).split('\r\n')
 	i=0
+	stats=Stats.Stats(len(data))
+	stats.start()
 	for line in data:
 		i=i+1
 		datum=parseDatum(line)
 		if isinstance(datum, TigerTypes.ParsedField):
 			c.execute(datum.toSql())
+			stats.click()
+			stats.stop()
 			# os.write(1, ".")
 			if i % 80 == 0:
-				print "Finished %d of %d" % (i, len(data))
+				print stats.getStats()
 		elif datum == None:
 			pass
 		else:

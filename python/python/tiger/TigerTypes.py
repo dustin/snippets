@@ -131,9 +131,9 @@ class ParsedField:
 		return(rv)
 
 	def toSql(self):
-		rv="insert into type_" + self.type.getType().lower() + "("
-		rv+=string.join(map(stringyname, self.type.getFields()[1:]), ", ")
-		rv+=") values("
+		rv="insert into type_" + self.type.getType().lower()
+		# rv+=string.join(map(stringyname, self.type.getFields()[1:]), ", ")
+		rv+=" values("
 		for i in range(1, len(self.type)):
 			if self.isNull(i):
 				rv+="null"

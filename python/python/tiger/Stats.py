@@ -38,8 +38,8 @@ class Stats:
 		return(rv)
 
 def main():
-	stats=Stats(60)
-	for i in range(60):
+	stats=Stats(10)
+	for i in range(10):
 		stats.start()
 		time.sleep(1)
 		stats.stop()
