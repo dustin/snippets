@@ -7,14 +7,15 @@
 let index_one fn =
 	print_endline("Indexing " ^ fn);
 	(* Get the CDB *)
-	let cdb = Cdb.open_out fn in
+	let cdb = Cdb.open_out (fn ^ ".cdb") in
 	Fileutils.iter_file_lines (fun l ->
-		let a = Extstring.split l '\t' 2 in
-		try
-			Cdb.add cdb (List.hd a) l
-		with
-			| Failure("hd") ->
-				print_endline("Format problem:  " ^ l)) fn;
+			let a = Extstring.split l '\t' 2 in
+			try
+				Cdb.add cdb (List.hd a) l
+			with
+				| Failure("hd") ->
+					print_endline("Format problem:  " ^ l))
+		(fn ^ ".txt");
 	Cdb.close_cdb_out cdb;
 ;;
 
