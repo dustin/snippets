@@ -99,33 +99,23 @@
 				#f ; If it's divisible by an existing prime, it's not prime
 				(loop (cdr l))))))))))
 
+; Generate a list of primes between start-n and stop-n by generating all
+; primes up to stop-n and extracting a sublist
 (define
   (primes start-n stop-n)
   (range-sublist (build-primes-to stop-n) start-n stop-n))
 
-
-; Inner loop test using another syntax
-(define
-  (ltest l)
-  (letrec ( ( loop (lambda (myl)
-				(if (null? myl)
-				  '()
-				  (loop (cdr myl))))))
-	(loop l)))
-
-
+; Calculate the sum of a list
 (define
   (sum l)
 	(if (null? l)
 	  0
 	  (+ (car l) (sum (cdr l)))))
 
+; Calculate the deltas of the values within a list
 (define
   (deltas l)
-  (let ((lastn #f) (tmp '()))
-	(for-each (lambda(i)
-				(if (number? lastn)
-				  (set! tmp (append tmp (list (- i lastn))))
-				  #t)
-				(set! lastn i))
-			  l) tmp))
+  (let ( (rv '()))
+	(if (null? (cdr l))
+	  '()
+	  (append rv (list (- (cadr l) (car l))) (deltas2 (cdr l))))))
