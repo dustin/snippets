@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.2 1997/12/19 07:22:54 dustin Exp $
+ * $Id: checkweb.c,v 1.3 1997/12/20 09:15:16 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -38,6 +38,7 @@ struct url {
  */
 struct status {
     int status;
+    int bytesread;
     char *message;
 };
 
@@ -57,13 +58,13 @@ int openhost(char *host, int port)
   if ((hp = gethostbyname(host)) == NULL)
     {
       printf("ERR: gethostbyname\n");
-      exit(1);
+      return(-1);
     }
 
   if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
       perror("socket");
-      exit(1);
+      return(-1);
     }
 
   sin.sin_family = AF_INET;
@@ -184,6 +185,7 @@ struct status getstatus(char *url)
 
     st.status=-1;
     st.message=NULL;
+    st.bytesread=0;
 
     u=parseurl(url);
     if(u.port==-1)
@@ -204,8 +206,14 @@ struct status getstatus(char *url)
     send(s, u.req, strlen(u.req), 0);
     send(s, " HTTP/1.0\n\n", 11, 0);
 
+    alarm(120);
     i=recv(s, line, 1024, 0);
-    assert(i);
+    alarm(0);
+    if(i<1)
+    {
+	st.message=strdup("Timeout, or nothing returned.");
+	return(st);
+    }
     line[i]=NULL;
 
     /*
