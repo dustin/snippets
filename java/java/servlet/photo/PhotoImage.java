@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.6 1999/10/04 06:52:35 dustin Exp $
+ * $Id: PhotoImage.java,v 1.7 1999/10/04 06:55:46 dustin Exp $
  */
 
 import java.io.*;
@@ -135,11 +135,14 @@ public class PhotoImage extends PhotoHelper
 
 		// Did we get it?
 		if(image_data.thumbnail_data==null) {
+			wascached=false;
 			if(image_data.image_data==null) {
 				fetchImage();
 			}
 			makeThumbNail();
 			rhash.put(key, image_data.thumbnail_data);
+		} else {
+			wascached=true;
 		}
 
 		return(image_data.thumbnail_data);
