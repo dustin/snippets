@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.31 2002/08/17 04:14:14 dustin Exp $
+	$Id: build.xml,v 1.32 2002/08/17 04:33:23 dustin Exp $
 
 	-->
 
@@ -44,7 +44,7 @@
 		<property name="VERBOSE" value="on"/>
 	</target>
 
-	<target name="clean">
+	<target name="clean" description="Clean up all generated files.">
 		<delete>
 			<fileset dir="${BUILDDIR}/net">
 				<include name="**/*.class"/>
@@ -80,7 +80,8 @@
 	</target>
 
 	<!-- install everywhere -->
-	<target name="full-install" depends="install,spy-install"/>
+	<target name="full-install" depends="install,spy-install"
+		description="Full install (install and spy-install)"/>
 
 	<!-- Install various locations I use the jar around the house. -->
 	<target name="spy-install" depends="spy.jar">
@@ -96,7 +97,8 @@
 	</target>
 
 	<!-- Regular install -->
-	<target name="install" depends="install-jar,install-docs"/>
+	<target name="install" depends="install-jar,install-docs"
+		description="Install the distribution and documentation for it"/>
 
 	<target name="install-jar" depends="spy.jar">
 		<copy file="spy.jar"
@@ -112,7 +114,8 @@
 		</copy>
 	</target>
 
-	<target name="thinjar" depends="all">
+	<target name="thinjar" depends="all"
+		description="Create a lightweight jar (no docs or source)">
 		<jar jarfile="spy.jar" basedir=".">
 			<manifest>
 				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
@@ -123,7 +126,7 @@
 	</target>
 
 	<target name="spy.jar" unless="spy.jar.upToDate"
-		depends="all,properties,docs">
+		depends="all,properties,docs" description="Build the full jar">
 		<jar jarfile="spy.jar" basedir=".">
 			<manifest>
 				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
@@ -195,7 +198,8 @@
     </java>
   </target>
 
-  <target name="tests-quick" depends="test-classes">
+  <target name="tests-quick" depends="test-classes"
+		description="Perform all tests that don't take all day.">
     <java classname="net.spy.test.QuickTests">
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
@@ -205,7 +209,8 @@
     </java>
   </target>
 
-  <target name="tests-gui" depends="test-classes">
+  <target name="tests-gui" depends="test-classes"
+		description="Start the JUnit GUI">
     <java classname="junit.swingui.TestRunner" fork="yes">
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
