@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings
  *
- * $Id: aim.c,v 1.1 1999/06/10 07:30:21 dustin Exp $
+ * $Id: aim.c,v 1.2 1999/06/13 07:02:09 dustin Exp $
  */
 
 #include <stdio.h>
@@ -23,6 +23,55 @@ static int _aol_connect(AIM *aol);
 static int _aol_logout(AIM *aol);
 static void _aol_destroy(AIM *aol);
 static char *_aol_read_cr(AIM *aol);
+
+static char *_roasted_string=0x00;
+
+char *aol_roast(char *string)
+{
+	char *tmp, *roastkey;
+	int size=0, i;
+	assert(string);
+
+	CONDFREE(roastkey);
+
+	roastkey=_aol_strappend(&size, NULL, AOL_ROAST_STRING);
+
+	while(strlen(roastkey) < strlen(string)) {
+		roastkey=_aol_strappend(&size, roastkey, AOL_ROAST_STRING);
+	}
+
+	tmp=strdup(string);
+	assert(tmp);
+
+	for(i=0; i<strlen(string); i++) {
+		tmp[i]=string[i] ^ roastkey[i];
+	}
+
+	size=0;
+	_roasted_string=_aol_strappend(&size, NULL, "0x");
+	_roasted_string=_aol_strappend(&size, _roasted_string,
+		_aol_hexprint(strlen(string), tmp));
+
+	free(tmp);
+	free(roastkey);
+
+	return(_roasted_string);
+}
+
+static void _aol_destroy(AIM *aol)
+{
+	CONDFREE(_roasted_string);
+
+	if(aol == NULL)
+		return;
+
+	CONDFREE(aol->hostname);
+	CONDFREE(aol->username);
+	CONDFREE(aol->pass);
+	CONDFREE(aol->indata.buffer);
+
+	free(aol);
+}
 
 static int _aol_connect(AIM *aol)
 {
@@ -62,8 +111,11 @@ AIM *aol_init(char *hostname, int port, char *username, char *pass)
 	assert(aol);
 	aol->socket=-1;
 	aol->hostname=strdup(hostname);
+	assert(aol->hostname);
 	aol->username=strdup(username);
-	aol->pass=strdup(pass);
+	assert(aol->username);
+	aol->pass=strdup(aol_roast(pass));
+	assert(aol->pass);
 
 	/* Input buffer stuff */
 	aol->indata.buf_begin=0;

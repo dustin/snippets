@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings
  *
- * $Id: aim.h,v 1.1 1999/06/10 07:30:22 dustin Exp $
+ * $Id: aim.h,v 1.2 1999/06/13 07:02:11 dustin Exp $
  */
 
 #ifndef _AOL_H_
@@ -24,6 +24,10 @@ int snprintf(char *s, size_t n, const char *format, ...);
 #endif
 
 #define AOL_BUF_LEN 1024
+#define AOL_ROAST_STRING "Tic/Toc"
+#define AOL_DEFAULT_STRLEN 256
+
+#define CONDFREE { if(a) { free(a); a=0; } }
 
 struct __aim;
 typedef struct __aim AIM;
@@ -51,9 +55,11 @@ struct __aim {
 	void (*destroy)(AIM *aol);
 };
 
+char *_aol_hexprint(int size, char *buf);
 char *_aol_killwhitey(char *in);
 char *_aol_kw(char *command);
-char *_aol_hexprint(int size, char *buf);
+char *_aol_strappend(int *size, char *dest, char *str);
 char *_aol_unhexprint(int size, char *buf);
+char *aol_roast(char *string);
 
 #endif /* _AOL_H_ */

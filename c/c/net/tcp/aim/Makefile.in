@@ -1,0 +1,4 @@
+CFLAGS=-I. @CFLAGS@ @DEFS@
+
+roast: roast.o aim.o utility.o sockets.o
+	$(CC) -o $@ roast.o aim.o utility.o sockets.o
