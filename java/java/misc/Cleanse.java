@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.3 2001/03/16 09:27:29 dustin Exp $
+// $Id: Cleanse.java,v 1.4 2001/03/16 09:31:37 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
@@ -8,8 +8,9 @@ import java.sql.*;
 public class Cleanse extends Object {
 
 	private Vector wordList=null;
-	private Hashtable toremove=null;
-	private int removed=0;
+	private Vector toremove=null;
+	private Hashtable removed=null;
+	private int nremoved=0;
 	private static final String SOURCE="jdbc:postgresql://dhcp-104/dustin";
 
 	// How many passes before we run flush()
@@ -20,15 +21,18 @@ public class Cleanse extends Object {
 	public Cleanse() {
 		super();
 		this.wordList=new Vector(250000);
-		this.toremove=new Hashtable(BATCHSIZE);
+		this.toremove=new Vector(BATCHSIZE);
+		this.removed=new Hashtable(100000);
 	}
 
 	private void remove(String a, String b) {
 		System.out.println("Removing " + a + " and " + b);
 		wordList.removeElement(a);
 		wordList.removeElement(b);
-		toremove.put(a, REMOVE);
-		toremove.put(b, REMOVE);
+		toremove.addElement(a);
+		toremove.addElement(b);
+		removed.put(a, REMOVE);
+		removed.put(b, REMOVE);
 	}
 
 	// Save the state permanently
@@ -42,15 +46,15 @@ public class Cleanse extends Object {
 			PreparedStatement pst=conn.prepareStatement(
 				"insert into badwords(badword) values(?)"
 				);
-			for(Enumeration e=toremove.keys(); e.hasMoreElements(); ) {
+			for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
 				String s=(String)e.nextElement() + ":";
 				pst.setString(1, s);
 				pst.executeUpdate();
 			}
-			removed+=toremove.size();
+			nremoved+=toremove.size();
 			pst.close();
 			conn.close();
-			toremove.clear();
+			toremove.removeAllElements();
 		}
 	}
 
@@ -69,10 +73,10 @@ public class Cleanse extends Object {
 
 				// Make sure it's not the word we're looking at, and that
 				// the words both still exist (haven't been added to the
-				// toremove hash)
+				// removed hash)
 				if(! current.equals(checking)
-					&& (toremove.get(current)==null)
-					&& (toremove.get(checking)==null) ) {
+					&& (removed.get(current)==null)
+					&& (removed.get(checking)==null) ) {
 					if(current.indexOf(checking)>0 ||
 						checking.indexOf(current)>0) {
 						remove(current, checking);
@@ -121,7 +125,7 @@ public class Cleanse extends Object {
 		// Make sure everything's stored
 		flush();
 
-		return(removed);
+		return(nremoved);
 	}
 
 	// Private inner class used for managing statistics.
