@@ -84,6 +84,7 @@ let iter_file_lines f fn =
 (** Open a file for reading and iterate the lines.
 
   @param f the function to be called on each line
+  @param init_value the initial value for the fold
   @param fn the name of the file to operate on
 *)
 let fold_file_lines f init_value fn =
