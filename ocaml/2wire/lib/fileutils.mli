@@ -1,3 +1,7 @@
+(** Functions for processing files and their contents. *)
+
+(** {1 Functions for processing lines of files} *)
+
 val iter_lines : (string -> 'a) -> in_channel -> unit
 val fold_lines : (string -> 'a -> 'a) -> 'a -> in_channel -> 'a
 val conditional_iter_lines :
@@ -6,6 +10,9 @@ val operate_on_file_in : (in_channel -> 'a) -> string -> 'a
 val operate_on_file_out : (out_channel -> 'a) -> string -> 'a
 val iter_file_lines : (string -> 'a) -> string -> unit
 val fold_file_lines : (string -> 'a -> 'a) -> 'a -> string -> 'a
+
+(** {1 Functions for processing directories} *)
+
 val debug_dir_print : string -> string list -> 'a -> unit
 val lsdir : string -> string list
 val stat_func : (string -> Unix.stats) ref

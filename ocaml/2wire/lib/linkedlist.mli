@@ -1,3 +1,5 @@
+(** A doubly linked list implementation.  *)
+
 type 'a node = { data : 'a; mutable prev : 'a node; mutable next : 'a node; }
 and 'a t = { mutable l : 'a node option; mutable cnt : int; }
 exception Empty_list

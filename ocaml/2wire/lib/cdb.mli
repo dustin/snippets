@@ -1,3 +1,8 @@
+
+(** CDB Implementation.
+	http://cr.yp.to/cdb/cdb.txt
+ *)
+
 type cdb_creator = {
   table_count : int array;
   mutable pointers : (int * int) list;
