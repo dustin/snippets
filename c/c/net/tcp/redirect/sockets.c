@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.4 1998/01/02 06:20:29 dustin Exp $
+ * $Id: sockets.c,v 1.5 1998/06/19 18:30:17 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,15 +19,37 @@
 #include <redirect.h>
 #include <readconfig.h>
 
+extern struct confType *cf;
 extern int _debug;
 
 int getclientsocket(char *host, int port)
 {
     struct hostent *hp;
     int success, i, flag;
+    static unsigned int btdt=0, sourceaddr=0;
     register int s=-1;
     struct linger l;
-    struct sockaddr_in sin;
+    struct sockaddr_in sin, sout;
+    char *p;
+
+    /* grab outgoing address */
+
+    if(btdt==0) {
+        btdt=1;
+        p=rcfg_lookup(cf, "etc.sourceaddr");
+        if(p) {
+	    if( (hp=gethostbyname(p)) == NULL) {
+#ifdef HAVE_HERROR
+                herror("gethostbyname");
+#else
+                fprintf(stderr, "Error looking up %s\n", p);
+#endif
+                sourceaddr=0;
+	    } else {
+	        memcpy(&sourceaddr, hp->h_addr, hp->h_length);
+	    }
+        }
+    }
 
     _ndebug(2, ("Building client socket for %s:%d\n", host, port));
 
@@ -67,8 +89,20 @@ int getclientsocket(char *host, int port)
         if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *)&flag,
             sizeof(int)) <0)
         {
-            puts("Nagle algorithm not dislabled.");
+            puts("Nagle algorithm not disabled.");
         }
+
+	if(sourceaddr>0) {
+	    memset(&sout, 0x00, sizeof(struct sockaddr_in));
+	    sout.sin_family = AF_INET;
+	    memcpy(&sout.sin_addr, &sourceaddr, 4);
+	    sout.sin_port = 0;
+
+	    if(bind(s, (struct sockaddr *)&sout, sizeof(struct sockaddr_in)) <0)
+	    {
+		perror("client source bind");
+	    }
+	}
 
         if(connect(s, (struct sockaddr *)&sin, sizeof(sin))<0)
         {
