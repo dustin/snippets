@@ -1,0 +1,17 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {
+            ACTIONS = {processFiles = id; };
+            CLASS = MainController;
+            LANGUAGE = ObjC;
+            OUTLETS = {
+                mainWindow = NSWindow;
+                processingText = NSTextField;
+                progressBar = NSProgressIndicator;
+            };
+            SUPERCLASS = NSObject;
+        }
+    );
+    IBVersion = 1;
+}
