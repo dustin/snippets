@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: showappendlist.cgi,v 1.3 1997/12/31 19:37:50 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: showappendlist.cgi,v 1.4 1997/12/31 19:44:24 dustin Exp $
 
 use CGI;
 use Collapse;
@@ -95,9 +95,9 @@ else
     %expand=map { $_, 1 } @a;
 }
 $c=Collapse->new([@stuff], {%expand});
-$tmp="<img src=\"/images/arrow-collapsed.gif\" border=\"0\" alt=\"Expand\">";
+$tmp="<img src=\"$images/arrow-collapsed.gif\" border=\"0\" alt=\"Expand\">";
 $c->set_html_expand($tmp);
-$tmp="<img src=\"/images/arrow-expanded.gif\" border=\"0\" alt=\"Collapse\">";
+$tmp="<img src=\"$images/arrow-expanded.gif\" border=\"0\" alt=\"Collapse\">";
 $c->set_html_collapse($tmp);
 # $c->expandall();
 $c->print_html;

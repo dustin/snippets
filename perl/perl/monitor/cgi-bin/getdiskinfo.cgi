@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: getdiskinfo.cgi,v 1.3 1997/12/31 19:37:49 dustin Exp $
+#!/usr/local/bin/perl
+# $Id: getdiskinfo.cgi,v 1.4 1997/12/31 19:44:23 dustin Exp $
 
 use CGI;
 use Collapse;
@@ -83,9 +83,9 @@ print <<EOF;
 <body bgcolor="fFfFfF">
 EOF
 
-$tmp="<img src=\"/images/arrow-collapsed.gif\" border=\"0\" alt=\"Expand\">";
+$tmp="<img src=\"$images/arrow-collapsed.gif\" border=\"0\" alt=\"Expand\">";
 $c->set_html_expand($tmp);
-$tmp="<img src=\"/images/arrow-expanded.gif\" border=\"0\" alt=\"Collapse\">";
+$tmp="<img src=\"$images/arrow-expanded.gif\" border=\"0\" alt=\"Collapse\">";
 $c->set_html_collapse($tmp);
 
 $c->print_html;
