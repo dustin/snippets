@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: temploader.e,v 1.6 2002/11/25 02:36:55 dustin Exp $
+-- $Id: temploader.e,v 1.7 2002/11/25 06:11:15 dustin Exp $
 --
 class TEMPLOADER
 
@@ -130,9 +130,11 @@ feature{NONE}
 			end
 		rescue
 			if query /= Void then
-				std_error.put_string("FAILED(DB):  " + query + db.errmsg)
+				std_error.put_string("FAILED:" + line_number.to_string
+					+ "(DB):  " + query + db.errmsg)
 			else
-				std_error.put_string("FAILED(Unknown):  " + line + "%N")
+				std_error.put_string("FAILED:" + line_number.to_string
+					+ "(Unknown):  " + line + "%N")
 			end
 			retry
 		end
