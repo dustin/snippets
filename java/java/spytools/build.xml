@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.9 2002/07/10 04:24:32 dustin Exp $
+	$Id: build.xml,v 1.10 2002/07/10 07:36:06 dustin Exp $
 
 	-->
 
@@ -74,6 +74,19 @@
 	<target name="all" depends="rmic,dbstuff">
 		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
+			<include name="net/spy/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="test-classes" depends="all">
+		<javac srcdir="tests" destdir="tests" deprecation="on"
+				debug="on" verbose="off">
+			<classpath refid="myclasses"/>
+			<classpath>
+				<fileset dir="${user.home}/lib/java">
+					<include name="junit.jar"/>
+				</fileset>
+			</classpath>
 			<include name="net/spy/**/*.java"/>
 		</javac>
 	</target>

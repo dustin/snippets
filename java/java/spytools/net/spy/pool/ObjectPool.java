@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.25 2002/07/10 05:42:00 dustin Exp $
+// $Id: ObjectPool.java,v 1.26 2002/07/10 07:36:07 dustin Exp $
 
 package net.spy.pool;
 
@@ -15,7 +15,7 @@ import net.spy.util.TimeStampedHash;
 /**
  * ObjectPool is the entry point for all object pooling facilities in
  * net.spy.pool.*.  ObjectPools have a shared reference to a pool, so there
- * is exactly one set of pools per JVM.  This can be very useful in
+ * is exactly one set of pools per ClassLoader.  This can be very useful in
  * consolidating applications' pools into one.
  * <p>
  * Pools are referenced by name, so as long as two pools have two different
