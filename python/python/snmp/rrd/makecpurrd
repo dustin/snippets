@@ -1,0 +1,20 @@
+#!/bin/sh
+# Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+# $Id: makecpurrd,v 1.1 2002/04/09 21:14:53 dustin Exp $
+
+for i in "$@"
+do
+	/usr/local/rrdtool-1.0.33/bin/rrdtool create "$i" \
+		-s 60 \
+		DS:ssCpuRawUser:COUNTER:300:0:102400 \
+		DS:ssCpuRawSystem:COUNTER:300:0:102400 \
+		DS:ssCpuRawIdle:COUNTER:300:0:102400 \
+		DS:ssCpuRawWait:COUNTER:300:0:102400 \
+		DS:ssCpuRawKernel:COUNTER:300:0:102400 \
+		RRA:AVERAGE:0.5:5:8640 \
+		RRA:MAX:0.5:5:8640 \
+		RRA:AVERAGE:0.5:120:2160 \
+		RRA:MAX:0.5:120:2160 \
+		RRA:AVERAGE:0.5:1440:1825 \
+		RRA:MAX:0.5:1440:1825
+done
