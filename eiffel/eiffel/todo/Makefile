@@ -5,7 +5,7 @@ EFLAGS=-g -I/usr/local/pgsql/include
 LFLAGS=-L/usr/local/pgsql/lib -rpath /usr/local/pgsql/lib/ -lpq
 CSTUFF=/home/dustin/prog/eiffel/pg/pg_cstuff.c
 
-todo: todo.e
+todo: todo.e todo_entry.e
 	$(EC) $@ -o $@ $(EFLAGS) $(CSTUFF) $(LFLAGS)
 
 clean:
