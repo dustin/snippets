@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.5 2000/01/25 07:21:52 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.6 2000/03/08 07:18:13 dustin Exp $
  */
 
 package net.spy.photo;
@@ -48,8 +48,7 @@ public class PhotoServlet extends HttpServlet
 
 		// Security stuff
 		try {
-			String secret = PhotoSecurity.generateSecret();
-			security = new PhotoSecurity(secret);
+			security = new PhotoSecurity();
 			security.setUserHash(userdb);
 		} catch(Exception e) {
 			throw new ServletException("Can't create security stuff:  " + e);
