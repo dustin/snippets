@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: spy.pov,v 1.6 2003/04/22 07:15:33 dustin Exp $
+// $Id: spy.pov,v 1.7 2003/04/22 08:11:10 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -42,6 +42,8 @@
 					}
 				}
 			}
+			fade_distance 5
+			fade_power 2
 		}
 
 		cylinder {
