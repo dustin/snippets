@@ -10,7 +10,7 @@
     </td>
 
     <td>
-        <a href="/cgi-bin/dustin/photo/display.cgi?%OID%">
+	<a href="%REQUEST_URI%?func=display&oid=%OID%">
         <img border="0" src="%ITOP%/tn/%IMAGE%"></a>
     </td>
 
