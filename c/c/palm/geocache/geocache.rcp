@@ -1,0 +1,19 @@
+#include "geocache.h"
+
+VERSION ID 1 "0.10"
+/*
+ICON "geocache.bmp"
+*/
+
+FORM ID formID_MainForm AT (0 0 160 160)
+NOFRAME
+USABLE
+BEGIN
+  TITLE "GeoCache"
+
+  LABEL "Hint" ID ctlID_HintLabel AT (5 20)
+  FIELD ID ctlID_HintInput AT (2 PrevBottom+5 158 100) USABLE EDITABLE
+	UNDERLINED MULTIPLELINES MAXCHARS 1024
+  BUTTON "Code" ID ctlID_CodeButton AT (2 PrevBottom+5 AUTO AUTO) USABLE FRAME
+
+END
