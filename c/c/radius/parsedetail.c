@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.2 1997/09/22 16:12:54 dustin Exp $
+ * $Id: parsedetail.c,v 2.3 1997/09/22 16:17:05 dustin Exp $
  */
 
 #include <stdio.h>
@@ -136,7 +136,7 @@ void help(char *me)
 {
     printf("Usage: %s [-t timefmt] [-d delim] -l listfile -f infile\n", me);
     puts("       listfile is the list of fields to pull from the RADIUS file");
-    puts("       infile is the RADIUS file to read from");
+    puts("       infile is the RADIUS file to read from (- for stdin)");
     puts("       timefmt is a strftime(3) time format");
     puts("       delim is the character to delimit the fields");
 }
