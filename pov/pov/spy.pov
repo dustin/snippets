@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: spy.pov,v 1.3 2003/04/20 08:29:50 dustin Exp $
+// $Id: spy.pov,v 1.4 2003/04/21 08:36:05 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -94,9 +94,14 @@ object {
 }
 
 // INTERNETWORKING
-object {
-	word_internetworking
-	translate <0, -15.5, -2>
+#declare Font = "cyrvetic.ttf"
+
+text { ttf Font
+	"internetworking",.3,0
+	// translate <0, -15.5, -2>
+	// translate <-3.3, -1.75, -1>
+	translate <-3.3, 0, -1>
+	rotate <0,0,30>
 	texture { small_lettering }
-	scale 0.13
+	scale <1.33,1,1>
 }
