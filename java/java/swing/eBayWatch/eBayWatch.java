@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
-import java.lang.*;
+import java.text.*;
 import java.util.*;
 import java.io.*;
 
@@ -63,7 +63,8 @@ public class eBayWatch implements Runnable {
             }
         }
 
-		String status=size + " left.  " + to + " - $" + price;
+        NumberFormat nf=NumberFormat.getCurrencyInstance();
+		String status=size + " left.  " + to + " - " + nf.format(price);
 		status_bar.setText(status);
 		status_bar.updateUI();
 	}
