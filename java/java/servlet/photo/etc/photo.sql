@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.2 1998/04/13 06:08:46 dustin Exp $
+-- $Id: photo.sql,v 1.3 1998/04/25 09:15:03 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -64,6 +64,19 @@ create table wwwusers(
 
 create index user_byname on wwwusers(username);
 grant all on wwwusers to nobody;
+
+-- Blobs for images
+
+create sequence img_seq;
+grant all on img_seq to nobody;
+
+create table images (
+    id       int default nextval('img_seq'),
+    loid     oid
+);
+
+create unique index img_byid on images(id);
+grant all on images to nobody;
 
 -- A SQL function to return the count of elements in a category.
 
