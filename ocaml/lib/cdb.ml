@@ -295,5 +295,8 @@ let get_matches cdf key =
  @param key the key to find
  *)
 let find cdf key =
-	Stream.next (get_matches cdf key)
+	try
+		Stream.next (get_matches cdf key)
+	with Stream.Failure ->
+		raise Not_found
 ;;
