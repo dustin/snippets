@@ -49,7 +49,9 @@ Info:<br>
 <p>
 
 <a href="javascript:openWindow('%SELF_URI%?func=display&oid=%OID%')">Open
-in new window</a>
+in new window</a><br>
+<a href="javascript:openWindow('%CGIDIR%/img.cgi/%IMAGE%')">Open image only
+in new window</a><br>
 
 <hr>
 </body></html>
