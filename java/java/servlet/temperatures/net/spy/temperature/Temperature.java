@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.8 2002/02/22 09:58:44 dustin Exp $
+ * $Id: Temperature.java,v 1.9 2002/03/05 10:49:00 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -20,16 +20,18 @@ import net.spy.net.*;
 import java.awt.*;
 import java.awt.image.*;
 
+import net.spy.cache.*;
 import net.spy.png.*;
 
 // The class
 public class Temperature extends PngServlet implements ImageObserver
 {
 	private SpyConfig temps = null;
-	boolean imageLoaded=false;
+	private boolean imageLoaded=false;
+	private SpyCache cache=null;
 
 	// Image stuff.
-	private static Image baseImage=null;
+	private Image baseImage=null;
 	private Color black=null;
 	private Color white=null;
 	private Font font=null;
@@ -42,6 +44,7 @@ public class Temperature extends PngServlet implements ImageObserver
 			log("Getting the base image.");
 			getBaseImage();
 			log("Got the base image.");
+			cache=new SpyCache();
 		} catch(Exception e) {
 			throw new ServletException("Error getting base image:  " + e);
 		}
@@ -98,24 +101,30 @@ public class Temperature extends PngServlet implements ImageObserver
 	}
 
 	private String getTemp(String which) throws ServletException {
-		String url=(String)temps.get(which);
-		double t;
-		if(url==null) {
-			throw new ServletException("Unknown location: " + which);
+		String key="therm_" + which;
+		Double rv=(Double)cache.get(key);
+		if(rv==null) {
+			String url=(String)temps.get(which);
+			double t;
+			if(url==null) {
+				throw new ServletException("Unknown location: " + which);
+			}
+			try {
+				HTTPFetch f = new HTTPFetch(url);
+				String s;
+				int temptmp;
+				s=f.getData();
+				t=Double.valueOf(s).doubleValue();
+				temptmp=(int)(t*100.0);
+				t=(double)temptmp/100;
+				log("Fetching " + which + " from " + url);
+			} catch(Exception e) {
+				throw new ServletException("Error getting temperature", e);
+			}
+			rv=new Double(t);
+			cache.store(key, rv, 300000);
 		}
-		try {
-			HTTPFetch f = new HTTPFetch(url);
-			String s;
-			int temptmp;
-			s=f.getData();
-			t=Double.valueOf(s).doubleValue();
-			temptmp=(int)(t*100.0);
-			t=(double)temptmp/100;
-			log("Fetching " + which + " from " + url);
-		} catch(Exception e) {
-			throw new ServletException("Error getting temperature:  " + e);
-		}
-		return("" + t);
+		return(rv.toString());
 	}
 
 	private void send_response(HttpServletResponse response, String o) {
