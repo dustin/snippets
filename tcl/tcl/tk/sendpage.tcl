@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.3 1999/08/29 14:21:36 dustin Exp $
+# $Id: sendpage.tcl,v 1.4 1999/08/29 17:16:30 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -39,9 +39,12 @@ proc snpp_cmd { fd cmd } {
 
 proc snpp_sendpage { host port id msg } {
 
+	global snpp_error
+
 	set err [catch {set fd [socket $host $port]}]
 
 	if { $err } {
+		set snpp_error "Unable to connect to SNPP server"
 		return -1;
 	}
 
@@ -99,6 +102,8 @@ proc sendpage { } {
 	global last_msg last_uid
 	global snpp_server snpp_port
 
+	set snpp_error "Unknown error"
+
 	set whom [ .whom.whom get ]
 	set msg [ .message.what get ]
 
@@ -131,12 +136,55 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.3 $ }
+	set rev { $Revision: 1.4 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
 	set button [tk_messageBox -icon info -type ok \
 		-title "About sendpage" -parent . -message $msg ]
+}
+
+# Preferences store
+
+proc preferences_store { p } {
+	global snpp_server snpp_port
+	set snpp_server [ $p.server.server get ]
+	set snpp_port [ $p.port.port get ]
+}
+
+# Preferences window.
+
+proc preferences { } {
+	global snpp_server snpp_port
+
+	set p .preferences
+	catch { $p destroy }
+	toplevel $p
+
+	# The server field.
+	frame $p.server
+	label $p.server.msg -text "Server"
+	entry $p.server.server
+	$p.server.server insert 0 $snpp_server
+	pack $p.server.msg -side left -expand 1
+	pack $p.server.server -side right -expand 1
+	pack $p.server -side top -expand 1 -fill x
+
+	# The port field.
+	frame $p.port
+	label $p.port.msg -text "Port"
+	entry $p.port.port
+	$p.port.port insert 0 $snpp_port
+	pack $p.port.msg -side left -expand 1
+	pack $p.port.port -side right -expand 1
+	pack $p.port -side top -expand 1 -fill x
+
+	# The buttons.
+	frame $p.buttons
+	button $p.buttons.save -text "Save" -command "preferences_store $p"
+	button $p.buttons.done -text "Done" -command "destroy $p"
+	pack $p.buttons.save $p.buttons.done -side left -expand 1
+	pack $p.buttons -side top -expand 1 -fill x
 }
 
 # START HERE
@@ -160,7 +208,7 @@ set m .menu
 menu $m -tearoff 1
 menu $m.file -tearoff 1
 $m add cascade -label "File" -menu $m.file -underline 0
-$m.file add command -label "Preferences" -command { error "Not yet" }
+$m.file add command -label "Preferences" -command "preferences"
 $m.file add command -label "Quit" -command "exit"
 
 . configure -menu $m
