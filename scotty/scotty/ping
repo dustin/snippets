@@ -1,16 +1,33 @@
 #!/bin/sh
 # Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-# $Id: ping,v 1.3 2000/05/18 09:27:36 dustin Exp $ \
+# $Id: ping,v 1.4 2002/02/27 23:46:02 dustin Exp $ \
 exec scotty -nf $0 $*
 
+set stats {}
+set maxstats 3600
+
+# First argument is the hostname
 set host [lindex $argv 0]
-set count 0
-set dead 0
-set sum 0
-set returned 0
+# If another argument is provided, that'll be the number of data to keep
+if { [llength $argv] > 1 } {
+	set maxstats [lindex $argv 1]
+}
 
 proc showstats { } {
-    global host count dead sum returned
+    global stats
+
+	set count [llength $stats]
+	set sum 0
+	set dead 0
+	set returned 0
+	foreach pt $stats {
+		if { $pt == -1 } {
+			incr dead
+		} else {
+			incr sum $pt
+			incr returned
+		}
+	}
 
     set ave [expr $sum / $count.0]
     set loss [expr ($dead/$count.0)*100.0]
@@ -20,22 +37,26 @@ proc showstats { } {
     puts "  Average pingtime:  ${ave}ms"
 }
 
+set count 0
 while { 1 } {
-    set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
+	incr count
+	set pt [lindex [lindex [icmp -retries 0 echo $host] 0 ] 1]
 
-    if { $pt<0 } {
-	incr dead 1
-    } else {
-        puts "$host seq=$count ${pt}ms"
-	incr returned 1
-	incr sum $pt
-    }
+	if { $pt<0 } {
+		lappend stats -1
+	} else {
+		puts "$host seq=$count ${pt}ms"
+		lappend stats $pt
+	}
 
-    incr count 1
+	# If we've outgrown our stats, pop one off
+	if { [llength $stats] > $maxstats } {
+		set stats [lrange $stats 1 end]
+	}
 
-    if { ($count%20) ==0 } {
-        showstats
-    }
+	if { ($count%20) ==0 } {
+		showstats
+	}
 
-    sleep 1
+	sleep 1
 }
