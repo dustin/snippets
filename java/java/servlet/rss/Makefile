@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
@@ -11,7 +11,10 @@ C2=$(MYLIB)/resin-xsl.jar:$(MYLIB)/sax.jar:$(MYLIB)/dom.jar
 CLASSPATH=$(C1):$(C2):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 
-CLASSES=net/spy/rss/RSSServlet.class
+CLASSES=\
+		net/spy/rss/RSSItem.class \
+		net/spy/rss/RSSStore.class \
+		net/spy/rss/RSSServlet.class
 
 .SUFFIXES: .java .class .jar
 

@@ -1,11 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.2 2001/03/02 02:40:02 dustin Exp $
+// $Id: RSSServlet.java,v 1.3 2001/04/26 19:16:01 dustin Exp $
 
 package net.spy.rss;
 
 import java.io.*;
-import net.spy.net.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -14,6 +13,26 @@ import com.caucho.transform.*;
 import com.caucho.xsl.*;
 
 public class RSSServlet extends HttpServlet {
+
+	private RSSStore rssstore=null;
+
+	/**
+	 * Initialize this thingy.
+	 */
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		log("Initializing RSSStore");
+		rssstore=new RSSStore();
+		rssstore.start();
+	}
+
+	/**
+	 * What to do when the man shuts us down.
+	 */
+	public void destory() {
+		log("Shutting down RSSStore");
+		rssstore.shutdown();
+	}
 
 	// Process get requests only.
 	public void doGet(
@@ -29,8 +48,8 @@ public class RSSServlet extends HttpServlet {
 			// Set a cache time
 			java.util.Date d=new java.util.Date();
 			long l=d.getTime();
-			// Make it valid for an hour.
-			l+=3600000L;
+			// Make it valid for fifteen minutes.
+			l+=900000L;
 			response.setDateHeader("Expires", l);
 
 			// Give it
@@ -44,11 +63,11 @@ public class RSSServlet extends HttpServlet {
 		}
 	}
 
-	protected static String getHTML(String url, String stylesheet)
+	protected String getHTML(String url, String stylesheet)
 		throws Exception {
 
-		HTTPFetch hf=new HTTPFetch(url);
-		String xml=hf.getData();
+		// Get the content from the RSS store.
+		String xml=rssstore.getContent(url);
 		OutputStream out=new ByteArrayOutputStream();
 		StylesheetFactory factory=new Xsl();
 		Stylesheet style=factory.newStylesheet(stylesheet);
@@ -56,12 +75,6 @@ public class RSSServlet extends HttpServlet {
 		transformer.transformString(xml, out);
 
 		return(out.toString());
-	}
-
-	public static void main(String args[]) throws Exception {
-		String html=getHTML(args[0], args[1]);
-
-		System.out.println(html);
 	}
 
 }
