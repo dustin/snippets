@@ -1,0 +1,23 @@
+# This file is used to scan disk usage for being within threshholds
+# the format is as follows:
+# machine <whitespace> mount point <whitespace> warn <whitespace> critical
+
+gwen             /            90% 95%
+gwen             /export/home 90% 95%
+gwain            /            94% 95%
+# marvin           /            93% 95%
+# marvin           /server      90% 95%
+arthur           /            90% 95%
+arthur           /home        99% 99%
+arthur           /var         93% 95%
+tessa            /home        90% 95%
+tessa            /usr         90% 95%
+isabel           /usr         90% 95%
+tracey           /usr         90% 95%
+merlin.ic3.com   /            96% 97%
+merlin.ic3.com   /prods       100% 100%
+merlin.ic3.com   /export/home 95% 96%
+melchior.ic3.com /            95% 95%
+# melchior.ic3.com /prods       100% 100%
+melchior.ic3.com /export/home 99% 100%
+orange           /usr/people  80% 90%

@@ -1,0 +1,61 @@
+# This file needs three lines per entry.
+
+queueup
+queueup: cannot create
+Sendmail queue file creation warnings
+
+rootlogin
+ROOT LOGIN
+Root logins
+
+diskwarn1
+WARNING: ..: ..: write error
+Disk write errors
+
+diskwarn2
+disk not responding to selection
+Disks not responding to selection
+
+webdeny
+deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ (80|443)
+Web server filtered
+
+telnet
+deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ 23
+Telnet attempts
+
+ftp
+deny tcp out [0-9\.]+ [0-9]+ in [0-9\.]+ (20|21|115)
+FTP attempts
+
+tftp
+deny udp out [0-9\.]+ [0-9]+ in [0-9\.]+ 69
+tFTP attempts
+
+badtrap
+BAD TRAP
+Bad Traps
+
+buserror
+Bus Error
+Bus errors
+
+datafault
+Data fault
+Data faults
+
+fileoverflow
+File table overflow
+File table over flows
+
+filetoolarge
+File too large
+Files too large
+
+giveup
+giving up
+SCSI device giving up
+
+nisnoreach
+NIS.*unreachable
+NIS+ Servers unreachable

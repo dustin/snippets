@@ -1,0 +1,7 @@
+#!/bin/sh
+
+FILES="alarms disklist diskscanfile errormessage filelist logscanfile \
+	nmhosts plotdata portscan smallcyber.gif statlib.conf thelist
+	shellconf"
+
+echo $FILES

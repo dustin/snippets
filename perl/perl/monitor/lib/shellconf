@@ -1,0 +1,38 @@
+# Statlib configuration
+# $Id: shellconf,v 1.1 1997/12/12 18:29:48 dustin Exp $
+
+home="/home/monitor";
+libdir="$home/lib";
+
+webroot="/home/barbershop/stats";
+
+alarmsList="$libdir/alarms";
+allMachinesFile="$libdir/disklist";
+diskList=$allMachinesFile;
+diskScanFile="$libdir/diskscanfile";
+logScanFile="$libdir/logscanfile";
+portScanFile="$libdir/portscan";
+rmonList="$libdir/thelist";
+routersFile="$libdir/routers";
+
+# Holder of the manual entries.
+appendBase="$libdir/append";
+
+# Pager stuff
+pageServer="pager.software.net";
+snppPort=1041;
+
+# stuff for netmon2
+netmonPlotdata="$libdir/plotdata";
+netmonHostrec="$libdir/nmhosts";
+
+# other CGI
+grUsage="/cgi-bin/dustin/usage.cgi";
+
+# Some general shell stuff
+HOMEBIN="$home/bin";
+HOME="$home";
+BWLOGS="$home/logs/bandwidth";
+PROGDIR="$home/perlstuff";
+STATSDIR="$home/stats";
+

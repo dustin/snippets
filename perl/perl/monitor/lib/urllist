@@ -1,0 +1,8 @@
+# This is a list of URLs that checkwebserver looks at.
+
+# Do this three times to try to return a status from all three servers.
+# http://www.software.net/
+# http://www.software.net/
+# http://www.software.net/
+
+http://www.spy.net/
