@@ -74,8 +74,18 @@
                 // NSLog(@"NOT FOUND!");
             } else {
                 NSString *thePrice=[endOfFour substringToIndex: r2.location];
-                price=[thePrice floatValue];
+                // Need to pull out commas
+                NSLog(@"Price input:  %@", thePrice);
+                NSMutableString *priceAfter=[[NSMutableString alloc]
+                    initWithCapacity: 8];
+                [priceAfter appendString: thePrice];
+                [priceAfter replaceOccurrencesOfString: @","
+                    withString: @"" options: 0
+                    range: NSMakeRange(0, [priceAfter length])];
+                // Done, float it
+                price=[priceAfter floatValue];
                 NSLog(@"Current price:  %.02f", price);
+                [priceAfter release];
             }
         }
     }
