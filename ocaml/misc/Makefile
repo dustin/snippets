@@ -47,6 +47,10 @@ cipher: cipher.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa str.cmxa spy.cmxa cipher.ml
 
+makeCipher: makeCipher.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa str.cmxa spy.cmxa makeCipher.ml
+
 splitFreqs: splitFreqs.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa splitFreqs.ml
