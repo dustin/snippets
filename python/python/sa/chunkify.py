@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
 
-Create a set of filelists that will each be less than 650MB.
+Break up directories into managable chunks.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.3 2002/04/07 10:29:32 dustin Exp $
+$Id: chunkify.py,v 1.4 2002/04/07 10:34:26 dustin Exp $
 """
 
 import os, sys
@@ -18,9 +18,10 @@ class UsageError(exceptions.Exception):
 
 class Chunker:
 
-	MAXSIZE=(650*1024*1024)
+	# Default maximum size (650MB)
+	DEFAULT_MAXSIZE=(650*1024*1024)
 
-	def __init__(self, filebase, makezip=None, maxsize=MAXSIZE):
+	def __init__(self, filebase, makezip=None, maxsize=DEFAULT_MAXSIZE):
 		"""Get a chunker using the given base filenames for list files.
 
 		Optionally, supply a maximum size for each file, and choose between
@@ -139,11 +140,12 @@ def main():
 
 def usage():
 	print "Usage:  " + sys.argv[0] \
-		+ " -c basefile [-m chunksize] [-z] startpath"
+		+ " -c basefile [-m chunksize] [-z] [-p] startpath"
 	print "\t-c specifies the base name for each file"
 	print "\t-m specifies the chunk size (in bytes) for each file " \
 		"(default, 650MB)"
 	print "\t-z chooses to make zip files rather than file lists."
+	print "\t-p pauses before creating each file (after the first)."
 	print "\tstartpath is the directory to traverse."
 
 if __name__ == '__main__':
