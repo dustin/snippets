@@ -138,6 +138,7 @@
 			projectDirPath = "";
 			targets = (
 				29B97326FDCFA39411CA2CEA,
+				F50849F8034561C001A801C4,
 			);
 		};
 		29B97314FDCFA39411CA2CEA = {
@@ -147,6 +148,7 @@
 				29B97317FDCFA39411CA2CEA,
 				29B97323FDCFA39411CA2CEA,
 				19C28FACFE9D520D11CA2CBB,
+				F50849F6034561A001A801C4,
 			);
 			isa = PBXGroup;
 			name = PhotoUpload;
@@ -224,7 +226,9 @@
 				29B9732DFDCFA39411CA2CEA,
 			);
 			buildSettings = {
+				DEBUGGING_SYMBOLS = NO;
 				FRAMEWORK_SEARCH_PATHS = "/Users/dustin/prog/eprojects/objcxmlrpc/ed/EDCommon/build /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDInternet/build /Users/dustin/prog/eprojects/objcxmlrpc/ed/EDMessage/build /Users/dustin/prog/eprojects/objcxmlrpc/znek/XMLRPC/build";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
@@ -348,6 +352,7 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				OPTIMIZATION_CFLAGS = "-O2";
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -362,6 +367,41 @@
 //F52
 //F53
 //F54
+		F50849F6034561A001A801C4 = {
+			isa = PBXFileReference;
+			path = createDiskImage;
+			refType = 4;
+		};
+		F50849F7034561A001A801C4 = {
+			fileRef = F50849F6034561A001A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F50849F8034561C001A801C4 = {
+			buildArgumentsString = "-c \". ./createDiskImage 6 \\\"PhotoUploadApp\\\" \\\"build/PhotoUpload.app\\\"\"";
+			buildPhases = (
+			);
+			buildSettings = {
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "Create Disk Image";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			buildToolPath = /bin/sh;
+			dependencies = (
+			);
+			isa = PBXLegacyTarget;
+			name = "Create Disk Image";
+			productName = "Create Disk Image";
+			settingsToExpand = 6;
+			settingsToPassInEnvironment = 287;
+			settingsToPassOnCommandLine = 280;
+			shouldUseHeadermap = 0;
+		};
 		F50C08A7034015CE01A801C4 = {
 			fileRef = 29B97324FDCFA39411CA2CEA;
 			isa = PBXBuildFile;
@@ -382,6 +422,7 @@
 				F53B80BC03455CFD01A801C4,
 				F53B80BD03455CFD01A801C4,
 				F53B80BE03455CFD01A801C4,
+				F50849F7034561A001A801C4,
 			);
 			isa = PBXCopyFilesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
