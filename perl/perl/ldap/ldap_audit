@@ -6,12 +6,21 @@ use Net::LDAP;
 use Data::Dumper;
 use LDAPSlave;
 
+# Do want want to print too much info?
+my $debug=0;
+
+# Do we want to try to fix it?
+my $fixit=0;
+
 my $ldap_server = "dhcp-104";
-my @slave_servers=("propaganda.spy.net", "printer.west.spy.net");
+my @slave_servers=(
+	"propaganda.spy.net",
+	"printer.west.spy.net"
+);
 my $base = "dc=spy,dc=net";
 
-my $binddn='uid=dustin,ou=agents,dc=spy,dc=net';
-my $bindpw='bizzo1';
+my $binddn='cn=replication auditor,ou=services,dc=spy,dc=net';
+my $bindpw='auditme';
 
 my @slaves=();
 
@@ -45,12 +54,20 @@ sub audit {
 		for(keys(%h)) {
 			if(!defined($master_hash{$_})) {
 				print "!!! $_ is not in the master !!!\n";
+				if($fixit==1) {
+					print "Fixing.\n";
+					$slave->ldap()->delete($_);
+				}
 			}
 		}
 		for(keys(%master_hash)) {
 			if(!defined($h{$_})) {
 				my $t=$slave->name();
 				print "!!! $_ is not in the slave ($t) !!!\n";
+				if($fixit==1) {
+					print "Fixing\n";
+					addEntry($slave->ldap(), gettree($master, $_));
+				}
 			}
 		}
 	}
@@ -58,10 +75,13 @@ sub audit {
 	# Now do a compare on the data in each DN.
 	my $dn;
 	for $dn (@master_dns) {
+		# We want a string and a hash of each.
 		my $master_data="";
+		my %master_data=();
 		my $t="";
 		eval {
-			$master_data=gettree($master, $dn);
+			%master_data=gettree($master, $dn);
+			$master_data=Dumper(\%master_data);
 		};
 		if($@) {
 			print "Failed on $dn\n";
@@ -69,15 +89,24 @@ sub audit {
 		for $slave (@slaves) {
 			$t = $slave->name();
 			eval {
-				my $slave_data=gettree($slave->ldap(), $dn);
+				my %slave_data=gettree($slave->ldap(), $dn);
+				my $slave_data=Dumper(\%slave_data);
 
 				if($master_data ne $slave_data) {
 					print "!!! $dn is not the same on $t !!!\n";
+					if($fixit==1) {
+						# find and fix the differences
+						print "Fixing\n";
+						fixRecord($slave->ldap(), \%master_data, \%slave_data);
+					}
+					if($debug>0) {
+						print "MASTER:\n$master_data\nSLAVE:\n$slave_data\n";
+					}
 				}
 			};
 
 			if($@) {
-				print "Failed for $dn on $t, missing?\n";
+				print "Failed for $dn on $t, missing ($@)?\n";
 			}
 		}
 	}
@@ -107,7 +136,7 @@ sub gettree {
 		}
 	}
 
-	return(Dumper(\%h));
+	return(%h);
 }
 
 sub getDns {
@@ -124,4 +153,97 @@ sub getDns {
 		push(@ret, $entry->dn());
 	}
 	return(sort(@ret));
+}
+
+sub fixRecord {
+	my($slave_ldap, $master, $slave)=@_;
+	# the dn is the key, the values contains the actual attributes and
+	# values
+	my($mtmp)=values(%$master);
+	my($stmp)=values(%$slave);
+	my(%master)=%$mtmp;
+	my(%slave)=%$stmp;
+
+	my $dn = $master{'dn'};
+
+	my @atts=();
+	my @deletes=();
+
+	my $key;
+	for $key (keys(%master)) {
+		# skip the DN
+		next if($key eq "dn");
+		my @m=@{$master{$key}};
+		my @s=();
+		# Only do this if it's defined, else it'll get added anyway
+		if(defined($slave{$key})) {
+			@s=@{$slave{$key}};
+		}
+
+		if($#m!=$#s) {
+			print "Different number of $key on master and slave:  $#m:$#s\n";
+			push(@atts, $key);
+		} else {
+			for(0..$#m) {
+				my $mval=$m[$_];
+				my $sval=$s[$_];
+				if($mval ne $sval) {
+					print "Value $m[$_] on attribute $key is different, will adjust\n";
+					push(@atts, $key);
+				}
+			}
+		}
+	}
+
+	# Get rid of stuff that's on the slave, but not in the master.
+	for $key (keys(%slave)) {
+		if(!defined($master{$key})) {
+			push(@deletes, $key);
+		}
+	}
+
+	my(@replace) = ();
+	# we always have to modify these.
+	for('creatorsname', 'createtimestamp', 'modifiersname', 'modifytimestamp'){
+		push(@replace, [ $_, $master{$_} ]);
+	}
+
+	for(@atts) {
+		# Skip over the ``always'' ones.
+		next if($_ eq "creatorsname");
+		next if($_ eq "createtimestamp");
+		next if($_ eq "modifiersname");
+		next if($_ eq "modifytimestamp");
+
+		push(@replace, [ $_, $master{$_} ]);
+	}
+
+	my @mods=();
+	for(@replace) {
+		push(@mods, 'replace', $_);
+	}
+	for(@deletes) {
+		push(@mods, 'delete', [ $_, [] ] );
+	}
+
+	# do the modify
+	$slave_ldap->modify($dn, 'changes' => \@mods );
+}
+
+sub addEntry {
+	my($slave_ldap, %entry)=@_;
+
+	# Get the values past the dn
+	my($mtmp)=values(%entry);
+	%entry=%$mtmp;
+
+	my $dn=$entry{'dn'};
+
+	my(@attr)=();
+	for(keys(%entry)) {
+		next if($_ eq 'dn');
+		push(@attr, $_, $entry{$_});
+	}
+
+	$slave_ldap->add('dn' => $dn, 'attr' => \@attr);
 }
