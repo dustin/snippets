@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolCleaner.java,v 1.6 2000/07/04 05:40:40 dustin Exp $
+// $Id: ObjectPoolCleaner.java,v 1.7 2000/07/26 08:49:58 dustin Exp $
 
 package net.spy.pool;
 
@@ -18,8 +18,9 @@ public class ObjectPoolCleaner extends Thread {
 	public ObjectPoolCleaner(ObjectPool op) {
 		super();
 		this.op=op;
-		this.setDaemon(true);
-		this.start();
+		setDaemon(true);
+		setName("ObjectPoolCleaner");
+		start();
 	}
 
 	protected void doPrune() throws Exception {

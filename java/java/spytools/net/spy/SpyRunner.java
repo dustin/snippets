@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.5 2000/06/16 21:46:02 dustin Exp $
+// $Id: SpyRunner.java,v 1.6 2000/07/26 08:49:55 dustin Exp $
 
 package net.spy;
 
@@ -105,6 +105,7 @@ public class SpyRunner extends Thread {
 
 			System.out.println("Starting " + classname);
 			Thread t = new SpyRunner(tg, classname, cargs);
+			t.setName(a[i]);
 			t.start();
 			System.out.println("Started...");
 			// Wait a second before starting each thing, in case there are

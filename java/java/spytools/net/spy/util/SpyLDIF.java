@@ -1,4 +1,4 @@
-// Copyright (c) 2000  Dustin Sallings <dustin@spy.net> // $Id: SpyLDIF.java,v 1.3 2000/07/26 02:43:51 dustin Exp $
+// Copyright (c) 2000  Dustin Sallings <dustin@spy.net> // $Id: SpyLDIF.java,v 1.4 2000/07/26 08:49:59 dustin Exp $
 
 package net.spy.util;
 
@@ -65,10 +65,11 @@ public class SpyLDIF extends Hashtable {
 
 	protected void decodeAndStore(String chunk) {
 		boolean decode=true;
-		int colon=chunk.indexOf("::");
-		if(colon<0) {
+		int space=chunk.indexOf(" ");
+		int colon=chunk.indexOf(":: ");
+		if(colon<0 || colon>space) {
 			decode=false;
-			colon=chunk.indexOf(":");
+			colon=chunk.indexOf(": ");
 		}
 		// Only process the segment if it's valid.
 		if(colon>0) {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.2 2000/07/19 23:36:38 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.3 2000/07/26 08:49:57 dustin Exp $
  */
 
 package net.spy.log;
@@ -44,7 +44,9 @@ public class SpyLogFlusher extends Thread {
 	 */
 	public SpyLogFlusher() {
 		super("log_flusher");
-		this.setDaemon(true);
+		setDaemon(true);
+		setName("SpyLogFlusher");
+		configure();
 	}
 
 	/**
@@ -54,7 +56,15 @@ public class SpyLogFlusher extends Thread {
 	 */
 	public SpyLogFlusher(ThreadGroup t) {
 		super(t, "log_flusher");
-		this.setDaemon(true);
+		setDaemon(true);
+		setName("SpyLogFlusher");
+		configure();
+	}
+
+	/**
+	 * Do additional configuration stuff here.
+	 */
+	protected void configure() {
 	}
 
 	/**
