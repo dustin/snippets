@@ -1,9 +1,9 @@
 indexing
-   description: "More Eiffel File Tools";
+   description: "More Eiffel File Tools"
 class MORE_FILE_TOOLS
 
 inherit
-   FILE_TOOLS;
+   FILE_TOOLS
 
 feature {ANY} -- More useful file tools
 
@@ -11,45 +11,44 @@ feature {ANY} -- More useful file tools
       -- Verify that the necessary directories exist to create the given
       -- path
       require
-         has_path: path /= Void;
-         not_root: not path.is_equal("/");
+         has_path: path /= Void
+         not_root: not path.is_equal("/")
       local
-         dir: STRING;
+         dir: STRING
       do
-         dir := dirname(path);
+         dir := dirname(path)
          if not path_exists(dir) then
-            ensurepath(dir);
+            ensurepath(dir)
             if not path_exists(dir) then
-               mkdir(dir);
-            end;
-         end;
-         check -- make sure it worked
-            path_exists(dir);
-         end;
+               mkdir(dir)
+            end
+         end
+	  ensure
+		path_exists(dir)
       end -- ensurepath
 
    dirname(of: STRING): STRING is
       -- Binding to c dirname
       require
-         has_path: of /= Void;
+         has_path: of /= Void
       local
-         s: STRING;
+         s: STRING
       do
-         !!s.copy(of);
-         !!Result.from_external_copy(c_dirname(s.to_external));
+         !!s.copy(of)
+         !!Result.from_external_copy(c_dirname(s.to_external))
       ensure
-         Result /= Void;
+         Result /= Void
       end -- dirname
 
    path_exists(path: STRING): BOOLEAN is
       -- Verify that something exists in a given path
       require
-         has_path: path /= Void;
+         has_path: path /= Void
       do
-         Result := c_access(path.to_external,0) = 0;
+         Result := c_access(path.to_external,0) = 0
       end -- path_exists
 
-feature {MORE_FILE_TOOLS}
+feature {NONE}
    -- C stuff
 
    c_dirname(in: POINTER): POINTER is
