@@ -48,21 +48,12 @@ loadDict(const char *dict)
 		return(NULL);
 	}
 
-	rv=calloc(size, sizeof(char *));
-	assert(rv);
+	LINIT(rv, current, size);
 
 	while( (fgets(buf, sizeof(buf), f)) != NULL) {
 		buf[strlen(buf)-1]=0x00;
-		if(strlen(buf)>0 && strlen(buf)<9 && islower(buf[0])) {
-			/* Append */
-			if(current+1==size) {
-				size+=32768;
-				rv=realloc(rv, size*sizeof(char *));
-			}
-			rv[current]=strdup(buf);
-			assert(rv[current]);
-			rv[current+1]=0x00;
-			current++;
+		if(strlen(buf)>1 && strlen(buf)<9 && islower(buf[0])) {
+			LAPPEND(rv, current, size, buf);
 		} else {
 			/* fprintf(stderr, "REJECTING %s\n", buf); */
 		}
@@ -75,7 +66,7 @@ loadDict(const char *dict)
 }
 
 void
-freeDictList(char **list)
+freeWordList(char **list)
 {
 	int i=0;
 	for(i=0; list[i]; i++) {
@@ -100,6 +91,9 @@ main(int argc, char **argv)
 	for(i=0; dict[i]; i++) {
 		printf("%d\t%s\n", scoreWord(dict[i]), dict[i]);
 	}
+
+	freeWordList(dict);
+
 	return(0);
 }
 

@@ -1,11 +1,19 @@
-PROFILE=-pg
-CFLAGS=-O2 -g -Wall $(PROFILE)
+# PROFILE=-pg
+CFLAGS=-O2 -Wall $(PROFILE)
 LDFLAGS=-g
-OBJ=scoring.o dict.o
+OBJ=scoring.o dict.o search.o
 LIB=-L. -lscrabble
+
+all: search
+
+search: search_main.o libscrabble.a
+	$(CC) $(PROFILE) $(LDFLAGS) -o $@ search_main.o $(LIB)
 
 dict: dict_main.o libscrabble.a
 	$(CC) $(PROFILE) $(LDFLAGS) -o $@ dict_main.o $(LIB)
+
+scoring: scoring_main.o libscrabble.a
+	$(CC) $(PROFILE) $(LDFLAGS) -o $@ scoring_main.o $(LIB)
 
 libscrabble.a: $(OBJ)
 	ar rc $@ $(OBJ)
@@ -14,5 +22,12 @@ libscrabble.a: $(OBJ)
 dict_main.o: dict.c
 	$(CC) $(CFLAGS) $(PROFILE) -DDICT_MAIN -c -o $@ dict.c
 
+search_main.o: search.c
+	$(CC) $(CFLAGS) $(PROFILE) -DSEARCH_MAIN -c -o $@ search.c
+
+scoring_main.o: scoring.c
+	$(CC) $(CFLAGS) $(PROFILE) -DSCORING_MAIN -c -o $@ scoring.c
+
 clean:
-	rm -f libscrabble.a dict_main.o $(OBJ) dict
+	rm -f libscrabble.a dict_main.o search_main.o scoring_main.o \
+		$(OBJ) dict search scoring
