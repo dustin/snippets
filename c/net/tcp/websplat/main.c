@@ -301,7 +301,6 @@ main(int argc, char **argv)
 	char    buf[8192];
 	struct url req;
 	struct host_ret conn, conns[MAXSEL];
-	void   *tzp;
 	struct growstring strings[MAXSEL];
 	struct timeval *tv_s;
 
@@ -396,14 +395,14 @@ main(int argc, char **argv)
 			s=1;
 			for(iteration=0; iteration<numtoopen && s>=0; iteration++) {
 				if (flags & DO_STATS)
-					gettimeofday(&tmptime, tzp);
+					gettimeofday(&tmptime, NULL);
 
 				conn = getclientsocket(req, sock_flags);
 				s=conn.s;
 				conns[s]=conn;
 
 				if (flags & DO_STATS) {
-					gettimeofday(&timers[s][1], tzp);
+					gettimeofday(&timers[s][1], NULL);
 					timers[s][0] = tmptime;
 				}
 				if (s > 0) {
@@ -456,7 +455,7 @@ main(int argc, char **argv)
 						close_conn(req, conns[i]);
 
 						if (flags & DO_STATS) {
-							gettimeofday(&timers[i][2], tzp);
+							gettimeofday(&timers[i][2], NULL);
 							dostats(i, timers[i], bytes[i],
 							    flags, strings[i].string, maxhits);
 							if (strings[i].string) {
