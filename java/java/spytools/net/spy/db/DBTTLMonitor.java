@@ -1,18 +1,18 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTTLMonitor.java,v 1.2 2002/07/10 04:25:22 dustin Exp $
+// $Id: DBTTLMonitor.java,v 1.3 2002/08/15 07:12:55 dustin Exp $
 
 package net.spy.db;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Monitors TTLs.
  */
 public class DBTTLMonitor extends Thread {
 
-	private Vector ttls=null;
+	private ArrayList ttls=null;
 
 	private static final long NAPTIME=5000;
 	private long lastAddition=0;
@@ -23,7 +23,7 @@ public class DBTTLMonitor extends Thread {
 	 */
 	public DBTTLMonitor() {
 		super();
-		ttls=new Vector();
+		ttls=new ArrayList();
 		lastAddition=System.currentTimeMillis();
 		setName("DB TTL Monitor");
 		setDaemon(true);
@@ -36,7 +36,7 @@ public class DBTTLMonitor extends Thread {
 	public void addTTL(DBTTL ttl) {
 		lastAddition=System.currentTimeMillis();
 		synchronized(ttls) {
-			ttls.addElement(ttl);
+			ttls.add(ttl);
 		}
 	}
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTest.java,v 1.1 2002/08/15 06:37:13 dustin Exp $
+// $Id: DBTest.java,v 1.2 2002/08/15 07:12:56 dustin Exp $
 
 package net.spy.test;
 
@@ -18,6 +18,8 @@ import junit.framework.TestSuite;
 
 import net.spy.SpyConfig;
 import net.spy.db.SpyCacheDB;
+
+import net.spy.test.db.DumpTestTable;
 
 /**
  *
@@ -112,6 +114,7 @@ public class DBTest extends TestCase {
 		SpyCacheDB db=new SpyCacheDB(conf);
 
 		ResultSet rs=db.executeQuery("select * from testtable");
+		assertTrue(! (rs instanceof net.spy.db.CachedResultSet));
 		while(rs.next()) {
 			checkRow(rs);
 		}
@@ -126,6 +129,36 @@ public class DBTest extends TestCase {
 		SpyCacheDB db=new SpyCacheDB(conf);
 
 		ResultSet rs=db.executeQuery("select * from testtable", 30);
+		assertTrue(rs instanceof net.spy.db.CachedResultSet);
+		while(rs.next()) {
+			checkRow(rs);
+		}
+		rs.close();
+		db.close();
+	}
+
+	/**
+	 * Test an SPT with no cache.
+	 */
+	public void testSPTNoCache() throws SQLException {
+		DumpTestTable db=new DumpTestTable(conf);
+		ResultSet rs=db.executeQuery();
+		assertTrue(! (rs instanceof net.spy.db.CachedResultSet));
+		while(rs.next()) {
+			checkRow(rs);
+		}
+		rs.close();
+		db.close();
+	}
+
+	/**
+	 * Test an SPT with cache.
+	 */
+	public void testSPTWithCache() throws SQLException {
+		DumpTestTable db=new DumpTestTable(conf);
+		db.setCacheTime(30);
+		ResultSet rs=db.executeQuery();
+		assertTrue(rs instanceof net.spy.db.CachedResultSet);
 		while(rs.next()) {
 			checkRow(rs);
 		}

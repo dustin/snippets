@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.11 2002/07/10 05:41:19 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.12 2002/08/15 07:12:54 dustin Exp $
  */
 
 package net.spy.db;
@@ -14,9 +14,9 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * This object represents a cached java.sql.ResultSet.  It will hopefully
@@ -24,11 +24,11 @@ import java.util.Vector;
  */
 public class CachedResultSetStub extends Object implements Cloneable {
 	// Here is where the ResultSet data gets stored.
-	private Vector results=null;
-	private Enumeration resultEnum=null;
+	private ArrayList results=null;
+	private Iterator resultIter=null;
 
 	// Map column names to ints
-	private Hashtable columns=null;
+	private HashMap columns=null;
 
 	// This is the current result we're looking at.
 	private Object result[]=null;
@@ -60,8 +60,9 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	public CachedResultSetStub newCopy() {
 		try {
 			return((CachedResultSetStub)clone());
-		} catch(Exception e) {
+		} catch(CloneNotSupportedException e) {
 			// The exceptions this thing throws, well, aren't
+			e.printStackTrace();
 		}
 		return(null);
 	}
@@ -70,11 +71,11 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	// something meaningful to us.
 	private void initResults(ResultSet rs) throws SQLException {
 		// Initialize the results vector
-		results=new Vector();
+		results=new ArrayList();
 		int ncolumns=metadata.getColumnCount();
 
 		// Initialize columns
-		columns=new Hashtable();
+		columns=new HashMap();
 		for(int i=1; i<=ncolumns; i++) {
 			String name=metadata.getColumnName(i).toLowerCase();
 			columns.put(name, new Integer(i));
@@ -91,57 +92,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 				String tmp=null;
 
 				// Default to null
-				result[i-1]=null;
-
-				// Now, figure out what type of data this column is...
-				switch(metadata.getColumnType(i)) {
-					case Types.DOUBLE:
-					case Types.REAL:
-					case Types.DECIMAL:
-					case Types.NUMERIC:
-					case Types.BIGINT:
-					case Types.FLOAT:
-					case Types.SMALLINT:
-					case Types.TINYINT:
-					case Types.INTEGER:
-						// BigDecimal can represent *any* result,
-						// unfortunately, I'm having to parse it here
-						// because the old getBigDecimal requires you to
-						// tell it how many decimal places to use.  This is
-						// very lame.
-						tmp=rs.getString(i);
-						if(tmp!=null) {
-							result[i-1]=new BigDecimal(tmp);
-						}
-						break;
-					case Types.CHAR:
-					case Types.VARCHAR:
-					case Types.LONGVARCHAR:
-						result[i-1]=rs.getString(i);
-						break;
-					case Types.DATE:
-						result[i-1]=rs.getDate(i);
-						break;
-					case Types.TIME:
-						result[i-1]=rs.getTime(i);
-						break;
-					case Types.TIMESTAMP:
-						result[i-1]=rs.getTimestamp(i);
-						break;
-					case Types.BIT:
-						result[i-1]=new Boolean(rs.getBoolean(i));
-						break;
-					case Types.OTHER:
-						result[i-1]=rs.getObject(i);
-						break;
-					case Types.NULL:
-						result[i-1]=null;
-						break;
-					default:
-						throw new SQLException("Unhandled data type:  "
-							+ metadata.getColumnType(i));
-
-				}
+				result[i-1]=rs.getObject(i);;
 
 				// If we did a numeric thingy
 				if(rs.wasNull()) {
@@ -151,7 +102,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 			} // columns
 
 			// Stick it in our resultset.
-			results.addElement(result);
+			results.add(result);
 
 		} // results
 	} // initresults
@@ -185,24 +136,36 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	 * Debug routine for displaying the current row of the ResultSet.
 	 */
 	public String toString() {
-		String ret="Result row:\n";
+		StringBuffer sb=new StringBuffer();
+		sb.append("Result row:\n");
 		int ncolumns=0;
 		try {
 			ncolumns=metadata.getColumnCount();
-		} catch(Exception e) {
+		} catch(SQLException e) {
 			ncolumns=0;
 		}
 		for(int i=1; i<=ncolumns; i++) {
 			try {
 				Object o=getResultColumn(i);
 				if(o!=null) {
-					ret+="\t" + metadata.getColumnName(i) + "=" + o + "\n";
+					sb.append("\t");
+					sb.append(metadata.getColumnName(i));
+					sb.append("=");
+					sb.append(o);
+					sb.append(" (");
+					sb.append(o.getClass().getName());
+					sb.append(")\n");
+				} else {
+					sb.append("\t");
+					sb.append(metadata.getColumnName(i));
+					sb.append(" - null\n");
 				}
-			} catch(Exception e) {
-				// Ignore this columns, it's apparently broken
+			} catch(SQLException e) {
+				// Ignore these columns, it's apparently broken
+				e.printStackTrace();
 			}
 		}
-		return(ret);
+		return(sb.toString());
 	}
 
 	// OK, begin disgustingly long stream of interface implementation
@@ -211,12 +174,12 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	public boolean next() throws SQLException {
 		boolean rv=true;
 		// Make sure we've got our enumeration going.
-		if(resultEnum==null) {
-			resultEnum=results.elements();
+		if(resultIter==null) {
+			resultIter=results.iterator();
 		}
 
-		if(resultEnum.hasMoreElements()) {
-			result=(Object[])resultEnum.nextElement();
+		if(resultIter.hasNext()) {
+			result=(Object[])resultIter.next();
 		} else {
 			rv=false;
 		}

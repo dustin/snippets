@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.23 2002/08/15 04:20:41 dustin Exp $
+	$Id: build.xml,v 1.24 2002/08/15 07:12:52 dustin Exp $
 
 	-->
 
@@ -37,6 +37,7 @@
 			</fileset>
 			<fileset dir="tests">
 				<include name="**/*.class"/>
+				<include name="net/spy/test/db/*.java"/>
 			</fileset>
 			<fileset dir=".">
 				<include name="spy.jar"/>
@@ -136,7 +137,14 @@
 		</javac>
 	</target>
 
-	<target name="test-classes" depends="all">
+	<target name="test-spfiles" depends="all">
+		<taskdef name="spgen" classname="net.spy.util.SPGenTask">
+			<classpath refid="myclasses"/>
+		</taskdef>
+		<spgen srcdir="tests" destdir="tests"/>
+	</target>
+
+	<target name="test-classes" depends="all,test-spfiles">
 		<javac srcdir="tests" destdir="tests" deprecation="on"
 				debug="on" verbose="off">
 			<classpath refid="myclasses"/>
