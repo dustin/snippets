@@ -12,14 +12,14 @@
 
 #if(clock_on=0)
 	camera {
-		location <0, -1.8, -10>
+		location <0, -1.8, -15>
 		look_at <0, 0, 0>
 	}
 #else
 	#debug concat("\nClock is ", str(clock,5,5), "\n")
 
 	camera {
-		location <0, clock-1.8, -10*clock>
+		location <0, clock-1.8, -15*clock>
 		look_at <0, 0, 0>
 		#local r = 90-(90*clock);
 		#debug concat("Angle is ", str(r,2,2), " for ", str(clock,5,5), "\n")
@@ -98,15 +98,13 @@ object {
 	texture { lettering }
 }
 
-// INTERNETWORKING
+// productions
 #declare Font = "cyrvetic.ttf"
 
 text { ttf Font
-	"internetworking",.3,0
-	// translate <0, -15.5, -2>
-	// translate <-3.3, -1.75, -1>
-	translate <-3.3, 0, -1>
-	rotate <0,0,30>
+	"productions",.3,0
+	translate <-2.5, 0, -1.5>
+	rotate <0,0,15>
 	texture { small_lettering }
-	scale <1.33,1,1>
+	scale <1.5,1.5,1>
 }
