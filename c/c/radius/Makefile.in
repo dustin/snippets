@@ -1,17 +1,20 @@
 #
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1997/09/20 07:04:39 dustin Exp $
+# $Id: Makefile.in,v 1.2 1997/09/20 07:18:18 dustin Exp $
 #
 
-CFLAGS=-O2
-LIBS=
+CC=@CC@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 
 EXES=parsedetail   postprocess
 OBJS=parsedetail.o postprocess.o
 SRC= parsedetail.c postprocess.c
 
+AUTOJUNK=config.guess config.status config.log config.cache Makefile
+
 all: $(EXES)
 
 clean:
-	rm -f $(EXES) $(OBJS)
+	rm -f $(EXES) $(OBJS) $(AUTOJUNK)
