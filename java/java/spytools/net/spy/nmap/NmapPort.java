@@ -1,21 +1,21 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapPort.java,v 1.3 2002/07/10 04:26:02 dustin Exp $
+// $Id: NmapPort.java,v 1.4 2002/07/10 05:41:55 dustin Exp $
 
 package net.spy.nmap;
 
 
 public class NmapPort extends Object {
 
-	private int _port=-1;
-	private String _status=null;
-	private String _proto=null;
+	private int port=-1;
+	private String status=null;
+	private String proto=null;
 	// I don't know what this is
-	private String _huh=null;
-	private String _service=null;
+	// private String huh=null;
+	private String service=null;
 	// I don't know what these are
-	private String _huh2=null;
-	private String _huh3=null;
+	// private String _huh2=null;
+	// private String _huh3=null;
 
 	/**
 	 * Construct an NmapPort object from an array of the stuff found
@@ -23,38 +23,38 @@ public class NmapPort extends Object {
 	 */
 	public NmapPort(String input[]) {
 		super();
-		_port=Integer.parseInt(input[0]);
-		_status=input[1];
-		_proto=input[2];
+		port=Integer.parseInt(input[0]);
+		status=input[1];
+		proto=input[2];
 		// the other three doesn't show up because it's blank... I hope
-		_service=input[3];
+		service=input[3];
 	}
 
 	/**
 	 * gets the port number
 	 */
 	public int port() {
-		return(_port);
+		return(port);
 	}
 
 	 /**
 	  * gets the status
 	  */
 	 public String status() {
-		return(_status);
+		return(status);
 	 }
 
 	 /**
 	  * gets the protocol (tcp, udp, etc...)
 	  */
 	 public String proto() {
-		return(_proto);
+		return(proto);
 	 }
 
 	 /**
 	  * gets the service type (http/imap/smtp/etc...)
 	  */
 	 public String service() {
-		return(_service);
+		return(service);
 	 }
 }

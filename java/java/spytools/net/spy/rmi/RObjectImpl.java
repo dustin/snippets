@@ -1,12 +1,11 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.11 2002/07/10 04:26:19 dustin Exp $
+// $Id: RObjectImpl.java,v 1.12 2002/07/10 05:42:10 dustin Exp $
 
 package net.spy.rmi;
 
 import java.io.IOException;
 
 import java.rmi.Naming;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import java.rmi.server.UnicastRemoteObject;

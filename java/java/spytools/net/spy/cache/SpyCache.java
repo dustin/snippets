@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.11 2002/07/10 04:25:02 dustin Exp $
+ * $Id: SpyCache.java,v 1.12 2002/07/10 05:41:13 dustin Exp $
  */
 
 package net.spy.cache;
@@ -26,9 +26,7 @@ import net.spy.util.TimeStampedHash;
  */
 public class SpyCache extends Object {
 	private static TimeStampedHash cacheStore=null;
-	private static String CACHE_MUTEX="CACHE_MUTEX";
 	private static SpyCacheCleaner cacheCleaner=null;
-	private static String CLEANER_MUTEX="CLEANER_MUTEX";
 
 	/**
 	 * Get a new SpyCache object.
@@ -44,10 +42,10 @@ public class SpyCache extends Object {
 	 *
 	 * @param key Cache key
 	 * @param value Object to cache
-	 * @param cache_time Amount of time (in milliseconds) to store object.
+	 * @param cacheTime Amount of time (in milliseconds) to store object.
 	 */
-	public void store(String key, Object value, long cache_time) {
-		SpyCacheItem i=new SpyCacheItem(key, value, cache_time);
+	public void store(String key, Object value, long cacheTime) {
+		SpyCacheItem i=new SpyCacheItem(key, value, cacheTime);
 		synchronized(cacheStore) {
 			cacheStore.put(key, i);
 		}
@@ -102,14 +100,14 @@ public class SpyCache extends Object {
 	}
 
 	private synchronized void init() {
-		synchronized(CACHE_MUTEX) {
+		synchronized(SpyCache.class) {
 			if(cacheStore==null) {
 				cacheStore=new TimeStampedHash();
 			}
 		}
 
 		// start or restart the cache cleaner if needed.
-		synchronized(CLEANER_MUTEX) {
+		synchronized(SpyCache.class) {
 			if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
 				cacheCleaner=new SpyCacheCleaner(cacheStore);
 			}
@@ -180,13 +178,13 @@ public class SpyCache extends Object {
 		// Make sure our multicast listener is still running if it should be.
 		private void checkMulticastThread() {
 			try {
-				String addr_s=System.getProperty("net.spy.cache.multi.addr");
-				String port_s=System.getProperty("net.spy.cache.multi.port");
+				String addrS=System.getProperty("net.spy.cache.multi.addr");
+				String portS=System.getProperty("net.spy.cache.multi.port");
 
-				if(addr_s!=null && port_s!=null) {
-					int port=Integer.parseInt(port_s);
+				if(addrS!=null && portS!=null) {
+					int port=Integer.parseInt(portS);
 
-					InetAddress group = InetAddress.getByName(addr_s);
+					InetAddress group = InetAddress.getByName(addrS);
 					listener=new CacheClearRequestListener(group, port);
 				}
 
@@ -236,13 +234,13 @@ public class SpyCache extends Object {
 		private Object value=null;
 		private long exptime=0;
 
-		public SpyCacheItem(Object key, Object value, long cache_time) {
+		public SpyCacheItem(Object key, Object value, long cacheTime) {
 			super();
 
 			this.key=key;
 			this.value=value;
 			long t=System.currentTimeMillis();
-			exptime=t+cache_time;
+			exptime=t+cacheTime;
 		}
 
 		public String toString() {

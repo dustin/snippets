@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.6 2002/07/10 04:25:18 dustin Exp $
+// $Id: DBSP.java,v 1.7 2002/07/10 05:41:20 dustin Exp $
 
 package net.spy.db;
 
@@ -30,26 +30,26 @@ import net.spy.SpyConfig;
 public abstract class DBSP extends SpyCacheDB {
 
 	// The arguments themselves
-	protected Hashtable args=null;
+	private Hashtable args=null;
 	// The data type of this argument
-	protected Hashtable types=null;
+	private Hashtable types=null;
 
 	/**
 	 * Required fields and their types.
 	 */
-	protected Hashtable required=null;
+	private Hashtable required=null;
 	/**
 	 * Required fields in order.
 	 */
-	protected Vector required_inorder=null;
+	private Vector requiredInorder=null;
 	/**
 	 * Optional fields and their types.
 	 */
-	protected Hashtable optional=null;
+	private Hashtable optional=null;
 	/**
 	 * Optional fields in order.
 	 */
-	protected Vector optional_inorder=null;
+	private Vector optionalInorder=null;
 
 	// SP name
 	private String spname=null;
@@ -87,8 +87,22 @@ public abstract class DBSP extends SpyCacheDB {
 		this.types=new Hashtable();
 		this.required=new Hashtable();
 		this.optional=new Hashtable();
-		this.required_inorder=new Vector();
-		this.optional_inorder=new Vector();
+		this.requiredInorder=new Vector();
+		this.optionalInorder=new Vector();
+	}
+
+	/**
+	 * Get the required arguments, in order.
+	 */
+	protected Vector getRequiredInorder() {
+		return(requiredInorder);
+	}
+
+	/**
+	 * Get the optional arguments, in order.
+	 */
+	protected Vector getOptionalInorder() {
+		return(optionalInorder);
 	}
 
 	/**
@@ -170,7 +184,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	protected void setRequired(String name, int type) {
 		required.put(name, new Integer(type));
-		required_inorder.addElement(name);
+		requiredInorder.addElement(name);
 	}
 
 	/**
@@ -178,7 +192,7 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	protected void setOptional(String name, int type) {
 		optional.put(name, new Integer(type));
-		optional_inorder.addElement(name);
+		optionalInorder.addElement(name);
 	}
 
 	/**
@@ -290,10 +304,10 @@ public abstract class DBSP extends SpyCacheDB {
 		}
 
 		// Get ready to build our query.
-		StringBuffer query_sb=new StringBuffer();
-		query_sb.append("exec ");
-		query_sb.append(spname);
-		query_sb.append(" ");
+		StringBuffer querySb=new StringBuffer();
+		querySb.append("exec ");
+		querySb.append(spname);
+		querySb.append(" ");
 
 		// Get the keys in a vector so we can make sure they come out in
 		// the right order.
@@ -302,17 +316,17 @@ public abstract class DBSP extends SpyCacheDB {
 			String param=(String)e.nextElement();
 			v.addElement(param);
 
-			query_sb.append("\t@");
-			query_sb.append(param);
-			query_sb.append("=?,\n");
+			querySb.append("\t@");
+			querySb.append(param);
+			querySb.append("=?,\n");
 		}
 
 		// Remove the last comma if we had params
 		if(v.size()>0) {
-			query_sb=new StringBuffer(query_sb.toString().substring(0,
-										query_sb.length()-2));
+			querySb=new StringBuffer(querySb.toString().substring(0,
+										querySb.length()-2));
 		}
-		String query=query_sb.toString().trim();
+		String query=querySb.toString().trim();
 
 		// Get a prepared statement, varies whether it's cachable or not.
 		if(cachetime>0) {
@@ -348,14 +362,14 @@ public abstract class DBSP extends SpyCacheDB {
 			System.err.println("DBSP Query:  " + query);
 			System.err.println("\t-");
 
-			for(Enumeration e=required_inorder.elements();
+			for(Enumeration e=requiredInorder.elements();
 				e.hasMoreElements(); ) {
 				String key=(String)e.nextElement();
 				String val=args.get(key).toString();
 				System.err.println("\t" + key + "=" + val);
 			}
 
-			for(Enumeration e=optional_inorder.elements();
+			for(Enumeration e=optionalInorder.elements();
 				e.hasMoreElements(); ) {
 				String key=(String)e.nextElement();
 				Object o=args.get(key);
@@ -394,15 +408,15 @@ public abstract class DBSP extends SpyCacheDB {
 			String key=(String)e.nextElement();
 			Object o=args.get(key);
 
-			Integer type_int=(Integer)types.get(key);
+			Integer typeInt=(Integer)types.get(key);
 
 			// Check the type
-			if(type_int == null) {
+			if(typeInt == null) {
 				throw new SQLException ("No argument given for " + key);
 			}
 
 			// Get it as an int so we can switch it
-			int type=type_int.intValue();
+			int type=typeInt.intValue();
 
 			try {
 				switch(type) {
@@ -426,7 +440,8 @@ public abstract class DBSP extends SpyCacheDB {
 						break;
 					case Types.NUMERIC:
 					case Types.DECIMAL:
-						BigDecimal bd=((BigDecimal)o).setScale(4, BigDecimal.ROUND_HALF_UP);
+						BigDecimal bd=((BigDecimal)o).setScale(4,
+													BigDecimal.ROUND_HALF_UP);
 						pst.setBigDecimal(i, bd);
 						break;
 					case Types.SMALLINT:
@@ -449,13 +464,16 @@ public abstract class DBSP extends SpyCacheDB {
 						pst.setTimestamp(i, (Timestamp)o);
 						break;
 					default:
-						throw new SQLException("Whoops, type " + TypeNames.getTypeName(type) + "(" + type + ")"
+						throw new SQLException("Whoops, type "
+							+ TypeNames.getTypeName(type) + "(" + type + ")"
 							+ " seems to have been overlooked.");
 				}
 			} catch (Exception applyException) {
 				applyException.printStackTrace();
-				String msg="Problem setting " + key + " in prepared statement for type " +
-							TypeNames.getTypeName(type) + " " + o.toString() + " : " + applyException;
+				String msg="Problem setting " + key
+					+ " in prepared statement for type "
+					+ TypeNames.getTypeName(type) + " "
+					+ o.toString() + " : " + applyException;
 				throw new SQLException (msg);
 			}
 

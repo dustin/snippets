@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileJobQueue.java,v 1.6 2002/07/10 04:25:06 dustin Exp $
+// $Id: FileJobQueue.java,v 1.7 2002/07/10 05:41:15 dustin Exp $
 
 package net.spy.cron;
 
@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -92,10 +91,10 @@ public class FileJobQueue extends JobQueue {
 		}
 
 		String stuff[]=SpyUtil.split(" ", line);
-		String date_s=stuff[0];
-		String field_s=stuff[1];
-		String incr_s=stuff[2];
-		String class_s=stuff[3];
+		String dateS=stuff[0];
+		String fieldS=stuff[1];
+		String incrS=stuff[2];
+		String classS=stuff[3];
 
 		String args[]=new String[stuff.length-4];
 		// If there were args, copy them in instead.
@@ -104,50 +103,50 @@ public class FileJobQueue extends JobQueue {
 		}
 
 		SimpleDateFormat df=new SimpleDateFormat("yyyyMMdd-hhmmss");
-		Date startDate=df.parse(date_s);
+		Date startDate=df.parse(dateS);
 
-		int cf=parseCalendarField(field_s);
+		int cf=parseCalendarField(fieldS);
 		if(cf>=0) {
 			TimeIncrement ti=new TimeIncrement();
 			ti.setField(cf);
-			ti.setIncrement(Integer.parseInt(incr_s));
+			ti.setIncrement(Integer.parseInt(incrS));
 			// Get the next start date using the given increment, otherwise
 			// the job will run *right now*.
 			startDate=ti.nextDate(startDate);
 
-			rv=new MainJob(class_s, args, startDate, ti);
+			rv=new MainJob(classS, args, startDate, ti);
 		} else {
 			if(startDate.getTime() < System.currentTimeMillis()) {
 				System.err.println("At job on line " + lineNum
 					+ " is in the past.");
 			} else {
-				rv=new MainJob(class_s, args, startDate);
+				rv=new MainJob(classS, args, startDate);
 			}
 		}
 
 		return(rv);
 	}
 
-	private int parseCalendarField(String field_name) {
+	private int parseCalendarField(String fieldName) {
 		int rv=-1;
 
-		if(field_name.equals("YEAR")) {
+		if(fieldName.equals("YEAR")) {
 			rv=Calendar.YEAR;
-		} else if(field_name.equals("MONTH")) {
+		} else if(fieldName.equals("MONTH")) {
 			rv=Calendar.MONTH;
-		} else if(field_name.equals("DAY")) {
+		} else if(fieldName.equals("DAY")) {
 			rv=Calendar.DAY_OF_MONTH;
-		} else if(field_name.equals("HOUR")) {
+		} else if(fieldName.equals("HOUR")) {
 			rv=Calendar.HOUR;
-		} else if(field_name.equals("MINUTE")) {
+		} else if(fieldName.equals("MINUTE")) {
 			rv=Calendar.MINUTE;
-		} else if(field_name.equals("SECOND")) {
+		} else if(fieldName.equals("SECOND")) {
 			rv=Calendar.SECOND;
-		} else if(field_name.equals("ONCE")) {
+		} else if(fieldName.equals("ONCE")) {
 			// This is an ``at'' job
 			rv=-1;
 		} else {
-			System.err.println("WARNING!  " + field_name
+			System.err.println("WARNING!  " + fieldName
 				+ " is not a valid Calendar field.");
 		}
 

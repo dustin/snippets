@@ -1,11 +1,10 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.7 2002/07/10 04:26:28 dustin Exp $
+// $Id: Debug.java,v 1.8 2002/07/10 05:42:16 dustin Exp $
 
 package net.spy.util;
 
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import java.util.Date;
@@ -18,7 +17,6 @@ import java.util.Hashtable;
 public class Debug extends Object {
 
 	// Storage for all the file thingies
-	private static String debug_mutex="debug_mutex";
 	private static Hashtable debugs=null;
 	private String propname=null;
 
@@ -33,7 +31,7 @@ public class Debug extends Object {
 	}
 
 	private void init() {
-		synchronized(debug_mutex) {
+		synchronized(Debug.class) {
 			if(debugs==null) {
 				debugs=new Hashtable();
 			}

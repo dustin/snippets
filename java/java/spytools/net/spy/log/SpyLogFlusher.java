@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.16 2002/07/10 04:25:50 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.17 2002/07/10 05:41:42 dustin Exp $
  */
 
 package net.spy.log;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.Writer;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -31,9 +30,9 @@ import java.util.Vector;
 
 public class SpyLogFlusher extends Thread {
 
-	// private static BufferedWriter log_file=null;
-	private SpyLogQueue log_queue=null;
-	private boolean keep_going=true;
+	// private static BufferedWriter logFile=null;
+	private SpyLogQueue logQueue=null;
+	private boolean keepGoing=true;
 
 	private long sleepTime=900000;
 
@@ -42,7 +41,7 @@ public class SpyLogFlusher extends Thread {
 	 * can be overridden.
 	 */
 	public String logfile = "/tmp/spy.log";
-	private String queue_name=null;
+	private String queueName=null;
 
 	private Date lastRun=null;
 	private Date lastErrorTime=null;
@@ -55,7 +54,7 @@ public class SpyLogFlusher extends Thread {
 		super();
 		setDaemon(true);
 		setName("SpyLogFlusher-" + name);
-		this.queue_name=name;
+		this.queueName=name;
 		// Exception e=new Exception("Instantiated SpyLogFlusher-" + name);
 		// e.printStackTrace();
 		configure();
@@ -68,7 +67,7 @@ public class SpyLogFlusher extends Thread {
 		super(t, "SpyLogFlusher");
 		setDaemon(true);
 		setName("SpyLogFlusher-" + name);
-		this.queue_name=name;
+		this.queueName=name;
 		// Exception e=new Exception("Instantiated SpyLogFlusher-" + name);
 		// e.printStackTrace();
 		configure();
@@ -119,14 +118,14 @@ public class SpyLogFlusher extends Thread {
 	 * Return the current queue of things to be logged
 	 */
 	protected Vector flush() {
-		return(log_queue.flush());
+		return(logQueue.flush());
 	}
 
 	/**
 	 * Get the current size of the queue.
 	 */
 	public int queueSize() {
-		return(log_queue.size());
+		return(logQueue.size());
 	}
 
 	/**
@@ -140,14 +139,14 @@ public class SpyLogFlusher extends Thread {
 		if(v.size() > 0) {
 			// The logfile is only open long enough for us to write our log
 			// entries to it.
-			BufferedWriter log_file=log_file=new BufferedWriter(
+			BufferedWriter logFile=logFile=new BufferedWriter(
 				new FileWriter(logfile, true));
 			for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
 				SpyLogEntry l = (SpyLogEntry)e.nextElement();
-				log_file.write(l.toString() + "\n");
+				logFile.write(l.toString() + "\n");
 			}
-			log_file.flush();
-			log_file.close(); // Close it, we're done!
+			logFile.flush();
+			logFile.close(); // Close it, we're done!
 		}
 	}
 
@@ -157,7 +156,7 @@ public class SpyLogFlusher extends Thread {
 	 * closing the log...sorta.
 	 */
 	public void close() {
-		keep_going=false;
+		keepGoing=false;
 	}
 
 	/**
@@ -165,16 +164,16 @@ public class SpyLogFlusher extends Thread {
 	 * override this.
 	 */
 	public void run() {
-		log_queue = new SpyLogQueue(queue_name);
+		logQueue = new SpyLogQueue(queueName);
 
-		while(keep_going) {
+		while(keepGoing) {
 			try {
 				// Flush first, ask questions later.
 				doFlush();
 				lastRun=new Date();
 
 				// Wait for something to get added...with timeout
-				log_queue.waitForQueue(sleepTime);
+				logQueue.waitForQueue(sleepTime);
 
 			} catch(Exception e) {
 				lastError=e;

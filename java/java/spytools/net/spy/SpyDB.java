@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.37 2002/07/10 04:24:38 dustin Exp $
+ * $Id: SpyDB.java,v 1.38 2002/07/10 05:41:05 dustin Exp $
  */
 
 package net.spy;
@@ -26,7 +26,6 @@ import net.spy.pool.JDBCPoolFiller;
 import net.spy.pool.ObjectPool;
 import net.spy.pool.PooledObject;
 import net.spy.pool.PoolException;
-import net.spy.pool.PoolFiller;
 
 /**
  * SpyDB is an abstraction of both net.spy.pool and java.sql.
@@ -36,14 +35,10 @@ public class SpyDB extends Object {
 
 	// Object pool we store our objects in.
 	private static ObjectPool pool=null;
-	// This isn't final because I want it to be referenced as a variable
-	private static String POOL_MUTEX="POOL_MUTEX";
 
 	// Place where we keep up with connections so we can get rid of them
 	// manually if needed.
 	private static Hashtable connections=null;
-	// This isn't final because I want it to be referenced as a variable
-	private static String CONNECTIONS_MUTEX="CONNECTIONS_MUTEX";
 
 	// Pooled Object container we got out of the pool.
 	private PooledObject object=null;
@@ -61,11 +56,11 @@ public class SpyDB extends Object {
 	private String name=null;
 
 	// Whether we want the object to free stuff or not.
-	private boolean auto_free=true;
+	private boolean autoFree=true;
 
 	// Whether we want to use a pool.
-	private boolean use_pool=true;
-	private boolean use_jndi=true;
+	private boolean usePool=true;
+	private boolean useJndi=true;
 
 	// Is this thing closed?
 	private boolean isClosed=false;
@@ -115,16 +110,16 @@ public class SpyDB extends Object {
 
 	/**
 	 * Same as the above constructor, but has a boolean allowing you to
-	 * disable auto_free.
+	 * disable autoFree.
 	 *
 	 * @param conf SpyConfig object describing how to connect.
 	 *
-	 * @param auto_free is pretty much ignored now, as things will always
+	 * @param autoFree is pretty much ignored now, as things will always
 	 * automatically free if not freed explicitly.
 	 */
-	public SpyDB(SpyConfig conf, boolean auto_free) {
+	public SpyDB(SpyConfig conf, boolean autoFree) {
 		this.conf=conf;
-		this.auto_free=auto_free;
+		this.autoFree=autoFree;
 		try {
 			initStuff();
 		} catch(Exception e) {
@@ -141,7 +136,7 @@ public class SpyDB extends Object {
 
 		// If we haven't established our connections hash yet, do so
 		// Synchronize on the class to do this
-		synchronized(CONNECTIONS_MUTEX) {
+		synchronized(SpyDB.class) {
 			if(connections==null) {
 				connections=new Hashtable();
 			}
@@ -152,19 +147,19 @@ public class SpyDB extends Object {
 		if(tmp!=null) {
 
 			if(tmp.equalsIgnoreCase("jndi")) {
-				use_pool=false;
-				use_jndi=true;
+				usePool=false;
+				useJndi=true;
 			} else if(tmp.equalsIgnoreCase("none")) {
-				use_pool=false;
-				use_jndi=false;
+				usePool=false;
+				useJndi=false;
 			} else {
-				use_pool=true;
-				use_jndi=false;
+				usePool=true;
+				useJndi=false;
 			}
 		}
 
 		// If we'll be using a pool, get it initialized.
-		if(use_pool) {
+		if(usePool) {
 			// Poolname.
 			name=conf.get("dbPoolName");
 			if(name==null) {
@@ -173,7 +168,7 @@ public class SpyDB extends Object {
 
 			// Synchronize this whole thing so we don't accidentally try to
 			// create it more than once.
-			synchronized(POOL_MUTEX) {
+			synchronized(SpyDB.class) {
 				// if we don't have a pool, create one.
 				if(pool==null) {
 					createPool();
@@ -200,28 +195,28 @@ public class SpyDB extends Object {
 		}
 
 		// Minimum connections in the pool.
-		int min_conns=conf.getInt("dbMinConns", -1);
-		if(min_conns==-1) {
-			min_conns=conf.getInt("dbcbMinConns", 1);
+		int minConns=conf.getInt("dbMinConns", -1);
+		if(minConns==-1) {
+			minConns=conf.getInt("dbcbMinConns", 1);
 		}
-		tmpconf.put(prefix + "min", "" + min_conns);
+		tmpconf.put(prefix + "min", "" + minConns);
 
 		// Start this many connections in the pool.
-		int start_conns=conf.getInt("dbStartConns", min_conns);
-		tmpconf.put(prefix + "start", "" + start_conns);
+		int startConns=conf.getInt("dbStartConns", minConns);
+		tmpconf.put(prefix + "start", "" + startConns);
 
 		// Yellow line percentage
-		int yellow_line=conf.getInt("dbYellowLine", -1);
-		if(yellow_line>0) {
-			tmpconf.put(prefix + "yellow_line", "" + yellow_line);
+		int yellowLine=conf.getInt("dbYellowLine", -1);
+		if(yellowLine>0) {
+			tmpconf.put(prefix + "yellow_line", "" + yellowLine);
 		}
 
 		// maximum connections in the pool.
-		int max_conns=conf.getInt("dbMaxConns", -1);
-		if(max_conns==-1) {
-			max_conns=conf.getInt("dbcbMaxConns", 5);
+		int maxConns=conf.getInt("dbMaxConns", -1);
+		if(maxConns==-1) {
+			maxConns=conf.getInt("dbcbMaxConns", 5);
 		}
-		tmpconf.put(prefix + "max", "" + max_conns);
+		tmpconf.put(prefix + "max", "" + maxConns);
 
 		// Maximum amount of time any given entry may live.
 		String tmp=conf.get("dbMaxLifeTime");
@@ -230,8 +225,8 @@ public class SpyDB extends Object {
 			if(tmp!=null) {
 				double tmpd=Double.valueOf(tmp).doubleValue();
 				tmpd*=86400;
-				long recycle_time=(long)tmpd;
-				tmpconf.put(prefix + "max_age", "" + recycle_time*1000);
+				long recycleTime=(long)tmpd;
+				tmpconf.put(prefix + "max_age", "" + recycleTime*1000);
 			}
 		} else {
 			// The dbMaxLifeTime was valid, put it place.
@@ -276,7 +271,7 @@ public class SpyDB extends Object {
 		SpyConfig conf=getNormalizedConfig();
 
 		// If we don't yet have a pool at all, create one.
-		synchronized(POOL_MUTEX) {
+		synchronized(SpyDB.class) {
 			if(pool==null) {
 				pool=new ObjectPool(conf);
 			}
@@ -393,7 +388,7 @@ public class SpyDB extends Object {
 		if(conn!=null) {
 			connections.remove(conn);
 			// If we're not using a pool, we need to close the connection.
-			if(!use_pool) {
+			if(!usePool) {
 				try {
 					conn.close();
 				} catch(Exception e) {
@@ -405,10 +400,10 @@ public class SpyDB extends Object {
 	}
 
 	/**
-	 * Free a database connection that was not in auto_free mode.
+	 * Free a database connection that was not in autoFree mode.
 	 */
 	public void freeDBConn(Connection conn) {
-		if(use_pool) {
+		if(usePool) {
 			PooledObject po=(PooledObject)connections.get(conn);
 			if(po!=null) {
 				po.checkIn();
@@ -419,7 +414,7 @@ public class SpyDB extends Object {
 		connections.remove(conn);
 
 		// If we're not using a pool, we need to close the connection.
-		if(!use_pool) {
+		if(!usePool) {
 			try {
 				conn.close();
 			} catch(Exception e) {
@@ -451,11 +446,11 @@ public class SpyDB extends Object {
 	private void getDBConnFromSpyPool() throws SQLException {
 		try {
 			if(initializationException==null) {
-				synchronized(POOL_MUTEX) {
+				synchronized(SpyDB.class) {
 					object=pool.getObject(name);
 				}
 				conn=(Connection)object.getObject();
-				if(!auto_free) {
+				if(!autoFree) {
 					connections.put(conn, object);
 				}
 			} else {
@@ -509,13 +504,20 @@ public class SpyDB extends Object {
 
 	private void getDBConn() throws SQLException {
 		// Different behavior whether we're using a pool or not
-		if(use_pool) {
+		if(usePool) {
 			getDBConnFromSpyPool();
-		} else if(use_jndi) {
+		} else if(useJndi) {
 			getDBConnFromJNDI();
 		} else {
 			getDBConnFromJDBC();
 		}
+	}
+
+	/**
+	 * @deprecated use dbquoteStr instead
+	 */
+	public static String dbquote_str(String in) {
+		return(dbquoteStr(in));
 	}
 
 	/**
@@ -526,7 +528,7 @@ public class SpyDB extends Object {
 	 *
 	 * @return a new, quoted string
 	 */
-	public static String dbquote_str(String in) {
+	public static String dbquoteStr(String in) {
 		// Quick...handle null
 		if(in == null) {
 			return(null);

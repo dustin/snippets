@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.6 2002/07/10 04:26:53 dustin Exp $
+// $Id: ThreadPool.java,v 1.7 2002/07/10 05:42:28 dustin Exp $
 
 package net.spy.util;
 
@@ -25,7 +25,7 @@ public class ThreadPool extends Object {
 	private Object monitor=null;
 
 	// Private thread ID allocator for the inner class.
-	private static int thread_ids=0;
+	private static int threadIds=0;
 
 	// Set to true when shutdown is called.
 	private boolean shutdown=false;
@@ -210,7 +210,7 @@ public class ThreadPool extends Object {
 		private Object monitor=null;
 		private Stack tasks=null;
 		private boolean going=true;
-		private int thread_id=0;
+		private int threadId=0;
 
 		private String runningMutex=null;
 		private Object running=null;
@@ -223,12 +223,12 @@ public class ThreadPool extends Object {
 			this.tasks=tasks;
 			this.monitor=monitor;
 
-			thread_id=thread_ids++;
+			threadId=threadIds++;
 
-			System.out.println("RunThread " + thread_id + " going online.");
+			System.out.println("RunThread " + threadId + " going online.");
 
 			// Adjust the name to include the thread number
-			setName("RunThread#" + thread_id);
+			setName("RunThread#" + threadId);
 			// Note:  This should not be a daemon thread.
 			start();
 		}

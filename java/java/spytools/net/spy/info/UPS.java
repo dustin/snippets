@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UPS.java,v 1.11 2002/07/10 04:25:39 dustin Exp $
+// $Id: UPS.java,v 1.12 2002/07/10 05:41:31 dustin Exp $
 
 package net.spy.info;
 
@@ -34,11 +34,11 @@ public class UPS extends PackageInfo {
 	/**
 	 * Get a UPS info object.
 	 *
-	 * @param tracking_number tracking number to look up
+	 * @param trackingNumber tracking number to look up
 	 */
-	public UPS(String tracking_number) {
+	public UPS(String trackingNumber) {
 		super();
-		this.arg = tracking_number;
+		this.arg = trackingNumber;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class UPS extends PackageInfo {
 			String delcheck=get("Package Status");
 			if(delcheck!=null) {
 				if(delcheck.startsWith("Delivered")) {
-					delivered=true;
+					setDelivered();
 				}
 			}
 		} catch(Exception e) {

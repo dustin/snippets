@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.4 2002/07/10 04:26:42 dustin Exp $
+// $Id: SPGen.java,v 1.5 2002/07/10 05:42:21 dustin Exp $
 
 package net.spy.util;
 
@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
 
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -30,9 +28,8 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.4 $";
+	private String version="$Revision: 1.5 $";
 	private long cachetime=0;
-	private boolean debug=false;
 	private Vector sqlquery=null;
 	private Vector required=null;
 	private Vector optional=null;
@@ -88,13 +85,6 @@ public class SPGen extends Object {
 			+ " *\n"
 			+ " * <p>\n"
 			+ " *");
-		if(debug) {
-			out.println(" * <font color=\"red\" size=\"+2\"><b><blink>"
-				+ "DEBUG IS ON</blink></b></font>\n"
-				+ " *\n"
-				+ " * <p>\n"
-				+ " *");
-		}
 		if(superclass.equals("DBSP")) {
 			out.println(" * <b>Procedure Name</b>\n"
 				+ " *\n"
@@ -169,10 +159,6 @@ public class SPGen extends Object {
 
 		// Initializer
 		out.println("\tprivate void spinit() {");
-		// If debug's on, set it
-		if(debug) {
-			out.println("\t\tsetDebug(true);");
-		}
 		// Figure out whether we're a DBSP or a DBSQL
 		if(superclass.equals("DBSP")) {
 			out.println("\t\t// Set the stored procedure name\n"
@@ -284,8 +270,6 @@ public class SPGen extends Object {
 					} else if(section.equals("results")) {
 					} else if(section.equals("package")) {
 						pkg+=tmp;
-					} else if(section.equals("debug")) {
-						debug=true;
 					} else if(section.equals("cachetime")) {
 						cachetime=Long.parseLong(tmp);
 					} else {

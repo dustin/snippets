@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
  *
- * $Id: TimedSocket.java,v 1.4 2002/07/10 04:25:58 dustin Exp $
+ * $Id: TimedSocket.java,v 1.5 2002/07/10 05:41:50 dustin Exp $
  */
 
 package net.spy.net;
@@ -92,7 +92,7 @@ public abstract class TimedSocket extends Object {
 	// within another thread, to prevent blocking.
 	static class SocketThread extends Thread {
 		// Socket connection to remote host
-		volatile private Socket conn=null;
+		private volatile Socket conn=null;
 		// Internet Address to connect to
 		private InetAddress addr=null;
 		// Port number to connect to

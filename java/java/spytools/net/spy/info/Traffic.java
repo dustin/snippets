@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Traffic.java,v 1.6 2002/07/10 04:25:38 dustin Exp $
+// $Id: Traffic.java,v 1.7 2002/07/10 05:41:29 dustin Exp $
 
 package net.spy.info;
 
@@ -19,11 +19,11 @@ public class Traffic extends Info {
 	/**
 	 * Get an Traffic object.
 	 *
-	 * @param geo_loc The Yahoo geographical location string.
+	 * @param geoLoc The Yahoo geographical location string.
 	 */
-	public Traffic(String geo_loc) {
+	public Traffic(String geoLoc) {
 		super();
-		this.arg = geo_loc;
+		this.arg = geoLoc;
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class Traffic extends Info {
 		getInfo();
 		String lines[]=SpyUtil.split("\n", info);
 		int section=0;
-		String local_info = "";
+		String localInfo = "";
 		for(int i=0; i<lines.length; i++) {
 			if(lines[i].startsWith("Sponsored By")) {
 				i++;
@@ -67,16 +67,16 @@ public class Traffic extends Info {
 			// at the data.
 			if(section==1) {
 				System.out.println("Adding:  " + lines[i]);
-				local_info+=lines[i] + "\r\n";
+				localInfo+=lines[i] + "\r\n";
 			}
 		}
 		if(error) {
-			String error_string="Unable to get Traffic info.  "
+			String errorString="Unable to get Traffic info.  "
 				+ "Invalid geo loc?";
-			hinfo.put("ERROR", error_string);
+			hinfo.put("ERROR", errorString);
 		} else {
-			local_info=local_info.trim();
-			hinfo.put("info", local_info);
+			localInfo=localInfo.trim();
+			hinfo.put("info", localInfo);
 		}
 	}
 

@@ -1,11 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MCastListener.java,v 1.3 2002/07/10 04:25:43 dustin Exp $
+// $Id: MCastListener.java,v 1.4 2002/07/10 05:41:35 dustin Exp $
 
 package net.spy.log;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 

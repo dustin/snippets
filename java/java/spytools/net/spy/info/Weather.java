@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.11 2002/07/10 04:25:41 dustin Exp $
+// $Id: Weather.java,v 1.12 2002/07/10 05:41:32 dustin Exp $
 
 package net.spy.info;
 
@@ -23,11 +23,11 @@ public class Weather extends Info {
 	/**
 	 * Get a Weather object.
 	 *
-	 * @param zip_code zip code to look up weather for.
+	 * @param zipCode zip code to look up weather for.
 	 */
-	public Weather(String zip_code) {
+	public Weather(String zipCode) {
 		super();
-		this.arg = zip_code;
+		this.arg = zipCode;
 	}
 
 	/**
@@ -94,11 +94,12 @@ public class Weather extends Info {
 					city=city.substring(sds+3, city.length());
 					shortWeather+=city + "\r\n";
 					hinfo.put("city", city);
-				} // Section zero
-				// Section two is the first information section...we're
-				// going to parse it into the hinfo hash, odd lines are
-				// keys, even lines are values
-				else if(section==2) {
+				} else if(section==2) {
+					// Section zero
+					// Section two is the first information section...we're
+					// going to parse it into the hinfo hash, odd lines are
+					// keys, even lines are values
+
 					int colon=lines[i].indexOf(":");
 					// Key is the stuff before the colon
 					String key=lines[i].substring(0, colon);
@@ -109,8 +110,8 @@ public class Weather extends Info {
 					hinfo.put(key, value);
 
 					shortWeather+=key + ": " + value + "\r\n";
-				} // Section two
-				else if(section==3) {
+					// end of section two
+				} else if(section==3) {
 					String day=lines[i]; i++;
 					String status=lines[i]; i++;
 					String hi=stripDeg(lines[i]); i++;
@@ -120,8 +121,7 @@ public class Weather extends Info {
 					if(day.equals("TODAY")) {
 						shortWeather+="Today:  " + status + " - "
 							+ hi + ", " + lo;
-						hinfo.put("FORECAST", status + " - " + hi + ", " +
-							lo);
+						hinfo.put("FORECAST", status + " - " + hi + ", " + lo);
 					}
 
 					// This will loop through every element in the
@@ -133,10 +133,10 @@ public class Weather extends Info {
 				}
 			} // For loop through lines
 			if(section==0) {
-				String error_string="Unable to get weather.  "
+				String errorString="Unable to get weather.  "
 					+ "Invalid zip code?";
-				hinfo.put("ERROR", error_string);
-				shortWeather=error_string;
+				hinfo.put("ERROR", errorString);
+				shortWeather=errorString;
 			} else {
 				error=false;
 			}

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.34 2002/07/10 04:26:09 dustin Exp $
+// $Id: PoolContainer.java,v 1.35 2002/07/10 05:42:04 dustin Exp $
 
 package net.spy.pool;
 
@@ -7,8 +7,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import net.spy.SpyConfig;
-
-import net.spy.util.Debug;
 
 /**
  * PoolContainer is the storage for a given pool.
@@ -18,15 +16,15 @@ public class PoolContainer extends Object {
 	private SpyConfig conf=null;
 	private String name=null;
 	private PoolFiller filler=null;
-	private int _min_objects=-1;
-	private int _init_objects=-1;
-	private int _max_objects=-1;
+	private int minObjects=-1;
+	private int initObjects=-1;
+	private int maxObjects=-1;
 
 	// The percentage at which we start making people wait before giving
 	// them new connections.
-	private int _yellow_line=-1;
+	private int yellowLine=-1;
 
-	private static int _object_id=0;
+	private static int objectId=0;
 
 	private PoolDebug pooldebug=null;
 
@@ -127,7 +125,7 @@ public class PoolContainer extends Object {
 
 				// If we didn't get anything, and we're not at least
 				// to our yellow line, open a new connection
-				if(poolable==null && totalObjects()<_yellow_line) {
+				if(poolable==null && totalObjects()<yellowLine) {
 					poolable=getNewObject();
 				}
 
@@ -264,7 +262,7 @@ public class PoolContainer extends Object {
 			}
 
 			// If we don't have enough objects, go get more!  They're cheap!
-			if(totalObjects()<_min_objects) {
+			if(totalObjects()<minObjects) {
 				getMinObjects();
 			}
 		} // pool lock
@@ -274,20 +272,20 @@ public class PoolContainer extends Object {
 		pool=new Vector();
 
 		// Get the min and max args.
-		_min_objects=getPropertyInt("min", 0);
-		_init_objects=getPropertyInt("start", _min_objects);
-		_max_objects=getPropertyInt("max", 5);
+		minObjects=getPropertyInt("min", 0);
+		initObjects=getPropertyInt("start", minObjects);
+		maxObjects=getPropertyInt("max", 5);
 		// The yellow line is the number of connections before we start to
 		// slow it down...
-		_yellow_line=(int)((float)_max_objects*
-			(float)getPropertyInt("yellow_line", 75)/100.0);
+		yellowLine=(int)((float)maxObjects
+			* (float)getPropertyInt("yellow_line", 75)/100.0);
 
 		// Set the hashcode of this pool for consistent debug output.
 		filler.setPoolHash(hashCode());
 
-		debug("Pool " + debugName() + " wants a min of " + _min_objects
-			+ " and a max of " + _max_objects
-			+ " with a yellow line at " + _yellow_line);
+		debug("Pool " + debugName() + " wants a min of " + minObjects
+			+ " and a max of " + maxObjects
+			+ " with a yellow line at " + yellowLine);
 
 		try {
 			getStartObjects();
@@ -304,16 +302,16 @@ public class PoolContainer extends Object {
 
 	// Populate with the minimum number of objects.
 	private void getMinObjects() throws PoolException{
-		debug("Pool " + name + " wants at least " + _min_objects +" objects.");
-		for(int i=totalObjects(); i<_min_objects; i++) {
+		debug("Pool " + name + " wants at least " + minObjects +" objects.");
+		for(int i=totalObjects(); i<minObjects; i++) {
 			getNewObject();
 		}
 	}
 
 	// Populate with the number of objects we need at start.
 	private void getStartObjects() throws PoolException{
-		debug("Pool " + name + " starting with " + _init_objects +" objects.");
-		for(int i=totalObjects(); i<_init_objects; i++) {
+		debug("Pool " + name + " starting with " + initObjects +" objects.");
+		for(int i=totalObjects(); i<initObjects; i++) {
 			getNewObject();
 		}
 	}
@@ -325,15 +323,15 @@ public class PoolContainer extends Object {
 
 		// First, if we're at capacity, do a prune and see if we can shrink
 		// it down a bit.
-		if(totalObjects()>=_max_objects) {
+		if(totalObjects()>=maxObjects) {
 			prune();
 		}
 
 		// Don't add an object if we're at capacity.
-		if(totalObjects()<_max_objects) {
+		if(totalObjects()<maxObjects) {
 			debug("*** Getting a new object in the "
 				+ name + " pool, currently have " + totalObjects()
-				+ "/" + _max_objects + ". ***");
+				+ "/" + maxObjects + ". ***");
 			p=filler.getObject();
 			p.setObjectID(nextId());
 			p.setPoolName(name);
@@ -359,11 +357,11 @@ public class PoolContainer extends Object {
 		// Default to whatever's in the config
 		long rv=(long)getPropertyInt("max_age", 0);
 		synchronized(pool) {
-			int pool_size=totalObjects();
+			int poolSize=totalObjects();
 			// Only create a new maxAge if we're above our minimum threshold
-			if(pool_size>_min_objects) {
-				float percent_full=(float)pool_size/(float)_max_objects;
-				float factor=1-percent_full;
+			if(poolSize>minObjects) {
+				float percentFull=(float)poolSize/(float)maxObjects;
+				float factor=1-percentFull;
 				rv=(long)((double)rv*factor);
 				// All connections should be available for at least 5 seconds
 				if(rv<5000) {
@@ -399,8 +397,8 @@ public class PoolContainer extends Object {
 	}
 
 	private static synchronized int nextId() {
-		_object_id++;
-		return(_object_id);
+		objectId++;
+		return(objectId);
 	}
 
 	private void debug(String msg) {

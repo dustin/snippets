@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.10 2002/07/10 04:24:39 dustin Exp $
+// $Id: SpyRunner.java,v 1.11 2002/07/10 05:41:07 dustin Exp $
 
 package net.spy;
 
@@ -33,11 +33,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 
 public class SpyRunner extends Thread {
-	Class tclass=null;
-	String args[]=null;
-	String classname=null;
+	private Class tclass=null;
+	private String args[]=null;
+	private String classname=null;
 
-	static SpyConfig conf=null;
+	private static SpyConfig conf=null;
 
 	public SpyRunner(ThreadGroup tg, String object, String args[]) {
 		super(tg, "main");

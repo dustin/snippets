@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapEntry.java,v 1.3 2002/07/10 04:26:00 dustin Exp $
+// $Id: NmapEntry.java,v 1.4 2002/07/10 05:41:52 dustin Exp $
 
 package net.spy.nmap;
 
@@ -17,7 +17,7 @@ public class NmapEntry extends Object {
 	private Hashtable sections=null;
 
 	// The port entries, by port
-	private Hashtable _ports=null;
+	private Hashtable ports=null;
 
 	/**
 	 * Construct an NmapEntry object from a line in an nmap machine
@@ -59,7 +59,7 @@ public class NmapEntry extends Object {
 	 */
 	public Enumeration ports() {
 		parsePorts();
-		return(_ports.elements());
+		return(ports.elements());
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class NmapEntry extends Object {
 	public NmapPort port(int p) {
 		parsePorts();
 		Integer n=new Integer(p);
-		return((NmapPort)_ports.get(n));
+		return((NmapPort)ports.get(n));
 	}
 
 	public String toString() {
@@ -93,30 +93,31 @@ public class NmapEntry extends Object {
 	// Parse the ports out of the section hash
 	private void parsePorts() {
 		// Bypass if it's already been called.
-		if(_ports!=null) {
+		if(ports!=null) {
 			return;
 		}
 
-		_ports=new Hashtable();
+		ports=new Hashtable();
 		try {
 			String tmp=(String)sections.get("Ports");
 			String a[]=SpyUtil.split(", ", tmp);
 			for(int i=0; i<a.length; i++) {
 				NmapPort p = new NmapPort(SpyUtil.split("/", a[i]));
 				Integer pn=new Integer(p.port());
-				_ports.put(pn, p);
+				ports.put(pn, p);
 			}
 		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	// parse the passed in line.
 	private void parse() {
 		// Split into the tabed out shite.
-		String sections_str[]=SpyUtil.split("\t", inputLine);
-		for(int i=0; i<sections_str.length; i++) {
+		String sectionsStr[]=SpyUtil.split("\t", inputLine);
+		for(int i=0; i<sectionsStr.length; i++) {
 			// Split into name:value
-			String pair[]=SpyUtil.split(":", sections_str[i]);
+			String pair[]=SpyUtil.split(":", sectionsStr[i]);
 
 			// Store the section, starting one character away.
 			sections.put(pair[0], pair[1].substring(1));

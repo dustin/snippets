@@ -1,17 +1,14 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.7 2002/07/10 04:26:38 dustin Exp $
+// $Id: QuickRun.java,v 1.8 2002/07/10 05:42:20 dustin Exp $
 
 package net.spy.util;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,7 +18,6 @@ import net.spy.SpyUtil;
 /**
  * Listens on a socket and lets you run stuff without firing up a new JVM.
  */
-
 public class QuickRun extends Thread {
 
 	// Server stuff
@@ -63,9 +59,21 @@ public class QuickRun extends Thread {
 			System.err.println("QuickRun exception:  " +e);
 			e.printStackTrace();
 		} finally {
-			try { ostream.close(); } catch(Exception e) {}
-			try { out.close(); } catch(Exception e) {}
-			try { in.close(); } catch(Exception e) {}
+			try {
+				ostream.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			try {
+				out.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			try {
+				in.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -104,6 +112,9 @@ public class QuickRun extends Thread {
 		SpyUtil.runClass(cn, cargs);
 	}
 
+	/**
+	 * Start up the server.
+	 */
 	public void goServer() throws Exception {
 		server=new ServerSocket(port);
 		System.err.println("QuickRun server listening on port " + port);
@@ -116,6 +127,9 @@ public class QuickRun extends Thread {
 		}
 	}
 
+	/**
+	 * Testing.
+	 */
 	public static void main(String args[]) throws Exception {
 		QuickRun qr=new QuickRun(Integer.parseInt(args[0]));
 		qr.goServer();

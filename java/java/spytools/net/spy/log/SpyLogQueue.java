@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyLogQueue.java,v 1.9 2002/07/10 04:25:51 dustin Exp $
+ * $Id: SpyLogQueue.java,v 1.10 2002/07/10 05:41:44 dustin Exp $
  */
 
 package net.spy.log;
@@ -15,36 +15,36 @@ import java.util.Vector;
  */
 public class SpyLogQueue extends Object {
 	private static Hashtable queues=null;
-	private static String queue_mutex="Log Mutex";
-	private String queue_name=null;
+	private static String queueMutex="Log Mutex";
+	private String queueName=null;
 
 	/**
 	 * Get a new SpyLogQueue with the given name.
 	 */
 	public SpyLogQueue(String name) {
 		super();
-		this.queue_name=name;
+		this.queueName=name;
 		init();
 	}
 
 	private void init() {
-		synchronized(queue_mutex) {
+		synchronized(queueMutex) {
 			if(queues==null) {
 				queues=new Hashtable();
 			}
 
-			Vector v=(Vector)queues.get(queue_name);
+			Vector v=(Vector)queues.get(queueName);
 			if(v==null) {
 				v=new Vector();
-				queues.put(queue_name, v);
+				queues.put(queueName, v);
 			}
 		}
 	}
 
 	private Vector getQueue() {
 		Vector v=null;
-		synchronized(queue_mutex) {
-			v=(Vector)queues.get(queue_name);
+		synchronized(queueMutex) {
+			v=(Vector)queues.get(queueName);
 		}
 		return(v);
 	}
@@ -55,13 +55,13 @@ public class SpyLogQueue extends Object {
 	 * @param e item to be added
 	 */
 	public void addToQueue(SpyLogEntry e) {
-		synchronized(queue_mutex) {
+		synchronized(queueMutex) {
 			Vector v=getQueue();
 			synchronized(v) {
 				v.addElement(e);
 				v.notify();
 			}
-			queue_mutex.notify();
+			queueMutex.notify();
 		}
 	}
 
@@ -74,8 +74,8 @@ public class SpyLogQueue extends Object {
 		if(size()<=0) {
 			// Only do this if we don't already think we have data
 			try {
-				synchronized(queue_mutex) {
-					queue_mutex.wait(ms);
+				synchronized(queueMutex) {
+					queueMutex.wait(ms);
 				}
 			} catch(InterruptedException e) {
 				// If we are going to return too early, pause just a sec
@@ -97,9 +97,9 @@ public class SpyLogQueue extends Object {
 	 */
 	public int size() {
 		int size=-1;
-		synchronized(queue_mutex) {
-			Vector log_buffer=getQueue();
-			size=log_buffer.size();
+		synchronized(queueMutex) {
+			Vector logBuffer=getQueue();
+			size=logBuffer.size();
 		}
 		return(size);
 	}
@@ -110,11 +110,11 @@ public class SpyLogQueue extends Object {
 	 */
 	public Vector flush() {
 		Vector ret=null;
-		synchronized(queue_mutex) {
-			Vector log_buffer=getQueue();
-			ret=log_buffer;          // Copy the old vector's reference.
-			log_buffer=new Vector(); // Create a new one.
-			queues.put(queue_name, log_buffer);
+		synchronized(queueMutex) {
+			Vector logBuffer=getQueue();
+			ret=logBuffer;          // Copy the old vector's reference.
+			logBuffer=new Vector(); // Create a new one.
+			queues.put(queueName, logBuffer);
 		}
 		return(ret);
 	}

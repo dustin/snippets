@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: Syslog.java,v 1.3 2002/07/10 04:24:43 dustin Exp $
+// $Id: Syslog.java,v 1.4 2002/07/10 05:41:09 dustin Exp $
 
 package net.spy;
 
@@ -12,47 +12,53 @@ import java.net.UnknownHostException;
 /**
  * Send a message via syslog.
  */
-
 public class Syslog extends Object {
-	final static int EMERG=0;
-	final static int ALERT=1;
-	final static int CRIT=2;
-	final static int ERR=3;
-	final static int WARNING=4;
-	final static int NOTICE=5;
-	final static int INFO=6;
-	final static int DEBUG=7;
 
-	final static int KERN = 0;
-	final static int USER = 8;
-	final static int MAIL = 16;
-	final static int DAEMON = 24;
-	final static int AUTH = 32;
-	final static int SYSLOG = 40;
-	final static int LPR = 48;
-	final static int NEWS = 56;
-	final static int UUCP = 64;
-	final static int CRON = 72;
-	final static int AUTHPRIV = 80;
-	final static int FTP = 88;
-	final static int LOCAL0 = 128;
-	final static int LOCAL1 = 136;
-	final static int LOCAL2 = 144;
-	final static int LOCAL3 = 152;
-	final static int LOCAL4 = 160;
-	final static int LOCAL5 = 168;
-	final static int LOCAL6 = 176;
-	final static int LOCAL7 = 184;
+	public static final int EMERG=0;
+	public static final int ALERT=1;
+	public static final int CRIT=2;
+	public static final int ERR=3;
+	public static final int WARNING=4;
+	public static final int NOTICE=5;
+	public static final int INFO=6;
+	public static final int DEBUG=7;
 
-	String loghost=null;
-	InetAddress addr=null;
+	public static final int KERN = 0;
+	public static final int USER = 8;
+	public static final int MAIL = 16;
+	public static final int DAEMON = 24;
+	public static final int AUTH = 32;
+	public static final int SYSLOG = 40;
+	public static final int LPR = 48;
+	public static final int NEWS = 56;
+	public static final int UUCP = 64;
+	public static final int CRON = 72;
+	public static final int AUTHPRIV = 80;
+	public static final int FTP = 88;
+	public static final int LOCAL0 = 128;
+	public static final int LOCAL1 = 136;
+	public static final int LOCAL2 = 144;
+	public static final int LOCAL3 = 152;
+	public static final int LOCAL4 = 160;
+	public static final int LOCAL5 = 168;
+	public static final int LOCAL6 = 176;
+	public static final int LOCAL7 = 184;
 
+	private String loghost=null;
+	private InetAddress addr=null;
+
+	/**
+	 * Log to a particular log host.
+	 */
 	public Syslog(String loghost) throws UnknownHostException {
 		super();
 		this.loghost=loghost;
 		addr=InetAddress.getByName(loghost);
 	}
 
+	/**
+	 * Send a log message.
+	 */
 	public void log(int facility, int level, String msg) {
 		int fl=facility | level;
 
@@ -70,8 +76,11 @@ public class Syslog extends Object {
 		}
 	}
 
+	/**
+	 * Testing.
+	 */
 	public static void main(String args[]) throws Exception {
-		Syslog l = new Syslog("keyhole");
+		Syslog l = new Syslog("butterfly");
 
 		l.log(AUTH, NOTICE, args[0]);
 	}

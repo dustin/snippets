@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.24 2002/07/10 04:26:06 dustin Exp $
+// $Id: ObjectPool.java,v 1.25 2002/07/10 05:42:00 dustin Exp $
 
 package net.spy.pool;
 
@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import net.spy.SpyConfig;
 
-import net.spy.util.Debug;
 import net.spy.util.TimeStampedHash;
 
 /**
@@ -40,11 +39,9 @@ public class ObjectPool extends Object {
 	private SpyConfig conf=null;
 	// This is static so we can check up on it.
 	private static ObjectPoolCleaner cleaner=null;
-	private static String CLEANER_MUTEX="CLEANER_MUTEX";
 	// This is static because we want everyone to see the same pools, of
 	// course.
 	private static TimeStampedHash pools=null;
-	private static String POOL_MUTEX="POOL_MUTEX";
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -197,7 +194,7 @@ public class ObjectPool extends Object {
 
 	private void initialize() {
 		// Do we have a pool?
-		synchronized(POOL_MUTEX) {
+		synchronized(ObjectPool.class) {
 			if(pools==null) {
 				pools=new TimeStampedHash();
 			}
@@ -208,7 +205,7 @@ public class ObjectPool extends Object {
 
 	// Make sure the cleaner is doing its job.
 	private void checkCleaner() {
-		synchronized(CLEANER_MUTEX) {
+		synchronized(ObjectPool.class) {
 			if(cleaner==null || (!cleaner.isAlive())) {
 				cleaner=new ObjectPoolCleaner(this);
 			}

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.8 2002/07/10 04:26:23 dustin Exp $
+// $Id: Base64.java,v 1.9 2002/07/10 05:42:14 dustin Exp $
 
 package net.spy.util;
 
@@ -13,7 +13,7 @@ import java.io.FileOutputStream;
  */
 public class Base64 extends Object {
 
-	private static final char charmap[]={
+	private static final char CHARMAP[]={
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
 		'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -41,27 +41,27 @@ public class Base64 extends Object {
 			int a, b, c, tmpa, tmpb;
 
 			a=((int)data[i] & 0xff);
-			sb.append(charmap[(a>>2)]);
+			sb.append(CHARMAP[(a>>2)]);
 			tmpa=((a&0x03)<<4);
 
 			// If there's another byte, grab it and process it
 			if(data.length > i+1) {
 				b=((int)data[i+1] & 0xff);
 				tmpb=(b>>4);
-				sb.append(charmap[(tmpa|tmpb)]);
+				sb.append(CHARMAP[(tmpa|tmpb)]);
 				tmpa=((b&0x0f)<<2);
 				if(data.length>i+2) {
 					c=((int)data[i+2] & 0xff);
 					tmpb=((c&0xc0)>>6);
-					sb.append(charmap[(tmpa|tmpb)]);
-					sb.append(charmap[(c&0x3f)]);
+					sb.append(CHARMAP[(tmpa|tmpb)]);
+					sb.append(CHARMAP[(c&0x3f)]);
 				} else {
-					sb.append(charmap[tmpa]);
+					sb.append(CHARMAP[tmpa]);
 					sb.append('=');
 				}
 			} else {
 				// Only one byte in this block.
-				sb.append(charmap[tmpa]);
+				sb.append(CHARMAP[tmpa]);
 				sb.append('=');
 				sb.append('=');
 			}
@@ -150,8 +150,8 @@ public class Base64 extends Object {
 	private int mapIndex(char c) {
 		int rv=-1;
 
-		for(int i=0; i<charmap.length && rv==-1; i++) {
-			if(charmap[i]==c) {
+		for(int i=0; i<CHARMAP.length && rv==-1; i++) {
+			if(CHARMAP[i]==c) {
 				rv=i;
 			}
 		}
@@ -159,6 +159,9 @@ public class Base64 extends Object {
 		return(rv);
 	}
 
+	/**
+	 * Testing.
+	 */
 	public static void main(String args[]) throws Exception {
 		File f=new File(args[0]);
 		System.out.println("Working on " + f + " (" + f.length() + " bytes).");

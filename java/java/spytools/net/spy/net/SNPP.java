@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.17 2002/07/10 04:25:57 dustin Exp $
+// $Id: SNPP.java,v 1.18 2002/07/10 05:41:48 dustin Exp $
 
 package net.spy.net;
 
@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -31,8 +30,8 @@ public class SNPP extends Object {
 	private PrintWriter prout=null;
 
 	// 2way support
-	private boolean goes_both_ways=false;
-	private String msg_tag=null;
+	private boolean goesBothWays=false;
+	private String msgTag=null;
 
 	/**
 	 * Current full line received from the SNPP server.
@@ -104,7 +103,7 @@ public class SNPP extends Object {
 	 */
 	public void twoWay() throws Exception {
 		cmd("2way");
-		goes_both_ways=true;
+		goesBothWays=true;
 	}
 
 	/**
@@ -159,7 +158,7 @@ public class SNPP extends Object {
 	 * @return the tag, or null if there is no tag
 	 */
 	public String getTag() {
-		return(msg_tag);
+		return(msgTag);
 	}
 
 	/**
@@ -174,7 +173,7 @@ public class SNPP extends Object {
 	public void sendpage(String id, String msg) throws Exception {
 		// Reset so this thing can be called more than once.
 		cmd("rese");
-		if(goes_both_ways) {
+		if(goesBothWays) {
 			twoWay();
 		}
 		pagerID(id);
@@ -184,6 +183,8 @@ public class SNPP extends Object {
 		try {
 			cmd("priority high");
 		} catch(Exception e) {
+			// This is a nonstandard command and is likely to throw an
+			// exception.
 		}
 		send();
 	}
@@ -195,11 +196,11 @@ public class SNPP extends Object {
 	 */
 	public void send() throws Exception {
 		cmd("send");
-		if(goes_both_ways) {
+		if(goesBothWays) {
 			// If it looks 2way, we get the stuff
 			if(currentstatus >= 860) {
 				String a[]=SpyUtil.split(" ", currentmessage);
-				msg_tag=a[0] + " " + a[1];
+				msgTag=a[0] + " " + a[1];
 			}
 		}
 	}
@@ -207,7 +208,7 @@ public class SNPP extends Object {
 	/**
 	 * Check for a response from a 2way message.
 	 *
-	 * @param msg_tag the message tag to look up.
+	 * @param msgTag the message tag to look up.
 	 *
 	 * @return the response message, or NULL if it's not ready
 	 *
@@ -216,7 +217,7 @@ public class SNPP extends Object {
 	 */
 	public String getResponse(String tag) throws Exception {
 		String ret=null;
-		if(goes_both_ways) {
+		if(goesBothWays) {
 			cmd("msta " + tag);
 			if(currentstatus == 889) {
 				String tmp=new String(currentmessage);
@@ -240,11 +241,11 @@ public class SNPP extends Object {
 	 * 2way.
 	 */
 	public String getResponse() throws Exception {
-		if(msg_tag == null) {
+		if(msgTag == null) {
 			throw new Exception("No msg tag received, have you done a "
 				+ "2way page yet?");
 		}
-		return(getResponse(msg_tag));
+		return(getResponse(msgTag));
 	}
 
 	/**
@@ -256,7 +257,7 @@ public class SNPP extends Object {
 	 * command fails.
 	 */
 	public void addResponse(String response) throws Exception {
-		if(!goes_both_ways) {
+		if(!goesBothWays) {
 			throw new Exception("I don't go both ways.");
 		}
 		cmd("mcre " + response);
@@ -316,7 +317,7 @@ public class SNPP extends Object {
 			}
 		}
 		// Specific stuff for two-way
-		if(goes_both_ways && r == false) {
+		if(goesBothWays && r == false) {
 			if(currentstatus < 890 && currentstatus >= 860) {
 				// delivered, processing or final
 				r=true;

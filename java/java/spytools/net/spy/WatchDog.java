@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: WatchDog.java,v 1.3 2002/07/10 04:24:45 dustin Exp $
+// $Id: WatchDog.java,v 1.4 2002/07/10 05:41:11 dustin Exp $
 
 package net.spy;
 
@@ -13,7 +13,7 @@ package net.spy;
  */
 
 public class WatchDog extends Thread {
-	long lifetime=0;
+	private long lifetime=0;
 
 	/**
 	 * Constructs a WatchDog timer that will last for the given number of

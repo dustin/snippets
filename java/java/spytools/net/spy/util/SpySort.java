@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpySort.java,v 1.3 2002/07/10 04:26:52 dustin Exp $
+// $Id: SpySort.java,v 1.4 2002/07/10 05:42:26 dustin Exp $
 
 package net.spy.util;
 
@@ -30,8 +30,12 @@ public class SpySort extends Object {
 			j=r;
 
 			do {
-				while( (compare.compare(a[++i], v) < 0) && i < r);
-				while( (compare.compare(a[--j], v) > 0) && j > 0);
+				while( (compare.compare(a[++i], v) < 0) && i < r) {
+					// Nothing
+				}
+				while( (compare.compare(a[--j], v) > 0) && j > 0) {
+					// Nothing
+				}
 
 				t = a[i];
 				a[i] = a[j];

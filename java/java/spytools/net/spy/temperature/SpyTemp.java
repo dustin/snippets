@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Spy Internetworking
 //
-// $Id: SpyTemp.java,v 1.6 2002/07/10 04:26:21 dustin Exp $
+// $Id: SpyTemp.java,v 1.7 2002/07/10 05:42:12 dustin Exp $
 
 package net.spy.temperature;
 
@@ -17,7 +17,7 @@ public class SpyTemp extends Object {
 	private static final String DEFAULT_TEMP_BASE=
 		"http://bleu.west.spy.net/servlet/Temperature";
 
-	private String temp_base=null;
+	private String tempBase=null;
 
 	/**
 	 * Get a SpyTemp object reading from the default temperature base.
@@ -34,7 +34,7 @@ public class SpyTemp extends Object {
 	 */
 	public SpyTemp(String tempBase) {
 		super();
-		this.temp_base=tempBase;
+		this.tempBase=tempBase;
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class SpyTemp extends Object {
 	public String[] listTherms() throws Exception {
 		String ret[]=null;
 		try {
-			HTTPFetch f = new HTTPFetch(temp_base);
+			HTTPFetch f = new HTTPFetch(tempBase);
 			Vector v=f.getLines();
 			ret=new String[v.size()];
 			for(int i=0; i<v.size(); i++) {
@@ -67,7 +67,7 @@ public class SpyTemp extends Object {
 	 * @exception Exception if there's a problem getting the reading.
 	 */
 	public double getTemp(String which) throws Exception {
-		String tmpurl= temp_base + "?temp=" + which;
+		String tmpurl= tempBase + "?temp=" + which;
 		String s=null;
 		double t;
 

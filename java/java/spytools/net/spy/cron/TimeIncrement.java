@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeIncrement.java,v 1.3 2002/07/10 04:25:12 dustin Exp $
+// $Id: TimeIncrement.java,v 1.4 2002/07/10 05:41:16 dustin Exp $
 
 package net.spy.cron;
 
@@ -12,8 +12,8 @@ import java.util.Date;
  */
 public class TimeIncrement extends Object {
 
-	private int field_increment=0;
-	private int inc_amount=0;
+	private int fieldIncrement=0;
+	private int incAmount=0;
 	private Calendar calendar=null;
 
 	/**
@@ -35,14 +35,14 @@ public class TimeIncrement extends Object {
 	 * Set Calendar field to increment.
 	 */
 	public void setField(int to) {
-		field_increment=to;
+		fieldIncrement=to;
 	}
 
 	/**
 	 * Set the increment amount.
 	 */
 	public void setIncrement(int to) {
-		inc_amount=to;
+		incAmount=to;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class TimeIncrement extends Object {
 		long now=System.currentTimeMillis();
 		while(rv.getTime()<now) {
 			calendar.setTime(rv);
-			calendar.add(field_increment, inc_amount);
+			calendar.add(fieldIncrement, incAmount);
 			rv=calendar.getTime();
 		}
 

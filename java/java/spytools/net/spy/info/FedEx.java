@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.8 2002/07/10 04:25:29 dustin Exp $
+// $Id: FedEx.java,v 1.9 2002/07/10 05:41:25 dustin Exp $
 
 package net.spy.info;
 
@@ -19,11 +19,11 @@ public class FedEx extends PackageInfo {
 	/**
 	 * Get an FedEx object.
 	 *
-	 * @param airbill_number the item number to look up
+	 * @param airbillNumber the item number to look up
 	 */
-	public FedEx(String airbill_number) {
+	public FedEx(String airbillNumber) {
 		super();
-		this.arg = airbill_number;
+		this.arg = airbillNumber;
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class FedEx extends PackageInfo {
 			}
 			// Let's see if we got a delivered status
 			if(ret.indexOf("Delivered")>=0) {
-				delivered=true;
+				setDelivered();
 			}
 		} catch(Exception e) {
 			// Who cares.
@@ -94,18 +94,18 @@ public class FedEx extends PackageInfo {
 		}
 		// If there's a delivery date and time, it's been delivered
 		if(hinfo.get("Delivery Date/Time")!=null) {
-			delivered=true;
+			setDelivered();
 		}
 		if(error) {
-			String error_string="Unable to get FedEx info.  "
+			String errorString="Unable to get FedEx info.  "
 				+ "Invalid tracking number?";
-			hinfo.put("ERROR", error_string);
+			hinfo.put("ERROR", errorString);
 		} else {
 			// Make a toStringable version
 			StringBuffer sb=new StringBuffer();
 			sb.append("Tracking ");
 			sb.append(hinfo.get("Tracking Number"));
-			if(delivered) {
+			if(isDelivered()) {
 				sb.append(" - delivered.");
 			} else {
 				if(hinfo.get("Est. Delivery Date")!=null) {

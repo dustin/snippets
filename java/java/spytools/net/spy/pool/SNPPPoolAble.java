@@ -1,5 +1,5 @@
 //
-// $Id: SNPPPoolAble.java,v 1.5 2002/07/10 04:26:15 dustin Exp $
+// $Id: SNPPPoolAble.java,v 1.6 2002/07/10 05:42:06 dustin Exp $
 
 package net.spy.pool;
 
@@ -8,17 +8,25 @@ import net.spy.net.SNPP;
 /**
  * PoolAble object for containing a SNPP object.
  */
-
 public class SNPPPoolAble extends PoolAble {
 
-	public SNPPPoolAble(Object the_object, int poolHash) {
-		super(the_object, poolHash);
+	/**
+	 * Get an instance of SNPPPoolAble.
+	 */
+	public SNPPPoolAble(Object theObject, int poolHash) {
+		super(theObject, poolHash);
 	}
 
-	public SNPPPoolAble(Object the_object, long max_age, int poolHash) {
-		super(the_object, max_age, poolHash);
+	/**
+	 * Get an instance of SNPPPoolAble.
+	 */
+	public SNPPPoolAble(Object theObject, long maxAge, int poolHash) {
+		super(theObject, maxAge, poolHash);
 	}
 
+	/**
+	 * @see PoolAble
+	 */
 	public void discard() {
 		try {
 			SNPP snpp=(SNPP)intGetObject();
@@ -48,7 +56,7 @@ public class SNPPPoolAble extends PoolAble {
 			}
 		} catch(Exception e) {
 			// Turn off availability
-			available=false;
+			setUnavailable();
 		}
 		return(ret);
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolFiller.java,v 1.8 2002/07/10 04:26:05 dustin Exp $
+// $Id: JDBCPoolFiller.java,v 1.9 2002/07/10 05:41:59 dustin Exp $
 
 package net.spy.pool;
 
@@ -34,7 +34,7 @@ public class JDBCPoolFiller extends PoolFiller {
 	 *
 	 * The following config entries are optional:
 	 * <ul>
-	 *  <li>max_age - The maximum amount of time (in milliseconds) that the
+	 *  <li>maxAge - The maximum amount of time (in milliseconds) that the
 	 *      connection can live.  Default is forever</li>
 	 *  <li>dboptions.* - Any JDBC driver specific options you want to
 	 *      pass.</li>
@@ -68,12 +68,12 @@ public class JDBCPoolFiller extends PoolFiller {
 			setDBOptions(sysprop, prop, "dboption.");
 			setDBOptions(getConfig(), prop, getName()+".dboption.");
 
-			long max_age=(long)getPropertyInt("max_age", 0);
+			long maxAge=(long)getPropertyInt("max_age", 0);
 
 			// Grab a connection.
 			Connection db = DriverManager.getConnection(source, prop);
 			// Create the PoolAble object
-			p=new JDBCPoolAble(db, max_age, getPoolHash());
+			p=new JDBCPoolAble(db, maxAge, getPoolHash());
 		} catch(Exception e) {
 			throw new PoolException(
 				"Error getting new DB object for the "

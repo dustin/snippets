@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MessageOutputStream.java,v 1.2 2002/07/10 04:25:46 dustin Exp $
+// $Id: MessageOutputStream.java,v 1.3 2002/07/10 05:41:39 dustin Exp $
 
 package net.spy.log;
 
@@ -39,13 +39,13 @@ public class MessageOutputStream extends OutputStream {
 	 */
 	public void write(byte b[], int offset, int length) throws IOException {
 		// Make a string and get rid of the extra space at the ends.
-		// String msg_s=new String(b, offset, length).trim();
+		// String msgS=new String(b, offset, length).trim();
 		while(length>=offset && ( b[length]=='\r' || b[length]=='\n')) {
 			length--;
 		}
-		String msg_s=new String(b, offset, length);
-		if(msg_s.trim().length() > 0 ) {
-			SpyMessage msg=new SpyMessage(msg_s);
+		String msgS=new String(b, offset, length);
+		if(msgS.trim().length() > 0 ) {
+			SpyMessage msg=new SpyMessage(msgS);
 			mcl.sendMessage(msg);
 		}
 	}

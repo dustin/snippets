@@ -1,12 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyMessage.java,v 1.2 2002/07/10 04:25:53 dustin Exp $
+// $Id: SpyMessage.java,v 1.3 2002/07/10 05:41:45 dustin Exp $
 
 package net.spy.log;
 
 import java.io.Serializable;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;

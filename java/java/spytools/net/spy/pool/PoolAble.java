@@ -1,11 +1,9 @@
 //
-// $Id: PoolAble.java,v 1.22 2002/07/10 04:26:08 dustin Exp $
+// $Id: PoolAble.java,v 1.23 2002/07/10 05:42:02 dustin Exp $
 
 package net.spy.pool;
 
 import java.util.Date;
-
-import net.spy.util.Debug;
 
 /**
  * PoolAble is the object container that is used to store objects in the
@@ -18,12 +16,12 @@ import net.spy.util.Debug;
  */
 
 public abstract class PoolAble extends Object {
-	private int object_id=-1;
-	private boolean checked_out=false;
-	private Object the_object=null;
-	private long max_age=0;
-	private long start_time=0;
-	private String pool_name=null;
+	private int objectId=-1;
+	private boolean checkedOut=false;
+	private Object theObject=null;
+	private long maxAge=0;
+	private long startTime=0;
+	private String poolName=null;
 	private PoolDebug pooldebug=null;
 	private int checkouts=0;
 	private int checkins=0;
@@ -38,19 +36,16 @@ public abstract class PoolAble extends Object {
 	 */
 	public static final int MUST_CLEAN=2;
 
-	/**
-	 * Availability flag.
-	 */
-	protected boolean available=true;
+	private boolean available=true;
 
 	/**
 	 * Get a PoolAble representation for an object.
 	 */
-	public PoolAble(Object the_object, int poolHash) {
+	public PoolAble(Object theObject, int poolHash) {
 		super(); // thanks for asking.
-		this.the_object=the_object;
+		this.theObject=theObject;
 		this.poolHash=poolHash;
-		start_time=System.currentTimeMillis();
+		startTime=System.currentTimeMillis();
 		debug("New object");
 	}
 
@@ -58,16 +53,16 @@ public abstract class PoolAble extends Object {
 	 * Get a PoolAble representation for an object, including a given
 	 * maximum lifetime the object can have.
 	 *
-	 * @param max_age the amount of time, in milliseconds, that the object
+	 * @param maxAge the amount of time, in milliseconds, that the object
 	 * will be valid.  Objects will not be checked out if they are older
 	 * than their maximum lifetime.
 	 */
-	public PoolAble(Object the_object, long max_age, int poolHash) {
+	public PoolAble(Object theObject, long maxAge, int poolHash) {
 		super(); // thanks for asking.
-		this.the_object=the_object;
-		this.max_age=max_age;
+		this.theObject=theObject;
+		this.maxAge=maxAge;
 		this.poolHash=poolHash;
-		start_time=System.currentTimeMillis();
+		startTime=System.currentTimeMillis();
 		debug("New object.");
 	}
 
@@ -75,7 +70,7 @@ public abstract class PoolAble extends Object {
 	private String debugName() {
 		StringBuffer sb=new StringBuffer();
 		sb.append("PoolAble ");
-		sb.append(object_id);
+		sb.append(objectId);
 		sb.append(" for ");
 		sb.append(Integer.toHexString(poolHash));
 		return(sb.toString());
@@ -85,7 +80,7 @@ public abstract class PoolAble extends Object {
 	 * Set the maximum age of this PoolAble.
 	 */
 	public void setMaxAge(long to) {
-		this.max_age=to;
+		this.maxAge=to;
 	}
 
 	/**
@@ -111,10 +106,10 @@ public abstract class PoolAble extends Object {
 	 * not checked out)
 	 */
 	public synchronized Object getObject() throws PoolException {
-		if(!checked_out) {
+		if(!checkedOut) {
 			throw new PoolException("This PoolAble has not been checked out.");
 		}
-		return(the_object);
+		return(theObject);
 	}
 
 	/**
@@ -122,7 +117,7 @@ public abstract class PoolAble extends Object {
 	 * object has been checked out.
 	 */
 	protected Object intGetObject() {
-		return(the_object);
+		return(theObject);
 	}
 
 	/**
@@ -132,7 +127,7 @@ public abstract class PoolAble extends Object {
 	 * @param id ObjectId of this object.
 	 */
 	public void setObjectID(int id) {
-		this.object_id=id;
+		this.objectId=id;
 	}
 
 	/**
@@ -140,7 +135,7 @@ public abstract class PoolAble extends Object {
 	 * it's useful information, nonetheless.
 	 */
 	public void setPoolName(String to) {
-		this.pool_name=to;
+		this.poolName=to;
 	}
 
 	/**
@@ -149,7 +144,7 @@ public abstract class PoolAble extends Object {
 	 * @return the object ID
 	 */
 	public int getObjectID() {
-		return(object_id);
+		return(objectId);
 	}
 
 	/**
@@ -167,7 +162,7 @@ public abstract class PoolAble extends Object {
 	 * too old, and that it is still alive.
 	 */
 	public synchronized void checkIn() {
-		checked_out=false;
+		checkedOut=false;
 		checkins++;
 
 		// At this point, set the availability based on whether this object
@@ -182,15 +177,29 @@ public abstract class PoolAble extends Object {
 		debug("Checked in.");
 	}
 
+	/**
+	 * Mark this object as available.
+	 */
+	protected void setAvailable() {
+		available=true;
+	}
+
+	/**
+	 * Mark this object as unavailable.
+	 */
+	protected void setUnavailable() {
+		available=false;
+	}
+
 	// Returns true if this should be invalidated based on the time
 	private boolean isExpired() {
 		boolean rv=true;
 
-		if(max_age==0) {
+		if(maxAge==0) {
 			rv=false;
 		} else {
-			long current_time=System.currentTimeMillis();
-			if(current_time-start_time < max_age) {
+			long currentTime=System.currentTimeMillis();
+			if(currentTime-startTime < maxAge) {
 				rv=false;
 			}
 		}
@@ -202,7 +211,7 @@ public abstract class PoolAble extends Object {
 	 */
 	public synchronized void checkOut() {
 		checkouts++;
-		checked_out=true;
+		checkedOut=true;
 		available=false;
 		debug("Checked out.");
 	}
@@ -211,7 +220,7 @@ public abstract class PoolAble extends Object {
 	 * Find out if the object is checked out.
 	 */
 	public synchronized boolean isCheckedOut() {
-		return(checked_out);
+		return(checkedOut);
 	}
 
 	/**
@@ -238,7 +247,7 @@ public abstract class PoolAble extends Object {
 		int ret=0;
 
 		// If it's not checked out, we can prune it.
-		if(!checked_out) {
+		if(!checkedOut) {
 			ret++;
 			// If it's not checked out, and it's not available, we *need*
 			// to prune it.
@@ -262,7 +271,7 @@ public abstract class PoolAble extends Object {
 	public void discard() {
 		debug("Discard called.");
 		available=false;
-		the_object=null;
+		theObject=null;
 	}
 
 	/**
@@ -275,12 +284,12 @@ public abstract class PoolAble extends Object {
 
 		String classname=getClass().getName();
 		String objectClassname="n/a";
-		if(the_object!=null) {
-			objectClassname=the_object.getClass().getName();
+		if(theObject!=null) {
+			objectClassname=theObject.getClass().getName();
 		}
 
-		String tmsg= "Poolable=" + classname + ", oid=" + object_id
-			+ " in " + pool_name + ", object=" + objectClassname + ":  " + msg;
+		String tmsg= "Poolable=" + classname + ", oid=" + objectId
+			+ " in " + poolName + ", object=" + objectClassname + ":  " + msg;
 
 		pooldebug.debug(tmsg);
 	}
@@ -299,8 +308,8 @@ public abstract class PoolAble extends Object {
 			out.append(" is not checked out");
 		}
 		out.append(" (o=" + checkouts + ", i=" + checkins + ")");
-		if(max_age>0) {
-			out.append(" expires " + new Date(start_time + max_age));
+		if(maxAge>0) {
+			out.append(" expires " + new Date(startTime + maxAge));
 		}
 		if(!isAvailable()) {
 			out.append(" (not available)");

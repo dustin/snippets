@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.8 2002/07/10 04:26:04 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.9 2002/07/10 05:41:56 dustin Exp $
 
 package net.spy.pool;
 
@@ -13,14 +13,23 @@ import java.sql.Statement;
  */
 public class JDBCPoolAble extends PoolAble {
 
-	public JDBCPoolAble(Object the_object, int poolHash) {
-		super(the_object, poolHash);
+	/**
+	 * Get a JDBC poolable.
+	 */
+	public JDBCPoolAble(Object theObject, int poolHash) {
+		super(theObject, poolHash);
 	}
 
-	public JDBCPoolAble(Object the_object, long max_age, int poolHash) {
-		super(the_object, max_age, poolHash);
+	/**
+	 * Get a JDBC poolable.
+	 */
+	public JDBCPoolAble(Object theObject, long maxAge, int poolHash) {
+		super(theObject, maxAge, poolHash);
 	}
 
+	/**
+	 * @see PoolAble
+	 */
 	public void discard() {
 		try {
 			Connection c=(Connection)intGetObject();
@@ -57,7 +66,7 @@ public class JDBCPoolAble extends PoolAble {
 			st.close();
 		} catch(Exception e) {
 			// Turn off availability
-			available=false;
+			setUnavailable();
 		}
 		return(ret);
 	}

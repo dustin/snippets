@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.11 2002/07/10 04:25:48 dustin Exp $
+ * $Id: SpyLog.java,v 1.12 2002/07/10 05:41:40 dustin Exp $
  */
 
 package net.spy.log;
@@ -25,16 +25,16 @@ public class SpyLog extends Object {
 	private SpyLogQueue queue=null;
 	private static boolean initialized = false;
 	private static Vector flushers=null;
-	private String queue_name=null;
+	private String queueName=null;
 
 	/**
 	 * Instantiate a SpyLog interface for the given queue name with the
 	 * default flusher.
 	 */
-	public SpyLog(String queue_name) {
+	public SpyLog(String queueName) {
 		super();
 
-		this.queue_name=queue_name;
+		this.queueName=queueName;
 
 		// Important to initialize only once, this sets up all the static
 		// variables including the cleanup thread.
@@ -46,14 +46,14 @@ public class SpyLog extends Object {
 			synchronized(flushers) {
 				// Default flusher.
 				if(flushers.size()==0) {
-					SpyLogFlusher flusher = new SpyLogFlusher(queue_name);
+					SpyLogFlusher flusher = new SpyLogFlusher(queueName);
 					addFlusher(flusher);
 				}
 			}
 		}
 
 		// Grab a queue object
-		queue=new SpyLogQueue(queue_name);
+		queue=new SpyLogQueue(queueName);
 	}
 
 	/**
@@ -61,10 +61,10 @@ public class SpyLog extends Object {
 	 * alternative log flusher may log into a SQL database, or to a pager,
 	 * or email, etc...
 	 */
-	public SpyLog(String queue_name, SpyLogFlusher f) {
+	public SpyLog(String queueName, SpyLogFlusher f) {
 		super();
 
-		this.queue_name=queue_name;
+		this.queueName=queueName;
 
 		// Important to initialize only once, this sets up all the static
 		// variables including the cleanup thread.
@@ -76,7 +76,7 @@ public class SpyLog extends Object {
 		addFlusher(f);
 
 		// Grab a queue object
-		queue=new SpyLogQueue(queue_name);
+		queue=new SpyLogQueue(queueName);
 	}
 
 	/**

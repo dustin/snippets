@@ -1,5 +1,5 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.13 2002/07/10 04:26:49 dustin Exp $
+// $Id: SpyLDIF.java,v 1.14 2002/07/10 05:42:25 dustin Exp $
 
 package net.spy.util;
 
@@ -44,10 +44,10 @@ public class SpyLDIF extends Hashtable {
 	/**
 	 * Return a new SpyLDIF object from the passed in LDIF entry
 	 */
-	public SpyLDIF(String ldif_entry) {
+	public SpyLDIF(String ldifEntry) {
 		super();
 
-		parseLDIFEntry(ldif_entry);
+		parseLDIFEntry(ldifEntry);
 	}
 
 	/**

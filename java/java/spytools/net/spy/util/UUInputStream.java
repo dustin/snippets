@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.5 2002/07/10 04:26:57 dustin Exp $
+// $Id: UUInputStream.java,v 1.6 2002/07/10 05:42:32 dustin Exp $
 
 package net.spy.util;
 
@@ -194,12 +194,12 @@ public class UUInputStream extends FilterInputStream {
 	}
 
 	private void makeBuf(byte[] b, int i) {
-		outputBuffer[count++] = (byte) (((b[i] - ' ') & 0x3F) << 2 |
-					((b[i + 1] - ' ') & 0x3F) >> 4);
-		outputBuffer[count++] = (byte) (((b[i + 1] - ' ') & 0x3F) << 4 |
-					((b[i + 2] - ' ') & 0x3F) >> 2);
-		outputBuffer[count++] = (byte) (((b[i + 2] - ' ') & 0x3F) << 6 |
-					((b[i + 3] - ' ') & 0x3F));
+		outputBuffer[count++] = (byte) (((b[i] - ' ') & 0x3F) << 2
+					| ((b[i + 1] - ' ') & 0x3F) >> 4);
+		outputBuffer[count++] = (byte) (((b[i + 1] - ' ') & 0x3F) << 4
+					| ((b[i + 2] - ' ') & 0x3F) >> 2);
+		outputBuffer[count++] = (byte) (((b[i + 2] - ' ') & 0x3F) << 6
+					| ((b[i + 3] - ' ') & 0x3F));
 	}
 
 	/**

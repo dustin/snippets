@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachedResultSetStub.java,v 1.10 2002/07/10 04:25:15 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.11 2002/07/10 05:41:19 dustin Exp $
  */
 
 package net.spy.db;
@@ -39,7 +39,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	private ResultSetMetaData metadata=null;
 
 	// Used for wasNull()
-	private boolean _wasnull=false;
+	private boolean wasNull=false;
 
 	/**
 	 * Magically transform the passed in ResultSet to a CachedResultSet
@@ -172,9 +172,9 @@ public class CachedResultSetStub extends Object implements Cloneable {
 
 		// Check for NULL
 		if(result[index]==null) {
-			_wasnull=true;
+			wasNull=true;
 		} else {
-			_wasnull=false;
+			wasNull=false;
 		}
 
 		// OK, return the column
@@ -229,7 +229,7 @@ public class CachedResultSetStub extends Object implements Cloneable {
 	}
 
 	public boolean wasNull() throws SQLException {
-		return(_wasnull);
+		return(wasNull);
 	}
 
 	public String getString(int index) throws SQLException {

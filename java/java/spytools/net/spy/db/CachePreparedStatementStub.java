@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.11 2002/07/10 04:25:14 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.12 2002/07/10 05:41:17 dustin Exp $
  */
 
 package net.spy.db;
@@ -29,7 +29,7 @@ public class CachePreparedStatementStub extends Object {
 	private SpyDB db=null;
 
 	// Where we store the prepared query
-	private String query_str=null;
+	private String queryStr=null;
 
 	// Where we can put arguments.
 	private Object args[]=null;
@@ -46,7 +46,7 @@ public class CachePreparedStatementStub extends Object {
 	public CachePreparedStatementStub(SpyDB db, String query, long cacheTime) {
 		super();
 		this.db=db;
-		this.query_str=query;
+		this.queryStr=query;
 		this.cacheTime=cacheTime;
 
 		// Figure out how many arguments may be used.
@@ -95,7 +95,7 @@ public class CachePreparedStatementStub extends Object {
 	public int hashCode() {
 		int hc=0;
 
-		hc+=query_str.hashCode();
+		hc+=queryStr.hashCode();
 		StringBuffer sb=new StringBuffer();
 		for(int i=0; i<args.length; i++) {
 			try {
@@ -135,7 +135,7 @@ public class CachePreparedStatementStub extends Object {
 	// OK, here's what happens when we determine that we really don't have
 	// the data and need to come up with it.
 	private CachedResultSet realExecuteQuery() throws Exception {
-		PreparedStatement pst=db.prepareStatement(query_str);
+		PreparedStatement pst=db.prepareStatement(queryStr);
 
 		// Set allllllll the types
 		for(int i=0; i<args.length; i++) {
@@ -274,7 +274,7 @@ public class CachePreparedStatementStub extends Object {
 	// Implemented
 	public void close() throws SQLException {
 	db=null;
-	query_str=null;
+	queryStr=null;
 	args=null;
 	types=null;
 	}

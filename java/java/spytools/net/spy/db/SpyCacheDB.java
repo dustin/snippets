@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.6 2002/07/10 04:25:24 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.7 2002/07/10 05:41:23 dustin Exp $
  */
 
 package net.spy.db;
@@ -10,9 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-
-import java.util.Calendar;
 
 import net.spy.SpyConfig;
 import net.spy.SpyDB;

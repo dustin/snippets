@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.7 2002/07/10 04:25:42 dustin Exp $
+// $Id: eBay.java,v 1.8 2002/07/10 05:41:33 dustin Exp $
 
 package net.spy.info;
 
@@ -13,17 +13,16 @@ import net.spy.net.HTTPFetch;
 /**
  * Get eBay info.
  */
-
 public class eBay extends Info {
 
 	/**
 	 * Get an eBay object.
 	 *
-	 * @param item_number the item number to look up
+	 * @param itemNumber the item number to look up
 	 */
-	public eBay(String item_number) {
+	public eBay(String itemNumber) {
 		super();
-		this.arg = item_number;
+		this.arg = itemNumber;
 	}
 
 	/**
@@ -33,6 +32,9 @@ public class eBay extends Info {
 		super();
 	}
 
+	/**
+	 * String me.
+	 */
 	public String toString() {
 		String ret="";
 		try {
@@ -86,9 +88,9 @@ public class eBay extends Info {
 				}
 			}
 			if(section==0) {
-				String error_string="Unable to get eBay info.  "
+				String errorString="Unable to get eBay info.  "
 					+ "Invalid item number?";
-				hinfo.put("ERROR", error_string);
+				hinfo.put("ERROR", errorString);
 			} else {
 				error=false;
 			}

@@ -1,10 +1,8 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeSpan.java,v 1.3 2002/07/10 04:26:55 dustin Exp $
+// $Id: TimeSpan.java,v 1.4 2002/07/10 05:42:30 dustin Exp $
 
 package net.spy.util;
-
-import java.text.DateFormat;
 
 import java.util.Date;
 
@@ -18,13 +16,13 @@ public class TimeSpan extends Object {
 	// To
 	private Date to=null;
 
-	long days=0;
-	long hours=0;
-	long minutes=0;
-	long seconds=0;
-	long mseconds=0;
+	private long days=0;
+	private long hours=0;
+	private long minutes=0;
+	private long seconds=0;
+	private long mseconds=0;
 
-	boolean future=false;
+	private boolean future=false;
 
 	/**
 	 * Get an instance of TimeSpan representing the span between the given
@@ -42,27 +40,27 @@ public class TimeSpan extends Object {
 		}
 
 		// Days
-		if(diff>86400000l) {
-			days=diff/86400000l;
-			diff=diff%86400000l;
+		if(diff>86400000L) {
+			days=diff/86400000L;
+			diff=diff%86400000L;
 		}
 
 		// Hours
-		if(diff>3600000l) {
-			hours=diff/3600000l;
-			diff=diff%3600000l;
+		if(diff>3600000L) {
+			hours=diff/3600000L;
+			diff=diff%3600000L;
 		}
 
 		// Minutes
-		if(diff>60000l) {
-			minutes=diff/60000l;
-			diff=diff%60000l;
+		if(diff>60000L) {
+			minutes=diff/60000L;
+			diff=diff%60000L;
 		}
 
 		// Seconds
-		if(diff>1000l) {
-			seconds=diff/1000l;
-			diff=diff%1000l;
+		if(diff>1000L) {
+			seconds=diff/1000L;
+			diff=diff%1000L;
 		}
 
 		mseconds=diff;

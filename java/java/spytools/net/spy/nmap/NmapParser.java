@@ -1,13 +1,12 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: NmapParser.java,v 1.5 2002/07/10 04:26:01 dustin Exp $
+// $Id: NmapParser.java,v 1.6 2002/07/10 05:41:53 dustin Exp $
 
 package net.spy.nmap;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -32,8 +31,8 @@ import java.util.Vector;
 
 public class NmapParser extends Object {
 	private String inputFile=null;
-	private Vector entries_v=null;
-	private Hashtable entries_byip=null;
+	private Vector entriesV=null;
+	private Hashtable entriesByIP=null;
 	/**
 	 * Construct an NmapParser object to parse a given text file.
 	 *
@@ -45,14 +44,14 @@ public class NmapParser extends Object {
 	public NmapParser(String inputFile) throws IOException {
 		super();
 		this.inputFile=inputFile;
-		entries_v=new Vector();
-		entries_byip=new Hashtable();
+		entriesV=new Vector();
+		entriesByIP=new Hashtable();
 		BufferedReader in=new BufferedReader(new FileReader(inputFile));
 		String line=null;
 		while( (line=in.readLine()) != null) {
 			NmapEntry ne = new NmapEntry(line);
-			entries_v.addElement(ne);
-			entries_byip.put(ne.getIP(), ne);
+			entriesV.addElement(ne);
+			entriesByIP.put(ne.getIP(), ne);
 		}
 	}
 
@@ -60,7 +59,7 @@ public class NmapParser extends Object {
 	 * gets an enumeration of all of the entries.
 	 */
 	public Enumeration entries() {
-		return(entries_v.elements());
+		return(entriesV.elements());
 	}
 
 	/**
@@ -71,7 +70,7 @@ public class NmapParser extends Object {
 	 * @return specified NmapEntry, or null if no such entry exists
 	 */
 	public NmapEntry entry(String ip) {
-		return( (NmapEntry)entries_byip.get(ip));
+		return( (NmapEntry)entriesByIP.get(ip));
 	}
 
 	/**

@@ -1,12 +1,10 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PwGen.java,v 1.2 2002/07/10 04:26:37 dustin Exp $
+// $Id: PwGen.java,v 1.3 2002/07/10 05:42:18 dustin Exp $
 
 package net.spy.util;
 
 import java.security.SecureRandom;
-
-import java.util.Random;
 
 /**
  * Password generator.

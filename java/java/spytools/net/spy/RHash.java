@@ -1,10 +1,9 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RHash.java,v 1.6 2002/07/10 04:24:34 dustin Exp $
+// $Id: RHash.java,v 1.7 2002/07/10 05:41:02 dustin Exp $
 
 package net.spy;
 
 import java.rmi.Naming;
-import java.rmi.Remote;
 
 import net.spy.rmi.RObject;
 

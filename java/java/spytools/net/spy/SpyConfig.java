@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.16 2002/07/10 04:24:36 dustin Exp $
+ * $Id: SpyConfig.java,v 1.17 2002/07/10 05:41:04 dustin Exp $
  */
 
 package net.spy;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
