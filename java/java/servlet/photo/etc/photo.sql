@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.15 1998/11/09 06:17:17 dustin Exp $
+-- $Id: photo.sql,v 1.16 1998/11/09 06:49:16 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -55,40 +55,6 @@ grant all on cat to nobody;
 -- implicit sequence
 grant all on cat_id_seq to nobody;
 
--- The ACLs for the categories
-
-create table wwwacl(
-	userid   integer,
-	cat      integer
-);
-
-create index acl_byid on wwwacl(userid);
-grant all on wwwacl to nobody;
-
--- view for showing acls by name
-
-create view show_acl as
-	select wwwusers.username, wwwacl.cat, cat.name
-	from wwwusers, wwwacl, cat
-	where wwwusers.id=wwwacl.userid
-	and wwwacl.cat=cat.id
-;
-
--- The group file for the Web server's ACL crap.
-
-create table wwwgroup(
-	userid    integer,
-	groupname varchar(16)
-);
-
-grant all on wwwgroup to nobody;
-
-create view show_group as
-	select wwwusers.username, wwwgroup.groupname
-	from wwwusers, wwwgroup
-	where wwwusers.id=wwwgroup.userid
-;
-
 -- The passwd file for the Web server's ACL crap.
 
 create table wwwusers(
@@ -109,6 +75,44 @@ grant all on wwwusers_id_seq to nobody;
 create function getwwwuser(text) returns integer as
 	'select id from wwwusers where username = $1'
 	language 'sql';
+
+-- The ACLs for the categories
+
+create table wwwacl(
+	userid   integer,
+	cat      integer
+);
+
+create index acl_byid on wwwacl(userid);
+grant all on wwwacl to nobody;
+
+-- view for showing acls by name
+
+create view show_acl as
+	select wwwusers.username, wwwacl.cat, cat.name
+	from wwwusers, wwwacl, cat
+	where wwwusers.id=wwwacl.userid
+	and wwwacl.cat=cat.id
+;
+
+grant all on show_acl to nobody;
+
+-- The group file for the Web server's ACL crap.
+
+create table wwwgroup(
+	userid    integer,
+	groupname varchar(16)
+);
+
+grant all on wwwgroup to nobody;
+
+create view show_group as
+	select wwwusers.username, wwwgroup.groupname
+	from wwwusers, wwwgroup
+	where wwwusers.id=wwwgroup.userid
+;
+
+grant all on show_group to nobody;
 
 -- Search saves
 
