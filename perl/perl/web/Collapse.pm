@@ -1,6 +1,6 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Collapse.pm,v 1.5 1997/12/31 09:51:50 dustin Exp $
+# $Id: Collapse.pm,v 1.6 1997/12/31 17:40:59 dustin Exp $
 
 package Collapse;
 
@@ -17,6 +17,7 @@ sub new
     $self->{expand}=$h;
     $self->{html_expand}="Expand";
     $self->{html_collapse}="Collapse";
+    $self->{expandall}=0;
 
     # foreach (keys(%{$self->{expand}}))
     # {
@@ -33,6 +34,12 @@ sub get_ary
 {
     my($self)=shift;
     return($self->{ary});
+}
+
+sub expandall
+{
+    my($self)=shift;
+    $self->{expandall}=1;
 }
 
 sub set_html_expand
@@ -90,7 +97,7 @@ sub _show_array_html
             }
         }
 
-        if( ( $test eq "" ) || defined($expand{$test}))
+        if( ( $test eq "" ) || defined($expand{$test}) || $self->{expandall})
         {
 	    delete($expand{$test});
 	    $url =$q->url . "?expand=" . join(',', keys(%expand));
@@ -212,7 +219,7 @@ however, require CGI.pm (you have that anyway, right?)
 
 =head1 METHODS
 
-=item new( [@a], [%h] )
+=item new( [@a], {%h} )
 
     Create a new collapse object using array @a for the list of lists to
 create the boxes, and %h for the list to expand.
@@ -240,5 +247,9 @@ optional, depending on your needs.
 =item set_html_collapse($text)
 
     Set the text for the Collapse button in HTML output.
+
+=item expandall
+
+    Turn on full expansion by default.  This is useful for debugging.
 
 =cut
