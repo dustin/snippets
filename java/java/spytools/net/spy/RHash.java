@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RHash.java,v 1.4 2001/02/07 06:31:01 dustin Exp $
+// $Id: RHash.java,v 1.5 2002/06/17 03:50:23 dustin Exp $
 
 package net.spy;
 
@@ -9,6 +9,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 import net.spy.rmi.*;
+import net.spy.util.*;
 
 /**
  * Abstract client for Remote Hash service.
@@ -25,10 +26,11 @@ public class RHash {
 	 * @param server RMI URL to ObjectServer, for example:
 	 * rmi://rmiregistoryserverthing/ObjectServer
 	 *
-	 * @exception Exception An exception is thrown if an RMI connection
+	 * @exception NotBoundException An exception is thrown if an RMI connection
 	 * cannot be established.
 	 */
-	public RHash(String server) throws Exception {
+	public RHash(String server) throws NestedException {
+		super();
 		rhashserver = server;
 		obj = getobject();
 	}
@@ -85,14 +87,15 @@ public class RHash {
 		super.finalize();
 	}
 
-	private RObject getobject() throws Exception {
+	private RObject getobject() throws NestedException {
+		RObject o = null;
+
 		try {
-			RObject o = (RObject)Naming.lookup(rhashserver);
-			return(o);
+			o=(RObject)Naming.lookup(rhashserver);
 		} catch(Exception e) {
-			throw new Exception("Error getting " + rhashserver
-				+ " service:  " + e);
+			throw new NestedException("Error getting rhash server", e);
 		}
+		return(o);
 	}
 
 	public static void main(String args[]) throws Exception {

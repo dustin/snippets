@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.6 2002/06/17 02:57:20 dustin Exp $
+	$Id: build.xml,v 1.7 2002/06/17 03:50:21 dustin Exp $
 
 	-->
 
@@ -33,7 +33,7 @@
 		</delete>
 	</target>
 
-	<target name="docs">
+	<target name="docs" depends="all">
 		<mkdir dir="docs"/>
 		<javadoc destdir="docs"
 			author="true"
