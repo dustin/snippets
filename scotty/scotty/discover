@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: discover,v 1.2 2000/05/11 01:22:40 dustin Exp $ \
+# $Id: discover,v 1.3 2000/05/11 01:48:17 dustin Exp $ \
 exec /usr/local/bin/scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -52,7 +52,21 @@ proc getNode { host } {
 	return $this_node
 }
 
-proc link { from to } {
+proc getColor { media } {
+	set m [ string tolower $media ]
+	set color black
+	if { [ string first gigabit $m ] >= 0 } {
+		set color red1
+	} elseif { [ string first ethernet $m ] >= 0 } {
+		set color blue1
+	} elseif { [ string first serial $m ] >= 0 } {
+		set color green3
+	}
+
+	return $color
+}
+
+proc link { from to media} {
 	global links
 	set from_node [getNode $from]
 	set to_node [getNode $to]
@@ -65,7 +79,7 @@ proc link { from to } {
 		set b $to_node
 	}
 
-	lappend links [ list $a $b ]
+	lappend links [ list $a $b [getColor $media] ]
 }
 
 # get the community for a host
@@ -194,7 +208,7 @@ proc walk { offset host } {
 					catch { set doneit $donePeers($name) }
 					if { $doneit == 0 } {
 						walk [expr $offset + 2 ] $name
-						link $host $name
+						link $host $name $desc
 					}
 				}
 			# Operational interfaces
@@ -233,7 +247,10 @@ ined page A4 landscape
 		incr i
 		set a [lindex $l 0]
 		set b [lindex $l 1]
+		set color [lindex $l 2]
 		puts "set link$i \[ ined -noupdate create LINK \$node$a \$node$b \]"
+		puts "ined -noupdate color \$link$i $color"
+		puts ""
 	}
 }
 
