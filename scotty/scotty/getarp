@@ -1,0 +1,67 @@
+#!/bin/sh
+# Blah\
+exec scotty -nf "$0" "$@"
+
+mib load rfc1493.mib
+mib load rfc1525.mib
+mib load rfc1213.mib
+mib load rfc1515.mib
+mib load rfc1516.mib
+
+proc getArps { s } {
+
+	set label atPhysAddress
+
+    if {[catch {
+        $s walk vbl $label {
+            set vb    [lindex $vbl 0]
+            set oid   [lindex $vb  0]
+			# Split the OID into elements
+			set elements [split $oid .]
+			# Figure out how many there are
+			set thelength [llength $elements]
+			# Find the start position (4 from the end)
+			set start [ expr $thelength - 4 ]
+			# The IP is the last four joined
+			set ip [join [lrange $elements $start end] .]
+			# The mac address is the value
+            set value [lindex $vb  2]
+			# Find the name for the IP address
+			if {[catch {dns ptr $ip} ptr]} { set ptr "" }
+            puts "$ip $value $ptr"
+        }
+    } err]} {
+        puts stderr $err
+        exit
+    }
+
+    $s destroy
+}
+
+##
+## Check the command line and start the MIB walk.
+##
+
+proc usage {} {
+    puts stderr "usage: getarp host"
+    exit
+}
+
+if {[llength $argv] != 1} { usage } else {
+
+	set host [lindex $argv 0]
+
+    if {[lsearch [snmp alias] $host] >= 0} {
+        set s [snmp session -alias $host]
+    } else {
+        puts stderr \
+            "no snmp alias for \"$host\": using SNMPv1 community public"
+        if {[catch {snmp session -address $host -community public} s]} {
+            puts stderr $s
+            exit
+        }
+    }
+    getArps $s
+}
+
+exit

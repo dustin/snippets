@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking <dustin@spy.net>
-# $Id: checkinterrors,v 1.7 2000/05/18 09:27:29 dustin Exp $ \
+# $Id: checkinterrors,v 1.8 2000/05/24 00:25:11 dustin Exp $ \
 exec scotty -nf $0 $*
 
 mib load rfc1213.mib
@@ -13,8 +13,8 @@ set exit_code 0
 set problems {}
 
 if [catch {open $file} input] {
-	# puts "Cannot open input file:  $file"
-	exit 1
+	puts stderr "Cannot open input file:  $file"
+	exit -1
 }
 
 while {[gets $input line] != -1} {
@@ -50,8 +50,8 @@ while {[gets $input line] != -1} {
 		}
 
 		if [catch {open $rfile w} routput] {
-			# puts "Cannot open save file for $host!"
-			exit 1
+			puts stderr "Cannot open save file for $host!"
+			exit -1
 		}
 
 		# flip through all interfaces figuring out whether they're worthy
@@ -80,8 +80,18 @@ while {[gets $input line] != -1} {
 			if {$ierrors > $old_ierrors || $oerrors > $old_oerrors} {
 				set idiff [ expr $ierrors - $old_ierrors ]
 				set odiff [ expr $oerrors - $old_oerrors ]
+
+				set deltas {}
+
+				if { $idiff > 0 } {
+					lappend deltas "i=$idiff"
+				}
+				if { $odiff > 0 } {
+					lappend deltas "o=$odiff"
+				}
+
 				# puts "$host:$desc:$idiff:$odiff"
-				lappend problems "$host:$desc"
+				lappend problems "$host:$i:$desc:[join $deltas :]"
 
 				# Something more intelligent should happen here
 				if {$exit_code == 0} {
