@@ -3,7 +3,7 @@
 A pipe interface to rrdtool.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: rrdpipe.py,v 1.3 2002/03/28 10:38:28 dustin Exp $
+$Id: rrdpipe.py,v 1.4 2002/03/28 10:48:37 dustin Exp $
 """
 
 import os
@@ -201,4 +201,5 @@ if __name__ == '__main__':
 	# rp=RRDPipe()
 
 	print rp.last(sys.argv[1])
-	pprint.pprint(rp.fetch(sys.argv[1], start=(int(time.time())-(86400*30))))
+	starttime=(int(time.time())-(86400*30))
+	pprint.pprint(rp.fetch(sys.argv[1], start=starttime))
