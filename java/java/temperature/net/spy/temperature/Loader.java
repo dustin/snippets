@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Loader.java,v 1.2 2000/05/01 04:32:48 dustin Exp $
+// $Id: Loader.java,v 1.3 2001/06/01 08:52:01 dustin Exp $
 
 package net.spy.temperature;
 
@@ -13,12 +13,17 @@ import java.io.*;
 public class Loader {
 
 	static Hashtable sensors = null;
+	private static final String dbDriver="org.postgresql.Driver";
+	private static final String dbSource=
+		"jdbc:postgresql://dhcp-104/temperature";
+	private static final String dbUser="tempload";
+	private static final String dbPass="tempload";
 
 	public static void main(String args[]) throws Exception {
 		System.out.println("Loading logfile.");
-		Class.forName("org.postgresql.Driver");
-		String source="jdbc:postgresql://dhcp-104/temperature";
-		Connection temp = DriverManager.getConnection(source, "dustin", "");
+		Class.forName(dbDriver);
+		String source=dbSource;
+		Connection temp = DriverManager.getConnection(source, dbUser, dbPass);
 		initSensors(temp);
 		Statement st = temp.createStatement();
 		int i = 1;
@@ -33,7 +38,7 @@ public class Loader {
 				String s = t.toSQL();
 				System.out.print(i++ + " " + s);
 				st.executeUpdate(s);
-				System.out.println("------------------------------");
+				// System.out.println("------------------------------");
 			} catch(Exception e) {
 				System.out.println("Parse error:  " + e);
 			}

@@ -1,10 +1,10 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
-MYLIB=/home/dustin/lib/java
+MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/postgresql.jar:$(MYLIB)/spy.jar
 CLASSPATH=$(C1):.
 
@@ -28,4 +28,4 @@ clean:
 	rm -f $(CLASSES)
 
 .java.class:
-	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
+	env CLASSPATH=$(CLASSPATH) $(JAVAC) -deprecation $<

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Sensor.java,v 1.1 2000/10/15 10:04:47 dustin Exp $
+// $Id: Sensor.java,v 1.2 2001/06/01 08:52:02 dustin Exp $
 
 package net.spy.temperature;
 
@@ -10,9 +10,12 @@ import java.util.*;
 
 public class Sensor extends Object {
 
-	protected int sensor_id=-1;
-	protected String serial=null;
-	protected String name=null;
+	private int sensor_id=-1;
+	private String serial=null;
+	private String name=null;
+	private boolean active=true;
+	private int low=0;
+	private int high=0;
 
 	/**
 	 * Get a new Sensor object with the given sensor_id.
@@ -25,19 +28,7 @@ public class Sensor extends Object {
 		getSensor(sensor_id);
 	}
 
-	/**
-	 * Get a new Sensor object from a ResultSet containing the following
-	 * values:
-	 * <ul>
-	 *  <li>sensor_id - integer sensor ID</li>
-	 *  <li>serial - String - sensor serial number</li>
-	 *  <li>name - String - name of sensor</li>
-	 * </ul>
-	 *
-	 * @exception Exception on stuff like an invalid result set or other
-	 * types of errors.
-	 */
-	public Sensor(ResultSet rs) throws Exception {
+	private Sensor(ResultSet rs) throws Exception {
 		super();
 		initFromResultSet(rs);
 	}
@@ -64,6 +55,27 @@ public class Sensor extends Object {
 	}
 
 	/**
+	 * Is this sensor active?
+	 */
+	public boolean isActive() {
+		return(active);
+	}
+
+	/**
+	 * What's the low threshold for this sensor?
+	 */
+	public int getLow() {
+		return(low);
+	}
+
+	/**
+	 * What's the high threshold for this sensor?
+	 */
+	public int getHigh() {
+		return(high);
+	}
+
+	/**
 	 * Get an Enumeration of Sensor objects representing all known sensors.
 	 *
 	 * @exception Exception when DB problems arrise
@@ -71,7 +83,7 @@ public class Sensor extends Object {
 	public static Enumeration enumerate() throws Exception {
 		Vector v=new Vector();
 		SpyDB db=new SpyDB(new TemperatureConf());
-		ResultSet rs=db.executeQuery("select * from sensor");
+		ResultSet rs=db.executeQuery("select * from sensors order by name");
 
 		while(rs.next()) {
 			v.addElement(new Sensor(rs));
@@ -84,13 +96,23 @@ public class Sensor extends Object {
 	 * Printable representation of this object.
 	 */
 	public String toString() {
-		return(sensor_id + "\t" + serial + ":  " + name);
+		StringBuffer sb=new StringBuffer();
+		sb.append(sensor_id);
+		sb.append("\t");
+		sb.append(serial);
+		sb.append(":  ");
+		sb.append(name);
+		if(!active) {
+			sb.append(" (not active)");
+		}
+
+		return(sb.toString());
 	}
 
-	protected void getSensor(int sensor_id) throws Exception {
+	private void getSensor(int sensor_id) throws Exception {
 		SpyDB db=new SpyDB(new TemperatureConf());
 		PreparedStatement pst=db.prepareStatement(
-			"select * from sensor where sensor_id = ? "
+			"select * from sensors where sensor_id = ? "
 			);
 		pst.setInt(1, sensor_id);
 		ResultSet rs=pst.executeQuery();
@@ -99,17 +121,24 @@ public class Sensor extends Object {
 		db.close();
 	}
 
-	protected void initFromResultSet(ResultSet rs) throws Exception {
-		this.sensor_id = rs.getInt("sensor_id");
-		this.serial = rs.getString("serial");
-		this.name = rs.getString("name");
+	private void initFromResultSet(ResultSet rs) throws Exception {
+		sensor_id = rs.getInt("sensor_id");
+		serial = rs.getString("serial");
+		name = rs.getString("name");
+		active=rs.getBoolean("active");
+		low=rs.getInt("low");
+		high=rs.getInt("high");
 	}
 
 	public static void main(String args[]) throws Exception {
-		int id=Integer.parseInt(args[0]);
-
-		Sensor s=new Sensor(id);
-
-		System.out.println("Found this:  " + s);
+		if(args.length>0) {
+			int id=Integer.parseInt(args[0]);
+			Sensor s=new Sensor(id);
+			System.out.println("Found this:  " + s);
+		} else {
+			for(Enumeration e=Sensor.enumerate(); e.hasMoreElements(); ) {
+				System.out.println(e.nextElement());
+			}
+		}
 	}
 }
