@@ -3,7 +3,7 @@
 //  BlankSaver
 //
 //  Created by Dustin Sallings on Thu May 29 2003.
-//  Copyright (c) 2003, __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2003, SPY Internetworking. All rights reserved.
 //
 
 #import <ScreenSaver/ScreenSaver.h>
