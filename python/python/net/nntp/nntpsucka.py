@@ -2,13 +2,16 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.21 2002/03/24 08:32:58 dustin Exp $
+# $Id: nntpsucka.py,v 1.22 2002/03/24 09:33:07 dustin Exp $
 
 import nntplib
 import time
 import anydbm
 import signal
 import os
+
+# My pidlock
+import pidlock
 
 class Stats:
 	def __init__(self):
@@ -213,6 +216,9 @@ def alarmHandler(sig, frame):
 	raise Timeout
 
 def main():
+	# Lock.
+	lock=pidlock.PidLock("nntpsucka.pid")
+
 	signal.signal(signal.SIGALRM, alarmHandler)
 	signal.alarm(3500)
 

@@ -70,6 +70,6 @@ if __name__ == '__main__':
 	lock=PidLock("test.pid")
 	print "Got it, sleeping..."
 	time.sleep(5)
-	print "Unlocking..."
-	lock.unlock()
+	# print "Unlocking..."
+	# lock.unlock()
 	print "Done."
