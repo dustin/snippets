@@ -4,11 +4,15 @@ hookLog() {
 	echo "hook:  $@"
 }
 
-HO=/tmp/hook.out
-touch $HO
-echo "$@" >> $HO
-env | sort >> $HO
-echo "" >> $HO
+# Debug stuff.
+if [ "$ARCH_HOOK_DEBUG" == "1" ]
+then
+	HO=/tmp/hook.out
+	touch $HO
+	echo "$@" >> $HO
+	env | sort >> $HO
+	echo "" >> $HO
+fi
 
 # For commits
 if [ "$1" == "commit" ]
