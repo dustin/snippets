@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.5 2000/01/01 03:38:57 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.6 2000/01/06 00:22:26 dustin Exp $
  */
 
 package net.spy.photo;
@@ -61,7 +61,7 @@ public class PhotoStorerThread extends Thread {
 					data+=tmp+"\n";
 				} else {
 					storeQuery(image_id, n, st, data);
-					data="";
+					data=tmp;
 					n++;
 				}
 			}
