@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: xcopy.c,v 1.2 2000/05/05 04:52:00 dustin Exp $
+ * $Id: xcopy.c,v 1.3 2000/05/05 06:02:02 dustin Exp $
  */
 
 #include <stdio.h>
@@ -18,9 +18,9 @@
 
 char           *TranslateKeyCode(XEvent * ev);
 void            dumpEvent(XKeyEvent * xke);
-void            resend(Display *d, XEvent * xe, Window w);
-void			docopy(Display *s, Window s_w, Display *d, Window d_w);
-Window			openInputWindow(Display *d);
+void            resend(Display * d, XEvent * xe, Window w);
+void            docopy(Display * s, Window s_w, Display * d, Window d_w);
+Window          openInputWindow(Display * d);
 
 void
 main(int argc, char **argv)
@@ -38,11 +38,10 @@ main(int argc, char **argv)
 	d_dpyname = argv[1];
 	sscanf(argv[2], "0x%x", &d_w);
 
-	s_dpyname=getenv("DISPLAY");
-	if(s_dpyname==NULL) {
-		s_dpyname=":0";
+	s_dpyname = getenv("DISPLAY");
+	if (s_dpyname == NULL) {
+		s_dpyname = ":0";
 	}
-
 	source_d = XOpenDisplay(s_dpyname);
 	if (source_d == NULL) {
 		fprintf(stderr, "Blah, can't open source display: %s\n", s_dpyname);
@@ -54,48 +53,48 @@ main(int argc, char **argv)
 			d_dpyname);
 		exit(10);
 	}
-
 	s_w = openInputWindow(source_d);
 
 	docopy(source_d, s_w, dest_d, d_w);
 }
 
-Window openInputWindow(Display *d)
+Window
+openInputWindow(Display * d)
 {
-	Window w;
-	GC gc;
-	XGCValues xgcvalues;
+	Window          w;
+	GC              gc;
+	XGCValues       xgcvalues;
 	XSetWindowAttributes attributes;
-	int screen;
+	int             screen;
 
 	/* We'll be using this soon */
-	screen=DefaultScreen(d);
+	screen = DefaultScreen(d);
 
 	/* The Window itself */
 	attributes.border_pixel = BlackPixel(d, screen);
 	attributes.background_pixel = WhitePixel(d, screen);
 	w = XCreateWindow(d, DefaultRootWindow(d), 0, 0, WIDTH, HEIGHT, 2,
-		CopyFromParent, InputOutput, CopyFromParent,
-		CWBackPixel | CWBorderPixel, &attributes);
+			  CopyFromParent, InputOutput, CopyFromParent,
+			  CWBackPixel | CWBorderPixel, &attributes);
 
 	/* A graphics context */
 
 	xgcvalues.foreground = BlackPixel(d, screen);
 	xgcvalues.background = WhitePixel(d, screen);
-	gc = XCreateGC(d, (Drawable)w, (GCForeground | GCBackground),
-		&xgcvalues);
+	gc = XCreateGC(d, (Drawable) w, (GCForeground | GCBackground),
+		       &xgcvalues);
 
-	XFillRectangle(d, (Drawable)w, gc, 1, 1, WIDTH-2, HEIGHT-2);
+	XFillRectangle(d, (Drawable) w, gc, 1, 1, WIDTH - 2, HEIGHT - 2);
 
 	XStoreName(d, w, "xCopy Input");
 	XMapRaised(d, w);
 	XFlush(d);
 
-	return(w);
+	return (w);
 }
 
 void
-docopy(Display *s, Window s_w, Display *d, Window d_w)
+docopy(Display * s, Window s_w, Display * d, Window d_w)
 {
 	XSelectInput(s, s_w, KeyPressMask);
 	while (1) {
@@ -106,7 +105,7 @@ docopy(Display *s, Window s_w, Display *d, Window d_w)
 }
 
 void
-resend(Display *d, XEvent * xe, Window w)
+resend(Display * d, XEvent * xe, Window w)
 {
 	XKeyEvent      *xke;
 
