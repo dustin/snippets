@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.4 1999/08/29 17:16:30 dustin Exp $
+# $Id: sendpage.tcl,v 1.5 1999/09/04 00:30:17 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -39,7 +39,7 @@ proc snpp_cmd { fd cmd } {
 
 proc snpp_sendpage { host port id msg } {
 
-	global snpp_error
+	global snpp_error hold_state
 
 	set err [catch {set fd [socket $host $port]}]
 
@@ -69,6 +69,23 @@ proc snpp_sendpage { host port id msg } {
 	if { [snpp_cmd $fd "priority high"] < 0 } {
 		catch { close $fd }
 		return -1
+	}
+
+	if { $hold_state == 1 } {
+		set windows {.hold.mdy.y .hold.mdy.m .hold.mdy.d .hold.hms.h
+			.hold.hms.m .hold.hms.s}
+
+		set t ""
+
+		foreach window $windows {
+			set s [ $window get ]
+			append t $s
+		}
+
+		if { [snpp_cmd $fd "holduntil $t -8"] < 0 } {
+			catch { close $fd }
+			return -1
+		}
 	}
 
 	if { [snpp_cmd $fd "send"] < 0 } {
@@ -136,7 +153,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.4 $ }
+	set rev { $Revision: 1.5 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
@@ -187,6 +204,44 @@ proc preferences { } {
 	pack $p.buttons -side top -expand 1 -fill x
 }
 
+proc toggle_hold { } {
+	global hold_state
+
+	set windows {.hold.mdy.m .hold.mdy.d .hold.mdy.y .hold.hms.h
+		.hold.hms.m .hold.hms.s}
+
+	# Make sure they're all configured modifyable
+	foreach window $windows {
+		$window configure -state normal
+	}
+
+	# Delete all the current data.
+	foreach window $windows {
+		$window delete 0 1000
+	}
+
+	if { $hold_state == 0 } {
+		# Enable the hold state
+		set hold_state 1
+
+		# Put the current time in the holduntil box
+		set time [ clock format [clock seconds] -format "%m %d %Y %H %M %S" ]
+		.hold.mdy.m insert 0 [lindex $time 0]
+		.hold.mdy.d insert 0 [lindex $time 1]
+		.hold.mdy.y insert 0 [lindex $time 2]
+		.hold.hms.h insert 0 [lindex $time 3]
+		.hold.hms.m insert 0 [lindex $time 4]
+		.hold.hms.s insert 0 [lindex $time 5]
+	} else {
+		# Disable the hold state
+		set hold_state 0
+
+		foreach window $windows {
+			$window configure -state disabled
+		}
+	}
+}
+
 # START HERE
 
 # Globals, these are needed to ensure someone doesn't accidentally send the
@@ -196,6 +251,8 @@ set last_uid ""
 
 set snpp_server "pager.beyond.com"
 set snpp_port   1041
+
+set hold_state 1
 
 wm title . "Page People"
 wm iconname . "Pager"
@@ -228,6 +285,36 @@ entry .message.what -width $entwidth
 pack .message.msg -side left -expand 1
 pack .message.what -side right -expand 1
 pack .message -side top -expand 1 -fill x
+
+# The HOLDuntil thingy
+frame .hold
+label .hold.l -text "Hold"
+checkbutton .hold.hold -command toggle_hold
+
+pack .hold.l .hold.hold -side left -expand 1
+
+frame .hold.mdy
+label .hold.mdy.mdy -text "m/d/y"
+entry .hold.mdy.m -width 2
+entry .hold.mdy.d -width 2
+entry .hold.mdy.y -width 4
+
+pack .hold.mdy .hold.mdy.mdy .hold.mdy.m .hold.mdy.d .hold.mdy.y \
+	-side left -expand 1
+
+frame .hold.hms
+label .hold.hms.hms -text "h:m:s"
+entry .hold.hms.h -width 2
+entry .hold.hms.m -width 2
+entry .hold.hms.s -width 2
+
+pack .hold.hms .hold.hms.hms .hold.hms.h .hold.hms.m .hold.hms.s \
+	-side left -expand 1
+
+pack .hold -side top -expand 1 -fill x
+
+# Set the hold state, initialize crap.
+toggle_hold
 
 # The buttons.
 frame .buttons
