@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.2 1998/06/21 21:25:01 dustin Exp $
+ * $Id: radius.c,v 1.3 1998/06/21 21:38:57 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -18,7 +18,7 @@
 #include "md5.h"
 #include "radius.h"
 
-int getudpsocket(void)
+static int getudpsocket(void)
 {
     int s;
 
@@ -30,21 +30,22 @@ int getudpsocket(void)
     return(s);
 }
 
-int radius_send(int s, char *server, int port, radius_packet *r)
+int radius_send(radius *r)
 {
     struct hostent *hp;
     struct sockaddr_in sin;
 
-    if( (hp=gethostbyname(server)) == NULL) {
-	printf("Couldn't resolve %s\n", server);
+    if( (hp=gethostbyname(r->server)) == NULL) {
+	printf("Couldn't resolve %s\n", r->server);
 	return(-1);
     }
 
     sin.sin_family=AF_INET;
-    sin.sin_port=port;
+    sin.sin_port=r->port;
     memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
-    if( sendto(s, r, r->length, 0, (struct sockaddr *)&sin, sizeof(sin)) <0) {
+    if( sendto(r->s, r->rad, r->rad->length, 0,
+	(struct sockaddr *)&sin, sizeof(sin)) <0) {
 	perror("sendto");
 	return(-1);
     }
@@ -52,7 +53,7 @@ int radius_send(int s, char *server, int port, radius_packet *r)
     return(0);
 }
 
-int radius_recv(int s, radius_packet *r)
+int radius_recv(radius *r)
 {
     struct sockaddr sa;
     int salen;
@@ -64,13 +65,13 @@ int radius_recv(int s, radius_packet *r)
     t.tv_sec=3;
     t.tv_usec=0;
     FD_ZERO(&fdset);
-    FD_SET(s, &fdset);
+    FD_SET(r->s, &fdset);
 
-    if( (select(s+1, &fdset, NULL, NULL, &t)) <= 0) {
+    if( (select(r->s+1, &fdset, NULL, NULL, &t)) <= 0) {
 	return(-1);
     }
 
-    recvfrom(s, (char *)r, RADIUS_PACKET_SIZE, 0, &sa, &salen);
+    recvfrom(r->s, (char *)r->rad, RADIUS_PACKET_SIZE, 0, &sa, &salen);
     return(0);
 }
 
@@ -78,10 +79,13 @@ int radius_recv(int s, radius_packet *r)
  * This routine was basically stolen from mod_auth_radius
  */
 
-static void add_attribute(radius_packet *rad, int type,
+static void add_attribute(radius *r, int type,
 			  unsigned char *data, int length)
 {
     attribute_t *p;
+    radius_packet *rad;
+
+    rad=r->rad;
 
     p=(attribute_t *) ((unsigned char *)rad + rad->length);
     p->attribute=type;
@@ -96,7 +100,7 @@ static unsigned char *xor(unsigned char *p, unsigned char *q, int len)
     return(p);
 }
 
-int addpassword(radius_packet *rad, char *password)
+int addpassword(radius *r, char *password)
 {
     MD5_CTX md5, tmpmd5;
     unsigned char misc[1024];
@@ -117,9 +121,9 @@ int addpassword(radius_packet *rad, char *password)
     memcpy(pass, password, i);
 
     MD5Init(&md5);
-    MD5Update(&md5, "go", 2);
+    MD5Update(&md5, r->secret, strlen(r->secret));
     tmpmd5=md5;
-    MD5Update(&tmpmd5, rad->vector, RADIUS_VECTOR_LEN);
+    MD5Update(&tmpmd5, r->rad->vector, RADIUS_VECTOR_LEN);
     MD5Final(misc, &tmpmd5);
 
     xor(pass, misc, RADIUS_PASS_LENGTH);
@@ -131,7 +135,7 @@ int addpassword(radius_packet *rad, char *password)
 	xor(&pass[i*RADIUS_PASS_LENGTH], misc, RADIUS_PASS_LENGTH);
     }
 
-    add_attribute(rad, RADIUS_PASSWORD, pass, 16);
+    add_attribute(r, RADIUS_PASSWORD, pass, 16);
 
     return(0);
 }
@@ -139,40 +143,44 @@ int addpassword(radius_packet *rad, char *password)
 int simpleauth(char *username, char *password)
 {
     MD5_CTX md5;
-    int s, i, service, r;
+    int s, i, service, ret;
     unsigned char send_buffer[RADIUS_PACKET_SIZE];
-    radius_packet *rad;
+    radius r;
 
-    rad=(radius_packet *)send_buffer;
+    r.server="bleu";
+    r.port=1645;
+    r.secret="go";
 
-    rad->code=RADIUS_ACCESS_REQUEST;
-    rad->id=getpid()&0xff;
-    rad->length=RADIUS_HEADER_LENGTH;
+    r.rad=(radius_packet *)send_buffer;
+
+    r.rad->code=RADIUS_ACCESS_REQUEST;
+    r.rad->id=getpid()&0xff;
+    r.rad->length=RADIUS_HEADER_LENGTH;
 
     srand(time(NULL));
     i=rand()*getpid();
 
     MD5Init(&md5);
     MD5Update(&md5, &i, 4);
-    MD5Final(&rad->vector,&md5);
+    MD5Final(&(r.rad->vector),&md5);
 
     /* Username */
-    add_attribute(rad, RADIUS_USERNAME, username, strlen(username));
-    if(addpassword(rad, password)<0)
+    add_attribute(&r, RADIUS_USERNAME, username, strlen(username));
+    if(addpassword(&r, password)<0)
 	return(-1);
 
     service=RADIUS_AUTH_ONLY;
-    add_attribute(rad, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
+    add_attribute(&r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
 
-    s=getudpsocket();
-    radius_send(s, "bleu", 1645, rad);
+    r.s=getudpsocket();
+    radius_send(&r);
 
-    r=radius_recv(s, rad);
+    ret=radius_recv(&r);
 
-    if(r<0)
-       return(r);
+    if(ret<0)
+       return(ret);
     else
-        return(rad->code);
+        return(r.rad->code);
 }
 
 int main(int argc, char **argv)

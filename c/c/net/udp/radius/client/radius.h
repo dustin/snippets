@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  SPY Internetworking
  *
- * $Id: radius.h,v 1.2 1998/06/21 21:25:03 dustin Exp $
+ * $Id: radius.h,v 1.3 1998/06/21 21:38:59 dustin Exp $
  */
 
 #define RADIUS_VECTOR_LEN 16
@@ -24,6 +24,14 @@ typedef struct {
     unsigned char vector[RADIUS_VECTOR_LEN];
     attribute_t att;
 } radius_packet;
+
+typedef struct {
+    char *server;    /* Server hostname */
+    int port;        /* server port */
+    char *secret;    /* secret for the server */
+    int s;           /* server socket */
+    radius_packet *rad;
+} radius;
 
 /* Yes, I did all this by hand... */
 
