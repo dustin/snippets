@@ -1,16 +1,20 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TempSet.java,v 1.1 2000/01/26 20:17:57 dustin Exp $
+// $Id: TempSet.java,v 1.2 2000/10/15 10:04:47 dustin Exp $
 
 package net.spy.temperature;
 
 import java.lang.*;
 import java.util.*;
 
+/**
+ * This object represents a sample.
+ */
+
 public class TempSet {
-	Date ts = null;
-	int sensor_id = -1;
-	float sample = -1.0f;
+	protected Date ts = null;
+	protected int sensor_id = -1;
+	protected float sample = -1.0f;
 
 	public TempSet(Date ts, int sensor_id, float sample) {
 		this.ts=ts;

@@ -1,6 +1,6 @@
 -- Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 --
--- $Id: sensors.sql,v 1.1 2000/01/26 20:17:28 dustin Exp $
+-- $Id: sensors.sql,v 1.2 2000/10/15 10:04:44 dustin Exp $
 
 -- Different types of sensors
 create table sensor_type (
@@ -23,3 +23,4 @@ create table samples (
 );
 create index samples_bytime on samples(ts);
 create index samples_byid on samples(sensor_id);
+create unique index samples_bytimeid on samples(ts, sensor_id);

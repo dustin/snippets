@@ -4,16 +4,23 @@ JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
-C1=/home/dustin/lib/java/postgresql.jar
+MYLIB=/home/dustin/lib/java
+C1=$(MYLIB)/postgresql.jar:$(MYLIB)/spy.jar
 CLASSPATH=$(C1):.
 
-CLASSES=net/spy/temperature/Loader.class net/spy/temperature/TempSet.class
+CLASSES=net/spy/temperature/Loader.class net/spy/temperature/TempSet.class \
+	net/spy/temperature/TemperatureConf.class \
+	net/spy/temperature/Sensor.class \
+	net/spy/temperature/ReportBean.class
 
 FDEST=/home/dustin/lib/java
 
 .SUFFIXES: .java .class .jar
 
 all: $(CLASSES)
+
+test: all
+	env CLASSPATH=$(CLASSPATH) $(JAVA) net.spy.temperature.ReportBean
 
 install: all
 
