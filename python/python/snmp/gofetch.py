@@ -3,13 +3,14 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: gofetch.py,v 1.2 2002/03/29 01:06:59 dustin Exp $
+$Id: gofetch.py,v 1.3 2002/03/29 08:58:17 dustin Exp $
 """
 
 # Python's schedular
 import sched
+import os
+import atexit
 import time
-import threading
 import anydbm
 import socket
 import select
@@ -20,6 +21,12 @@ import snmplib
 # My rrdtool interface
 import rrdpipe
 import exceptions
+
+# Threading support, if available
+try:
+	import threading
+except ImportError, ie:
+	os.stderr.write(str(ie) + "\n")
 
 ######################################################################
 # Storage classes
@@ -33,7 +40,21 @@ class NonThreadSafeStorage(Storage):
 	"""Base class for storage mechanisms that are not thread safe."""
 
 	def __init__(self):
-		self.mutex=threading.Lock()
+		try:
+			self.mutex=threading.Lock()
+		except NameError:
+			# No threading support, go without
+			self.mutex=None
+
+	def lock(self):
+		"""Lock mutex."""
+		if self.mutex:
+			self.mutex.acquire()
+
+	def unlock(self):
+		"""Unlock mutex."""
+		if self.mutex:
+			self.mutex.release()
 
 class ThreadSafeStorage(Storage):
 	"""Base class for storage mechanisms that are thread safe."""
@@ -51,9 +72,14 @@ class VolatileStorage(NonThreadSafeStorage):
 		# Init the DB
 		if VolatileStorage.db == None:
 			VolatileStorage.db=anydbm.open('volatile.db', 'c')
+			atexit.register(self.__exitHandler)
 		# Init the log file
 		if VolatileStorage.logfile == None:
 			VolatileStorage.logfile = file('volatile.log', 'a')
+
+	def __exitHandler(self):
+		print "Exit handler closing DB."
+		VolatileStorage.db.close()
 
 	def recordState(self, key, value):
 		"""Record the state of a given item, logging when it changes."""
@@ -300,12 +326,10 @@ class StopRunning:
 	"""Exception raised when the execution of the thread should cease."""
 	pass
 
-class NetworkCollector(threading.Thread):
+class NetworkCollector:
 	"""A class to sit around and collect data via SNMP."""
 
 	def __init__(self):
-		threading.Thread.__init__(self)
-		self.setName("NetworkCollector")
 		self.schedular=sched.scheduler(time.time, time.sleep)
 		self.__reschedule()
 
@@ -325,7 +349,7 @@ class NetworkCollector(threading.Thread):
 			try:
 				print "Entering run loop."
 				self.schedular.run()
-			except StopRunning:
+			except (StopRunning, KeyboardInterrupt):
 				print str(self) + " stopping."
 				keepgoing=None
 			except:
@@ -352,6 +376,10 @@ class NetworkCollector(threading.Thread):
 	def __reschedule(self):
 		self.schedular.enter(60, 100, self.__reschedule, [])
 
+######################################################################
+# Main loop below
+######################################################################
+
 if __name__ == '__main__':
 	nc=NetworkCollector()
 
@@ -375,7 +403,7 @@ if __name__ == '__main__':
 		nc.addJob(SMTPBannerJob('pix0', 60))
 		nc.addJob(SMTPBannerJob('ld0', 60))
 
-		nc.start()
+		nc.run()
 
 		time.sleep(300)
 
