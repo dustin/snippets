@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.4 2003/06/12 17:15:56 dustin Exp $
+ * $Id: sockets.c,v 1.3 2003/04/03 01:45:09 dustin Exp $
  */
 
 #include <stdio.h>
@@ -72,7 +72,7 @@ getclientsocket(char *host, int port, int sock_opts)
 			}
 		}
 		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-			if(errno==EINPROGRESS) {
+			if(errno=EINPROGRESS) {
 				success = 1;
 			} else {
 				sleep(1);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.26 2001/12/07 01:12:48 dustin Exp $
+ * $Id: main.c,v 1.25 2000/10/03 10:07:35 dustin Exp $
  */
 
 #include <config.h>
@@ -157,18 +157,18 @@ dostats(int i, struct timeval timers[3], int bytes,
 
 	/* Connect time */
 	if (flags & MACHINE_STATS)
-		printf("%u.%06u:", a, b);
+		printf("%u.%u:", a, b);
 	else
-		printf("\tConnect time: %u.%06u seconds\n", a, b);
+		printf("\tConnect time: %u.%u seconds\n", a, b);
 
 	TVDIFF(timers[1], timers[2], a, b, c);
 
 	/* Transfer time */
 	if (flags & MACHINE_STATS)
-		printf("%u.%06u:", a, b);
+		printf("%u.%u:", a, b);
 	else
-		printf("\tTransfer time: %u.%06u seconds\n", a, b);
-	sprintf(tmp, "%u.%06u", a, b);
+		printf("\tTransfer time: %u.%u seconds\n", a, b);
+	sprintf(tmp, "%u.%u", a, b);
 	tmpf = atof(tmp);
 
 	/* Bytes and bps */
@@ -390,13 +390,6 @@ main(int argc, char **argv)
 				numtoopen=maxhits-n;
 				_ndebug(2, ("n is %d, need to open %d connections\n",
 					n, numtoopen));
-			}
-
-			/* Make sure we don't open too many connections */
-			if(maxhits+numtoopen > totalhits) {
-				_ndebug(2,
-					("Adjusting the numtoopen for the end of the hits\n"));
-				numtoopen-=(totalhits-maxhits);
 			}
 
 			/* just so we can do this loop */
