@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.1 1999/05/08 09:01:50 dustin Exp $
+ * $Id: parselist.h,v 1.2 1999/05/08 21:17:54 dustin Exp $
  */
+
+#include "hash.h"
 
 #if !defined(HAVE_VSNPRINTF)
 #if defined(HAVE_VSPRINTF)
@@ -17,17 +19,8 @@
 #define CONFIGFILE "list"
 #define LIFETIME 10
 
-/* The address list */
-struct addr {
-	unsigned int addr;
-	int     mask;
-	unsigned int intmask;
-	char   *data;
-};
-
 /* The config structure */
 struct config_t {
-	int     size;
-	int     index;
-	struct addr **addr;
+	struct hashtable *hash[33]; /* 0-32, one for each bit */
+	unsigned int masks[33];
 };

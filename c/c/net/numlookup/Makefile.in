@@ -7,9 +7,9 @@ all: parselist libparselist.so
 parselist: parselist.o
 	$(CC) -o parselist parselist.o
 
-libparselist.so: libparselist.o mymalloc.o
+libparselist.so: libparselist.o mymalloc.o hash.o
 	rm -f libparselist.so
-	$(LD) -x -shared -o libparselist.so libparselist.o mymalloc.o
+	$(LD) -x -shared -o libparselist.so libparselist.o mymalloc.o hash.o
 
 clean:
 	rm -f parselist parselist.o mymalloc.o

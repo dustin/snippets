@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include "mymalloc.h"
+#include "hash.h"
 #include "parselist.h"
 
 /* Logging code */
@@ -50,40 +51,20 @@ struct config_t
 initConfig(void)
 {
 	struct config_t config;
-	config.index = 0;
-	config.size = 64;
+	int i;
 
-	config.addr = malloc(config.size * sizeof(struct addr *));
+	for(i=0; i<33; i++) {
+		config.hash[i] = hash_init(HASHSIZE);
+
+		/* Canned masks */
+		if(i==0) {
+			config.masks[0]=0;
+		} else {
+			config.masks[i]=(0xffffffff << (32-i));
+		}
+	}
 
 	return (config);
-}
-
-/* I'm implementing my own quicksort because I can never get qsort to work */
-static void
-quicksort(struct addr **a, int l, int r)
-{
-	int     i, j;
-	struct addr *v, *t;
-
-	if (r > l) {
-		v = a[r];
-		i = l - 1;
-		j = r;
-
-		do {
-			while ((a[++i]->mask > v->mask) && i < r);
-			while ((a[--j]->mask < v->mask) && j > 0);
-			t = a[i];
-			a[i] = a[j];
-			a[j] = t;
-		} while (j > i);
-
-		a[j] = a[i];
-		a[i] = a[r];
-		a[r] = t;
-		quicksort(a, l, i - 1);
-		quicksort(a, i + 1, r);
-	}
 }
 
 /* This code is kinda duplicated from below, but we can deal with that */
@@ -96,13 +77,6 @@ parseIP(const char *ip)
 	sscanf(ip, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]);
 	ret = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3];
 	return (ret);
-}
-
-/* A wrapper to quicksort */
-static void
-addrsort(struct config_t config)
-{
-	quicksort(config.addr, 0, config.index - 1);
 }
 
 /*
@@ -151,52 +125,32 @@ readconfig(void)
 	}
 	/* We've got a macro for appending to the address list */
 
-#define LAPPEND(a) if(config.index == config.size-1) \
-	{ \
-		config.addr=realloc(config.addr, \
-			(config.size<<=1)*sizeof(struct addr *)); \
-		assert(config.addr); \
-	} \
-	config.addr[config.index++]=a;
-
 	while (getCleanLine(line, LINELEN - 1, f)) {
-		int     a[4], mask, n;
+		int     a[4], mask, n, addr;
 		char    data[LINELEN];
-		struct addr *addr;
 
-		n = sscanf(line, "%d.%d.%d.%d/%d:%s", &a[0], &a[1], &a[2], &a[3], &mask, data);
+		n = sscanf(line, "%d.%d.%d.%d/%d:%s",
+			&a[0], &a[1], &a[2], &a[3], &mask, data);
 		if (n != 6) {
 			_log("Error in config file [%s]\n", line);
 			continue;
 		}
-		addr = malloc(sizeof(struct addr));
-		assert(addr);
 
-		/* Put data in data, we only need the network address and netmask */
-		addr->mask = mask;
-		if (addr->mask < 0 || addr->mask > 32) {
+		if (mask < 0 || mask > 32) {
 			fprintf(stderr, "ERROR, netmask is invalid:  %s\n", line);
-			free(addr);
 			continue;
 		}
-		/* The IP address */
-		addr->addr = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3];
-		/* The integer netmask */
-		if (mask == 0) {
-			addr->intmask = 0;
-		} else {
-			addr->intmask = (0xFFFFFFFF << (32 - mask));
-		}
-		/* apply the netmask to the address */
-		addr->addr = addr->addr & addr->intmask;
-		/* Copy the string in */
-		addr->data = strdup(data);
 
-		/* And, append it */
-		LAPPEND(addr);
+		/* The IP address */
+		addr = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3];
+
+		/* apply the netmask to the address */
+		addr&=config.masks[mask];
+
+		/* store it in our hash */
+		hash_store(config.hash[mask], addr, data);
 	}
 	fclose(f);
-	addrsort(config);
 	return (config);
 }
 
@@ -205,30 +159,26 @@ destroyConfig(struct config_t config)
 {
 	int     i;
 
-	for (i = 0; i < config.index; i++) {
-		if (config.addr[i]) {
-			if (config.addr[i]->data)
-				free(config.addr[i]->data);
-			free(config.addr[i]);
+	for (i = 0; i < 33; i++) {
+		if (config.hash[i]) {
+			hash_destroy(config.hash[i]);
 		}
 	}
-	free(config.addr);
 }
 
 char   *
 search(struct config_t config, unsigned int ip)
 {
-	int     i;
+	int     i, addr;
+	struct	hash_container *h;
 
 	/* The list is sorted by specifics of netmask.  We start with the
 	 * most specific netmask, and go down to 0. */
-	for (i = 0; i < config.index; i++) {
-		/*
-		 * printf("Testing %X/%d for %X (%X)\n", ip, config.addr[i]->mask,
-		 * config.addr[i]->addr, config.addr[i]->intmask);
-		 */
-		if (config.addr[i]->addr == (ip & config.addr[i]->intmask)) {
-			return (config.addr[i]->data);
+	for (i = 32; i >= 0; i--) {
+		addr=ip&config.masks[i];
+		h=hash_find(config.hash[i], addr);
+		if(h) {
+			return(h->value);
 		}
 	}
 	return (NULL);
