@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: missing.cgi,v 1.3 1998/09/18 09:05:25 dustin Exp $
+# $Id: missing.cgi,v 1.4 1998/09/19 03:42:19 dustin Exp $
 
 use CGI;
 use LWP::UserAgent;
@@ -11,7 +11,7 @@ sub readConfig
     my(@h, $i, $key, @a);
 
     $i=-1;
-    open(IN, '/usr/people/dustin/prog/perl/web/missing.cf');
+    open(IN, '/home/www/data/conf/missing.cf');
     while(<IN>) {
         next if(/^#/);
 	next unless(/\w/);
@@ -59,15 +59,23 @@ sub dofetch
     $ua->agent('DustInvProxy/2.0', $ua->agent);
     $req=HTTP::Request->new('GET', $arg);
     $res=$ua->request($req);
-    print $q->header($res->header('content-type'));
+    print $q->header($res->header('Content-Type'));
     print $res->content;
+
 }
 
 sub mainloop
 {
-    my(@cf, $q, $key, $done, @action, %actions, @stuff);
+    my(@cf, $q, $key, $done, @action, %actions, @stuff, $path);
     $q=CGI->new;
     @cf=readConfig();
+
+    # This works a little differently for Apache and Netscape
+    if(defined($ENV{'PATH_INFO'})) {
+        $path=$ENV{'PATH_INFO'};
+    } else {
+        $path=$ENV{'REQUEST_URI'};
+    }
 
     $done=0;
     for $key (0..(@cf-1)){
@@ -75,7 +83,7 @@ sub mainloop
 	     || $cf[$key]->[0] eq '-defaults-')
 	     && ($done==0)) {
 	    for(1..(@{$cf[$key]}-1)) {
-	        if($ENV{'PATH_INFO'}=~/$cf[$key]->[$_]->[0]/) {
+	        if($path=~/$cf[$key]->[$_]->[0]/) {
 		    # Check this out, simulate perl with perl.  :)
 		    @stuff=($1, $2, $3, $4, $5, $6, $7, $8, $9);
 		    @action=@{$cf[$key]->[$_]};
@@ -95,7 +103,11 @@ sub mainloop
 	'fetch' =>    \&dofetch,
     );
 
-    &{$actions{$action[1]}}($q, $action[2]);
+    if(defined($actions{$action[1]}) ) {
+        &{$actions{$action[1]}}($q, $action[2]);
+    } else {
+        die("Can't do ``$action[1]''\n");
+    }
 
 } # sub
 
