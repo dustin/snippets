@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.7 2001/02/14 02:14:06 dustin Exp $
+// $Id: Info.java,v 1.8 2001/06/21 00:07:29 dustin Exp $
 
 package net.spy.info;
 
@@ -52,7 +52,8 @@ public abstract class Info extends Object {
 				ret+=info;
 			}
 		} catch(Exception e) {
-			// Just let it return null
+			e.printStackTrace();
+			// Null will be returned
 		}
 		return(ret);
 	}
@@ -89,6 +90,7 @@ public abstract class Info extends Object {
 					+ "</" + safekey + ">\n";
 			}
 		} catch(Exception e) {
+			e.printStackTrace();
 			// Just return an empty string
 		}
 		return(ret);

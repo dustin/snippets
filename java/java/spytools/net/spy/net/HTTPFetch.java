@@ -8,9 +8,6 @@ import java.util.*;
 
 import net.spy.SpyUtil;
 
-// Regex type stuff.
-import com.oroinc.text.regex.*;
-
 /**
  * Oversimplified HTTP document fetcher.
  */
@@ -77,11 +74,14 @@ public class HTTPFetch {
 	public String getData() throws Exception {
 		if(contents==null) {
 			contents="";
+			StringBuffer sb=new StringBuffer();
 			BufferedReader br = getReader();
 			String line;
 			while( (line=br.readLine()) != null) {
-				contents+=line + "\n";
+				sb.append(line);
+				sb.append("\n");
 			}
+			contents=sb.toString();
 		}
 		return(contents);
 	}
@@ -94,36 +94,25 @@ public class HTTPFetch {
 	public String getStrippedData() throws Exception {
 		getData();
 		if(stripped==null) {
-			PatternMatcher matcher = new Perl5Matcher();
-			PatternCompiler compiler = new Perl5Compiler();
+			int inTag=0;
+			StringBuffer sb=new StringBuffer();
 
-			// Strip off the HTML tags.
-			Pattern pattern = compiler.compile("(<(.|[\r\n])*?>)",
-				Perl5Compiler.MULTILINE_MASK);
-			stripped = Util.substitute(matcher, pattern,
-				new StringSubstitution(""), contents, Util.SUBSTITUTE_ALL);
+			char chars[]=contents.toCharArray();
 
-			// Consolidate spaces
-			pattern = compiler.compile("((?:&nbsp;|[ \t])+)",
-				Perl5Compiler.MULTILINE_MASK);
-			stripped = Util.substitute(matcher, pattern,
-				new StringSubstitution(" "), stripped, Util.SUBSTITUTE_ALL);
-
-			// empty space at the beginning
-			pattern = compiler.compile("^([ \t]+)");
-			stripped = Util.substitute(matcher, pattern,
-				new StringSubstitution(""), stripped, Util.SUBSTITUTE_ALL);
-
-			// empty space at the end
-			pattern = compiler.compile("([ \t]+)$");
-			stripped = Util.substitute(matcher, pattern,
-				new StringSubstitution(""), stripped, Util.SUBSTITUTE_ALL);
-
-			// Get rid of double newlines
-			pattern = compiler.compile("([\r\n]+)",
-				Perl5Compiler.MULTILINE_MASK);
-			stripped = Util.substitute(matcher, pattern,
-				new StringSubstitution("\n"), stripped, Util.SUBSTITUTE_ALL);
+			for(int i=0; i<chars.length; i++) {
+				if(chars[i]=='<') {
+					inTag++;
+				} else if( chars[i]=='>' && inTag>0) {
+					if(inTag>=1) {
+						inTag--;
+					}
+				} else {
+					if(inTag==0) {
+						sb.append(chars[i]);
+					}
+				}
+			}
+			stripped=sb.toString();
 		}
 		return(stripped);
 	}
@@ -143,5 +132,10 @@ public class HTTPFetch {
 		BufferedReader br =
 			new BufferedReader( new InputStreamReader(i));
 		return(br);
+	}
+
+	public static void main(String args[]) throws Exception {
+		HTTPFetch hf=new HTTPFetch(args[0]);
+		System.out.println(hf.getStrippedData());
 	}
 }

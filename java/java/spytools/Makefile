@@ -11,9 +11,8 @@ COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
 C2=$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
-C3=$(MYLIB)/oromatcher.jar
 S=/System/Library/Frameworks/JavaVM.framework/Versions/1.3/Classes/classes.jar
-CLASSPATH=$(C1):$(C2):$(C3):$S:.
+CLASSPATH=$(C1):$(C2):$S:.
 
 CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/log/SpyLog.class \

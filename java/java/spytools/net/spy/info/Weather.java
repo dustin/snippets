@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.9 2001/02/14 02:14:10 dustin Exp $
+// $Id: Weather.java,v 1.10 2001/06/21 00:07:31 dustin Exp $
 
 package net.spy.info;
 
@@ -49,7 +49,7 @@ public class Weather extends Info {
 			} else {
 			}
 		} catch(Exception e) {
-			System.err.println("Exception:  " + e);
+			e.printStackTrace();
 			// Just let it return null
 		}
 		// return(ret);
@@ -155,11 +155,12 @@ public class Weather extends Info {
 
 	protected void getInfo() throws Exception {
 		if(info==null) {
-			String url="http://www.weather.com/weather/us/zips/";
-			url += arg + ".html";
+			String url="http://www.weather.com/weather/local/";
+			url += arg;
 			hinfo.put("URL", url);
 			HTTPFetch f = new HTTPFetch(url);
 			info=f.getStrippedData();
+			System.out.println("Got\n" + info);
 			relevent="";
 			shortWeather="";
 		}
