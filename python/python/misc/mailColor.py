@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-$Id: mailColor.py,v 1.2 2003/07/01 07:07:36 dustin Exp $
+$Id: mailColor.py,v 1.3 2003/07/01 07:09:57 dustin Exp $
 """
 
 import sys
@@ -88,7 +88,7 @@ while l != '':
 
 		# If we need a separator,  make one
 		if needsep == 1:
-			print "\\\n\\\n\\f0\\b"
+			print "\\\n\\f0\\b"
 			print "\\pard\\qc"
 			print "\\cf0 ---------------------------------------------------"
 			print "\\pard\\ql\\qnatural"
