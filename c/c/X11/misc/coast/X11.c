@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -234,8 +235,8 @@ xplot()
   long oldy = 0;
   Head header;
   Point point;
-  float temp;
-  float lat_diff, lng_diff;
+  float temp, aspect;
+  float lat_diff, lng_diff, tlatmax, tlatmin;
   long island;
   XWindowAttributes wattr;
 
@@ -269,11 +270,26 @@ xplot()
   lat_diff = max_lat - min_lat;
   lng_diff = max_lng - min_lng;
 
+/*
+ * This is a routine to calculate what we have to add to the longitude to
+ * get the proper aspect ratio.  It's not perferct, but it gets close enough
+ * so you can tell what you're looking at.
+ */
+
+  aspect = fabs((lat_diff / (float) ((float) max_x /
+				     (float) max_y) - lng_diff));
+  tlatmax = max_lat + aspect;
+  tlatmin = min_lat - aspect;
+  lat_diff = tlatmax - tlatmin;
+
+#ifdef DEBUG
+  printf("\naspect is %f.\nmax_x/max_y is %f\n", aspect,
+	 (float) ((float) max_x / (float) max_y));
+#endif
+
   island = 1;
 
-  _setcolor(BlackPixel(display, screen));
   XClearWindow(display, window);
-  _setcolor(BlackPixel(display, screen));
 
   while (!feof(infile))
     {
@@ -286,7 +302,7 @@ xplot()
 	  continue;
 	}
 
-      temp = max_lat - point.lat;
+      temp = tlatmax - point.lat;
       temp = lat_diff - temp;
       x = (long) ((float) max_x * (temp / lat_diff));
 
