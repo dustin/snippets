@@ -1,6 +1,6 @@
 indexing
 	description: "";
-	version: "$Revision: 1.1 $";
+	version: "$Revision: 1.2 $";
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "2002";
 	license: "See forum.txt.";
@@ -8,7 +8,7 @@ indexing
 --
 -- Copyright (c) 2002  Dustin Sallings
 --
--- $Id: spy_time_utils.e,v 1.1 2002/11/14 22:09:42 dustin Exp $
+-- $Id: spy_time_utils.e,v 1.2 2002/11/25 07:11:36 dustin Exp $
 --
 class SPY_TIME_UTILS
 	-- Time with my extensions
@@ -30,7 +30,8 @@ feature {ANY}
 
 	parse(format, str: STRING): TIME is
 		-- Parse the time base out of the given string.
-		-- Currently, only one format is supported.
+		-- Currently, only one format is supported:
+		-- "%Y-%m-%d %H:%M:%S"
 		require
 			known_format: format.is_equal("%%Y-%%m-%%d %%H:%%M:%%S")
 		local
