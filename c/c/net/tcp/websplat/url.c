@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: url.c,v 1.1 2000/10/03 05:52:58 dustin Exp $
+ * $Id: url.c,v 1.2 2000/10/03 10:07:39 dustin Exp $
  */
 
 #include <config.h>
@@ -37,8 +37,7 @@ parseurl(char *url)
 	grow.size = 1024 * sizeof(char);
 	grow.string = calloc(1, grow.size);
 
-	u.host = NULL;
-	u.req = NULL;
+	memset(&u, 0x00, sizeof(u));
 	u.port = -1;
 
 	/* We only do http and maybe https urls */

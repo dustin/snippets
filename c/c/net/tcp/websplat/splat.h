@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.10 2000/10/03 05:52:57 dustin Exp $
+ * $Id: splat.h,v 1.11 2000/10/03 10:07:38 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -27,6 +27,7 @@
 
 /* Socket options */
 #define DO_NAGLE 1
+#define NO_BLOCKING 2
 
 #ifdef USE_SSLEAY
 #include <rsa.h>

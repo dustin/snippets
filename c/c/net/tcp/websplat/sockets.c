@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.6 1999/06/16 06:38:59 dustin Exp $
+ * $Id: sockets.c,v 1.7 2000/10/03 10:07:37 dustin Exp $
  */
 
 #include <stdio.h>
@@ -9,8 +9,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/errno.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <syslog.h>
@@ -23,6 +25,8 @@
 #include <splat.h>
 
 extern int _debug;
+extern int errno;
+extern fd_set rfdset, wfdset;
 
 struct host_ret
 getclientsocket(struct url u, int flags)
@@ -32,7 +36,9 @@ getclientsocket(struct url u, int flags)
 	char *host;
 	struct host_ret ret;
 	struct linger l;
+	struct timeval tv;
 	struct sockaddr_in sin;
+	int fflags=0;
 #ifdef USE_SSLEAY
 	int     err;
 	X509   *server_cert=NULL;
@@ -76,23 +82,62 @@ getclientsocket(struct url u, int flags)
 
 		l.l_onoff = 1;
 		l.l_linger = 60;
-		setsockopt(ret.s, SOL_SOCKET, SO_LINGER, (char *) &l, sizeof(l));
+		if(setsockopt(ret.s, SOL_SOCKET,SO_LINGER,(char *) &l, sizeof(l)) <0) {
+			perror("Error setting SO_LINGER");
+		}
+
+		tv.tv_sec=0;      /* seconds */
+		tv.tv_usec=10000; /* microseconds */
+		if(setsockopt(ret.s,SOL_SOCKET,SO_SNDTIMEO,(char *)&tv,sizeof(tv)) <0){
+			perror("Error setting send timeout");
+		}
+		tv.tv_sec=0;      /* seconds */
+		tv.tv_usec=10000; /* microseconds */
+		if(setsockopt(ret.s,SOL_SOCKET,SO_RCVTIMEO,(char *)&tv,sizeof(tv)) <0){
+			perror("Error setting receive timeout");
+		}
+
+		/* Set some reasonable (small) timeouts */
+
 
 		/* Don't disable the nagle algorithm if we say not to */
-		if( (flags&DO_NAGLE) ==0) {
+		if( (flags&DO_NAGLE) == 0) {
 			flag = 1;
 			if (setsockopt(ret.s, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
 				sizeof(int)) < 0) {
-				puts("Nagle algorithm not dislabled.");
+				perror("Unable to disable nagle algorithm");
+			}
+			flag = 8;
+			if (setsockopt(ret.s, SOL_SOCKET, SO_SNDLOWAT, (char *) &flag,
+				sizeof(int)) < 0) {
+				perror("Unable to set SO_SNDLOWAT");
 			}
 		}
 
-		if (connect(ret.s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-			sleep(1);
-		} else {
+		/* We're doing non-blocking IO */
+		if( (flags&NO_BLOCKING)) {
+			fflags = fcntl(ret.s, F_GETFL);
+			if(fcntl(ret.s, F_SETFL, fflags | O_NONBLOCK) < 0) {
+				perror("fcntl");
+			}
+		}
+
+		if (connect(ret.s, (struct sockaddr *) &sin, sizeof(sin)) >= 0) {
 			success = 1;
 			break;
+		} else {
+			/* If the connect is in progress, it's all good */
+			if(errno==EINPROGRESS) {
+				success=1;
+				break;
+			}
 		}
+	}
+
+	/* If this is succesful, register for both reads and writes */
+	if(success) {
+		FD_SET(ret.s, &wfdset);
+		FD_SET(ret.s, &rfdset);
 	}
 
 	if (!success)
