@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.11 1998/11/11 09:11:27 dustin Exp $
+ * $Id: http.c,v 1.12 1998/11/11 17:07:22 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -86,7 +86,11 @@ openhost(char *host, int port, int dossl)
 	if (dossl) {
 		SSLeay_add_ssl_algorithms();
 		SSL_load_error_strings();
+#if(SSLEAY_VERSION_NUMBER<0x0800)
+		ret.ctx = SSL_CTX_new();
+#else
 		ret.ctx = SSL_CTX_new(SSLv2_method());
+#endif
 		CHK_NULL(ret.ctx);
 
 		ret.ssl = SSL_new(ret.ctx);
@@ -98,11 +102,19 @@ openhost(char *host, int port, int dossl)
 		server_cert = SSL_get_peer_certificate(ret.ssl);
 		CHK_NULL(server_cert);
 
+#if(SSLEAY_VERSION_NUMBER<0x0800)
+		str = X509_NAME_oneline(X509_get_subject_name(server_cert));
+#else
 		str = X509_NAME_oneline(X509_get_subject_name(server_cert), NULL, 0);
+#endif
 		CHK_NULL(str);
 		Free(str);
 
+#if(SSLEAY_VERSION_NUMBER<0x0800)
+		str = X509_NAME_oneline(X509_get_issuer_name(server_cert));
+#else
 		str = X509_NAME_oneline(X509_get_issuer_name(server_cert), NULL, 0);
+#endif
 		CHK_NULL(str);
 		Free(str);
 
