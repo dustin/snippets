@@ -50,42 +50,44 @@ let rec str_index_of_one str l i =
 
 (* Private recursive function for splitting a stream in a buffer *)
 let rec pvt_rec_split_chars rv str l i limit =
-	if (List.length rv < (limit-1)) && (i < String.length str) then
-	begin
+	if (List.length rv < (limit-1)) && (i < String.length str) then (
 		let pos = str_index_of_one str l i in
-		if pos != -1 then
+		if pos != -1 then (
 			pvt_rec_split_chars
 				(rv @ [ String.sub str i (pos - i)])
 				str l
 				(pvt_skip_chars str l pos)
 				limit
-		else
+		) else (
 			rv @ [ String.sub str i ((String.length str) - i) ]
-	end
-	else
-		if i < String.length str then
+		)
+	) else (
+		if i < String.length str then (
 			rv @ [ String.sub str i ((String.length str) - i) ]
-		else
+		) else (
 			rv
+		)
+	)
 ;;
 
 (* Private function to skip the next n occurrences of this character in
  * this string.  Return the new offset.
  *)
 let rec pvt_skip_char s c i =
-	if (i >= String.length s ) then
+	if (i >= String.length s ) then (
 		String.length s
-	else
-		if ((String.get s i) == c) then
+	) else (
+		if ((String.get s i) == c) then (
 			pvt_skip_char s c (i+1)
-		else
+		) else (
 			i
+		)
+	)
 ;;
 
 (* Private recursive function for splitting a stream in a buffer *)
 let rec pvt_rec_split rv str c i limit =
-	if (List.length rv < (limit - 1)) && (i < String.length str) then
-	begin
+	if (List.length rv < (limit - 1)) && (i < String.length str) then (
 		if String.contains_from str i c then
 			let o = String.index_from str i c in
 			pvt_rec_split (rv @ [ String.sub str i (o - i)])
@@ -94,12 +96,12 @@ let rec pvt_rec_split rv str c i limit =
 				limit;
 		else
 			rv @ [ String.sub str i ((String.length str) - i) ]
-	end
-	else
+	) else (
 		if i < String.length str then
 			rv @ [ String.sub str i ((String.length str) - i) ]
 		else
 			rv
+	)
 ;;
 
 (**

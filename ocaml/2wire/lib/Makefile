@@ -17,7 +17,7 @@ testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
 		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
 		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
-		cdb.cmo netstring.cmo math.cmo
+		cdb.cmo netstring.cmo
 
 libspy: $(PARTS)
 	$(MKLIB) -o spy \
