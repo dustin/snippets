@@ -1,5 +1,5 @@
 # This is a library type thing of all the routines to grab stat data.
-# $Id: statlib.pl,v 1.2 1997/12/12 18:39:27 dustin Exp $
+# $Id: statlib.pl,v 1.3 1997/12/12 21:15:18 dustin Exp $
 
 # this reads in a file ignoring lines starting with # and empty lines
 
@@ -168,7 +168,7 @@ sub decodeAlarm
         {
             if($alarm ne $recipient)
             {
-                push(@alrmDecoded, decodeAlarm($alarm));
+                push(@alrmDecoded, decodeAlarm($alarm, @alrm));
             }
         }
     }
@@ -188,6 +188,10 @@ sub decodeAlarm
 		}
             }
         }
+	else
+	{
+	    print "Ain't got no $recipient\n";
+	}
     }
 
     return(@out);
@@ -199,6 +203,8 @@ sub makeOptimalAlarmList
     my(%h, @pages, @email, %doms, @ret, $tmp);
 
     # get rid of duplicates
+
+    @pages=@email=@ret=%doms=();
 
     foreach(@in)
     {
@@ -242,19 +248,17 @@ sub optimalAlarms
 
     foreach $key (keys(%{$hs[1]}))
     {
-        foreach $n (0..1)
+        foreach $tmp (@{ $hs[1]{$key} })
         {
-            foreach $tmp (@{ $hs[$n]{$key} })
-            {
-                @alrmDecoded=();
-                decodeAlarm($tmp, @hs);
-                push(@mylist, @alrmDecoded);
-            }
-
-	    $hs[0]{$key}=[makeOptimalAlarmList(@mylist)];
-	    # Drop the class.
-            push(@deletes, $key);
+            @alrmDecoded=();
+            decodeAlarm($tmp, @hs);
+            push(@mylist, @alrmDecoded);
         }
+
+        $hs[0]{$key}=[makeOptimalAlarmList(@mylist)];
+        @mylist=();
+	# Drop the class.
+        push(@deletes, $key);
     }
     foreach(@deletes)
     {
