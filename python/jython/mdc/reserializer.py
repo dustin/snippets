@@ -18,6 +18,12 @@ class MyProcessor(com.twowire.app.mdcscrape.MDCProcessor):
 	def __init__(self, sn, data):
 		com.twowire.app.mdcscrape.MDCProcessor.__init__(self, sn, data)
 
+def getWriter(fn):
+	fos=java.io.FileOutputStream(fn)
+	gos=java.util.zip.GZIPOutputStream(fos)
+	osw=java.io.OutputStreamWriter(gos)
+	return osw
+
 # the destination
 # recorder=com.twowire.app.mdcscrape.SerializingRecorder("test.log",
 	# sys.argv[2], 0)
@@ -26,9 +32,9 @@ observer=com.twowire.app.mdcscrape.MDCObserver()
 conf=net.spy.SpyConfig(sys.argv[1])
 # recorder=filecopy.DBFileRecorder(conf)
 recorder=com.twowire.app.mdcscrape.DelimitedFileRecorder(conf,
-	java.io.FileWriter("txfile.txt"),
-	java.io.FileWriter("dfile.txt"),
-	java.io.FileWriter("devices.txt"))
+	getWriter("txfile.txt.gz"),
+	getWriter("dfile.txt.gz"),
+	getWriter("devices.txt.gz"))
 
 observer.registerRecorder(recorder)
 
@@ -37,6 +43,7 @@ def getOrgFromPath(f):
 	return java.lang.Integer(a[-2])
 
 # The source
+processed=0
 for f in sys.argv[2:]:
 	print "Starting " + f
 	org=getOrgFromPath(f)
@@ -55,6 +62,8 @@ for f in sys.argv[2:]:
 			# Send it through the serializer
 			observer.jobComplete(MyProcessor(sn, data))
 
+			processed=processed+1
+
 			# Get the next serial number
 			sn=ois.readObject()
 
@@ -66,3 +75,4 @@ for f in sys.argv[2:]:
 	ois.close()
 
 recorder.finished()
+print "Finished with " + `processed` + " transactions"
