@@ -1,8 +1,14 @@
 ; SNPP Implementation in emacs LISP
 
+; need common lisp stuff
+(require 'cl)
+
 (defvar snpp-responses '() "SNPP Responses go here.")
 (defvar snpp-last-response '() "The most recent SNPP response.")
 (defvar snpp-process 'nil "The actual SNPP connection.")
+
+(defvar snpp-server 'nil "The SNPP server to which we'll be connecting.")
+(defvar snpp-port 444 "The SNPP port on the server to which we'll connect.")
 
 (defun snpp-read-filter (proc string) "This function processes all input."
   (loop for i in (split-string string "[\r\n]") do
@@ -65,7 +71,7 @@
   (interactive
    (let ((user (read-string "SNPP ID:  " nil 'snpp-history))
 	 (message (read-string "Message:  " nil nil)))
-     (snpp-send-message "dhcp-104" 1041 user message))))
+     (snpp-send-message snpp-server snpp-port user message))))
 
 (provide 'snpp-client)
 
@@ -75,3 +81,5 @@
 
 ;; test stuff
 ; snpp-responses
+
+
