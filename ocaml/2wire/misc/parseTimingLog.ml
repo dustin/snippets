@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: parseTimingLog.ml,v 1.1 2002/12/12 08:03:36 dustin Exp $
+ * arch-tag: 6BF17402-05DC-11D8-BEE8-000393DC8AE4
  *)
 
 open Unix;;
@@ -128,7 +128,7 @@ let main() =
 			if strstr(l, "TransactionTiming", 40) >= 40 then
 				process(get_log_entry(l))
 		done;
-	with End_of_file -> ignore();
+	with End_of_file -> ();
 ;;
 
 (* Start main if we're interactive. *)

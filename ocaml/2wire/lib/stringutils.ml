@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.8 2002/12/13 03:28:33 dustin Exp $
+ * arch-tag: 8D25F171-05DC-11D8-9773-000393DC8AE4
  *)
 
 let rec is_my_letter(l, c): bool =

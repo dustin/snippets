@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.8 2003/09/25 05:25:01 dustin Exp $ *)
+(* arch-tag: 64C50361-05DC-11D8-AAF8-000393DC8AE4 *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
