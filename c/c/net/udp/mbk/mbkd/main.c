@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.6 1998/10/03 06:21:10 dustin Exp $
+ * $Id: main.c,v 1.7 1998/10/03 07:29:15 dustin Exp $
  */
 
 #include <config.h>
@@ -97,17 +97,19 @@ detach(void)
 void
 process_main()
 {
-	int     s, len, stat, i;
+	int     stat, s, len, i;
 	struct sockaddr_in from;
-	struct mbk mbk_packet;
+	MBK *mbk_packet;
 	log_msg("Processing...\n");
 
 	s = getservsocket_udp(1099);
 
 	for (i=0;i<100;i++) {
 		len = sizeof(from);
+		mbk_packet=mbk_new(NULL, 0, AUTHDATA);
 
-		stat = recvfrom(s, (char *) &mbk_packet, sizeof(mbk_packet),
+		stat = recvfrom(s, (char *) &(mbk_packet->pkt),
+		    MAXPACKETLEN,
 		    0, (struct sockaddr *) &from, &len);
 		if (stat < 0) {
 			perror("recvfrom");
@@ -115,19 +117,20 @@ process_main()
 		log_debug("Read %d bytes from %s\n", stat,
 		    nmc_intToDQ(ntohl(from.sin_addr.s_addr)));
 		printf("Read %d bytes\n", stat);
-		printf("Length:\t%d\nData:\t%s\n", mbk_packet.len,
-		    mbk_packet.data);
+		printf("Length:\t%d\nData:\t%s\n", mbk_packet->pkt.len,
+		    mbk_packet->pkt.data);
 
-		parsepacket(&mbk_packet);
-		_hash_dump(mbk_packet.hash);
+		mbk_packet->parse(mbk_packet);
+		_hash_dump(mbk_packet->hash);
 
-		if(verify_auth(AUTHDATA, mbk_packet)<0) {
+		if(mbk_packet->verify(mbk_packet)<0) {
 		    printf("Packet failed auth\n");
 		} else {
 		    printf("Packet passed auth\n");
 		}
 
-		hash_destroy(mbk_packet.hash);
+        mbk_packet->destroy(mbk_packet);
+		/* hash_destroy(mbk_packet.hash); */
 		printf("Processed %d packets\n", i+1);
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.5 1998/10/03 06:21:12 dustin Exp $
+ * $Id: mbkd.h,v 1.6 1998/10/03 07:29:18 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -62,7 +62,7 @@ struct namedfunc {
     void (*func)(void);
 };
 
-typedef struct __mbk MBK_packet;
+typedef struct __mbk MBK;
 
 struct __mbk {
     struct {
@@ -74,11 +74,14 @@ struct __mbk {
 
     char *host;
 	int port;
+	char *auth;
 
-	int (*append)(MBK_packet *mbk, char *key, char *value);
-	int (*send)(MBK_packet mbk);
-	void (*destroy)(MBK_packet *mbk);
-	int (*parse)(MBK_packet *mbk);
+	int (*append)(MBK*mbk, char *key, char *value);
+	int (*send)(MBK *mbk);
+	int (*verify)(MBK *mbk);
+	struct hashtable *(*parse)(MBK *mbk);
+	void (*destroy)(MBK *mbk);
+	void (*sign)(MBK *mbk);
 
 };
 
@@ -86,16 +89,11 @@ char **split(char c, char *string);
 char *hexprint(int size, char *buf);
 char *kw(char *in);
 char *unhexprint(int size, char *buf);
-int append_data(struct mbk *mbk_packet, char *key, char *value);
-int send_pkt(struct mbk mbk_packet, char *host, int port, char *auth);
-int verify_auth(char *auth, struct mbk mbk_packet);
-struct hashtable *parsepacket(struct mbk *mbk_packet);
 void _do_log(int level, char *msg);
 void freeptrlist(char **list);
 void log_debug(char *format,...);
 void log_misc(int level, char *format, ...);
 void log_msg(char *format,...);
-void sign_data(struct mbk *mbk_packet, char *key);
-
+MBK *mbk_new(char *host, int port, char *auth);
 
 #endif /* MBKD_H */
