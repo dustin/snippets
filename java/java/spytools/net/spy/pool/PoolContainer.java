@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.12 2000/07/25 07:11:22 dustin Exp $
+// $Id: PoolContainer.java,v 1.13 2000/07/25 18:55:03 dustin Exp $
 
 package net.spy.pool;
 
@@ -134,6 +134,7 @@ public class PoolContainer extends Object {
 
 		// Hold it still whlie we do this...
 		synchronized(pool) {
+			debug("Moving " + ret);
 			pool.removeElement(ret);
 			pool.addElement(ret);
 		}
@@ -186,6 +187,7 @@ public class PoolContainer extends Object {
 	 * @exception PoolException when something bad happens
 	 */
 	public void prune() throws PoolException {
+		debug("Beginning prune.");
 		synchronized (pool) {
 			int i=0;
 			// We're going to flip through this twice...once to remove
@@ -195,6 +197,7 @@ public class PoolContainer extends Object {
 				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()==2) {
 					// Tell it that it can go away now.
+					debug("Removing " + p);
 					p.discard();
 					pool.removeElement(p);
 				}
@@ -205,6 +208,7 @@ public class PoolContainer extends Object {
 				if(p.pruneStatus()==1) {
 					if(currentObjects()>_min_objects) {
 						// Tell it that it can go away now.
+						debug("Removing " + p);
 						p.discard();
 						pool.removeElement(p);
 					}
@@ -251,6 +255,8 @@ public class PoolContainer extends Object {
 			synchronized(pool) {
 				pool.addElement(p);
 			}
+			debug("Added the object to the pool, now have "
+				+ currentObjects());
 		} else {
 			throw new PoolException("Cannot create another object in the pool");
 		}

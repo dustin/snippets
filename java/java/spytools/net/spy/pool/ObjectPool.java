@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.12 2000/07/25 07:11:19 dustin Exp $
+// $Id: ObjectPool.java,v 1.13 2000/07/25 18:55:01 dustin Exp $
 
 package net.spy.pool;
 
@@ -90,7 +90,7 @@ public class ObjectPool extends Object {
 	public boolean hasPool(String name) {
 		boolean ret=false;
 		synchronized (pools) {
-			ret=pools.contains(name);
+			ret=pools.containsKey(name);
 		}
 		return(ret);
 	}
