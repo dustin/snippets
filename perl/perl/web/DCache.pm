@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.1 1998/01/15 06:13:06 dustin Exp $
+# $Id: DCache.pm,v 1.2 1998/01/15 06:47:19 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -18,6 +18,12 @@ sub new
 
     bless($self);
     return($self);
+}
+
+sub cachedir
+{
+    my($self, $d)=@_;
+    $self->{cachedir}=$d;
 }
 
 sub getname
@@ -90,23 +96,37 @@ sub getcache
 
 sub checkcache
 {
-    my($self, $id)=@_;
-    my($name, $r);
+    my($self, $id, $compare)=@_;
+    my($name, $r, @a, $s1, $s2);
 
     $r=0;
     $name=getname($self, $id);
-    if(-f $name)
+    if(-f $name && (@a=stat(_)))
     {
-	open(DC_IN, $name);
-	$_=<DC_IN>;
-	if(/X-Cache: (.*)/)
+	$s1=$a[9];
+	if($compare ne "")
 	{
-	    if($id eq $1)
+            @a=stat($compare);
+	    $s2=$a[9];
+
+	    if($s1>$s2)
 	    {
 		$r=1;
 	    }
 	}
-	close(DC_IN);
+	else
+	{
+	    open(DC_IN, $name);
+	    $_=<DC_IN>;
+	    if(/X-Cache: (.*)/)
+	    {
+	        if($id eq $1)
+	        {
+		    $r=1;
+	        }
+	    }
+	    close(DC_IN);
+	}
     }
     return($r);
 }
