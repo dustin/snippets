@@ -1,0 +1,26 @@
+#include "irtime.h"
+
+VERSION ID 1 "0.10"
+ICON "irtime.bmp"
+
+FORM ID formID_MainForm AT (0 0 160 160)
+NOFRAME
+USABLE
+BEGIN
+  TITLE "IR Time"
+
+  BUTTON "Bind" ID ctlID_BindButton AT (5 20 AUTO AUTO) USABLE FRAME
+  BUTTON "Unbind" ID ctlID_UnbindButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
+  BUTTON "Test" ID ctlID_TestButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
+  BUTTON "Discover" ID ctlID_DiscoverButton AT (5 PrevBottom+5 AUTO AUTO) USABLE FRAME
+  BUTTON "Connect LAP" ID ctlID_ConnectLAPButton AT (5 PrevBottom+5 AUTO AUTO) USABLE FRAME
+  BUTTON "Disconnect LAP" ID ctlID_DisconnectLAPButton AT (PrevRight+5 PrevTop AUTO AUTO) USABLE FRAME
+END
+
+ALERT ID alertID_Error
+ERROR
+BEGIN
+  TITLE "Error"
+  MESSAGE "^1"
+  BUTTONS "Quit"
+END
