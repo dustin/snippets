@@ -10,14 +10,21 @@
 -behavior(gen_fsm).
 
 % Client functions
--export([start/4]).
+-export([start/5]).
 
 % States
--export([authenticated/2, ready_for_query/2]).
+-export([authenticated/2, ready_for_query/2, ready_for_query/3,
+	query_pending/2, query_pending/3]).
+
+% Commands
+-export([execute/2]).
 
 % callbacks
 -export([handle_event/3, handle_sync_event/4,
 	handle_info/3, init/1, terminate/3]).
+
+% Testing
+-export([test/0]).
 
 -record(conninfo, {host,port,user,pass,db}).
 -record(cancelinfo, {cpid,ckey}).
@@ -27,8 +34,12 @@
 % Client functions
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-start(Host, Port, User, Database) ->
-	gen_fsm:start(?MODULE, [Host,Port,User,Database],[]).
+start(Host, Port, User, Password, Database) ->
+	gen_fsm:start(?MODULE, [Host,Port,User,Password,Database],[]).
+
+% Execute a query.
+execute(Fsm, Query) ->
+	gen_fsm:sync_send_event(Fsm,{execute,Query}).
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helper functions
@@ -47,24 +58,59 @@ assert(V, Msg) ->
 			exit(Msg)
 	end.
 
-% Get the first four items from a list and create a 32-bit int out of them.
-% Return the 32-bit number and the remaining list.
-getInt32(Data) when length(Data) >= 4 ->
-	% Extract the part we care about from the rest
-	{FirstFour, Rest} = lists:split(4, Data),
+% Data reading routines
+getInt(Data, Len) when length(Data) >= Len ->
+	% Extract the parts we care about
+	{First, Rest} = lists:split(Len, Data),
 	% Create our int (big-endian).
 	Rv = lists:foldl(fun(A, In) when (A >= 0) and (256 > A) ->
 			In * 256 + A end,
-		0, FirstFour),
+		0, First),
 	% Return the number and the list
 	{Rv, Rest}.
+
+% 32-bit numbers
+getInt32(Data) ->
+	getInt(Data, 4).
+
+% 16-bit numbers
+getInt16(Data) ->
+	getInt(Data, 2).
+
+% Strings
+getString(Rv, [Head|Tail]) ->
+	case Head of
+		0 -> {lists:reverse(Rv), Tail};
+		_ -> getString([Head|Rv], Tail)
+	end;
+getString(Rv, []) ->
+	{Rv, []}.
+
+getString(Data) ->
+	getString([], Data).
+
+% Data fetching
+getAllData(Len, Rest, Info) ->
+	Remaining = Len - length(Rest),
+	if (Remaining < 1) ->
+			if (Remaining == 0) ->
+					{Rest, []}; % Nothing left, nothing over
+				true ->
+					lists:split(Len, Rest)
+			end;
+		true ->
+			io:format("Need to read ~p more bytes~n", [Remaining]),
+			{ok, Pkt} = gen_tcp:recv(Info#pginfo.socket, Remaining),
+			io:format("Read ~p~n", [Pkt]),
+			getAllData(Len, Rest ++ Pkt, Info)
+	end.
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Callbacks
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Establish the TCP connection and let the other end know who we are
-init([Host,Port,User,Database]) ->
+init([Host,Port,User,Password,Database]) ->
 	io:format("Connecting to ~p:~p~n", [Host,Port]),
 	% Connect
 	{ok, Socket} = gen_tcp:connect(Host, Port, [list,{packet,0}]),
@@ -75,7 +121,7 @@ init([Host,Port,User,Database]) ->
 		"database", binary_to_list(<<0>>), Database, binary_to_list(<<0,0>>)]),
 	ok = gen_tcp:send(Socket, makeString(Announcement)),
 	Conninfo=#conninfo{host=Host, port=Port, user=User,
-	        pass="blahblah", db=Database},
+	        pass=Password, db=Database},
 	{ok, connected, #pginfo{conninfo=Conninfo, socket=Socket,
 		sstat=dict:new()}}.
 
@@ -88,6 +134,19 @@ authenticated({data_arrived, Type, Extra}, Info) ->
 ready_for_query({data_arrived, Type, Extra}, Info) ->
 	io:format("Data arrived in ready_for_query state, type ~c~n", [Type]),
 	handle_packet([Type|Extra], authenticated, Info).
+
+ready_for_query({execute, Query}, Pid, Info) ->
+	io:format("Executing query:  ~p~n", [Query]),
+	ok = gen_tcp:send(Info#pginfo.socket, [$Q|makeString(Query ++ "\0")]),
+	{reply, ok, query_pending, Info}.
+
+query_pending({data_arrived, Type, Extra}, Info) ->
+	io:format("Data arrived while query pending, type ~c~n", [Type]),
+	handle_packet([Type|Extra], query_pending, Info).
+
+query_pending(Something, Pid, Info) ->
+	io:format("query_pending got message:  ~p~n", [Something]),
+	{next_state, authenticated, Info}.
 
 %%%%% authentication handlers
 
@@ -111,6 +170,34 @@ perform_auth(Type, Data, connected, Info) ->
 	exit("Trying to use unhandled auth type " ++ atom_to_list(Type)).
 
 %%%%% end of authentication handlers
+
+%%%%% Table result types
+print_types(0, Data) ->
+	Data;
+print_types(N, Data) ->
+	{FieldName, Rest0} = getString(Data),
+	{Col, Rest1} = getInt32(Rest0),
+	{ColAttr, Rest2} = getInt16(Rest1),
+	{DataTypeOid, Rest3} = getInt32(Rest2),
+	{TypeLen, Rest4} = getInt16(Rest3),
+	{TypeMod, Rest5} = getInt32(Rest4),
+	{FormatCode, Rest6} = getInt16(Rest5),
+	io:format("Col ~p, col=~p, attr=~p, type=~p, size=~p, mod=~p, code=~p~n",
+		[FieldName, Col, ColAttr, DataTypeOid, TypeLen, TypeMod, FormatCode]),
+	print_types(N-1, Rest6).
+
+% The columns
+print_cols(0, Data, Info) ->
+	Data;
+print_cols(N, Data, Info) ->
+	{Len, Rest} = getInt32(Data),
+	{CData, Rest1} = case Len of
+			-1 -> {null, Rest};
+			_ -> getAllData(Len, Rest, Info)
+		end,
+	io:format("Data:  ~p~n", [CData]),
+	print_cols(N-1, Rest1, Info).
+%%%%% End table result types
 
 % Auth request
 handle_packet($R, Length, Data, connected, Info) ->
@@ -143,9 +230,33 @@ handle_packet($K, Length, Data, State, Info) ->
 
 % Ready for query
 handle_packet($Z, Length, Data, State, Info) ->
-	io:format("Ready for query~n", []),
+	HowReady = case Data of
+		"I" -> trans_idle;
+		"T" -> in_trans;
+		"E" -> failed_trans
+		end,
+	io:format("Ready for query (~p)~n", [HowReady]),
 	% io:format("State of the union:  ~p~n", [Info]),
 	{next_state, ready_for_query, Info};
+
+% Row description
+handle_packet($T, Length, Data, query_pending, Info) ->
+	{NFields, Rest} = getInt16(Data),
+	io:format("Got ~p fields~n", [NFields]),
+	Rest2 = print_types(NFields, Rest),
+	{next_state, query_pending, Info};
+
+% Data
+handle_packet($D, Length, Data, query_pending, Info) ->
+	{NCols, Rest} = getInt16(Data),
+	io:format("Got ~p cols of data~n", [NCols]),
+	Rest2 = print_cols(NCols, Rest, Info),
+	{next_state, query_pending, Info};
+
+handle_packet($C, Length, Data, query_pending, Info) ->
+	{S, Rest} = getString(Data),
+	io:format("Command complete:  ~p~n", [S]),
+	{next_state, authenticated, Info};
 
 % parameter status
 handle_packet($S, Length, Data, State, Info) ->
@@ -170,7 +281,7 @@ dealWithRemaining([], _State, _Info) ->
 handle_packet([Type|Data], State, Info) ->
 	{Len, Rest} = getInt32(Data),
 	% io:format("Got packet of type ~c, ~p bytes~n", [Type,Len]),
-	{FullData, Extra} = getAllData(Len, Rest, Info),
+	{FullData, Extra} = getAllData(Len-4, Rest, Info),
 	assert(length(FullData)+4 == Len, "Incorrect data length"),
 	dealWithRemaining(Extra, State, Info),
 	handle_packet(Type, Len, FullData, State, Info).
@@ -178,22 +289,6 @@ handle_packet([Type|Data], State, Info) ->
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Callbacks
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-getAllData(Len, Rest, Info) ->
-	DLen=length(Rest) + 4,
-	Remaining = Len - DLen,
-	if (Remaining < 1) ->
-			if (Remaining == 0) ->
-					{Rest, []}; % Nothing left, nothing over
-				true ->
-					lists:split(Len-4, Rest)
-			end;
-		true ->
-			io:format("Need to read ~p more bytes~n", [Remaining]),
-			{ok, Pkt} = gen_tcp:recv(Info#pginfo.socket, Remaining),
-			io:format("Read ~p~n", [Pkt]),
-			getAllData(Len, Rest ++ Pkt, Info)
-	end.
 
 % Auth request
 handle_info({tcp, _Port, Data}, State, Info) ->
