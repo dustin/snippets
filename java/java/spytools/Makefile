@@ -70,6 +70,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/Promise.class \
 	net/spy/util/PwGen.class \
 	net/spy/util/ThreadPool.class \
+	net/spy/util/TimeSpan.class \
 	net/spy/pool/PoolAble.class \
 	net/spy/pool/PoolContainer.class \
 	net/spy/pool/PoolException.class \
