@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.14 1999/09/28 06:37:19 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.15 1999/09/28 06:51:38 dustin Exp $
  */
 
 import java.io.*;
 import java.sql.*;
-import java.text.*;
 import java.util.*;
 import java.net.*;
 import sun.misc.*;
