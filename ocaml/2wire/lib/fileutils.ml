@@ -105,10 +105,12 @@ let dir_iter dir func arg =
 let rec walk_dir dir func arg =
 	dir_iter dir
 		(fun d l a ->
-			let fq = List.map (fun x -> Filename.concat d x) l in
-			List.iter (fun x -> walk_dir x func arg)
-				(List.filter isdir fq);
-			func d (List.filter (fun x ->
-				not (isdir (Filename.concat d x))) l) arg)
+			(* Split into dirs and files *)
+			let (dirs, files) =
+				List.partition (fun x -> isdir (Filename.concat d x)) l in
+			(* Recurse through the dirs *)
+			List.iter (fun x -> walk_dir (Filename.concat d x) func arg) dirs;
+			(* And then process the files *)
+			func d files arg)
 	arg
 ;;
