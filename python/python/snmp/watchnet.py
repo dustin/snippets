@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: watchnet.py,v 1.4 2002/04/04 20:00:47 dustin Exp $
+# $Id: watchnet.py,v 1.5 2002/04/09 23:47:10 dustin Exp $
 
 import collector, jobs
 
@@ -36,6 +36,17 @@ if __name__ == '__main__':
 			('ifInOctets.1', 'ifOutOctets.1'), 60, 'rrd/dante.sn0.rrd'))
 		nc.addJob(jobs.RRDSNMPJob('dante', 'public',
 			('ifInOctets.2', 'ifOutOctets.2'), 60, 'rrd/dante.ae0.rrd'))
+		# ip, udp, tcp:
+		for host in ('dante', 'juan'):
+			nc.addJob(jobs.RRDSNMPJob(host, 'public',
+				('ipInReceives.0', 'ipInDelivers.0'), 60,
+				'rrd/' + host + '_ip_in.rrd'))
+			nc.addJob(jobs.RRDSNMPJob(host, 'public',
+				('udpInDatagrams.0', 'udpOutDatagrams.0'), 60,
+				'rrd/' + host + '_udp_in.rrd'))
+			nc.addJob(jobs.RRDSNMPJob(host, 'public',
+				('tcpInSegs.0', 'tcpOutSegs.0'), 60,
+				'rrd/' + host + '_tcp_in.rrd'))
 		nc.run()
 	finally:
 		print "Requesting stop."
