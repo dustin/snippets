@@ -1,5 +1,8 @@
 indexing
    description: "Base64 stuff.";
+   copyright: "1999";
+   author: "Dustin Sallings";
+   licensing: "EFLL <see forum.txt>";
 class BASE64
 
 creation {ANY}
