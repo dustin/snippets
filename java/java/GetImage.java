@@ -22,10 +22,10 @@ public class GetImage
 		photo = DriverManager.getConnection(source, "dustin", "");
 		st = photo.createStatement();
 
-		getit(505);
+		getit(Integer.valueOf(args[0]));
 	}
 
-	private static void getit(int which) throws SQLException, IOException {
+	private static void getit(Integer which) throws SQLException, IOException {
 		String query;
 		BASE64Decoder base64 = new BASE64Decoder();
 
