@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 1998  SPY Internetworking
  *
- * $Id: radius.h,v 1.5 1998/06/22 00:07:35 dustin Exp $
+ * $Id: radius.h,v 1.6 1998/06/22 01:42:06 dustin Exp $
  */
 
 #define RADIUS_VECTOR_LEN 16
 #define RADIUS_PACKET_SIZE 1024
 #define RADIUS_PASS_LENGTH 16
-#define RADIUS_HEADER_LENGTH (sizeof(unsigned char)*2)+ \
+#define RADIUS_HEADER_LENGTH ((sizeof(unsigned char)*2)+ \
 			     sizeof(unsigned short)+ \
-			     (sizeof(unsigned char)*RADIUS_VECTOR_LEN)
+			     (sizeof(unsigned char)*RADIUS_VECTOR_LEN))
 
 typedef struct {
     unsigned char attribute;
@@ -42,9 +42,10 @@ int rad_recv(radius *r);
 int rad_send(radius *r);
 int rad_simpleauth(radius *rad, char *username, char *password);
 int rad_verify(radius *r);
-void rad_add_att(radius *r, int type, unsigned char *data, int length);
 radius *rad_init(char *hostname, int port, char *secret);
+void rad_add_att(radius *r, int type, unsigned char *data, int length);
 void rad_destroy(radius *r);
+void rad_dump_att(radius *r);
 
 /* Errors */
 
@@ -104,6 +105,7 @@ void rad_destroy(radius *r);
 #define RADIUS_DIALBACK_FRAMED_USER    4
 #define RADIUS_OUTBOUND_USER           5
 #define RADIUS_SHELL_USER              6
+#define RADIUS_CYRUS_USER              7
 #define RADIUS_AUTH_ONLY               8
 
 /* Framed Protocols */
