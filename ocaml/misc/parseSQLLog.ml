@@ -1,5 +1,5 @@
 (* Copyright (c) 2002  Dustin Sallings <dustin@spy.net> *)
-(* $Id: parseSQLLog.ml,v 1.6 2002/12/12 00:23:43 dustin Exp $ *)
+(* $Id: parseSQLLog.ml,v 1.8 2003/09/25 05:25:01 dustin Exp $ *)
 (* 2wire SQL Log parser *)
 
 open Unix;;
@@ -7,12 +7,14 @@ open Stringutils;;
 
 (** Log entry representing a single line from the file *)
 type log_entry = {
+	server: string;
 	time: int;
 	calls: int;
 	calltime: int;
 };;
 
 type stats = {
+	db_server: string;
 	mutable last_time: int;
 	mutable total_calls: int;
 	mutable total_time: int;
@@ -41,12 +43,26 @@ let parse_time(l: string): int =
 		}))
 ;;
 
+(* Log entry printer *)
+let print_log_entry(l: log_entry) =
+	print_string(l.server);
+	print_string(" ");
+	print_int(l.time);
+	print_string(" ");
+	print_int(l.calls);
+	print_string(" ");
+	print_int(l.calltime);
+	print_newline();
+;;
+
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
 
 	let parts = split(l, ' ', 12) in
 	let tparts = split((List.nth parts 10), '/', 3) in
 		{
+			(* line_array[7] *)
+			server = List.nth parts 7;
 			(* line[0:19] *)
 			time = parse_time(String.sub l 0 19);
 			(* line_array[10][1] *)
@@ -63,44 +79,72 @@ let get_approx_time(le: log_entry): int =
 	(le.time / 60) * 60
 ;;
 
+(* Create a stat for each name in the names array *)
+let make_stats(name: string): stats =
+	{ db_server = name; last_time = 0; total_calls = 0; total_time = 0 }
+;;
+
+(* Process the line *)
+let process_line rrd_prefix stuff le =
+	let t = get_approx_time(le) in
+
+	(* print_log_entry(le); *)
+
+	(* Figure out if it's a good time to print out the entry *)
+	if t <> stuff.last_time
+		&& stuff.last_time <> 0
+		&& stuff.total_calls > 0
+		then
+	begin
+		(* Print out the stuff *)
+		print_string("update ");
+		print_string(rrd_prefix);
+		print_string("-");
+		print_string(le.server);
+		print_string(".rrd");
+		print_string(" ");
+		print_int(stuff.last_time); print_string(":");
+		print_int(stuff.total_calls); print_string(":");
+		print_int(stuff.total_time); print_newline();
+
+		stuff.total_calls <- 0;
+		stuff.total_time <- 0;
+	end;
+
+	(* If there were calls, add them up *)
+	if le.calls > 0 then
+	begin
+		stuff.last_time <- t;
+		stuff.total_calls <- (stuff.total_calls + 1);
+		stuff.total_time <- (stuff.total_time +
+							(le.calltime / le.calls));
+	end
+;;
+
+let error_line(s: string) =
+	prerr_string("Error on line:  ");
+	prerr_endline(s);
+;;
+
 (* Do the main thing *)
 let main() =
-	(* print_string "Got thing.\n"; *)
 	let rrd = (Array.get Sys.argv 1)
-	and stuff = { last_time = 0; total_calls = 0; total_time = 0 } in
+	and servers = List.map (function x -> make_stats x) ["CMS";"LOG";"CAT"] in
 	try
 		while true do
 			let l = (read_line()) in
 			if is_log_entry(l) then
 			begin
-				let le = get_log_entry(l) in
-				let t = get_approx_time(le) in
-
-				(* Figure out if it's a good time to print out the entry *)
-				if t <> stuff.last_time && stuff.last_time <> 0
-					&& stuff.total_calls > 0
-					then
-				begin
-					(* Print out the stuff *)
-					print_string("update ");
-					print_string(rrd);
-					print_string(" ");
-					print_int(stuff.last_time); print_string(":");
-					print_int(stuff.total_calls); print_string(":");
-					print_int(stuff.total_time); print_newline();
-
-					stuff.total_calls <- 0;
-					stuff.total_time <- 0;
-				end;
-
-				(* If there were calls, add them up *)
-				if le.calls > 0 then
-				begin
-					stuff.last_time <- t;
-					stuff.total_calls <- (stuff.total_calls + 1);
-					stuff.total_time <- (stuff.total_time +
-										(le.calltime / le.calls));
-				end
+				try
+					let le = get_log_entry(l) in
+					let stuff = List.find
+									(function n -> n.db_server = le.server)
+									servers in
+					process_line rrd stuff le;
+				with
+					Failure("int_of_string") -> error_line(l);
+					| Failure("nth") -> error_line(l);
+					| Not_found -> error_line(l);
 			end;
 		done;
 	with End_of_file -> ignore();
