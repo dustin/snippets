@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.1 2001/03/27 19:23:34 dustin Exp $
+// $Id: SPGen.java,v 1.2 2001/03/27 21:47:03 dustin Exp $
 
 package net.spy.util;
 
@@ -21,7 +21,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.1 $";
+	private String version="$Revision: 1.2 $";
 	private long cachetime=0;
 	private boolean debug=false;
 	private Vector sqlquery=null;
@@ -342,8 +342,12 @@ public class SPGen extends Object {
 
 		String infile=args[0];
 		// Get rid of the .spt
-		String classname=infile.substring(0, infile.indexOf(".spt"));
-		String outfile=classname + ".java";
+		int lastslash=infile.lastIndexOf(File.separatorChar);
+		String basename=infile.substring(0, infile.indexOf(".spt"));
+		// If it matches, start at the next character, if it didn't, it's
+		// -1 and start at 0
+		String classname=basename.substring(lastslash+1);
+		String outfile=basename + ".java";
 
 		BufferedReader in=new BufferedReader(new FileReader(infile));
 		PrintWriter out=new PrintWriter(new FileWriter(outfile));
