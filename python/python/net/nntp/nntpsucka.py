@@ -2,13 +2,32 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.4 2002/03/20 11:17:10 dustin Exp $
+# $Id: nntpsucka.py,v 1.5 2002/03/20 19:28:12 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
 import time
 import anydbm
 import os
+
+class Stats:
+	def __init__(self):
+		self.moved=0
+		self.dup=0
+		self.other=0
+
+	def addMoved(self):
+		self.moved+=1
+
+	def addDup(self):
+		self.dup+=1
+
+	def addOther(self):
+		self.other+=1
+
+	def __str__(self):
+		return "Moved:  " + self.moved + ", duplicate:  " + self.dup \
+			+ ", Other:  " + self.other
 
 class NNTPSucka:
 	headers=['From', 'Subject', 'Message-Id', 'Sender', 'MIME-Version', \
@@ -20,6 +39,7 @@ class NNTPSucka:
 		self.src=src
 		self.dest=dest
 		self.db=anydbm.open("seen", "c")
+		self.stats=Stats()
 
 	def __del__(self):
 		self.db.close()
@@ -70,9 +90,11 @@ class NNTPSucka:
 				messid=ids[str(i)]
 				if self.db.has_key(messid):
 					print "Already seen " + messid
+					self.stats.addDup()
 				else:
 					self.moveArticle(groupname, i)
 					self.db[messid]=str(time.time())
+					self.stats.addMoved()
 			except KeyError, e:
 				# Couldn't find the header, article probably doesn't
 				# exist anymore.
@@ -81,6 +103,9 @@ class NNTPSucka:
 				# Save it if it's duplicate
 				if str(e).find("Duplicate"):
 					self.db[messid]=str(time.time())
+					self.stats.addDup()
+				else:
+					self.stats.addOther()
 				print "Failed:  " + str(e)
 
 	def copyServer(self):
@@ -93,12 +118,17 @@ class NNTPSucka:
 			except nntplib.NNTPTemporaryError, e:
 				print "Error on group " + group + ":  " + str(e)
 
+	def getStats(self):
+		return self.stats
+
 def main():
 	s=NNTP('news.mindspring.com')
 	d=NNTP('news.west.spy.net')
 	sucka=NNTPSucka(s,d)
 
 	sucka.copyServer()
+
+	print self.getStats()
 
 if __name__ == '__main__':
 	main()
