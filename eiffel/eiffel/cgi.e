@@ -1,7 +1,7 @@
 indexing
    description: "CGI Processing routines.";
    author: "Dustin Sallings <dustin@spy.net>";
-   version: "$Revision: 1.6 $";
+   version: "$Revision: 1.7 $";
    copyright: "1999";
    license: "See forum.txt";
 class CGI
@@ -26,7 +26,7 @@ feature {ANY}
    display is
       -- Display our data.
       require
-         have_cgi_data;
+         has_data;
       local
          i: INTEGER;
          kv: KEYVALUE;
@@ -49,7 +49,7 @@ feature {ANY}
       -- Get the value for a key
       require
          key /= Void;
-         have_cgi_data;
+         has_data;
       local
          i: INTEGER;
          kv: KEYVALUE;
@@ -76,7 +76,9 @@ feature {ANY}
          kv: KEYVALUE;
          s: STRING;
          i: INTEGER;
+		 tried: BOOLEAN;
       once
+		 if not tried then
          get_cgi_data;
          a := split_on(cgi_input,'&');
          !!cgi_data.with_capacity(1,1);
@@ -91,13 +93,14 @@ feature {ANY}
             cgi_data.add_last(kv);
             i := i + 1;
          end;
+		 has_data:=true;
+		 end
+	  rescue
+		tried:=true;
+		retry;
       end -- parse
 
-   have_cgi_data: BOOLEAN is
-      -- Verify we have parsed the CGI data.
-      do
-         Result := cgi_data /= Void;
-      end -- have_cgi_data
+   has_data: BOOLEAN;
 
 feature {ANY} -- Misc features, probably should be in a utility class
 

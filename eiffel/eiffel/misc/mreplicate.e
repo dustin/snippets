@@ -1,30 +1,26 @@
 indexing
-	description: "The Replicator...";
-	version: "$Revision: 1.6 $";
-
+   description: "Replicate the Mr. Modem database...";
+version: "$Revision: 1.7 $";
 class MREPLICATE
 
-creation make
+creation {ANY}
+   make
 
-feature
+feature {ANY}
 
-	make is
-		local
-			s, d: PG;
-			rep: PG_REPLICATE;
-		do
-			!!s.make;
-			s.set_dbname("modems");
-			s.set_host("propaganda.spy.net");
-			s.connect;
+   make is
+      local
+         s, d: PG;
+         rep: PG_REPLICATE;
+      do
+         !!s.make;
+         s.set_dbname("events");
+         s.connect;
+         !!d.make;
+         d.set_dbname("event_tmp");
+         d.connect;
+         !!rep.make(s,d);
+         rep.full;
+      end -- make
 
-			!!d.make;
-			d.set_dbname("modems");
-			d.set_host("bleu");
-			d.connect;
-
-			!!rep.make(s, d);
-
-			rep.full;
-		end
-end
+end -- class MREPLICATE
