@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeStampedHash.java,v 1.1 2001/05/22 03:28:17 dustin Exp $
+// $Id: TimeStampedHash.java,v 1.2 2001/08/28 22:51:51 dustin Exp $
 
 package net.spy.util;
 
@@ -16,6 +16,10 @@ public class TimeStampedHash extends Hashtable {
 	private long timestamp=0;
 	private long lastPut=0;
 	private long lastGet=0;
+	private long hits=0;
+	private long misses=0;
+	private long watermark=0;
+	private long puts=0;
 
 	/**
 	 * Get an instance of SpyCacheStore.
@@ -33,7 +37,13 @@ public class TimeStampedHash extends Hashtable {
 	 */
 	public Object get(Object key) {
 		markGet();
-		return(super.get(key));
+		Object o=super.get(key);
+		if(o==null) {
+			misses++;
+		} else {
+			hits++;
+		}
+		return(o);
 	}
 
 	/**
@@ -48,6 +58,14 @@ public class TimeStampedHash extends Hashtable {
 	private void markPut() {
 		lastPut=System.currentTimeMillis();
 		timestamp=lastPut;
+
+		// Update the stats
+		puts++;
+		synchronized(this) {
+			if(size()>watermark) {
+				watermark=size();
+			}
+		}
 	}
 
 	// Mark a get
@@ -99,6 +117,36 @@ public class TimeStampedHash extends Hashtable {
 	public long getUseAge() {
 		long now=System.currentTimeMillis();
 		return(now-timestamp);
+	}
+
+	/**
+	 * Get the number of hits (number of requests for items that were
+	 * actually there).
+	 */
+	public long getHits() {
+		return(hits);
+	}
+
+	/**
+	 * Get the number of misses (number of requests for items that were not
+	 * actually there).
+	 */
+	public long getMisses() {
+		return(misses);
+	}
+
+	/**
+	 * Get the watermark (maximum number of objects seen at any one time).
+	 */
+	public long getWatermark() {
+		return(watermark);
+	}
+
+	/**
+	 * Get the total number of put() invocations.
+	 */
+	public long getNumPuts() {
+		return(puts);
 	}
 
 }

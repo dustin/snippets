@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.9 2001/07/28 02:39:13 dustin Exp $
+ * $Id: SpyCache.java,v 1.10 2001/08/28 22:51:50 dustin Exp $
  */
 
 package net.spy.cache;
@@ -140,9 +140,14 @@ public class SpyCache extends Object {
 		}
 
 		public String toString() {
-			return(super.toString() + " - " + passes + " runs, mod age:  "
-				+ cacheStore.getUseAge()
-				+ ", items cached:  " + cacheStore.size());
+			return(super.toString() + " - "
+				+ passes + " runs, mod age:  " + cacheStore.getUseAge()
+				+ ", cur size:  " + cacheStore.size()
+				+ ", tot stored:  " + cacheStore.getNumPuts()
+				+ ", watermark:  " + cacheStore.getWatermark()
+				+ ", hits:  " + cacheStore.getHits()
+				+ ", misses:  " + cacheStore.getMisses()
+				);
 		}
 
 		private void cleanup() throws Exception {
