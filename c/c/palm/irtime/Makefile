@@ -28,7 +28,7 @@ irtime.rcp: irtime.h
 
 clean:
 	rm -f *~
-	rm -f irtime $(OBJS)
+	rm -f irtime $(OBJS) irtime.prc
 	rm -f *.bin *.grc
 	rm -f timestamp-grc timestamp-bin
 
