@@ -10,7 +10,7 @@ JAVADOC=$(JAVAHOME)/bin/javadoc
 COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
-C2=$(MYLIB)/jndi.jar
+C2=$(MYLIB)/jndi.jar:$(MYLIB)/ant.jar
 S=/System/Library/Frameworks/JavaVM.framework/Classes/classes.jar
 CLASSPATH=$(C1):$(C2):$S:.
 
@@ -62,6 +62,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/Digest.class \
 	net/spy/util/SPGen.class \
 	'net/spy/util/SPGen$$Parameter.class' \
+	net/spy/util/SPGenTask.class \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/util/NestedException.class \
