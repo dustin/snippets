@@ -7,7 +7,8 @@ OCAMLC=ocamlc
 PROFILE=
 
 PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
-	builddict cipher splitFreqs lncp resolver ager blockDigest blockDigest.cmi
+	builddict cipher splitFreqs lncp resolver ager blockDigest blockDigest.cmi \
+	digestline
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -22,6 +23,10 @@ mailCompress: mailCompress.ml
 hlgrep: hlgrep.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa str.cmxa fileutils.cmx hlgrep.ml
+
+digestline: digestline.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa str.cmxa fileutils.cmx digestline.ml
 
 missingNumbers: missingNumbers.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
