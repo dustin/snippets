@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: spy.pov,v 1.5 2003/04/21 21:58:28 dustin Exp $
+// $Id: spy.pov,v 1.6 2003/04/22 07:15:33 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -27,57 +27,47 @@
 	}
 #end
 
+// Declaration of a light
+#declare a_light =
+	union {
+		light_source {
+			<0, 1, -4>
+			color Gray75
+			looks_like {
+				sphere { <0, 0, 0>, .3
+					texture {
+						Chrome_Texture
+						pigment { White }
+						normal { bumps 0.4 scale 0.2 }
+					}
+				}
+			}
+		}
+
+		cylinder {
+			<0, .9, -4>, <0, -2, -4>, .1
+			texture {
+				Chrome_Texture
+				pigment { White }
+				normal { bumps 0.2 scale 0.2 }
+			}
+		}
+	}
 
 sky_sphere { S_Cloud5 }
 
 // Light on the right
 
-light_source {
-	<3.3, 1, -4>
-	color Gray75
-	looks_like {
-		sphere { <0, 0, 0>, .3
-			texture {
-				Chrome_Texture
-				pigment { White }
-				normal { bumps 0.4 scale 0.2 }
-			}
-		}
-	}
-}
-
-cylinder {
-	<3.3, .9, -4>, <3.3, -2, -4>, .1
-	texture {
-		Chrome_Texture
-		pigment { White }
-		normal { bumps 0.2 scale 0.2 }
-	}
+object {
+	a_light
+	translate <3.3, 0, 0>
 }
 
 // Light on the left
 
-light_source {
-	<-3.3, 1, -4>
-	color Gray75
-	looks_like {
-		sphere { <0, 0, 0>, .3
-			texture {
-				Chrome_Texture
-				pigment { White }
-				normal { bumps 0.4 scale 0.2 }
-			}
-		}
-	}
-}
-
-cylinder {
-	<-3.3, .9, -4>, <-3.3, -2, -4>, .1
-	texture {
-		Chrome_Texture
-		pigment { White }
-		normal { bumps 0.2 scale 0.2 }
-	}
+object {
+	a_light
+	translate <-3.3, 0, 0>
 }
 
 // The water
