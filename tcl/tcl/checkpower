@@ -1,0 +1,26 @@
+#!/usr/pkg/bin/tclsh8.0
+# $Id: checkpower,v 1.1 2000/06/14 20:48:08 dustin Exp $
+
+source snpp.tcl
+
+proc alertOnPower { } {
+	set in [ open "|apm" ]
+	set page {}
+	while { [ gets $in line ] != -1 } {
+		lappend page $line
+	}
+
+	set msg "APM Alert for [info hostname ]:  [ join $page " - " ]"
+
+	puts "Sending $msg"
+	snpp_sendpage pager.beyond.com 1041 dustin $msg
+}
+
+proc checkPower { } {
+	set status [ exec apm -a ]
+	if { $status != 1 } {
+		alertOnPower
+	}
+}
+
+checkPower
