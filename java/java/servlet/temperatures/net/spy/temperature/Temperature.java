@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.12 2002/05/06 22:13:27 dustin Exp $
+ * $Id: Temperature.java,v 1.13 2002/08/10 05:28:49 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -53,7 +53,7 @@ public class Temperature extends PngServlet implements ImageObserver
 			log("Getting the base image.");
 			getBaseImage();
 			log("Got the base image.");
-			cache=new SpyCache();
+			cache=SpyCache.getInstance();
 
 		} catch(Exception e) {
 			throw new ServletException("Error getting base image:  " + e);
