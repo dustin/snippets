@@ -1,70 +1,76 @@
 #include <stdio.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <assert.h>
 
-void printfunc(void)
+#define FILENAME "/tmp/semtest.file"
+
+void
+makefile()
 {
-    int sem;
-    struct sembuf sb;
+	int fd;
 
-    puts("Getting semaphor...");
-    if( (sem=semget(187, 5, 0)) < 0)
-    {
-        puts("No semaphor, creating...");
+	fd=open(FILENAME, O_WRONLY|O_CREAT|O_EXCL, 0644);
+	if(fd<0) {
+		perror("open");
+		assert(fd>=0);
+	}
+	close(fd);
+}
 
-        if( (sem=semget(187, 5, IPC_CREAT|0644)) < 0)
-        {
-	    perror("semget");
-	    return;
-        }
-    }
-    else
-    {
-	puts("Attached to old semaphor");
-    }
+void
+removefile()
+{
+	int r;
+	r=unlink(FILENAME);
+	if(r<0) {
+		perror("unlink");
+		assert(r>=0);
+	}
+	assert(r>=0);
+}
 
-    printf("semaphor is %d\n", sem);
+void
+printfunc(void)
+{
+	int             sem;
+	struct sembuf   sb[1];
 
-    puts("Checking lock...");
-    sb.sem_num=0;
-    sb.sem_op=0;
-    sb.sem_flg=0;
+	puts("Getting semaphore...");
+	if ((sem = semget(187, 1, 0)) < 0) {
+		perror("semget");
+		return;
+	}
 
-    if( (semop(sem, &sb, 1)) < 0 )
-    {
-	perror("semop");
-	return;
-    }
+	puts("Obtaining lock...");
+	sb[0].sem_num = 0;
+	sb[0].sem_op  = -1;
+	sb[0].sem_flg = SEM_UNDO;
 
-    puts("Lock's OK.  Locking the door.");
-    sb.sem_num=0;
-    sb.sem_op=1;
-    sb.sem_flg=0;
+	if ((semop(sem, sb, 1)) < 0) {
+		perror("semop");
+		return;
+	}
+	puts("Locked...");
+	makefile();
+	sleep(15);
+	removefile();
+	puts("Unlocking...");
 
-    if( (semop(sem, &sb, 1)) < 0 )
-    {
-	perror("semop");
-	return;
-    }
-
-    puts("Locked...");
-    sleep(15);
-    puts("Unlocking...");
-
-    sb.sem_num=0;
-    sb.sem_op=-1;
-    sb.sem_flg=0;
-
-    if( (semop(sem, &sb, 1)) < 0 )
-    {
-	perror("semop");
-	return;
-    }
+	sb[0].sem_num = 0;
+	sb[0].sem_op  = 1;
+	sb[0].sem_flg = 0;
+	if ((semop(sem, sb, 1)) < 0) {
+		perror("semop");
+		return;
+	}
 
 }
 
-void main(void)
+void
+main(void)
 {
-    printfunc();
+	printfunc();
 }
