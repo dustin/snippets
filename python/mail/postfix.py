@@ -32,11 +32,13 @@ class PolicyEngine(object):
 
     def run(self, input=sys.stdin, output=sys.stdout):
         """Run the PolicyEngine reading from input and writing to output.
-           input should be an iterable object producing lines (i.e. sys.stdin)
+           input should have a readline() method (i.e. sys.stdin)
            and output should have a write() method (i.e. sys.stdout)."""
 
         attrs={}
-        for l in input:
+        # I have to read a line a time here in order to get stuff working
+        l=input.readline()
+        while l != '':
             l=l.rstrip()
             if l == '':
                 # Empty line...we need to prep a response
@@ -58,6 +60,8 @@ class PolicyEngine(object):
                     self.log.warn("Invalid/unexpected input line: %s", l)
                 else:
                     attrs[parts[0]]=parts[1]
+            # Read the next line
+            l=input.readline()
 
 class ChainedPolicyEngine(PolicyEngine):
     """PolicyEngine that executes multiple policy engine until one returns a

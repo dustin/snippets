@@ -43,6 +43,19 @@ class WriteCapture(UserList.UserList):
     def flush(self):
         pass
 
+class IterReader:
+
+    def __init__(self, it):
+        self.it=it
+
+    def readline(self):
+        rv=''
+        try:
+            rv=self.it.next()
+        except StopIteration:
+            pass
+        return rv
+
 class PolicyTest(unittest.TestCase):
 
     def lineGenerator(self, lines, total=1):
@@ -77,14 +90,14 @@ class PolicyTest(unittest.TestCase):
 
     def testPolicyRun(self):
         dp=DummyPolicy()
-        dp.run(input=self.lines, output=WriteSink())
+        dp.run(input=IterReader(iter(self.lines)), output=WriteSink())
 
         self.assertEquals(1, dp.count)
 
     def testPolicyRuns(self):
         numtests=5
         dp=DummyPolicy()
-        dp.run(input=self.lineGenerator(self.lines, numtests),
+        dp.run(input=IterReader(self.lineGenerator(self.lines, numtests)),
             output=WriteSink())
 
         self.assertEquals(numtests, dp.count)
@@ -93,7 +106,8 @@ class PolicyTest(unittest.TestCase):
         numtests=5
         l=WriteCapture([])
         dp=DummyPolicy()
-        dp.run(input=self.lineGenerator(self.lines, numtests), output=l)
+        dp.run(input=IterReader(self.lineGenerator(self.lines, numtests)),
+            output=l)
 
         self.assertEquals(numtests, len(l))
 
@@ -106,17 +120,17 @@ class PolicyTest(unittest.TestCase):
         l=WriteCapture()
 
         # The first run should defer
-        gp.run(input=self.lines, output=l)
+        gp.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DEFER_IF_PERMIT)
         del l[0]
         # Validate a second run also defers
-        gp.run(input=self.lines, output=l)
+        gp.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DEFER_IF_PERMIT)
 
         # Now wait long enough, and it should pass
         time.sleep(delay + 0.5)
         del l[0]
-        gp.run(input=self.lines, output=l)
+        gp.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DUNNO)
 
     def testChain(self):
@@ -126,7 +140,7 @@ class PolicyTest(unittest.TestCase):
         engine.addEngine(DummyPolicy(None))
         engine.addEngine(DummyPolicy(postfix.PolicyResponse.DEFER_IF_PERMIT))
 
-        engine.run(input=self.lines, output=l)
+        engine.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DEFER_IF_PERMIT)
         del l[0]
 
@@ -135,7 +149,7 @@ class PolicyTest(unittest.TestCase):
         engine.addEngine(DummyPolicy(postfix.PolicyResponse.DEFER_IF_PERMIT))
         engine.addEngine(DummyPolicy(None))
 
-        engine.run(input=self.lines, output=l)
+        engine.run(input=IterReader(iter(self.lines)), output=l)
         self.assertMessage(l[0], postfix.PolicyResponse.DEFER_IF_PERMIT)
 
 if __name__ == '__main__':
