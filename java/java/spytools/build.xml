@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.38 2002/08/26 04:34:40 dustin Exp $
+	$Id: build.xml,v 1.39 2002/08/27 23:14:36 dustin Exp $
 
 	-->
 
@@ -265,7 +265,21 @@
     </java>
   </target>
 
-	<target name="dbstuff" depends="resultset,preparedstatement,spfiles">
+	<target name="dbstuff" depends="types,resultset,preparedstatement,spfiles">
+	</target>
+
+	<!-- type name map -->
+	<target name="types">
+		<javac
+			srcdir="${SRCDIR}" destdir="${BUILDDIR}"
+			deprecation="${DEPRECATION}" debug="${DEBUG}" verbose="${VERBOSE}">
+			<classpath refid="myclasses"/>
+			<include name="net/spy/util/TypeNameGen.java"/>
+		</javac>
+		<java classname="net.spy.util.TypeNameGen">
+			<arg value="net/spy/db/TypeNames.java"/>
+			<classpath refid="myclasses"/>
+		</java>
 	</target>
 
 	<target name="spfiles" depends="spgen">
