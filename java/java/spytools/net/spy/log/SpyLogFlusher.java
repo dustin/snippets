@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.8 2001/02/07 06:31:26 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.9 2001/02/08 06:06:00 dustin Exp $
  */
 
 package net.spy.log;
@@ -101,6 +101,13 @@ public class SpyLogFlusher extends Thread {
 	 */
 	protected Vector flush() {
 		return(log_queue.flush());
+	}
+
+	/**
+	 * Get the current size of the queue.
+	 */
+	public int size() {
+		return(log_queue.size());
 	}
 
 	protected void doFlush() {
