@@ -10,7 +10,7 @@ JAVADOC=$(JAVAHOME)/bin/javadoc
 COMPILE=$(JAVAC)
 MYLIB=$(HOME)/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/jdbc2_0-stdext.jar
-C2=$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar
+C2=$(MYLIB)/cos.jar:$(MYLIB)/jndi.jar:$(MYLIB)/jaas.jar
 S=/System/Library/Frameworks/JavaVM.framework/Versions/1.3/Classes/classes.jar
 CLASSPATH=$(C1):$(C2):$S:.
 
@@ -93,7 +93,12 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/cron/JobQueue.class \
 	net/spy/cron/Cron.class \
 	net/spy/cron/MainJob.class \
-	net/spy/cron/FileJobQueue.class
+	net/spy/cron/FileJobQueue.class \
+	net/spy/aaa/SpyPrincipal.class \
+	net/spy/aaa/SimpleCallbackHandler.class \
+	net/spy/aaa/User.class \
+	net/spy/aaa/SimpleLoginModule.class \
+	net/spy/aaa/AAATest.class
 
 	# net/spy/loader/ClassReLoader.class
 
