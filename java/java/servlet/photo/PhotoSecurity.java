@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSecurity.java,v 1.2 1999/10/10 08:44:16 dustin Exp $
+ * $Id: PhotoSecurity.java,v 1.3 1999/10/10 19:00:01 dustin Exp $
  */
 
 import java.security.*;
@@ -13,7 +13,8 @@ import com.javaexchange.dbConnectionBroker.*;
 
 public class PhotoSecurity extends PhotoHelper {
 	// Secret string to verify authentication with
-	protected String secret;
+	protected String secret=null;
+	protected Hashtable userdb=null;
 
 	public PhotoSecurity(String key) throws Exception {
 		super();
@@ -23,6 +24,10 @@ public class PhotoSecurity extends PhotoHelper {
 	public PhotoSecurity(String key, DbConnectionBroker db) throws Exception {
 		super(db);
 		secret = key;
+	}
+
+	public void setUserHash(Hashtable h) {
+		userdb=h;
 	}
 
 	public String setAuthUser(String username) {
@@ -71,15 +76,26 @@ public class PhotoSecurity extends PhotoHelper {
 		boolean ret=false;
 		Connection db=null;
 		try {
-			String u=PhotoUtil.dbquote_str(user);
 			String tpw=getDigest(pass);
-			db=getDBConn();
-			Statement st=db.createStatement();
-			String query = "select password from wwwusers where username ="
-				+ " '" + u + "'";
-			ResultSet rs = st.executeQuery(query);
-			rs.next();
-			String pw = rs.getString("password");
+			String pw=null;
+
+			if(userdb == null) {
+				log("No userdb hash, getting auth info from database");
+				String u=PhotoUtil.dbquote_str(user);
+				db=getDBConn();
+				Statement st=db.createStatement();
+				String query = "select password from wwwusers where username ="
+					+ " '" + u + "'";
+				ResultSet rs = st.executeQuery(query);
+				rs.next();
+				pw = rs.getString("password");
+			} else {
+				log("Getting auth info from userdb hash");
+				PhotoUser pu = (PhotoUser)userdb.get(user);
+				if(pu != null) {
+					pw = pu.password;
+				}
+			}
 			log("Testing for " + tpw + " = " + pw);
 			ret=tpw.equals(pw);
 		} catch(Exception e) {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.28 1999/10/10 08:44:18 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.29 1999/10/10 19:00:02 dustin Exp $
  */
 
 import java.io.*;
@@ -46,20 +46,21 @@ public class PhotoServlet extends HttpServlet
 			throw new ServletException ("dbs broke: " + e.getMessage());
 		}
 
-		// Security stuff
-		try {
-			String secret = PhotoSecurity.generateSecret();
-			security = new PhotoSecurity(secret, dbs);
-		} catch(Exception e) {
-			throw new ServletException("Can't create security stuff:  " + e);
-		}
-
 		// Populate the userdb hash
 		try {
 			userdb=new Hashtable();
 			init_userdb();
 		} catch(Exception e) {
 			throw new ServletException("Can't get userdb:  " + e);
+		}
+
+		// Security stuff
+		try {
+			String secret = PhotoSecurity.generateSecret();
+			security = new PhotoSecurity(secret, dbs);
+			security.setUserHash(userdb);
+		} catch(Exception e) {
+			throw new ServletException("Can't create security stuff:  " + e);
 		}
 
 		// Get an rhash to cache images and shite.
@@ -422,21 +423,26 @@ public class PhotoServlet extends HttpServlet
 	// Get a list of categories for a select list
 	private String getCatList() throws SQLException, IOException {
 		String query, out="";
+		Connection photo=null;
+		try {
+			photo=getDBConn();
+			Statement st=photo.createStatement();
 
-		Connection photo=getDBConn();
-		Statement st=photo.createStatement();
+			query = "select * from cat where id in\n"
+				+ "(select cat from wwwacl where\n"
+				+ "    userid=" + remote_uid + ")\n"
+				+ "order by name\n";
 
-		query = "select * from cat where id in\n"
-			  + "(select cat from wwwacl where\n"
-			  + "    userid=" + remote_uid + ")\n"
-			  + "order by name\n";
-
-		ResultSet rs = st.executeQuery(query);
-		while(rs.next()) {
-			out += "    <option value=\"" + rs.getString(1)
-				+ "\">" + rs.getString(2) + "\n";
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				out += "    <option value=\"" + rs.getString(1)
+					+ "\">" + rs.getString(2) + "\n";
+			}
+		} finally {
+				if(photo != null) {
+					freeDBConn(photo);
+				}
 		}
-		freeDBConn(photo);
 		return(out);
 	}
 
