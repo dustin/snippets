@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.1 2002/02/01 10:15:00 dustin Exp $
+ * $Id: rrdrstat.c,v 1.2 2002/02/01 10:32:28 dustin Exp $
  */
 
 #include <rpcsvc/rstat.h>
@@ -31,6 +31,7 @@ process(const char *host, statstime *stat)
 		((float)stat->avenrun[1] /FSCALE),
 		((float)stat->avenrun[2] /FSCALE));
 	puts(buf);
+	fflush(stdout);
 }
 
 static int
