@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.11 1999/09/24 06:56:31 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.12 1999/09/24 18:58:07 dustin Exp $
  */
 
 import java.io.*;
@@ -213,12 +213,21 @@ public class PhotoServlet extends HttpServlet
 			return;
 		}
 
+		File f;
+		f = multi.getFile("picture");
+
 		// Check that it's the right file type.
 		type = multi.getContentType("picture");
 		log("Type is " + type);
-		if(! (type.startsWith("image/jpeg")) ) {
+		if( type == null || (! (type.startsWith("image/jpeg"))) ) {
 			h.put("FILENAME", multi.getFilesystemName("picture"));
+			h.put("FILETYPE", type);
 			send_response(response, tokenize("add_badfiletype.inc", h));
+			try {
+				f.delete();
+			} catch(Exception e) {
+				log(e.getMessage());
+			}
 			return;
 		}
 
@@ -243,7 +252,6 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		try {
-			File f;
 			FileInputStream in;
 			BASE64Encoder base64=new BASE64Encoder();
 			byte data[] = new byte[57];
@@ -263,7 +271,6 @@ public class PhotoServlet extends HttpServlet
 
 			// Encode the shit;
 			int i=0, size=0, length=0;
-			f = multi.getFile("picture");
 			in = new FileInputStream(f);
 
 			while( (length=in.read(data)) >=0 ) {
@@ -313,6 +320,11 @@ public class PhotoServlet extends HttpServlet
 				} catch(Exception e) {
 					log(e.getMessage());
 				}
+			}
+			try {
+				f.delete();
+			} catch(Exception e) {
+				log(e.getMessage());
 			}
 		}
 
