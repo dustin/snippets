@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: createinvs,v 1.1 1997/10/23 08:06:48 dustin Exp $
+# $Id: createinvs,v 1.2 1998/01/12 09:12:40 dustin Exp $
 
 use Postgres;
 
@@ -30,11 +30,22 @@ sub getdates
     return($start, $end);
 }
 
-($start, $end)=&getdates;
+if($#ARGV<1)
+{
+    ($start, $end)=&getdates;
+}
+else
+{
+    ($start, $end)=@ARGV;
+}
+
+print "Creating invoices for $start - $end\n";
 
 $dbh=db_connect("spam");
 
-$s=doquery("select spam_id from bill_info");
+$query ="select distinct spam_id from trans where ts>='$start'\n";
+$query.="    and ts<='$end';\n";
+$s=doquery($query);
 
 doquery("begin");
 
