@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.9 2000/07/04 05:59:42 dustin Exp $
+// $Id: PoolContainer.java,v 1.10 2000/07/07 06:42:41 dustin Exp $
 
 package net.spy.pool;
 
@@ -54,45 +54,48 @@ public class PoolContainer extends Object {
 	 *
 	 * @exception PoolException when something bad happens
 	 */
-	public synchronized PooledObject getObject() throws PoolException {
+	public PooledObject getObject() throws PoolException {
 		PoolAble ret=null;
 
 		// How many times we're flipping through the object pool
 		int retries=6;
 
-		// We'll try up to three seconds to get an object from the pool
-		for(int retry=0; ret==null && retry<retries; retry++) {
+		// Synchronize on the pool object.
+		synchronized(pool) {
+			// We'll try up to three seconds to get an object from the pool
+			for(int retry=0; ret==null && retry<retries; retry++) {
 
-			// Find the next available object.
-			for(Enumeration e=pool.elements();
-				ret==null && e.hasMoreElements(); ) {
+				// Find the next available object.
+				for(Enumeration e=pool.elements();
+					ret==null && e.hasMoreElements(); ) {
 
-				PoolAble p=(PoolAble)e.nextElement();
+					PoolAble p=(PoolAble)e.nextElement();
 
-				// If it's not checked out, and it works, we have our man!
-				if(p.isAvailable() && (p.isAlive())) {
-					// Since we got one from the pool, we want to move it
-					// to the end of the vector.
-					ret=p;
+					// If it's not checked out, and it works, we have our man!
+					if(p.isAvailable() && (p.isAlive())) {
+						// Since we got one from the pool, we want to move it
+						// to the end of the vector.
+						ret=p;
+					}
+				} // Flipping through the current pool
+
+				try {
+					debug("*** No free entries in pool, sleeping ***");
+
+					// We're halfway through, or more!  Desperate measures!
+					if(retry==retries/2) {
+						debug("!!! Trying to force cleanup!");
+						System.gc();
+						System.runFinalization();
+					}
+					// Wait a half a second if the pool is full, in case
+					// something gets checked in
+					Thread.sleep(500);
+				} catch(Exception e) {
+					// Things just go faster.
 				}
-			} // Flipping through the current pool
-
-			try {
-				debug("*** No free entries in pool, sleeping ***");
-
-				// We're halfway through, or more!  Desperate measures!
-				if(retry==retries/2) {
-					debug("!!! Trying to force cleanup!");
-					System.gc();
-					System.runFinalization();
-				}
-				// Wait a half a second if the pool is full, in case
-				// something gets checked in
-				Thread.sleep(500);
-			} catch(Exception e) {
-				// Things just go faster.
-			}
-		}// Retries for an object in the existing pool.
+			}// Retries for an object in the existing pool.
+		} // End of pool synchronization
 
 		// If the above didn't get us an object, we'll resort to getting a
 		// new one.
@@ -104,8 +107,12 @@ public class PoolContainer extends Object {
 
 		// OK, let's stick it at the end of the vector (may already be, but
 		// you know...) so that it's one of the last we check for next time.
-		pool.removeElement(ret);
-		pool.addElement(ret);
+
+		// Hold it still whlie we do this...
+		synchronized(pool) {
+			pool.removeElement(ret);
+			pool.addElement(ret);
+		}
 
 		// We're going to return a brand new PooledObject representing this
 		// checked out entry.

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.10 2000/07/04 07:22:01 dustin Exp $
+// $Id: ObjectPool.java,v 1.11 2000/07/07 06:42:39 dustin Exp $
 
 package net.spy.pool;
 
@@ -139,11 +139,15 @@ public class ObjectPool extends Object {
 	 * @exception PoolException if something bad happens
 	 */
 	public void prune() throws PoolException {
+		Vector v=new Vector();
 		synchronized (pools) {
 			for(Enumeration e=pools.elements(); e.hasMoreElements(); ) {
-				PoolContainer pc=(PoolContainer)e.nextElement();
-				pc.prune();
+				v.addElement(e.nextElement());
 			}
+		}
+		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
+			PoolContainer pc=(PoolContainer)e.nextElement();
+			pc.prune();
 		}
 	}
 
