@@ -4,7 +4,7 @@
 Create a set of filelists that will each be less than 650MB.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.2 2002/04/07 10:25:57 dustin Exp $
+$Id: chunkify.py,v 1.3 2002/04/07 10:29:32 dustin Exp $
 """
 
 import os, sys
@@ -45,8 +45,8 @@ class Chunker:
 		"""Register a callback function to be called each time a new file
 		is required.
 
-		The callback will be called with the Chunker instance as an
-		argument.
+		The callback will be called with the Chunker instance and the new
+		filename as arguments.
 
 		Since the first file is created upon construction of an object, the
 		callback may only be called beginning with the creation of the
@@ -56,9 +56,6 @@ class Chunker:
 	def __newfile(self):
 		if self.currentSize==0:
 			raise "Requested newfile with a size of 0"
-		# Perform the callback (if any)
-		if self.nfcallback!=None:
-			self.nfcallback(self)
 		# Reset the file size to zero
 		self.currentSize=0
 		# If there's an open file already, close it
@@ -68,10 +65,16 @@ class Chunker:
 		self.currentFileId+=1
 		# Create the base filename
 		fn=self.filebase + "." + str(self.currentFileId)
+		# Append .zip if it's a zip file
+		if self.makezip:
+			fn+='.zip'
+		# Perform the callback (if any)
+		if self.nfcallback!=None:
+			self.nfcallback(self, fn)
 		# Create either a zip file, or regular file, depending on what the
 		# caller wants
 		if self.makezip:
-			self.currentFile=zipfile.ZipFile(fn + ".zip", 'w')
+			self.currentFile=zipfile.ZipFile(fn, 'w')
 		else:
 			self.currentFile=file(fn, 'w')
 
@@ -102,8 +105,8 @@ class Chunker:
 			except OSError, e:
 				print e
 
-def pauseCallback(chunker):
-	print "--- Press enter to continue ---"
+def pauseCallback(chunker, fn):
+	print "--- Press enter to create " + fn + " ---"
 	sys.stdin.readline()
 
 def main():
