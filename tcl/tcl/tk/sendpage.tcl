@@ -1,6 +1,6 @@
 #!/usr/local/bin/wish8.0
 # Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
-# $Id: sendpage.tcl,v 1.9 2000/01/28 00:49:59 dustin Exp $
+# $Id: sendpage.tcl,v 1.10 2000/01/28 00:51:02 dustin Exp $
 
 # SNPP stuff
 proc snpp_status_ok { msg } {
@@ -36,8 +36,6 @@ proc snpp_cmd { fd cmd } {
 
 	set line [gets $fd]
 	set snpp_error $line
-	puts ">> $cmd"
-	puts "<< $line"
 	set status [ snpp_status_ok $line ]
 	if { $status < 0 } {
 		# puts "Error: $line"
@@ -150,26 +148,18 @@ proc check_for_message { } {
 
 	set r -1
 
-	puts "=== Checking for two-way state"
-
 	if { $twoway_state == 0 } {
 		return -1
 	}
-
-	puts "=== Checking for two-way waiting"
 
 	if { $twoway_waiting == 0 } {
 		return -1
 	}
 
-	puts "=== Issuing msta"
-
 	if { [snpp_cmd $fd "msta $msta"] < 0 } {
 		catch { close $fd }
 		return -1
 	}
-
-	puts "=== Checking status"
 
 	set response [lrange $snpp_error 4 end]
 	if { $snpp_status == 889 } {
@@ -233,7 +223,7 @@ proc clearstuff { } {
 
 # Tell us about yourself...
 proc about { } {
-	set rev { $Revision: 1.9 $ }
+	set rev { $Revision: 1.10 $ }
 	set tmp [ split $rev " " ]
 	set version [lindex $tmp 2]
 	set msg "Sendpage version $version by Dustin Sallings <dustin@spy.net>"
