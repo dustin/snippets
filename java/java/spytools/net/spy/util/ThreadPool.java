@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.3 2001/09/13 21:11:10 dustin Exp $
+// $Id: ThreadPool.java,v 1.4 2002/02/24 07:25:57 dustin Exp $
 
 package net.spy.util;
 
@@ -26,10 +26,18 @@ public class ThreadPool extends Object {
 	/**
 	 * Get an instance of ThreadPool.
 	 *
-	 * @param n the number of threads to pool
+	 * @param name Name of the pool.
+	 * @param n Number of threads.
+	 * @param prio Priority of the child threads.
 	 */
-	public ThreadPool(String name, int n) {
+	public ThreadPool(String name, int n, int priority) {
 		super();
+
+		if(priority<Thread.MIN_PRIORITY || priority>Thread.MAX_PRIORITY) {
+			throw new IllegalArgumentException(priority
+				+ " is an invalid priority.");
+		}
+
 		tasks=new Stack();
 		threads=new Vector();
 		monitor=new Object();
@@ -41,8 +49,19 @@ public class ThreadPool extends Object {
 		// Initialize all of the threads.
 		for(int i=0; i<n; i++) {
 			RunThread rt=new RunThread(tg, tasks, monitor);
+			rt.setPriority(priority);
 			threads.addElement(rt);
 		}
+	}
+
+	/**
+	 * Get an instance of ThreadPool with a normal priority.
+	 *
+	 * @param name Name of the pool.
+	 * @param n Number of threads.
+	 */
+	public ThreadPool(String name, int n) {
+		this(name, n, Thread.NORM_PRIORITY);
 	}
 
 	/**
