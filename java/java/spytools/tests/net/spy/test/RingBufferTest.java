@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RingBufferTest.java,v 1.1 2002/08/17 04:02:31 dustin Exp $
+// $Id: RingBufferTest.java,v 1.2 2002/08/19 18:15:19 dustin Exp $
 
 package net.spy.test;
 
@@ -29,7 +29,7 @@ public class RingBufferTest extends TestCase {
 	 * Get the test suite.
 	 */
 	public static Test suite() {
-		return new TestSuite(DBTest.class);
+		return new TestSuite(RingBufferTest.class);
 	}
 
 	/**
@@ -64,13 +64,14 @@ public class RingBufferTest extends TestCase {
 		RingBuffer rb=new RingBuffer(cap);
 
 		// Fill 'er up
-		for(int i=0; i<cap; i++) {
+		for(int i=1; i<cap; i++) {
 			rb.addObject(new Integer(i));
 			assertTrue("Capacity filled prematurely", rb.getSize() < cap);
 		}
 
 		for(int i=cap; i<2048; i++) {
 			rb.addObject(new Integer(i));
+			assertTrue("Exceeded capacity", rb.getSize() <= cap);
 			verify(rb);
 		}
 	}
