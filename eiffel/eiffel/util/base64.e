@@ -9,18 +9,9 @@ feature {ANY} -- Constructors
 
    make is
       -- Initialization
-      local
-         e, d: STRING;
       do
          init_const;
-            -- io.put_string("Encoded:%N");
-            -- e:=encode(argument(1));
-            -- io.put_string(e);
-            -- io.put_string("%N");
-            -- io.put_string("Decoded:%N");
-            -- d:=decode(e);
-            -- io.put_string(d);
-            -- io.put_string("%N");
+		 -- initialize the binary constants.
       end -- make
 
 feature {ANY} -- Actual encode/decode stuff
@@ -92,7 +83,6 @@ feature {ANY} -- Actual encode/decode stuff
       -- Base64 Decode.
       local
          ab, bb, cb, db, tmpa, tmpb: BIT 8;
-         o: INTEGER;
          a, b, c: CHARACTER;
          first, second, third: BOOLEAN;
       do
@@ -100,7 +90,6 @@ feature {ANY} -- Actual encode/decode stuff
          Result.clear;
          from
             current_char := 0;
-            o := 0;
          until
             current_char >= in.count
          loop
