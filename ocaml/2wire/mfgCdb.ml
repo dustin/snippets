@@ -14,7 +14,7 @@ let magic_key = "meta_inf";;
 
 (** The manufactured gateway type *)
 type mfg = {
-	hp_id: int;
+	gateway_key: int;
 	sn: string;
 	id_string: string;
 	pca: string;
@@ -68,7 +68,7 @@ let decode_record cdbi sn data =
 	let rv = Hashtbl.create 1 in
 	List.iter (fun n -> Hashtbl.add rv n (Netstring.decode data_s)) cdbi.cols;
 	{
-		hp_id=int_of_string (Hashtbl.find rv "boxnum");
+		gateway_key=int_of_string (Hashtbl.find rv "boxnum");
 		sn=sn;
 		id_string=Hashtbl.find rv "idstring";
 		pca=Hashtbl.find rv "pca";
