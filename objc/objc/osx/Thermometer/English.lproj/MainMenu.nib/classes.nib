@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {
+            CLASS = Controller;
+            LANGUAGE = ObjC;
+            OUTLETS = {img = NSImageView; };
+            SUPERCLASS = NSObject;
+        },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {CLASS = ThermometerView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }
+    );
+    IBVersion = 1;
+}
