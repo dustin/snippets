@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <unistd.h>
 #include <string.h>
 #include <regex.h>
@@ -26,6 +27,94 @@
  */
 #define SERVER_STREAM 1
 #define CLIENT_STREAM 2
+
+/* Free the guts of the http_param */
+void partial_free_param(struct http_param *param)
+{
+	if(param->req)
+		free(param->req);
+	if(param->ref)
+		free(param->ref);
+	if(param->vhost)
+		free(param->vhost);
+	if(param->agent)
+		free(param->agent);
+	if(param->ts)
+		free(param->ts);
+	if(param->response.status_str)
+		free(param->response.status_str);
+	param->req=NULL;
+	param->ref=NULL;
+	param->vhost=NULL;
+	param->agent=NULL;
+	param->ts=NULL;
+	param->response.status_str=NULL;
+	param->response.status=0;
+	param->response.header_len=0;
+	param->response.connection=0;
+	param->response.trans_enc=0;
+	param->response.body_len=0;
+	param->response.length=0;
+	param->response.remaining=0;
+}
+
+/* Free all of the guts of the http_param */
+void free_param(struct http_param *param)
+{
+	partial_free_param(param);
+	if(param->extra)
+		free(param->extra);
+	if(param->host)
+		free(param->host);
+	param->extra=NULL;
+	param->host=NULL;
+}
+
+/*
+ * Return 1 if a request is OK.
+ */
+int ok_request(char *req)
+{
+	int rv=0;
+	if(req!=NULL) {
+		if(strncmp(req, "GET", 3)==0) {
+			rv=1;
+		} else if(strncmp(req, "POST", 4)==0) {
+			rv=1;
+		} else if(strncmp(req, "HEAD", 4)==0) {
+			rv=1;
+		}
+	}
+	return(rv);
+}
+
+void log_request(struct http_param *param)
+{
+	char *ref=NULL;
+	char *host=NULL;
+	char *agent=NULL;
+	int length=0;
+	/* Only log of a request came through */
+	if(param->req && ok_request(param->req)) {
+		ref=param->ref;
+		host=param->vhost;
+		agent=param->agent;
+		if(ref==NULL) ref="-";
+		if(host==NULL) host="-";
+		if(agent==NULL) agent="-";
+		if(param->response.connection==CONNECTION_KEEPALIVE) {
+		} else {
+			length=param->response.length;
+		}
+		/* host ident user date request status bytes vhost agent */
+		printf("%s - - [%s] \"%s\" %d %d \"%s\" \"%s\" %s\n",
+			param->host, param->ts, param->req,
+			param->response.status,
+			length, ref, agent, host);
+		fflush(stdout);
+	}
+	partial_free_param(param);
+}
 
 /*
  * Stolen from dug song.
@@ -75,6 +164,41 @@ char *my_ntoa(int n)
 }
 
 /*
+ * Parse the request
+ */
+void parse_request(char *data, struct http_param *param)
+{
+	char *p=NULL;
+
+	if( (p=strtok(data, "\r\n"))==NULL) {
+		return;
+	} else {
+		/* make a copy for our struct */
+		param->req=strdup(p);
+		param->ts=strdup(timestamp());
+	}
+	while((p=strtok(NULL, "\r\n"))!=NULL) {
+		if(strncasecmp(p, "Host: ", 6) == 0) {
+			param->vhost=strdup(p+6);
+		} else if(strncasecmp(p, "Referer: ", 9) == 0) {
+			param->ref=strdup(p+9);
+		} else if(strncasecmp(p, "User-Agent: ", 12) == 0) {
+			param->agent=strdup(p+12);
+		}
+	}
+}
+
+/*
+ * Get the next request out of the saved data here.
+ */
+void next_request(struct http_param *param)
+{
+	if(param->extra!=NULL) {
+		parse_request(param->extra, param);
+	}
+}
+
+/*
  * Process the request data.
  */
 int processRequest(char *data, int length, struct http_param *param)
@@ -87,23 +211,20 @@ int processRequest(char *data, int length, struct http_param *param)
 
 	/* Don't do any of this stuff unless we don't have it yet */
 	if(param->req==NULL) {
-		if( (p=strtok(data, "\r\n"))==NULL) {
-			return(processed);
-		} else {
-			/* make a copy for our struct */
-			param->req=strdup(p);
-			param->ts=strdup(timestamp());
+		/* Wait until we have enough headers */
+		if( (p=strstr(data, "\r\n\r\n"))==NULL) {
+			return(0);
 		}
 
-		while((p=strtok(NULL, "\r\n"))!=NULL) {
-			if(strncasecmp(p, "Host: ", 6) == 0) {
-				param->vhost=strdup(p+6);
-			} else if(strncasecmp(p, "Referer: ", 9) == 0) {
-				param->ref=strdup(p+9);
-			} else if(strncasecmp(p, "User-Agent: ", 12) == 0) {
-				param->agent=strdup(p+12);
-			}
+		*p=0x00;
+		p++;
+		if(strlen(p)>3) {
+			p+=3;
+			param->extra=strdup(p);
 		}
+
+		parse_request(data, param);
+
 	}
 
 	return(processed);
@@ -117,33 +238,115 @@ int processResponse(char *data, int length, struct http_param *param)
 	int processed=0;
 	char *p=NULL;
 
-	param->length+=length;
-
 	processed=length;
 
 	/* Find out how far it is to the end of the headers */
-	if(param->start==0) {
+	if(param->response.header_len==0) {
+		/* Just go ahead and keep adding here */
+		param->response.length+=length;
 		p=strstr(data, "\r\n\r\n");
+
 		if(p==NULL) {
 			/* We don't have the end of the headers, ask for more data */
 			processed=0;
 		} else {
 			/* Figure out how far in the headers stop */
-			param->start=(p-data)+4;
-		}
-	}
+			param->response.header_len=(p-data)+4;
+			param->response.length-=param->response.header_len;
 
-	if(param->status_str==NULL) {
-		if( (p=strtok(data, "\r\n"))==NULL) {
-			return(processed);
-		} else {
+			/* Actually process the headers, see what we're dealing with. */
+			p=strtok(data, "\r\n");
+			param->response.status_str=strdup(p);
 			/* Find the status */
-			param->status_str=strdup(p);
 			p=strchr(p, ' ');
 			if(p!=NULL) {
-				param->status=atoi(p);
+				param->response.status=atoi(p);
 			}
 
+			/* Look through the headers and see what kind of stuff we've got */
+			while( (p=strtok(NULL, "\r\n"))!=NULL) {
+				if(strncasecmp(p, "Connection: ", 16) == 0) {
+					if(strncasecmp(p+16, "close", 5)) {
+						param->response.connection=CONNECTION_CLOSE;
+					} else if(strncasecmp(p+16, "keepalive", 9)) {
+						param->response.connection=CONNECTION_KEEPALIVE;
+					}
+				} else if(strncasecmp(p, "Transfer-Encoding: ", 19) == 0) {
+					if(strncasecmp(p+19, "chunked", 7) == 0) {
+						param->response.trans_enc=ENCODING_CHUNKED;
+					}
+				} else if(strncasecmp(p, "Content-Length: ", 16) == 0) {
+					param->response.body_len=atoi(p+16);
+				}
+			}
+		}
+
+		/* If we're doing chunked encoding, let's get set up for that */
+		if(param->response.trans_enc==ENCODING_CHUNKED) {
+			char *start=data+param->response.header_len;
+			char *end=data+param->response.header_len;
+			int old_remaining=0;
+			/* Find the last hex digit */
+			while(*end && isxdigit(*end)) { end++; }
+			/* Figure out what the value of that hex string is */
+			param->response.remaining=strtoul(start, &end, 16);
+			printf("Chunk size is %d\n", param->response.remaining);
+			/* Skip to the newline */
+			while(*end!='\r' && *end!='\n') { end++; }
+			/* and then past it */
+			while(*end=='\r' || *end=='\n') { end++; }
+			/* Adjust the length */
+			param->response.length-=(end-start);
+			/* Adjust the remaining length */
+			old_remaining=param->response.remaining;
+			/* The length minus the length of the length */
+			param->response.remaining-=(length-(end-data));
+			assert(param->response.remaining>=0);
+			assert(param->response.remaining < old_remaining);
+			printf("Remaining size is %d, current length is %d\n",
+				param->response.remaining, param->response.length);
+		}
+	} else { /* This is not the first packet */
+		/* Special processing for chunked encoding */
+		if(param->response.trans_enc==ENCODING_CHUNKED) {
+			/* Find out how much of the current chunk we've got */
+			if(length>param->response.remaining) {
+				/* We've got the entire chunk here */
+				char *start=NULL, *end=NULL;
+
+				param->response.length+=param->response.remaining;
+
+				start=data+param->response.remaining;
+				end=start;
+				while(*end && isxdigit(*end)) { end++; }
+				param->response.remaining=strtoul(start, &end, 16);
+				/* Skip past the newline */
+				while(*end!='\r' && *end!='\n') { end++; }
+				while(*end=='\r' || *end=='\n') { end++; }
+
+				if(param->response.remaining>0) {
+					printf("New remaining is %d\n", param->response.remaining);
+					param->response.length-=(end-start);
+					param->response.remaining-=(length-(end-data));
+					assert(param->response.remaining>=0);
+				} else {
+					/* Log here, we're done for a while */
+					log_request(param);
+
+					/* If this was a keepalive connection, see if we have
+					 * another request in there. */
+					if(param->response.connection!=CONNECTION_CLOSE) {
+						next_request(param);
+					}
+				}
+
+			} else {
+				/* This is part of our current chunk */
+				param->response.remaining-=length;
+				param->response.length+=length;
+			}
+		} else {
+			param->response.length+=length;
 		}
 	}
 
@@ -165,57 +368,15 @@ int process(struct tcp_stream *ts, int which,
 	hs.data[hs.count_new]=0x00;
 	switch(which) {
 		case SERVER_STREAM:
-			rv=processRequest(hs.data, hs.count_new, param);
+			/* rv=processRequest(hs.data, hs.count_new, param); */
+			rv=processRequest(hs.data, hs.count-hs.offset, param);
 			break;
 		case CLIENT_STREAM:
-			rv=processResponse(hs.data, hs.count_new, param);
+			rv=processResponse(hs.data, hs.count-hs.offset, param);
 			break;
 	}
 
 	return(rv);
-}
-
-/*
- * Return 1 if a request is OK.
- */
-int ok_request(char *req) {
-	int rv=0;
-
-	if(req!=NULL) {
-		if(strncmp(req, "GET", 3)==0) {
-			rv=1;
-		} else if(strncmp(req, "POST", 4)==0) {
-			rv=1;
-		} else if(strncmp(req, "HEAD", 4)==0) {
-			rv=1;
-		}
-	}
-
-	return(rv);
-}
-
-void log_request(struct http_param *param)
-{
-	char *ref=NULL;
-	char *host=NULL;
-	char *agent=NULL;
-
-	/* Only log of a request came through */
-	if(param->req && ok_request(param->req)) {
-		ref=param->ref;
-		host=param->vhost;
-		agent=param->agent;
-
-		if(ref==NULL) ref="-";
-		if(host==NULL) host="-";
-		if(agent==NULL) agent="-";
-
-		/* host ident user date request status bytes vhost agent */
-		printf("%s - - [%s] \"%s\" %d %d \"%s\" \"%s\" %s\n",
-			param->host, param->ts, param->req,
-			param->status, (param->length-param->start),
-			ref, agent, host);
-	}
 }
 
 /*
@@ -248,19 +409,9 @@ void got_packet(struct tcp_stream *ts, void **data)
 		case NIDS_TIMED_OUT:
 			param=*data;
 			if(param) {
+				/* Log automatically frees all the internal state */
 				log_request(param);
-				if(param->req)
-					free(param->req);
-				if(param->ref)
-					free(param->ref);
-				if(param->vhost)
-					free(param->vhost);
-				if(param->host)
-					free(param->host);
-				if(param->agent)
-					free(param->agent);
-				if(param->ts)
-					free(param->ts);
+				free_param(param);
 				free(param);
 			}
 			break;

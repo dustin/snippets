@@ -1,11 +1,11 @@
 # Generated automatically from Makefile.in by configure.
 # Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 #
-# $Id: Makefile,v 1.1 2001/02/25 01:56:55 dustin Exp $
+# $Id: Makefile,v 1.2 2001/02/25 11:03:37 dustin Exp $
 
 DEFS= -DHAVE_LIBNET=1 -DHAVE_LIBPCAP=1 -DHAVE_LIBNIDS=1 -DSTDC_HEADERS=1 -DHAVE_LIMITS_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STRFTIME=1 -DHAVE_STRDUP=1 -DHAVE_STRSTR=1
-CFLAGS= -DLIBNET_LIL_ENDIAN -I/usr/local/include $(DEFS) -DMYMALLOC
-LDFLAGS=-L/usr/local/lib -lnids -lpcap -lnet
+CFLAGS= -DLIBNET_LIL_ENDIAN -I/usr/local/include $(DEFS) -DMYMALLOC -Wall -g
+LDFLAGS=-g -L/usr/local/lib -lnids -lpcap -lnet
 
 OBJS=httplog.o mymalloc.o
 
