@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.4 1999/10/05 04:12:00 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.5 1999/10/10 20:58:44 dustin Exp $
  */
 
 import java.lang.*;
@@ -62,15 +62,17 @@ public class PhotoUtil
 		Toker t=new Toker();
 		String ret;
 
+		PhotoConfig conf = new PhotoConfig();
+
 		vars.put("SELF_URI", p.self_uri);
-		vars.put("HTML_URI", "/~dustin/jphoto/");
+		vars.put("HTML_URI", conf.html_uriroot);
 		vars.put("REMOTE_USER", p.remote_user);
 		vars.put("REMOTE_UID", p.remote_uid.toString());
 		vars.put("LAST_MODIFIED", "recently");
 		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
 			+ "/servlet/root/PhotoServlet?func=getstylesheet\">");
 
-		ret = t.tokenize("/home/dustin/public_html/jphoto/inc/" + file, vars);
+		ret = t.tokenize(conf.includes + file, vars);
 		return(ret);
 	}
 
