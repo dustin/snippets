@@ -1,5 +1,5 @@
 # Copyright (c) 1998  dustin sallings <dustin@spy.net>
-# $Id: IOCache.pm,v 1.6 1998/12/03 00:50:21 dustin Exp $
+# $Id: IOCache.pm,v 1.7 1998/12/15 18:51:10 dustin Exp $
 
 =pod
 
@@ -57,11 +57,12 @@ Dustin Sallings <dustin@spy.net>
 
 =head1 VERSION
 
-$Id: IOCache.pm,v 1.6 1998/12/03 00:50:21 dustin Exp $
+$Id: IOCache.pm,v 1.7 1998/12/15 18:51:10 dustin Exp $
 
 =cut
 
 use DCache;
+use MD5;
 
 {
 	package IOCache;
@@ -72,12 +73,17 @@ use DCache;
 		my $class = ref($proto) || $proto;
 		my($key, %options)=@_;
 		my $self = {};
+		my($fkey);
 
 		if(!defined($key)) {
 			die("Key must be defined to create IOCache object");
 		}
 
+		bless($self);
+
 		$self->{'key'}=$key;
+		$fkey=$self->getfkey($key);
+		$self->{'fkey'}=$fkey;
 
 		$self->{'dcache'}=DCache->new;
 		if(defined($options{'cachedir'})) {
@@ -104,32 +110,44 @@ use DCache;
 
 		open(__IOCACHE_SAVESTDOUT, ">&STDOUT");
 		$self->{'stdout'}=__IOCACHE_SAVESTDOUT;
-		open(STDOUT, ">/tmp/iocache.$key.tmp.$$");
+		open(STDOUT, ">/tmp/iocache.$fkey.tmp.$$");
 
-		bless($self);
 		return($self);
+	}
+
+	# need a key we can use on the filesystem temporarily
+	sub getfkey {
+		my($self)=shift;
+		my($key)=@_;
+		my($md, $dig);
+
+		$md=MD5->new;
+		$md->add($key);
+		$dig=$md->hexdigest;
+		return($dig);
 	}
 
 	# the magic, part two
 	sub DESTROY {
 		my $self=shift;
-		my($stuff, $key);
+		my($stuff, $key, $fkey);
 
 		if(!defined($self->{'stdout'})) {
 			return;
 		}
 
 		$key=$self->{'key'};
+		$fkey=$self->{'fkey'};
 
 		close(STDOUT);
 		open(STDOUT, ">&$self->{'stdout'}");
 
 		# if we have any output, cache it.
-		if(-s "/tmp/iocache.$key.tmp.$$") {
+		if(-s "/tmp/iocache.$fkey.tmp.$$") {
 			# read it in
-			open(__IOCACHE_READIN, "/tmp/iocache.$key.tmp.$$");
+			open(__IOCACHE_READIN, "/tmp/iocache.$fkey.tmp.$$");
 			# unlink here, just in case.
-			unlink("/tmp/iocache.$key.tmp.$$");
+			unlink("/tmp/iocache.$fkey.tmp.$$");
 			$stuff=join('', <__IOCACHE_READIN>);
 			close(__IOCACHE_READIN);
 
