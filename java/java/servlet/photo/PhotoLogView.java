@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.1 1999/09/30 06:09:28 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.2 1999/09/30 06:53:06 dustin Exp $
  */
 
 import java.io.*;
@@ -35,7 +35,7 @@ public class PhotoLogView extends PhotoHelper
 
 		query = "select wwwusers.username, log.remote_addr, log.user_agent,\n"
 			  + "    log.cached, log.ts\n"
-			  + "  from wwwusers, log\n"
+			  + "  from wwwusers, photo_log log\n"
 			  + "  where log.wwwuser_id = wwwusers.id and\n"
 			  + "    log.photo_id = " + photo_id + "\n"
 			  + "  order by log.ts\n";

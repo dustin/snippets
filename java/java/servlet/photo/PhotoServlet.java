@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.19 1999/09/30 06:36:48 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.20 1999/09/30 06:53:07 dustin Exp $
  */
 
 import java.io.*;
@@ -961,7 +961,7 @@ public class PhotoServlet extends HttpServlet
 			out = response.getOutputStream();
 
 			v=p.fetchImage(which);
-			logger.log(new PhotoLogEntry(remote_uid.intValue(),
+			logger.log(new PhotoLogImageEntry(remote_uid.intValue(),
 				which, p.wasCached(), request));
 			for(i = 0; i<v.size(); i++) {
 				out.write( (byte[])v.elementAt(i));
