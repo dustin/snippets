@@ -3,10 +3,6 @@
 exec scotty -nf "$0" "$@"
 
 mib load rfc1493.mib
-mib load rfc1525.mib
-mib load rfc1213.mib
-mib load rfc1515.mib
-mib load rfc1516.mib
 
 proc getArps { s } {
 
@@ -29,6 +25,7 @@ proc getArps { s } {
 			# Find the name for the IP address
 			if {[catch {dns ptr $ip} ptr]} { set ptr "" }
             puts "$value $ip $ptr"
+			flush stdout
         }
     } err]} {
         puts stderr $err
@@ -43,19 +40,15 @@ proc getArps { s } {
 ##
 
 proc usage {} {
-    puts stderr "usage: getarp host"
+    puts stderr "usage: getarp host ..."
     exit
 }
 
-if {[llength $argv] != 1} { usage } else {
-
-	set host [lindex $argv 0]
+foreach host $argv {
 
     if {[lsearch [snmp alias] $host] >= 0} {
         set s [snmp session -alias $host]
     } else {
-        puts stderr \
-            "no snmp alias for \"$host\": using SNMPv1 community public"
         if {[catch {snmp session -address $host -community public} s]} {
             puts stderr $s
             exit

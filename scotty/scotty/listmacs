@@ -1,13 +1,13 @@
 #!/bin/sh
 # Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-# $Id: listmacs,v 1.3 2000/09/12 03:24:44 dustin Exp $
+# $Id: listmacs,v 1.4 2002/02/27 23:54:00 dustin Exp $
 # scotty is stupid \
 exec scotty -nf $0 $*
 
 mib load rfc1493.mib
 
-proc walkToArray { s l tovar } {
-	global $tovar
+proc walkToArray { s l to } {
+	upvar $to tovar
 	if { [catch {
 		$s walk vbl $l {
 			set vb    [lindex $vbl 0]
@@ -15,8 +15,7 @@ proc walkToArray { s l tovar } {
 			set value [lindex $vb  2]
 			set info [join [lrange [split [mib name $oid] .] 1 end] .]
 
-			# Ain't that some nasty tcl shite?
-			set $tovar\($info) $value
+			set tovar($info) $value
 		}
 	} err] } {
 		puts "Something broke:  $err"
@@ -99,7 +98,11 @@ proc displayMACs { } {
 	global inttomac
 	global idesc
 	foreach int [lsort [array names inttomac]] {
-		puts "$int ($idesc($int))"
+		set desc "unknown"
+		catch {
+			set desc $idesc($int)
+		}
+		puts "$int ($desc)"
 		foreach mac [lsort $inttomac($int) ] {
 			set name [ getName $mac ]
 			puts "\t$mac ($name)"
