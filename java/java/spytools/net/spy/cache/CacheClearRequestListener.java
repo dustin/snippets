@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: CacheClearRequestListener.java,v 1.1 2001/07/27 22:49:30 dustin Exp $
+// $Id: CacheClearRequestListener.java,v 1.2 2001/07/28 00:21:48 dustin Exp $
 
 package net.spy.cache;
 
@@ -54,7 +54,7 @@ public class CacheClearRequestListener extends Thread {
 		sb.append(port);
 		sb.append(" processed ");
 		sb.append(requests);
-		sb.append("requests");
+		sb.append(" requests");
 
 		return(sb.toString());
 	}
@@ -75,8 +75,13 @@ public class CacheClearRequestListener extends Thread {
 	/**
 	 * Do that crazy flush thing.
 	 */
-	public void flush(String prefix) {
-		System.err.println("Flushing " + prefix);
+	public void flush(DatagramPacket recv) {
+		byte data[]=recv.getData();
+		byte tmp[]=new byte[recv.getLength()];
+		System.arraycopy(data, 0, tmp, 0, tmp.length);
+		String prefix=new String(tmp);
+		System.err.println("CacheClearRequestListener flushing ``"
+			+ prefix + "'' per multicast request from " + recv.getAddress());
 		requests++;
 
 		// Do it.
@@ -93,8 +98,7 @@ public class CacheClearRequestListener extends Thread {
 				byte data[]=new byte[1500];
 				DatagramPacket recv = new DatagramPacket(data, data.length);
 				s.receive(recv);
-				byte tmp[]=new byte[recv.getLength()];
-				flush(new String(tmp));
+				flush(recv);
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
