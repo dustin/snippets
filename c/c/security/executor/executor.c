@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings
  *
- * $Id: executor.c,v 1.1 1999/10/06 17:56:30 dustin Exp $
+ * $Id: executor.c,v 1.2 1999/10/06 18:06:40 dustin Exp $
  *
  * This program is used to execute commands found in another directory.
  * Useful for hiding shell scripts.
@@ -12,7 +12,7 @@
 #include <assert.h>
 
 #ifndef CMD_DIRECTORY
-#define CMD_DIRECTORY "/usr/local/secbin"
+#define CMD_DIRECTORY "/usr/local/secbin/"
 #endif
 
 int main(int argc, char **argv)
