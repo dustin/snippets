@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.2 2001/08/08 09:44:37 dustin Exp $
+// $Id: UUInputStream.java,v 1.3 2001/08/09 07:18:15 dustin Exp $
 
 package net.spy.util;
 
@@ -25,8 +25,10 @@ public class UUInputStream extends FilterInputStream {
 	/**
 	 * Get a UUInputStream decoding the given InputStream.
 	 */
-	public UUInputStream(InputStream is) {
+	public UUInputStream(InputStream is) throws IOException {
 		super(is);
+		// Do an initial decode to get the filename and stuff.
+		decodeMore();
 	}
 
 	/**
@@ -194,7 +196,10 @@ public class UUInputStream extends FilterInputStream {
 	public static void main(String args[]) throws Exception {
 		FileInputStream fis=new FileInputStream(args[0]);
 		UUInputStream uu=new UUInputStream(fis);
-		FileOutputStream fos=new FileOutputStream(args[1]);
+		System.err.println("Filename should be " + uu.getFilename());
+
+		FileOutputStream fos=new FileOutputStream("decoded."
+			+ uu.getFilename());
 
 		byte buffer[]=new byte[8192];
 		int bytesread=uu.read(buffer);
@@ -203,8 +208,6 @@ public class UUInputStream extends FilterInputStream {
 			fos.write(buffer, 0, bytesread);
 			bytesread=uu.read(buffer);
 		}
-
-		System.err.println("Filename should be " + uu.getFilename());
 
 		uu.close();
 		fos.close();
