@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.2 2001/04/03 08:18:08 dustin Exp $
+// $Id: DBSP.java,v 1.3 2001/04/03 08:30:53 dustin Exp $
 
 package net.spy.db;
 
@@ -450,41 +450,105 @@ public abstract class DBSP extends SpyCacheDB {
 		}
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type java.math.BigDecimal
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,java.math.BigDecimal a1)
 		throws SQLException {
 		setArg(which, a1, Types.DECIMAL);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type boolean
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,boolean a1)
 		throws SQLException {
 		setArg(which, new Boolean(a1), Types.BIT);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type java.sql.Date
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,java.sql.Date a1)
 		throws SQLException {
 		setArg(which, a1, Types.DATE);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type double
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,double a1)
 		throws SQLException {
 		setArg(which, new Double(a1), Types.DOUBLE);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type float
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,float a1)
 		throws SQLException {
 		setArg(which, new Float(a1), Types.FLOAT);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type int
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,int a1)
 		throws SQLException {
 		setArg(which, new Integer(a1), Types.INTEGER);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type long
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,long a1)
 		throws SQLException {
 		setArg(which, new Long(a1), Types.BIGINT);
 	}
 
+	/**
+	 * Set field <i>which</i> to a null of the given type.
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void setNull(String which,int a1)
 		throws SQLException {
 		// This one works a bit different because we have to store the
@@ -492,31 +556,79 @@ public abstract class DBSP extends SpyCacheDB {
 		setArg(which, new Integer(a1), Types.NULL);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type java.lang.Object
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,java.lang.Object a1)
 		throws SQLException {
 		setArg(which, a1, Types.OTHER);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type short
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void setSmallInt(String which,short a1)
 		throws SQLException {
 		setArg(which, new Integer(a1), Types.SMALLINT);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type short
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,short a1)
 		throws SQLException {
 		setArg(which, new Integer(a1), Types.TINYINT);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type java.lang.String
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,java.lang.String a1)
 		throws SQLException {
 		setArg(which, a1, Types.VARCHAR);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type Time
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,Time a1)
 		throws SQLException {
 		setArg(which, a1, Types.TIME);
 	}
 
+	/**
+	 * Set field <i>which</i> to the value a1 of the type Timestamp
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
 	public void set(String which,Timestamp a1)
 		throws SQLException {
 		setArg(which, a1, Types.TIMESTAMP);
