@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.33 1999/10/12 22:54:12 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.34 1999/10/13 02:33:59 dustin Exp $
  */
 
 import java.io.*;
@@ -871,6 +871,11 @@ public class PhotoServlet extends HttpServlet
 		ServletOutputStream out;
 
 		response.setContentType("image/jpeg");
+		java.util.Date d=new java.util.Date();
+		long l=d.getTime();
+		l+=36000000L;
+		response.setDateHeader("Expires", l);
+
 		String s = request.getParameter("photo_id");
 		which = Integer.valueOf(s).intValue();
 
