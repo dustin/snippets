@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSecurity.java,v 1.1 1999/10/10 08:03:56 dustin Exp $
+ * $Id: PhotoSecurity.java,v 1.2 1999/10/10 08:44:16 dustin Exp $
  */
 
 import java.security.*;
@@ -62,6 +62,7 @@ public class PhotoSecurity extends PhotoHelper {
 		sr.nextBytes(data);
 		BASE64Encoder base64=new BASE64Encoder();
 		String out = base64.encodeBuffer(data);
+		out = out.replace('+', '/');
 		return(out);
 	}
 
@@ -79,7 +80,7 @@ public class PhotoSecurity extends PhotoHelper {
 			ResultSet rs = st.executeQuery(query);
 			rs.next();
 			String pw = rs.getString("password");
-			// log("Testing for " + tpw + " = " + pw);
+			log("Testing for " + tpw + " = " + pw);
 			ret=tpw.equals(pw);
 		} catch(Exception e) {
 			// Nothing.
@@ -97,11 +98,12 @@ public class PhotoSecurity extends PhotoHelper {
 	protected String sign(String input) throws Exception {
 		byte dataB[]=input.getBytes();
 		byte secretB[]=secret.getBytes();
-		MessageDigest md = MessageDigest.getInstance("SHA");
+		MessageDigest md = MessageDigest.getInstance(conf.cryptohash);
 		md.update(secretB);
 		md.update(dataB);
 		BASE64Encoder base64=new BASE64Encoder();
 		String out = base64.encodeBuffer(md.digest());
+		out = out.replace('+', '/');
 		out=out.trim();
 		// Get rid of = signs.
 		while(out.endsWith("=")) {
@@ -113,10 +115,11 @@ public class PhotoSecurity extends PhotoHelper {
 	// Get a digest for a string
 	public String getDigest(String input) throws Exception {
 		byte dataB[]=input.getBytes();
-		MessageDigest md = MessageDigest.getInstance("SHA");
+		MessageDigest md = MessageDigest.getInstance(conf.cryptohash);
 		md.update(dataB);
 		BASE64Encoder base64=new BASE64Encoder();
 		String out = base64.encodeBuffer(md.digest());
+		out = out.replace('+', '/');
 		out=out.trim();
 		// Get rid of = signs.
 		while(out.endsWith("=")) {

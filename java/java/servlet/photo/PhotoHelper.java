@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.4 1999/10/10 08:03:53 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.5 1999/10/10 08:44:14 dustin Exp $
  */
 
 import java.sql.*;
@@ -16,6 +16,7 @@ public class PhotoHelper
 {
 	DbConnectionBroker dbs;
 	PhotoLogger logger;
+	PhotoConfig conf;
 
 	protected void getDBS() throws Exception {
 		try {
@@ -38,12 +39,14 @@ public class PhotoHelper
 		super();
 		getDBS();
 		initlog();
+		conf = new PhotoConfig();
 	}
 
 	public PhotoHelper(DbConnectionBroker db) {
 		super();
 		dbs=db;
 		initlog();
+		conf = new PhotoConfig();
 	}
 
 	protected void log(String message) {

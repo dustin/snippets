@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.27 1999/10/10 08:03:56 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.28 1999/10/10 08:44:18 dustin Exp $
  */
 
 import java.io.*;
@@ -195,7 +195,7 @@ public class PhotoServlet extends HttpServlet
 			}
 		}
 
-		// log("Got cookie:  " + auth_cookie);
+		log("Got cookie:  " + auth_cookie);
 
 		remote_user = security.getAuthUser(auth_cookie);
 		getUid();
