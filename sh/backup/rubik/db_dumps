@@ -5,8 +5,8 @@ DEST=$1
 
 PSQL="$HOME/local/pgsql/bin/psql"
 PDUMP="$HOME/local/pgsql/bin/pg_dump"
-# W="where datname not in ('template0', 'template1', 'photodemo')"
-W="where datname in ('money','misc')"
+W="where datname not in ('template0', 'template1', 'photodemo')"
+# W="where datname in ('money','misc')"
 # W="where datname in('spyshop', 'money')"
 
 if [ "x$DEST" = "x" ]
@@ -54,4 +54,7 @@ do
 done
 
 wait
+
+echo "Current sizes of dumps:"
+du -sk *
 )
