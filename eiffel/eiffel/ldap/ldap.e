@@ -2,7 +2,7 @@ indexing
 	author: "Dustin Sallings <dustin@spy.net>";
 	copyright: "1997 Dustin Sallings <dustin@spy.net>";
 	license: "See forum.txt";
-	version: "$Revision: 1.5 $";
+	version: "$Revision: 1.6 $";
 
 class
 	LDAP -- LDAP Access Routines.
@@ -179,6 +179,59 @@ feature {ANY} -- Searching
 			end
 		end
 
+feature {ANY} -- Compare
+
+	compare(dn, attr, value: STRING): BOOLEAN is
+		-- Do an LDAP comparison to see if there's an attr=value for the
+		-- specified dn.
+		require
+			dn /= Void;
+			attr /= Void;
+			value /= Void;
+		do
+		Result:=c_ldap_compare(ldap_handle, dn.to_external,
+				attr.to_external, value.to_external);
+		end
+
+feature {ANY} -- Add
+
+	add_mod(attr, value: STRING) is
+		require
+			attr /= Void;
+			value /= Void;
+			connected;
+		do
+			c_ldap_add_mod(ldap_handle, attr.to_external,
+				value.to_external, value.count);
+		end
+
+	add(dn: STRING) is
+		require
+			connected;
+			dn /= Void;
+		do
+			check
+				c_ldap_add(ldap_handle, dn.to_external);
+			end
+			c_ldap_mod_clean(ldap_handle);
+		rescue
+			-- For rescue, we're just going to run the mod_clean
+			-- and let the assertion ride back.
+			c_ldap_mod_clean(ldap_handle);
+		end
+
+feature {ANY} -- Delete
+
+	delete(dn: STRING) is
+		require
+			connected;
+			dn /= Void;
+		do
+			check
+				c_ldap_delete(ldap_handle, dn.to_external);
+			end
+		end
+
 feature {ANY} -- Status
 
 	got_entry: BOOLEAN is
@@ -261,4 +314,28 @@ feature {NONE} -- C functions
 		external "C"
 		end
 
+	c_ldap_compare(ld, dn, attr, value: POINTER): BOOLEAN is
+		-- Do an LDAP comparison.
+		external "C"
+		end
+
+	c_ldap_add_mod(ld, attr, value: POINTER; vlen: INTEGER) is
+		-- Add an attr/value for a doing an add
+		external "C"
+		end
+
+	c_ldap_add(ld, dn: POINTER): BOOLEAN is
+		-- Add
+		external "C"
+		end
+
+	c_ldap_mod_clean(ld: POINTER) is
+		-- Add an attr/value for a doing an add
+		external "C"
+		end
+
+	c_ldap_delete(ld, dn: POINTER): BOOLEAN is
+		-- delete
+		external "C"
+		end
 end

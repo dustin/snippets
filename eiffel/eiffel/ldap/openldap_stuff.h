@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: openldap_stuff.h,v 1.3 1999/06/06 22:45:36 dustin Exp $
+ * $Id: openldap_stuff.h,v 1.4 1999/06/07 05:42:37 dustin Exp $
  * See forum.txt for licensing information.
  */
 
@@ -24,6 +24,7 @@ typedef struct {
 	LDAP   *ld;
 	LDAPMessage *res;
 	LDAPMessage *entry;
+	LDAPMod **mods;
 	BerElement *ber;
 } LDAP_HANDLE;
 

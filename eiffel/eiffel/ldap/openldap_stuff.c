@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: openldap_stuff.c,v 1.5 1999/06/06 22:45:35 dustin Exp $
+ * $Id: openldap_stuff.c,v 1.6 1999/06/07 05:42:35 dustin Exp $
  * See forum.txt for licensing information.
  */
 
@@ -32,6 +32,8 @@ c_ldap_destroy(LDAP_HANDLE * h)
 			free(h->bindpw);
 		if (h->attr_values)
 			ldap_value_free(h->attr_values);
+		if (h->mods)
+			ldap_mods_free(h->mods, 1);
 		if (h->res)
 			ldap_msgfree(h->res);
 		if (h->ld)
@@ -217,6 +219,126 @@ c_ldap_get_value(LDAP_HANDLE *ldap, char *attribute, int index)
 	}
 
 	return(ret);
+}
+
+int
+c_ldap_compare(LDAP_HANDLE *ldap, char *dn, char *attr, char *value)
+{
+	int rc;
+	assert(ldap);
+	assert(ldap->ld);
+
+	rc = ldap_compare_s(ldap->ld, dn, attr, value);
+
+	return(rc==LDAP_COMPARE_TRUE);
+}
+
+static void
+_c_ldap_add_something(LDAP_HANDLE *ldap, char *attr, char *value,
+	int vlen, int op)
+{
+	int i=0, j=0;
+	struct berval *bvp;
+
+	assert(ldap);
+	assert(attr);
+	assert(value);
+
+	op|=LDAP_MOD_BVALUES;
+
+	/* Find the starting point */
+	if(ldap->mods!=NULL) {
+		for(i=0; ldap->mods[i] != NULL; i++) {
+			if ( strcasecmp( ldap->mods[i]->mod_type, attr ) == 0 ) {
+					break;
+			}
+		}
+	}
+
+	/* Grow it if we need to. */
+	if(ldap->mods == NULL || ldap->mods[i] == NULL) {
+		ldap->mods=(LDAPMod **)realloc(ldap->mods, (i+2)* sizeof(LDAPMod *));
+		assert(ldap->mods);
+	}
+
+	/* Allocate memory for it */
+	ldap->mods[i+1]=NULL;
+	ldap->mods[i]=(LDAPMod *)calloc(1, sizeof(LDAPMod));
+	assert(ldap->mods[i]);
+
+	/* Set type */
+	ldap->mods[i]->mod_op=op;
+
+	/* Add attribute type */
+	ldap->mods[i]->mod_type = strdup( attr );
+	assert(ldap->mods[i]->mod_type);
+
+	/* Add the value */
+
+	/* Go to the end (if there's a beginning) */
+	if ( ldap->mods[i]->mod_bvalues != NULL ) {
+		for ( j=0 ; ldap->mods[i]->mod_bvalues[j] != NULL; ++j );
+	}
+
+	/* Grow it */
+	ldap->mods[i]->mod_bvalues = (struct berval **)realloc(
+		ldap->mods[i]->mod_bvalues, (j + 2) * sizeof( struct berval * ) );
+	assert(ldap->mods[i]->mod_bvalues);
+
+	/* Get the value and add it */
+	ldap->mods[i]->mod_bvalues[j+1] = NULL;
+	bvp = (struct berval *)calloc(1, sizeof( struct berval ));
+	assert(bvp);
+	ldap->mods[i]->mod_bvalues[j] = bvp;
+
+	/* Allocate for value */
+	bvp->bv_len = vlen;
+	bvp->bv_val = (char *)calloc(1, vlen + 1 );
+	assert(bvp->bv_val);
+
+	memcpy( bvp->bv_val, value, vlen );
+	bvp->bv_val[ vlen ] = '\0';
+}
+
+void
+c_ldap_add_mod(LDAP_HANDLE *ldap, char *attr, char *value, int vlen)
+{
+	_c_ldap_add_something(ldap, attr, value, vlen, LDAP_MOD_ADD);
+}
+
+int
+c_ldap_add(LDAP_HANDLE *ldap, char *dn)
+{
+	int rc;
+
+	assert(ldap);
+	assert(ldap->ld);
+	assert(ldap->mods);
+
+	rc=ldap_add_s(ldap->ld, dn, ldap->mods);
+
+	return(rc == LDAP_SUCCESS);
+}
+
+int
+c_ldap_delete(LDAP_HANDLE *ldap, char *dn)
+{
+	int rc;
+
+	assert(ldap);
+	assert(ldap->ld);
+
+	rc=ldap_delete_s(ldap->ld, dn);
+	return(rc == LDAP_SUCCESS);
+}
+
+void
+c_ldap_mod_clean(LDAP_HANDLE *ldap)
+{
+	assert(ldap);
+	if (ldap->mods)
+		ldap_mods_free(ldap->mods, 1);
+	ldap->mods=NULL;
 }
 
 #endif
