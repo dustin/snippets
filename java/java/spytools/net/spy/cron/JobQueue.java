@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: JobQueue.java,v 1.1 2001/04/02 08:40:27 dustin Exp $
+// $Id: JobQueue.java,v 1.2 2001/04/03 07:37:25 dustin Exp $
 
 package net.spy.cron;
 
@@ -21,23 +21,25 @@ public class JobQueue extends Vector {
 	/**
 	 * Add a job.
 	 */
-	public void addJob(Job j) {
+	public synchronized void addJob(Job j) {
 		addElement(j);
 	}
 
 	/**
 	 * Get an Enumeration of Jobs that are ready to run.
 	 */
-	public Enumeration getReadyJobs() {
+	public synchronized Enumeration getReadyJobs() {
 		Vector v=new Vector();
 
-		// Find all the jobs that should have been started by now.
+		// Flip through all of the jobs and see what we've got to do.
 		for(Enumeration e=elements(); e.hasMoreElements(); ) {
 			Job j=(Job)e.nextElement();
 
 			// Add a job if it's ready.
 			if(j.isReady()) {
 				v.addElement(j);
+			} else if(j.isTrash()) {
+				v.removeElement(j);
 			}
 		}
 

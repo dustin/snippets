@@ -76,9 +76,12 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/DBSP.class \
 	net/spy/db/DBSQL.class \
 	net/spy/db/TypeNames.class \
+	net/spy/cron/TimeIncrement.class \
 	net/spy/cron/Job.class \
 	net/spy/cron/JobQueue.class \
-	net/spy/cron/Cron.class
+	net/spy/cron/Cron.class \
+	net/spy/cron/MainJob.class \
+	net/spy/cron/FileJobQueue.class
 
 	# net/spy/loader/ClassReLoader.class
 

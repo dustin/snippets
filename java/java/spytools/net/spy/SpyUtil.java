@@ -1,9 +1,10 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.10 2001/01/28 02:42:09 dustin Exp $
+// $Id: SpyUtil.java,v 1.11 2001/04/03 07:37:20 dustin Exp $
 
 package net.spy;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.security.*;
 import java.io.*;
@@ -104,5 +105,43 @@ public class SpyUtil {
 			r+=t.nextToken().substring(4) + ",";
 		}
 		return(r);
+	}
+
+	/**
+	 * Dump the current list of threads to stderr.
+	 */
+	public static void dumpThreads() {
+		// Find the system group.
+		ThreadGroup start=null, last=null;
+		for(start=Thread.currentThread().getThreadGroup(); start!=null;) {
+			last=start;
+			start=start.getParent();
+		}
+		// Dump the system group.
+		last.list();
+	}
+
+	/**
+	 * Class invoker (runs main(String[]) from a String array.
+	 */
+	public static void runClass(String classname, String args[])
+		throws Exception {
+
+		// Load the class.
+		Class tclass=Class.forName(classname);
+
+		// Find the method
+		Class paramtypes[] = new Class[1];
+		String tmp[]=new String[0];
+		paramtypes[0]=tmp.getClass();
+		Method m = tclass.getMethod("main", paramtypes);
+
+		// Set the arguments.
+		Object params[]=new Object[1];
+		params[0]=args;
+
+		// Run it!
+		m.invoke(tclass, params);
+
 	}
 }

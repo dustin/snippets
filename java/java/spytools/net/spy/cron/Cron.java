@@ -1,10 +1,11 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.1 2001/04/02 08:40:23 dustin Exp $
+// $Id: Cron.java,v 1.2 2001/04/03 07:37:22 dustin Exp $
 
 package net.spy.cron;
 
 import java.util.*;
+import java.io.*;
 
 public class Cron extends Thread {
 
@@ -16,24 +17,37 @@ public class Cron extends Thread {
 	 */
 	public Cron(JobQueue jq) {
 		super();
+		this.jq=jq;
 		setDaemon(true);
 		setName("Cron");
 		start();
 	}
 
+	/**
+	 * Get the current job queue.
+	 */
+	public JobQueue getJobQueue() {
+		return(jq);
+	}
+
 	public void run() {
 		while(stillRunning) {
 			// Check all the running jobs.
+			System.err.println("Looking for jobs to run at " + new Date());
 			for(Enumeration e=jq.getReadyJobs(); e.hasMoreElements(); ) {
 				Job j=(Job)e.nextElement();
 				System.err.println("Starting job " + j);
-				j.markStarted();
-				j.start();
+				Thread t=new Thread(j);
+				t.setName(j.getName());
+				t.setDaemon(true);
+				t.start();
 			}
+			System.err.println("Done looking for jobs to run.");
 
 			try {
 				// Check once a minute
-				sleep(60000);
+				// sleep(60000);
+				sleep(10000);
 			} catch(Exception e) {
 				// Don't care, flip faster
 			}
@@ -41,11 +55,16 @@ public class Cron extends Thread {
 	}
 
 	public static void main(String args[]) throws Exception {
-		JobQueue jq=new JobQueue();
+		FileJobQueue jq=new FileJobQueue(new File(args[0]));
 		Cron c=new Cron(jq);
-		// In this case, Cron will not be a daemon thread, as it's the only
-		// thing main will be running.
-		c.setDaemon(false);
-	}
 
+		// Get the time incrementor.
+		TimeIncrement ti=new TimeIncrement();
+		ti.setField(Calendar.MINUTE);
+		ti.setIncrement(2);
+
+		while(c.isAlive()) {
+			sleep(10000);
+		}
+	}
 }

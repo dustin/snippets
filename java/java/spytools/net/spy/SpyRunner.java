@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyRunner.java,v 1.7 2001/02/07 06:31:05 dustin Exp $
+// $Id: SpyRunner.java,v 1.8 2001/04/03 07:37:19 dustin Exp $
 
 package net.spy;
 
@@ -54,18 +54,10 @@ public class SpyRunner extends Thread {
 
 	public void run() {
 		try {
-			// Class list to find the method dynamically
-			Class paramtypes[] = new Class[1];
-			String tmp[]=new String[0];
-			paramtypes[0]=tmp.getClass();
-			Method m = tclass.getMethod("main", paramtypes);
 
-			// Object list to invoke the method
-			Object params[]=new Object[1];
-			params[0]=args;
+			// Run it!
+			SpyUtil.runClass(classname, args);
 
-			// invoke the method
-			m.invoke(tclass, params);
 		} catch(InvocationTargetException ite) {
 			System.err.println("Error invoking method for " + classname
 				+ ":  " + ite);

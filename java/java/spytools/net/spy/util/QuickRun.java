@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: QuickRun.java,v 1.4 2001/02/14 02:14:13 dustin Exp $
+// $Id: QuickRun.java,v 1.5 2001/04/03 07:37:27 dustin Exp $
 
 package net.spy.util;
 
@@ -92,25 +92,9 @@ public class QuickRun extends Thread {
 		String cn=args[0];
 		String cargs[]=new String[args.length-1];
 		// Copy the args over.
-		for(int i=0; i<cargs.length; i++) {
-			cargs[i]=args[i+1];
-		}
+		System.arraycopy(args, 1, cargs, 0, cargs.length);
 
-		// Find the class
-		Class tclass=Class.forName(cn);
-
-		// Find the method
-		Class paramtypes[] = new Class[1];
-		String tmp[]=new String[0];
-		paramtypes[0]=tmp.getClass();
-		Method m = tclass.getMethod("main", paramtypes);
-
-		// Set the args
-		Object params[]=new Object[1];
-		params[0]=cargs;
-
-		// Run it!
-		m.invoke(tclass, params);
+		SpyUtil.runClass(cn, cargs);
 	}
 
 	public void goServer() throws Exception {
