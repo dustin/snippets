@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.2 1998/10/01 17:04:52 dustin Exp $
+ * $Id: utility.c,v 1.3 1998/10/01 18:05:21 dustin Exp $
  */
 
 #include <config.h>
@@ -23,8 +23,6 @@
 #endif
 
 #include <mbkd.h>
-
-extern struct config conf;
 
 /* Static declarations */
 static int set_bit(int map, int bit);
@@ -359,4 +357,65 @@ split(char c, char *string)
 	}
 
 	return (ret);
+}
+
+/* free a char **, like one returned from the above routine */
+void
+freeptrlist(char **list)
+{
+	int     i;
+
+	if (list == NULL)
+		return;
+
+	for (i = 0; list[i]; i++) {
+		free(list[i]);
+	}
+	free(list);
+}
+
+/* binary -> ascii */
+
+char   *
+hexprint(int size, char *buf)
+{
+	int     i, j = 0;
+	static char r[1024];
+	static char *map = "0123456789abcdef";
+
+	for (i = 0; i < size; i++) {
+		r[j++] = map[((buf[i] & 0xf0) >> 4)];
+		r[j++] = map[(buf[i] & 0x0f)];
+	}
+	r[j] = 0x00;
+	return (r);
+}
+
+/* ascii -> binary */
+
+char   *
+unhexprint(int size, char *buf)
+{
+	int     i, j = 0;
+	static char r[1024];
+	int     map[256];
+
+	for (i = 0; i < 256; i++) {
+		if (i >= '0' && i <= '9') {
+			map[i] = i - '0';
+		} else if (i >= 'a' && i <= 'f') {
+			map[i] = (i - 'a') + 10;
+		} else if (i >= 'A' && i <= 'F') {
+			map[i] = (i - 'A') + 10;
+		} else {
+			map[i] = -1;
+		}
+	}
+
+	for (i = 0; i < size * 2; i += 2) {
+		assert(map[buf[i]] >= 0 && map[buf[i + 1]] >= 0);
+		r[j++] = (map[buf[i]] << 4 | map[buf[i + 1]]);
+	}
+
+	return (r);
 }

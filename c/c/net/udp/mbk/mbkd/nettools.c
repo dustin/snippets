@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: nettools.c,v 1.2 1998/10/01 17:04:50 dustin Exp $
+ * $Id: nettools.c,v 1.3 1998/10/01 18:05:18 dustin Exp $
  */
 
 /*
@@ -14,6 +14,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+
+#include <mbkd.h>
 
 int
 nmc_bitsToN(unsigned int bits)

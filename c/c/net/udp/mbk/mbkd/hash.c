@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: hash.c,v 1.1 1998/10/01 17:04:46 dustin Exp $
+ * $Id: hash.c,v 1.2 1998/10/01 18:05:13 dustin Exp $
  */
 
 #include <stdio.h>
@@ -169,14 +169,14 @@ _hash_dump(struct hashtable *hash)
 	struct hash_container *p;
 	int     i;
 
-	printf("Hash dump:\n");
+	printf("Hash dump for hash at %p, size is %d:\n", hash, hash->hashsize);
 
 	for (i = 0; i < hash->hashsize; i++) {
 		p = hash->buckets[i];
 
 		if (p) {
 			for (; p; p = p->next) {
-				printf("\t%s=%s", p->name, p->value);
+				printf("\t%s=%s\n", p->name, p->value);
 			}
 		}
 	}

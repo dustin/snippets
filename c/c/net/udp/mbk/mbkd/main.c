@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.3 1998/10/01 17:04:47 dustin Exp $
+ * $Id: main.c,v 1.4 1998/10/01 18:05:15 dustin Exp $
  */
 
 #include <config.h>
@@ -89,6 +89,28 @@ detach(void)
 	umask(7);
 }
 
+struct hashtable *parsepacket(struct mbk *mbk_packet)
+{
+	char **stuff, **kv;
+	int i;
+
+	mbk_packet->hash=hash_init(HASHSIZE);
+	if(mbk_packet->hash==NULL) {
+	    return(NULL);
+	}
+
+	stuff=split(':', mbk_packet->data);
+	for(i=0; stuff[i]; i++) {
+	    kv=split('=', stuff[i]);
+		hash_store(mbk_packet->hash, kv[0], kv[1]);
+		freeptrlist(kv);
+	}
+
+	freeptrlist(stuff);
+
+	return(mbk_packet->hash);
+}
+
 void
 process_main()
 {
@@ -107,8 +129,12 @@ process_main()
 		perror("recvfrom");
 	}
 	printf("Read %d bytes\n", stat);
-	printf("Length:\t%d\nAuth:\t0x%x\nData:\t%s\n", mbk_packet.len,
-	    mbk_packet.auth, mbk_packet.data);
+	printf("Length:\t%d\nData:\t%s\n", mbk_packet.len,
+	    mbk_packet.data);
+
+	parsepacket(&mbk_packet);
+    _hash_dump(mbk_packet.hash);
+	hash_destroy(mbk_packet.hash);
 }
 
 int
@@ -117,5 +143,8 @@ main(int argc, char **argv)
 	conf.pidfile = "/tmp/mbkd.pid";
 	/* detach(); */
 	process_main();
+#ifdef MYMALLOC
+	_mdebug_dump();
+#endif /* MYMALLOC */
 	return (0);
 }

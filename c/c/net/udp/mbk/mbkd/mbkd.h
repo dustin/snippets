@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.2 1998/10/01 16:44:41 dustin Exp $
+ * $Id: mbkd.h,v 1.3 1998/10/01 18:05:17 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -26,6 +26,8 @@
 #include <config.h>
 #include <definitions.h>
 #include <readconfig.h>
+#include <hash.h>
+#include <mymalloc.h>
 
 /* stuff */
 #if !defined(HAVE_VSNPRINTF)
@@ -50,17 +52,29 @@ struct config {
 	struct confType *cf;
 };
 
+/* instance */
+extern struct config conf;
+
 struct namedfunc {
     char *name;
     void (*func)(void);
 };
 
 struct mbk {
-    int len;
-	int auth;
-	char data[1024];
+    int  len;               /* Length of the packet from length to end of
+	                         * useful data.
+							 */
+	char data[1024];        /* The actual data */
+	struct hashtable *hash; /* The hash table we put all the data in after
+	                         * we get it.
+							 */
 };
 
 char *kw(char *in);
+char **split(char c, char *string);
+void freeptrlist(char **list);
+char *hexprint(int size, char *buf);
+char *unhexprint(int size, char *buf);
+
 
 #endif /* MBKD_H */
