@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.15 2000/06/24 08:10:28 dustin Exp $
+ * $Id: SpyDB.java,v 1.16 2000/07/01 00:41:06 dustin Exp $
  */
 
 package net.spy;
@@ -216,7 +216,7 @@ public class SpyDB extends Object {
 		System.err.println("DB:  " + msg);
 	}
 
-	protected void getDBConn() throws SQLException {
+	protected synchronized void getDBConn() throws SQLException {
 		log("Getting a connection");
 		if(dbs == null) {
 			log("dbs is null, need to reinit");
@@ -240,7 +240,7 @@ public class SpyDB extends Object {
 		}
 	}
 
-	protected void initDBS() {
+	protected synchronized void initDBS() {
 		log("Initializing");
 		if(dbs!=null) {
 			dbs.destroy();
