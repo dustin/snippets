@@ -14,6 +14,9 @@ extern Display *display;
 extern Window window, rootwindow;
 extern GC gc;
 extern int screen;
+extern int verbose;
+
+extern char *filename;
 
 extern float max_lat, min_lat, max_lng, min_lng;
 
@@ -188,7 +191,7 @@ xplot()
 
   FILE *infile;
 
-  if (NULL == (infile = fopen("coast.dat", "r")))
+  if (NULL == (infile = fopen(filename, "r")))
     exit(12);
 
   lat_diff = max_lat - min_lat;
