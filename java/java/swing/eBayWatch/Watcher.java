@@ -8,6 +8,10 @@ public class Watcher extends Object {
 	protected String current_status="";
 	protected boolean changed=true;
 
+	public String toString() {
+		return("{Watcher " + descr + "}");
+	}
+
 	public boolean hasChanged() throws Exception {
 		old_status=current_status;
 

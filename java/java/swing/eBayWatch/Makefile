@@ -28,4 +28,4 @@ clean:
 	rm -f $(CLASSES)
 
 .java.class:
-	env CLASSPATH=$(CLASSPATH) $(JAVAC) $<
+	env CLASSPATH=$(CLASSPATH) $(JAVAC) -deprecation $<

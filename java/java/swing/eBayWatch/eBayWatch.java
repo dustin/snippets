@@ -54,17 +54,23 @@ public class eBayWatch implements Runnable {
 			size = queue.size();
 		}
 
+        NumberFormat nf=NumberFormat.getCurrencyInstance();
+
         double price=0;
         for(Enumeration e=queue.elements(); e.hasMoreElements();) {
             Watcher w=(Watcher)e.nextElement();
             // System.out.println(w.getWho() + " bid " + w.getPrice());
             if( !(w.getWho().equals("--") || w.getWho().equals(""))) {
                 price+=w.getPrice();
-            }
+				System.out.println("Price of " + w + " is "
+					+ nf.format(w.getPrice()));
+            } else {
+				System.out.println("No price for " + w);
+			}
         }
 
-        NumberFormat nf=NumberFormat.getCurrencyInstance();
 		String status=size + " left.  " + to + " - " + nf.format(price);
+		System.out.println("Set status to " + status);
 		status_bar.setText(status);
 		status_bar.updateUI();
 	}
