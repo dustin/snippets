@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.29 2001/08/30 01:02:20 dustin Exp $
+// $Id: PoolContainer.java,v 1.30 2001/08/30 20:26:47 dustin Exp $
 
 package net.spy.pool;
 
@@ -245,33 +245,21 @@ public class PoolContainer extends Object {
 		debug("Beginning prune.");
 		synchronized (pool) {
 			int i=0;
-			// We're going to flip through this twice...once to remove
-			// things that we *have* to, then once to remove things that we
-			// can.
-			for(Iterator it=pool.iterator(); it.hasNext();) {
-				PoolAble p=(PoolAble)it.next();
+			Vector toDelete=new Vector();
+			// Get rid of expired things
+			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
+				PoolAble p=(PoolAble)e.nextElement();
 				if(p.pruneStatus()>=PoolAble.MUST_CLEAN) {
 					// Tell it that it can go away now.
 					debug("Removing " + p);
 					p.discard();
-					it.remove();
+					toDelete.addElement(p);
 				}
 			}
-			// OK, now let's get rid of the ones we can.
-			// Let's not do this for now...
-			/*
-			for(Enumeration e=pool.elements(); e.hasMoreElements();) {
-				PoolAble p=(PoolAble)e.nextElement();
-				if(p.pruneStatus()>=PoolAble.MAY_CLEAN) {
-					if(totalObjects()>_min_objects) {
-						// Tell it that it can go away now.
-						debug("Removing " + p);
-						p.discard();
-						pool.removeElement(p);
-					}
-				}
-			} // Getting rid of stuff
-			*/
+			// Remove them from the pool now
+			for(Enumeration e=toDelete.elements(); e.hasMoreElements();) {
+				pool.remove(e.nextElement());
+			}
 
 			// If we don't have enough objects, go get more!  They're cheap!
 			if(totalObjects()<_min_objects) {
@@ -347,6 +335,8 @@ public class PoolContainer extends Object {
 			p=filler.getObject();
 			p.setObjectID(nextId());
 			p.setPoolName(name);
+			// Calculate a lifetime and set it
+			p.setMaxAge(calculateMaxAge());
 			p.activate();
 			synchronized(pool) {
 				pool.addElement(p);
@@ -357,6 +347,32 @@ public class PoolContainer extends Object {
 			throw new PoolException("Cannot create another object in the pool");
 		}
 		return(p);
+	}
+
+	// Calculate the maximum age of the ``next'' object based on the number
+	// of objects currently in the pool.  The more full the pool is, the
+	// less time anything should stay in it.  This does nifty burst
+	// compensation.
+	private long calculateMaxAge() {
+		// Default to whatever's in the config
+		long rv=(long)getPropertyInt("max_age", 0);
+		synchronized(pool) {
+			int pool_size=totalObjects();
+
+			// Only create a new maxAge if we're above our minimum threshold
+			if(pool_size>_init_objects) {
+				float percent_full=(float)pool_size/(float)_max_objects;
+				float factor=1-percent_full;
+
+				rv=(long)((double)rv*factor);
+
+				// All connections should be available for at least 5 seconds.
+				if(rv<5) {
+					rv=5;
+				}
+			}
+		}
+		return(rv);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.20 2001/08/30 02:24:00 dustin Exp $
+// $Id: PoolAble.java,v 1.21 2001/08/30 20:26:46 dustin Exp $
 
 package net.spy.pool;
 
@@ -79,6 +79,13 @@ public abstract class PoolAble extends Object {
 		sb.append(" for ");
 		sb.append(Integer.toHexString(poolHash));
 		return(sb.toString());
+	}
+
+	/**
+	 * Set the maximum age of this PoolAble.
+	 */
+	public void setMaxAge(long to) {
+		this.max_age=to;
 	}
 
 	/**
