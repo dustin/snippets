@@ -1,0 +1,21 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {doCancel = id; doOk = id; };
+            CLASS = ConfigSheetController;
+            LANGUAGE = ObjC;
+            OUTLETS = {url = NSTextField; };
+            SUPERCLASS = NSWindowController;
+        },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {
+            ACTIONS = {cancelButton = id; okButton = id; };
+            CLASS = ImageSaverView;
+            LANGUAGE = ObjC;
+            OUTLETS = {sheet = NSWindow; urlField = NSTextField; };
+            SUPERCLASS = ScreenSaverView;
+        },
+        {CLASS = ScreenSaverView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    );
+    IBVersion = 1;
+}
