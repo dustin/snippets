@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: phonebook.h,v 1.4 1997/07/15 13:50:29 dustin Exp $
+ * $Id: phonebook.h,v 1.5 1997/10/01 07:07:22 dustin Exp $
  */
 
 #ifndef PHONEBOOK_H
@@ -17,7 +17,7 @@ typedef struct {
 
 typedef struct {
     Widget parent;
-    int dbh;
+    void *dbh;
 } progdata;
 
 typedef struct {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: callbacks.c,v 1.3 1997/06/16 23:57:24 dustin Exp $
+ * $Id: callbacks.c,v 1.4 1997/10/01 07:07:20 dustin Exp $
  */
 
 #include <stdio.h>
@@ -45,12 +45,33 @@ void Store(Widget w, XtPointer client_data, XtPointer call_data)
     infotype *info=(infotype *) client_data;
     int i;
     String data;
+    char query[8192];
+
+    strcpy(query, "insert into phone (");
 
     for(i=0; i<NFIELDS; i++)
     {
-	data=XmTextFieldGetString(info->data[i]);
-	printf("``%s'' -> %s\n", data, dbfnames[i]);
+	strcat(query, dbfnames[i]);
+	strcat(query, ", ");
     }
+
+    strcat(query, ") values(");
+
+    for(i=0; i<NFIELDS-1; i++)
+    {
+	data=XmTextFieldGetString(info->data[i]);
+	strcat(query, "'");
+	strcat(query, data);
+	strcat(query, "', ");
+    }
+    data=XmTextFieldGetString(info->data[i]);
+    strcat(query, "'");
+    strcat(query, data);
+    strcat(query, "');");
+
+    puts(query);
+
+    CreateTrans(query, "Query");
 }
 
 void ShowFields(Widget w, XtPointer client_data, XtPointer call_data)

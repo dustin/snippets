@@ -1,13 +1,13 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Makefile,v 1.4 1997/07/15 13:50:26 dustin Exp $
+# $Id: Makefile,v 1.5 1997/10/01 07:07:19 dustin Exp $
 
 SHELL=/bin/sh
 LBIN=/usr/local/bin
-CDEBUGFLAGS= -I/usr/local/Hughes/include -O2
+CDEBUGFLAGS= -O2 -I/usr/local/pgsql/include
 
-LIBS=-lXm -lXt -lX11 -lmsql
-LDFLAGS=-L/usr/local/Hughes/lib $(LIBS)
+LIBS=-lXm -lXt -lX11 -lpq
+LDFLAGS=-L/usr/local/pgsql/lib $(LIBS)
 
 CC=cc
 RANLIB=:

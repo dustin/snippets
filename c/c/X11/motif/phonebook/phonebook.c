@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: phonebook.c,v 1.3 1997/07/15 13:50:28 dustin Exp $
+ * $Id: phonebook.c,v 1.4 1997/10/01 07:07:22 dustin Exp $
  */
 
 #include <stdio.h>
@@ -207,12 +207,6 @@ Widget CreateApplication(Widget parent, infotype *info)
     XtSetArg(args[n], XmNpacking, XmPACK_TIGHT); n++;
     form = XmCreateRowColumn(frame, "form", args, n);
     XtManageChild(form);
-
-/*
-    n=0;
-    form = XmCreateForm(frame, "form", args, n);
-    XtManageChild(form);
-*/
 
     /* Input dialogs */
     CreateInputs(form, info);

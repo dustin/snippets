@@ -1,14 +1,13 @@
 /*
  * Copyright(c) 1997  Dustin Sallings
  *
- * $Id: database.c,v 1.2 1997/07/15 13:52:04 dustin Exp $
+ * $Id: database.c,v 1.3 1997/10/01 07:07:21 dustin Exp $
  */
 
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <time.h>
-#include <msql.h>
+#include <libpq-fe.h>
 
 #include <X11/Intrinsic.h>
 #include <Xm/Xm.h>
@@ -34,40 +33,43 @@ extern progdata globl;
 void dDie(char *what)
 {
     puts(what);
+    PQfinish(globl.dbh);
     exit(1);
 }
 
 void dbConnect(void)
 {
-    if( (globl.dbh=msqlConnect(DBHOST)) < 0)
-	dDie(msqlErrMsg);
+    globl.dbh=(void *)PQsetdb(DBHOST, NULL, NULL, NULL, DBNAME);
 
-    if( (msqlSelectDB(globl.dbh, DBNAME)) <0)
-	dDie(msqlErrMsg);
+    if(PQstatus(globl.dbh)==CONNECTION_BAD)
+	dDie(PQerrorMessage(globl.dbh));
 }
 
 void doQuery(char *query)
 {
-    int i, j, dodis;
-    m_result *tmp;
-    m_row res;
+    PGresult *res;
+    int i, j, ntuples, nfields;
+    char *name;
 
-    if(msqlQuery(globl.dbh, query)<0)
-	dDie(msqlErrMsg);
+    res=PQexec(globl.dbh, query);
 
-    tmp=msqlStoreResult();
+    if(PQresultStatus(res)!=PGRES_TUPLES_OK)
+	dDie(PQerrorMessage(globl.dbh));
 
-    switch(msqlNumRows(tmp))
+    ntuples=PQntuples(res);
+    nfields=PQnfields(res);
+
+    for(i=0; i<nfields; i++)
+	printf("%%%s%%:", PQfname(res, i));
+
+    puts("");
+
+    for(i=0; i<ntuples; i++)
     {
-	case 0:
-	    CreateTrans("No such user", "Find message");
-	    break;
-	case 1:
-	    res=msqlFetchRow(tmp);
-	    for(i=0; i<NFIELDS; i++) puts(res[i]);
-	default:
-	    CreateTrans("Found user", "Find message");
+	for(j=0; j<nfields; j++)
+	{
+	    printf("%s:", PQgetvalue(res, i, j));
+	}
+	puts("");
     }
-
-    msqlFreeResult(tmp);
 }
