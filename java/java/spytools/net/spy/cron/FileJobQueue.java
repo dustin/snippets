@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileJobQueue.java,v 1.2 2001/04/08 21:42:20 dustin Exp $
+// $Id: FileJobQueue.java,v 1.3 2001/04/13 18:20:38 dustin Exp $
 
 package net.spy.cron;
 
@@ -51,7 +51,7 @@ public class FileJobQueue extends JobQueue {
 		while(line!=null) {
 
 			try {
-				Job j=parseJob(line);
+				Job j=parseJob(line, lnr.getLineNumber());
 				if(j!=null) {
 					addJob(j);
 				}
@@ -67,7 +67,7 @@ public class FileJobQueue extends JobQueue {
 	}
 
 	// Parse an individual line from the job file.
-	private Job parseJob(String line) throws ParseException {
+	private Job parseJob(String line, int lineNum) throws ParseException {
 		Job rv=null;
 
 		line=line.trim();
@@ -102,11 +102,18 @@ public class FileJobQueue extends JobQueue {
 			TimeIncrement ti=new TimeIncrement();
 			ti.setField(cf);
 			ti.setIncrement(Integer.parseInt(incr_s));
+			// Get the next start date using the given increment, otherwise
+			// the job will run *right now*.
 			startDate=ti.nextDate(startDate);
 
 			rv=new MainJob(class_s, args, startDate, ti);
 		} else {
-			rv=new MainJob(class_s, args, startDate);
+			if(startDate.getTime() < System.currentTimeMillis()) {
+				System.err.println("At job on line " + lineNum
+					+ " is in the past.");
+			} else {
+				rv=new MainJob(class_s, args, startDate);
+			}
 		}
 
 		return(rv);
@@ -127,6 +134,9 @@ public class FileJobQueue extends JobQueue {
 			rv=Calendar.MINUTE;
 		} else if(field_name.equals("SECOND")) {
 			rv=Calendar.SECOND;
+		} else if(field_name.equals("ONCE")) {
+			// Just run this job once
+			rv=-1;
 		} else {
 			System.err.println("WARNING!  " + field_name
 				+ " is not a valid Calendar field.");
