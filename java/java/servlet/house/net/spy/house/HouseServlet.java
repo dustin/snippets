@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.8 2002/05/04 07:05:31 dustin Exp $
+ * $Id: HouseServlet.java,v 1.9 2002/05/04 08:36:52 dustin Exp $
  */
 
 package net.spy.house;
@@ -9,7 +9,6 @@ package net.spy.house;
 import java.io.*;
 import java.util.*;
 import java.net.*;
-import sun.misc.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -41,6 +40,18 @@ public class HouseServlet extends PngServlet implements ImageObserver
 		super.init(config);
 
 		String bi=config.getInitParameter("baseImage");
+
+		// If the base image begins with a /, look up the real path
+		if(bi.startsWith("/")) {
+			try {
+				URL biurl=config.getServletContext().getResource(bi);
+				if(biurl!=null) {
+					bi=biurl.toString();
+				}
+			} catch(MalformedURLException me) {
+				me.printStackTrace();
+			}
+		}
 
 		getBaseImage(bi);
 
@@ -76,6 +87,9 @@ public class HouseServlet extends PngServlet implements ImageObserver
 
 		// Find the description
 		String descrFile=sconf.getInitParameter("houseConfig");
+		if(descrFile.startsWith("/WEB-INF")) {
+			descrFile=getServletContext().getRealPath(descrFile);
+		}
 
 		// The description of what we're drawing.
 		SpyConfig conf=new SpyConfig(new File(descrFile));
@@ -136,7 +150,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 						wait(15000);
 					}
 				}
-				log("Image loaded!");
+				log("Image loaded (or timed out).");
 			}
 		} catch(Exception e) {
 			System.err.println("Error fetching base image:  " +e);
@@ -150,6 +164,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 
 		if((infoflags&ALLBITS) != 0) {
 			imageLoaded=true;
+			log("Actually loaded.");
 			synchronized(this) {
 				notify();
 			}
