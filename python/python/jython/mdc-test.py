@@ -14,12 +14,18 @@ import net
 # To register the protocol
 from org.apache.commons.httpclient.protocol import Protocol
 
+# Errors
+from org.apache.commons.httpclient import HttpRecoverableException
+from org.apache.commons.httpclient.HttpConnection import ConnectionTimeoutException
+from javax.net.ssl import SSLException
+
 # SSL stuff
 from com.twowire.app.mdcscrape import MDCSSLSocketFactory
 
 # Handlers and stuff
 from com.twowire.app.mdcscrape import MDCPageHandlerRegistry
 from com.twowire.app.mdcscrape import MDCProcessor
+from com.twowire.app.mdcscrape import SerializationQueue
 
 from com.twowire.app.mdcscrape import MDCSystemSummaryHandler
 from com.twowire.app.mdcscrape import MDCLinkSummaryHandler
@@ -31,20 +37,47 @@ class Recorder(net.spy.util.ThreadPoolObserver):
 
 	def __init__(self):
 		net.spy.util.ThreadPoolObserver.__init__(self)
-		os=java.io.FileOutputStream("results.srz")
-		gos=java.util.zip.GZIPOutputStream(os)
-		self.oos=java.io.ObjectOutputStream(gos);
+
+		self.serQueues={}
+		for i in range(10):
+			os=java.io.FileOutputStream("results_" + `i` + ".srz")
+			gos=java.util.zip.GZIPOutputStream(os)
+			oos=java.io.ObjectOutputStream(gos);
+			self.serQueues[i]=SerializationQueue("Serializer#" + `i`, oos)
+			# Slightly higher than normal priority for these
+			self.serQueues[i].setPriority(java.lang.Thread.NORM_PRIORITY + 1)
+			self.serQueues[i].start()
+
+		self.errors=java.io.PrintWriter(java.io.FileWriter("error.log"))
 
 	def jobComplete(self, j):
 		if j.wasSuccessful():
-			print j.getSerialNumber()
-			self.oos.writeObject(j.getSerialNumber())
-			self.oos.writeObject(j.getResults())
+			sn=j.getSerialNumber()
+			self.errors.println("Successful:  " + j.getSerialNumber());
+			snf=int(sn[0])
+			q=self.serQueues[snf]
+			o=java.util.ArrayList()
+			o.add(sn)
+			o.add(j.getResults())
+			q.addObjects(o)
 		else:
-			print j.getSerialNumber() + " failed!"
+			self.errors.print("Failed:  " + j.getSerialNumber() + "  ")
+			# Figure out what to do with the exception
+			e=j.getException()
+			if isinstance(e, ConnectionTimeoutException):
+				self.errors.println("timed out")
+			elif isinstance(e, java.io.IOException):
+				self.errors.println(e.getClass().getName()
+					+ ": " + e.getMessage())
+			else:
+				self.errors.println("Exception:")
+				j.getException().printStackTrace(self.errors)
+		self.errors.flush()
 
 	def finished(self):
-		self.oos.close()
+		for v in self.serQueues.values():
+			v.close()
+		self.errors.close()
 
 # Start registering handlers and stuff
 
@@ -67,23 +100,24 @@ Protocol.registerProtocol("https",
 # The pool monitor (that saves the stuff)
 recorder=Recorder()
 
-tp=net.spy.util.ThreadPool("Fetcher", 100)
-tp.setStartThreads(10)
+tp=net.spy.util.ThreadPool("Fetcher", 25)
+tp.setStartThreads(25)
 tp.setMinIdleThreads(5)
 tp.setMonitor(recorder)
-stats=net.spy.util.ProgressStats(197108)
+tp.start()
+stats=net.spy.util.ProgressStats(10000)
 
 l=sys.stdin.readline()
 while l != '':
 	(sn, vn, auth, url)=l.strip().split(" ")
 
 	stats.start()
-	print "# ", sn, vn, auth, url
+	# print "# ", sn, vn, auth, url
 	tp.addTask(MDCProcessor(sn, vn, auth, url))
 	tp.waitForTaskCount(200)
 	stats.stop()
 
-	print stats
+	print "#", stats
 
 	l=sys.stdin.readline()
 tp.waitForCompletion()
