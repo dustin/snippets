@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.37 2002/08/23 07:46:16 dustin Exp $
+	$Id: build.xml,v 1.38 2002/08/26 04:34:40 dustin Exp $
 
 	-->
 
@@ -55,6 +55,13 @@
 				<include name="spy/db/CachePreparedStatement.java"/>
 				<include name="spy/db/CachedResultSet.java"/>
 				<include name="spy/db/sp/*.java"/>
+			</fileset>
+			<!--
+				Get rid of the installed one since it keeps messing with my
+				tests
+			-->
+			<fileset dir="${user.home}/lib/java">
+				<include name="spy.jar"/>
 			</fileset>
 			<fileset dir="${TBUILDDIR}">
 				<include name="**/*.class"/>

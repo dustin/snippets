@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTest.java,v 1.3 2002/08/21 22:27:20 dustin Exp $
+// $Id: DBTest.java,v 1.4 2002/08/26 04:34:46 dustin Exp $
 
 package net.spy.test;
 
@@ -20,6 +20,7 @@ import net.spy.SpyConfig;
 import net.spy.db.SpyCacheDB;
 
 import net.spy.test.db.DumpTestTable;
+import net.spy.test.db.GetTestByNumber;
 
 /**
  *
@@ -158,6 +159,46 @@ public class DBTest extends TestCase {
 		}
 		rs.close();
 		db.close();
+	}
+
+	/**
+	 * Test an SPT with numeric parameters.
+	 */
+	public void testSPTNoCacheWithNumberParam() throws SQLException {
+		GetTestByNumber db=new GetTestByNumber(conf);
+		db.set("test_n", new BigDecimal(1234567));
+		ResultSet rs=db.executeQuery();
+		assertTrue(! (rs instanceof net.spy.db.CachedResultSet));
+		int nrows=0;
+		while(rs.next()) {
+			nrows++;
+			checkRow(rs);
+		}
+		rs.close();
+		db.close();
+
+		assertEquals("Incorrect number of rows returned for number match",
+			nrows, 2);
+	}
+
+	/**
+	 * Test an SPT with numeric parameters.
+	 */
+	public void testSPTNoCacheWithCoercedNumberParam() throws SQLException {
+		GetTestByNumber db=new GetTestByNumber(conf);
+		db.setCoerced("test_n", "1234567");
+		ResultSet rs=db.executeQuery();
+		assertTrue(! (rs instanceof net.spy.db.CachedResultSet));
+		int nrows=0;
+		while(rs.next()) {
+			nrows++;
+			checkRow(rs);
+		}
+		rs.close();
+		db.close();
+
+		assertEquals("Incorrect number of rows returned for number match",
+			nrows, 2);
 	}
 
 }

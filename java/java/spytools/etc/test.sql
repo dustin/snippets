@@ -1,5 +1,8 @@
 -- Test schema
 
+drop table testtable;
+drop sequence testtable_id_seq;
+
 create table testtable (
 	id serial,
 	test_vc varchar(32),
@@ -15,27 +18,29 @@ create table testtable (
 -- Test data
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('full1', current_date, current_time, now(), '1234567.09', 1,
+	values('full1', '7/29/1998', '23:02', now(), '123456.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('full2', current_date, current_time, now(), '1234567.09', 1,
+	values('full2', '7/29/1998', '23:02', now(), '123456.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('nulldate', current_time, now(), '1234567.09', 1,
+	values('nulldate', '23:02', now(), '123456.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f)
-	values('nullbool', current_date, current_time, now(), '1234567.09', 1,
+	values('nullbool', '7/29/1998', '23:02', now(), '1234567.09', 1,
 	1.1);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_b)
-	values('nullnums', current_date, current_time, now(), '1234567.09', true);
+	values('nullnums', '7/29/1998', '23:02', now(), '1234567.09', true);
+
+drop table primary_keys;
 
 create table primary_keys(
 	table_name varchar(128) not null,

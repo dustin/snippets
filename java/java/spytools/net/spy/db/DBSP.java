@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.11 2002/08/23 17:25:38 dustin Exp $
+// $Id: DBSP.java,v 1.12 2002/08/26 04:34:44 dustin Exp $
 
 package net.spy.db;
 
@@ -672,52 +672,58 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
-	 * Set the variable from a string.  This is private and static because
-	 * this is not the way things should work except for the test case
-	 * where there's an abstract method for calling data from strings for
-	 * display purposes only.
+	 * Set a field in the DBSP after coercing the String value to the
+	 * required value for the given field.
+	 *
+	 * @param var the field to set
+	 * @param value the String representation of the value to set
+	 * @throws SQLException if there's a problem with coersion
 	 */
-	private static void setVar(DBSP dbsp, String var, String value)
-		throws Exception {
+	public void setCoerced(String var, String value) throws SQLException {
 
-		int type=dbsp.getType(var);
-		switch(type) {
-			case Types.BIT:
-				dbsp.set(var, Boolean.valueOf(value).booleanValue());
-				break;
-			case Types.DATE:
-				throw new SQLException("Date types not currently handled");
-			case Types.DOUBLE:
-				dbsp.set(var, new Double(value).doubleValue());
-				break;
-			case Types.FLOAT:
-				dbsp.set(var, new Float(value).floatValue());
-				break;
-			case Types.INTEGER:
-				dbsp.set(var, Integer.parseInt(value));
-				break;
-			case Types.BIGINT:
-				dbsp.set(var, Long.parseLong(value));
-				break;
-			case Types.NUMERIC:
-			case Types.DECIMAL:
-				dbsp.set(var, new BigDecimal(value));
-				break;
-			case Types.TINYINT:
-				dbsp.set(var, (short)Integer.parseInt(value));
-				break;
-			case Types.OTHER:
-				dbsp.set(var, value);
-				break;
-			case Types.VARCHAR:
-				dbsp.set(var, value);
-				break;
-			case Types.TIME:
-			case Types.TIMESTAMP:
-				throw new SQLException("Date types not currently handled");
-			default:
-				throw new SQLException(
-					"No known type for " + var + ", you sure it's valid?.");
+		int type=getType(var);
+		if(value == null) {
+			// if the value is null, send in a null
+			DBNull n=new DBNull(type);
+		} else {
+			// Value is not null, parse it and call the proper set method
+			switch(type) {
+				case Types.BIT:
+					set(var, Boolean.valueOf(value).booleanValue());
+					break;
+				case Types.DOUBLE:
+					set(var, new Double(value).doubleValue());
+					break;
+				case Types.FLOAT:
+					set(var, new Float(value).floatValue());
+					break;
+				case Types.INTEGER:
+					set(var, Integer.parseInt(value));
+					break;
+				case Types.BIGINT:
+					set(var, Long.parseLong(value));
+					break;
+				case Types.NUMERIC:
+				case Types.DECIMAL:
+					set(var, new BigDecimal(value));
+					break;
+				case Types.TINYINT:
+					set(var, (short)Integer.parseInt(value));
+					break;
+				case Types.OTHER:
+					set(var, value);
+					break;
+				case Types.VARCHAR:
+					set(var, value);
+					break;
+				case Types.DATE:
+				case Types.TIME:
+				case Types.TIMESTAMP:
+					throw new SQLException("Date types not currently handled");
+				default:
+					throw new SQLException(
+						"No known type for " + var + ", you sure it's valid?.");
+			}
 		}
 	}
 
@@ -744,7 +750,7 @@ public abstract class DBSP extends SpyCacheDB {
 		DBSP dbsp=(DBSP)cons.newInstance(dargs);
 
 		for(int i=2; i<args.length; i+=2) {
-			setVar(dbsp, args[i], args[i+1]);
+			dbsp.setCoerced(args[i], args[i+1]);
 		}
 
 		ResultSet rs=dbsp.executeQuery();
