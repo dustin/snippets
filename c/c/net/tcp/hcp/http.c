@@ -2,13 +2,14 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.5 1998/11/11 07:16:15 dustin Exp $
+ * $Id: http.c,v 1.6 1998/11/11 07:21:08 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <signal.h>
@@ -130,7 +131,7 @@ parseurl(char *url)
 {
 	char   *tmp;
 	struct url u;
-	int     i, port;
+	int     port=80;
 
 	u.host = NULL;
 	u.req = NULL;
@@ -214,25 +215,29 @@ freestatus(struct status s)
 int
 send_data(struct host_ret conn, struct url u, char *data)
 {
+	int r;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
-		SSL_write(conn.ssl, data, strlen(data));
+		r=SSL_write(conn.ssl, data, strlen(data));
 #endif
 	} else {
-		send(conn.s, data, strlen(data), 0);
+		r=send(conn.s, data, strlen(data), 0);
 	}
+	return(r);
 }
 
 int
 send_ndata(struct host_ret conn, struct url u, size_t n, char *data)
 {
+	int r;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
-		SSL_write(conn.ssl, data, n);
+		r=SSL_write(conn.ssl, data, n);
 #endif
 	} else {
-		send(conn.s, data, n, 0);
+		r=send(conn.s, data, n, 0);
 	}
+	return(r);
 }
 
 int
