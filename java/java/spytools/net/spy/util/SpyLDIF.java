@@ -1,11 +1,12 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
-// $Id: SpyLDIF.java,v 1.8 2000/10/06 00:48:04 dustin Exp $
+// $Id: SpyLDIF.java,v 1.9 2000/10/09 23:07:04 dustin Exp $
 
 package net.spy.util;
 
 import java.util.*;
 import java.io.*;
 import sun.misc.*;
+import net.spy.SpyUtil;
 
 public class SpyLDIF extends Hashtable {
 
@@ -98,6 +99,13 @@ public class SpyLDIF extends Hashtable {
 			if(k.indexOf(":encoded")==-1) {
 				v=getString(k);
 				String v2=base64.encodeBuffer(v.getBytes());
+				String parts[]=SpyUtil.split("\r\n\t ", v2);
+				if(parts.length>0) {
+					v2=parts[0] + "\n";
+					for(int i=1; i<parts.length; i++) {
+						v2+="  " + parts[i] + "\n";
+					}
+				}
 				ret+=k + ":: " + v2;
 			}
 		}
