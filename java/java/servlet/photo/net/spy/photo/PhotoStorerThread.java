@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.2 1999/10/20 08:41:23 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.3 1999/11/26 05:28:27 dustin Exp $
  */
 
 package net.spy.photo;
@@ -47,6 +47,8 @@ public class PhotoStorerThread extends Thread {
 			st.executeUpdate("update upload_log set stored=datetime(now())\n"
 				+ "\twhere photo_id = " + image_id);
 			db.commit();
+			// Go ahead and generate a thumbnail.
+			p.getThumbnail();
 		} catch(Exception e) {
 			// If anything happens, roll it back.
 			if( st != null) {
@@ -105,6 +107,13 @@ public class PhotoStorerThread extends Thread {
 	}
 
 	public void run() {
+		// Do a flush at the beginning, just in case stuff has been
+		// building up.
+		try {
+			doFlush();
+		} catch(Exception e1) {
+			// Don't care, all these can fail, we'll just keep trying.
+		}
 		for(;;) {
 			try {
 				PhotoConfig p = new PhotoConfig();

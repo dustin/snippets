@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.2 1999/11/26 00:59:08 dustin Exp $
+ * $Id: PhotoImage.java,v 1.3 1999/11/26 05:28:22 dustin Exp $
  */
 
 package net.spy.photo;
@@ -50,6 +50,14 @@ public class PhotoImage extends PhotoHelper
 		}
 		log("Returning image data");
 		return(data.image_data);
+	}
+
+	// Store an image
+	public void storeImage(ImageData image_data) throws Exception {
+		ensureConnected();
+		log("Storing image " + image_id);
+		server.storeImage(image_id, image_data);
+		log("Stored image " + image_id);
 	}
 
 	// Get a thumbnail

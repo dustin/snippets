@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.2 1999/11/26 00:59:09 dustin Exp $
+ * $Id: PhotoSession.java,v 1.3 1999/11/26 05:28:25 dustin Exp $
  */
 
 package net.spy.photo;
@@ -18,6 +18,7 @@ import javax.servlet.http.*;
 import com.oreilly.servlet.*;
 
 import net.spy.*;
+import net.spy.util.*;
 import PhotoServlet;
 
 // The class
@@ -331,7 +332,8 @@ public class PhotoSession extends Object
 		try {
 			FileInputStream in;
 			Vector v = new Vector();
-			byte data[] = new byte[57];
+			int bufsize=1024;
+			byte data[] = new byte[bufsize];
 
 			photo=getDBConn();
 			st=photo.createStatement();
@@ -354,7 +356,7 @@ public class PhotoSession extends Object
 				String tmp;
 
 				size+=length;
-				if(length == 57) {
+				if(length == bufsize) {
 					byte tb[] = new byte[length];
 					int j;
 
@@ -375,9 +377,8 @@ public class PhotoSession extends Object
 			query ="update album set size=" + size + "where id=" + id;
 			st.executeUpdate(query);
 
-			log("Putting the photo in the cache (" + v.size() + ")...");
-			rhash.put("photo_" + id, v);
-			log("Done putting the photo in the cache...");
+			PhotoImage photo_image=new PhotoImage(id);
+			photo_image.storeImage(new ImageData(v));
 
 			query = "insert into upload_log values(\n"
 				  + "\t" + id + ", " + remote_uid + ")";

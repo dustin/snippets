@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoConfig.java,v 1.3 1999/10/20 08:41:18 dustin Exp $
+ * $Id: PhotoConfig.java,v 1.4 1999/11/26 05:28:21 dustin Exp $
  */
 
 package net.spy.photo;
@@ -17,6 +17,7 @@ public class PhotoConfig extends SpyConfig {
 		orput("dbUser", "nobody");
 		orput("dbPass", "");
 		orput("objectserver", "//localhost/RObjectServer");
+		orput("imageserver", "//localhost/ImageServer");
 		orput("includes", "/home/dustin/public_html/jphoto/inc/");
 		orput("html_uriroot", "/~dustin/jphoto/");
 		orput("timezone", "GMT");
