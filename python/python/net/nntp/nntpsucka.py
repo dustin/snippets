@@ -2,13 +2,14 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.24 2002/03/25 07:37:51 dustin Exp $
+# $Id: nntpsucka.py,v 1.25 2002/03/26 20:10:29 dustin Exp $
 
 import nntplib
 import time
 import anydbm
 import signal
 import os
+import sys
 
 # My pidlock
 import pidlock
@@ -284,21 +285,25 @@ def main():
 	signal.signal(signal.SIGALRM, alarmHandler)
 	signal.alarm(3500)
 
+	sucka=None
 	try:
 		start=time.time()
-		s=NNTPClient('news.mindspring.com')
-		d=NNTPClient('news.west.spy.net')
+		s=NNTPClient(sys.argv[1])
+		d=NNTPClient(sys.argv[2])
 		sucka=NNTPSucka(s,d)
 		sucka.copyServer()
 		stop=time.time()
+	except IndexError:
+		sys.stderr.write("Usage:  " + sys.argv[0] + " srchost desthost.\n")
 	except Timeout:
-		print "Took too long."
+		sys.stderr.write("Took too long.\n")
 
-	print sucka.getStats()
-	print "Total time spent:  " + str(stop-start) + "s"
+	if sucka:
+		print sucka.getStats()
+		sys.stderr.write("Total time spent:  " + str(stop-start) + "s\n")
 
 if __name__ == '__main__':
 	try:
 		main()
 	except pidlock.AlreadyLockedException, ale:
-		print "Already running:  " + str(ale[0])
+		sys.stderr.write("Already running:  " + str(ale[0]))
