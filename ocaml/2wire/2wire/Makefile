@@ -8,7 +8,7 @@ PROFILE=
 
 PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot \
 	mfgcdb mfgcdb.cmi extractAuthInfo snmap statutils statutils.cmi statRollup \
-	rrdAggregate extractKeys buildMfgCache
+	rrdAggregate extractKeys buildMfgCache cdbprefix
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
