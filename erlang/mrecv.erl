@@ -12,7 +12,9 @@ start() ->
 init() ->
 	register(mrecv, self()),
 	process_flag(trap_exit, true),
-	Port = open_port({spawn, "./mrecv"}, [{packet, 1}]),
+	{ok, GAddr}=inet:getaddr("225.0.0.37", inet),
+	{ok, LAddr}=inet:getaddr("0.0.0.0", inet),
+	{ok, Port} = gen_udp:open(6789, [{add_membership,{GAddr,LAddr}}]),
 	loop(Port, dict:new()).
 
 loop(Port, Dict) ->
@@ -22,6 +24,9 @@ loop(Port, Dict) ->
 			Key  = lists:nth(2, Vals),
 			Val  = list_to_float(lists:nth(3, Vals)),
 			loop(Port, dict:update(Key, fun(_) -> Val end, Val, Dict));
+		{udp, Port, Raddr, Rport, S} ->
+			io:format("~p\n", [lists:sublist(S, (length(s)-1))]),
+			loop(Port, Dict);
 		{lookup, From, SN} ->
 			From ! dict:fetch(SN, Dict),
 			loop(Port, Dict);
