@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: getit,v 1.2 1997/12/12 18:37:45 dustin Exp $
+# $Id: getit,v 1.3 1998/02/22 06:56:40 dustin Exp $
 
 set kludge { $*
     shift
@@ -16,6 +16,12 @@ mib load cisco.mib
 
 set host [lindex $argv 0]
 set community [expr {$argc == 2 ? [lindex $argv 1] : "public"}]
+
+set vars { ifDescr ifInOctets ifOutOctets ifSpeed
+	   locIfInBitsSec locIfOutBitsSec locIfDescr
+	   locIfCollisions locIfInCRC locIfInFrame
+           locIfInIgnored locIfInAbort locIfResets locIfReason
+	 }
 
 set pt [lindex [lindex [icmp -retries 5 echo $host] 0] 1]
 
@@ -36,28 +42,16 @@ if { $pt>-1 } {
         }
 
         for {set count 1} {$count <= $infs} {incr count 1} {
-            set inf "ifDescr.$count"
-            set desc [lindex [lindex [$s get $inf] 0] 2]
 
-            set inf "ifInOctets.$count"
-            set in   [lindex [lindex [$s get $inf] 0] 2]
+            puts -nonewline "$host;[getclock]"
 
-            set inf "locIfInBitsSec.$count"
-            set ain   [lindex [lindex [$s get $inf] 0] 2]
+            foreach var $vars {
+                set inf "$var.$count"
+                puts -nonewline ";[lindex [lindex [$s get $inf] 0] 2]"
+	    }
+            # set ldesc  [lindex [lindex [$s get $inf] 0] 2]
 
-            set inf "ifOutOctets.$count"
-            set out  [lindex [lindex [$s get $inf] 0] 2]
-
-            set inf "locIfOutBitsSec.$count"
-            set aout  [lindex [lindex [$s get $inf] 0] 2]
-
-            set inf "ifSpeed.$count"
-            set spd  [lindex [lindex [$s get $inf] 0] 2]
-
-            set inf "locIfDescr.$count"
-            set ldesc  [lindex [lindex [$s get $inf] 0] 2]
-
-            puts "$host;[getclock];$desc;$in;$out;$spd;$ain;$aout;$ldesc"
+	    puts ""
         }
 
         $s destroy;
