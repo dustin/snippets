@@ -1,0 +1,20 @@
+#!/bin/sh
+# arch-tag: 8B001B0C-4E44-11D8-A9C8-000A957659CC
+#
+# Update all of the entries in a config.
+
+for d in `tla cat-config $1 | awk '{print $1}'`
+do
+	if [ ! -d "$d" ]
+	then
+		echo "New entry in config, building $d"
+		tc=,,tmpconf.$$
+		rm -f $tc
+		echo $d > $tc
+		tla build-config $tc
+		rm -f $tc
+	else
+		echo "Updating $d"
+		tla replay -d $d
+	fi
+done
