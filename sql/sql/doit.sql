@@ -1,3 +1,10 @@
+-- Copyright (c) 1997  Dustin Sallings
+--
+-- $Id: doit.sql,v 1.2 1997/10/06 15:53:40 dustin Exp $
+--
+-- SQL routines for radius log management.
+--
+
 --
 -- Create the table we're going to load the radius data into.
 --
@@ -28,11 +35,33 @@ delete from radius where sesstime=0;
 delete from radius where username ~~ '[%]'::text;
 
 --
+-- I got this function from the keen list.  :)  It makes a conversion
+-- from int4 to timespan.
+--
+
+create function reltime_timespan(int4) returns timespan as '-'
+    language 'internal';
+
+--
+-- Make room for the start times.
+--
+
+alter table radius add column start datetime;
+
+--
+-- Set all of the start times.
+--
+
+update radius set start=(stop-reltime_timespan(sesstime));
+
+--
 -- Create an index on the username so we won't have to scan the *whole*
 -- thing every time we want a little data.
 --
 
 create index rad_user on radius (username);
+create index rad_start on radius using btree (start);
+create index rad_stop on radius using btree (stop);
 
 --
 -- Go ahead and vacuum, could probably use some optimizations.
@@ -101,34 +130,7 @@ update tmp1 set totaltime=ttime(username), avgtime=atime(username),
 -- Go ahead and slap an index on it for safe keeping.
 --
 
-create unique index tmp_un on tmp1 (username);
-
---
--- I got this function from the keen list.  :)  It makes a conversion
--- from int4 to timespan.
---
-
-create function reltime_timespan(int4) returns timespan as '-'
-    language 'internal';
-
---
--- Let's make a table for this.
---
-
--- select username, addr, sesstime, stop
---     into table tmp2 from radius;
-
---
--- Make room for the start times.
---
-
--- alter table tmp2 add column start datetime;
-
---
--- Set all of the start times.
---
-
--- update tmp2 set start=(stop-reltime_timespan(sesstime));
+create unique index tmp1_un on tmp1 (username);
 
 --
 -- Show The username, how long (i.e. 1 hour 43 mins 41 secs),
@@ -136,15 +138,15 @@ create function reltime_timespan(int4) returns timespan as '-'
 --
 
 -- select username, reltime_timespan(sesstime) as sesstime, start,
---     stop from tmp2 order by start;
+--     stop from radius order by start;
 
 --
 -- The snapshotter.  :)
 --
 
--- create function snapshot(datetime) returns setof tmp2 as
---     'select * from tmp2 where start <= $1 and stop >= $1'
---     language 'sql';
+create function snapshot(datetime) returns setof radius as
+    'select * from radius where start <= $1 and stop >= $1'
+    language 'sql';
 
 --
 -- This shows you everyone who was logged in at *exactly* 13:51:47 on
@@ -160,12 +162,12 @@ create function reltime_timespan(int4) returns timespan as '-'
 -- Find users with multiple sessions.
 --
 
--- create view duplicates as
---      select a.username as username,
---      a.start as astart,
---      a.stop as astop,
---      b.start as bstart,
---      b.stop as bstop
---      from tmp2 a, tmp2 b
---      where a.username=b.username and
---      a.start>b.start and a.start<=b.stop;
+create view duplicates as
+     select a.username as username,
+     a.start as astart,
+     a.stop as astop,
+     b.start as bstart,
+     b.stop as bstop
+     from radius a, radius b
+     where a.username=b.username and
+     a.start>b.start and a.start<=b.stop;
