@@ -1,0 +1,17 @@
+#!/usr/local/bin/perl
+
+use Postgres;
+
+format STDOUT=
+@<<<<<   @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< @<<
+$a[0], $a[1], $a[2]
+.
+
+$dbh=db_connect("misc");
+
+$q=$dbh->execute("select * from zipcodes where city='Sunnyvale';");
+
+while(@a=$q->fetchrow())
+{
+    write;
+}

@@ -1,0 +1,24 @@
+#!/usr/local/bin/perl
+
+use Postgres;
+$dbh=db_connect("photo");
+
+$d="/usr/people/dustin/public_html/photo/album/";
+
+opendir(D, $d) || die("$!");
+while($_=readdir(D))
+{
+    next unless(/(.jpg|.gif)/);
+
+    @s=stat("$d/$_");
+
+    $query="update album set size=$s[7] where fn='$_'\n";
+
+    print $query;
+
+    if(!($dbh->execute($query)))
+    {
+	die("ERROR:  $Postgres::error\n");
+    }
+}
+closedir(D);

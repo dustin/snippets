@@ -1,0 +1,42 @@
+#!/usr/local/bin/perl
+
+use DBI;
+
+sub doQuery
+{
+    my($dbh, $query)=@_;
+    my($s);
+
+    $s=$dbh->prepare($query)
+	|| die("Database Error:  $DBI::errstr\n$query\n");
+    $s->execute
+	|| die("Database Error:  $DBI::errstr\n$query\n");
+    return($s);
+}
+
+$local=DBI->connect("dbi:Pg:dbname=modems", '','');
+$remote=DBI->connect("dbi:Pg:dbname=modems;host=propaganda", '','');
+
+%tables=(
+    'mod'     => [0,0,1],
+    'oem'     => [0,1],
+    'strings' => [0,1,1],
+);
+
+map {
+    $s=doQuery($remote, "select * from $_;");
+    $t=$_;
+    print "Replicating $_\n";
+    doQuery($local, "delete from $_;");
+    while($r=$s->fetch)
+    {
+        $query="insert into $t values(";
+	$query.=join(',', map {
+			    $tables{$t}[$_]?$local->quote($r->[$_]):$r->[$_]
+			  } 0..@{$r}-1);
+	$query.=");";
+	doQuery($local, $query);
+	# print "$query\n";
+    }
+
+} keys(%tables);

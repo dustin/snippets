@@ -1,0 +1,23 @@
+#!/usr/local/bin/perl
+
+use Postgres;
+
+if($#ARGV<0)
+{
+    print "Which area code?\n";
+    exit(1);
+}
+
+$dbh=db_connect("misc");
+
+$q=$dbh->execute("select * from areacodes where ac=$ARGV[0];");
+
+if(!$q)
+{
+    die "ERROR: $Postgres::error\n";
+}
+
+while(@a=$q->fetchrow())
+{
+    print "$a[0]:  $a[1], $a[2]\n";
+}
