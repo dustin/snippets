@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolFiller.java,v 1.5 2000/11/30 20:55:47 dustin Exp $
+// $Id: JDBCPoolFiller.java,v 1.6 2000/11/30 22:02:47 dustin Exp $
 
 package net.spy.pool;
 
@@ -63,8 +63,6 @@ public class JDBCPoolFiller extends PoolFiller {
 			Properties sysprop=System.getProperties();
 			setDBOptions(sysprop, prop, "dboption.");
 			setDBOptions(conf, prop, name+".dboption.");
-
-			System.out.println("Config:  " + prop);
 
 			long max_age=(long)getPropertyInt("max_age", 0);
 
