@@ -94,15 +94,25 @@
 - (void)fetchImage
 {
     NSURL *u=[[NSURL alloc] initWithString: urlString];
-    if(currentImage != nil) {
-        NSLog(@"Releasing old image");
-        [currentImage release];
-    }
+    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
     NSLog(@"Fetching image from %@", u);
-    currentImage=[[NSImage alloc] initWithContentsOfURL: u];
-    [currentImage setScalesWhenResized: TRUE];
-    [u release];
+    NSData *data=[u resourceDataUsingCache: FALSE];
+
+    if(data != nil) {
+        NSImage *tmpImage=[[NSImage alloc] initWithData: data];
+        if(tmpImage != nil) {
+            [tmpImage setScalesWhenResized: TRUE];
+            if(currentImage != nil) {
+                NSLog(@"Releasing old image");
+                [currentImage release];
+            }
+            currentImage=tmpImage;
+        }
+    }
+
     [self setNeedsDisplay: TRUE];
+    [u release];
+    [pool release];
 }
 
 - (void)animateOneFrame
