@@ -150,7 +150,7 @@ init_window(void)
 
   font = XLoadQueryFont(display, FONT);
 
-  have_font=True;
+  have_font = True;
 
   if (font == NULL)
     font = XLoadQueryFont(display, BACKFONT);
@@ -158,14 +158,13 @@ init_window(void)
     have_font = False;
 
   if (have_font)
-  {
-    font_height = font->ascent + font->descent;
+    {
+      font_height = font->ascent + font->descent;
 #ifdef DEBUG
-    printf("font height: %d\n", font_height);
+      printf("font height: %d\n", font_height);
 #endif
-    XSetFont(display, gc, font->fid);
-   }
-
+      XSetFont(display, gc, font->fid);
+    }
 
 /*
  * This makes the window visible on the screen.
@@ -182,31 +181,32 @@ init_window(void)
 
 }
 
-void reportpos(int x, int y)
+void
+reportpos(int x, int y)
 {
-float lng, lat;
-char string[80];
-float lat_diff, lng_diff;
+  float lng, lat;
+  char string[80];
+  float lat_diff, lng_diff;
 
-	lat_diff = max_lat - min_lat;
-	lng_diff = max_lng - min_lng;
+  lat_diff = max_lat - min_lat;
+  lng_diff = max_lng - min_lng;
 
-	lat=( (( (float) x/max_x) * lat_diff) + max_lat-lat_diff);
-	lng=( -( ( (float) y/max_y) * lng_diff) + max_lng);
+  lat = ((((float) x / max_x) * lat_diff) + max_lat - lat_diff);
+  lng = (-(((float) y / max_y) * lng_diff) + max_lng);
 
-	sprintf(string, "Latitude: %f", lat);
-	if(have_font)
-		XDrawImageString(display, window, gc, 7, font_height+7,
-			string, strlen(string));
-	else
-		puts(string);
+  sprintf(string, "Latitude: %f", lat);
+  if (have_font)
+    XDrawImageString(display, window, gc, 7, font_height + 7,
+		     string, strlen(string));
+  else
+    puts(string);
 
-	sprintf(string, "Longitude: %f", lng);
-	if(have_font)
-		XDrawImageString(display, window, gc, 7, 2*font_height+7,
-			string, strlen(string));
-	else
-		puts(string);
+  sprintf(string, "Longitude: %f", lng);
+  if (have_font)
+    XDrawImageString(display, window, gc, 7, 2 * font_height + 7,
+		     string, strlen(string));
+  else
+    puts(string);
 }
 
 void
@@ -236,6 +236,7 @@ xplot()
   float temp;
   float lat_diff, lng_diff;
   long island;
+  XWindowAttributes wattr;
 
   FILE *infile;
 
@@ -247,6 +248,15 @@ xplot()
  */
 
   fread(&header, sizeof(header), 1, infile);
+
+/*
+ * This finds the actual max_x and max_y values of the window before it
+ * plots.
+ */
+
+  XGetWindowAttributes(display, window, &wattr);
+  max_x = wattr.width;
+  max_y = wattr.height;
 
 /*
  * It doesn't seem to work the first time if I don't calculate the
@@ -308,35 +318,36 @@ xplot()
 }
 
 /*
-This is where I process button presses.
-*/
+ * This is where I process button presses.
+ */
 
-void keyevent(XKeyEvent *event)
+void
+keyevent(XKeyEvent * event)
 {
-KeySym keysym;
-XComposeStatus cs;
-int x, y;
-char whatkey[70];
+  KeySym keysym;
+  XComposeStatus cs;
+  int x, y;
+  char whatkey[70];
 
-	keysym=0x0;
-	whatkey[0]='\0';
-	x=event->x, y=event->y;
-	XLookupString(event, whatkey, 1, &keysym, &cs);
+  keysym = 0x0;
+  whatkey[0] = '\0';
+  x = event->x, y = event->y;
+  XLookupString(event, whatkey, 1, &keysym, &cs);
 #ifdef DEBUG
-	printf("%d (%c) x:%d y:%d\n", whatkey[0], whatkey[0], x, y);
+  printf("%d (%c) x:%d y:%d\n", whatkey[0], whatkey[0], x, y);
 #endif
-	switch(whatkey[0])
-	{
-		case '\r':
-		case ' ':
-			factor_bounds(x, y, 1.0);
-			xplot();
-			break;
-		case 'q':
-			XCloseDisplay(display);
-			exit(0);
-			break;
-	}
+  switch (whatkey[0])
+    {
+    case '\r':
+    case ' ':
+      factor_bounds(x, y, 1.0);
+      xplot();
+      break;
+    case 'q':
+      XCloseDisplay(display);
+      exit(0);
+      break;
+    }
 }
 
 /*
