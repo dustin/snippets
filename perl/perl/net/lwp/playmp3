@@ -1,0 +1,71 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1998  Dustin Sallings
+#
+# $Id: playmp3,v 1.1 1998/03/26 07:31:01 dustin Exp $
+
+use LWP::UserAgent;
+use Tk;
+
+$index="http://dominance.west.spy.net/mp3/index.txt";
+$base="http://dominance.west.spy.net/mp3";
+
+sub getfile
+{
+    my($ua,$req,$res);
+    $ua=LWP::UserAgent->new;
+    $ua->agent('DustinPlayer/0.1' . $ua->agent);
+    $req=HTTP::Request->new('GET', $_[0]);
+    $res=$ua->request($req);
+    return($res->content);
+}
+
+sub playtrack
+{
+    my($a, $b, $c)=@_;
+
+    system('/usr/local/bin/mpg123', "$base/$a/$b/$c") unless(fork());
+}
+
+sub showalbum
+{
+    my($k, $a)=@_;
+    my($top, $nm);
+
+    $MW=MainWindow->new;
+    $MW->title('Track Select');
+    $MW->Label(-text => 'Select the track you wish to play.')->pack;
+    $nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
+	     ->pack(-expand => 'yes', -fill => 'x');
+    $nm->insert(0, sort(@{$h{$k}{$a}}));
+    $nm->bind('<Double-1>' => sub { playtrack($k,$a,$_[0]->get('active')); });
+}
+
+sub showband
+{
+    my($k)=@_;
+    my($top, $nm);
+
+    $MW=MainWindow->new;
+    $MW->title('Album Select');
+    $MW->Label(-text => 'Select from one of the following albums.')->pack;
+    $nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
+	     ->pack(-expand => 'yes', -fill => 'x');
+    $nm->insert(0, sort(keys(%{$h{$k}})));
+    $nm->bind('<Double-1>' => sub { showalbum($k, $_[0]->get('active')); });
+}
+
+# Processing index.
+map {
+    @a=split(/\//);
+    push(@{$h{$a[0]}{$a[1]}}, $a[2]);
+} split(/\n/, getfile($index));
+
+$MW=MainWindow->new;
+$MW->title('Band Select');
+$MW->Label(-text => 'Select from one of the following bands.')->pack;
+$nm=$MW->Scrolled(Listbox, -scrollbars => 'e')
+	 ->pack(-expand => 'yes', -fill => 'x');
+$nm->insert(0, sort(keys(%h)));
+$nm->bind('<Double-1>' => sub { showband($_[0]->get('active')); });
+
+MainLoop;

@@ -1,4 +1,7 @@
 #!/usr/local/bin/perl
+# Copyright (c) 1998  Dustin Sallings
+#
+# $Id: walker,v 1.2 1998/03/26 07:31:02 dustin Exp $
 
 use LWP::UserAgent;
 use HTML::LinkExtor;
