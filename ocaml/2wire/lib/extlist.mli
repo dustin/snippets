@@ -8,3 +8,4 @@
 
 val iteri : (int -> 'a -> unit) -> 'a list -> unit
 val shuffle : 'a list -> 'a list
+val zip : 'a list list -> 'a list list

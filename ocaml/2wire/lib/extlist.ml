@@ -26,3 +26,18 @@ let iteri f lin =
 let shuffle l =
 	List.sort (fun a b -> (Random.int 3) - 1) l
 ;;
+
+(**
+ Take a list of lists of equal length and produce a list of lists of the values
+ rolled up.
+
+ i.e.
+
+  zip [[1;2;3]; [4;5;6]; [7;8;9]; [10;11;12]] ->
+      [[10; 7; 4; 1]; [11; 8; 5; 2]; [12; 9; 6; 3]]
+ *)
+let zip l =
+    List.fold_left (fun i acc -> List.map2 (fun a b -> b::a) i acc)
+		(List.map (fun i -> [i]) (List.hd l)) (List.tl l)
+;;
+
