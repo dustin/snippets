@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.7 1998/10/03 07:29:15 dustin Exp $
+ * $Id: main.c,v 1.8 1998/10/03 08:02:26 dustin Exp $
  */
 
 #include <config.h>
 #include <mbkd.h>
-#include <readconfig.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +33,7 @@
 #include <netdb.h>
 
 #define AUTHDATA "630712e3e78e9ac261f13b8918c1dbdc"
-
-struct config conf;
+#define MBKD_PID "/tmp/mbkd.pid"
 
 static void
 writepid(int pid)
@@ -43,7 +41,7 @@ writepid(int pid)
 	FILE   *f;
 	int     r;
 
-	r = checkpidfile(conf.pidfile);
+	r = checkpidfile(MBKD_PID);
 
 	switch (r) {
 	case PID_NOFILE:
@@ -57,8 +55,8 @@ writepid(int pid)
 		exit(1);
 	}
 
-	if (NULL == (f = fopen(conf.pidfile, "w"))) {
-		perror(conf.pidfile);
+	if (NULL == (f = fopen(MBKD_PID, "w"))) {
+		perror(MBKD_PID);
 		return;
 	}
 	fprintf(f, "%d\n", pid);
@@ -70,7 +68,6 @@ static void
 detach(void)
 {
 	int     pid, i;
-	char   *tmp;
 
 	pid = fork();
 
@@ -86,11 +83,7 @@ detach(void)
 	for (i = 0; i < 256; i++)
 		close(i);
 
-	tmp = rcfg_lookup(conf.cf, "etc.working_directory");
-	if (tmp == NULL)
-		tmp = "/";
-
-	chdir(tmp);
+	chdir("/");
 	umask(7);
 }
 
@@ -116,12 +109,17 @@ process_main()
 		}
 		log_debug("Read %d bytes from %s\n", stat,
 		    nmc_intToDQ(ntohl(from.sin_addr.s_addr)));
+
+		/*
 		printf("Read %d bytes\n", stat);
 		printf("Length:\t%d\nData:\t%s\n", mbk_packet->pkt.len,
 		    mbk_packet->pkt.data);
+        */
 
 		mbk_packet->parse(mbk_packet);
+		/*
 		_hash_dump(mbk_packet->hash);
+		*/
 
 		if(mbk_packet->verify(mbk_packet)<0) {
 		    printf("Packet failed auth\n");
@@ -130,7 +128,6 @@ process_main()
 		}
 
         mbk_packet->destroy(mbk_packet);
-		/* hash_destroy(mbk_packet.hash); */
 		printf("Processed %d packets\n", i+1);
 	}
 }
@@ -138,7 +135,6 @@ process_main()
 int
 main(int argc, char **argv)
 {
-	conf.pidfile = "/tmp/mbkd.pid";
 	/* detach(); */
 	process_main();
 #ifdef MYMALLOC

@@ -1,7 +1,7 @@
 /*
  * Copyright 1998 Dustin Sallings
  *
- * $Id: mbkd.h,v 1.6 1998/10/03 07:29:18 dustin Exp $
+ * $Id: mbkd.h,v 1.7 1998/10/03 08:02:31 dustin Exp $
  */
 
 #ifndef MBKD_H
@@ -25,7 +25,6 @@
 
 #include <config.h>
 #include <definitions.h>
-#include <readconfig.h>
 #include <hash.h>
 #include <mymalloc.h>
 
@@ -45,17 +44,6 @@
 #endif
 
 #define MAXPACKETLEN 1024
-
-struct config {
-	int debug;  /* debug level */
-    int log;    /* Logging facility */
-	char *pidfile; /* pid file */
-
-	struct confType *cf;
-};
-
-/* instance */
-extern struct config conf;
 
 struct namedfunc {
     char *name;

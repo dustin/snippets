@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.4 1998/10/02 07:02:32 dustin Exp $
+ * $Id: utility.c,v 1.5 1998/10/03 08:02:36 dustin Exp $
  */
 
 #include <config.h>
@@ -49,8 +49,8 @@ snprintf(char *s, size_t n, const char *format,...)
 void
 _do_log(int level, char *msg)
 {
-    openlog("mbkd", LOG_PID | LOG_NDELAY, conf.log);
-    syslog(conf.log | level, msg);
+    openlog("mbkd", LOG_PID | LOG_NDELAY, LOG_AUTH);
+    syslog(LOG_AUTH | level, msg);
     closelog();
 }
 
@@ -97,8 +97,6 @@ checkpidfile(char *filename)
 		return (PID_NOFILE);
 	} else {
 		fscanf(f, "%d", &pid);
-
-		_ndebug(2, ("Checking pid %d for life\n", pid));
 
 		if (kill(pid, 0) == 0) {
 			ret = PID_ACTIVE;
@@ -147,7 +145,6 @@ stringListSort(char **list)
 	for (i = 0; list[i] != NULL; i++);
 
 	if (i > 0) {
-		_ndebug(2, ("Calling quicksort(list, %d, %d)\n", 0, i - 1));
 		quicksort(list, 0, i - 1);
 	}
 }
@@ -181,10 +178,7 @@ addtostr(int *size, char *dest, char *str)
 {
 	int     new = 0;
 
-	_ndebug(5, ("addtostr(%d, %s, %s);\n", *size, dest, str));
-
 	if (*size == 0) {
-		_ndebug(5, ("Doing initial malloc\n"));
 
 		*size = DEFAULT_STRLEN;
 		dest = (char *) malloc(*size * sizeof(char));
@@ -195,8 +189,6 @@ addtostr(int *size, char *dest, char *str)
 		new = 1;
 	}
 	if (strlen(dest) + strlen(str) >= (size_t) * size) {
-		_ndebug(4, ("Realloc'in to %d bytes, need more than %d bytes\n",
-			*size << 1, *size));
 
 		*size <<= 1;
 		dest = realloc(dest, *size * sizeof(char));
@@ -236,8 +228,6 @@ gettext(int s, char *buf)
 		exit(0);
 	}
 
-	_ndebug(1, ("gettext() received:\n\t``%s''\n", buf));
-
 	return (size);
 }
 
@@ -261,12 +251,10 @@ gettextcr(int s, char *buf)
 	}
 
 	if (len == 0) {
-		_ndebug(0, ("Broken pipe?\n"));
 		exit(0);
 	}
 	while ((len = read(s, &c, 1)) > 0) {
 		if (len == 0) {
-			_ndebug(0, ("Broken pipe?\n"));
 			exit(0);
 		}
 		size += len;
@@ -274,7 +262,6 @@ gettextcr(int s, char *buf)
 		if (!toobig) {
 
 			if (size >= BUFLEN) {
-				_ndebug(3, ("Truncating input, too long.\n"));
 				buf[BUFLEN - 1] = 0x00;
 				toobig = 1;
 			}
@@ -286,8 +273,6 @@ gettextcr(int s, char *buf)
 	}
 
 	kw(buf);
-
-	_ndebug(1, ("gettextcr() received:\n\t``%s''\n", buf));
 
 	return (size);
 }

@@ -1,5 +1,5 @@
 # Copyright(c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.4 1998/10/03 06:21:08 dustin Exp $
+# $Id: Makefile.in,v 1.5 1998/10/03 08:02:23 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
@@ -8,10 +8,10 @@ LEX=@LEX@
 AR=@AR@ rc
 RANLIB=@RANLIB@
 LINT=@LINT@
-INCLUDES=-I@top_srcdir@ -I@top_srcdir@/readconfig
+INCLUDES=-I@top_srcdir@
 CFLAGS=@CFLAGS@ $(INCLUDES)
 
-LIBS=@top_srcdir@/readconfig/readconfig.a @LIBS@
+LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@ $(LIBS)
 
 OBJS=nettools.o sockets.o utility.o hash.o md5.o mymalloc.o mbk.o

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.4 1998/10/01 18:05:19 dustin Exp $
+ * $Id: sockets.c,v 1.5 1998/10/03 08:02:33 dustin Exp $
  */
 
 #include <stdio.h>
@@ -16,7 +16,6 @@
 
 #include <mbkd.h>
 #include <nettools.h>
-#include <readconfig.h>
 
 char   *
 getHostName(unsigned int addr)
@@ -31,23 +30,6 @@ getHostName(unsigned int addr)
 		name = h->h_name;
 
 	return (name);
-}
-
-void
-logConnect(struct sockaddr_in fsin)
-{
-	char   *ip_addr, *hostname;
-
-	if (rcfg_lookupInt(conf.cf, "log.hostnames") == 1)
-		hostname = getHostName(fsin.sin_addr.s_addr);
-	else
-		hostname = nmc_intToDQ(ntohl(fsin.sin_addr.s_addr));
-
-	ip_addr = nmc_intToDQ(ntohl(fsin.sin_addr.s_addr));
-
-	log_msg("connect from %s (%s)", hostname, ip_addr);
-
-	_ndebug(2, ("connect from %s (%s)\n", hostname, ip_addr));
 }
 
 int

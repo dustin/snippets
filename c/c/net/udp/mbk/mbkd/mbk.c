@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: mbk.c,v 1.2 1998/10/03 07:29:16 dustin Exp $
+ * $Id: mbk.c,v 1.3 1998/10/03 08:02:28 dustin Exp $
  */
 
 #include <config.h>
 #include <mbkd.h>
-#include <readconfig.h>
 
 #include <stdio.h>
 #include <stdlib.h>
