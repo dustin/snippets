@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: HouseServlet.java,v 1.7 2002/05/04 06:33:43 dustin Exp $
+ * $Id: HouseServlet.java,v 1.8 2002/05/04 07:05:31 dustin Exp $
  */
 
 package net.spy.house;
@@ -133,7 +133,7 @@ public class HouseServlet extends PngServlet implements ImageObserver
 				Toolkit.getDefaultToolkit().prepareImage(baseImage,-1,-1,this);
 				if(!imageLoaded) {
 					synchronized(this) {
-						wait();
+						wait(15000);
 					}
 				}
 				log("Image loaded!");
