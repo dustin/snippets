@@ -4,7 +4,7 @@
 Break up directories into managable chunks.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.5 2002/04/07 10:45:34 dustin Exp $
+$Id: chunkify.py,v 1.6 2002/04/07 21:26:08 dustin Exp $
 """
 
 import os, sys
@@ -30,6 +30,9 @@ class Chunker:
 		self.filebase=filebase
 		self.makezip=makezip
 		self.maxsize=maxsize
+
+		if self.maxsize==None:
+			self.maxsize=Chunker.DEFAULT_MAXSIZE
 
 		# Accumulated size of the current file
 		self.currentSize=-1
@@ -85,6 +88,7 @@ class Chunker:
 		# # print path + " is a file of " + str(size) + " bytes."
 		# Figure out if we need a new file
 		if self.currentSize + size > self.maxsize:
+			print "Need a new file for " + path
 			self.__newfile()
 		# Increment the size
 		self.currentSize+=size
