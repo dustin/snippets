@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.4 1997/12/30 04:45:49 dustin Exp $
+ * $Id: checkweb.c,v 1.5 1998/04/20 17:54:15 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -122,7 +122,7 @@ struct url parseurl(char *url)
      */
     switch(*u.req)
     {
-        case NULL:                /* format http://host.domain.com
+        case NULL:                /* format http://host.domain.com */
             u.req=strdup("/");
             port=80;
             break;
@@ -305,7 +305,7 @@ void main(int argc, char **argv)
     if(argc < 2)
     {
 	printf("checkweb, copyright (c) 1997  Dustin Sallings\n"
-	    "$Id: checkweb.c,v 1.4 1997/12/30 04:45:49 dustin Exp $\n");
+	    "$Id: checkweb.c,v 1.5 1998/04/20 17:54:15 dustin Exp $\n");
 	printf("Error, argument required.  Usage:\n%s filename\n"
 	       "Where filename is the file containing the url list.\n",
 	       argv[0]);
