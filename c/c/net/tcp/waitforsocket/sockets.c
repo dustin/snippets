@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 2003/06/12 17:05:44 dustin Exp $
+ * $Id: sockets.c,v 1.2 2003/06/12 18:56:39 dustin Exp $
  */
 
 #include <stdio.h>
@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <errno.h>
 #include <sys/errno.h>
 #include <netinet/in.h>
 #include <netdb.h>
