@@ -27,7 +27,7 @@ spy.jar: $(CLASSES)
 
 install: all
 	cp spy.jar $(FDEST)
-	# $(SCP) spy.jar $(SDEST)
+	$(SCP) spy.jar $(SDEST)
 
 clean:
 	rm -f $(CLASSES) spy.jar
