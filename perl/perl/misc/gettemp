@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: gettemp,v 1.3 2002/04/26 19:06:36 dustin Exp $
+# $Id: gettemp,v 1.4 2002/05/04 07:21:15 dustin Exp $
 #
 # Temperature reporting and alerting script.
 #
@@ -29,7 +29,7 @@ sub gettemp
 sub locations
 {
 	my(%ret);
-	my($url)="http://bleu/servlet/Temperature";
+	my($url)="http://bleu/therm/Temperature";
 
 	my($list)=gettemp($url);
 
@@ -101,7 +101,8 @@ sub alert
 
 	my @emails=('dustin@spy.net', 'noelani@spy.net',
 		'knitterb@blandsite.org',
-		'4087681988@mobile.mycingular.com');
+		# '4087681988@mobile.mycingular.com',
+		);
 	my @pagers=('dustin', 'noelani', 'brandonk');
 
 	# The base message
@@ -145,23 +146,23 @@ my %normal=(
 	'newmachineroom' => [15, 26],
 	'bedroom' => [15, 26],
 	'livingroom' => [15, 28],
-	'guestroom' => [15, 26],
+	'guestroom' => [13, 26],
 	);
 
 report(%temps);
 
+my @alert=();
 for(keys(%normal)) {
 	my $temp=$temps{$_};
 	my $low=$normal{$_}[0];
 	my $high=$normal{$_}[1];
-	my @alert=();
 
-	if($temp < $low || $temp > $high) {
+	# Alert if it's out of range, unless it's specifically 0
+	if($temp!= 0 && $temp < $low || $temp > $high) {
 		# print "!!!Temperature Alert!!!\n";
 		push(@alert, sprintf("$_: %.02f", $temp));
 	}
-
-	if(@alert) {
-		alert(@alert);
-	}
+}
+if(@alert) {
+	alert(@alert);
 }
