@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSStore.java,v 1.2 2001/04/26 21:02:14 dustin Exp $
+// $Id: RSSStore.java,v 1.3 2001/04/29 07:57:14 dustin Exp $
 
 package net.spy.rss;
 
@@ -43,30 +43,30 @@ public class RSSStore extends Thread {
 	public void run() {
 		// Flip through the list every five minutes and get it updated.
 		while(notdone) {
-			runs++;
-			long now=System.currentTimeMillis();
-			Vector toremove=new Vector();
-			// Update and queue removals
-			for(Enumeration e=sites.elements(); e.hasMoreElements(); ) {
-
-				RSSItem ri=(RSSItem)e.nextElement();
-				// Throw away anything that's too old, otherwise, update it
-				if( (now-ri.lastRequest()) > MAX_IDLE_TIME) {
-					toremove.addElement(ri.getURL());
-				} else {
-					ri.update();
-				}
-			}
-			// Remove the things that we don't want anymore.
-			for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
-				String key=(String)e.nextElement();
-				sites.remove(key);
-			}
-			// Try to take a nap.
 			try {
+				runs++;
+				long now=System.currentTimeMillis();
+				Vector toremove=new Vector();
+				// Update and queue removals
+				for(Enumeration e=sites.elements(); e.hasMoreElements(); ) {
+
+					RSSItem ri=(RSSItem)e.nextElement();
+					// Throw away anything that's too old, otherwise, update it
+					if( (now-ri.lastRequest()) > MAX_IDLE_TIME) {
+						toremove.addElement(ri.getURL());
+					} else {
+						ri.update();
+					}
+				}
+				// Remove the things that we don't want anymore.
+				for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
+					String key=(String)e.nextElement();
+					sites.remove(key);
+				}
 				sleep(5*60*1000);
 			} catch(Exception e) {
-				// Don't worry about this one.
+				System.err.println("RSSStore error:  " + e);
+				e.printStackTrace();
 			}
 		}
 		System.err.println("RSS Thread shutting down.");
