@@ -64,6 +64,10 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/CachedResultSet.class \
 	net/spy/db/SpyCacheDB.class
 
+# Extra stuff to be cleaned
+GENERATED=net/spy/db/CachePreparedStatement.java \
+	net/spy/db/CachedResultSet.java
+
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
 	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util \
 	net.spy.db
@@ -89,7 +93,7 @@ install: all
 	$(SCP) spy.jar $(SDEST)
 
 clean:
-	rm -f $(CLASSES) spy.jar
+	rm -f $(CLASSES) $(GENERATED) spy.jar
 
 net/spy/rmi/RObjectImpl_Skel.class: \
 	net/spy/rmi/RObjectImpl.class
