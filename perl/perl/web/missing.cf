@@ -1,8 +1,16 @@
 # Configuration file for missing.cgi
 #
-# $Id: missing.cf,v 1.2 1998/09/18 08:36:30 dustin Exp $
+# $Id: missing.cf,v 1.3 1998/09/18 08:55:12 dustin Exp $
 
-# Yeah, this looks like a yucky .ini file.  It's processed top down.
+# Yeah, this looks like a yucky .ini file.
+# It's processed top down, basically, the ``section'' matches against the
+# server name, then you have a list of things to match, and what to do when
+# you match one.  The options on the actions include the following:
+#
+# redirect: redirect the browser to a url
+# perl:     evaluate perl located in this file
+# file:     display the contents of this file as HTML
+# fetch:    inverse proxy fetch a document
 
 [bleu]
 photo	redirect=http://bleu.west.spy.net/~dustin/photo/
