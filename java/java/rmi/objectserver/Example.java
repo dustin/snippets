@@ -1,13 +1,15 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: Example.java,v 1.4 1999/10/20 02:25:31 dustin Exp $
+// $Id: Example.java,v 1.5 1999/10/20 03:01:56 dustin Exp $
 
 import java.util.*;
 import java.lang.*;
 
+import net.spy.*;
+
 public class Example {
 	public static void main(String args[]) {
-		RHash r = new RHash("//dhcp-104/RObjectServer");
-		// RHash r = new RHash("//localhost/RObjectServer");
+		// RHash r = new RHash("//dhcp-104/RObjectServer");
+		RHash r = new RHash("//localhost/RObjectServer");
 		Hashtable h;
 
 		h = (Hashtable)r.get("myhash");

@@ -1,5 +1,7 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RHash.java,v 1.1 1999/09/16 06:51:12 dustin Exp $
+// $Id: RHash.java,v 1.1 1999/10/20 03:02:03 dustin Exp $
+
+package net.spy;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
