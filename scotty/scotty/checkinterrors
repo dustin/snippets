@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking
-# $Id: checkinterrors,v 1.1 2000/05/10 08:27:14 dustin Exp $
+# $Id: checkinterrors,v 1.2 2000/05/10 08:30:43 dustin Exp $
 
 set kludge { $*
 	shift
@@ -17,6 +17,8 @@ mib load rfc1696.mib
 mib load cisco.mib
 
 set file [lindex $argv 0 ]
+
+set exit_code 0
 
 if [catch {open $file} input] {
 	puts "Cannot open input file:  $file"
@@ -87,6 +89,11 @@ while {[gets $input line] != -1} {
 				set idiff [ expr $ierrors - $old_ierrors ]
 				set odiff [ expr $oerrors - $old_oerrors ]
 				puts "$host:$desc:$idiff:$odiff"
+
+				# Something more intelligent should happen here
+				if {$exit_code == 0} {
+					set exit_code 2
+				}
 			}
 			# Store the current reading in the file...
 			puts $routput "$i $ierrors $oerrors"
@@ -99,4 +106,4 @@ while {[gets $input line] != -1} {
 # for each router
 }
 
-exit 0
+exit $exit_code
