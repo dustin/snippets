@@ -1,3 +1,6 @@
+// Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
+// $Id: RObjectImpl.java,v 1.2 1999/09/14 23:55:15 dustin Exp $
+
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.RMISecurityManager;
@@ -14,19 +17,19 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 		super();
 	}
 
-    public void storeHash(Hashtable h) throws RemoteException {
-		thehash=h;
-		System.out.println("Saving a hash...");
+    public void storeObject(String name, Object o) throws RemoteException {
+		thehash.put(name, o);
+		System.out.println("Saving the object: " + name);
 	}
 
-    public Hashtable getHash() throws RemoteException {
-		System.out.println("Giving the hash back...");
-		return(thehash);
+    public Object getObject(String name) throws RemoteException {
+		System.out.println("Giving the object '" + name + "' back...");
+		return(thehash.get(name));
 	}
 
 	public static void main(String args[]) {
 
-		thehash = null;
+		thehash = new Hashtable();
 
 		// Create and install a security manager
 		if (System.getSecurityManager() == null) {
