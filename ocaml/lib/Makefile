@@ -20,8 +20,7 @@ clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
 
 .ml.mli:
-	$(OCAMLOPT) -o .buildtmp -i $< > $@
-	rm .buildtmp
+	$(OCAMLOPT) -i $< > $@
 
 .ml.cmi:
 	$(MKLIB) $<
