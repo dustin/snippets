@@ -43,6 +43,8 @@
         opacity=1.0;
     }
 
+	NSLog(@"Setting image URLs.");
+
 	[self setImageURLs];
 
     return self;
@@ -147,7 +149,7 @@
 	imageUrls=newList;
 	currentURLOffset=0;
 
-	// NSLog(@"URL list:  %@", imageUrls);
+	NSLog(@"URL list contains %d items", [imageUrls count]);
 
 	[pool release];
 }
@@ -160,10 +162,11 @@
 		NSLog(@"Resetting URL offset to 0");
 		currentURLOffset=0;
 	}
-	// NSLog(@"URL offset is %d", currentURLOffset);
+	NSLog(@"URL offset is %d", currentURLOffset);
 
     NSURL *u=[[NSURL alloc]
 		initWithString: [imageUrls objectAtIndex: currentURLOffset]];
+	NSLog(@"Fetching image from %@", u);
     NSURLRequest *theRequest=[NSURLRequest requestWithURL:u
                         cachePolicy:NSURLRequestUseProtocolCachePolicy
                     timeoutInterval:60.0];
@@ -172,10 +175,6 @@
 
     NSData *data=[NSURLConnection sendSynchronousRequest: theRequest
         returningResponse:&theResponse error: &error];
-
-    if(data == nil) {
-        NSLog(@"Error is %@", error);
-    }
 
     if(data != nil) {
         NSImage *tmpImage=[[NSImage alloc] initWithData: data];
@@ -186,9 +185,11 @@
                 [currentImage release];
             }
             currentImage=tmpImage;
-        }
+        } else {
+			NSLog(@"Failed to make thing from %@ into image", u);
+		}
     } else {
-		NSLog(@"Failed to fetch image.");
+		NSLog(@"Failed to fetch image:  %@.", error);
 	}
 
     [self updateDisplay];
