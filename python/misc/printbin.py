@@ -10,22 +10,22 @@ $Id: printbin.py,v 1.1 2003/02/02 23:53:35 dustin Exp $
 import sys
 
 def bintochar(b):
-	if len(b) != 8:
-		raise "This doesn't look binary:  " + b
-	for c in b:
-		if c != '0' and c != '1':
-			raise "This doesn't look binary:  " + b
-	iv = 0
-	for c in b:
-		iv = iv * 2
-		iv = iv | int(c)
-	rv = chr(iv)
-	return rv
+    if len(b) != 8:
+        raise "This doesn't look binary:  " + b
+    for c in b:
+        if c != '0' and c != '1':
+            raise "This doesn't look binary:  " + b
+    iv = 0
+    for c in b:
+        iv = iv * 2
+        iv = iv | int(c)
+    rv = chr(iv)
+    return rv
 
 def fixline(l):
-	return ''.join(map(bintochar, l.split(' ')[1:]))
+    return ''.join(map(bintochar, l.split(' ')[1:]))
 
 if __name__ == '__main__':
-	for l in sys.stdin.readlines():
-		sys.stdout.write(fixline(l.rstrip()))
-	print ""
+    for l in sys.stdin.readlines():
+        sys.stdout.write(fixline(l.rstrip()))
+    print ""

@@ -13,11 +13,11 @@ gis=java.util.zip.GZIPInputStream(fis)
 ois=java.io.ObjectInputStream(gis)
 
 try:
-	sn=ois.readObject()
-	while sn != None:
-		data=ois.readObject()
+    sn=ois.readObject()
+    while sn != None:
+        data=ois.readObject()
 
-		print sn, data
-		sn=ois.readObject()
+        print sn, data
+        sn=ois.readObject()
 except java.io.EOFException:
-	print "Finished!"
+    print "Finished!"

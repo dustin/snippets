@@ -21,18 +21,18 @@ types['Unknown']='unknown'
 
 def report(sn, data):
 
-	macs=[]
-	for i in data['network_device_list.html']:
-		if i[1] != '--':
-			try:
-				k=types[i[1]]
-				macs.append(i[2] + "\t" + k)
-			except KeyError, e:
-				sys.stderr.write("Broken record for " + sn + ":  " + `i` + "\n")
+    macs=[]
+    for i in data['network_device_list.html']:
+        if i[1] != '--':
+            try:
+                k=types[i[1]]
+                macs.append(i[2] + "\t" + k)
+            except KeyError, e:
+                sys.stderr.write("Broken record for " + sn + ":  " + `i` + "\n")
 
-	print sn
-	for m in macs:
-		print "\t" + m
+    print sn
+    for m in macs:
+        print "\t" + m
 
 
 fis=java.io.FileInputStream(sys.argv[1])
@@ -40,12 +40,12 @@ gis=java.util.zip.GZIPInputStream(fis)
 ois=java.io.ObjectInputStream(gis)
 
 try:
-	sn=ois.readObject()
-	while sn != None:
-		data=ois.readObject()
+    sn=ois.readObject()
+    while sn != None:
+        data=ois.readObject()
 
-		report(sn, data)
+        report(sn, data)
 
-		sn=ois.readObject()
+        sn=ois.readObject()
 except java.io.EOFException:
-	sys.stderr.write("Finished!\n")
+    sys.stderr.write("Finished!\n")

@@ -8,13 +8,13 @@ import xmlrpclib
 server=xmlrpclib.Server('http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC');
 
 try:
-	a = server.geo.getPointInfo(float(argv[1]), float(argv[2]));
+    a = server.geo.getPointInfo(float(argv[1]), float(argv[2]));
 
-	for poly in a:
-		print poly['type'] + ': ' + poly['name']
-		if poly['type'] == 'zipcode':
-			info=server.zipcodes.lookupZip(int(poly['name']))
-			print '\t(city: ' + info['city'] + ')'
+    for poly in a:
+        print poly['type'] + ': ' + poly['name']
+        if poly['type'] == 'zipcode':
+            info=server.zipcodes.lookupZip(int(poly['name']))
+            print '\t(city: ' + info['city'] + ')'
 except xmlrpclib.Fault, f:
-	print f
+    print f
 

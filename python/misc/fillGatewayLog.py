@@ -12,13 +12,13 @@ import Stats
 r=random.Random()
 
 def getOrgKey():
-	return r.randint(36,123)
+    return r.randint(36,123)
 
 def getTxnTime():
-	"""Calculate a reasonable transaction time"""
-	t=r.randint(0,100)
-	rv=(1.1**t)+150
-	return int(rv)
+    """Calculate a reasonable transaction time"""
+    t=r.randint(0,100)
+    rv=(1.1**t)+150
+    return int(rv)
 
 periodic=2012
 onceTypes=(2000,2011,2013,2014,2020,periodic)
@@ -37,18 +37,18 @@ s=Stats.Stats(3100)
 s.start()
 
 for boxnum in range(1000000,2000000):
-	t = periodic
-	# for t in onceTypes:
-	for day in range(1,31):
-		queryCount = queryCount + 1
-		if queryCount % 10000 == 0:
-			# sys.stderr.write(`queryCount`  + "...\n")
-			s.stop()
-			s.click()
-			sys.stderr.write(s.getStats() + " (" + `queryCount` + ")\n")
-			s.start()
-		datestamp="2003/07/%02d %02d:%02d:%02d" % (day, \
-			r.randint(0,23), r.randint(0,59), r.randint(0,59))
-		print "\t".join((str(boxnum), str(t), str(getOrgKey()), version, \
-			sip, hip, keycode, str(getTxnTime()), datestamp))
+    t = periodic
+    # for t in onceTypes:
+    for day in range(1,31):
+        queryCount = queryCount + 1
+        if queryCount % 10000 == 0:
+            # sys.stderr.write(`queryCount`  + "...\n")
+            s.stop()
+            s.click()
+            sys.stderr.write(s.getStats() + " (" + `queryCount` + ")\n")
+            s.start()
+        datestamp="2003/07/%02d %02d:%02d:%02d" % (day, \
+            r.randint(0,23), r.randint(0,59), r.randint(0,59))
+        print "\t".join((str(boxnum), str(t), str(getOrgKey()), version, \
+            sip, hip, keycode, str(getTxnTime()), datestamp))
 print "\\.";

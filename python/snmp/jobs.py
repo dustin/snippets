@@ -26,250 +26,250 @@ import storage
 ######################################################################
 
 class Job:
-	"""Superclass of all jobs."""
+    """Superclass of all jobs."""
 
-	db=None
-	prefix=None
+    db=None
+    prefix=None
 
-	def __init__(self, descriptor, freq):
-		"""Get a job that repeats at the given frequency.
+    def __init__(self, descriptor, freq):
+        """Get a job that repeats at the given frequency.
 
-		The descriptor argument provides a unique ID for this job based on
-		what it does.
-		"""
-		self.descriptor=descriptor
-		# Make sure it's a float.
-		self.frequency=float(freq)
-		if Job.db == None:
-			Job.db=storage.DBMStorage('hostmarks.db')
-		if self.prefix==None:
-			self.prefix='unknown'
+        The descriptor argument provides a unique ID for this job based on
+        what it does.
+        """
+        self.descriptor=descriptor
+        # Make sure it's a float.
+        self.frequency=float(freq)
+        if Job.db == None:
+            Job.db=storage.DBMStorage('hostmarks.db')
+        if self.prefix==None:
+            self.prefix='unknown'
 
-	def getDescriptor(self):
-		"""Get the descriptor this job uses."""
-		return ':'.join((self.prefix, self.descriptor))
+    def getDescriptor(self):
+        """Get the descriptor this job uses."""
+        return ':'.join((self.prefix, self.descriptor))
 
-	def getJobParameters(self):
-		"""Get the parameters required to reproduce this job."""
-		raise exceptions.NotImplementedError
+    def getJobParameters(self):
+        """Get the parameters required to reproduce this job."""
+        raise exceptions.NotImplementedError
 
-	def mark(self):
-		"""Mark activity on a host."""
-		Job.db[self.getDescriptor()]=str(time.time())
+    def mark(self):
+        """Mark activity on a host."""
+        Job.db[self.getDescriptor()]=str(time.time())
 
-	def go(self):
-		"""This method is called when it's time to perform the job."""
-		raise exceptions.NotImplementedError
+    def go(self):
+        """This method is called when it's time to perform the job."""
+        raise exceptions.NotImplementedError
 
 class VolatileJob(Job):
-	"""Jobs whose values should not change."""
+    """Jobs whose values should not change."""
 
-	db=None
+    db=None
 
-	def __init__(self, descriptor, freq):
-		# Initialize the superclass
-		Job.__init__(self, descriptor, freq)
-		if VolatileJob.db==None:
-			VolatileJob.db=storage.VolatileStorage()
-		self.prefix='volatile'
+    def __init__(self, descriptor, freq):
+        # Initialize the superclass
+        Job.__init__(self, descriptor, freq)
+        if VolatileJob.db==None:
+            VolatileJob.db=storage.VolatileStorage()
+        self.prefix='volatile'
 
-	def recordState(self, state):
-		"""Record the current state of the task."""
-		VolatileJob.db.recordState(self.getDescriptor(), state)
+    def recordState(self, state):
+        """Record the current state of the task."""
+        VolatileJob.db.recordState(self.getDescriptor(), state)
 
 class SNMPJob(Job):
-	"""An SNMP query job that needs to be performed."""
+    """An SNMP query job that needs to be performed."""
 
-	def __init__(self, host, community, oid, freq, jobtype='snmp'):
-		Job.__init__(self, ':'.join((jobtype, host, community, str(oid))), freq)
-		self.host=host
-		self.community=community
-		self.oid=oid
+    def __init__(self, host, community, oid, freq, jobtype='snmp'):
+        Job.__init__(self, ':'.join((jobtype, host, community, str(oid))), freq)
+        self.host=host
+        self.community=community
+        self.oid=oid
 
 class VolatileSNMPJob(VolatileJob, SNMPJob):
-	"""An SNMP job that records its state in the volatile DB."""
+    """An SNMP job that records its state in the volatile DB."""
 
-	def __init__(self, host, community, freq, oid, jobtype='snmp'):
-		# Call the super constructors
-		# VolatileJob's constructor is called with a descriptor of XXXX
-		# because SNMPJob should fill it it with the correct value.
-		VolatileJob.__init__(self, 'XXXX', freq)
-		SNMPJob.__init__(self, host, community, oid, freq, jobtype)
+    def __init__(self, host, community, freq, oid, jobtype='snmp'):
+        # Call the super constructors
+        # VolatileJob's constructor is called with a descriptor of XXXX
+        # because SNMPJob should fill it it with the correct value.
+        VolatileJob.__init__(self, 'XXXX', freq)
+        SNMPJob.__init__(self, host, community, oid, freq, jobtype)
 
-	def go(self):
-		"""Get and record the data."""
-		# Get the data and record the state
-		s=snmplib.SnmpSession(self.host, self.community)
-		rv=s.get(self.oid)
-		self.recordState(rv)
-		# Mark it
-		self.mark()
+    def go(self):
+        """Get and record the data."""
+        # Get the data and record the state
+        s=snmplib.SnmpSession(self.host, self.community)
+        rv=s.get(self.oid)
+        self.recordState(rv)
+        # Mark it
+        self.mark()
 
-	def getJobParameters(self):
-		"""Describe this job."""
-		return( ('VolatileSNMPJob',
-			(self.host, self.community, self.frequency, self.oid)))
+    def getJobParameters(self):
+        """Describe this job."""
+        return( ('VolatileSNMPJob',
+            (self.host, self.community, self.frequency, self.oid)))
 
 class SNMPWalkCountJob(VolatileSNMPJob):
-	"""An SNMP job that walks a tree and records the number of things it saw."""
+    """An SNMP job that walks a tree and records the number of things it saw."""
 
-	def __init__(self, host, community, oid, freq, match=None):
-		# Call the super constructors
-		VolatileSNMPJob.__init__(self, host, community, oid, freq, 'snmpwalk')
-		self.match=match
+    def __init__(self, host, community, oid, freq, match=None):
+        # Call the super constructors
+        VolatileSNMPJob.__init__(self, host, community, oid, freq, 'snmpwalk')
+        self.match=match
 
-	def go(self):
-		"""Get and record the data."""
-		# Get the data and record it
-		s=snmplib.SnmpSession(self.host, self.community)
-		rv=s.countBranch(self.oid, self.match)
-		self.recordState(rv)
-		# Mark it
-		self.mark()
+    def go(self):
+        """Get and record the data."""
+        # Get the data and record it
+        s=snmplib.SnmpSession(self.host, self.community)
+        rv=s.countBranch(self.oid, self.match)
+        self.recordState(rv)
+        # Mark it
+        self.mark()
 
 class RRDJob(Job):
-	"""Base class for jobs that record data via RRD."""
+    """Base class for jobs that record data via RRD."""
 
-	rrd=None
+    rrd=None
 
-	def __init__(self, rrdfile, descriptor, freq):
-		"""Get an RRDJob referencing the given rrdfile, using the given
-		descriptor, and repeating at the specified frequency."""
-		Job.__init__(self, descriptor, freq)
-		if RRDJob.rrd == None:
-			RRDJob.rrd=storage.RRDStorage()
-		self.file=rrdfile
-		self.prefix='performance'
+    def __init__(self, rrdfile, descriptor, freq):
+        """Get an RRDJob referencing the given rrdfile, using the given
+        descriptor, and repeating at the specified frequency."""
+        Job.__init__(self, descriptor, freq)
+        if RRDJob.rrd == None:
+            RRDJob.rrd=storage.RRDStorage()
+        self.file=rrdfile
+        self.prefix='performance'
 
-	def getFilename(self):
-		"""Get the name of the rrd file this job manipulates."""
-		return self.file
+    def getFilename(self):
+        """Get the name of the rrd file this job manipulates."""
+        return self.file
 
-	def recordState(self, data, timestamp=None):
-		"""Record the current state."""
-		RRDJob.rrd.recordState(self.file, data, timestamp)
+    def recordState(self, data, timestamp=None):
+        """Record the current state."""
+        RRDJob.rrd.recordState(self.file, data, timestamp)
 
-	def getNames(self):
-		"""Get the column names for this RRD."""
-		raise exceptions.NotImplementedError
+    def getNames(self):
+        """Get the column names for this RRD."""
+        raise exceptions.NotImplementedError
 
 class RRDSNMPJob(RRDJob, SNMPJob):
-	"""A job that collects data from snmp and stores it in an rrd.
+    """A job that collects data from snmp and stores it in an rrd.
 
-	More than one oid may be collected at a time.
-	"""
+    More than one oid may be collected at a time.
+    """
 
-	def __init__(self, host, community, freq, oids, rrdfile):
-		# RRDJob's constructor is called with a descriptor of XXXX because
-		# SNMPJob should fill it it with the correct value.
-		RRDJob.__init__(self, rrdfile, 'XXXX', freq)
-		SNMPJob.__init__(self, host, community, oids, freq)
+    def __init__(self, host, community, freq, oids, rrdfile):
+        # RRDJob's constructor is called with a descriptor of XXXX because
+        # SNMPJob should fill it it with the correct value.
+        RRDJob.__init__(self, rrdfile, 'XXXX', freq)
+        SNMPJob.__init__(self, host, community, oids, freq)
 
-	def getNames(self):
-		"""Get the SNMP variables that are being watched."""
-		rv=self.oid
-		if not isinstance(self.oid, list):
-			rv=list(rv)
-		assert(isinstance(rv, list))
-		return(rv)
+    def getNames(self):
+        """Get the SNMP variables that are being watched."""
+        rv=self.oid
+        if not isinstance(self.oid, list):
+            rv=list(rv)
+        assert(isinstance(rv, list))
+        return(rv)
 
-	def go(self):
-		"""Get and record the data."""
-		# Get the data and record it
-		s=snmplib.SnmpSession(self.host, self.community)
-		oids, rvs=s.multiGet(self.oid)
-		self.recordState(rvs)
-		# Mark it
-		self.mark()
+    def go(self):
+        """Get and record the data."""
+        # Get the data and record it
+        s=snmplib.SnmpSession(self.host, self.community)
+        oids, rvs=s.multiGet(self.oid)
+        self.recordState(rvs)
+        # Mark it
+        self.mark()
 
-	def getJobParameters(self):
-		"""Represent."""
-		return( ('RRDSNMPJob',
-			(self.host, self.community, self.frequency,
-				self.oid, self.file)))
+    def getJobParameters(self):
+        """Represent."""
+        return( ('RRDSNMPJob',
+            (self.host, self.community, self.frequency,
+                self.oid, self.file)))
 
 class SMTPBannerJob(VolatileJob):
-	"""A volatile job to monitor SMTP banners."""
+    """A volatile job to monitor SMTP banners."""
 
-	def __init__(self, host, freq, port=25):
-		VolatileJob.__init__(self, ':'.join(('smtp', host, `port`)), freq)
-		self.host=host
-		self.port=port
+    def __init__(self, host, freq, port=25):
+        VolatileJob.__init__(self, ':'.join(('smtp', host, `port`)), freq)
+        self.host=host
+        self.port=port
 
-	def go(self):
-		sock=None
-		for res in socket.getaddrinfo(self.host, self.port,
-										0, socket.SOCK_STREAM):
+    def go(self):
+        sock=None
+        for res in socket.getaddrinfo(self.host, self.port,
+                                        0, socket.SOCK_STREAM):
 
-			af, socktype, proto, canonname, sa = res
-			try:
-				sock=socket.socket(af, socktype, proto)
-				# connect with a timeout
-				sock.setblocking(0)
-				try:
-					sock.connect(sa)
-				except socket.error, e:
-					# Check for error in progress (expected)
-					if e[0] != errno.EINPROGRESS:
-						raise e
-				# Ten second timeout
-				rl, wl, xl=select.select([sock.fileno()], [], [], 10)
-				if sock.fileno() not in rl:
-					print "Timed out while looking for " \
-						+ self.host + ":" + `self.port`
-					raise socket.error("Timeout")
-				sock.setblocking(1)
-			except socket.error, se:
-				if sock:
-					sock.close()
-				sock=None
-				# Try again
-				continue
-			# If we got here, we're connected
-			break
-		# Raise the socket error from above if we still don't have a socket
-		if not sock:
-			raise socket.error(se)
-		# XXX Something could block for a while here.
-		f=sock.makefile('r')
-		banner=f.readline()
-		f.close()
-		sock.close()
-		# Mark it
-		self.mark()
+            af, socktype, proto, canonname, sa = res
+            try:
+                sock=socket.socket(af, socktype, proto)
+                # connect with a timeout
+                sock.setblocking(0)
+                try:
+                    sock.connect(sa)
+                except socket.error, e:
+                    # Check for error in progress (expected)
+                    if e[0] != errno.EINPROGRESS:
+                        raise e
+                # Ten second timeout
+                rl, wl, xl=select.select([sock.fileno()], [], [], 10)
+                if sock.fileno() not in rl:
+                    print "Timed out while looking for " \
+                        + self.host + ":" + `self.port`
+                    raise socket.error("Timeout")
+                sock.setblocking(1)
+            except socket.error, se:
+                if sock:
+                    sock.close()
+                sock=None
+                # Try again
+                continue
+            # If we got here, we're connected
+            break
+        # Raise the socket error from above if we still don't have a socket
+        if not sock:
+            raise socket.error(se)
+        # XXX Something could block for a while here.
+        f=sock.makefile('r')
+        banner=f.readline()
+        f.close()
+        sock.close()
+        # Mark it
+        self.mark()
 
-		self.recordState(banner.rstrip())
+        self.recordState(banner.rstrip())
 
 class UnsupportedJobException(exceptions.Exception):
-	"""Thrown when createJob is called with an unsupported job type."""
-	pass
+    """Thrown when createJob is called with an unsupported job type."""
+    pass
 
 class JobTooFrequentException(exceptions.Exception):
-	"""Thrown when createJob creates a job that's too frequent."""
-	pass
+    """Thrown when createJob creates a job that's too frequent."""
+    pass
 
 def createJob(jobtype, args):
-	"""Create a job from an argument list that describes the job.
+    """Create a job from an argument list that describes the job.
 
-	Currently, the following job types are supported:
+    Currently, the following job types are supported:
 
-	 * VolatileSNMPJob (host, community, frequency, variable)
-	 * RRDSNMPJob (host, community, frequency, variable(s), rrdfile)
-	"""
+     * VolatileSNMPJob (host, community, frequency, variable)
+     * RRDSNMPJob (host, community, frequency, variable(s), rrdfile)
+    """
 
-	rv=None
+    rv=None
 
-	if jobtype == 'VolatileSNMPJob':
-		rv=apply(VolatileSNMPJob, args)
-	elif jobtype == 'RRDSNMPJob':
-		rv=apply(RRDSNMPJob, args)
-	else:
-		raise UnsupportedJobException(jobtype)
+    if jobtype == 'VolatileSNMPJob':
+        rv=apply(VolatileSNMPJob, args)
+    elif jobtype == 'RRDSNMPJob':
+        rv=apply(RRDSNMPJob, args)
+    else:
+        raise UnsupportedJobException(jobtype)
 
-	if rv.frequency < 60:
-		raise JobTooFrequentException(rv.frequency)
+    if rv.frequency < 60:
+        raise JobTooFrequentException(rv.frequency)
 
-	return rv
+    return rv
 
 ######################################################################
 # End job classes

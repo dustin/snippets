@@ -14,11 +14,11 @@ db=anydbm.open("authdb", "c")
 l=sys.stdin.readline()
 c=0
 while l != '':
-	v=string.split(string.strip(l), "\t", 1)
-	db[v[0]]=v[1]
-	l=sys.stdin.readline()
-	c = c + 1
-	if c % 1000 == 0:
-		print "Processed", c
+    v=string.split(string.strip(l), "\t", 1)
+    db[v[0]]=v[1]
+    l=sys.stdin.readline()
+    c = c + 1
+    if c % 1000 == 0:
+        print "Processed", c
 
 db.close()

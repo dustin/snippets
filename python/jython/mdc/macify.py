@@ -12,14 +12,14 @@ db=anydbm.open("macdb")
 
 l=sys.stdin.readline()
 while l != '':
-	if l[0] == '\t':
-		m=l[1:3] + l[4:6] + l[7:9]
-		vendor=''
-		if db.has_key(m):
-			vendor=db[m]
-		print "\t" + l.strip() + "\t" + vendor
-	else:
-		print l.strip()
-	l=sys.stdin.readline()
+    if l[0] == '\t':
+        m=l[1:3] + l[4:6] + l[7:9]
+        vendor=''
+        if db.has_key(m):
+            vendor=db[m]
+        print "\t" + l.strip() + "\t" + vendor
+    else:
+        print l.strip()
+    l=sys.stdin.readline()
 
 db.close()

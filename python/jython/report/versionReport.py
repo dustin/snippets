@@ -96,10 +96,10 @@ def dotifyRevMap(compatibilities, vc, tofile=sys.stdout):
 
     for ovc in compatibilities.values():
         if vc.getName() != ovc.getName():
-			# Figure out if we can get to the one destination from here
+            # Figure out if we can get to the one destination from here
             nh=ovc.getNextHop(vc)
             if nh is not None:
-				# We can reach it, find the path
+                # We can reach it, find the path
                 sp=net.spy.util.ShortestPath(ovc, vc)
                 op=ovc
                 for p in sp:

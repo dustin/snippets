@@ -12,44 +12,44 @@ import md5
 
 class UrlHasher:
 
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	def getUrlHash(self, url):
-		data=self._getUrlData(url)
-		m=md5.new()
-		m.update(data)
-		d=m.digest()
-		e=base64.encodestring(d).rstrip()
-		return e
+    def getUrlHash(self, url):
+        data=self._getUrlData(url)
+        m=md5.new()
+        m.update(data)
+        d=m.digest()
+        e=base64.encodestring(d).rstrip()
+        return e
 
-	def _getUrlData(self, url):
-		u=urllib2.urlopen(url)
-		s=''.join(u.readlines())
-		return s
+    def _getUrlData(self, url):
+        u=urllib2.urlopen(url)
+        s=''.join(u.readlines())
+        return s
 
 class UrlWatcher:
 
-	def __init__(self):
-		self.d=anydbm.open('urldb', 'c')
-		self.uh=UrlHasher()
+    def __init__(self):
+        self.d=anydbm.open('urldb', 'c')
+        self.uh=UrlHasher()
 
-	def __del__(self):
-		self.d.close()
+    def __del__(self):
+        self.d.close()
 
-	def checkUrl(self, url):
-		hc=self.uh.getUrlHash(url)
-		oldhc=''
-		try:
-			oldhc=self.d[url]
-		except KeyError:
-			pass
+    def checkUrl(self, url):
+        hc=self.uh.getUrlHash(url)
+        oldhc=''
+        try:
+            oldhc=self.d[url]
+        except KeyError:
+            pass
 
-		if oldhc!=hc:
-			self.d[url]=hc
-			print url + ' has changed: was ' + oldhc + ' now is ' + hc
+        if oldhc!=hc:
+            self.d[url]=hc
+            print url + ' has changed: was ' + oldhc + ' now is ' + hc
 
 if __name__ == '__main__':
-	uw=UrlWatcher()
+    uw=UrlWatcher()
 
-	uw.checkUrl('http://bleu.west.spy.net/')
+    uw.checkUrl('http://bleu.west.spy.net/')

@@ -9,26 +9,26 @@ import sys
 import java
 
 def report(sn, data):
-	for k in data.keySet():
-		p=data[k]
-		if isinstance(p, java.util.Map):
-			for k2 in p.keySet():
-				print sn + "\t" + str(k2) + "\t" + str(p[k2])
-		else:
-			for i in p:
-				print sn + "\tNETNODE\t" + "\t".join(map(str, i))
+    for k in data.keySet():
+        p=data[k]
+        if isinstance(p, java.util.Map):
+            for k2 in p.keySet():
+                print sn + "\t" + str(k2) + "\t" + str(p[k2])
+        else:
+            for i in p:
+                print sn + "\tNETNODE\t" + "\t".join(map(str, i))
 
 fis=java.io.FileInputStream(sys.argv[1])
 gis=java.util.zip.GZIPInputStream(fis)
 ois=java.io.ObjectInputStream(gis)
 
 try:
-	sn=ois.readObject()
-	while sn != None:
-		data=ois.readObject()
+    sn=ois.readObject()
+    while sn != None:
+        data=ois.readObject()
 
-		report(sn, data)
+        report(sn, data)
 
-		sn=ois.readObject()
+        sn=ois.readObject()
 except java.io.EOFException:
-	sys.stderr.write("Finished!\n")
+    sys.stderr.write("Finished!\n")

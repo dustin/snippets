@@ -20,45 +20,45 @@ types['Wireless (802.11b)']='wireless'
 types['Unknown']='unknown'
 
 def report(sn, data):
-	vals=[]
-	vals.append(sn)
-	vals.append(data['system_summary.html']['uptime'])
-	vals.append(data['link_summary.html']['accessConcentrator'])
-	vals.append(data['link_detailed_statistics.html']['DSL Unavailable Seconds:Reset'])
+    vals=[]
+    vals.append(sn)
+    vals.append(data['system_summary.html']['uptime'])
+    vals.append(data['link_summary.html']['accessConcentrator'])
+    vals.append(data['link_detailed_statistics.html']['DSL Unavailable Seconds:Reset'])
 
-	counts={}
-	for i in types.values():
-		counts[i]=0
-	total=0
-	for i in data['network_device_list.html']:
-		if i[1] != '--':
-			try:
-				total = total + 1
-				k=types[i[1]]
-				counts[k] = counts[k] + 1
-			except KeyError, e:
-				sys.stderr.write("Broken record: " + `i` + "\n")
+    counts={}
+    for i in types.values():
+        counts[i]=0
+    total=0
+    for i in data['network_device_list.html']:
+        if i[1] != '--':
+            try:
+                total = total + 1
+                k=types[i[1]]
+                counts[k] = counts[k] + 1
+            except KeyError, e:
+                sys.stderr.write("Broken record: " + `i` + "\n")
 
-	vals.append(total)
-	for c in ('eth', 'usb', 'hpna', 'wireless', 'unknown'):
-		vals.append(counts[c])
+    vals.append(total)
+    for c in ('eth', 'usb', 'hpna', 'wireless', 'unknown'):
+        vals.append(counts[c])
 
-	print "\t".join(map(str, vals))
+    print "\t".join(map(str, vals))
 
 print "#sn\tuptime\taccessConcentrator\tunavail\tdevices\teth\tusb\thpna\t" \
-	+ "wireless\tunknown"
+    + "wireless\tunknown"
 
 fis=java.io.FileInputStream(sys.argv[1])
 gis=java.util.zip.GZIPInputStream(fis)
 ois=java.io.ObjectInputStream(gis)
 
 try:
-	sn=ois.readObject()
-	while sn != None:
-		data=ois.readObject()
+    sn=ois.readObject()
+    while sn != None:
+        data=ois.readObject()
 
-		report(sn, data)
+        report(sn, data)
 
-		sn=ois.readObject()
+        sn=ois.readObject()
 except java.io.EOFException:
-	sys.stderr.write("Finished!\n")
+    sys.stderr.write("Finished!\n")
