@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64.java,v 1.3 2001/03/30 09:35:06 dustin Exp $
+// $Id: Base64.java,v 1.4 2001/03/30 10:28:24 dustin Exp $
 
 package net.spy.util;
 
@@ -31,20 +31,20 @@ public class Base64 extends Object {
 		int o=0;
 		// Flip through the input and encode the shite.
 		for(int i=0; i<data.length; i+=3) {
-			byte a, b, c, tmpa, tmpb;
+			int a, b, c, tmpa, tmpb;
 
-			a=data[i];
+			a=(int)data[i];
 			sb.append(charmap[(int)(a>>2)]);
 			tmpa=(byte)((a&0x03)<<4);
 
 			// If there's another byte, grab it and process it
 			if(data.length > i+1) {
-				b=data[i+1];
+				b=(int)data[i+1];
 				tmpb=(byte)(b>>4);
 				sb.append(charmap[(int)(tmpa|tmpb)]);
 				tmpa=(byte)((b&0x0f)<<2);
 				if(data.length>i+2) {
-					c=data[i+2];
+					c=(int)data[i+2];
 					tmpb=(byte)((c&0xc0)>>6);
 					sb.append(charmap[(int)(tmpa|tmpb)]);
 					sb.append(charmap[(int)(c&0x3f)]);
