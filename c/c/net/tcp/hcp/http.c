@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.6 1998/11/11 07:21:08 dustin Exp $
+ * $Id: http.c,v 1.7 1998/11/11 07:25:47 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -215,7 +215,7 @@ freestatus(struct status s)
 int
 send_data(struct host_ret conn, struct url u, char *data)
 {
-	int r;
+	int r=0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
 		r=SSL_write(conn.ssl, data, strlen(data));
@@ -229,7 +229,7 @@ send_data(struct host_ret conn, struct url u, char *data)
 int
 send_ndata(struct host_ret conn, struct url u, size_t n, char *data)
 {
-	int r;
+	int r=0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
 		r=SSL_write(conn.ssl, data, n);
@@ -243,7 +243,7 @@ send_ndata(struct host_ret conn, struct url u, size_t n, char *data)
 int
 recv_data(struct host_ret conn, struct url u, char *buf, size_t len)
 {
-	int     size;
+	int     size=0;
 	if (u.ssl) {
 #ifdef USE_SSLEAY
 		size = SSL_read(conn.ssl, buf, len);
