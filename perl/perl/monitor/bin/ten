@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: ten,v 1.4 1997/12/15 09:32:39 dustin Exp $
+# $Id: ten,v 1.5 1997/12/15 09:42:43 dustin Exp $
 
 . /home/monitor/lib/shellconf
 
@@ -10,10 +10,6 @@ $HOMEBIN/runscans &
 
 # Other info
 $HOME/stats/doit &
-
-# netmon 2
-$HOMEBIN/netmon2
-chmod 644 $HOME/lib/plotdata
 
 # $HOMEBIN/geticsorder &
 
@@ -31,4 +27,11 @@ $HOMEBIN/checkwebserver $libdir/urllist &
 
 $HOMEBIN/checkpsql &
 
+Now for the non parallel stuff...
+
+# netmon 2
+$HOMEBIN/netmon2
+chmod 644 $HOME/lib/plotdata
+
+# Wait for everything to finish
 wait
