@@ -16,7 +16,8 @@
                 busySignal = NSProgressIndicator;
                 itemDescription = NSTextField;
                 itemNumber = NSTextField;
-                status = NSTextField;
+                lastChange = NSTextField;
+                lastUpdate = NSTextField;
                 table = NSTableView;
                 total = NSTextField;
             };

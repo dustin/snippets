@@ -117,7 +117,7 @@
 				if(newPrice != price) {
 					price=newPrice;
 					[[NSNotificationCenter defaultCenter]
-						postNotificationName:DATA_UPDATED object:nil];
+						postNotificationName:DATA_UPDATED object:self];
 				}
                 // NSLog(@"Current price:  %.02f", price);
                 [priceAfter release];

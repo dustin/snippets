@@ -132,6 +132,19 @@
 	}
 }
 
+// This is used by the next two methods to produce a date string
+-(NSString *)friendlyNow
+{
+	id dateFormatter = [[NSDateFormatter alloc]
+		initWithDateFormat:@"%Y-%m-%d %H:%M"
+		allowNaturalLanguage:YES];
+	id now=[[NSDate alloc] init];
+	NSString *rv=[dateFormatter stringForObjectValue:now];
+	[dateFormatter release];
+	[now release];
+	return(rv);
+}
+
 -(void)dataUpdated:(id)notification
 {
 	// NSLog(@"Something was updated");
@@ -146,6 +159,14 @@
     [table reloadData];
     [total setFloatValue: t];
     [total setNeedsDisplay: true];
+
+	// Object of the notification:
+	id ob=[notification object];
+	NSString *msg=[[NSString alloc]
+		initWithFormat: @"Latest change:  %@: %@ -> $%0.2f",
+			[self friendlyNow], ob, [ob price]];
+	[lastChange setStringValue: msg];
+	[msg release];
 }
 
 -(IBAction)update:(id)sender
@@ -161,6 +182,12 @@
         t+=[object price];
     }
     [self setBusy: false];
+
+	NSString *msg=[[NSString alloc]
+		initWithFormat: @"Latest update:  %@", [self friendlyNow]];
+	[lastUpdate setStringValue: msg];
+	[msg release];
+
     [pool release];
 }
 

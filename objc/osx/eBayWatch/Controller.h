@@ -13,7 +13,8 @@
     IBOutlet NSTextField *itemNumber;
     IBOutlet NSTableView *table;
     IBOutlet NSTextField *total;
-    IBOutlet NSTextField *status;
+    IBOutlet NSTextField *lastChange;
+	IBOutlet NSTextField *lastUpdate;
 
     Watching *watching;
     NSUserDefaults *defaults;
