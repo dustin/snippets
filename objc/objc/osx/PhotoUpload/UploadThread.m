@@ -48,6 +48,10 @@
 	NSEnumerator *en=[[_batch files] objectEnumerator];
 	id f=nil;
     while( (f = [en nextObject]) && (! [params finished])) {
+		// Create an inner autorelease pool to deal with the garbage the
+		// upload produces
+	NSAutoreleasePool *ipool = [[NSAutoreleasePool alloc] init];
+
         NSLog(@"Uploading %@.", f);
 
         // Get the file data
@@ -75,6 +79,7 @@
         }
         [myData release];
         [params uploadedFile];
+		[ipool release];
     }
     NSLog(@"Finished, thread will join.\n");
     [params uploadComplete];
