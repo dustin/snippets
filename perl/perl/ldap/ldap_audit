@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
-# $Id: ldap_audit,v 1.12 2000/03/04 00:05:45 dustin Exp $
+# $Id: ldap_audit,v 1.13 2000/03/04 02:20:04 dustin Exp $
 
 use strict;
 
@@ -189,15 +189,17 @@ sub fixRecord {
 		next if($key eq "dn");
 		my @m=@{$master{$key}};
 		my @s=();
+
+		# Skip the always attributes
+		next if($key eq "creatorsname");
+		next if($key eq "createtimestamp");
+		next if($key eq "modifytimestamp");
+		next if($key eq "modifiersname");
+
 		# Only do this if it's defined, else it'll get added anyway
 		if(defined($slave{$key})) {
 			@s=@{$slave{$key}};
 		} else {
-			# Skip the ``always'' ones.
-			next if($_ eq "creatorsname");
-			next if($_ eq "createtimestamp");
-			next if($_ eq "modifytimestamp");
-			next if($_ eq "modifiersname");
 
 			# The attribute was not defined, so we need to add the whole thing.
 			print "Replacing $key\n";
@@ -208,17 +210,13 @@ sub fixRecord {
 		my %sh=map { $_, 1}@s;
 		# First, check for values that're in the master, but not the slave.
 		for(keys %mh) {
-			next if($_ eq "creatorsname");
-			next if($_ eq "createtimestamp");
-			next if($_ eq "modifytimestamp");
-			next if($_ eq "modifiersname");
 			if(!defined($sh{$_})) {
-				print "Attribute $key with $_ is not in the slave:\n";
 				my $patcheck="attribute=$key=$_";
 				my $match=0;
 				for(@ignore) {
 					if($patcheck=~/$_/i) {
-						print "Matched pattern $_, ignoring\n";
+						print "Matched pattern $_, ignoring\n"
+							if($config{'debug'}>0);
 						$match=1;
 						next;
 					}
@@ -230,17 +228,13 @@ sub fixRecord {
 		}
 		# Now do it the other way around
 		for(keys %sh) {
-			next if($_ eq "creatorsname");
-			next if($_ eq "createtimestamp");
-			next if($_ eq "modifytimestamp");
-			next if($_ eq "modifiersname");
 			if(!defined($mh{$_})) {
-				print "Attribute $key with $_ is not in the master:\n";
 				my $patcheck="attribute=$key=$_";
 				my $match=0;
 				for(@ignore) {
 					if($patcheck=~/$_/i) {
-						print "Matched pattern $_, ignoring\n";
+						print "Matched pattern $_, ignoring\n"
+							if($config{'debug'}>0);
 						$match=1;
 						next;
 					}
@@ -253,6 +247,7 @@ sub fixRecord {
 	}
 
 	# Get rid of stuff that's on the slave, but not in the master.
+	# As you can see, this is *far* easier.
 	for $key (keys(%slave)) {
 		if(!defined($master{$key})) {
 			push(@deletes, [ $key, [] ]);
@@ -278,7 +273,7 @@ sub fixRecord {
 	}
 
 	# do the modify
-	print Dumper(\@mods) if($config{'debug'}>1);
+	print Dumper(\@mods) if($config{'debug'}>0);
 	my $res=$slave_ldap->modify($dn, 'changes' => \@mods );
 	if($res->code()!=0) {
 		print "WARNING!  Modify of $dn failed:  " . $res->code() . "\n";
