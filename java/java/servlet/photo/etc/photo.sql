@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.22 1999/10/05 21:36:31 dustin Exp $
+-- $Id: photo.sql,v 1.23 1999/10/10 08:47:06 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -62,7 +62,7 @@ grant all on cat_id_seq to nobody;
 create table wwwusers(
 	id       serial,
 	username varchar(16),
-	password char(13),
+	password text,
 	email    text,
 	realname text,
 	canadd   bool
