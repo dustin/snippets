@@ -1,6 +1,6 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Makefile,v 1.1 1997/06/16 13:46:05 dustin Exp $
+# $Id: Makefile,v 1.2 1997/06/16 13:50:40 dustin Exp $
 
 SHELL=/bin/sh
 LBIN=/usr/local/bin
@@ -13,8 +13,8 @@ CC=cc
 RANLIB=:
 
 CFLAGS=$(CDEBUGFLAGS)
-PBKOBJS=phonebook.o callbacks.o widgets.o fields.o
-SRC=phonebook.c callbacks.c widgets.c
+PBKOBJS=phonebook.o callbacks.o widgets.o fields.o find.o
+SRC=phonebook.c callbacks.c widgets.c find.c
 EXES=phonebook
 JUNK=fields.c fields.h
 
@@ -38,6 +38,9 @@ callbacks.c: fields.h
 	@touch $@
 
 phonebook.c: fields.h
+	@touch $@
+
+find.c: fields.h
 	@touch $@
 
 install:	all man

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: phonebook.h,v 1.1 1997/06/16 13:46:05 dustin Exp $
+ * $Id: phonebook.h,v 1.2 1997/06/16 13:50:43 dustin Exp $
  */
 
 #ifndef PHONEBOOK_H
@@ -44,7 +44,7 @@ void ShowFields(Widget w, XtPointer client_data, XtPointer call_data);
 void Store(Widget w, XtPointer client_data, XtPointer call_data);
 void Find(Widget w, XtPointer client_data, XtPointer call_data);
 void FindCB(Widget w, XtPointer client_data, XtPointer call_data);
-void CloseWindow(Widget w, XtPointer client_data, XtPointer call_data);
+void CloseFindWindow(Widget w, XtPointer client_data, XtPointer call_data);
 
 void initfields(void);
 void freefields(void);
