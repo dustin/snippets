@@ -6,11 +6,11 @@
 <h2>Dustin's Photo Album</h2>
 
 <ul>
-    <li><a href="add.shtml">Add an image</a></li>
-    <li><a href="find.shtml">Find an image</a></li>
-    <li><a href="/perl/dustin/photo/photo.cgi?func=catview">
+    <li><a href="%SELF_URI%?func=addform">Add an image</a></li>
+    <li><a href="%SELF_URI%?func=findform">Find an image</a></li>
+    <li><a href="%SELF_URI%?func=catview">
 	Category view</a></li>
-	<li><a href="setstyle.shtml">Set viewing style</a></li>
+	<li><a href="%SELF_URI%?func=styleform">Set viewing style</a></li>
 
 </ul>
 
@@ -20,7 +20,7 @@
   %SAVED%
 </ul>
 
-<form method="POST" action="/perl/dustin/photo/photo.cgi">
+<form method="POST" action="%SELF_URI%">
 <input type="hidden" name="func" value="search">
 <input type="hidden" name="maxret" value="5">
 <input type="hidden" name="fieldjoin" value="and">
@@ -35,7 +35,7 @@ Quick Search:  <input name="what">
 <p>
 <h2>Credits:</h2>
 All pages herein were created using vi.  For more information on the vi
-web page publishing system, type <tt>man vi</tt> at your prompt.
+web page publishing system, type <i>man vi</i> at your prompt.
 
 <!--
     Logged in as:  %REMOTE_USER%
