@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.7 1999/10/20 02:15:02 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.8 1999/10/20 02:21:44 dustin Exp $
  */
 
 import java.lang.*;
 import java.util.*;
 import java.text.*;
+
+import net.spy.*;
 
 // The class
 public class PhotoUtil
@@ -59,7 +61,7 @@ public class PhotoUtil
 
 	// Tokenize a template file and return the tokenized stuff.
 	public static String tokenize(PhotoSession p, String file, Hashtable vars) {
-		Toker t=new Toker();
+		SpyToker t=new SpyToker();
 		String ret;
 
 		PhotoConfig conf = new PhotoConfig();

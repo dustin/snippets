@@ -15,7 +15,7 @@ DEST=bleu.west.spy.net:/usr/local/apache/java
 # DEST=170.1.69.194:/usr/local/apache/java
 
 CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
-	PhotoImage.class Toker.class \
+	PhotoImage.class \
 	PhotoLogFlusher.class PhotoLogView.class \
 	PhotoLogImageEntry.class PhotoUser.class PhotoImageData.class \
 	PhotoSecurity.class PhotoConfig.class PhotoDB.class PhotoSearch.class \
