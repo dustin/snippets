@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 # scotty parses like a girl\
 exec scotty -nf $0 $*
 

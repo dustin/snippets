@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+# $Id: listmacs,v 1.2 2000/05/18 09:27:34 dustin Exp $
 # scotty is stupid \
 exec scotty -nf $0 $*
 

@@ -1,0 +1,45 @@
+#!/bin/sh
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+# $Id: checkntp,v 1.1 2000/05/18 09:27:30 dustin Exp $ \
+exec scotty "$0" "$@"
+
+proc checkNTPInfo { host } {
+	set e ""
+	set ok 0
+
+	ntp $host vars
+
+	catch {
+		if { ! [info exists vars(peer.offset)] } {
+			error "Did not get offset information from $host"
+		}
+
+		if { $vars(peer.offset) > 50 } {
+			error "Peer NTP offset is $vars(peer.offset)"
+		}
+
+		set ok 1
+	} e
+
+	if { $ok == 0 } {
+		# puts "Got an error:  $e"
+		# puts "Here's what we got:"
+		# foreach k [ array names vars ] {
+			# puts "\t$k: $vars($k)"
+		# }
+		error $e
+	}
+}
+
+set exit_code 0
+
+foreach host $argv {
+	if { [catch { checkNTPInfo $host } e ] } {
+		puts "Problem with $host:  $e"
+		set exit_code 2
+	} else {
+		puts "$host is OK"
+	}
+}
+
+exit $exit_code

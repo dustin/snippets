@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright (c) 1997  SPY Internetworking
-# $Id: checkinterrors,v 1.6 2000/05/11 21:34:24 dustin Exp $ \
-exec /usr/local/bin/scotty -nf $0 $*
+# Copyright (c) 1997  SPY Internetworking <dustin@spy.net>
+# $Id: checkinterrors,v 1.7 2000/05/18 09:27:29 dustin Exp $ \
+exec scotty -nf $0 $*
 
 mib load rfc1213.mib
 mib load rfc1696.mib
