@@ -140,7 +140,8 @@ extracols=[
 	('powerUp', ('link_statistics.html', 'powerUp')),
 	('protocol', ('link_summary.html', 'protocol')),
 	('systime', ('system_summary.html', 'systime')),
-	('uptime', ('system_summary.html', 'uptime'))
+	('uptime', ('system_summary.html', 'uptime')),
+	('dslLine', ('link_summary.html', 'dslLine'))
 ]
 
 for f in sys.argv[1:]:
