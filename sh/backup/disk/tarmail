@@ -60,3 +60,6 @@ done
 
 cd $mail
 find user stupid news -name cyrus.cache | tardir
+
+cd $tars/mail
+du -sk *
