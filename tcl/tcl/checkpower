@@ -1,7 +1,7 @@
 #!/usr/pkg/bin/tclsh8.0
-# $Id: checkpower,v 1.1 2000/06/14 20:48:08 dustin Exp $
+# $Id: checkpower,v 1.2 2000/06/14 20:52:44 dustin Exp $
 
-source snpp.tcl
+source ~/lib/tcl/snpp.tcl
 
 proc alertOnPower { } {
 	set in [ open "|apm" ]
