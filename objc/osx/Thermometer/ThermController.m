@@ -36,10 +36,6 @@
         // Update the menu
         [[dockMenu itemWithTag: [object tag]] setTitle: [object description]];
     }
-    NSString *s=[[NSString alloc] initWithFormat: @"Last update:  %@",
-        [[NSDate date] description]];
-    [status setStringValue: s];
-    [s release];
 
     // Now, verify the timer is scheduled appropriately
     double erval=[[defaults objectForKey: @"frequency"] doubleValue];
@@ -137,6 +133,10 @@
 
 -(void)dataUpdated:(id)anObject
 {
+    NSString *s=[[NSString alloc] initWithFormat: @"Last update:  %@",
+        [[NSDate date] description]];
+    [status setStringValue: s];
+    [s release];
     [thermMatrix setNeedsDisplay: true];
 }
 
