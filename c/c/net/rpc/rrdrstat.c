@@ -1,16 +1,22 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.3 2002/02/01 10:38:21 dustin Exp $
+ * $Id: rrdrstat.c,v 1.4 2002/02/01 21:07:18 dustin Exp $
  */
 
-#include <rpcsvc/rstat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <assert.h>
 
+#include <rpc/rpc.h>
+
+#ifdef HAVE_RRD_H
 #include <rrd.h>
+#endif /* HAVE_RRD_H */
+
+#include "rstat.h"
 
 static void
 process(const char *host, statstime *stat)
@@ -18,7 +24,7 @@ process(const char *host, statstime *stat)
 	char buf[8192];
 
 	/* usr wio sys idl pgin pgout intr ipkts opkts coll errors cs load */
-	snprintf(buf, sizeof(buf),
+	sprintf(buf,
 		"update %s.rrd N:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%f:%f:%f",
 		host,
 		stat->cp_time[0], stat->cp_time[1],
@@ -31,6 +37,9 @@ process(const char *host, statstime *stat)
 		((float)stat->avenrun[0] /FSCALE),
 		((float)stat->avenrun[1] /FSCALE),
 		((float)stat->avenrun[2] /FSCALE));
+	/* I'm using sprintf above because it's more portable, and it pretty
+	 * much can't exceed the buffer size */
+	assert(strlen(buf) < sizeof(buf));
 	puts(buf);
 	fflush(stdout);
 }

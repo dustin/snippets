@@ -1,13 +1,22 @@
+# Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+#
+# $Id: Makefile.in,v 1.2 2002/02/01 21:07:17 dustin Exp $
+
 CFLAGS=@CFLAGS@ @DEFS@
 LDFLAGS=@LDFLAGS@ @LIBS@
 RPCGEN=@RPCGEN@
 
+all: rrdrstat rstat
+
 rrdrstat: rstat_clnt.o rstat_xdr.o rrdrstat.o
 	$(CC) -o $@ rrdrstat.o rstat_clnt.o rstat_xdr.o $(LDFLAGS)
 
+rstat: rstat_clnt.o rstat_xdr.o rstat.o
+	$(CC) -o $@ rstat.o rstat_clnt.o rstat_xdr.o $(LDFLAGS)
+
 clean:
 	rm -f rstat_clnt.o rstat_xdr.o rrdrstat.o rstat.h \
-		rstat_clnt.c rstat_svc.c rstat_xdr.c rrdrstat
+		rstat_clnt.c rstat_svc.c rstat_xdr.c rrdrstat rstat rstat.o
 
 distclean: clean
 	rm -f config.status config.log config.cache Makefile

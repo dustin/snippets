@@ -1,12 +1,15 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: rstat.c,v 1.6 1998/05/24 10:14:07 dustin Exp $
+ * $Id: rstat.c,v 1.7 2002/02/01 21:07:19 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <rpcsvc/rstat.h>
+
+#include <rpc/rpc.h>
+
+#include "rstat.h"
 
 #ifdef THREADED
 #include <pthread.h>
@@ -17,17 +20,10 @@
 #define FSCALE  (1<<FSHIFT)
 #endif
 
-#ifndef CPUSTATES
-# ifndef RSTAT_CPUSTATES
-#  error "I don't know how to determine CPU states"
-# endif
-# define CPUSTATES RSTAT_CPUSTATES
-# define DK_NDRIVE RSTAT_DK_NDRIVE
-# define CP_USER   RSTAT_CPU_USER
-# define CP_NICE   RSTAT_CPU_NICE
-# define CP_SYS    RSTAT_CPU_SYS
-# define CP_IDLE   RSTAT_CPU_IDLE
-#endif
+#define CP_USER 0
+#define CP_NICE 1
+#define CP_SYS 2
+#define CP_IDLE 3
 
 #define BIT(a)     (1<<a)
 
@@ -86,21 +82,21 @@ static void printuptime(int secs)
 static void usage(char *cmd)
 {
     printf("Usage:  %s [-acdpsinvlbtu] host ...\n"
-           "-a print all statistics\n"
-           "-c print CPU states\n"
-           "-d print disk states\n"
-           "-p print paging states\n"
-           "-s print swapping states\n"
-           "-i print interrupt states\n"
-           "-n print network states\n"
-           "-v print context switching states\n"
-           "-l print load averages\n"
-           "-b print boot time\n"
-           "-t print current time\n"
-           "-u print uptime\n", cmd);
+           "\t-a print all statistics\n"
+           "\t-c print CPU states\n"
+           "\t-d print disk states\n"
+           "\t-p print paging states\n"
+           "\t-s print swapping states\n"
+           "\t-i print interrupt states\n"
+           "\t-n print network states\n"
+           "\t-v print context switching states\n"
+           "\t-l print load averages\n"
+           "\t-b print boot time\n"
+           "\t-t print current time\n"
+           "\t-u print uptime\n", cmd);
 }
 
-static void printstatp(struct statstime statp[2], int flags)
+static void printstatp(statstime statp[2], int flags)
 {
     int i;
     char *cpustates[]={
@@ -158,18 +154,43 @@ static void printstatp(struct statstime statp[2], int flags)
 	    (double)statp[1].avenrun[2]/FSCALE);
 
     if(flags&DO_BOOT)
-        printf("Boottime:  %s", ctime(&statp[1].boottime.tv_sec));
+        printf("Boottime:  %s", ctime((time_t *)&statp[1].boottime.tv_sec));
     if(flags&DO_TIME)
-        printf("Current:   %s", ctime(&statp[1].curtime.tv_sec));
+        printf("Current:   %s", ctime((time_t *)&statp[1].curtime.tv_sec));
     if(flags&DO_UPTIME) {
         printf("Uptime:    ");
         printuptime(statp[1].curtime.tv_sec-statp[1].boottime.tv_sec);
     }
 }
 
+static int
+rstat(const char *host, statstime *stat)
+{
+	CLIENT *client;
+	statstime *stattmp;
+	char *arg;
+	int rv=0;
+
+	client=clnt_create((char *)host, RSTATPROG, RSTATVERS_TIME, "udp");
+	if(client==NULL) {
+		perror("client creation failed");
+		rv=-1;
+	} else {
+		stattmp = rstatproc_stats_3((void *)&arg, client);
+		if(stattmp==NULL) {
+			fprintf(stderr, "Call failed.\n");
+			rv=-1;
+		} else {
+			*stat=*stattmp;
+		}
+		clnt_destroy(client);
+	}
+	return(rv);
+}
+
 static void dohost(struct input *i)
 {
-    struct statstime statp[2];
+    statstime statp[2];
     int r=0;
     r+=rstat(i->host, &statp[0]);
     if(i->flags&(DO_CPU|DO_DISK|DO_PAGE|DO_SWAP|DO_INTR|DO_NET|DO_SWTCH)) {
