@@ -2,6 +2,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ThermometerView.h"
+#import "LogOutline.h"
 
 // How long (in seconds) to sleep between samples
 #define SAMPLE_RATE 60
@@ -16,6 +17,8 @@
     IBOutlet ThermometerView *livingRoom;
     IBOutlet ThermometerView *machineRoom;
     IBOutlet NSTextField *status;
+    IBOutlet NSWindow *logWindow;
+    IBOutlet NSOutlineView *logList;
 
     NSMutableArray *therms;
 }
@@ -23,4 +26,5 @@
 - (IBAction)setFarenheit:(id)sender;
 
 -(IBAction)update:(id)sender;
+-(IBAction)showLog:(id)sender;
 @end

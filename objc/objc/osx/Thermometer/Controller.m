@@ -35,17 +35,9 @@
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
     while (object = [enumerator nextObject]) {
-        NSString *s=[[NSString alloc]
-            initWithFormat: @"http://bleu.west.spy.net/therm/Temperature?temp=%@",
-            [object name]];
-        NSURL *u=[[NSURL alloc] initWithString: s];
-        NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
-        [object setReading: [sr floatValue]];
+        [object update];
         // Update the menu
         [[dockMenu itemWithTag: [object tag]] setTitle: [object description]];
-        [s release];
-        [u release];
-        [sr release];
     }
     NSString *s=[[NSString alloc] initWithFormat: @"Last update:  %@",
         [[NSDate date] description]];
@@ -57,6 +49,11 @@
 -(IBAction)update:(id)sender
 {
     [self update];
+}
+
+-(IBAction)showLog:(id)sender
+{
+    [logWindow makeKeyAndOrderFront: self];
 }
 
 -(void)awakeFromNib
@@ -105,6 +102,10 @@
     [self setUnits: defaultUnit];
 
     [self update];
+
+    // set up us the log view
+    LogOutline *lout=[[LogOutline alloc] initWithArray: therms];
+    [logList setDataSource: lout];
 
     // Schedule the timer
     [NSTimer scheduledTimerWithTimeInterval:SAMPLE_RATE

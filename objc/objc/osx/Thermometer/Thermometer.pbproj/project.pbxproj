@@ -15,6 +15,8 @@
 			children = (
 				F54ADCEB0369034301A801C4,
 				F54ADCEC0369034301A801C4,
+				DA7C50F9041C92D50018EE5C,
+				DA7C50FA041C92D50018EE5C,
 				F54D19D9040EA22A01BE144C,
 				F54D19DA040EA22A01BE144C,
 			);
@@ -273,6 +275,7 @@
 			files = (
 				F54ADCED0369034301A801C4,
 				F54D19DB040EA22A01BE144C,
+				DA7C50FB041C92D50018EE5C,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -294,6 +297,7 @@
 				29B9732CFDCFA39411CA2CEA,
 				F54ADCEE0369034301A801C4,
 				F54D19DC040EA22A01BE144C,
+				DA7C50FC041C92D50018EE5C,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -353,6 +357,30 @@
 //DA2
 //DA3
 //DA4
+		DA7C50F9041C92D50018EE5C = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = LogOutline.h;
+			refType = 4;
+		};
+		DA7C50FA041C92D50018EE5C = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = LogOutline.m;
+			refType = 4;
+		};
+		DA7C50FB041C92D50018EE5C = {
+			fileRef = DA7C50F9041C92D50018EE5C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DA7C50FC041C92D50018EE5C = {
+			fileRef = DA7C50FA041C92D50018EE5C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		DAC72A7304108DB200A80132 = {
 			isa = PBXFileReference;
 			path = "therm-f.png";

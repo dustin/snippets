@@ -21,7 +21,8 @@
     return(rv);
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [lastReadings release];
     [cImage release];
     [fImage release];
@@ -69,7 +70,12 @@ float ctof(float c)
     fImage=to;
 }
 
--(void)setReading:(float)r
+-(bool) readingIsValid: (float)r
+{
+    return( (r>-100) && (r<100) );
+}
+
+-(void)setValidReading:(float)r
 {
     // Normal reading update stuff
     if(reading != r) {
@@ -90,14 +96,14 @@ float ctof(float c)
 
     // Check to see whether we're going up or down
     n=[lastReadings lastObject];
-    // tmp is used to find the directional change from the oldest reading
-    float tmp=[n floatValue] - r;
-    if(tmp<0) {
-        changeState=INCREASING;
-    } else if(tmp>0) {
-        changeState=DECREASING;
-    } else {
-        changeState=STABLE;
+    // Remember the trend (upwards or downwards)
+    trend=r - [n floatValue];
+}
+
+-(void)setReading:(float)r
+{
+    if([self readingIsValid: r]) {
+        [self setValidReading: r];
     }
 }
 
@@ -143,6 +149,57 @@ float ctof(float c)
     return(rv);
 }
 
+-(void)update
+{
+    NSString *s=[[NSString alloc]
+        initWithFormat: @"http://bleu.west.spy.net/therm/Temperature?temp=%@",
+        name];
+    NSURL *u=[[NSURL alloc] initWithString: s];
+    NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
+    [self setReading: [sr floatValue]];
+    [s release];
+    [u release];
+    [sr release];
+}
+
+-(NSArray *)lastReadings
+{
+    return(lastReadings);
+}
+
+//
+// Outline view stuff
+//
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
+{
+    NSLog(@"Asking for child %d of %@", index, item);
+    return(nil);
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
+{
+    return(false);
+}
+
+- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+{
+    NSLog(@"Asking for the number of children of %@", self);
+    return(0);
+}
+
+// Just get the name of the item
+- (id)outlineView:(NSOutlineView *)outlineView
+    objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
+{
+    NSLog(@"Getting the item from the view");
+    return(item);
+}
+
+//
+// Draw
+//
+
 /* Draw the underling thermometer, then some lines over it */
 - (void)drawRect:(NSRect)rect
 {
@@ -154,7 +211,8 @@ float ctof(float c)
 
     // Draw the reading
     NSRect bounds = [self bounds];
-    NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f", [self reading]];
+    NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f",
+        [self reading]];
     NSMutableDictionary * attribs = [NSMutableDictionary dictionary];
 
     // Get the text attributes.
@@ -171,23 +229,22 @@ float ctof(float c)
     [readingStr release];
 
     // Draw the change indicator
-    switch(changeState) {
-        case STABLE:
-            readingStr=@"";
-            break;
-        case INCREASING:
-            readingStr=@"+";
-            break;
-        case DECREASING:
-            readingStr=@"-";
-            break;
+    NSString *fmt=nil;
+    if(trend > 0) {
+        fmt=@"+%.2f";
+    } else if(trend < 0) {
+        fmt=@"%.2f";
+    } else {
+        fmt=@"";
     }
-    [attribs setObject:[NSFont fontWithName:@"Monaco" size:12]
+    readingStr=[[NSString alloc] initWithFormat: fmt, trend];
+    [attribs setObject:[NSFont fontWithName:@"Monaco" size:9]
                 forKey:NSFontAttributeName];
     wordSize=[readingStr sizeWithAttributes: attribs];
     p=NSMakePoint( ((bounds.size.width/2) - (wordSize.width/2)),
                             ((bounds.size.height/2) + (wordSize.height - 6)));
     [readingStr drawAtPoint:p withAttributes:attribs];
+    [readingStr release];
 
     // Now tell it to draw the arm.
     [self drawArm: bounds];

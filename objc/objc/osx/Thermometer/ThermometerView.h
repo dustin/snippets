@@ -4,8 +4,6 @@
 
 #define RING_BUFFER_SIZE 10
 
-typedef enum {STABLE, INCREASING, DECREASING} change_state;
-
 @interface ThermometerView : NSImageView
 {
     float reading;
@@ -15,7 +13,8 @@ typedef enum {STABLE, INCREASING, DECREASING} change_state;
     NSImage *cImage;
     NSImage *fImage;
     NSMutableArray *lastReadings;
-    change_state changeState;
+    float trend;
+    bool _showTrend;
 }
 
 -(void)setReading: (float)r;
@@ -25,5 +24,16 @@ typedef enum {STABLE, INCREASING, DECREASING} change_state;
 -(void)setFarenheit;
 -(void)setCImage: (NSImage *)to;
 -(void)setFImage: (NSImage *)to;
+
+-(NSArray *)lastReadings;
+
+-(void)update;
+
+// For outline views
+- (id)outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item;
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
+- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
+- (id)outlineView:(NSOutlineView *)outlineView
+    objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 
 @end
