@@ -23,7 +23,7 @@ then
 	# mirror will never be out of date.
 	if [ "$ARCH_ARCHIVE" = "dustin@spy.net--projects-2004" ]
 	then
-		lim=`echo $ARCH_REVISION | sed -e 's,--,;,g' | cut -f-2 -d';' | sed 's,;,--,g'`
+		lim=`tla parse-package-name $ARCH_REVISION`
 		hookLog "Replicating $ARCH_ARCHIVE with limit $lim"
 		tla archive-mirror -s $ARCH_ARCHIVE $lim
 	else
