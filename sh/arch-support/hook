@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# arch-tag: 707CFF1C-4162-11D8-A45E-000393CFE6B8
 
 hookLog() {
 	echo "hook:  $@"

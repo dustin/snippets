@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# arch-tag: 511C6C92-4162-11D8-94CE-000393CFE6B8
+
+# Publish from the default archive
+
+if [ $# -lt 2 ]
+then
+	echo "Usage:  $0 revision destdir"
+	exit 1
+fi
+
+archive=`tla my-default-archive`
+loc=`tla whereis-archive $archive`
+rev=$1
+dir=$2
+
+echo "Archive-Name: $archive"
+echo "Archive-Location: $loc"
+echo "Target-Revision: $rev"
+echo "Target-Directory: $dir"
