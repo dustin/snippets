@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.24 1999/10/19 04:25:33 dustin Exp $
+-- $Id: photo.sql,v 1.25 2000/01/01 03:35:45 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -136,7 +136,7 @@ grant all on searches_searches_id_seq to nobody;
 create table image_store (
 	id   integer,
 	line integer,
-	data varchar(76)
+	data text
 );
 
 grant all on image_store to nobody;
