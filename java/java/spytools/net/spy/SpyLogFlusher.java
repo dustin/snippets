@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.1 1999/10/20 02:25:37 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.2 1999/10/20 08:40:34 dustin Exp $
  */
 
 package net.spy;
@@ -47,7 +47,7 @@ public class SpyLogFlusher extends Thread {
 
 		for(;;) {
 			try {
-				// Wait a second before continuing
+				// Wait five seconds before continuing
 				sleep(5000);
 			} catch(Exception e) {
 			} finally {

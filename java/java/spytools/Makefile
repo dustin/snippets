@@ -23,11 +23,11 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 all: spy.jar
 
 spy.jar: $(CLASSES)
-	$(JAR) cv0f $@ net
+	$(JAR) cv0f $@ $(CLASSES)
 
 install: all
 	cp spy.jar $(FDEST)
-	$(SCP) spy.jar $(SDEST)
+	# $(SCP) spy.jar $(SDEST)
 
 clean:
 	rm -f $(CLASSES) spy.jar
