@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.9 1998/07/06 03:29:19 dustin Exp $
+# $Id: DCache.pm,v 1.10 1998/09/18 08:56:39 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -109,7 +109,9 @@ sub printcache
 
 sub printcache_only
 {
-    my($self, $id)=@_;
+    my $self=shift;
+    my $id=shift;
+    my $fd=shift || \*STDOUT;
     my($name, $buf);
 
     $name=getname($self, $id);
@@ -120,7 +122,7 @@ sub printcache_only
 	$_=<DC_IN>;
     }
     while( read(DC_IN, $buf, 1024) ) {
-        print $buf;
+        print $fd $buf;
     }
     print <DC_IN>;
     close(DC_IN);
