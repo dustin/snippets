@@ -34,7 +34,7 @@ AC_ARG_WITH(dict, [  --with-dict             path to dictionary list],
 			exit 1
 		fi
 	])
-dnl AC_DEFINE(DICTIONARY, $DICTIONARY)
+AC_DEFINE_UNQUOTED(DICTIONARY, "$DICTIONARY")
 AC_SUBST(DICTIONARY)
 
 
