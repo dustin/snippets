@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.21 1999/10/02 20:24:42 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.22 1999/10/04 06:32:21 dustin Exp $
  */
 
 import java.io.*;
@@ -962,21 +962,31 @@ public class PhotoServlet extends HttpServlet
 
 		Vector v;
 		int i, which;
+		boolean thumbnail=false;
 		ServletOutputStream out;
-
-		// The new swank image extraction object.
-		PhotoImage p = new PhotoImage(dbs, rhash);
 
 		response.setContentType("image/jpeg");
 		String s = request.getParameter("photo_id");
 		which = Integer.valueOf(s).intValue();
+
+		s=request.getParameter("thumbnail");
+		if(s!=null) {
+			thumbnail=true;
+		}
+
+		// The new swank image extraction object.
+		PhotoImage p = new PhotoImage(which, dbs, rhash);
 
 
 		try {
 			// Need a binary output thingy.
 			out = response.getOutputStream();
 
-			v=p.fetchImage(which);
+			if(thumbnail) {
+				v=p.getThumbnail();
+			} else {
+				v=p.getImage();
+			}
 			logger.log(new PhotoLogImageEntry(remote_uid.intValue(),
 				which, p.wasCached(), request));
 			for(i = 0; i<v.size(); i++) {
