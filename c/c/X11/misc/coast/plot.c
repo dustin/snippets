@@ -41,7 +41,7 @@ float max_lat;
 float min_lng;
 float max_lng;
 int color = 101;
-int verbose=0;
+int verbose = 0;
 
 void
 define_bounds()
@@ -151,27 +151,28 @@ main(int argc, char *argv[])
   long c;
   long x = MAX_X / 2;
   long y = MAX_Y / 2;
+
 #endif
 
 #ifdef X11COMPILE
   XEvent event;
+
 #endif
 
 /*
  * It looks faster if I open the window before I define_bounds()
  */
 
-	if(argc < 2)
-		filename=DEFAULTFILENAME;
-	else
-		filename=argv[1];
+  if (argc < 2)
+    filename = DEFAULTFILENAME;
+  else
+    filename = argv[1];
 
-
-	if((access(filename, R_OK)) != 0)
-	{
-		fprintf(stderr, "Can't open file %s for reading.\n", filename);
-		exit(1);
-	}
+  if ((access(filename, R_OK)) != 0)
+    {
+      fprintf(stderr, "Can't open file %s for reading.\n", filename);
+      exit(1);
+    }
 
 #ifdef X11COMPILE
   init_window();
