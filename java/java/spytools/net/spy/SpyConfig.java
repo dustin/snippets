@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.6 2000/06/20 07:24:47 dustin Exp $
+ * $Id: SpyConfig.java,v 1.7 2000/06/20 07:30:21 dustin Exp $
  */
 
 package net.spy;
@@ -114,7 +114,7 @@ public class SpyConfig extends Hashtable {
 	public int getInt(String key, int def) {
 		String value=get(key);
 		int r=def;
-		if(value==null) {
+		if(value!=null) {
 			r=Integer.parseInt(value);
 		}
 		return(r);
