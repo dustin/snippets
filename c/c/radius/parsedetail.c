@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 2.4 1997/09/22 16:46:02 dustin Exp $
+ * $Id: parsedetail.c,v 2.5 1997/09/22 16:47:10 dustin Exp $
  */
 
 #include <stdio.h>
@@ -135,7 +135,7 @@ void display(void)
 void help(char *me)
 {
     char *p;
-    p="$Version: 2.3$";
+    p="$Revision: 2.5 $";
 
     /* Pull out version info */
     for(; *p!=' '; p++);
