@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: ImageServerImpl.java,v 1.1 1999/11/26 01:00:13 dustin Exp $
+// $Id: ImageServerImpl.java,v 1.2 1999/11/26 05:29:02 dustin Exp $
 
 package net.spy.rmi;
 
@@ -49,7 +49,18 @@ public class ImageServerImpl extends UnicastRemoteObject
 
 	public void storeImage(int image_id, ImageData image)
 		throws RemoteException {
-		throw new RemoteException("storeImage Not implemented.");
+		if(rhash==null) {
+			getRhash();
+			if(rhash==null) {
+				throw new RemoteException("Can't get an RHash connection");
+			}
+		}
+		try {
+			log("Caching an image.");
+			rhash.put("photo_" + image_id, image.image_data);
+		} catch(Exception e) {
+			throw new RemoteException("Error storing image", e);
+		}
 	}
 
 	protected Vector makeThumbnail(ImageData in, int image_id)
