@@ -1,14 +1,28 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: rstat.c,v 1.2 1998/05/14 07:18:56 dustin Exp $
+ * $Id: rstat.c,v 1.3 1998/05/14 15:27:04 dustin Exp $
  */
 
 #include <stdio.h>
 #include <rpcsvc/rstat.h>
 
+#ifndef FSCALE
 #define FSHIFT  8
 #define FSCALE  (1<<FSHIFT)
+#endif
+
+#ifndef CPUSTATES
+# ifndef RSTAT_CPUSTATES
+#  error "I don't know how to determine CPU states"
+# endif
+# define CPUSTATES RSTAT_CPUSTATES
+# define DK_NDRIVE RSTAT_DK_NDRIVE
+# define CP_USER   RSTAT_CPU_USER
+# define CP_NICE   RSTAT_CPU_NICE
+# define CP_SYS    RSTAT_CPU_SYS
+# define CP_IDLE   RSTAT_CPU_IDLE
+#endif
 
 static void printuptime(int secs)
 {
