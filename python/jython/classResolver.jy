@@ -1,0 +1,49 @@
+#!/usr/bin/env jython
+# arch-tag: 22000-0221-4654-08-45340486
+#
+# Try to load classes listed on the commandline and report what all peripheral
+# classes got loaded.
+
+import sys
+import java
+import jarray
+
+class Loader(java.lang.ClassLoader):
+
+    def __init__(self, cl):
+        print "Initializing my class loader"
+        java.lang.ClassLoader.__init__(self, cl)
+        self.loaded=[]
+
+    def findClass(self, name):
+        nm = name.replace('.', '/') + ".class"
+        print "Looking for class " + name + " via " + nm
+        sin=java.lang.ClassLoader.getSystemResourceAsStream(nm)
+        if sin is None:
+            raise java.lang.NoClassDefFoundError(name)
+        rv=self.readData(name, sin)
+        sin.close()
+        self.loaded.append(name)
+        return rv
+
+    def readData(self, name, stream):
+        # Create a buffer for reading up to a 16 MB class
+        maxsize=1024*1024*1
+        rs=0
+        b=jarray.zeros(maxsize, java.lang.Byte.TYPE)
+        size=1
+        while size > 0:
+            size=stream.read(b, rs, maxsize-rs)
+            if size >= 0:
+                rs = rs + size
+        assert rs < maxsize
+        rv=self.super__defineClass(name, b, 0, rs, None)
+        return rv
+
+if __name__ == '__main__':
+    l=Loader(None)
+    c=l.loadClass(sys.argv[1])
+
+    print "Loaded classes:"
+    for cn in l.loaded:
+        print "\t" + str(cn)
