@@ -23,7 +23,7 @@
         [defaults setObject: urlString forKey: @"url"];
     }
     updateInterval=[defaults floatForKey:@"interval"];
-    if(updateInterval < 5.0) {
+    if(updateInterval < 1.0) {
         updateInterval=60.0;
         [defaults setFloat: updateInterval forKey: @"interval"];
     }
@@ -89,12 +89,11 @@
         [ScreenSaverDefaults defaultsForModuleWithName:@"WebSaver"];
 
     urlString=[urlField stringValue];
-    float tmpF=[intervalField floatValue];
-    if(tmpF != updateInterval) {
-        [self setAnimationTimeInterval:tmpF];
-    }
+    updateInterval=[intervalField floatValue];
+    [self setAnimationTimeInterval:updateInterval];
 
     [defaults setObject: urlString forKey:@"url"];
+    [defaults setFloat: updateInterval forKey:@"interval"];
     [defaults synchronize];
     [NSApp endSheet: sheet];
 }
