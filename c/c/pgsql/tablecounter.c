@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: tablecounter.c,v 1.5 2002/02/27 11:13:33 dustin Exp $
+ * $Id: tablecounter.c,v 1.6 2002/02/27 11:14:23 dustin Exp $
  */
 
 #include <stdio.h>
@@ -120,6 +120,7 @@ void backfill(time_t sincewhen, struct checkspec query)
 
 		printResults(query, sincewhen, rv);
 		PQclear(res);
+		res=NULL;
 	}
 
 	finished:
