@@ -6,6 +6,7 @@
 
 open Unix;;
 open Hashtbl;;
+open Map;;
 open List;;
 open Stringutils;;
 open Fileutils;;
@@ -39,14 +40,16 @@ let log_types = ["HB"; "BOOT"; "KICK"; "XMLRPC";];;
 
 (* Log times with time/count/start/end appended *)
 let extended_log_types =
-	List.concat (List.map (function x ->
-		(List.map (function y -> x ^ y) ["time";"count";"start";"end"]))
+	List.concat (List.map (fun x ->
+		(List.map (fun y -> x ^ y) ["time";"count";"start";"end"]))
 		log_types)
 ;;
 
 (* This is the hashtable that will hold the state and stuff *)
 let eventCache=Hashtbl.create 1;;
-let perBlock=Hashtbl.create 1;;
+(* Define a Map with a key of type int *)
+module IntMap = Map.Make(struct type t = int let compare = compare end);;
+let perBlock=ref IntMap.empty;;
 
 (* Parse time from the given timestamp *)
 let parse_time l =
@@ -93,17 +96,17 @@ let get_log_timing le1 le2 =
 let get_block le =
 	try
 		(* Look for the thing that matches this timestamp *)
-		Hashtbl.find perBlock (approx_time le.le_time)
+		IntMap.find (approx_time le.le_time) !perBlock
 	with Not_found ->
 		(* If we didn't have a match, build it all out *)
 		let tmpBlock = Hashtbl.create 1 in
-		List.iter (function x -> Hashtbl.add tmpBlock x {
+		List.iter (fun x -> Hashtbl.add tmpBlock x {
 			pb_time = 0.0;
 			pb_count = 0;
 			pb_start = 0;
 			pb_end = 0;
 			}) log_types;
-		Hashtbl.add perBlock (approx_time le.le_time) tmpBlock;
+		perBlock := IntMap.add (approx_time le.le_time) tmpBlock !perBlock;
 		tmpBlock
 ;;
 
@@ -149,22 +152,21 @@ let process le =
 	| _ -> raise (Invalid_argument le.le_state);
 ;;
 
-let hashtbl_keys h = Hashtbl.fold (fun key _ l -> key :: l) h [];;
-
+(* Print the header for a block *)
 let print_block_header filename =
 	print_string("update " ^ filename ^ " -t ");
 	print_string(String.concat ":" extended_log_types);
 	print_string(" ");
 ;;
 
-let print_entry ts fn =
-	let block = Hashtbl.find perBlock ts in
+(* Print a single block *)
+let print_entry ts block fn =
 	print_block_header fn;
 	print_int(ts);
 	print_string(":");
 	print_string(String.concat ":"
 		(List.concat
-			(List.map (function ltype ->
+			(List.map (fun ltype ->
 				let pb = Hashtbl.find block ltype in
 				[string_of_float pb.pb_time;
 				string_of_int pb.pb_count;
@@ -173,22 +175,22 @@ let print_entry ts fn =
 	print_newline()
 ;;
 
+(* Print out the data we collected in the Map *)
 let print_output filename =
-	List.iter (function e -> print_entry e filename)
-		(List.sort compare (hashtbl_keys perBlock));
+	IntMap.iter (fun k v -> print_entry k v filename) !perBlock
 ;;
 
 (* do it *)
 let main() =
 	let rrd = (Array.get Sys.argv 1) in
 	conditional_fold_lines
-		(function l ->
+		(fun l ->
 			let le = get_log_entry(l) in
 			try
 				process(le);
 			with Not_found -> prerr_endline("Type not found:  " ^ le.le_ttype);
 			)
-		(function l -> (strstr l "TransactionTiming" 40) >= 40)
+		(fun l -> (strstr l "TransactionTiming" 40) >= 40)
 		Pervasives.stdin;
 	print_output rrd;
 ;;

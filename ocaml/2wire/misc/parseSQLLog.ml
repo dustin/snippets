@@ -124,7 +124,7 @@ let error_line(s: string) =
 let process_line rrd servers l =
 	try
 		let le = get_log_entry(l) in
-		let stuff = List.find (function n -> n.db_server = le.server) servers in
+		let stuff = List.find (fun n -> n.db_server = le.server) servers in
 		process_entry rrd stuff le;
 	with
 		Failure("int_of_string") -> error_line(l);
@@ -135,10 +135,10 @@ let process_line rrd servers l =
 (* Do the main thing *)
 let main() =
 	let rrd = (Array.get Sys.argv 1)
-	and servers = List.map (function x -> make_stats x) ["CMS";"LOG";"CAT"] in
+	and servers = List.map (fun x -> make_stats x) ["CMS";"LOG";"CAT"] in
 	conditional_fold_lines
-		(function l -> process_line rrd servers l)
-		(function l -> String.length l > 60
+		(fun l -> process_line rrd servers l)
+		(fun l -> String.length l > 60
 						&& ((String.sub l 36 22) = "database.DBManager.sql"))
 		Pervasives.stdin;
 ;;
