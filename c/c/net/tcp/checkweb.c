@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: checkweb.c,v 1.1 1997/12/19 05:49:55 dustin Exp $
+ * $Id: checkweb.c,v 1.2 1997/12/19 07:22:54 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/checkweb.c,v $
  *
  */
@@ -19,20 +19,34 @@
 #include <assert.h>
 #include <ctype.h>
 
-#define HTMLOUT 0
+/*
+ * It was this or a global variable.  It'll probably change in the future
+ */
+#define HTMLOUT 1
 
+/*
+ * URL request holder.
+ */
 struct url {
     char *host;
     int port;
     char *req;
 };
 
+/*
+ * Status return.
+ */
 struct status {
     int status;
     char *message;
 };
 
+/* Kill Whitey(tm) */
 #define iswhitey(a) (a=='\n' || a=='\r')
+
+/*
+ * Open and return a tcp socket to host:port, -1 if it fails.
+ */
 
 int openhost(char *host, int port)
 {
@@ -64,6 +78,7 @@ int openhost(char *host, int port)
   return (s);
 }
 
+/* What to do when a connection times out.  */
 void timeout(int c)
 {
     alarm(0);
@@ -71,9 +86,13 @@ void timeout(int c)
     return;
 }
 
+/*
+ * Parse a url string into a struct url;
+ * port is -1, and host and req are NULL if it fails.
+ */
 struct url parseurl(char *url)
 {
-    char *host, *req, *tmp;
+    char *tmp;
     struct url u;
     int i, port;
 
@@ -81,45 +100,55 @@ struct url parseurl(char *url)
     u.req=NULL;
     u.port=-1;
 
+    /* We only do http urls */
     if(strncmp(url, "http://", 7) != 0)
-    {
 	return(u);
-    }
 
-    host=url+7;
-    req=host;
-    while(*req && *req!=':' && *req!='/')
-        req++;
+    /* Host is the first thing, after http:// */
+    u.host=strdup(url+7);
 
-    switch(*req)
+    /*
+     * OK, request comes along eventually, so let's mark it as host, and
+     * go from there.  Look for a :, /, or NULL to let us know we're done
+     * with host.
+     */
+    u.req=u.host;
+    while(*u.req && *u.req!=':' && *u.req!='/')
+        u.req++;
+
+    /*
+     * Let's see which one we got.
+     */
+    switch(*u.req)
     {
-        case NULL:
-            req=strdup("/");
+        case NULL:                /* format http://host.domain.com
+            u.req=strdup("/");
             port=80;
             break;
-        case ':':
-            port=atoi(req+1);
+        case ':':                 /* format http://host.domain:port/ */
+            port=atoi(u.req+1);
             assert(port);
-            *req=NULL;
-            req++;
-            while(*req && *req!='/')
-                req++;
-            req=*req?strdup(req) : "/";
+            *u.req=NULL;
+            u.req++;
+            while(*u.req && *u.req!='/')
+                u.req++;
+            u.req=*u.req?strdup(u.req) : "/";
             break;
-        case '/':
+        case '/':                 /* format http://host.domain.com/ */
             port=80;
-            tmp=req;
-            req=strdup(req);
+            tmp=u.req;
+            u.req=strdup(u.req);
             *tmp=NULL;
             break;
     }
 
-    u.host=host;
     u.port=port;
-    u.req=req;
     return(u);
 }
 
+/*
+ * Free any data that might be in a struct url
+ */
 void freeurl(struct url u)
 {
     if(u.host)
@@ -128,12 +157,23 @@ void freeurl(struct url u)
 	free(u.req);
 }
 
+/*
+ * Free any data that might be in a struct status
+ */
 void freestatus(struct status s)
 {
     if(s.message)
 	free(s.message);
 }
 
+/*
+ * Accept a url string, return a struct status.
+ *
+ * A negative status indicates a problem either connecting to the
+ * machine, or a url parse problem.  The message will tell you what,
+ * specifically happened (although it doesn't distinguish between a
+ * timeout, and a connection refused).
+ */
 struct status getstatus(char *url)
 {
     int s, i;
@@ -168,27 +208,83 @@ struct status getstatus(char *url)
     assert(i);
     line[i]=NULL;
 
+    /*
+     * My keen parsing techniques, flip through it with a pointer
+     * to get the status number
+     */
     p=&line[0];
-
     while(*p++ && *p!=' ');
-
     st.status=atoi(p);
 
+    /* Now we want the status message */
     while(*++p && *p!=' ');
 
+    /* Kill Whitey */
     q=p;
     while(*++q && !iswhitey(*q));
     *q=NULL;
-
     st.message=strdup(p+1);
 
+    /* Eat the rest of the page */
     while(i=recv(s, line, 1024, 0))
-    {
 	line[i]=NULL;
-    }
+
     close(s);
     freeurl(u);
     return(st);
+}
+
+/*
+ * Print a status struct
+ */
+void printstatus(char *url, struct status st)
+{
+#if HTMLOUT
+    printf("\t<li><font color=\"#%s\">%d</font> -- "
+	   "<a href=\"%s\">%s</a></li>\n",
+	   st.status==200 ? "007f00" : "ff0000",
+	   st.status,
+	   url, url);
+#else
+    printf("%s:  %d (%s)\n", url, st.status, st.message);
+#endif
+}
+
+/*
+ * This is the function that reads in a # commented file and prints the
+ * status report for every url found in it.  The file should be in the
+ * format of one url per line, blank lines and lines beginning with # are
+ * ignored.
+ */
+void dofile(char *filename)
+{
+    FILE *f;
+    char line[8192];
+    struct status st;
+
+    f=fopen(filename, "r");
+    if(!f)
+    {
+	perror(filename);
+	exit(1);
+    }
+
+    while(fgets(line, 8192, f))
+    {
+	/* KILL WHITEY! */
+	while(*line && isspace(line[strlen(line)-1]))
+	    line[strlen(line)-1]=NULL;
+
+	/* Ignore blank lines and lines beginning with # */
+	if( ! (line[0] == NULL || line[0] == '#'))
+	{
+	    st=getstatus(line);
+	    printstatus(line, st);
+	    freestatus(st);
+	}
+    }
+
+    fclose(f);
 }
 
 void main(int argc, char **argv)
@@ -198,12 +294,5 @@ void main(int argc, char **argv)
     signal(SIGPIPE, SIG_IGN);
     signal(SIGALRM, timeout);
 
-    st=getstatus(argv[1]);
-
-#if HTMLOUT
-    printf("Status is <color tag>%d</color>\n", st.status);
-#else
-    printf("Status was:  %d (%s)\n", st.status, st.message);
-#endif
-    freestatus(st);
+    dofile(argv[1]);
 }
