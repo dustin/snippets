@@ -4,6 +4,7 @@ import javax.swing.*;          //This is the final package name.
 import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import net.spy.temperature.*;
 
@@ -11,18 +12,16 @@ class SwingThermImagePanel extends JPanel {
 	Image image;
 	Font font=null;
 	String which=null;
+	Hashtable hash=null;
 
-	SpyTemp spytemp=null;
-
-	public SwingThermImagePanel(Image image, String which) {
+	public SwingThermImagePanel(Image image, String which, Hashtable hash) {
 		super();
 
 		this.image=image;
 		this.which=which;
+		this.hash=hash;
 
 		font=new Font("SanSerif", Font.PLAIN, 10);
-
-		spytemp=new SpyTemp();
 	}
 
 	public void paintComponent(Graphics g) {
@@ -35,8 +34,8 @@ class SwingThermImagePanel extends JPanel {
 		double temp=0.0;
 
 		try {
-			temp=spytemp.getTemp(which);
-			System.out.println("Got " + temp + " for " + which);
+			Double t=(Double)hash.get(which);
+			temp=t.doubleValue();
 			gotTemp=true;
 		} catch(Exception e) {
 			// Just needed to know
