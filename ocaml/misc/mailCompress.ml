@@ -6,6 +6,11 @@
 
 open Unix;;
 
+type stats_t = {
+	mutable seen: int;
+	mutable modified: int;
+};;
+
 let gz_magic="\031\139";;
 
 let max_age_days = ref 2;;
@@ -15,6 +20,8 @@ let max_age () = (float_of_int !max_age_days) *. 86400.0;;
 let buf_size = 8192;;
 
 let start_time = Unix.time();;
+
+let stats = { seen=0; modified=0; };;
 
 (* True if this is a gzip file *)
 let is_gzip fn =
@@ -99,6 +106,7 @@ let process_file d f =
 		rename tmpname f;
 		chown f st.st_uid st.st_gid;
 		chmod f st.st_perm;
+		stats.modified <- stats.modified + 1;
 	with x ->
 		unlink tmpname;
 		match x with
@@ -110,6 +118,7 @@ let process_file d f =
 
 let process_dir d l a =
 	List.iter (fun fn ->
+		stats.seen <- stats.seen + 1;
 		if (should_process fn) then (process_file d fn))
 		(List.map (fun x -> Filename.concat d x) l)
 ;;
@@ -121,6 +130,14 @@ let walker dir =
 	Fileutils.walk_dir dir process_dir ();
 ;;
 
+let print_stats () =
+	let tms = times() in
+	print_endline("Seen:      " ^ (string_of_int stats.seen));
+	print_endline("Modified:  " ^ (string_of_int stats.modified));
+	print_endline("Usr CPU:   " ^ (string_of_float tms.tms_utime));
+	print_endline("Sys CPU:   " ^ (string_of_float tms.tms_stime));
+;;
+
 (* Basically an argument parser. *)
 let main () =
 	Arg.parse [
@@ -129,6 +146,7 @@ let main () =
 		]
 		walker
 		"Walk the given directories looking for files to compress.";
+	print_stats();
 ;;
 
 (* Start main if we're interactive. *)
