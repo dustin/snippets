@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.19 1999/09/30 06:56:24 dustin Exp $
+-- $Id: photo.sql,v 1.20 1999/09/30 17:48:56 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -149,6 +149,31 @@ create function catsum (integer)
 	'select count(*) from album where cat = $1'
 	language 'SQL';
 
+-- User Agent table, for recording user-agents in logs.
+
+create table user_agent (
+	user_agent_id serial,
+	user_agent text
+);
+
+grant all on user_agent to nobody;
+
+create unique index user_agent_text on user_agent(user_agent);
+
+create function get_agent(text) returns integer as
+'
+declare
+	id integer;
+begin
+	select user_agent_id into id from user_agent where user_agent = $1;
+	if not found then
+		insert into user_agent(user_agent) values($1);
+		select user_agent_id into id from user_agent where user_agent = $1;
+	end if;
+	return(id);
+end;
+' language 'plpgsql';
+
 -- Log image retrievals.
 
 create table photo_log (
@@ -156,7 +181,7 @@ create table photo_log (
 	wwwuser_id integer not null,
 	remote_addr inet not null,
 	server_host text not null,
-	user_agent text,
+	user_agent integer not null,
 	cached boolean not null,
 	ts datetime default (datetime(now()))
 );
@@ -168,12 +193,22 @@ create index photo_log_wwwuser_id on photo_log(wwwuser_id);
 create index photo_log_remote_addr on photo_log(remote_addr);
 
 create view log_user_ip_agent as
-	select wwwusers.username, log.remote_addr, log.user_agent
-		from wwwusers, photo_log log
-	  where wwwusers.id = log.wwwuser_id
+	select wwwusers.username, photo_log.remote_addr, user_agent.user_agent
+		from wwwusers, photo_log, user_agent
+	  where wwwusers.id = photo_log.wwwuser_id and
+		user_agent.user_agent_id = photo_log.user_agent
 ;
 
 grant all on log_user_ip_agent to nobody;
+
+create view log_user_ip_keywords as
+	select wwwusers.username, photo_log.remote_addr, album.keywords
+		from wwwusers, photo_log, album
+	  where wwwusers.id = photo_log.wwwuser_id and
+	    album.id = photo_log.photo_id
+;
+
+grant all on log_user_ip_keywords to nobody;
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
