@@ -1213,7 +1213,7 @@ feature -- Interfacing with C string :
 	 Result := storage.to_pointer;
       ensure
 	 count = old count;
-	 Result.is_not_void
+	 Result.is_not_null
       end;
 
    from_external(p: POINTER) is
@@ -1223,7 +1223,7 @@ feature -- Interfacing with C string :
 	 -- compute the Eiffel `count'. This extra null character
 	 -- is not part of the Eiffel STRING.
       require
-	 p.is_not_void
+	 p.is_not_null
       do
 	 from
 	    storage := storage.from_pointer(p);
@@ -1293,6 +1293,6 @@ invariant
 
    count <= capacity;
 
-   capacity > 0 implies storage.is_not_void;
+   capacity > 0 implies storage.is_not_null;
 
 end -- STRING

@@ -1,6 +1,6 @@
 indexing
 	description: "Todo!";
-	revision: "$Revision: 1.3 $";
+	revision: "$Revision: 1.4 $";
 
 class TODO
 
@@ -256,7 +256,7 @@ feature {NONE}
 			db.set_username("dustin");
 			b:=db.connect;
 		ensure
-			b = true;
+			db.is_connected
 		end
 
 	db: PG;
