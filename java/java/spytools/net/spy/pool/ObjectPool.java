@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.26 2002/07/10 07:36:07 dustin Exp $
+// $Id: ObjectPool.java,v 1.27 2002/08/04 01:08:05 dustin Exp $
 
 package net.spy.pool;
 
@@ -82,6 +82,8 @@ public class ObjectPool extends Object {
 	 *
 	 * @param name The pool to destroy.
 	 * @exception PoolException if there's a problem removing the pool
+	 * @exception NoSuchPoolException if the pool we want to remove doesn't
+	 * 				exist
 	 */
 	public void destroyPool(String name) throws PoolException {
 		synchronized (pools) {
@@ -111,6 +113,7 @@ public class ObjectPool extends Object {
 	 * @return a PooledObject object.
 	 *
 	 * @exception PoolException if it can't get an object
+	 * @exception NoSuchPoolException if there isn't a pool by that name
 	 */
 	public PooledObject getObject(String name) throws PoolException {
 		PooledObject ret=null;
@@ -186,7 +189,7 @@ public class ObjectPool extends Object {
 		synchronized (pools) {
 			ret=(PoolContainer)pools.get(name);
 			if(ret==null) {
-				throw new PoolException("There's no pool called " + name);
+				throw new NoSuchPoolException(name);
 			}
 		}
 		return(ret);

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolConnectionSource.java,v 1.2 2002/08/03 06:43:25 dustin Exp $
+// $Id: ObjectPoolConnectionSource.java,v 1.3 2002/08/04 01:08:03 dustin Exp $
 
 package net.spy.db;
 
@@ -15,15 +15,13 @@ import net.spy.pool.ObjectPool;
 import net.spy.pool.PooledObject;
 import net.spy.pool.PoolException;
 import net.spy.pool.JDBCPoolFiller;
+import net.spy.pool.NoSuchPoolException;
 
 /**
  * Connection source to retrieve connections from an ObjectPool.
  */
 public class ObjectPoolConnectionSource extends Object
 	implements ConnectionSource {
-
-	// Initialization flag.
-	private static boolean initialized=false;
 
 	// This is the object pool from which connections will be retrieved
 	private static ObjectPool pool=null;
@@ -49,21 +47,40 @@ public class ObjectPoolConnectionSource extends Object
 		// Get the pool name
 		poolName=conf.get("dbPoolName");
 
-		// make sure it's initialized
-		if(!initialized) {
+		// If there's no pool at all, it's not initialized.
+		if(pool==null) {
 			initialize(conf);
 		}
 
 		Connection conn=null;
 		try {
 			// Snatch the pebble from my hand.
-			object=pool.getObject(poolName);
-			conn=(Connection)object.getObject();
+			conn=getConn(poolName);
+		} catch(NoSuchPoolException pe) {
+			// If the pool we're looking for doesn't exist, initialize.
+			initialize(conf);
+			try {
+				conn=getConn(poolName);
+			} catch(PoolException e) {
+				e.printStackTrace();
+				throw new SQLException("Could not get a DB connection:  " + pe);
+			}
 		} catch(PoolException pe) {
 			pe.printStackTrace();
 			throw new SQLException("Could not get a DB connection:  " + pe);
 		}
 		return(conn);
+	}
+
+	// Do the pool work.
+	private Connection getConn(String poolName)
+		throws SQLException, PoolException {
+
+		Connection rv=null;
+		object=pool.getObject(poolName);
+		rv=(Connection)object.getObject();
+
+		return(rv);
 	}
 
 	/**
@@ -79,22 +96,18 @@ public class ObjectPoolConnectionSource extends Object
 		throws SQLException {
 
 		synchronized(ObjectPoolConnectionSource.class) {
-			if(!initialized) {
-				// Get a copy of the config, we'll be mangling it a bit
-				SpyConfig conf = (SpyConfig)gConf.clone();
-				if(pool==null) {
-					pool=new ObjectPool(conf);
+			// Get a copy of the config, we'll be mangling it a bit
+			SpyConfig conf = (SpyConfig)gConf.clone();
+			if(pool==null) {
+				pool=new ObjectPool(conf);
+			}
+			if(!pool.hasPool(poolName)) {
+				try {
+					createPool(conf);
+				} catch(PoolException pe) {
+					pe.printStackTrace();
+					throw new SQLException("Error initializing pool:  " + pe);
 				}
-				if(!pool.hasPool(poolName)) {
-					try {
-						createPool(conf);
-					} catch(PoolException pe) {
-						pe.printStackTrace();
-						throw new SQLException("Error initializing pool:  "
-							+ pe);
-					}
-				}
-				initialized=true;
 			}
 		}
 	}
