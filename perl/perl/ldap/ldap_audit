@@ -7,7 +7,7 @@ use Data::Dumper;
 use LDAPSlave;
 
 my $ldap_server = "dhcp-104";
-my @slave_servers=("printer.west.spy.net");
+my @slave_servers=("propaganda.spy.net", "printer.west.spy.net");
 my $base = "dc=spy,dc=net";
 
 my $binddn='uid=dustin,ou=agents,dc=spy,dc=net';
@@ -67,9 +67,9 @@ sub audit {
 			print "Failed on $dn\n";
 		}
 		for $slave (@slaves) {
+			$t = $slave->name();
 			eval {
 				my $slave_data=gettree($slave->ldap(), $dn);
-				$t = $slave->name();
 
 				if($master_data ne $slave_data) {
 					print "!!! $dn is not the same on $t !!!\n";
