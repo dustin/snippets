@@ -39,7 +39,7 @@ let reservedKeys = Hashtbl.create 1;;
 
 (* When we collide, we hand out keys from the top.  This is the highest one
    potentially available to be handed out. *)
-let collisionKey = ref max_int;;
+let nextKey = ref 1;;
 
 (* The meta_inf is the version number followed by a netstring containing the
 	list of fields as netstrings *)
@@ -57,47 +57,6 @@ let makeOutRecord product_line sn ht =
 		ht
 ;;
 
-(* Check for a duplicate generated key. *)
-let checkUsable n plsn =
-	try
-		let found = Hashtbl.find seenIds n in
-		if (plsn = found) then (
-			raise (Duplicate plsn)
-		) else (
-			Printf.eprintf "DUPLICATE AT %d (old: %s, new: %s)\n" n found plsn;
-			false
-		)
-	with Not_found ->
-		Hashtbl.add seenIds n plsn;
-		true
-;;
-
-(* Return an unused key potentially related to the provided suggestion *)
-let resolveKey start plsn =
-	if (checkUsable start plsn) then (
-		start
-	) else (
-		(* Find the largest unused key *)
-		let rec loop n =
-			if checkUsable n plsn then (
-				collisionKey := (n - 1);
-				n
-			) else (
-				loop (n - 1)
-			)
-		in loop !collisionKey
-	)
-;;
-
-(* Generate a box number from a productline/sn pair *)
-let genBoxNum product_line sn =
-	let plsn = (product_line ^ "," ^ sn) in
-	let dig = String.get (Digest.string plsn) in
-	let a,b,c,d =	(Char.code (dig 0)), (Char.code (dig 1)),
-					(Char.code (dig 2)), (Char.code (dig 3)) in
-	resolveKey (abs(a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24))) plsn
-;;
-
 (* Get the box number for the given productline/serial number.  This will
    either be pulled from the reserve DB (if specified), or will be generated.
  *)
@@ -107,7 +66,9 @@ let getBoxNum product_line sn =
 		Hashtbl.find reservedKeys (product_line ^ "," ^ sn)
 	with Not_found ->
 		(* If it's not there, generate one *)
-		genBoxNum product_line sn
+		let rv = !nextKey in
+		nextKey := rv + 1;
+		rv
 ;;
 
 (* Like List.nth, but with a default *)
@@ -162,7 +123,10 @@ let storeRecord db modelMap ts l =
 	match (makeRecord modelMap ts l) with
 	  None -> ()
 	| Some(k,v,ht) ->
-		Printf.printf "%s|%s\n" (Hashtbl.find ht "boxnum") k;
+		let boxnum = (Hashtbl.find ht "boxnum") in
+		Printf.printf "%s|%s\n" boxnum k;
+		(* Add the reverse lookup hint *)
+		Cdb.add db ("r" ^ boxnum) k;
 		Cdb.add db k v
 ;;
 
@@ -217,10 +181,14 @@ let setupReserved path =
 				let parts = List.nth (Extstring.split_all l '|' 3) in
 				let id = int_of_string(parts 0) and sn = parts 1 in
 				Hashtbl.replace reservedKeys sn id;
-				Hashtbl.replace seenIds id sn
+				Hashtbl.replace seenIds id sn;
+				if (id >= !nextKey) then (
+					nextKey := id + 1
+				)
 			with x ->
 				Printf.eprintf "Error on ``%s'':  %s\n" l (Printexc.to_string x)
 		) path;
+	Printf.eprintf "Next key is %d\n" !nextKey
 ;;
 
 (* This is where all the work's done, main *)

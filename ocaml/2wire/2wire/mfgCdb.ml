@@ -101,7 +101,11 @@ let lookup cdbi sn =
 *)
 let iter f cdbi =
 	Cdb.iter (fun k v ->
-		if k <> magic_key then (f (decode_record cdbi k v))
+			(*  Decode this value if it's not the magic key or a reverse
+				mapping *)
+			if k <> magic_key && (String.sub k 0 1) <> "r" then (
+				f (decode_record cdbi k v)
+			)
 		) cdbi.path;
 ;;
 
