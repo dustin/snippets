@@ -1,25 +1,27 @@
 indexing
    description: "Postgres database replication...";
-   version: "$Revision: 1.5 $";
+   version: "$Revision: 1.6 $";
    author: "Dustin Sallings <dustin@spy.net>";
    copyright: "1999";
    license: "See forum.txt.";
+
 class PG_REPLICATE
 -- The replicator
 
 creation {ANY}
    make
 
-feature {NONE}  -- Make is private
+feature {NONE}
+   -- Make is private
 
    make(s, d: PG) is
-	-- Make a PG_REPLICATE object from s to d
-	  require
-		s.is_connected;
-		d.is_connected;
+      -- Make a PG_REPLICATE object from s to d
+      require
+         s.is_connected;
+         d.is_connected;
       do
-		 db_from := s;
-		 db_to := d;
+         db_from := s;
+         db_to := d;
       end -- make
 
 feature {ANY} -- Replication services
@@ -45,8 +47,8 @@ feature {ANY} -- Replication services
 
    rep_table(table: STRING) is
       -- Replicate a table
-	  require
-		table /= Void;
+      require
+         table /= Void;
       local
          a: ARRAY[STRING];
          b: BOOLEAN;
@@ -95,11 +97,12 @@ feature {ANY} -- Replication services
       end -- rep_table
 
    full is
-	-- Full replication of everything we know about.
+      -- Full replication of everything we know about.
       local
          a: ARRAY[STRING];
          i: INTEGER;
       do
+         unindex;
          a := db_from.tables;
          from
             i := a.lower;
@@ -118,10 +121,67 @@ feature {ANY} -- Replication services
             rep_seq(a @ i);
             i := i + 1;
          end;
+         reindex;
       end -- full
 
 feature {NONE}
    -- Private stuff
+
+   unindex is
+      local
+         a, list: ARRAY[STRING];
+         i: INTEGER;
+         q: STRING;
+         b: BOOLEAN;
+      do
+         debug
+            io.put_string("Dropping all indices%N");
+         end;
+         !!q.copy("select * from pg_indexes where tablename not like 'pg_%%'");
+         db_to.query(q);
+         from
+            b := db_to.get_row;
+            !!list.with_capacity(16,16);
+            list.clear;
+         until
+            b = false
+         loop
+            a := db_to.last_row;
+            list.add_last(a @ 1);
+            b := db_to.get_row;
+         end;
+         from
+            i := list.lower;
+         until
+            i > list.upper
+         loop
+            q := "drop index " + list @ i;
+            db_to.query(q);
+            i := i + 1;
+         end;
+      end -- unindex
+
+   reindex is
+      local
+         a: ARRAY[STRING];
+         q: STRING;
+         b: BOOLEAN;
+      do
+         debug
+            io.put_string("Recreating all indices%N");
+         end;
+         !!q.copy("select * from pg_indexes where tablename not like 'pg_%%'");
+         db_from.query(q);
+         from
+            b := db_from.get_row;
+         until
+            b = false
+         loop
+            a := db_from.last_row;
+            db_to.query(a @ 2);
+            b := db_from.get_row;
+         end;
+      end -- reindex
 
    join(with: STRING; a: ARRAY[STRING]): STRING is
       -- Join an array of strings with the given string
