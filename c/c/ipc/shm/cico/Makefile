@@ -1,0 +1,28 @@
+SHELL=/bin/sh
+VERSION_MAJOR=
+VERSION_MINOR=
+VERSION_PATCH=
+VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+DEFINES=-DVERSION=\"$(VERSION)\"
+CFLAGS=-O2 $(DEFINES)
+LIBS=
+LDFLAGS=-s $(LIBS)
+OBJS=
+SOURCES=
+OTHER=
+EXES=
+NAME=
+NAME2=$(NAME)-$(VERSION)
+JUNK=$(OBJS) $(EXES)
+
+all:
+
+dist:
+	@mkdir $(NAME2)
+	@cp Makefile $(SOURCES) $(OTHER) $(NAME2)
+	@tar -czvf $(NAME2).tgz $(NAME2)
+	@rm -rf $(NAME2)
+
+clean:
+	@echo Cleaning up...
+	@rm -f $(JUNK)

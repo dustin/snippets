@@ -1,0 +1,9 @@
+#!/bin/sh
+
+for i in chmod chown
+do
+    w=`which $i`
+
+    echo cc -O2 -DPATH=\""$w"\" -o $i stool.c
+    cc -O2 -DPATH=\""$w"\" -o $i stool.c
+done
