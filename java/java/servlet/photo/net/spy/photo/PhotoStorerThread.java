@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoStorerThread.java,v 1.4 2000/01/01 03:34:42 dustin Exp $
+ * $Id: PhotoStorerThread.java,v 1.5 2000/01/01 03:38:57 dustin Exp $
  */
 
 package net.spy.photo;
@@ -29,7 +29,7 @@ public class PhotoStorerThread extends Thread {
 			+ ", " + line + ", '" + data + "')";
 
 		// Print out the query for debug.
-		System.err.println(query);
+		// System.err.println(query);
 
 		st.executeUpdate(query);
 	}
