@@ -18,7 +18,6 @@ init() ->
 loop(Port, Dict) ->
 	receive
 		{Port, {data, Data}} ->
-			% io:format("Got ~p\n", [Data]),
 			Vals = string:tokens(Data, "\t"),
 			Key  = lists:nth(2, Vals),
 			Val  = list_to_float(lists:nth(3, Vals)),
