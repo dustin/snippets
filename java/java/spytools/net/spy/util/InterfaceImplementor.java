@@ -137,8 +137,15 @@ public class InterfaceImplementor extends Object {
 		return(rv);
 	}
 
-	// Get the method signature
+	// Get the method signature with exceptions
 	private String getSignature(Method method) throws Exception {
+		return(getSignature(method, true));
+	}
+
+	// Get the method signature
+	private String getSignature(Method method, boolean needExceptions)
+		throws Exception {
+
 		String ret="";
 
 		// Get the modifiers
@@ -168,7 +175,14 @@ public class InterfaceImplementor extends Object {
 		}
 		// Get rid of the last comma and add a paren
 		ret+=") ";
+		if(needExceptions) {
+			ret+=getExSignature(method);
+		}
+		return(ret.trim());
+	}
 
+	private String getExSignature(Method method) throws Exception {
+		String ret="";
 		// Now flip through the exceptions
 		Class e[]=method.getExceptionTypes();
 		if(e.length>0) {
@@ -228,7 +242,9 @@ public class InterfaceImplementor extends Object {
 		// If we can throw an exception, do so.
 		if(e.length>0) {
 			ret+="\t\tthrow new "
-				+ e[0].getName() + "(\"Not Implemented yet.\");\n";
+				+ e[0].getName() + "(\""
+				+ getSignature(method, false)
+				+ " not implemented yet.\");\n";
 		} else {
 			// OK, let's check the return value...
 			Class rt=method.getReturnType();
