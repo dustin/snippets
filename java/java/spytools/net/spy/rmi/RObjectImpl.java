@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: RObjectImpl.java,v 1.4 2000/06/20 07:14:36 dustin Exp $
+// $Id: RObjectImpl.java,v 1.5 2000/06/30 02:27:03 dustin Exp $
 
 package net.spy.rmi;
 
@@ -81,5 +81,15 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 
 	public boolean ping() throws RemoteException {
 		return(true);
+	}
+
+	public static void main(String args[]) throws Exception {
+		if(args.length() < 1) {
+			System.err.println("RCache path not given.");
+			throw new Exception("RCache path not given.");
+		}
+		RObjectImpl obj1 = new RObjectImpl(args[0]);
+		Naming.rebind("RObjectServer", obj1);
+		System.err.println("RObjectServer bound in registry");
 	}
 }
