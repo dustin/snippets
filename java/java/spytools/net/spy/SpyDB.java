@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.41 2002/08/23 17:25:36 dustin Exp $
+ * $Id: SpyDB.java,v 1.42 2002/08/27 18:54:41 dustin Exp $
  */
 
 package net.spy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -118,6 +119,21 @@ public class SpyDB extends Object {
 		Connection conn=getConn();
 		PreparedStatement pst = conn.prepareStatement(query);
 		return(pst);
+	}
+
+	/**
+	 * Prepare a callable statement.
+	 *
+	 * @param query SQL query to prepare for call.
+	 *
+	 * @exception SQLException thrown if something bad happens.
+	 */
+	public CallableStatement prepareCall(String query)
+		throws SQLException {
+
+		Connection conn=getConn();
+		CallableStatement cst = conn.prepareCall(query);
+		return(cst);
 	}
 
 	/**

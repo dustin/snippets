@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.13 2002/08/26 05:39:58 dustin Exp $
+// $Id: DBSP.java,v 1.14 2002/08/27 18:54:43 dustin Exp $
 
 package net.spy.db;
 
@@ -33,9 +33,9 @@ import net.spy.SpyConfig;
 public abstract class DBSP extends SpyCacheDB {
 
 	// The arguments themselves
-	private HashMap args=null;
+	protected HashMap args=null;
 	// The data type of this argument
-	private HashMap types=null;
+	protected HashMap types=null;
 
 	/**
 	 * Required fields and their types.
@@ -53,20 +53,28 @@ public abstract class DBSP extends SpyCacheDB {
 	 * Optional fields in order.
 	 */
 	private ArrayList optionalInorder=null;
+	/**
+	 * Output fields and their types.
+	 */
+	protected HashMap output=null;
+	/**
+	 * Output fields in order.
+	 */
+	protected ArrayList outputInorder=null;
 
 	// SP name
-	private String spname=null;
+	protected String spname=null;
 
 	// Caching info
-	private long cachetime=0;
+	protected long cachetime=0;
 
-	private boolean debug=false;
+	protected boolean debug=false;
 
 	// The query
-	private String query=null;
+	protected String query=null;
 
 	// My prepared statement
-	private PreparedStatement pst=null;
+	protected PreparedStatement pst=null;
 
 	/**
 	 * Get a new DBSP object with a given config.
@@ -90,8 +98,10 @@ public abstract class DBSP extends SpyCacheDB {
 		this.types=new HashMap();
 		this.required=new HashMap();
 		this.optional=new HashMap();
+		this.output=new HashMap();
 		this.requiredInorder=new ArrayList();
 		this.optionalInorder=new ArrayList();
+		this.outputInorder=new ArrayList();
 	}
 
 	/**
@@ -193,10 +203,27 @@ public abstract class DBSP extends SpyCacheDB {
 	protected void setOptional(String name, int type) throws SQLException {
 		Object tmp=optional.put(name, new Integer(type));
 		if(tmp!=null) {
-			throw new SQLException("required parameter ``"
+			throw new SQLException("optional parameter ``"
 				+ name + "'' already provided.");
 		}
 		optionalInorder.add(name);
+	}
+
+	/**
+	 * Define a field to be output.
+	 *
+	 * @param name the name of the field
+	 * @param type the type
+	 * @throws SQLException if the type has already been added
+	 * @see java.sql.Types
+	 */
+	protected void setOutput(String name, int type) throws SQLException {
+		Object tmp=output.put(name, new Integer(type));
+		if(tmp!=null) {
+			throw new SQLException("output parameter ``"
+				+ name + "'' already provided.");
+		}
+		outputInorder.add(name);
 	}
 
 	/**
@@ -213,6 +240,9 @@ public abstract class DBSP extends SpyCacheDB {
 			args.put(which, what);
 			types.put(which, new Integer(type));
 		} else { // it was a null object
+			if (debug) {
+				System.err.println("Adding a null type for ``"+which+"''");
+			}
 			DBNull n=new DBNull(type);
 			args.put(which, n);
 			types.put(which, new Integer(Types.NULL));
@@ -235,7 +265,9 @@ public abstract class DBSP extends SpyCacheDB {
 			System.err.println("Checking");
 			System.err.println("Required:  "+ required);
 			System.err.println("Optional:  "+ optional);
+			System.err.println("Output:  "+ output);
 			System.err.println("Args:  "+ args);
+			System.err.println("Types:  "+ types);
 		}
 
 		// First, verify all of the arguments we have are correctly typed.
@@ -267,6 +299,16 @@ public abstract class DBSP extends SpyCacheDB {
 
 			// Check optional type
 			typei=(Integer)optional.get(key);
+			if(typei!=null) {
+				Integer mytype=(Integer)types.get(key);
+				if(! typei.equals(mytype)) {
+					throw new SQLException("Invalid type for arg " + key);
+				}
+				checked=true;
+			}
+
+			// Check output type
+			typei=(Integer)output.get(key);
 			if(typei!=null) {
 				Integer mytype=(Integer)types.get(key);
 				if(! typei.equals(mytype)) {
@@ -328,6 +370,7 @@ public abstract class DBSP extends SpyCacheDB {
 		String query=querySb.toString().trim();
 
 		// Get a prepared statement, varies whether it's cachable or not.
+		// XXX: This duplicates what goes on in applyArgs()
 		if(cachetime>0) {
 			pst=prepareStatement(query, cachetime);
 		} else {
@@ -368,6 +411,15 @@ public abstract class DBSP extends SpyCacheDB {
 				if(o!=null) {
 					String val=o.toString();
 					System.err.println("\t" + key + "=" + val);
+				}
+			}
+
+			for(Iterator e=outputInorder.iterator(); e.hasNext(); ) {
+				String key=(String)e.next();
+				Object o=args.get(key);
+				if(o!=null) {
+					String val=o.toString();
+					System.err.println("\t" + key + "=" + val + " output");
 				}
 			}
 
@@ -537,6 +589,22 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
+	 * Set field <i>which</i> to the value a1 of the type java.lang.Integer
+	 *
+	 * @param which which field to set
+	 * @param a1 the value to set
+	 *
+	 * @exception SQLException if there's an error setting this argument.
+	 */
+	public void set(String which,Integer a1)
+		throws SQLException {
+		if (debug) {
+			System.err.println("Adding Integer->INTEGER for "+which);
+		}
+		setArg(which, a1, Types.INTEGER);
+	}
+
+	/**
 	 * Set field <i>which</i> to the value a1 of the type int
 	 *
 	 * @param which which field to set
@@ -585,10 +653,13 @@ public abstract class DBSP extends SpyCacheDB {
 	 *
 	 * @exception SQLException if there's an error setting this argument.
 	 */
+	/*
 	public void set(String which,java.lang.Object a1)
 		throws SQLException {
+		System.err.println("Setting OTHER for "+which);
 		setArg(which, a1, Types.OTHER);
 	}
+	*/
 
 	/**
 	 * Set field <i>which</i> to the value a1 of the type short
@@ -626,6 +697,9 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	public void set(String which,java.lang.String a1)
 		throws SQLException {
+		if (debug) {
+			System.err.println("Adding String->VARCHAR for "+which);
+		}
 		setArg(which, a1, Types.VARCHAR);
 	}
 
@@ -673,6 +747,16 @@ public abstract class DBSP extends SpyCacheDB {
 	 */
 	public List getOptionalArgs() {
 		return(Collections.unmodifiableList(optionalInorder));
+	}
+
+	/**
+	 * Get the names of all output arguments.
+	 *
+	 * @return a List of Strings representing the output arguments in the
+	 * order in which they will be passed into the query
+	 */
+	public List getOutputArgs() {
+		return(Collections.unmodifiableList(outputInorder));
 	}
 
 	/**

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.13 2002/08/26 06:08:21 dustin Exp $
+// $Id: SPGen.java,v 1.14 2002/08/27 18:54:45 dustin Exp $
 
 package net.spy.util;
 
@@ -28,11 +28,12 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.13 $";
+	private String version="$Revision: 1.14 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
 	private ArrayList optional=null;
+	private ArrayList output=null;
 	private ArrayList results=null;
 
 	/**
@@ -46,6 +47,7 @@ public class SPGen extends Object {
 		sqlquery=new ArrayList();
 		required=new ArrayList();
 		optional=new ArrayList();
+		output=new ArrayList();
 		results=new ArrayList();
 	}
 
@@ -62,6 +64,7 @@ public class SPGen extends Object {
 		    + "// Written by Dustin's SQL generator version " + version +"\n"
 			+ "//\n"
 			+ "// $" + "Id" + "$\n");
+		out.flush();
 
 		// Package info
 		out.println("package " + pkg + ";\n");
@@ -87,6 +90,12 @@ public class SPGen extends Object {
 			+ " *");
 		if(superclass.equals("DBSP")) {
 			out.println(" * <b>Procedure Name</b>\n"
+				+ " *\n"
+				+ " * <ul>\n"
+				+ " *  <li>" + procname + "</li>\n"
+				+ " * </ul>");
+		} else if (superclass.equals("DBCP")) {
+			out.println(" * <b>Callable Name</b>\n"
 				+ " *\n"
 				+ " * <ul>\n"
 				+ " *  <li>" + procname + "</li>\n"
@@ -139,12 +148,34 @@ public class SPGen extends Object {
 			+ " * <p>\n"
 			+ " *");
 
+		if (superclass.equals("DBCP")) {
+			// Output parameters
+			out.println(" *\n"
+				+ " * <b>Output Parameters</b>\n"
+				+ " * <ul>");
+			if(output.size()==0) {
+				out.println(" *  <li><i>none</i></li>");
+			} else {
+				for(Iterator i=output.iterator(); i.hasNext(); ) {
+					Parameter p=(Parameter)i.next();
+					out.println(" * <li>" + p.getName() + " - "
+						+ "{@link java.sql.Types#" + p.getType() + " "
+							+ p.getType() + "}\n * "
+						+ " - " + p.getDescription() + "</li>");
+				}
+			}
+			out.println(" * </ul>\n"
+				+ " *\n"
+				+ " * <p>\n"
+				+ " *");
+		}
+
 		// end the class documentation comment
 		out.println(" */");
 
 		// Actual code generation
 		out.println("public class " + classname + " extends "
-			+ superclass + " {\n");
+		+ superclass + " {\n");
 
 		// Constructor documentation
 		out.println("\t/**\n"
@@ -183,7 +214,7 @@ public class SPGen extends Object {
 		// Initializer
 		out.println("\tprivate void spinit() throws SQLException {");
 		// Figure out whether we're a DBSP or a DBSQL
-		if(superclass.equals("DBSP")) {
+		if(superclass.equals("DBSP") || superclass.equals("DBCP")) {
 			out.println("\t\t// Set the stored procedure name\n"
 				+ "\t\tsetSPName(\"" + procname + "\");");
 		} else {
@@ -203,9 +234,18 @@ public class SPGen extends Object {
 		// Set the optional parameters
 		if(optional.size() > 0) {
 			out.println("\n\t\t// Set the optional parameters.");
-			for(Iterator i=required.iterator(); i.hasNext(); ) {
+			for(Iterator i=optional.iterator(); i.hasNext(); ) {
 				Parameter p=(Parameter)i.next();
 				out.println("\t\tsetOptional(\"" + p.getName() + "\", "
+					+ "Types." + p.getType() + ");");
+			}
+		}
+		// Set the output parameters
+		if(output.size() > 0) {
+			out.println("\n\t\t// Set the output parameters.");
+			for(Iterator i=output.iterator(); i.hasNext(); ) {
+				Parameter p=(Parameter)i.next();
+				out.println("\t\tsetOutput(\"" + p.getName() + "\", "
 					+ "Types." + p.getType() + ");");
 			}
 		}
@@ -284,10 +324,17 @@ public class SPGen extends Object {
 					} else if(section.equals("procname")) {
 						procname+=tmp;
 						superclass="DBSP";
+					} else if(section.equals("callable")) {
+						procname+=tmp;
+						superclass="DBCP";
 					} else if(section.equals("params")) {
 						Parameter param=new Parameter(tmp);
 						if(param.isRequired()) {
-							required.add(param);
+							if (!param.isOutput()) {
+								required.add(param);
+							} else {
+								output.add(param);
+							}
 						} else {
 							optional.add(param);
 						}
@@ -314,6 +361,7 @@ public class SPGen extends Object {
 		private boolean required=false;
 		private String type=null;
 		private String description=null;
+		private boolean output=false;
 
 		public Parameter(String line) throws Exception {
 			super();
@@ -342,8 +390,13 @@ public class SPGen extends Object {
 
 			if(tmp.equals("required")) {
 				required=true;
+				output=false;
 			} else if(tmp.equals("optional")) {
 				required=false;
+				output=false;
+			} else if(tmp.equals("output")) {
+				required=true;
+				output=true;
 			} else {
 				throw new Exception(
 					"Parameter must be required or optional, not "
@@ -385,6 +438,10 @@ public class SPGen extends Object {
 
 		public boolean isRequired() {
 			return(required);
+		}
+
+		public boolean isOutput() {
+			return(output);
 		}
 	}
 
