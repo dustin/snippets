@@ -61,8 +61,6 @@ main(int argc, char *argv[])
 			perror("recvfrom");
 			exit(1);
 		}
-		/* Gotta terminate this properly */
-		msgbuf[nbytes]=0x00;
-		printf("%s\n", msgbuf);
+		puts(msgbuf);
 	}
 }
