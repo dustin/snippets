@@ -21,7 +21,6 @@ feature {ANY} -- Constructors
             -- d:=decode(e);
             -- io.put_string(d);
             -- io.put_string("%N");
-
       end -- make
 
 feature {ANY} -- Actual encode/decode stuff
@@ -204,10 +203,10 @@ feature {NONE}
    init_const is
       -- Set up some constants, can't find a better way.
       once
-         lasttwo := truncate(("00000011").binary_to_integer.to_bit);
-         lastfour := truncate(("00001111").binary_to_integer.to_bit);
-         lastsix := truncate(("00111111").binary_to_integer.to_bit);
-         firsttwo := truncate(("11000000").binary_to_integer.to_bit);
+		 lasttwo:= ("00000011").binary_to_integer.to_character.to_bit;
+		 lastfour:= ("00001111").binary_to_integer.to_character.to_bit;
+		 lastsix:= ("00111111").binary_to_integer.to_character.to_bit;
+		 firsttwo:= ("11000000").binary_to_integer.to_character.to_bit;
       end -- init_const
 
    lasttwo: BIT 8;
