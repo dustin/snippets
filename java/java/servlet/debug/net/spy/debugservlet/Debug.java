@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Debug.java,v 1.1 2000/07/26 08:49:04 dustin Exp $
+ * $Id: Debug.java,v 1.2 2000/07/26 09:07:54 dustin Exp $
  */
 
 package net.spy.debugservlet;
@@ -74,9 +74,16 @@ public class Debug extends HttpServlet
 		out.println(stuff);
 		System.getProperties().list(out);
 
-		stuff ="-------------- Threads ---------------\n";
+		stuff ="----------- Runtime Info -------------\n";
+		Runtime r=Runtime.getRuntime();
+		stuff+="Total memory in JVM:  " + r.totalMemory() + "\n";
+		stuff+="Free memory in JVM:   " + r.freeMemory() + "\n";
+		stuff+="--------------------------------------\n";
+
+		stuff+="-------------- Threads ---------------\n";
 		stuff+=dumpThreads();
 		stuff+="--------------------------------------\n";
+
 		out.println(stuff);
 
 		out.close();
