@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: msgscore,v 1.2 1997/10/19 08:26:35 dustin Exp $
+# $Id: msgscore,v 1.3 1997/10/19 20:59:12 dustin Exp $
 #
 # Use customer mappings to figure out who pays for a given message.
 
@@ -49,7 +49,9 @@ sub scoremsg
        $i=$_ if($scores[$_]>$i);
     }
 
-    return($i);
+    return($i, $scores[$i]);
 }
 
-print "Looks like that belongs to " . &scoremsg($ARGV[0]) . ".\n";
+($who, $score)=&scoremsg($ARGV[0]);
+
+print "Looks like it belongs to $who, score was $score\n";
