@@ -1,11 +1,13 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: stringlib.scm,v 1.1 2002/12/27 23:24:52 dustin Exp $
+; $Id: stringlib.scm,v 1.2 2002/12/28 03:15:26 dustin Exp $
 
 (module stringlib
 		(export
 		  string-split-chars
-		  string-split))
+		  string-split
+		  strstr
+		  string-remove-chars))
 
 ; Skip characters in s that contain one of the letters in l starting at
 ; position i
@@ -20,6 +22,7 @@
 	  i)))
 
 ; Find the index of any of the given characters in the given string
+; Return false if the character cannot be found.
 ; Example:
 ; (string-index-of-one "this is a test" '(#\space) 0) -> 4
 (define (string-index-of-one s l i)
@@ -27,7 +30,7 @@
 	(if (memq (string-ref s i) l)
 	  i
 	  (string-index-of-one s l (+ 1 i)))
-	-1))
+	#f))
 
 ; Recursively split a string on a set of characters
 ; Example:
@@ -39,7 +42,7 @@
 		(< i (string-length str)))
 	(begin
 	  (let ((pos (string-index-of-one str l i)))
-		(if (not (= pos -1))
+		(if pos
 		  (string-split-chars-rec
 			(append rv (list (substring str i pos)))
 			str l (skip-chars str l pos) limit)
@@ -47,6 +50,25 @@
 	(if (< i (string-length str))
 	  (append rv (list (substring str i (string-length str))))
 	  rv)))
+
+; search for a needle in a haystack
+; return false if the needle is not in the haystack
+(define (strstr haystack needle offset)
+  (if (> (+ offset (string-length needle)) (string-length haystack))
+	#f
+	(if (string=? needle (substring haystack offset
+									(+ offset (string-length needle))))
+	  offset
+	  (strstr haystack needle (+ 1 offset)))))
+
+; Remove any characters that appear in list l from string str
+; Example
+; (string-remove-chars "Blah blah blah  blah" '(#\space))
+;    -> "Blahblahblahblah"
+(define (string-remove-chars str l)
+  (list->string
+	(filter (lambda (c) (not (memq c l)))
+			(string->list str))))
 
 ; Split a string on the given set of characters
 ; Example:
