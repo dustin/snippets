@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cron.java,v 1.4 2001/04/04 08:45:17 dustin Exp $
+// $Id: Cron.java,v 1.5 2001/04/04 09:15:19 dustin Exp $
 
 package net.spy.cron;
 
@@ -51,21 +51,30 @@ public class Cron extends Thread {
 			// Find the soonest job less than a day out.
 			long soonestJob=86400*1000;
 			long now=System.currentTimeMillis();
+			Date next=null;
 			// Figure out how long we need to sleep.
 			for(Enumeration e=jq.elements(); e.hasMoreElements(); ) {
 				Job j=(Job)e.nextElement();
 				long t=j.getStartTime().getTime()-now;
 				if(t>0 && t<soonestJob) {
 					soonestJob=t;
-				}
-				if(t<0) {
-					// If there's one less than 0, only wait a second.
-					soonestJob=1000;
+					next=j.getStartTime();
 				}
 			}
 
+			// If we didn't get a next job start date, sleep a second.
+			if(next==null) {
+				soonestJob=1000;
+			}
+
 			try {
-				System.err.println("CRON: Sleeping " + soonestJob + "ms.");
+				if(next!=null) {
+					System.err.println("CRON: Sleeping "
+						+ soonestJob + "ms (next job at " + next + ").");
+				} else {
+					System.err.println("CRON: Sleeping "
+						+ soonestJob + "ms (no good date found).");
+				}
 				synchronized(jq) {
 					jq.wait(soonestJob);
 				}
