@@ -1,10 +1,12 @@
 # Copyright(c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.3 1998/10/01 18:05:11 dustin Exp $
+# $Id: Makefile.in,v 1.4 1998/10/03 06:21:08 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
 YACC=@YACC@
 LEX=@LEX@
+AR=@AR@ rc
+RANLIB=@RANLIB@
 LINT=@LINT@
 INCLUDES=-I@top_srcdir@ -I@top_srcdir@/readconfig
 CFLAGS=@CFLAGS@ $(INCLUDES)
@@ -12,13 +14,17 @@ CFLAGS=@CFLAGS@ $(INCLUDES)
 LIBS=@top_srcdir@/readconfig/readconfig.a @LIBS@
 LDFLAGS=@LDFLAGS@ $(LIBS)
 
-OBJS=main.o nettools.o sockets.o utility.o hash.o md5.o mymalloc.o
-SRCS=main.c nettools.c sockets.c utility.c hash.c md5.c mymalloc.c
+OBJS=nettools.o sockets.o utility.o hash.o md5.o mymalloc.o mbk.o
+SRCS=nettools.c sockets.c utility.c hash.c md5.c mymalloc.c mbk.c
 
 all: mbkd
 
-mbkd: $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+mbkd: libmbk.a main.o
+	$(CC) -o $@ main.o libmbk.a $(LDFLAGS)
+
+libmbk.a: $(OBJS)
+	$(AR) $@ $(OBJS)
+	$(RANLIB) $@
 
 clean:
-	rm -f $(OBJS) mbkd
+	rm -f $(OBJS) mbkd libmbk.a

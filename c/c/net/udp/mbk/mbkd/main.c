@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.5 1998/10/02 07:02:28 dustin Exp $
+ * $Id: main.c,v 1.6 1998/10/03 06:21:10 dustin Exp $
  */
 
 #include <config.h>
@@ -94,78 +94,6 @@ detach(void)
 	umask(7);
 }
 
-struct hashtable *
-parsepacket(struct mbk *mbk_packet)
-{
-	char  buf[MAXPACKETLEN];
-	char  **stuff, **kv;
-	int     i;
-
-	if(strlen(mbk_packet->data)>MAXPACKETLEN) {
-		log_msg("Invalid packet, too long (%d bytes) at %s:%d",
-		        strlen(mbk_packet->data), __FILE__, __LINE__);
-	    return(NULL);
-	}
-
-	strcpy(buf, mbk_packet->data);
-
-	mbk_packet->hash = hash_init(HASHSIZE);
-	if (mbk_packet->hash == NULL) {
-		return (NULL);
-	}
-	stuff = split(':', buf);
-	for (i = 0; stuff[i]; i++) {
-		kv = split('=', stuff[i]);
-		hash_store(mbk_packet->hash, kv[0], kv[1]);
-		freeptrlist(kv);
-	}
-
-	freeptrlist(stuff);
-
-	return (mbk_packet->hash);
-}
-
-int
-verify_auth(struct mbk mbk_packet)
-{
-    MD5_CTX md5;
-	char calc[16], buf[MAXPACKETLEN];
-	char *p;
-	struct hash_container *h;
-
-	if(strlen(mbk_packet.data)>MAXPACKETLEN) {
-		log_msg("Invalid packet, too long (%d bytes) at %s:%d",
-		        strlen(mbk_packet.data), __FILE__, __LINE__);
-	    return(-1);
-	}
-
-	strcpy(buf, mbk_packet.data);
-	p=buf;
-	p=strrchr(p, ':');
-	assert(p);
-	*p=0;
-
-	MD5Init(&md5);
-	MD5Update(&md5, AUTHDATA, strlen(AUTHDATA));
-	MD5Update(&md5, buf, strlen(buf));
-	MD5Final(calc, &md5);
-
-	h=hash_find(mbk_packet.hash, "auth");
-	if(h==NULL) {
-		log_msg("Invalid packet, received no auth at %s:%d",
-		        __FILE__, __LINE__);
-	    return(-1);
-	}
-
-	if(strcmp(hexprint(16, calc), h->value)==0) {
-	    log_msg("Verified auth, packet is good.");
-		return(0);
-	} else {
-	    log_msg("Invalid packet, ignoring at %s:%d.", __FILE__, __LINE__);
-		return(-1);
-	}
-}
-
 void
 process_main()
 {
@@ -176,7 +104,7 @@ process_main()
 
 	s = getservsocket_udp(1099);
 
-	for (i=0;;i++) {
+	for (i=0;i<100;i++) {
 		len = sizeof(from);
 
 		stat = recvfrom(s, (char *) &mbk_packet, sizeof(mbk_packet),
@@ -193,7 +121,7 @@ process_main()
 		parsepacket(&mbk_packet);
 		_hash_dump(mbk_packet.hash);
 
-		if(verify_auth(mbk_packet)<0) {
+		if(verify_auth(AUTHDATA, mbk_packet)<0) {
 		    printf("Packet failed auth\n");
 		} else {
 		    printf("Packet passed auth\n");
