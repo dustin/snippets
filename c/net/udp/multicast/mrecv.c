@@ -25,9 +25,11 @@
 void
 usage(const char *prog)
 {
-	fprintf(stderr, "Usage %s [-v] [-g group] [-p port]\n", prog);
+	fprintf(stderr, "Usage %s [-v] [-f] [-g group] [-p port]\n", prog);
 	fprintf(stderr, " default group:  %s\n", HELLO_GROUP);
 	fprintf(stderr, " default port:   %d\n", HELLO_PORT);
+	fprintf(stderr, " -v turns on verbose mode\n");
+	fprintf(stderr, " -f flushes stdout after every packet\n");
 	exit(1);
 }
 
@@ -36,13 +38,14 @@ main(int argc, char *argv[])
 {
 	struct sockaddr_in addr;
 	int             fd=0, nbytes=0, addrlen=0, reuse=1, c=0, verbose=0;
+	int             shouldflush=0;
 	struct ip_mreq  mreq;
 	char            msgbuf[MSGBUFSIZE];
 	char           *group=HELLO_GROUP;
 	int             port=HELLO_PORT;
 
 	/* Parse the args */
-	while((c=getopt(argc, argv, "g:p:v")) != -1) {
+	while((c=getopt(argc, argv, "g:p:fv")) != -1) {
 		switch(c) {
 			case 'g':
 				group=optarg;
@@ -52,6 +55,9 @@ main(int argc, char *argv[])
 				break;
 			case 'v':
 				verbose++;
+				break;
+			case 'f':
+				shouldflush=1;
 				break;
 			default:
 				usage(argv[0]);
@@ -100,5 +106,8 @@ main(int argc, char *argv[])
 		}
 		msgbuf[nbytes]=0x00;
 		printf("%s: %s\n", inet_ntoa(addr.sin_addr), msgbuf);
+		if(shouldflush) {
+			fflush(stdout);
+		}
 	}
 }
