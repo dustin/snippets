@@ -10,8 +10,6 @@ BEGIN
   TITLE "IR Time"
 
   BUTTON "Send Time" ID ctlID_SendButton AT (5 20 AUTO AUTO) USABLE FRAME
-  BUTTON "Enable"  ID ctlID_EnableButton AT (5 35 AUTO AUTO) USABLE FRAME
-  BUTTON "Disable" ID ctlID_DisableButton AT (5 50 AUTO AUTO) USABLE FRAME
 END
 
 ALERT ID alertID_Info

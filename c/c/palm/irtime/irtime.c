@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: irtime.c,v 1.2 2000/08/22 07:36:12 dustin Exp $
+ * $Id: irtime.c,v 1.3 2000/08/22 07:45:41 dustin Exp $
  */
 
 #include <Common.h>
@@ -128,32 +128,6 @@ void do_send()
 	Print("Done\n");
 }
 
-void do_enable()
-{
-	Err e;
-	Print("Enabling...\n");
-	e=ExgRegisterData(myAppId, exgRegTypeID, TimeType);
-	switch(e) {
-		case 0: Print("Success!\n"); break;
-		default:
-			displayExgError(e);
-			break;
-	}
-}
-
-void do_disable()
-{
-	Err e;
-	Print("Disabling...\n");
-	e=ExgRegisterData(myAppId, exgRegTypeID, NULL);
-	switch(e) {
-		case 0: Print("Success!\n"); break;
-		default:
-			displayExgError(e);
-			break;
-	}
-}
-
 static Boolean
 MainFormHandleEvent(EventPtr event)
 {
@@ -169,12 +143,6 @@ MainFormHandleEvent(EventPtr event)
     switch (event->data.ctlEnter.controlID) {
     case ctlID_SendButton:
       do_send();
-      return true;
-    case ctlID_EnableButton:
-      do_enable();
-      return true;
-    case ctlID_DisableButton:
-      do_disable();
       return true;
     }
     break;
@@ -275,6 +243,8 @@ void receiveData(ExgSocketType *exgsocket)
 				alertPopup(msg);
 			}
 		} else {
+			/* It takes about five seconds for all the data stuff to finish */
+			t+=5;
 			TimSetSeconds(t);
 			infoPopup("Set time!");
 		}
