@@ -55,9 +55,11 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/SNPPPoolFiller.class \
 	net/spy/pool/SNPPPoolAble.class
 
+# I couldn't figure out how to get $'s in the variables to work right.
+CACHE_CLASSES=net/spy/cache/SpyCache.class
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
-	net.spy.info net.spy.pool net.spy.log
+	net.spy.info net.spy.pool net.spy.log net.spy.cache
 
 FDEST=/home/dustin/lib/java
 SCP=scp
@@ -65,20 +67,20 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 .SUFFIXES: .java .class .jar
 
-all: $(CLASSES)
+all: $(CLASSES) $(CACHE_CLASSES)
 
 doc: $(CLASSES)
 	$(JAVADOC) -public -d doc $(PACKAGES)
 
 spy.jar: $(CLASSES)
-	$(JAR) cv0f $@ $(CLASSES)
+	$(JAR) cv0f $@ $(CLASSES) net/spy/cache/*class
 
 install: all
 	cp spy.jar $(FDEST)
 	$(SCP) spy.jar $(SDEST)
 
 clean:
-	rm -f $(CLASSES) spy.jar
+	rm -f $(CLASSES) spy.jar net/spy/cache/*class
 
 net/spy/rmi/RObjectImpl_Skel.class: \
 	net/spy/rmi/RObjectImpl.class
