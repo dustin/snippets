@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SpyLogEntry.java,v 1.5 2000/01/25 06:49:53 dustin Exp $
+// $Id: SpyLogEntry.java,v 1.6 2000/04/22 10:29:14 dustin Exp $
 
 package net.spy;
 
@@ -10,7 +10,7 @@ package net.spy;
 
 public class SpyLogEntry extends Object {
 	public SpyLogEntry() {
-		// Do nothing.
+		super();
 	}
 
 	/**

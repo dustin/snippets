@@ -16,7 +16,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/SpyLog.class net/spy/SpyLogEntry.class \
 	net/spy/SpyToker.class net/spy/SpyLogFlusher.class \
 	net/spy/SpyConfigReader.class net/spy/net/SNPP.class \
-	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class \
+	net/spy/net/HTTPFetch.class net/spy/SpyUtil.class net/spy/Syslog.class \
 	net/spy/util/ImageData.class net/spy/rmi/ImageServer.class \
 	net/spy/rmi/ImageServerImpl.class net/spy/rmi/RObject.class \
 	net/spy/rmi/ImageServerImpl_Stub.class \

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: eBay.java,v 1.1 2000/04/03 06:00:46 dustin Exp $
+// $Id: eBay.java,v 1.2 2000/04/22 10:29:16 dustin Exp $
 
 package net.spy.info;
 
@@ -62,7 +62,15 @@ public class eBay extends Info {
 					section++;
 				} else if(lines[i].startsWith("High bid")) {
 					i++;
-					hinfo.put("High bid", lines[i]);
+					// Get rid of the score.
+					int paren=lines[i].indexOf("(");
+					String highbid=null;
+					if(paren>0) {
+						highbid=lines[i].substring(0, paren).trim();
+					} else {
+						highbid=lines[i];
+					}
+					hinfo.put("High bid", highbid);
 					section++;
 				} else if(lines[i].startsWith("Bidding")) {
 					i++;
