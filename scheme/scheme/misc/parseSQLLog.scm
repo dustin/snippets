@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseSQLLog.scm,v 1.4 2002/12/28 06:24:39 dustin Exp $
+; $Id: parseSQLLog.scm,v 1.5 2002/12/28 06:58:31 dustin Exp $
 
 (module parse-sql-log
 	(import
@@ -50,29 +50,30 @@
 ; Grab each line from stdin, pass it to process-line-to-rrd
 (define (process-to-rrd rrdfile)
   (let ( (last-time 0) (total-calls 0) (total-time 0))
-	(input-loop
+	(conditional-input-loop
+	  ; Only give me lines where this is true
+	  (lambda (line) (strstr line "database.DBManager.sql" 20))
+	  ; Then do this to them
 	  (lambda (line)
-		; If this line looks like what we want, process it
-		(if (strstr line "database.DBManager.sql" 20)
-		  (let ((le (get-log-entry line)))
-			; (print-log-entry le)
-			(let ((t (approx-time (log-entry-time le))))
-			  (if (and
-					(not (= t last-time))
-					(not (zero? last-time))
-					(> total-calls 0))
-				(begin
-				  (print-update rrdfile last-time total-calls total-time)
-				  (set! total-calls 0)
-				  (set! total-time 0)))
-			  (if (> (log-entry-calls le) 0)
-				(begin
-				  (set! last-time t)
-				  (set! total-calls (+ 1 total-calls))
-				  (set! total-time
-					(+ total-time (truncate
-									(/ (log-entry-calltime le)
-									   (log-entry-calls le))))))))))))))
+		(let ((le (get-log-entry line)))
+		  ; (print-log-entry le)
+		  (let ((t (approx-time (log-entry-time le))))
+			(if (and
+				  (not (= t last-time))
+				  (not (zero? last-time))
+				  (> total-calls 0))
+			  (begin
+				(print-update rrdfile last-time total-calls total-time)
+				(set! total-calls 0)
+				(set! total-time 0)))
+			(if (> (log-entry-calls le) 0)
+			  (begin
+				(set! last-time t)
+				(set! total-calls (+ 1 total-calls))
+				(set! total-time
+				  (+ total-time (truncate
+								  (/ (log-entry-calltime le)
+									 (log-entry-calls le)))))))))))))
 
 ; main, get the rrd file, and start processing stdin
 (define (main args)
