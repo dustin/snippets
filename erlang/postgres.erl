@@ -19,7 +19,9 @@
 -export([handle_event/3, handle_sync_event/4,
 	handle_info/3, init/1, terminate/3]).
 
--record(pginfo, {host,port,user,pass,db,socket}).
+-record(conninfo, {host,port,user,pass,db}).
+-record(cancelinfo, {cpid,ckey}).
+-record(pginfo, {conninfo,cancelinfo,socket,sstat}).
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Client functions
@@ -72,8 +74,10 @@ init([Host,Port,User,Database]) ->
 		"user", binary_to_list(<<0>>), User, binary_to_list(<<0>>),
 		"database", binary_to_list(<<0>>), Database, binary_to_list(<<0,0>>)]),
 	ok = gen_tcp:send(Socket, makeString(Announcement)),
-	{ok, connected, #pginfo{host=Host, port=Port, user=User,
-		pass="blahblah", db=Database, socket=Socket}}.
+	Conninfo=#conninfo{host=Host, port=Port, user=User,
+	        pass="blahblah", db=Database},
+	{ok, connected, #pginfo{conninfo=Conninfo, socket=Socket,
+		sstat=dict:new()}}.
 
 % Data arriving after authentication
 
@@ -90,7 +94,9 @@ ready_for_query({data_arrived, Type, Extra}, Info) ->
 % Perform MD5 authentication
 perform_auth(auth_md5, Data, connected, Info) ->
 	Salt = lists:nthtail(4, Data),
-	UplusP = conversions:md5_hex(Info#pginfo.pass ++ Info#pginfo.user),
+	Conninfo = Info#pginfo.conninfo,
+	UplusP = conversions:md5_hex(Conninfo#conninfo.pass
+		++ Conninfo#conninfo.user),
 	% io:format("hexed password/user (phase 1):  ~p~n", [UplusP]),
 	Digested = conversions:md5_hex(UplusP ++ Salt),
 	% io:format("digested password (phase 2):  ~p~n", [Digested]),
@@ -118,7 +124,7 @@ handle_packet($R, Length, Data, connected, Info) ->
 		5 -> auth_md5;
 		6 -> auth_scm
 	end,
-	io:format("Got auth request (~p):  ~p bytes:  ~p~n", [Type, Length, Rest]),
+	io:format("Got auth message (~p):  ~p bytes:  ~p~n", [Type, Length, Rest]),
 	perform_auth(Type, Data, connected, Info);
 
 % Errors
@@ -132,18 +138,22 @@ handle_packet($E, Length, Data, State, Info) ->
 handle_packet($K, Length, Data, State, Info) ->
 	{Pid, Key} = getInt32(Data),
 	io:format("Got cancellation key (~p) for pid (~p)~n", [Key, Pid]),
-	{next_state, State, Info};
+	Cancelinfo = #cancelinfo{ckey = Key, cpid = Pid},
+	{next_state, State, Info#pginfo{cancelinfo = Cancelinfo}};
 
 % Ready for query
 handle_packet($Z, Length, Data, State, Info) ->
 	io:format("Ready for query~n", []),
+	io:format("State of the union:  ~p~n", [Info]),
 	{next_state, ready_for_query, Info};
 
 % parameter status
 handle_packet($S, Length, Data, State, Info) ->
 	[Key,Val] = string:tokens(Data, "\0"),
 	io:format(" - ~p = ~p~n", [Key, Val]),
-	{next_state, State, Info};
+	Sstat = Info#pginfo.sstat,
+	MSstat = dict:update(Key, fun(_) -> Val end, Val, Sstat),
+	{next_state, State, Info#pginfo{sstat = MSstat}};
 
 % Any other packet
 handle_packet(Type, Length, Data, State, Info) ->
