@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<project name="pngServlet" default="all">
+
+	<path id="myclasses">
+		<fileset dir="${user.home}/lib/java">
+			<include name="jsdk.jar"/>
+			<include name="acme.jar"/>
+			<include name="spy.jar"/>
+		</fileset>
+		<pathelement path="."/>
+	</path>
+
+	<target name="all">
+		<javac srcdir="." destdir="." debug="on">
+			<classpath refid="myclasses"/>
+			<include name="net/**/*.java"/>
+		</javac>
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="net">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="install" depends="all">
+		<copy todir="/afs/.spy.net/misc/web/java/">
+			<fileset dir=".">
+				<include name="net/**/*.class"/>
+			</fileset>
+		</copy>
+	</target>
+
+</project>
