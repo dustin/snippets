@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.17 1999/05/11 02:37:10 dustin Exp $
+ * $Id: libparselist.c,v 1.18 1999/05/11 07:10:41 dustin Exp $
  */
 
 #include <stdio.h>
@@ -211,7 +211,7 @@ main(int argc, char **argv)
 	_log("Ending main lib loop at %d\n", (int)time(0));
 
 	destroyConfig(config);
-	closelog(); /* I don't think it hurts to do this if it isn't open */
+	closelog();
 
 #ifdef MYMALLOC
 	_mdebug_dump();
