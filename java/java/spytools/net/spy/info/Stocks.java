@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Stocks.java,v 1.1 2000/03/20 06:20:42 dustin Exp $
+// $Id: Stocks.java,v 1.2 2000/03/20 22:42:54 dustin Exp $
 
 package net.spy.info;
 
@@ -41,9 +41,54 @@ public class Stocks extends Object {
 		return(sq);
 	}
 
+	/**
+	 * Get multiple stock quotes given an array of ticker symbols.
+	 *
+	 * @param symbols list of symbols to look up
+	 *
+	 * @exception Exception when there's a problem looking up symbols
+	 */
+	public Hashtable getQuotes(String symbols[]) throws Exception {
+		quotes=new Hashtable();
+		String sym="";
+
+		for(int i=0; i<symbols.length; i++) {
+			// We're only doing five at a time.
+			if( (i%5) ==0) {
+				if(sym.length() > 1) {
+					// trim the last +
+					sym=sym.substring(0, sym.length()-1);
+					addQuotes(sym);
+				}
+				sym="";
+			}
+			sym+= symbols[i] + "+";
+		}
+		// If there are any leftover symbols, trim it and add them.
+		if(sym.length() > 1) {
+			sym=sym.substring(0, sym.length()-1);
+			addQuotes(sym);
+		}
+		return(quotes);
+	}
+
+	protected void addQuotes(String sym) throws Exception {
+		String url="http://quote.yahoo.com/d/quotes.csv?s="
+			+ sym + "&f=sl1d1t1c1ohgv&e=.csv";
+		HTTPFetch f = new HTTPFetch(url);
+		Vector v = f.getLines();
+		for(int j=0; j<v.size(); j++) {
+			StockQuote sq=new StockQuote( (String)v.elementAt(j));
+			quotes.put(sq.getSymbol(), sq);
+		}
+	}
+
+	/**
+	 * Test program, call it with ticker symbols on the commandline.
+	 */
 	public static void main(String args[]) throws Exception {
 		Stocks s=new Stocks();
-		StockQuote sq = s.getQuote(args[0]);
-		System.out.println("Quote:  " + sq);
+		Hashtable q = s.getQuotes(args);
+		System.out.println("Quotes:  " + q);
 	}
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.1 2000/03/20 06:20:41 dustin Exp $
+// $Id: StockQuote.java,v 1.2 2000/03/20 22:42:53 dustin Exp $
 
 package net.spy.info;
 
@@ -17,9 +17,9 @@ public class StockQuote extends Object {
 	protected String date=null;
 	protected String time=null;
 	protected double change=0.0;
-	protected double ask=0.0;
-	protected double bid=0.0;
-	protected double something=0.0;
+	protected double open=0.0;
+	protected double high=0.0;
+	protected double low=0.0;
 	protected int volume=0;
 
 	/**
@@ -60,20 +60,20 @@ public class StockQuote extends Object {
 		tmp+="d";
 		change=Double.valueOf(tmp).doubleValue();
 
-		// ask
+		// open
 		tmp=f[current];    current++;
 		tmp+="d";
-		ask=Double.valueOf(tmp).doubleValue();
+		open=Double.valueOf(tmp).doubleValue();
 
-		// bid
+		// high
 		tmp=f[current];    current++;
 		tmp+="d";
-		bid=Double.valueOf(tmp).doubleValue();
+		high=Double.valueOf(tmp).doubleValue();
 
-		// something
+		// low
 		tmp=f[current];    current++;
 		tmp+="d";
-		something=Double.valueOf(tmp).doubleValue();
+		low=Double.valueOf(tmp).doubleValue();
 
 		// volume
 		tmp=f[current];    current++;
@@ -85,7 +85,11 @@ public class StockQuote extends Object {
 	 */
 	public String toString() {
 		String ret="";
-		ret=symbol + ":  " + price;
+		ret=symbol + ":  " + price + " ";
+		if(change>0.0) {
+			ret+="+";
+		}
+		ret+=change;
 		return(ret);
 	}
 
@@ -125,17 +129,24 @@ public class StockQuote extends Object {
 	}
 
 	/**
-	 * gets the ask price of the stock.
+	 * gets the opening price of the stock.
 	 */
-	public double getAsk() {
-		return(ask);
+	public double getOpen() {
+		return(open);
 	}
 
 	/**
-	 * gets the bid price of the stock.
+	 * gets today's high value of the stock.
 	 */
-	public double getBid() {
-		return(bid);
+	public double getHigh() {
+		return(high);
+	}
+
+	/**
+	 * gets today's low value of the stock.
+	 */
+	public double getLow() {
+		return(low);
 	}
 
 	/**
