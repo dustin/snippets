@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PngServlet.java,v 1.4 2002/05/06 19:48:07 dustin Exp $
+// $Id: PngServlet.java,v 1.5 2002/08/22 07:08:46 dustin Exp $
 
 package net.spy.png;
 
@@ -31,6 +31,7 @@ public class PngServlet extends HttpServlet {
 	 *
 	 * @param width the width of the Image.
 	 * @param height the height of the Image.
+	 * @return the new Image
 	 */
 	protected Image createImage(int width, int height) {
 		BufferedImage bi=new BufferedImage(
@@ -45,6 +46,7 @@ public class PngServlet extends HttpServlet {
 	 * @param request the HTTP Request.
 	 * @param response the HTTP Response.
 	 * @param image the Image to write.
+	 * @throws IOException if there's an error writing the response
 	 */
 	protected void writeImage(HttpServletRequest request,
 		HttpServletResponse response, Image image) throws IOException {
