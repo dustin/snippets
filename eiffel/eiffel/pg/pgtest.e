@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pgtest.e,v 1.4 1999/06/03 18:06:38 dustin Exp $
+-- $Id: pgtest.e,v 1.5 1999/06/03 22:16:36 dustin Exp $
 --
 class PGTEST
 
@@ -14,17 +14,16 @@ feature {ANY}
 
    make is
       local
-         b: BOOLEAN;
          a: ARRAY[STRING];
          i: INTEGER;
+         b: BOOLEAN;
          db: PG;
       do
          !!db.make;
          db.set_dbname("events");
          db.connect;
-
          a := db.tables;
-		 io.put_string("Tables:%N");
+         io.put_string("Tables:%N");
          from
             i := a.lower;
          until
@@ -33,9 +32,8 @@ feature {ANY}
             io.put_string("%T" + a @ i + "%N");
             i := i + 1;
          end;
-
          a := db.sequences;
-		 io.put_string("Sequences:%N");
+         io.put_string("Sequences:%N");
          from
             i := a.lower;
          until
@@ -44,7 +42,28 @@ feature {ANY}
             io.put_string("%T" + a @ i + "%N");
             i := i + 1;
          end;
-
+         io.put_string("Query:%N> ");
+         io.read_line;
+         io.put_string(io.last_string);
+         io.put_string("%N");
+         db.query(io.last_string);
+         from
+            b := db.get_row;
+         until
+            b = false
+         loop
+            a := db.last_row;
+            from
+               i := a.lower;
+            until
+               i > a.upper
+            loop
+               io.put_string(a @ i + "%T");
+               i := i + 1;
+            end;
+            io.put_string("%N");
+            b := db.get_row;
+         end;
       end -- make
 
 end -- class PGTEST

@@ -1,6 +1,6 @@
 indexing
    description: "The Replicator...";
-   version: "$Revision: 1.3 $";
+version: "$Revision: 1.4 $";
 class PG_REPLICATE
 
 creation {ANY}
@@ -58,22 +58,37 @@ feature {ANY} -- Replication services
          io.put_string("Replicating ");
          io.put_string(table);
          io.put_string(".%N");
+         debug
+            io.put_string("Beginning transaction on the to thing.%N");
+         end;
          db_to.begin;
          query := "delete from " + table;
          db_to.query(query);
-         query := "select * from " + table;
+         debug
+            io.put_string("Beginning transaction on the from thing.%N");
+         end;
+         db_from.begin;
+         query := "declare c cursor for select * from " + table;
          db_from.query(query);
          from
-            b := db_from.get_row;
+            db_from.query("fetch 1000 in c");
          until
-            b = false
+            db_from.num_rows < 1
          loop
-            a := db_from.last_row;
-            query := "insert into " + table + " values(" + join(", ",a) + ")";
-            db_to.query(query);
-            b := db_from.get_row;
+            from
+               b := db_from.get_row;
+            until
+               b = false
+            loop
+               a := db_from.last_row;
+               query := "insert into " + table + " values(" + join(", ",a) + ")";
+               db_to.query(query);
+               b := db_from.get_row;
+            end;
+            db_from.query("fetch 1000 in c");
          end;
          db_to.commit;
+         db_from.query("end");
       rescue
          if retry_attempt < max_retry_attempts then
             retry_attempt := retry_attempt + 1;

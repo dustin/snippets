@@ -3,7 +3,7 @@ EC=$(E) compile
 
 RPATH=-rpath /usr/local/pgsql/lib
 
-EFLAGS=-g -I/usr/local/pgsql/include
+EFLAGS=-g -I/usr/local/pgsql/include -debug_check
 LFLAGS=-L/usr/local/pgsql/lib $(RPATH) -lpq
 
 pgtest: pgtest.e pg.e pg_cstuff.c

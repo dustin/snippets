@@ -1,13 +1,13 @@
 indexing
    description: "Postgres database access...";
-version: "$Revision: 1.18 $";
+version: "$Revision: 1.19 $";
 author: "Dustin Sallings <dustin@spy.net>";
 copyright: "1999";
 license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.18 1999/06/03 18:16:39 dustin Exp $
+-- $Id: pg.e,v 1.19 1999/06/03 22:16:32 dustin Exp $
 --
 class PG
 
@@ -27,6 +27,7 @@ feature {ANY}
          current_row := 0;
          !!last_row.make(0,16);
          last_row.clear;
+         conn := nullpointer;
       end -- make
 
    current_row: INTEGER;
@@ -41,28 +42,33 @@ feature {ANY}
          h, p, o, t, d, u, pass: POINTER;
          retry_attempts: INTEGER;
       do
-         if host /= Void then
-            h := host.to_external;
+         if is_not_connected then
+            if host /= Void then
+               h := host.to_external;
+            end;
+            if port /= Void then
+               p := port.to_external;
+            end;
+            if options /= Void then
+               o := options.to_external;
+            end;
+            if tty /= Void then
+               t := tty.to_external;
+            end;
+            if dbname /= Void then
+               d := dbname.to_external;
+            end;
+            if username /= Void then
+               u := username.to_external;
+            end;
+            if password /= Void then
+               pass := password.to_external;
+            end;
+            conn := pg_connect(h,p,o,t,d,u,pass);
+            check
+               pg_connection_ok(conn);
+            end;
          end;
-         if port /= Void then
-            p := port.to_external;
-         end;
-         if options /= Void then
-            o := options.to_external;
-         end;
-         if tty /= Void then
-            t := tty.to_external;
-         end;
-         if dbname /= Void then
-            d := dbname.to_external;
-         end;
-         if username /= Void then
-            u := username.to_external;
-         end;
-         if password /= Void then
-            pass := password.to_external;
-         end;
-         conn := pg_connect(h,p,o,t,d,u,pass);
       ensure
          is_connected;
       rescue
@@ -81,13 +87,13 @@ feature {ANY}
       do
          current_row := 0;
          debug
-            io.put_string("Doing query:  ");
+            io.put_string("PG: Doing query:  ");
             io.put_string(q);
             io.put_string("%N-------------------------%N");
          end;
          res := pg_query(conn,q.to_external);
       ensure
-         has_results;
+         query_successful;
       rescue
          if retry_attempts < max_retry_attempts then
             retry_attempts := retry_attempts + 1;
@@ -95,35 +101,13 @@ feature {ANY}
          end;
       end -- query
 
-   get_row: BOOLEAN is
-      -- Get the next row of data back, returns false if there's no more data
+   num_rows: INTEGER is
+      -- Number of rows returned from the last query
       require
          has_results;
-      local
-         i, fields: INTEGER;
-         s: STRING;
-         p: POINTER;
       do
-         if current_row >= pg_ntuples(res) then
-            res := nullpointer;
-            Result := false;
-         else
-            from
-               fields := pg_nfields(res);
-               last_row.clear;
-               i := 0;
-            until
-               i >= fields
-            loop
-               p := pg_intersect(res,current_row,i);
-               !!s.from_external(p);
-               last_row.add_last(s);
-               i := i + 1;
-            end;
-            current_row := current_row + 1;
-            Result := true;
-         end;
-      end -- get_row
+         Result := pg_ntuples(res);
+      end -- num_rows
 
    quote(s: STRING): STRING is
       -- Quote a string for safety.
@@ -153,6 +137,37 @@ feature {ANY}
          tmp.append("'");
          Result := tmp;
       end -- quote
+
+   get_row: BOOLEAN is
+      -- Get the next row of data back, returns false if there's no more data
+      require
+         has_results;
+      local
+         i, fields: INTEGER;
+         s: STRING;
+         p: POINTER;
+      do
+         if current_row >= num_rows then
+            pg_clear_result(res);
+            res := nullpointer;
+            Result := false;
+         else
+            from
+               fields := pg_nfields(res);
+               last_row.clear;
+               i := 0;
+            until
+               i >= fields
+            loop
+               p := pg_intersect(res,current_row,i);
+               !!s.from_external_copy(p);
+               last_row.add_last(s);
+               i := i + 1;
+            end;
+            current_row := current_row + 1;
+            Result := true;
+         end;
+      end -- get_row
 
 feature {ANY} -- Connection options
 
@@ -234,8 +249,7 @@ feature {ANY} -- Utility
       do
          !!Result.with_capacity(0,16);
          Result.clear;
-         q := "select tablename from pg_tables "
-			+ "where tablename not like 'pg_%%'";
+         q := "select tablename from pg_tables " + "where tablename not like 'pg_%%'";
          query(q);
          from
             b := get_row;
@@ -281,14 +295,28 @@ feature {ANY} -- status
    is_connected: BOOLEAN is
       -- Find out if we're connected.
       do
-         Result := conn /= Void;
+         Result := conn.is_not_null;
       end -- is_connected
+
+   is_not_connected: BOOLEAN is
+      -- Find out if we're not connected (shortcut)
+      do
+         Result := not is_connected;
+      end -- is_not_connected
 
    has_results: BOOLEAN is
       -- Find out if we have results
       do
-         Result := res /= Void;
+         Result := res.is_not_null;
       end -- has_results
+
+   query_successful: BOOLEAN is
+      -- Find out if the query was successful
+      require
+         has_results;
+      do
+         Result := pg_command_ok(res) or pg_tuples_ok(res);
+      end -- query_successful
 
 feature {PG} -- Internal data stuff
 
@@ -329,22 +357,77 @@ feature {PG} -- Destructor
 
    dispose is
       do
-         -- io.put_string("***** Calling destructor%N");
          if conn /= Void then
-            -- io.put_string("Closing database connection!%N");
+            debug
+               io.put_string("PG: Closing database connection.%N");
+            end;
             pg_finish(conn);
             conn := nullpointer;
          end;
       end -- dispose
 
-feature {PG}
+feature {PG} -- Constants from pq
+
+   pg_connection_ok(c: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_connection_ok
+
+   pg_connection_bad(c: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_connection_bad
+
+   pg_empty_query(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_empty_query
+
+   pg_command_ok(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_command_ok
+
+   pg_tuples_ok(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_tuples_ok
+
+   pg_copy_out(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_copy_out
+
+   pg_copy_in(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_copy_in
+
+   pg_bad_response(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_bad_response
+
+   pg_nonfatal_error(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_nonfatal_error
+
+   pg_fatal_error(r: POINTER): BOOLEAN is
+      external "C_WithoutCurrent"
+      end -- pg_fatal_error
+
+feature {PG} -- C bindings
+
+   pg_result_status(r: POINTER): INTEGER is
+      external "C_WithoutCurrent"
+      alias "PQresultStatus"
+      end -- pg_result_status
+
+   pg_result_status_string(of: INTEGER): POINTER is
+      external "C_WithoutCurrent"
+      alias "PQresStatus"
+      end -- pg_result_status_string
 
    pg_connect(h, p, o, t, d, u, pass: POINTER): POINTER is
       external "C_WithoutCurrent"
+      alias "PQsetdbLogin"
       end -- pg_connect
 
    pg_query(c, q: POINTER): POINTER is
       external "C_WithoutCurrent"
+      alias "PQexec"
       end -- pg_query
 
    pg_intersect(r: POINTER; i, j: INTEGER): POINTER is
@@ -361,6 +444,11 @@ feature {PG}
       external "C_WithoutCurrent"
       alias "PQnfields"
       end -- pg_nfields
+
+   pg_clear_result(r: POINTER) is
+      external "C_WithoutCurrent"
+      alias "PQclear"
+      end -- pg_clear_result
 
    pg_finish(r: POINTER) is
       external "C_WithoutCurrent"
