@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeStampedHash.java,v 1.2 2001/08/28 22:51:51 dustin Exp $
+// $Id: TimeStampedHash.java,v 1.3 2001/08/28 22:58:34 dustin Exp $
 
 package net.spy.util;
 
@@ -50,8 +50,9 @@ public class TimeStampedHash extends Hashtable {
 	 * @see Hashtable
 	 */
 	public Object put(Object key, Object value) {
+		Object rv=super.put(key, value);
 		markPut();
-		return(super.put(key, value));
+		return(rv);
 	}
 
 	// Mark a get
