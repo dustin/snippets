@@ -15,6 +15,7 @@
 #endif
 
 #include "plot.h"
+#include "data.h"
 
 /*
  * I defined X11COMPILE to compile the X11 version so I could keep the old
@@ -35,67 +36,39 @@ int screen;
 char *filename;
 char *progname;
 
-float min_lat;
-float max_lat;
+float min_lat, max_lat, min_lng, max_lng;
 
-float min_lng;
-float max_lng;
-int color = 101;
-int verbose = 0;
+int color = 101, verbose = 0, max_x = MAX_X, max_y = MAX_Y;
+
+/*
+ * This really doesn't define anything anymore, it just gets necessary stuff
+ * from the header of the data file.
+ */
 
 void
-define_bounds()
+define_bounds(void)
 {
   FILE *infile;
-  char line[80];
+  Head header;
 
-  float lat, lng;
-
-  if (NULL == (infile = fopen(filename, "r")))
-    exit(12);
-
-  min_lat = 9999999.0;
-  max_lat = -999999.0;
-  min_lng = 9999999.0;
-  max_lng = -999999.0;
-
-  while (!feof(infile))
+  if (NULL == (infile = fopen(filename, "rb")))
     {
-      fgets(line, sizeof(line), infile);
-
-      if (feof(infile))
-	continue;
-
-      lat = atof(line);
-      lng = atof(line + 12);
-
-      if (lat > -70.0)
-	continue;
-
-      if (lat < min_lat)
-	min_lat = lat;
-      if (lat > max_lat)
-	max_lat = lat;
-
-      if (lng < min_lng)
-	min_lng = lng;
-      if (lng > max_lng)
-	max_lng = lng;
+      perror(filename);
+      exit(1);
     }
+
+  fread(&header, sizeof(header), 1, infile);
+
+  max_lat = header.max_lat;
+  min_lat = header.min_lat;
+  max_lng = header.max_lng;
+  min_lng = header.min_lng;
+
+#ifdef DEBUG
+  printf("%i points\nmin_lat=%f max_lat=%f\nmin_lng=%f max_lng=%f\n",
+	 header.num_points, min_lat, max_lat, min_lng, max_lng);
+#endif
   fclose(infile);
-
-  /*
-   * fix aspect ratio
-   */
-  lat = max_lat - min_lat;
-  /*
-   * lat /= 2.0;
-   */
-  max_lat += lat;
-  min_lat -= lat;
-
-  printf("min lat: %f   max lat: %f \n", min_lat, max_lat);
-  printf("min lng: %f  max lng: %f \n", min_lng, max_lng);
 }
 
 void
@@ -108,14 +81,14 @@ factor_bounds(long x, long y, float factor)
    * first,  move the viewport a little.
    */
 
-  temp = ((float) x / (float) MAX_X);
+  temp = ((float) x / (float) max_x);
   temp -= 0.5;
   diff = max_lat - min_lat;
   diff *= temp;
   max_lat += diff;
   min_lat += diff;
 
-  temp = ((float) y / (float) MAX_Y);
+  temp = ((float) y / (float) max_y);
   temp -= 0.5;
   diff = max_lng - min_lng;
   diff *= temp;
@@ -149,8 +122,8 @@ main(int argc, char *argv[])
 {
 #ifdef VGACOMPILE
   long c;
-  long x = MAX_X / 2;
-  long y = MAX_Y / 2;
+  long x = max_x / 2;
+  long y = max_y / 2;
 
 #endif
 
@@ -164,7 +137,7 @@ main(int argc, char *argv[])
  */
 
   if (argc < 2)
-    filename = DEFAULTFILENAME;
+    filename = DEFAULTBINFILENAME;
   else
     filename = argv[1];
 
@@ -201,6 +174,11 @@ main(int argc, char *argv[])
 	case Expose:
 	  xplot();
 	  break;
+	case ResizeRequest:
+	  max_x = event.xresizerequest.width;
+	  max_y = event.xresizerequest.height;
+	  XResizeWindow(display, window, max_x, max_y);
+	  break;
 	case ButtonPress:
 	  buttonevent(event.xbutton.x, event.xbutton.y, event.xbutton.button);
 	  break;
@@ -233,7 +211,7 @@ main(int argc, char *argv[])
 				 * down
 				 */
 
-	  if (y < MAX_Y - 1)
+	  if (y < max_y - 1)
 	    y += 30;
 	  break;
 
@@ -249,7 +227,7 @@ main(int argc, char *argv[])
 				 * right
 				 */
 
-	  if (x < MAX_X - 1)
+	  if (x < max_x - 1)
 	    x += 30;
 	  break;
 
@@ -266,7 +244,7 @@ main(int argc, char *argv[])
 				 */
 	case 'B':
 
-	  if (y < MAX_Y - 1)
+	  if (y < max_y - 1)
 	    y += 3;
 	  break;
 
@@ -284,7 +262,7 @@ main(int argc, char *argv[])
 				 */
 	case 'C':
 
-	  if (x < MAX_X - 1)
+	  if (x < max_y - 1)
 	    x += 3;
 	  break;
 
@@ -293,8 +271,8 @@ main(int argc, char *argv[])
 				 */
 	  factor_bounds(x, y, 2.0);
 	  vga_plot();
-	  x = MAX_X / 2;
-	  y = MAX_Y / 2;
+	  x = max_x / 2;
+	  y = max_y / 2;
 	  break;
 
 	case 'z':		/*
@@ -302,8 +280,8 @@ main(int argc, char *argv[])
 				 */
 	  factor_bounds(x, y, 0.5);
 	  vga_plot();
-	  x = MAX_X / 2;
-	  y = MAX_Y / 2;
+	  x = max_y / 2;
+	  y = max_y / 2;
 	  break;
 
 	case 10:
@@ -312,8 +290,8 @@ main(int argc, char *argv[])
 				 */
 	  factor_bounds(x, y, 1.0);
 	  vga_plot();
-	  x = MAX_X / 2;
-	  y = MAX_Y / 2;
+	  x = max_x / 2;
+	  y = max_y / 2;
 	  break;
 
 	}

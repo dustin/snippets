@@ -8,6 +8,7 @@
 #endif
 
 #include "plot.h"
+#include "data.h"
 
 #define safe_vga_drawpixel(x, y) \
 	if (x >= 0 && y >= 0 && x < MAX_X && y < MAX_Y) vga_drawpixel(x,y)
@@ -25,7 +26,8 @@ setrange(int start, int end, int startred, int startgreen,
 				 *
 				 * *
 				 * * *
-				 * * * * set colors from start to end
+				 * * * *
+				 * * * * * set colors from start to end
 				 */
   float ri, gi, bi;
   int range = end - start + 2;
@@ -258,17 +260,26 @@ vga_plot()
   long x, y;
   long oldx = 0;
   long oldy = 0;
-  float lat, lng;
-  char line[80];
   float lat_diff;
   float lng_diff;
   float temp;
+  Point point;
+  Head header;
   long island;
 
   FILE *infile;
 
-  if (NULL == (infile = fopen(filename, "r")))
-    exit(12);
+  if (NULL == (infile = fopen(filename, "rb")))
+    {
+      perror(filename);
+      exit(12);
+    }
+
+/*
+ * I'm going to read the header just to get it out of the way.
+ */
+
+  fread(&header, sizeof(header), 1, infile);
 
   lat_diff = max_lat - min_lat;
   lng_diff = max_lng - min_lng;
@@ -281,25 +292,20 @@ vga_plot()
 
   while (!feof(infile))
     {
-      fgets(line, sizeof(line), infile);
 
-      if (feof(infile))
-	continue;
+      fread(&point, sizeof(point), 1, infile);
 
-      lat = atof(line);
-      lng = atof(line + 12);
-
-      if (lat > -70.0)
+      if (point.lat > -70.0)
 	{
 	  island = 1;
 	  continue;
 	}
 
-      temp = max_lat - lat;
+      temp = max_lat - point.lat;
       temp = lat_diff - temp;
       x = (long) ((float) MAX_X * (temp / lat_diff));
 
-      temp = max_lng - lng;
+      temp = max_lng - point.lng;
       y = (long) ((float) MAX_Y * (temp / lng_diff));
 
 /*
