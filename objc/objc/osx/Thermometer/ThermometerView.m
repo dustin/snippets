@@ -86,6 +86,14 @@ float ctof(float c)
     [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
 }
 
+-(NSString *)description
+{
+    NSString *rv = [NSString stringWithFormat: @"%@ %.2f", name,
+        [self reading]];
+
+    return(rv);
+}
+
 /* Draw the underling thermometer, then some lines over it */
 - (void)drawRect:(NSRect)rect
 {
@@ -97,8 +105,7 @@ float ctof(float c)
 
     // Draw the reading
     NSRect bounds = [self bounds];
-    NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f",
-        [self reading]];
+    NSString *readingStr = [[NSString alloc] initWithFormat: @"%.2f", [self reading]];
     NSMutableDictionary * attribs = [NSMutableDictionary dictionary];
 
     // Get the text attributes.

@@ -7,6 +7,7 @@
             OUTLETS = {
                 backYard = ThermometerView;
                 bedroom = ThermometerView;
+                dockMenu = NSMenu;
                 garage = ThermometerView;
                 guestRoom = ThermometerView;
                 livingRoom = ThermometerView;

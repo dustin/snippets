@@ -41,6 +41,8 @@
         NSURL *u=[[NSURL alloc] initWithString: s];
         NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
         [object setReading: [sr floatValue]];
+        // Update the menu
+        [[dockMenu itemWithTag: [object tag]] setTitle: [object description]];
         [s release];
         [u release];
         [sr release];
@@ -80,10 +82,17 @@
 
     NSEnumerator *enumerator = [therms objectEnumerator];
     id object;
+    int tagI=0;
     while (object = [enumerator nextObject]) {
         [object setCImage: ci];
         [object setFImage: fi];
         [object setCelsius];
+        [object setTag: tagI];
+        NSMenuItem *mi=[[[NSMenuItem alloc] initWithTitle:[object description]
+            action:nil keyEquivalent:@""] autorelease];
+        [mi setTag: tagI];
+        [dockMenu addItem: mi];
+        tagI++;
     }
 
     // Check the defaults, make sure this is what the user wants

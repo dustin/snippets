@@ -7,6 +7,7 @@
 {
     IBOutlet ThermometerView *backYard;
     IBOutlet ThermometerView *bedroom;
+    IBOutlet NSMenu *dockMenu;
     IBOutlet ThermometerView *garage;
     IBOutlet ThermometerView *guestRoom;
     IBOutlet ThermometerView *livingRoom;
