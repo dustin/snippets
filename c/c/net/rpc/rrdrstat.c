@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.6 2002/03/01 08:39:02 dustin Exp $
+ * $Id: rrdrstat.c,v 1.7 2002/03/15 19:45:34 dustin Exp $
  */
 
 #include <stdio.h>
@@ -58,6 +58,7 @@ process(const char *host, statstime *stat)
 	/* I'm using sprintf above because it's more portable, and it pretty
 	 * much can't exceed the buffer size */
 	assert(strlen(buf) < sizeof(buf));
+#ifdef HAVE_RRD_H
 	args=split(buf, " ");
 	optind=0;
 
@@ -65,6 +66,10 @@ process(const char *host, statstime *stat)
 	if(rv<0 || rrd_test_error()) {
 		rrdErrorPrint(buf, args);
 	}
+#else
+	puts(buf);
+	fflush(stdout);
+#endif /* HAVE_RRD_H */
 
 	freeList(args);
 }
