@@ -89,7 +89,7 @@ let remove lru k =
 let add lru k v =
 	(* If the cache is full, remove an item *)
 	if ( (List.length lru.seq) >= lru.size) then
-		remove lru (List.nth lru.seq (List.length lru.seq));
+		remove lru (List.nth lru.seq ((List.length lru.seq) - 1));
 	(* If this key already exists, remove it *)
 	if (mem lru k) then
 		(remove lru k);
