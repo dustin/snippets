@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.2 2002/03/20 10:59:21 dustin Exp $
+# $Id: nntpsucka.py,v 1.3 2002/03/20 11:02:08 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -75,7 +75,9 @@ class NNTPSucka:
 						self.moveArticle(groupname, i)
 						self.db[messid]=str(time.time())
 				except KeyError, e:
-					print "Couldn't find ID in xhdr response."
+					# Couldn't find the header, article probably doesn't
+					# exist anymore.
+					pass
 			except nntplib.NNTPTemporaryError, e:
 				print "Failed:  " + str(e)
 
