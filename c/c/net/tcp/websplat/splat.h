@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: splat.h,v 1.4 1999/02/24 07:17:38 dustin Exp $
+ * $Id: splat.h,v 1.5 1999/06/16 00:22:59 dustin Exp $
  */
 
 #ifndef SPLAT_H
@@ -23,7 +23,7 @@
 #define _ndebug(a, b)
 #endif
 
-#define REQ_LEN 1024
+#define REQ_LEN 8192
 
 /* Socket options */
 #define DO_NAGLE 1

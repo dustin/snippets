@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.13 1999/05/19 02:27:50 dustin Exp $
+ * $Id: main.c,v 1.14 1999/06/16 00:22:58 dustin Exp $
  */
 
 #include <config.h>
@@ -119,7 +119,16 @@ parseurl(char *url)
 	assert(strlen(u.req) < (REQ_LEN - 16));		/* TMI */
 	strcpy(u.httpreq, "GET ");
 	strcat(u.httpreq, u.req);
-	strcat(u.httpreq, " HTTP/1.0\n\n");
+	strcat(u.httpreq, " HTTP/1.0\n");
+	if(getenv("WEBSPLAT_COOKIE")) {
+		assert( strlen(u.httpreq) +
+			strlen(getenv("WEBSPLAT_COOKIE")) < (REQ_LEN - 64) );
+		strcat(u.httpreq, "Cookie: ");
+		strcat(u.httpreq, getenv("WEBSPLAT_COOKIE"));
+		strcat(u.httpreq, "\n");
+	}
+
+	strcat(u.httpreq, "\n");
 
 	u.port = port;
 	return (u);
