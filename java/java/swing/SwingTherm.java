@@ -25,11 +25,25 @@ public class SwingTherm implements Runnable {
 	}
 
     public static void main(String args[]) throws Exception {
-        SwingTherm app = new SwingTherm();
-		app.realmain(args);
+
+		if(args.length < 1) {
+			SpyTemp st=new SpyTemp();
+			String list[] = st.listTherms();
+			System.out.println("Which thermometer(s) would you like to watch?");
+			System.out.println("The following are currently available:");
+			for(int i=0; i<list.length; i++) {
+				System.out.println("\t" + list[i]);
+			}
+			System.exit(1);
+		}
+
+		for(int i=0; i<args.length; i++) {
+		SwingTherm app = new SwingTherm();
+			app.realmain(args[i]);
+		}
 	}
 
-	protected void realmain(String args[]) throws Exception {
+	protected void realmain(String which) throws Exception {
         try {
             UIManager.setLookAndFeel(
                 UIManager.getCrossPlatformLookAndFeelClassName());
@@ -37,15 +51,7 @@ public class SwingTherm implements Runnable {
 
 		spytemp = new SpyTemp();
 
-		if(args.length < 1) {
-			String list[] = spytemp.listTherms();
-			System.out.println("Which thermometer would you like to watch?");
-			for(int i=0; i<list.length; i++) {
-				System.out.println("\t" + list[i]);
-			}
-			System.exit(1);
-		}
-		which=args[0];
+		this.which=which;
 		hash=new Hashtable();
 		hash.put(which, new Double(0.0));
 
