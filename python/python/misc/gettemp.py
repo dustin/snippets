@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: gettemp.py,v 1.4 2002/12/06 19:00:49 dustin Exp $
+# $Id: gettemp.py,v 1.5 2003/02/23 09:52:57 dustin Exp $
 
 import xmlrpclib
 import smtplib
@@ -46,6 +46,7 @@ class Alerts:
 			'dustin@spy.net',
 			'noelani@spy.net',
 			'knitterb@blandsite.org',
+			'dsallings@tmomail.net',
 			'4087681988@mobile.mycingular.com',)
 		sender='dustin+temperature@spy.net'
 
@@ -100,10 +101,10 @@ def report(vals):
 
 	# These are the ranges we care about:
 	normal = {
-		"newmachineroom": (15, 26),
-		"bedroom": (13, 31),
-		"livingroom": (15, 30),
-		"guestroom": (10, 30),
+		"newmachineroom": (13, 26),
+		"bedroom": (10, 31),
+		"livingroom": (13, 30),
+		"guestroom": (8, 30),
 		}
 
 	# Get the alerts object
