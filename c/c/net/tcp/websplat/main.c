@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.20 1999/06/18 17:49:23 dustin Exp $
+ * $Id: main.c,v 1.21 1999/06/19 03:57:49 dustin Exp $
  */
 
 #include <config.h>
@@ -143,7 +143,7 @@ parseurl(char *url)
 		ret=stat(getenv("WEBSPLAT_POST"), &st);
 		assert(ret>=0);
 
-		sprintf(buf, "Content-Length: %d\r\n", st.st_size);
+		sprintf(buf, "Content-Length: %d\r\n", (int)st.st_size);
 		str_append(&grow, buf);
 
 		str_append(&grow, "Content-Type: application/x-www-form-urlencoded\r\n");
@@ -345,10 +345,12 @@ close_conn(struct url u, struct host_ret conn)
 {
 	assert(conn.s>=0);
 	close(conn.s);
+#ifdef USE_SSLEAY
 	if(u.ssl) {
 		SSL_free(conn.ssl);
 		SSL_CTX_free(conn.ctx);
 	}
+#endif
 }
 
 int
