@@ -78,10 +78,13 @@ let get_tmp_name d f =
 (* Process a file in the given directory *)
 let process_file d f =
 	print_endline("Processing " ^ f);
-	let tmpname = get_tmp_name d f in
+	let tmpname = get_tmp_name d f
+	and st = stat f in
 	try
 		compress_file f tmpname;
 		rename tmpname f;
+		chown f st.st_uid st.st_gid;
+		chmod f st.st_perm;
 	with x ->
 		unlink tmpname;
 		match x with
