@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.5 2000/01/25 06:41:13 dustin Exp $
+// $Id: SpyUtil.java,v 1.6 2000/07/18 22:56:15 dustin Exp $
 
 package net.spy;
 
@@ -87,4 +87,27 @@ public class SpyUtil {
 		}
 		return(input);
 	 }
+
+	 /**
+	  * Get a stack from an exception.
+	  *
+	  * @param e Exception from which we'll be extracting the stack.
+	  * @param skip Number of stack entries to skip (usually two or three)
+	  */
+	public static String getStack(Exception e, int skip) {
+		String r="";
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		PrintWriter writer = new PrintWriter(bytes, true);
+		e.printStackTrace(writer);
+
+		StringTokenizer t = new StringTokenizer(bytes.toString(), "\n");
+		for(int i=0; i<skip; i++) {
+			t.nextToken();
+		}
+
+		while(t.hasMoreTokens()) {
+			r+=t.nextToken().substring(4) + ",";
+		}
+		return(r);
+	}
 }

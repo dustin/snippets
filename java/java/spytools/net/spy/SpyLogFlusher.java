@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.7 2000/07/05 21:40:51 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.8 2000/07/18 22:56:13 dustin Exp $
  */
 
 package net.spy;
@@ -79,12 +79,17 @@ public class SpyLogFlusher extends Thread {
 
 		for(;;) {
 			try {
-				// Wait five seconds before continuing
-				sleep(5000);
-			} catch(Exception e) {
-			} finally {
+				// Flush first, ask questions later.
 				doFlush();
 
+				// Wait for something to get added...with timeout
+				synchronized(log_object) {
+					log_object.waitForQueue(60000);
+				}
+
+			} catch(Exception e) {
+				System.err.println("Error flushing logs:  " + e);
+				e.printStackTrace();
 			}
 		}
 	}

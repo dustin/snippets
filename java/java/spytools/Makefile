@@ -1,6 +1,6 @@
 # Makefile for RHash, remote object server stuff.
 
-JAVAHOME=/usr/pkg/java
+JAVAHOME=/usr/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
@@ -43,7 +43,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/pool/JDBCPoolFiller.class \
 	net/spy/pool/JDBCPoolAble.class \
 	net/spy/pool/SNPPPoolFiller.class \
-	net/spy/pool/SNPPPoolAble.class \
+	net/spy/pool/SNPPPoolAble.class
 
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
@@ -57,7 +57,7 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 all: spy.jar
 
-docs:
+doc: $(CLASSES)
 	$(JAVADOC) -public -d doc $(PACKAGES)
 
 spy.jar: $(CLASSES)

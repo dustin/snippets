@@ -22,14 +22,33 @@ public class HTTPFetch {
 	protected String contents=null;
 	protected String stripped=null;
 
+	protected Hashtable headers=null;
+
 	/**
 	 * Create a new HTTPFetch object for a given string representation of a
 	 * URL.
+	 *
+	 * @param u String representation of the URL we'll be connecting to.
 	 *
 	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
 	 */
 	public HTTPFetch(String u) throws MalformedURLException {
 		url=new URL(u);
+	}
+
+	/**
+	 * Create a new HTTPFetch object for a given string representation of a
+	 * URL, including a hash describing extra headers to add.
+	 *
+	 * @param u String representation of the URL we'll be connecting to.
+	 * @param head Hashtable containing headers to set.
+	 *
+	 * @exception MalformedURLException Thrown if the URL cannot be parsed.
+	 */
+	public HTTPFetch(String u, Hashtable head) throws MalformedURLException {
+		super();
+		url=new URL(u);
+		headers=head;
 	}
 
 	/**
@@ -112,6 +131,14 @@ public class HTTPFetch {
 	// Get a reader for the above routines.
 	protected BufferedReader getReader() throws Exception {
 		URLConnection uc = url.openConnection();
+		if(headers!=null) {
+			for(Enumeration e=headers.keys(); e.hasMoreElements(); ) {
+				String key=(String)e.nextElement();
+				String value=(String)headers.get(key);
+
+				uc.setRequestProperty(key, value);
+			}
+		}
 		InputStream i = uc.getInputStream();
 		BufferedReader br =
 			new BufferedReader( new InputStreamReader(i));

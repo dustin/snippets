@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.4 2000/07/05 21:40:50 dustin Exp $
+ * $Id: SpyLog.java,v 1.5 2000/07/18 22:56:12 dustin Exp $
  */
 
 package net.spy;
@@ -73,6 +73,37 @@ public class SpyLog extends Object {
 	public void log(SpyLogEntry msg) {
 		synchronized(log_buffer) {
 			log_buffer[current_buffer].addElement(msg);
+			log_buffer.notify();
+		}
+	}
+
+	/**
+	 * Wait for the log buffer to have something in it.
+	 *
+	 * @exception Exception whenever the wait() fails
+	 */
+	public void waitForQueue() throws Exception {
+		synchronized(log_buffer) {
+			if(log_buffer[current_buffer].size()>0) {
+				return;
+			}
+			log_buffer.wait();
+		}
+	}
+
+	/**
+	 * Wait for the log buffer to have something in it (or a timeout)
+	 *
+	 * @param howlong How long do you want to wait?  (ms)
+	 *
+	 * @exception Exception whenever the wait() fails
+	 */
+	public void waitForQueue(long ms) throws Exception {
+		synchronized(log_buffer) {
+			if(log_buffer[current_buffer].size()>0) {
+				return;
+			}
+			log_buffer.wait(ms);
 		}
 	}
 
