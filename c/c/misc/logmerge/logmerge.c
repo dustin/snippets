@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: logmerge.c,v 1.6 2002/06/06 01:03:56 dustin Exp $
+ * $Id: logmerge.c,v 1.7 2002/06/06 04:01:25 dustin Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -16,6 +17,12 @@
 
 #include "logmerge.h"
 #include "mymalloc.h"
+
+#define strdupa(d, s) { \
+	d=alloca(strlen(s)+1);\
+	assert(d!=NULL); \
+	memcpy(d, s, strlen(s)+1); \
+}
 
 /**
  * Open a logfile.
@@ -73,29 +80,50 @@ static int parseMonth(char *s)
 	return(rv);
 }
 
+/* Convert a line from the old format to CLF */
 static int unfsckLine(struct logfile *lf)
 {
 	char *start=NULL, *end=NULL;
 	char *line=NULL;
+	char tsbuf[32];
 	char *timestamp=NULL, *ip=NULL, *request=NULL, *status=NULL,
 		*size=NULL, *refer=NULL, *ua=NULL;
+	char *format=NULL;
 	int rv=ERROR;
 
 	assert(lf != NULL);
 	assert(lf->line != NULL);
 
-	line=strdup(lf->line);
+	strdupa(line, lf->line);
 	assert(line!=NULL);
 
 	/* Start at the timestamp */
 	start=line;
 	end=index(start, ' ');
 	assert(end != NULL);
+	timestamp=NULL;
+	/* XXX:  Hack, should deal with other timezones */
+	if(lf->tm.tm_isdst) {
+		format="%d/%h/%Y:%T -0700";
+	} else {
+		format="%d/%h/%Y:%T -0800";
+	}
+	/* OK, just going to use the existing timestamp and format it properly */
+	strftime(tsbuf, sizeof(tsbuf), format, &lf->tm);
+	/*
+	fprintf(stderr, "** Timestamp is ``[%s]''\n", tsbuf);
+	*/
 
 	/* Seek to the IP address */
 	start=end+1;
 	end=index(start, ' ');
 	assert(end != NULL);
+	assert(*end == ' ');
+	*end=0x00;
+	strdupa(ip, start);
+	/*
+	fprintf(stderr, "** IP is ``%s''\n", ip);
+	*/
 
 	/* Seek to the - */
 	start=end+1;
@@ -105,56 +133,72 @@ static int unfsckLine(struct logfile *lf)
 
 	/* Seek to the request */
 	start=end+1;
-	assert(start[0] == '"');
+	assert(start[0] == '\"');
+	end=index(start+1, '\"');
 	assert(end != NULL);
-
-	/* Seek to the status */
-	/* XXX */
-
-	/* Seek to the size */
-	/* XXX */
-
-	/* Seek to the referer */
-	/* XXX */
-
-	/* Seek to the user agent */
-	/* XXX */
-
+	/* If there's an embedded quote, keep seeking */
+	while( !(end[1]==' ' && isdigit(end[2])) ) {
+		end=index(end+1, '\"');
+		assert(end);
+	}
+	end++; /* The quote is part of what we want */
+	assert(*end == ' ');
+	*end=0x00;
+	strdupa(request, start);
 	/*
-	finished:
+	fprintf(stderr, "** Request is ``%s''\n", request);
 	*/
 
-	if(line!=NULL) {
-		free(line);
-	}
+	/* Seek to the status */
+	start=end+1;
+	end=index(start, ' ');
+	assert(end != NULL);
+	assert(*end == ' ');
+	*end=0x00;
+	strdupa(status, start);
+	/*
+	fprintf(stderr, "** Status is ``%s''\n", status);
+	*/
 
-	if(timestamp!=NULL) {
-		free(timestamp);
-	}
+	/* Seek to the size */
+	start=end+1;
+	end=index(start, ' ');
+	assert(end != NULL);
+	assert(*end == ' ');
+	*end=0x00;
+	strdupa(size, start);
+	/*
+	fprintf(stderr, "** Size is ``%s''\n", size);
+	*/
 
-	if(ip!=NULL) {
-		free(ip);
-	}
+	/* Seek to the referer */
+	start=end+1;
+	assert(start[0] == '\"');
+	end=index(start+1, '\"');
+	assert(end != NULL);
+	end++; /* The quote is part of what we want */
+	assert(*end == ' ');
+	*end=0x00;
+	strdupa(refer, start);
+	/*
+	fprintf(stderr, "** Referer is ``%s''\n", refer);
+	*/
 
-	if(request!=NULL) {
-		free(request);
-	}
+	/* Seek to the user agent */
+	start=end+1;
+	assert(start[0] == '\"');
+	end=index(start+1, '\n');
+	assert(end != NULL);
+	assert(*end == '\n');
+	*end=0x00;
+	strdupa(ua, start);
+	/*
+	fprintf(stderr, "** User Agent is ``%s''\n", ua);
+	*/
 
-	if(status!=NULL) {
-		free(status);
-	}
-
-	if(size!=NULL) {
-		free(size);
-	}
-
-	if(refer!=NULL) {
-		free(refer);
-	}
-
-	if(ua!=NULL) {
-		free(ua);
-	}
+	/* Put it back */
+	snprintf(lf->line, LINE_BUFFER-1, "%s - - [%s] %s %s %s %s %s\n",
+		ip, tsbuf, request, status, size, refer, ua);
 
 	return(rv);
 }
@@ -162,77 +206,76 @@ static int unfsckLine(struct logfile *lf)
 static time_t parseTimestamp(struct logfile *lf)
 {
 	char *p;
-	struct tm tm;
 
 	assert(lf != NULL);
 	assert(lf->line != NULL);
 
 	lf->timestamp=-1;
 
-	memset(&tm, 0x00, sizeof(tm));
+	memset(&lf->tm, 0x00, sizeof(lf->tm));
 
 	p=lf->line;
 
+	/* The shortest line I can parse is about 32 characters. */
+	assert(strlen(p) > 32);
 	if(p[10]=='T') {
 		/* fprintf("**** Parsing %s\n", p); */
 
-		tm.tm_year=atoi(p);
+		lf->tm.tm_year=atoi(p);
 		p+=5;
-		tm.tm_mon=atoi(p);
+		lf->tm.tm_mon=atoi(p);
 		p+=3;
-		tm.tm_mday=atoi(p);
+		lf->tm.tm_mday=atoi(p);
 		p+=3;
-		tm.tm_hour=atoi(p);
+		lf->tm.tm_hour=atoi(p);
 		p+=3;
-		tm.tm_min=atoi(p);
+		lf->tm.tm_min=atoi(p);
 		p+=3;
-		tm.tm_sec=atoi(p);
+		lf->tm.tm_sec=atoi(p);
 
-		tm.tm_year-=1900;
-		tm.tm_mon--;
+		lf->tm.tm_year-=1900;
+		lf->tm.tm_mon--;
 
-		lf->timestamp=mktime(&tm);
+		lf->timestamp=mktime(&lf->tm);
 
 		unfsckLine(lf);
 	} else if(index(p, '[') != NULL) {
 
 		p=index(p, '[');
 		assert(p != NULL);
+		/* Verify it's long enough to parse */
+		assert(strlen(p) > 32);
 
 		/* fprintf(stderr, "**** Parsing %s\n", p); */
 		p++;
-		tm.tm_mday=atoi(p);
+		lf->tm.tm_mday=atoi(p);
 		p+=3;
-		tm.tm_mon=parseMonth(p);
+		lf->tm.tm_mon=parseMonth(p);
 		p+=4;
-		tm.tm_year=atoi(p);
+		lf->tm.tm_year=atoi(p);
 		p+=5;
-		tm.tm_hour=atoi(p);
+		lf->tm.tm_hour=atoi(p);
 		p+=3;
-		tm.tm_min=atoi(p);
+		lf->tm.tm_min=atoi(p);
 		p+=3;
-		tm.tm_sec=atoi(p);
+		lf->tm.tm_sec=atoi(p);
 
 		/* Make sure it still looks like CLF */
 		assert(p[2]==' ');
 
-		tm.tm_year-=1900;
+		lf->tm.tm_year-=1900;
 
 		/* XXX  Hack for figuring out DST */
 		assert(p[5] == '7' || p[5] == '8');
 		if( p[5] == '7' ) {
-			tm.tm_isdst=1;
+			lf->tm.tm_isdst=1;
 		}
 
-		lf->timestamp=mktime(&tm);
+		lf->timestamp=mktime(&lf->tm);
 
 	} else {
 		fprintf(stderr, "Unknown log format:  %s\n", p);
 	}
-	/*
-	fprintf(stderr, "**** Got %d:  %s\n", (int)lf->timestamp,
-		ctime(&lf->timestamp));
-	*/
 
 	if(lf->timestamp < 0) {
 		fprintf(stderr, "* Error parsing timestamp from %s", lf->line);

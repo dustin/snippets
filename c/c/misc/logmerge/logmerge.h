@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings
  *
- * $Id: logmerge.h,v 1.1 2002/06/05 16:51:56 dustin Exp $
+ * $Id: logmerge.h,v 1.2 2002/06/06 04:01:27 dustin Exp $
  */
 
 #ifndef LOGMERGE_H
@@ -25,6 +25,8 @@ struct logfile {
 	char *line;
 	/* The timestamp of the current record */
 	time_t timestamp;
+	/* The timestamp as a struct tm */
+	struct tm tm;
 	/* 1 if it's open, 0 otherwise */
 	int isOpen;
 	/* The actual input stream being read */
