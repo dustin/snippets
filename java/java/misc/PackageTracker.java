@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PackageTracker.java,v 1.4 2000/06/16 21:23:56 dustin Exp $
+// $Id: PackageTracker.java,v 1.5 2001/03/01 09:56:19 dustin Exp $
 
 import java.sql.*;
 import java.util.*;
@@ -49,6 +49,17 @@ public class PackageTracker extends Object {
 			String source=conf.get("jdbc_source");
 			conn=DriverManager.getConnection(source,
 				conf.get("jdbc_username"), conf.get("jdbc_password"));
+		}
+	}
+
+	protected void closeDB() throws Exception {
+		if(conn!=null) {
+			try {
+				conn.close();
+			} catch(Exception e) {
+				// we tried
+			}
+			conn=null;
 		}
 	}
 
@@ -171,11 +182,15 @@ public class PackageTracker extends Object {
 	protected void process() throws Exception {
 		System.out.println("Processing package carrier " + carrier_id + "...");
 		// Ensure we have an open database connection.
-		openDB();
-		cleanup();
-		Hashtable stati=getCurrentStatus();
-		Hashtable changed = getChanges(stati);
-		saveChanges(changed);
+		try {
+			openDB();
+			cleanup();
+			Hashtable stati=getCurrentStatus();
+			Hashtable changed = getChanges(stati);
+			saveChanges(changed);
+		} finally {
+			closeDB();
+		}
 		System.out.println("Completed package carrier " + carrier_id);
 	}
 
