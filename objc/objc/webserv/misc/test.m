@@ -9,7 +9,6 @@
 
 void main(int argc, char **argv)
 {
-    int f, size;
     char buf[1024];
     id string=[dString alloc];
 
@@ -22,18 +21,14 @@ void main(int argc, char **argv)
 	[string init];
     }
 
-    f=open("/usr/dict/words", O_RDONLY, 0);
-    for(;;)
-    {
-	size=read(f, buf, 1023);
-	if(size!=1023)
-	    break;
-        [string appendString:buf];
-    }
-    close(f);
+    [string setto: "This is the dictionary:\n\n"];
 
+    [string readfile:"/usr/dict/words"];
 
     [string lowercase];
+    [string print];
+
+    [string setto: "End of file"];
     [string print];
     [string clear];
 }

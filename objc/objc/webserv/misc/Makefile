@@ -1,17 +1,25 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile,v 1.1 1997/04/14 22:12:47 dustin Exp $
+# $Id: Makefile,v 1.2 1997/04/15 06:11:41 dustin Exp $
 
 .SUFFIXES: .m .o
 
-CFLAGS=-I../include -g -Wall
+CFLAGS=-I../include -g
+AR=ar cr
+RANLIB=ranlib
 OBJC=gcc
 LIBS=-lobjc
 LDFLAGS=$(LIBS)
 EXES=test
-JUNK=$(EXES) *.o
+MISCOBJS=dString.o dSocket.o dWeb.o
+SOURCE=dString.m dSocket.m dWeb.m
+JUNK=$(EXES) *.o *.a
 
-test:   dString.o test.o
-	$(OBJC) -o $@ dString.o test.o $(LIBS)
+misc.a:	$(MISCOBJS)
+	$(AR) $@ $(MISCOBJS)
+	$(RANLIB) $@
+
+test:   misc.a test.o
+	$(OBJC) -o $@ test.o misc.a $(LIBS)
 
 clean:
 	-rm -f $(JUNK)
