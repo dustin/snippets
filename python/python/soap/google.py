@@ -1,51 +1,113 @@
 #!/usr/bin/env python
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: google.py,v 1.1 2002/04/15 23:35:11 dustin Exp $
+# $Id: google.py,v 1.2 2002/04/16 00:25:05 dustin Exp $
+
+from __future__ import generators
 
 import sys
 import SOAP
 
-myKey='2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX'
-# SOAP.Config.debug=1
-server = SOAP.SOAPProxy("http://api.google.com/search/beta2",
-	namespace='urn:GoogleSearch')
+class ResultsNotReady:
+	"""Exception raised when attempting to use search results
+	before they're ready."""
+	pass
 
-soapfalse=SOAP.booleanType(0)
-soaptrue=SOAP.booleanType(1)
+class GoogleSearch:
 
-s=SOAP.stringType
+	# This is my key
+	myKey='2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX'
 
-query=sys.argv[1]
+	soapfalse=SOAP.booleanType(0)
+	soaptrue=SOAP.booleanType(1)
 
-keepGoing=1
-start=0
-lastStart=0
-nResults=10
-while keepGoing:
+	def __init__(self):
+		"""Get a new google search thing."""
+		self.server=SOAP.SOAPProxy("http://api.google.com/search/beta2",
+			namespace='urn:GoogleSearch')
+		self.results=None
 
-	# key, search string, start, results, filter, restrict, safe, lr, ie, oe
-	results=server.doGoogleSearch(s(myKey), s(query),
-		start, nResults, soaptrue, s(''), soapfalse, s(''), s(''), s(''))
+	# This makes it easy to quote the strings
+	s=SOAP.stringType
 
+	def doSearch(self, query, filter=1, restrict='', safeSearch=0,
+		lr='', ie='', oe=''):
+		"""Perform a google search."""
+
+		if filter: filter=GoogleSearch.soaptrue
+		else: filter=GoogleSearch.soapfalse
+
+		if safeSearch: safeSearch=GoogleSearch.soaptrue
+		else: safeSearch=GoogleSearch.soapfalse
+
+		self.query=query
+		self.filter=filter
+		self.restrict=restrict
+		self.safeSearch=safeSearch
+		self.lr=lr
+		self.ie=ie
+		self.oe=oe
+
+		self._performQuery(0)
+
+	def _performQuery(self, startId):
+
+		self.results=self.server.doGoogleSearch(
+			GoogleSearch.s(GoogleSearch.myKey),
+			GoogleSearch.s(self.query), startId, 10, self.filter,
+			GoogleSearch.s(self.restrict), self.safeSearch,
+			GoogleSearch.s(self.lr), GoogleSearch.s(self.ie),
+			GoogleSearch.s(self.oe))
+
+	# Verify we have search results ready
+	def __checkResults(self):
+		if not self.results:
+			raise ResultsNotReady
+
+	def __iter__(self):
+		"""Iterate over the search results."""
+		self.__checkResults()
+
+		lastId=0
+		while 1:
+			currentId=results['startIndex']
+			startId=currentId
+
+			currentId=startId
+			for r in self['resultElements']:
+				yield currentId, r
+				currentId+=1
+			# Gotta know when to stop
+			startId=self['endIndex']
+			if startId == lastId or (not startId == (lastId+10)):
+				raise StopIteration
+			lastId=startId
+
+			# Reperform query
+			self._performQuery(startId)
+
+	def __getitem__(self, which):
+		self.__checkResults()
+		return self.results[which]
+
+if __name__ == '__main__':
+	query=sys.argv[1]
+	g=GoogleSearch()
+	g.doSearch(query)
+
+	# Print meta information:
 	extra=''
-	if results['estimateIsExact']:
+	if g['estimateIsExact']:
 		extra=' (exact)'
 	print "Estimated results for " + `query` + ":  " \
-		+ `results['estimatedTotalResultsCount']` + extra
-	if len(results['searchTips'])>0:
-		print "Tips:  " + results['searchTips']
-	if len(results['searchComments']) > 0:
-		print "Comments:  " + results['searchComments']
-	print "Results " + `results['startIndex']` + '-' + `results['endIndex']` \
-		+ ':'
-	for r in results['resultElements']:
+		+ `g['estimatedTotalResultsCount']` + extra
+	if len(g['searchTips'])>0:
+		print "Tips:  " + g['searchTips']
+	if len(g['searchComments']) > 0:
+		print "Comments:  " + g['searchComments']
+	print "Results:"
+	for r in g:
 		try:
-			print "\t" + r['URL'] + " - " + r['title']
+			print "\t" + `r[0]` + ": " + r[1]['URL'] + " - " + r[1]['title']
 		except UnicodeError:
-			print "\t" + r['URL'] + ' - <UNICODE ERROR>'
+			print "\t" + `r[0]` + ": " + r[1]['URL'] + ' - <UNICODE ERROR>'
 
-	# Figure out whether we should continue
-	start=results['endIndex']
-	if start == lastStart or (not start == (lastStart+nResults)):
-		keepGoing=None
-	lastStart=start
