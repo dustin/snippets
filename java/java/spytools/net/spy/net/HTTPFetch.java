@@ -87,11 +87,23 @@ public class HTTPFetch {
 				Perl5Compiler.MULTILINE_MASK);
 			stripped = Util.substitute(matcher, pattern,
 				new StringSubstitution(""), contents, Util.SUBSTITUTE_ALL);
+
 			// Consolidate spaces
 			pattern = compiler.compile("((?:&nbsp;|[ \t])+)",
 				Perl5Compiler.MULTILINE_MASK);
 			stripped = Util.substitute(matcher, pattern,
 				new StringSubstitution(" "), stripped, Util.SUBSTITUTE_ALL);
+
+			// empty space at the beginning
+			pattern = compiler.compile("^([ \t]+)");
+			stripped = Util.substitute(matcher, pattern,
+				new StringSubstitution(""), stripped, Util.SUBSTITUTE_ALL);
+
+			// empty space at the end
+			pattern = compiler.compile("([ \t]+)$");
+			stripped = Util.substitute(matcher, pattern,
+				new StringSubstitution(""), stripped, Util.SUBSTITUTE_ALL);
+
 			// Get rid of double newlines
 			pattern = compiler.compile("([\r\n]+)",
 				Perl5Compiler.MULTILINE_MASK);
