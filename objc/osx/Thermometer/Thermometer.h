@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#define DATA_UPDATED @"DATA_UPDATED"
 #define RING_BUFFER_SIZE 10
 
 @interface Thermometer : NSObject {
@@ -19,7 +20,7 @@
     NSMutableArray *lastReadings;
     float trend;
 
-    id _t_delegate;
+	NSMutableData *responseData;
 }
 
 // Initialize this Thermometer
@@ -36,9 +37,5 @@
 
 -(int)tag;
 -(void)setTag:(int)to;
-
-// Delegate
--(void)setDelegate:(id)delegate;
--(id)delegate;
 
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "ThermController.h"
-
+#import "Thermometer.h"
 
 @implementation ThermController
 
@@ -38,7 +38,6 @@
     }
     NSString *s=[[NSString alloc] initWithFormat: @"Last update:  %@",
         [[NSDate date] description]];
-    [thermMatrix setNeedsDisplay: true];
     [status setStringValue: s];
     [s release];
 
@@ -136,6 +135,11 @@
     [thermMatrix sizeToCells];
 }
 
+-(void)dataUpdated:(id)anObject
+{
+    [thermMatrix setNeedsDisplay: true];
+}
+
 -(void)awakeFromNib
 {
     NSLog(@"Starting ThermController.");
@@ -163,7 +167,7 @@
 	// Convert the list of names to a list of Thermometers
     therms=[[NSMutableArray alloc] initWithCapacity: [thermarray count]];
     NSEnumerator *enumerator = [thermarray objectEnumerator];
-    id anObject;
+    NSString *anObject;
     while (anObject = [enumerator nextObject]) {
         if([anObject length] > 0) {
             Thermometer *t=[[Thermometer alloc] initWithName: anObject
@@ -198,6 +202,13 @@
 
 	// Schedule the timer for future updates
     [self scheduleTimer];
+
+	// what to do when the data is updated
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+        selector:@selector(dataUpdated:)
+        name:DATA_UPDATED
+        object:nil];
 
 	// Release some stuff
 	[ci release];

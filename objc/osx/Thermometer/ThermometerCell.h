@@ -22,8 +22,6 @@
     NSUserDefaults *defaults;
 }
 
--(void)setCelsius;
--(void)setFarenheit;
 -(void)setCImage: (NSImage *)to;
 -(void)setFImage: (NSImage *)to;
 -(void)setTherm: (Thermometer *)t;

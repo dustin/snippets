@@ -25,7 +25,6 @@
 {
     therm=t;
     [therm retain];
-    [therm setDelegate: self];
     [self setTitle: [therm name]];
 }
 

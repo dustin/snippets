@@ -7,7 +7,7 @@
 //
 
 #import "Thermometer.h"
-
+#import "ThermometerCell.h"
 
 @implementation Thermometer
 
@@ -21,7 +21,6 @@
 	// Set the update URL
     url=ustr;
     [url retain];
-    _t_delegate=nil;
 	// Initialize the array of previous readings
     lastReadings=[[NSMutableArray alloc] initWithCapacity: 10];
 	// And return
@@ -43,10 +42,9 @@
         reading=r;
         NSLog(@"Updated %@ (%.2f -> %.2f)", [self name], oldreading, reading);
 
-        // Let the delegate know something's changed
-        if(_t_delegate != nil) {
-            [_t_delegate newReading: r];
-        }
+		// Send the notification
+		[[NSNotificationCenter defaultCenter]
+			postNotificationName:DATA_UPDATED object:self];
     }
 
     // Keep the array small enough.
@@ -115,30 +113,65 @@ static bool isValidReading(float r)
     return(rv);
 }
 
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+	[responseData setLength:0];
+}
+
+- (void)connection:(NSURLConnection *)connection
+  didFailWithError:(NSError *)error
+{
+    // inform the user
+    NSLog(@"Connection failed! Error - %@ %@",
+          [error localizedDescription],
+          [[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
+
+    // release the connection, and the data object
+    [connection release];
+    [responseData release];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [responseData appendData: data];
+}
+
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    // NSLog(@"Response complete");
+	NSString *data=[[NSString alloc]
+		initWithData:responseData encoding:NSASCIIStringEncoding];
+	[self setReading: [data floatValue]];
+
+	[data release];
+    [connection release];
+    [responseData release];
+}
+
 -(void)update
 {
     NSString *s=[[NSString alloc] initWithFormat: @"%@?temp=%@", url, name];
     NSURL *u=[[NSURL alloc] initWithString: s];
-    NSString *sr=[[NSString alloc] initWithContentsOfURL: u];
-    [self setReading: [sr floatValue]];
-    [s release];
-    [u release];
-    [sr release];
+
+	NSURLRequest *theRequest=[NSURLRequest requestWithURL:u
+                        cachePolicy:NSURLRequestUseProtocolCachePolicy
+                    timeoutInterval:60.0];
+    NSURLConnection *theConnection=[[NSURLConnection alloc]
+        initWithRequest:theRequest delegate:self];
+    if (theConnection != nil) {
+        // Create the NSMutableData that will hold
+        // the received data
+        responseData=[[NSMutableData data] retain];
+    } else {
+        NSLog(@"Couldn't make connection for %@", url);
+    }
+	[s release];
+	[u release];
 }
 
 -(NSArray *)lastReadings
 {
     return(lastReadings);
-}
-
-// Delegate handling
--(void)setDelegate:(id)delegate
-{
-    _t_delegate=delegate;
-}
--(id)delegate
-{
-    return(_t_delegate);
 }
 
 

@@ -39,9 +39,9 @@
 			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -73,9 +73,9 @@
 			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -108,7 +108,7 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
-			expectedFileType = wrapper.application;
+			explicitFileType = wrapper.application;
 			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = Thermometer.app;
@@ -184,9 +184,9 @@
 			sourceTree = "<group>";
 		};
 		29B97316FDCFA39411CA2CEA = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = main.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -217,8 +217,8 @@
 			sourceTree = "<group>";
 		};
 		29B97319FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.nib;
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/MainMenu.nib;
 			refType = 4;
@@ -236,18 +236,18 @@
 			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
@@ -313,7 +313,6 @@
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
 			files = (
-				DA7C50FB041C92D50018EE5C,
 				DAB80BDE042D85D700A80132,
 				DAE13582042D9F3D00A80132,
 				DA58D01A042EF20000A80132,
@@ -339,7 +338,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				29B9732CFDCFA39411CA2CEA,
-				DA7C50FC041C92D50018EE5C,
 				DAB80BDF042D85D700A80132,
 				DAE13583042D9F3D00A80132,
 				DA58D019042EF20000A80132,
@@ -411,17 +409,17 @@
 //DA3
 //DA4
 		DA58D017042EF20000A80132 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = ThermController.m;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DA58D018042EF20000A80132 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = ThermController.h;
 			refType = 4;
 			sourceTree = "<group>";
@@ -439,10 +437,10 @@
 			};
 		};
 		DA5B145904303C2700A80132 = {
-			expectedFileType = folder;
 			fallbackIsa = PBXFileReference;
 			includeInIndex = 1;
 			isa = PBXFolderReference;
+			lastKnownFileType = folder;
 			path = Help;
 			refType = 4;
 			sourceTree = "<group>";
@@ -454,17 +452,17 @@
 			};
 		};
 		DA641D0404301CF700A80132 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = PreferenceController.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DA641D0504301CF700A80132 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = PreferenceController.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -482,8 +480,8 @@
 			};
 		};
 		DA641D0804301F5800A80132 = {
-			expectedFileType = wrapper.nib;
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/Preferences.nib;
 			refType = 4;
@@ -505,45 +503,33 @@
 			};
 		};
 		DA7C50F9041C92D50018EE5C = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = LogOutline.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DA7C50FA041C92D50018EE5C = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = LogOutline.m;
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		DA7C50FB041C92D50018EE5C = {
-			fileRef = DA7C50F9041C92D50018EE5C;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DA7C50FC041C92D50018EE5C = {
-			fileRef = DA7C50FA041C92D50018EE5C;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		DAB80BDC042D85D700A80132 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Thermometer.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAB80BDD042D85D700A80132 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Thermometer.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -561,15 +547,15 @@
 			};
 		};
 		DAC72A7304108DB200A80132 = {
-			expectedFileType = image.png;
 			isa = PBXFileReference;
+			lastKnownFileType = image.png;
 			path = "therm-f.png";
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAC72A7404108DB200A80132 = {
-			expectedFileType = image.png;
 			isa = PBXFileReference;
+			lastKnownFileType = image.png;
 			path = "therm-c.png";
 			refType = 4;
 			sourceTree = "<group>";
@@ -587,17 +573,17 @@
 			};
 		};
 		DAE13580042D9F3D00A80132 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = ThermometerCell.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAE13581042D9F3D00A80132 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = ThermometerCell.m;
 			refType = 4;
 			sourceTree = "<group>";

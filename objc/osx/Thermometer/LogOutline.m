@@ -12,8 +12,10 @@
 
 -(id)initWithArray:(NSArray *)a
 {
+	id rv=[super init];
     array=a;
     [array retain];
+	return(rv);
 }
 
 
