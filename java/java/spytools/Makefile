@@ -37,6 +37,11 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/info/BigWords.class \
 	net/spy/info/UPS.class net/spy/info/Weather.class \
 	net/spy/util/SpyLDIF.class \
+	net/spy/util/SpySort.class \
+	net/spy/util/SpyComparable.class \
+	net/spy/util/SpyDateComparable.class \
+	net/spy/util/SpyDoubleComparable.class \
+	net/spy/util/SpyIntegerComparable.class \
 	net/spy/util/SpyLDIFReader.class \
 	net/spy/pool/ObjectPool.class \
 	net/spy/pool/ObjectPoolCleaner.class \
