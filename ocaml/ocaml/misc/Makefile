@@ -4,7 +4,7 @@ OCAMLOPT=ocamlopt
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=parseSQLLog
+PROGS=parseSQLLog parseTimingLog
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -13,6 +13,10 @@ all: $(PROGS)
 parseSQLLog: parseSQLLog.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa stringutils.cmx parseSQLLog.ml
+
+parseTimingLog: parseTimingLog.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa stringutils.cmx parseTimingLog.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
