@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: radius.c,v 1.5 1998/06/22 00:07:33 dustin Exp $
+ * $Id: radius.c,v 1.6 1998/06/22 01:42:05 dustin Exp $
  */
 
 #include <sys/types.h>
@@ -106,12 +106,33 @@ attribute_t *rad_find_att(radius *r, unsigned char type)
     len=ntohs(r->rad->length)-RADIUS_HEADER_LENGTH;
 
     while(att->attribute!=type) {
-	if( (len-=att->length)<=0) {
+	if( (len-=ntohs(att->length))<=0) {
 	    return(NULL);
 	}
-	att=(attribute_t *) ((char *)att+att->length);
+	att=(attribute_t *) ((char *)att+ntohs(att->length));
     }
     return(att);
+}
+
+void rad_dump_att(radius *r)
+{
+    attribute_t *att;
+    char printbuf[1024];
+    int len, value;
+
+    att=&(r->rad->att);
+    len=ntohs(r->rad->length)-RADIUS_HEADER_LENGTH;
+
+    while(len>0) {
+	/* HACK!!! */
+	memcpy(&value, att->data, 4);
+	printf("Attribute %d, length %d, value: %d\n",
+	       ntohs(att->attribute), ntohs(att->length),
+	       ntohs(value)
+	      );
+	len-=ntohs(att->length);
+	att=(attribute_t *) ((char *)att+ntohs(att->length));
+    }
 }
 
 int rad_verify(radius *r)
@@ -190,8 +211,11 @@ int rad_simpleauth(radius *r, char *username, char *password)
     if(rad_addpass(r, password)<0)
 	return(-1);
 
+/*
     service=RADIUS_AUTH_ONLY;
+    service=RADIUS_SHELL_USER;
     rad_add_att(r, RADIUS_USER_SERVICE_TYPE, (char *)&service, 4);
+*/
 
     r->s=getudpsocket();
     rad_send(r);
