@@ -72,6 +72,7 @@ init_window(void)
   attributes.event_mask = event_mask;
   attributes.border_pixel = BlackPixel(display, screen);
   attributes.background_pixel = WhitePixel(display, screen);
+  attributes.backing_store = WhenMapped;
 
 /*
  * This is a mask for attributes that have been set.  This tells
@@ -81,7 +82,7 @@ init_window(void)
  * land.  This can be hard coded in if you want to lie.
  */
 
-  attr_mask = CWEventMask | CWBackPixel | CWBorderPixel;
+  attr_mask = CWEventMask | CWBackPixel | CWBorderPixel | CWBackingStore;
 
   window = XCreateWindow(display, rootwindow, 0, 0, max_x, max_y, 2,
        CopyFromParent, InputOutput, CopyFromParent, attr_mask, &attributes);
@@ -244,7 +245,8 @@ xplot()
     exit(12);
 
 /*
- * I'm going to read the header just to get it out of the way.
+ * I'm going to read the header, may need it for the proper diffs,
+ * at least need it out of the way.
  */
 
   fread(&header, sizeof(header), 1, infile);
