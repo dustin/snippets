@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.13 2002/08/08 21:56:34 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.14 2002/08/21 00:53:00 dustin Exp $
  */
 
 package net.spy.db;
@@ -96,7 +96,7 @@ public class CachePreparedStatementStub extends Object {
 		int hc=0;
 
 		hc+=queryStr.hashCode();
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 		for(int i=0; i<args.length; i++) {
 			try {
 				sb.append(args[i]);

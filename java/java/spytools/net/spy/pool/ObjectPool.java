@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.29 2002/08/17 06:31:04 dustin Exp $
+// $Id: ObjectPool.java,v 1.30 2002/08/21 00:53:10 dustin Exp $
 
 package net.spy.pool;
 
@@ -142,7 +142,7 @@ public class ObjectPool extends Object {
 	 * Dump out the object pools.
 	 */
 	public String toString() {
-		StringBuffer out=new StringBuffer();
+		StringBuffer out=new StringBuffer(256);
 		ArrayList a=new ArrayList();
 		synchronized (pools) {
 			for(Iterator i=pools.values().iterator(); i.hasNext(); ) {
@@ -242,7 +242,7 @@ public class ObjectPool extends Object {
 		// Look like a normal thread, but report number of times the thing's
 		// cleaned.
 		public String toString() {
-			StringBuffer sb=new StringBuffer();
+			StringBuffer sb=new StringBuffer(256);
 			sb.append(super.toString());
 			sb.append(" - ");
 			sb.append(numCleans);

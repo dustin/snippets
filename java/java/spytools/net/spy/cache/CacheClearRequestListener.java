@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: CacheClearRequestListener.java,v 1.4 2002/08/08 21:56:31 dustin Exp $
+// $Id: CacheClearRequestListener.java,v 1.5 2002/08/21 00:52:59 dustin Exp $
 
 package net.spy.cache;
 
@@ -47,7 +47,7 @@ public class CacheClearRequestListener extends Thread {
 	 * String me.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 
 		sb.append(super.toString());
 

@@ -107,7 +107,7 @@ public class HTTPFetch {
 	 */
 	public String getData() throws IOException {
 		if(contents==null) {
-			StringBuffer sb=new StringBuffer();
+			StringBuffer sb=new StringBuffer(256);
 			BufferedReader br = getReader();
 			String line;
 			while( (line=br.readLine()) != null) {
@@ -128,7 +128,7 @@ public class HTTPFetch {
 		getData();
 		if(stripped==null) {
 			int inTag=0;
-			StringBuffer sb=new StringBuffer();
+			StringBuffer sb=new StringBuffer(contents.length());
 
 			char chars[]=contents.toCharArray();
 

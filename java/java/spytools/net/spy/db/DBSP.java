@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.8 2002/08/15 07:29:08 dustin Exp $
+// $Id: DBSP.java,v 1.9 2002/08/21 00:53:02 dustin Exp $
 
 package net.spy.db;
 
@@ -305,7 +305,7 @@ public abstract class DBSP extends SpyCacheDB {
 		}
 
 		// Get ready to build our query.
-		StringBuffer querySb=new StringBuffer();
+		StringBuffer querySb=new StringBuffer(256);
 		querySb.append("exec ");
 		querySb.append(spname);
 		querySb.append(" ");

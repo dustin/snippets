@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: BuildInfo.java,v 1.1 2002/07/23 05:43:49 dustin Exp $
+// $Id: BuildInfo.java,v 1.2 2002/08/21 00:52:54 dustin Exp $
 
 package net.spy;
 
@@ -73,7 +73,7 @@ public class BuildInfo extends Properties {
 	 * String me.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 
 		sb.append("build ");
 		sb.append(getProperty("build.number"));

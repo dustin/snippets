@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: UUInputStream.java,v 1.6 2002/07/10 05:42:32 dustin Exp $
+// $Id: UUInputStream.java,v 1.7 2002/08/21 00:53:25 dustin Exp $
 
 package net.spy.util;
 
@@ -110,7 +110,7 @@ public class UUInputStream extends FilterInputStream {
 	private String readLine() throws IOException {
 		String rv=null;
 
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(128);
 		int r=0;
 
 		while(r!=-1 && (r=='\n' || r=='\r')) {

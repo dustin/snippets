@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DBTTLMonitor.java,v 1.3 2002/08/15 07:12:55 dustin Exp $
+// $Id: DBTTLMonitor.java,v 1.4 2002/08/21 00:53:03 dustin Exp $
 
 package net.spy.db;
 
@@ -44,7 +44,7 @@ public class DBTTLMonitor extends Thread {
 	 * String me.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 		sb.append(super.toString());
 		sb.append(" - Outstanding TTLs:  ");
 		sb.append(ttls.size());

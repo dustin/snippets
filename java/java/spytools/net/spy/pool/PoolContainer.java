@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.37 2002/08/16 07:27:08 dustin Exp $
+// $Id: PoolContainer.java,v 1.38 2002/08/21 00:53:13 dustin Exp $
 
 package net.spy.pool;
 
@@ -182,7 +182,7 @@ public class PoolContainer extends Object {
 
 	// Name to print in debuggy type things.
 	private String debugName() {
-		StringBuffer rv=new StringBuffer();
+		StringBuffer rv=new StringBuffer(64);
 		rv.append(name);
 		rv.append(" @");
 		rv.append(Integer.toHexString(hashCode()));
@@ -194,7 +194,7 @@ public class PoolContainer extends Object {
 	 * debugging tool, dump out the current state of the pool
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 		sb.append("Pool ");
 		sb.append(debugName());
 		sb.append(" - total Objects:  ");

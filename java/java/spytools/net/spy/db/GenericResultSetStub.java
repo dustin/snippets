@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: GenericResultSetStub.java,v 1.3 2002/08/15 23:12:26 dustin Exp $
+ * $Id: GenericResultSetStub.java,v 1.4 2002/08/21 00:53:04 dustin Exp $
  */
 
 package net.spy.db;
@@ -176,7 +176,7 @@ public abstract class GenericResultSetStub extends Object implements Cloneable {
 	 * Debug routine for displaying the current row of the ResultSet.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 		sb.append("Result row:\n");
 		int ncolumns=0;
 		try {

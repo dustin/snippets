@@ -1,5 +1,5 @@
 //
-// $Id: PoolFiller.java,v 1.6 2002/07/10 04:26:12 dustin Exp $
+// $Id: PoolFiller.java,v 1.7 2002/08/21 00:53:14 dustin Exp $
 
 package net.spy.pool;
 
@@ -54,7 +54,7 @@ public abstract class PoolFiller extends Object {
 	 * Get the debug name (including the pool's hash).
 	 */
 	protected String debugName() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 
 		sb.append(name);
 		sb.append(" @");

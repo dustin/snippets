@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PwGen.java,v 1.3 2002/07/10 05:42:18 dustin Exp $
+// $Id: PwGen.java,v 1.4 2002/08/21 00:53:17 dustin Exp $
 
 package net.spy.util;
 
@@ -52,7 +52,7 @@ public class PwGen extends Object {
 	 */
 	public static String getPass(int length, char charset[]) {
 		SecureRandom sr=new SecureRandom();
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(length);
 		for(int i=0; i<length; i++) {
 			// Stick a random character in our result.
 			sb.append(charset[sr.nextInt(charset.length)]);

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FedEx.java,v 1.9 2002/07/10 05:41:25 dustin Exp $
+// $Id: FedEx.java,v 1.10 2002/08/21 00:53:06 dustin Exp $
 
 package net.spy.info;
 
@@ -102,7 +102,7 @@ public class FedEx extends PackageInfo {
 			hinfo.put("ERROR", errorString);
 		} else {
 			// Make a toStringable version
-			StringBuffer sb=new StringBuffer();
+			StringBuffer sb=new StringBuffer(256);
 			sb.append("Tracking ");
 			sb.append(hinfo.get("Tracking Number"));
 			if(isDelivered()) {

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Info.java,v 1.10 2002/07/10 04:25:32 dustin Exp $
+// $Id: Info.java,v 1.11 2002/08/21 00:53:07 dustin Exp $
 
 package net.spy.info;
 
@@ -141,7 +141,7 @@ public abstract class Info extends Object {
 	 * @return the String with known entities replaced.
 	 */
 	public String deEntity(String in) {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(in.length());
 
 		for(int i=0; i<in.length(); i++) {
 			String sub=in.substring(i);

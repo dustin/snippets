@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpyUtil.java,v 1.18 2002/07/10 05:41:08 dustin Exp $
+// $Id: SpyUtil.java,v 1.19 2002/08/21 00:52:56 dustin Exp $
 
 package net.spy;
 
@@ -88,7 +88,7 @@ public class SpyUtil {
 	public static String getFileData(File file) throws IOException {
 		byte b[]=new byte[8192];
 		FileInputStream f = new FileInputStream(file);
-		StringBuffer rv=new StringBuffer();
+		StringBuffer rv=new StringBuffer((int)file.length());
 		int size;
 
 		while( (size=f.read(b)) >=0 ) {
@@ -106,7 +106,7 @@ public class SpyUtil {
 	 * Join an Enumeration of Strings on a join string.
 	 */
 	public static String join(Enumeration e, String on) {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 		while(e.hasMoreElements()) {
 			String s=(String)e.nextElement();
 			sb.append(s);
@@ -172,7 +172,7 @@ public class SpyUtil {
 	 * @param me the byte array that needs hexified.
 	 */
 	public static String byteAToHexString(byte me[]) {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(me.length*2);
 
 		for(int i=0; i<me.length; i++) {
 			int bai=(int)me[i] & 0xff;

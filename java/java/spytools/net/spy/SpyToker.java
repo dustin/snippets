@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyToker.java,v 1.5 2002/07/10 04:24:41 dustin Exp $
+ * $Id: SpyToker.java,v 1.6 2002/08/21 00:52:55 dustin Exp $
  */
 
 package net.spy;
@@ -39,7 +39,6 @@ public class SpyToker extends Object {
 	 */
 	public String tokenize(File file, Hashtable p) {
 		String input=null;
-		StringBuffer output=new StringBuffer();
 		int which;
 
 		// Get our mofo data.
@@ -48,6 +47,7 @@ public class SpyToker extends Object {
 		} catch (IOException e) {
 			return(null);
 		}
+		StringBuffer output=new StringBuffer(input.length() + 256);
 
 		while( (which=input.indexOf('%')) >= 0) {
 			output.append(input.substring(0, which));

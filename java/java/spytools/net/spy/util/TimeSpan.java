@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TimeSpan.java,v 1.4 2002/07/10 05:42:30 dustin Exp $
+// $Id: TimeSpan.java,v 1.5 2002/08/21 00:53:24 dustin Exp $
 
 package net.spy.util;
 
@@ -68,7 +68,7 @@ public class TimeSpan extends Object {
 
 	// Provide a two-digit number as a String.
 	private String zeroNumber(long in) {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(2);
 		if(in<10) {
 			sb.append("0");
 		}
@@ -80,7 +80,7 @@ public class TimeSpan extends Object {
 	 * Print out the timespan.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 		boolean hasDays=false;
 
 		if(days>0) {

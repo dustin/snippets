@@ -1,5 +1,5 @@
 //
-// $Id: PoolAble.java,v 1.23 2002/07/10 05:42:02 dustin Exp $
+// $Id: PoolAble.java,v 1.24 2002/08/21 00:53:11 dustin Exp $
 
 package net.spy.pool;
 
@@ -68,7 +68,7 @@ public abstract class PoolAble extends Object {
 
 	// Get the debug name
 	private String debugName() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 		sb.append("PoolAble ");
 		sb.append(objectId);
 		sb.append(" for ");
@@ -300,7 +300,7 @@ public abstract class PoolAble extends Object {
 	 * @return a string representation of this object.
 	 */
 	public synchronized String toString() {
-		StringBuffer out=new StringBuffer();
+		StringBuffer out=new StringBuffer(128);
 		out.append(debugName());
 		if(isCheckedOut()) {
 			out.append(" is checked out");

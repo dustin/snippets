@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SpySecurityPermissionException.java,v 1.1 2001/07/11 09:30:54 dustin Exp $
+// $Id: SpySecurityPermissionException.java,v 1.2 2002/08/21 00:52:58 dustin Exp $
 
 package net.spy.aaa;
 
@@ -37,7 +37,7 @@ public class SpySecurityPermissionException extends SpySecurityException {
 	 * String me.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(64);
 		String username="unauthenticated user";
 		if(tok!=null) {
 			username=tok.getUsername();

@@ -15,25 +15,25 @@ create table testtable (
 -- Test data
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('full1', date(now()), time(now()), now(), '1234567.09', 1,
+	values('full1', current_date, current_time, now(), '1234567.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('full2', date(now()), time(now()), now(), '1234567.09', 1,
+	values('full2', current_date, current_time, now(), '1234567.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_t, test_ts,
 	test_n, test_i, test_f, test_b)
-	values('nulldate', time(now()), now(), '1234567.09', 1,
+	values('nulldate', current_time, now(), '1234567.09', 1,
 	1.1, true);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_i, test_f)
-	values('nullbool', date(now()), time(now()), now(), '1234567.09', 1,
+	values('nullbool', current_date, current_time, now(), '1234567.09', 1,
 	1.1);
 
 insert into testtable(test_vc, test_d, test_t, test_ts,
 	test_n, test_b)
-	values('nullnums', date(now()), time(now()), now(), '1234567.09', true);
+	values('nullnums', current_date, current_time, now(), '1234567.09', true);
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: SPGen.java,v 1.8 2002/08/17 04:14:16 dustin Exp $
+// $Id: SPGen.java,v 1.9 2002/08/21 00:53:20 dustin Exp $
 
 package net.spy.util;
 
@@ -28,7 +28,7 @@ public class SPGen extends Object {
 	private String procname="";
 	private String pkg="";
 	private String superclass="DBSP";
-	private String version="$Revision: 1.8 $";
+	private String version="$Revision: 1.9 $";
 	private long cachetime=0;
 	private ArrayList sqlquery=null;
 	private ArrayList required=null;
@@ -198,7 +198,7 @@ public class SPGen extends Object {
 	}
 
 	private String getDocQuery() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(1024);
 
 		sb.append(" * <pre>\n");
 		for(Iterator i=sqlquery.iterator(); i.hasNext(); ) {
@@ -213,9 +213,9 @@ public class SPGen extends Object {
 	}
 
 	private String getJavaQuery() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(1024);
 
-		sb.append("\n\t\tStringBuffer query=new StringBuffer();");
+		sb.append("\n\t\tStringBuffer query=new StringBuffer(1024);");
 
 		for(Iterator i=sqlquery.iterator(); i.hasNext(); ) {
 			String part=(String)i.next();

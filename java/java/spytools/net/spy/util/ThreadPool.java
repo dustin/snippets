@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ThreadPool.java,v 1.8 2002/07/10 18:37:27 dustin Exp $
+// $Id: ThreadPool.java,v 1.9 2002/08/21 00:53:22 dustin Exp $
 
 package net.spy.util;
 
@@ -236,7 +236,7 @@ public class ThreadPool extends Object {
 		}
 
 		public String toString() {
-			StringBuffer sb=new StringBuffer();
+			StringBuffer sb=new StringBuffer(128);
 			sb.append(super.toString());
 
 			synchronized(runningMutex) {

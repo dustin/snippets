@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RingBuffer.java,v 1.3 2002/08/17 04:02:25 dustin Exp $
+// $Id: RingBuffer.java,v 1.4 2002/08/21 00:53:18 dustin Exp $
 
 package net.spy.util;
 
@@ -86,7 +86,7 @@ public class RingBuffer extends Object {
 	 * String me.
 	 */
 	public String toString() {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(256);
 		sb.append("{RingBuffer cap=");
 		sb.append(getCapacity());
 		sb.append(" s=");

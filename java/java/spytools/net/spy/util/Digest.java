@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Digest.java,v 1.2 2002/07/10 04:26:30 dustin Exp $
+// $Id: Digest.java,v 1.3 2002/08/21 00:53:16 dustin Exp $
 
 package net.spy.util;
 
@@ -51,7 +51,7 @@ public class Digest extends Object {
 	}
 
 	private String bytesToHex(byte in[]) {
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb=new StringBuffer(in.length*2);
 
 		for(int i=0; i<in.length; i++) {
 			sb.append(Integer.toHexString((int)in[i] & 0xff));
