@@ -1,8 +1,10 @@
 E=smalleiffel
 EC=$(E) compile
 
-EFLAGS=-g -I/usr/local/pgsql/include -funsigned-char
-LFLAGS=-L/usr/local/pgsql/lib -lpq
+RPATH=-rpath /usr/local/pgsql/lib
+
+EFLAGS=-g -I/usr/local/pgsql/include
+LFLAGS=-L/usr/local/pgsql/lib $(RPATH) -lpq
 CSTUFF=/home/dustin/prog/eiffel/pg/pg_cstuff.c
 
 getpic: getpic.e
