@@ -1,12 +1,14 @@
 # This is a library type thing of all the routines to grab stat data.
-# $Id: statlib.pl,v 1.1 1997/12/12 18:31:19 dustin Exp $
+# $Id: statlib.pl,v 1.2 1997/12/12 18:39:27 dustin Exp $
 
 # this reads in a file ignoring lines starting with # and empty lines
 
 require '/home/monitor/lib/statlib.conf';
 
-# Library thing to get date info.
+# A damned global.
+@alrmDecoded;
 
+# Library thing to get date info.
 
 sub timeStamps
 {
@@ -153,6 +155,114 @@ sub display3dlol
     }
 }
 
+# alarm optimization code, long and drawn out...
+
+sub decodeAlarm
+{
+    my($recipient, @alrm)=@_;
+    my($alarms, $alarm, @out);
+
+    if(defined($alrm[1]{$recipient}))
+    {
+        foreach $alarm (@{$alrm[1]{$recipient}})
+        {
+            if($alarm ne $recipient)
+            {
+                push(@alrmDecoded, decodeAlarm($alarm));
+            }
+        }
+    }
+    else
+    {
+        if(defined($alrm[0]{$recipient}))
+        {
+            foreach $alarm (@{$alrm[0]{$recipient}})
+            {
+		if(defined($alrm[0]{$recipient}))
+		{
+                    push(@alrmDecoded, $alarm);
+		}
+		else
+		{
+                    push(@out, $alarm);
+		}
+            }
+        }
+    }
+
+    return(@out);
+}
+
+sub makeOptimalAlarmList
+{
+    my(@in)=@_;
+    my(%h, @pages, @email, %doms, @ret, $tmp);
+
+    # get rid of duplicates
+
+    foreach(@in)
+    {
+	$h{$_}=1;
+    }
+
+    foreach(keys(%h))
+    {
+	if(/P:(.*)/)
+	{
+            push(@pages, $1);
+	}
+
+	if(/E:(.*)\@(.*)/)
+	{
+	    push(@{$doms{$2}}, $1);
+	}
+    }
+
+    foreach(keys(%doms))
+    {
+	push(@email, "E:" . (join(',',@{$doms{$_}}) . "\@$_") );
+    }
+
+    if($#pages>0)
+    {
+	push(@ret, "P:" . join(',', @pages));
+    }
+
+    push(@ret, @email);
+
+    return(@ret);
+}
+
+sub optimalAlarms
+{
+    my($key, @mylist, $tmp, $n, @deletes);
+    my(@hs);
+
+    @hs=readInAlarms();
+
+    foreach $key (keys(%{$hs[1]}))
+    {
+        foreach $n (0..1)
+        {
+            foreach $tmp (@{ $hs[$n]{$key} })
+            {
+                @alrmDecoded=();
+                decodeAlarm($tmp, @hs);
+                push(@mylist, @alrmDecoded);
+            }
+
+	    $hs[0]{$key}=[makeOptimalAlarmList(@mylist)];
+	    # Drop the class.
+            push(@deletes, $key);
+        }
+    }
+    foreach(@deletes)
+    {
+        delete($hs[1]{$_});
+    }
+    return(@hs);
+}
+
 # This is to read in the alarm lists
 
 sub readInAlarms
@@ -182,11 +292,18 @@ sub readInAlarms
 sub sendmail
 {
     my($to, $subject, $message)=@_;
+    my(@to, $domain, $tmp);
+
+    ($to, $domain)=split(/\@/, $to);
+    @to=split(/,/, $to);
+
+    @to=map("$_\@$domain", @to);
+    $to=join(", ", @to);
 
     open(MAIL, "|/usr/lib/sendmail -oi -t");
 
     print MAIL "From:  Dustin's Alarm thing <dustin\@cybersource.com>\n";
-    print MAIL "To:  $to\n";
+    print MAIL "To: $to\n";
     print MAIL "Subject: $subject\n\n";
     print MAIL $message;
 
@@ -258,7 +375,7 @@ sub doalarms
     my($recipient, $message)=@_;
     my(@alrm, @alarms, $alarm);
 
-    @alrm=readInAlarms();
+    @alrm=optimalAlarms();
 
     # try class first
     if(defined($alrm[1]{$recipient}))
