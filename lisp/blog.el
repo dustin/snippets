@@ -19,7 +19,7 @@
 
 (defun blog-create-blogfile (newfile)
   "Create the new blog file in a new buffer.  Return the new buffer."
-  ; (make-directory (file-name-directory newfile) 1)
+  (make-directory (file-name-directory newfile) 1)
   (let ((nef (find-file (concat blog-outdir newfile))))
     (switch-to-buffer nef)
     (insert-file-contents blog-template nil nil nil 1)
