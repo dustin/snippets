@@ -81,6 +81,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/cache/SpyCache.class \
 	'net/spy/cache/SpyCache$$SpyCacheCleaner.class' \
 	'net/spy/cache/SpyCache$$SpyCacheItem.class' \
+	net/spy/cache/CacheClearRequestListener.class \
 	net/spy/db/CachePreparedStatementStub.class \
 	net/spy/db/CachedResultSetStub.class \
 	net/spy/db/CachePreparedStatement.class \

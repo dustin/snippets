@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
  *
- * $id$
+ * $Id: TimedSocket.java,v 1.3 2001/07/27 22:49:32 dustin Exp $
  */
 
 package net.spy.net;

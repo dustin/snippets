@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.7 2001/05/22 06:44:22 dustin Exp $
+ * $Id: SpyCache.java,v 1.8 2001/07/27 22:49:30 dustin Exp $
  */
 
 package net.spy.cache;
 
 import java.util.*;
+import java.net.*;
+import java.io.*;
 
 import net.spy.util.*;
 
@@ -115,6 +117,13 @@ public class SpyCache extends Object {
 		// How many cleaning passes we've done.
 		private int passes=0;
 
+		// This is so we can only report multicast security exceptions
+		// once.
+		private boolean reportedMulticastSE=false;
+
+		// Insert multicast listener here.
+		private CacheClearRequestListener listener=null;
+
 		public SpyCacheCleaner(TimeStampedHash cacheStore) {
 			super();
 			this.cacheStore=cacheStore;
@@ -154,6 +163,30 @@ public class SpyCache extends Object {
 			return(rv);
 		}
 
+		// Make sure our multicast listener is still running if it should be.
+		private void checkMulticastThread() {
+			try {
+				String addr_s=System.getProperty("net.spy.cache.multi.addr");
+				String port_s=System.getProperty("net.spy.cache.multi.port");
+
+				if(addr_s!=null && port_s!=null) {
+					int port=Integer.parseInt(port_s);
+
+					InetAddress group = InetAddress.getByName(addr_s);
+					listener=new CacheClearRequestListener(group, port);
+				}
+
+			} catch(SecurityException se) {
+				// Only do this the first time.
+				if(!reportedMulticastSE) {
+					se.printStackTrace();
+					reportedMulticastSE=true;
+				}
+			} catch(IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+
 		public void run() {
 
 			boolean keepgoing=true;
@@ -162,6 +195,9 @@ public class SpyCache extends Object {
 			// for an hour, at which point it'll dump the whole cache and join.
 			while(keepgoing) {
 				try {
+					if(listener==null || (!listener.isAlive())) {
+						checkMulticastThread();
+					}
 					sleep(300*1000);
 					cleanup();
 				} catch(Exception e) {
@@ -173,6 +209,11 @@ public class SpyCache extends Object {
 
 			// OK, we're about to bail, let's dump the cache and go.
 			cacheStore.clear();
+
+			// Tell the multicast listener to stop if we have one
+			if(listener!=null) {
+				listener.stopRunning();
+			}
 		}
 	} // Cleaner class
 
