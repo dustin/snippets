@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.10 1998/11/11 08:13:30 dustin Exp $
+ * $Id: http.c,v 1.11 1998/11/11 09:11:27 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -172,7 +172,13 @@ parseurl(char *url)
 		break;
 	case ':':		/* format http://host.domain:port/ */
 		port = atoi(u.req + 1);
-		assert(port);
+		if(port==0) { /* bad port number */
+			if(u.host)
+				free(u.host);
+			u.host=NULL;
+			u.port=-1;
+			return(u);
+		}
 		*u.req = NULL;
 		u.req++;
 		while (*u.req && *u.req != '/')

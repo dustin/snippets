@@ -1,9 +1,8 @@
-
 /*
  * Copyright (c) 1998 beyond.com
  * Written by Dustin Sallings
  *
- * $Id: post.c,v 1.10 1998/11/11 08:13:31 dustin Exp $
+ * $Id: post.c,v 1.11 1998/11/11 09:11:37 dustin Exp $
  */
 
 #include <stdio.h>
@@ -17,15 +16,17 @@
 
 #include "http.h"
 
-#define USERAGENT "DUpload/$Revision: 1.10 $"
+#define USERAGENT "DUpload/$Revision: 1.11 $"
 
-void
+/* Generate a MIME delimiter */
+static void
 _gendelimit(char *d, size_t len)
 {
 	snprintf(d, len - 1, "---------------------------%d%d",
 	    (int) time(NULL), getpid());
 }
 
+/* Post a file to a url */
 struct status
 postfile(char *url, char *path)
 {
@@ -86,7 +87,6 @@ postfile(char *url, char *path)
 	fprintf(tmp, "Content-Disposition: form-data; "
 	    "name=\"file\"; filename=\"%s\"\r\n\r\n", path);
 
-	/* Read in the file, and send it along */
 	while ((len = fread(line, 1, 1024, f)) > 0) {
 		len = fwrite(line, 1, len, tmp);
 	}
