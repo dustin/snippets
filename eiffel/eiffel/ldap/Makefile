@@ -16,4 +16,4 @@ short:
 
 clean:
 	$(E) clean ldaptest
-	rm -f ldaptest
+	rm -f ldaptest *.o
