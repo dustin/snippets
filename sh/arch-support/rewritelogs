@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Rewrite the logs in each patch.  Ugly, but I'm going to add it here in case I
+# need to do it again.
+
+TOP=$PWD
+
+TMP=/tmp/,fixdate.$$
+
+while read f
+do
+	echo "Processing $f"
+	rm -rf $TMP
+	mkdir $TMP
+
+	cp $f $TMP
+	fn="`basename $f`"
+	cd $TMP
+
+	gzip -dc "$fn" | tar xf -
+	 ~/prog/snippets/python/misc/archLogRewrite.py */*/*/*/*/*/*/patch-log/*
+	 mv "$fn" "$fn".old
+	 tar cf - "`basename "$fn" .tar.gz`" | gzip -9c > "$fn"
+
+	cd $TOP
+	chmod 644 "$f"
+	rm "$f"
+	cp "$TMP/$fn" "$f"
+	chmod 444 "$f"
+
+	rm -rf $TMP
+done
