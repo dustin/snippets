@@ -6,7 +6,8 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200
+PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
+	builddict cipher splitFreqs
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -37,6 +38,18 @@ waitForSocket: waitForSocket.ml
 wx200: wx200.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa \
 		wx200.ml
+
+builddict: builddict.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa builddict.ml
+
+cipher: cipher.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa str.cmxa spy.cmxa cipher.ml
+
+splitFreqs: splitFreqs.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa splitFreqs.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
