@@ -19,9 +19,8 @@ fi
 # For commits
 if [ "$1" == "commit" ]
 then
-	# If this is my default archive, let's do a local push replication.  My
-	# mirror will never be out of date.
-	if [ "$ARCH_ARCHIVE" = "dustin@spy.net--projects-2004" ]
+	# If there's a mirror for this archive, update it.
+	if [ -f "${HOME}/.arch-params/=locations/${ARCH_ARCHIVE}-MIRROR" ]
 	then
 		lim=`tla parse-package-name $ARCH_REVISION`
 		hookLog "Replicating $ARCH_ARCHIVE with limit $lim"
