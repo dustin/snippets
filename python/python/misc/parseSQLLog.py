@@ -38,17 +38,17 @@ class LogEntry:
         return self.__calls
 
     def getCallTime(self):
-        return self.__calltime
+        return (self.__calltime / self.__calls)
 
 if __name__ == '__main__':
 
-    lf=open(sys.argv[1])
+    # lf=open(sys.argv[1])
 
     lastTime=0
     totalCalls=0
     totalTime=0
 
-    l=lf.readline()
+    l=sys.stdin.readline()
     while l != '':
         try:
             le=LogEntry(l)
@@ -56,7 +56,10 @@ if __name__ == '__main__':
             t=le.getTimestampNearest(60)
 
             if t!=lastTime and totalCalls > 0:
-                print lastTime, totalCalls, totalTime
+                print "update " + sys.argv[1] + " " \
+                    + string.join(  (str(lastTime),
+                                    str(totalCalls),
+                                    str(totalTime)), ':')
                 totalCalls=0
                 totalTime=0
 
@@ -68,6 +71,4 @@ if __name__ == '__main__':
             e=sys.exc_info()
             # print "Exception with " + l, str(e[1])
 
-        l=lf.readline()
-
-    lf.close()
+        l=sys.stdin.readline()
