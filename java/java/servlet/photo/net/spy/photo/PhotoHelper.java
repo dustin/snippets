@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoHelper.java,v 1.8 1999/10/20 02:14:48 dustin Exp $
+ * $Id: PhotoHelper.java,v 1.1 1999/10/20 03:42:57 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.sql.*;
 import java.util.*;
@@ -32,13 +34,13 @@ public class PhotoHelper
 
 	// Grab a connection from the pool.
 	protected Connection getDBConn() throws Exception {
-		PhotoDB pdb=new PhotoDB();
+		SpyDB pdb=new SpyDB(new PhotoConfig(), false);
 		return(pdb.getConn());
 	}
 
 	// Gotta free the connection
 	protected void freeDBConn(Connection conn) {
-		PhotoDB pdb=new PhotoDB();
+		SpyDB pdb=new SpyDB(new PhotoConfig(), false);
 		pdb.freeDBConn(conn);
 	}
 }

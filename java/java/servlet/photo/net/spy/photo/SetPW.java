@@ -1,11 +1,15 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SetPW.java,v 1.1 1999/10/10 08:03:59 dustin Exp $
+ * $Id: SetPW.java,v 1.1 1999/10/20 03:43:05 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.sql.*;
 import java.io.*;
+
+import net.spy.*;
 
 public class SetPW {
 	public static void main(String args[]) {

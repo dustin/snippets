@@ -1,21 +1,23 @@
 /*
  * Copyright (C) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoConfig.java,v 1.9 1999/10/20 02:14:46 dustin Exp $
+ * $Id: PhotoConfig.java,v 1.1 1999/10/20 03:42:57 dustin Exp $
  */
+
+package net.spy.photo;
 
 import net.spy.*;
 
 public class PhotoConfig extends SpyConfig {
 
 	public PhotoConfig() {
-		super("/tmp/config");
+		super("/usr/local/etc/photo.conf");
 		orput("dbDriverName", "postgresql.Driver");
-		// this.put("dbSource", "jdbc:postgresql://dhcp-104/photo");
-		orput("dbSource", "jdbc:postgresql://localhost/photo");
+		orput("dbSource", "jdbc:postgresql://dhcp-104/photo");
+		// orput("dbSource", "jdbc:postgresql://localhost/photo");
 		orput("dbUser", "nobody");
 		orput("dbPass", "");
-		// this.put("objectserver", "//localhost/RObjectServer");
+		// orput("objectserver", "//localhost/RObjectServer");
 		orput("objectserver", "//dhcp-104/RObjectServer");
 		orput("includes", "/home/dustin/public_html/jphoto/inc/");
 		orput("html_uriroot", "/~dustin/jphoto/");

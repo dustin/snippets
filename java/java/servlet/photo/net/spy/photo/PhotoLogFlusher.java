@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogFlusher.java,v 1.6 1999/10/20 02:14:53 dustin Exp $
+ * $Id: PhotoLogFlusher.java,v 1.1 1999/10/20 03:42:59 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.sql.*;
 import java.lang.*;
@@ -27,11 +29,11 @@ public class PhotoLogFlusher extends SpyLogFlusher {
 		Vector v = log_object.flush();
 		Statement st = null;
 		Connection db=null;
-		PhotoDB photodb=null;
+		SpyDB photodb=null;
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
 			try {
-				photodb = new PhotoDB();
+				photodb = new SpyDB(new PhotoConfig());
 				db=photodb.getConn();
 				st=db.createStatement();
 				for(int i = 0; i<v.size(); i++) {
@@ -47,7 +49,7 @@ public class PhotoLogFlusher extends SpyLogFlusher {
 			} catch(Exception e) {
 				System.err.println("BAD LOG ERRROR!  " + e.getMessage());
 			} finally {
-				photodb.freeDBConn(db);
+				photodb.freeDBConn();
 			}
 		}
 	}

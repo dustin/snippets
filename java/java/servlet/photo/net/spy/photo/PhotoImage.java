@@ -1,13 +1,17 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoImage.java,v 1.11 1999/10/20 02:14:50 dustin Exp $
+ * $Id: PhotoImage.java,v 1.1 1999/10/20 03:42:58 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 import sun.misc.*;
+
+import net.spy.*;
 
 // The class
 public class PhotoImage extends PhotoHelper

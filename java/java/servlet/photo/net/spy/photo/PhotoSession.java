@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoSession.java,v 1.3 1999/10/20 02:15:00 dustin Exp $
+ * $Id: PhotoSession.java,v 1.1 1999/10/20 03:43:02 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.io.*;
 import java.sql.*;
@@ -16,6 +18,7 @@ import javax.servlet.http.*;
 import com.oreilly.servlet.*;
 
 import net.spy.*;
+import PhotoServlet;
 
 // The class
 public class PhotoSession extends Object
@@ -207,7 +210,7 @@ public class PhotoSession extends Object
 	protected void reInitialize() {
 		log("Application would like to reinitialize.");
 		try {
-			PhotoDB db=new PhotoDB();
+			SpyDB db=new SpyDB(new PhotoConfig(), false);
 			db.init();
 		} catch(Exception e) {
 			// Do nothing.
@@ -216,13 +219,13 @@ public class PhotoSession extends Object
 
 	// Grab a connection from the pool.
 	protected Connection getDBConn() throws Exception {
-		PhotoDB pdb=new PhotoDB();
+		SpyDB pdb=new SpyDB(new PhotoConfig(), false);
 		return(pdb.getConn());
 	}
 
 	// Gotta free the connection
 	protected void freeDBConn(Connection conn) {
-		PhotoDB pdb=new PhotoDB();
+		SpyDB pdb=new SpyDB(new PhotoConfig(), false);
 		pdb.freeDBConn(conn);
 	}
 

@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogImageEntry.java,v 1.4 1999/10/20 02:14:54 dustin Exp $
+ * $Id: PhotoLogImageEntry.java,v 1.1 1999/10/20 03:43:00 dustin Exp $
  */
+
+package net.spy.photo;
 
 
 import java.util.*;

@@ -14,12 +14,15 @@ SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=PhotoServlet.class PhotoHelper.class PhotoUtil.class \
-	PhotoImage.class \
-	PhotoLogFlusher.class PhotoLogView.class \
-	PhotoLogImageEntry.class PhotoUser.class PhotoImageData.class \
-	PhotoSecurity.class PhotoConfig.class PhotoDB.class PhotoSearch.class \
-	PhotoStorerThread.class PhotoSession.class
+CLASSES=PhotoServlet.class net/spy/photo/PhotoHelper.class \
+	net/spy/photo/PhotoUtil.class \
+	net/spy/photo/PhotoImage.class \
+	net/spy/photo/PhotoLogFlusher.class net/spy/photo/PhotoLogView.class \
+	net/spy/photo/PhotoLogImageEntry.class net/spy/photo/PhotoUser.class \
+	net/spy/photo/PhotoImageData.class \
+	net/spy/photo/PhotoSecurity.class net/spy/photo/PhotoConfig.class \
+	net/spy/photo/PhotoSearch.class \
+	net/spy/photo/PhotoStorerThread.class net/spy/photo/PhotoSession.class
 
 .SUFFIXES: .java .class .jar
 

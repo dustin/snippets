@@ -1,13 +1,17 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.5 1999/10/19 07:11:29 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.1 1999/10/20 03:43:00 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 import sun.misc.*;
+
+import net.spy.*;
 
 // The class
 public class PhotoLogView extends PhotoHelper

@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.8 1999/10/20 02:21:44 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.1 1999/10/20 03:43:04 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.lang.*;
 import java.util.*;

@@ -1,8 +1,10 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSearch.java,v 1.1 1999/10/12 22:58:33 dustin Exp $
+ * $Id: PhotoSearch.java,v 1.1 1999/10/20 03:43:01 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.io.*;
 import java.sql.*;
@@ -12,6 +14,8 @@ import sun.misc.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import net.spy.*;
 
 public class PhotoSearch extends Object {
 
@@ -45,10 +49,10 @@ public class PhotoSearch extends Object {
 			throw new Exception("No permission to save searches.");
 		}
 
-		PhotoDB pdb=null;
+		SpyDB pdb=null;
 
 		try {
-			pdb = new PhotoDB();
+			pdb = new SpyDB(new PhotoConfig());
 			Connection c = pdb.getConn();
 			Statement st = c.createStatement();
 			String stmp=null, name=null, search=null;

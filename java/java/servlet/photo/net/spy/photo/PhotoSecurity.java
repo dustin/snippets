@@ -1,13 +1,17 @@
 /*
  * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
  *
- * $Id: PhotoSecurity.java,v 1.5 1999/10/20 02:14:57 dustin Exp $
+ * $Id: PhotoSecurity.java,v 1.1 1999/10/20 03:43:02 dustin Exp $
  */
+
+package net.spy.photo;
 
 import java.security.*;
 import java.util.*;
 import java.sql.*;
 import sun.misc.*;
+
+import net.spy.*;
 
 public class PhotoSecurity extends PhotoHelper {
 	// Secret string to verify authentication with

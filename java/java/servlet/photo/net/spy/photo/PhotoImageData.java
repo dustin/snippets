@@ -1,10 +1,14 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
 //
-// $Id: PhotoImageData.java,v 1.1 1999/10/04 06:32:20 dustin Exp $
+// $Id: PhotoImageData.java,v 1.1 1999/10/20 03:42:58 dustin Exp $
+
+package net.spy.photo;
 
 import java.util.*;
 import java.lang.*;
 import java.io.Serializable;
+
+import net.spy.*;
 
 // Store the actual data for a PhotoImage object.
 public class PhotoImageData extends Object implements Serializable {

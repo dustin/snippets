@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.37 1999/10/20 02:14:59 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.38 1999/10/20 03:42:46 dustin Exp $
  */
 
 import java.io.*;
@@ -14,21 +14,22 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import net.spy.*;
+import net.spy.photo.*;
 
 // The class
 public class PhotoServlet extends HttpServlet
 {
 	// Only *really* persistent data can go here.
-	protected String self_uri=null;
-	protected RHash rhash=null;
-	protected PhotoSecurity security = null;
+	public String self_uri=null;
+	public RHash rhash=null;
+	public PhotoSecurity security = null;
 
 	protected PhotoStorerThread storer_thread = null;
 
-	protected SpyLog logger = null;
+	public SpyLog logger = null;
 
 	// Users
-	protected Hashtable userdb=null;
+	public Hashtable userdb=null;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
