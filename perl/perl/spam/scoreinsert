@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: insert,v 1.3 1998/01/12 09:12:22 dustin Exp $
+# $Id: scoreinsert,v 1.1 1998/01/12 09:12:23 dustin Exp $
 #
 # This is used to insert messages into the database and
 # puts them in the webroot for viewing.
@@ -104,13 +104,65 @@ sub checkAgnt
     return(-1);
 }
 
-$file=$ARGV[0];
-$spammer=$ARGV[1];
-$agent=$ARGV[2];
-
 $dbh=db_connect("spam");
 
 umask 022;
+
+sub scoremsg
+{
+    my($infile)=@_;
+    my($dbh, $query, $s, @r, @scores, %score, %custs);
+
+    $dbh=db_connect("spam");
+
+    if(!$dbh)
+    {
+        print "Couldn't connect to database\n$Postgres::error\n";
+        exit(1);
+    }
+
+    $query="select domain, spam_id, score from custmap\n";
+
+    if(!($s=$dbh->execute($query)))
+    {
+        print "Error in query:\n$query\n$Postgres::error\n";
+        exit(1);
+    }
+
+    while(@r=$s->fetchrow())
+    {
+        $custs{$r[0]}=$r[1];
+        $score{$r[0]}=$r[2];
+    }
+
+    open(IN, $infile) || die("Can't open $infile: $!\n");
+    while(<IN>)
+    {
+        foreach $key (keys(%custs))
+        {
+            $scores[$custs{$key}]+=$score{$key} if(/$key/i);
+        }
+    }
+    close(IN);
+
+    $i=-1;
+    for(0..$#scores)
+    {
+       $i=$_ if($scores[$_]>$i);
+    }
+
+    return($i, $scores[$i]);
+}
+
+($file, $agent)=@ARGV;
+
+($spammer, $score)=&scoremsg($file);
+
+if($spammer<0)
+{
+    print "Damn, looks like you looking that one up...\n";
+    exit(0);
+}
 
 if(checkId($spammer))
 {
@@ -124,7 +176,9 @@ if(checkAgnt($agent))
     $agent=0;
 }
 
-$size=(stat($ARGV[0]))[7];
+print "Looks like it belongs to $spammer, score was $score\n";
+
+$size=(stat($file))[7];
 
 print "Size:\t$size\n";
 
@@ -214,5 +268,5 @@ if(!($dbh->execute($query)))
 $dbh->execute("commit");
 
 &ensurePath("$messdir/$fn");
-system("cp $ARGV[0] $messdir/$fn");
+system("cp $file $messdir/$fn");
 chmod (0644, "$messdir/$fn");
