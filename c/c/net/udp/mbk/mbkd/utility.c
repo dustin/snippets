@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: utility.c,v 1.1 1998/10/01 06:39:14 dustin Exp $
+ * $Id: utility.c,v 1.2 1998/10/01 17:04:52 dustin Exp $
  */
 
 #include <config.h>
@@ -179,7 +179,7 @@ addtostr(int *size, char *dest, char *str)
 		new = 1;
 	}
 	if (strlen(dest) + strlen(str) >= (size_t) * size) {
-		_ndebug(4,("Realloc'in to %d bytes, need more than %d bytes\n",
+		_ndebug(4, ("Realloc'in to %d bytes, need more than %d bytes\n",
 			*size << 1, *size));
 
 		*size <<= 1;
@@ -322,4 +322,41 @@ set_bit(int map, int bit)
 	map |= blah;
 
 	return (map);
+}
+
+/* Yeah, there's probably a better way to do this, but I had this code, and
+ * it worked at least at one time for me...
+ */
+char  **
+split(char c, char *string)
+{
+	int     i, j = 0, k = 0, length;
+	char  **ret;
+	char   *p;
+
+	length = strlen(string);
+
+	p = string + length - 1;
+
+	/* how many we got? */
+	for (i = 0; i < length; i++) {
+		if (string[i] == c) {
+			string[i] = 0x00;
+			j++;
+		}
+	}
+
+	j++;
+
+	ret = (char **) malloc((j + 1) * sizeof(char *));
+	ret[j--] = NULL;
+
+	for (; j >= 0; j--) {
+		while (*p && p >= string)
+			p--;
+		ret[j] = strdup(p + 1);
+		p--;
+	}
+
+	return (ret);
 }

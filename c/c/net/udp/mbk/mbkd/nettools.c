@@ -1,7 +1,8 @@
+
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: nettools.c,v 1.1 1998/10/01 06:39:12 dustin Exp $
+ * $Id: nettools.c,v 1.2 1998/10/01 17:04:50 dustin Exp $
  */
 
 /*
@@ -95,9 +96,9 @@ nmc_dqToInt(char *dq)
 		return (0);
 
 	ret = ((atoi(a[0]) << 24) +
-	       (atoi(a[1]) << 16) +
-	       (atoi(a[2]) << 8)  +
-	        atoi(a[3]) );
+	    (atoi(a[1]) << 16) +
+	    (atoi(a[2]) << 8) +
+	    atoi(a[3]));
 	return (ret);
 }
 

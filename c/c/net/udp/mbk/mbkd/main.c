@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.2 1998/10/01 16:44:40 dustin Exp $
+ * $Id: main.c,v 1.3 1998/10/01 17:04:47 dustin Exp $
  */
 
 #include <config.h>
@@ -99,16 +99,16 @@ process_main()
 
 	s = getservsocket_udp(1099);
 
-	len=1024;
+	len = 1024;
 
-	stat = recvfrom(s, (char *)&mbk_packet, sizeof(mbk_packet),
+	stat = recvfrom(s, (char *) &mbk_packet, sizeof(mbk_packet),
 	    0, (struct sockaddr *) &from, &len);
 	if (stat < 0) {
 		perror("recvfrom");
 	}
 	printf("Read %d bytes\n", stat);
 	printf("Length:\t%d\nAuth:\t0x%x\nData:\t%s\n", mbk_packet.len,
-	       mbk_packet.auth, mbk_packet.data);
+	    mbk_packet.auth, mbk_packet.data);
 }
 
 int
