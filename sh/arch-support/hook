@@ -1,5 +1,9 @@
 #!/bin/sh
 
+hookLog() {
+	echo "hook:  $@"
+}
+
 # For commits
 if [ "$1" == "commit" ]
 then
@@ -8,6 +12,9 @@ then
 	if [ "$ARCH_ARCHIVE" = "dustin@spy.net--projects-2004" ]
 	then
 		lim="${ARCH_CATEGORY}-${ARCH_BRANCH}"
+		hookLog "Replicating $ARCH_ARCHIVE with limit $lim"
 		tla archive-mirror -s $ARCH_ARCHIVE $lim
+	else
+		hookLog "Not doing anything with $ARCH_ARCHIVE"
 	fi
 fi
