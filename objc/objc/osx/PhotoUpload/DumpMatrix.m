@@ -76,6 +76,7 @@
     while(object = [e nextObject]) {
         [cells addObject: object];
     }
+    // NSLog(@"%d columns, %d images\n", [self numberOfColumns], [_storage count]);
     [self addRowWithCells: cells];
     [self sizeToCells];
     [self setMode: NSListModeMatrix];
@@ -108,6 +109,17 @@
 -(void)removeFile:(NSString *)filename
 {
     [_storage removeObjectForKey: filename];
+}
+
+-(void)removeSelected
+{
+    NSArray *a=[self selectedCells];
+    NSEnumerator *e=[a objectEnumerator];
+    id object=nil;
+    while(object=[e nextObject]) {
+        [self removeFile: [[object image] name]];
+    }
+    [self update];
 }
 
 -(NSArray *)getImages: (NSString *)file

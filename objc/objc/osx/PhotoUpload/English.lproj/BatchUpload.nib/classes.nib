@@ -1,0 +1,18 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {stopUpload = id; };
+            CLASS = BatchUploadController;
+            LANGUAGE = ObjC;
+            OUTLETS = {
+                batchProgressBar = NSProgressIndicator;
+                batchText = NSTextField;
+                fileProgressBar = NSProgressIndicator;
+                fileText = NSTextField;
+            };
+            SUPERCLASS = NSWindowController;
+        },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    );
+    IBVersion = 1;
+}

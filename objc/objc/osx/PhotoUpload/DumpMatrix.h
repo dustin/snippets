@@ -17,6 +17,7 @@
 // Add a new file to the storage
 -(void)addFile:(NSString *)filename;
 -(void)removeFile:(NSString *)filename;
+-(void)removeSelected;
 
 // Update
 -(void)update;

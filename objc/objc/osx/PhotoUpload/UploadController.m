@@ -129,17 +129,22 @@
 
 - (IBAction)removeAllFiles:(id)sender
 {
-    [imgMatrix clear];
+    id kw=[NSApp keyWindow];
+    if(_batchController != nil && (kw == [_batchController window])) {
+        [[_batchController imgMatrix] clear];
+    } else {
+        [imgMatrix clear];
+    }
 }
 
 - (IBAction)removeSelected:(id)sender
 {
-    NSArray *a=[imgMatrix selectedCells];
-    int i=0;
-    for(i=0; i<[a count]; i++) {
-        [imgMatrix removeFile: [[[a objectAtIndex: i] image] name]];
+    id kw=[NSApp keyWindow];
+    if(_batchController != nil && (kw == [_batchController window])) {
+        [[_batchController imgMatrix] removeSelected];
+    } else {
+        [imgMatrix removeSelected];
     }
-    [imgMatrix update];
 }
 
 - (IBAction)saveBatch:(id)sender

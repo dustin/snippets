@@ -70,6 +70,11 @@
     }
 }
 
+-(DumpMatrix *)imgMatrix
+{
+    return (imgMatrix);
+}
+
 -(void)awakeFromNib
 {
     NSLog(@"BatchController awaking from nib.\n");
