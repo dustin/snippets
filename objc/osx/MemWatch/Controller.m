@@ -6,8 +6,9 @@
     // NSLog(@"Controller updating.");
     [stats update];
 
-    NSString *statusStr = [[NSString alloc] initWithFormat: @"Current free:  %dM",
-        ([stats memFree] / (1024*1024))];
+    int meg=1024*1024;
+    NSString *statusStr = [[NSString alloc] initWithFormat: @"Current Free:  %dM - Total: %dM - Max: %dM",
+        ([stats memFree] / meg), ([stats memTotal] / meg), ([stats memMax] / meg)];
     [status setStringValue: statusStr];
     [statusStr release];
     [plot addDatum: [stats memFree]];

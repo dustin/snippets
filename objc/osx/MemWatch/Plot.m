@@ -25,7 +25,7 @@
     // Drawing code here.
     // Convert the numbers to points
     // NSLog(@"Drawing area is %.0fx%.0f", rect.size.width, rect.size.height);
-    float pixdiff=rect.size.width/(float)MAX_OBJS;
+    float pixdiff=rect.size.width/((float)[data count]-1.0);
     // NSLog(@"There are %f pixels between points", pixdiff);
     // Do the conversion
     NSEnumerator *enumerator = [data objectEnumerator];

@@ -8,7 +8,7 @@
 
 #import <AppKit/AppKit.h>
 
-#define MAX_OBJS 128
+#define MAX_OBJS 1024
 
 @interface Plot : NSView {
     NSMutableArray *data;
