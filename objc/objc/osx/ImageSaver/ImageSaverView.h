@@ -10,8 +10,12 @@
 
 @interface ImageSaverView : ScreenSaverView
 {
+	// This is the URL from the config
     NSString *urlString;
     float updateInterval;
+	// This is an array of URLs that represent all of the images we want to see
+	NSArray *imageUrls;
+	int currentURLOffset;
     NSImage *currentImage;
 
     NSTimer *updateTimer;
@@ -23,6 +27,7 @@
 }
 
 - (void)fetchImage;
+- (void)setImageURLs;
 
 - (IBAction)cancelButton:(id)sender;
 - (IBAction)intervalChanged:(id)sender;

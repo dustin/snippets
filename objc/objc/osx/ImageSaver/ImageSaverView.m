@@ -35,6 +35,8 @@
         [defaults setFloat: updateInterval forKey: @"interval"];
     }
 
+	[self setImageURLs];
+
 	// Update right away
 	[self performSelector: @selector(fetchImage)
         withObject:nil afterDelay:1.0];
@@ -91,9 +93,82 @@
     }
 }
 
-- (void)fetchImage
+- (void)shuffleArray: (NSMutableArray *)a
+{
+	int i, j, n;
+	id d;
+	n = [a count] - 1;
+	for(i = n; i>=0; i--) {
+		j=random() % n;
+		if(j == i) {
+			continue;
+		}
+		d = [[a objectAtIndex:i] retain];
+		[a replaceObjectAtIndex:i withObject:[a objectAtIndex:j]];
+		[a replaceObjectAtIndex:j withObject:d];
+		[d release];
+	}
+}
+
+- (void)setImageURLs
 {
     NSURL *u=[[NSURL alloc] initWithString: urlString];
+    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+    NSLog(@"Fetching url list from %@", u);
+    NSData *data=[u resourceDataUsingCache: FALSE];
+
+	char fourbytes[5];
+	[data getBytes: &fourbytes length: 4];
+	fourbytes[4]=0x00;
+
+	NSLog(@"First four bytes are %x.%x.%x.%x",
+		fourbytes[0], fourbytes[1], fourbytes[2], fourbytes[3]);
+
+	NSArray *newList=nil;
+	if(strcmp(fourbytes, "http") == 0) {
+		NSLog(@"Hey, that says http, I'm guessing this is a list of URLs");
+		NSString *str=[[NSString alloc] initWithData: data
+			encoding:NSUTF8StringEncoding];
+		NSArray *splitList=[str componentsSeparatedByString: @"\n"];
+		newList=[[NSMutableArray alloc] initWithCapacity: [splitList count]];
+
+		// Copy the things that look like URLs
+		NSEnumerator *enumerator = [splitList objectEnumerator];
+		id anObject=nil;
+		while (anObject = [enumerator nextObject]) {
+			if([anObject hasPrefix: @"http"]) {
+				[newList addObject: anObject];
+			}
+		}
+		[self shuffleArray: newList];
+	} else {
+		NSLog(@"Doesn't look like a URL list, assuming it's an image");
+		newList=[[NSArray alloc] initWithObjects: urlString, nil];
+	}
+
+	// Release the old one if it's still there.
+	if(imageUrls != nil) {
+		[imageUrls release];
+	}
+	imageUrls=newList;
+	currentURLOffset=0;
+
+	NSLog(@"URL list:  %@", imageUrls);
+
+	[pool release];
+}
+
+- (void)fetchImage
+{
+	currentURLOffset++;
+	if(currentURLOffset >= [imageUrls count]) {
+		NSLog(@"Resetting URL offset to 0");
+		currentURLOffset=0;
+	}
+	NSLog(@"URL offset is %d", currentURLOffset);
+
+    NSURL *u=[[NSURL alloc]
+		initWithString: [imageUrls objectAtIndex: currentURLOffset]];
     NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
     NSLog(@"Fetching image from %@", u);
     NSData *data=[u resourceDataUsingCache: FALSE];
@@ -164,7 +239,7 @@
     [defaults setObject: urlString forKey:@"url"];
     [defaults synchronize];
     [NSApp endSheet: sheet];
-    [self fetchImage];
+    [self setImageURLs];
 }
 
 - (IBAction) cancelButton:(id)sender
