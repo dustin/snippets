@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.2
+#!/usr/bin/env python2.3
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
@@ -80,7 +80,7 @@ if __name__ == '__main__':
 	servers={}
 	# Noc0
 	tmp=[]
-	for n in range(1,9):
+	for n in range(1,13):
 		s="http://w51-" + str(n) + ".diag.c51.2wire.com:8080" \
 			+ '/admin/monitor/stat'
 		tmp.append(s)
