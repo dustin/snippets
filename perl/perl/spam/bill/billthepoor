@@ -1,0 +1,153 @@
+#!/usr/local/bin/perl
+#
+# Copyright (c) 1997  Dustin Sallings
+#
+# $Id: billthepoor,v 1.1 1997/10/23 06:46:27 dustin Exp $
+
+use Postgres;
+
+# Let's use money precision, since that's what we're asking for.
+$#="%.2f";
+
+if(!($dbh=db_connect("spam")))
+{
+    die("Error:  $Postgres::error\n");
+}
+
+($id, $start, $end)=@ARGV;
+
+print "Billing $id\n";
+
+open(OUT, ">$id.tex");
+
+print OUT <<EOF;
+\\documentclass[11pt]{article}
+
+\\usepackage{fullpage}
+\\usepackage{bills}
+
+\\begin{document}
+
+\\pagestyle{empty}
+
+\\billfrom{%
+Dustin Sallings\\\\
+655 South Fair Oaks \\#K202\\\\
+Sunnyvale, CA  94086\\\\
+info\@west.spy.net
+}
+
+EOF
+
+$query="select *, nextval('invoice_no') from bill_info where spam_id=$id;";
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:  $Postgres::error\n$query");
+}
+@r=$s->fetchrow();
+
+print OUT <<EOF;
+\\billto{%
+$r[1]\\\\
+$r[2]\\\\
+EOF
+
+if($r[3]=~/[A-z0-9]+/)
+{
+    print OUT "$r[3]\\\\\n";
+}
+
+print OUT <<EOF;
+$r[4], $r[5]  $r[6]\\\\
+$r[10]
+}
+
+\\billacctid{$r[0]}
+\\billstart{$start}
+\\billend{$end}
+\\billnumber{$r[11]}
+EOF
+
+$query ="select sum(amount) from trans\n";
+$query.="    where spam_id=$id and ts<'$end'\n";
+$query.="          and ts>='$start'\n";
+$query.="          and amount>0;";
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:  $Postgres::error\n$query");
+}
+($charges)=$s->fetchrow();
+$charges="0.00" if($charges eq "");
+
+$query ="select sum(amount) from trans\n";
+$query.="    where spam_id=$id and ts<'$end'\n";
+$query.="          and ts>='$start'\n";
+$query.="          and amount<0;";
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:  $Postgres::error\n$query");
+}
+($credits)=$s->fetchrow();
+$credits="0.00" if(!$credits=~/[0-9]/);
+
+$query ="select sum(amount) from trans\n";
+$query.="    where spam_id=$id and ts<'$start';\n";
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:  $Postgres::error\n$query");
+}
+($forward)=$s->fetchrow();
+$forward="0.00" if($forward eq "");
+
+$charges=~s/[\$]//g;
+$credits=~s/[\$]//g;
+$forward=~s/[\$]//g;
+
+$total=$charges+$credits+$forward;
+$credits=-$credits;
+
+if($credits>0.00)
+{
+    $credits.=" cr";
+}
+else
+{
+    $credits="0.00";
+}
+
+print OUT <<EOF;
+\\billcharges{$charges}
+\\billforward{$forward}
+\\billcredits{$credits}
+\\billtotal{$total}
+
+\\makebill{spy.net}{%
+EOF
+
+$query ="select ts, descr, amount from trans\n";
+$query.="    where spam_id=$id and ts<'$end'\n";
+$query.="          and ts>='$start';\n";
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:  $Postgres::error\n$query");
+}
+
+while(@r=$s->fetchrow())
+{
+    $tmp=$r[2];
+    $tmp=~s/\$//g;
+    if($tmp>0)
+    {
+	print OUT "$r[0] & $r[1] & \\$r[2] & \\\$0.00\\\\\\hline\n";
+    }
+    else
+    {
+	print OUT "$r[0] & $r[1] & \\\$0.00 & \\$r[2] \\\\\\hline\n";
+    }
+}
+
+print OUT <<EOF;
+}
+
+\\end{document}
+EOF
