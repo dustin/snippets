@@ -21,13 +21,6 @@ class VersionCompatibility(com.twowire.compatibility.VersionCompatibility):
 
         return rv
 
-def getPrintableList(l):
-    rv=l
-    if len(l) > 1000:
-        rv=l[0:9]
-        rv.append("...")
-    return rv
-
 def dotify(compatibilities):
     f=open('/tmp/dotify/versionmap.dot', 'w')
     dotifyVersionMap(compatibilities, f)
@@ -39,6 +32,35 @@ def dotify(compatibilities):
         f=open('/tmp/dotify/' + n + '.dot', 'w')
         dotifyMappings2(compatibilities, vc, f)
         f.close()
+
+    f=open('/tmp/dotify/versions.tex', 'w')
+    createVersionIndex(compatibilities, f)
+    f.close()
+
+def createVersionIndex(compatibilities, tofile=sys.stdout):
+
+    vcs=compatibilities.values()
+    vcs.sort()
+    for vc in vcs:
+        # Get the list of versions in this compatibility range
+        a=[]
+        v=vc.getVersions()
+        i=v.iterator()
+        while i.hasNext():
+            a.append(i.next().getVersion())
+        # sort it
+        a.sort()
+        if len(a) > 0:
+            tofile.write("\\subsection{" + vc.getName() + "}\n")
+            tofile.write("\\begin{list}{}\n")
+            for v in a:
+                tofile.write("\\item " + v.replace("_", "\\_") + "\n")
+
+            tofile.write("\\end{list}\n\n")
+        else:
+            sys.stderr.write("WARNING!  No versions in compat "
+                + vc.getName() + "\n");
+
 
 def dotifyMappings(compatibilities, vc, tofile=sys.stdout):
     tofile.write("digraph " + `vc.getId()` + " {\n")
@@ -91,31 +113,15 @@ def dotifyVersionMap(compatibilities, tofile=sys.stdout):
     for vc in compatibilities.values():
         tofile.write('\t"' + vc.getName() + '" [shape=box,')
         tofile.write('fontsize=6,label="')
-        tofile.write('[' + vc.getName() + ' (' + `vc.getId()` + ')]\\n')
-        # Get the list of versions in this compatibility range
-        a=[]
-        v=vc.getVersions()
-        i=v.iterator()
-        while i.hasNext():
-            a.append(i.next().getVersion())
-        # sort it
-        a.sort()
-        # shrink it
-        a=getPrintableList(a)
-        for i in range(len(a)):
-            tofile.write(a[i] + ' ')
-            if i>0 and (i%3 == 0):
-                tofile.write('\\n')
-        tofile.write("\"];\n")
+        tofile.write('[' + vc.getName() + ' (' + `vc.getId()` + ')]\"];\n')
 
     # Now draw the links
     for vc in compatibilities.values():
         for conn in vc.getConnections():
             l=conn.getTo().getName()
             cost=conn.getCost()
-            if l != vc.getName():
-                tofile.write('\t"' + vc.getName() + '" -> "' + l \
-                    + '" [fontsize="6",label="' + `cost` + '"];\n')
+            tofile.write('\t"' + vc.getName() + '" -> "' + l \
+                + '" [fontsize="6",label="' + `cost` + '"];\n')
 
     tofile.write("}\n")
 
