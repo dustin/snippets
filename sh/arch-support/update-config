@@ -8,7 +8,7 @@ do
 	if [ ! -d "$d" ]
 	then
 		echo "New entry in config, building $d"
-		tc=,,tmpconf.$$
+		tc=tmpconf.$$
 		rm -f $tc
 		echo $d > $tc
 		tla build-config $tc
