@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.29 2002/08/17 01:02:49 dustin Exp $
+	$Id: build.xml,v 1.30 2002/08/17 04:02:24 dustin Exp $
 
 	-->
 
@@ -30,6 +30,8 @@
 
 	<property name="SRCDIR" value="."/>
 	<property name="BUILDDIR" value="."/>
+	<property name="TSRCDIR" value="tests"/>
+	<property name="TBUILDDIR" value="tests"/>
 	<property name="DOCDEST" value="docs"/>
 	<property name="DEPRECATION" value="on"/>
 	<property name="DEBUG" value="on"/>
@@ -44,13 +46,13 @@
 
 	<target name="clean">
 		<delete>
-			<fileset dir="net">
+			<fileset dir="${BUILDIR}/net">
 				<include name="**/*.class"/>
 				<include name="spy/build.properties"/>
 				<include name="spy/db/CachePreparedStatement.java"/>
 				<include name="spy/db/CachedResultSet.java"/>
 			</fileset>
-			<fileset dir="tests">
+			<fileset dir="${TBUILDDIR}">
 				<include name="**/*.class"/>
 				<include name="net/spy/test/db/*.java"/>
 			</fileset>
@@ -171,12 +173,12 @@
 	</target>
 
 	<target name="test-spfiles" depends="all,spgen">
-		<spgen srcdir="tests" destdir="tests"/>
+		<spgen srcdir="${TSRCDIR}" destdir="${TBUILDDIR}"/>
 	</target>
 
 	<target name="test-classes" depends="all,test-spfiles">
-		<javac srcdir="tests" destdir="tests" deprecation="${DEPRECATION}"
-				debug="${DEBUG}" verbose="${VERBOSE}">
+		<javac srcdir="${TSRCDIR}" destdir="${TBUILDDIR}"
+			deprecation="${DEPRECATION}" debug="${DEBUG}" verbose="${VERBOSE}">
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
 			<include name="net/spy/**/*.java"/>
@@ -188,7 +190,7 @@
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
       <classpath>
-        <pathelement path="tests"/>
+        <pathelement path="${TBUILDDIR}"/>
 			</classpath>
     </java>
   </target>
@@ -198,7 +200,7 @@
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
       <classpath>
-        <pathelement path="tests"/>
+        <pathelement path="${TBUILDDIR}"/>
 			</classpath>
     </java>
   </target>
@@ -208,7 +210,7 @@
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
       <classpath>
-        <pathelement path="tests"/>
+        <pathelement path="${TBUILDDIR}"/>
 			</classpath>
     </java>
   </target>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings
  *
- * $Id: AllTests.java,v 1.2 2002/08/15 06:37:11 dustin Exp $
+ * $Id: AllTests.java,v 1.3 2002/08/17 04:02:27 dustin Exp $
  */
 
 package net.spy.test;
@@ -27,8 +27,7 @@ public class AllTests extends TestSuite {
 	 */
 	public static Test suite() {
 		TestSuite rv=new TestSuite();
-		rv.addTest(CacheTest.suite());
-		rv.addTest(DBTest.suite());
+		rv.addTest(QuickTests.suite());
 		rv.addTest(PoolTest.suite());
 		return(rv);
 	}

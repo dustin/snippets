@@ -1,11 +1,12 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RingBuffer.java,v 1.2 2002/07/10 04:26:40 dustin Exp $
+// $Id: RingBuffer.java,v 1.3 2002/08/17 04:02:25 dustin Exp $
 
 package net.spy.util;
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
  * A circular buffer.
@@ -16,6 +17,7 @@ public class RingBuffer extends Object {
 	private int start=0;
 	private int end=0;
 	private boolean wrapped=false;
+	private int size=0;
 
 	/**
 	 * Get an instance of RingBuffer.
@@ -45,28 +47,39 @@ public class RingBuffer extends Object {
 			if(start>=buf.length) {
 				start=0;
 			}
+		} else {
+			size++;
 		}
+	}
+
+	/**
+	 * Check to see if the ring buffer has wrapped.
+	 *
+	 * @return true if the ring buffer has wrapped
+	 */
+	public boolean hasWrapped() {
+		return(wrapped);
 	}
 
 	/**
 	 * Get the sequenced data that exists in the RingBuffer.
 	 */
-	public synchronized Enumeration getData() {
-		Vector v=new Vector();
+	public synchronized Collection getData() {
+		ArrayList a=new ArrayList();
 
 		if(end<=start) {
 			for(int i=start; i<buf.length; i++) {
-				v.addElement(buf[i]);
+				a.add(buf[i]);
 			}
 			for(int i=0; i<end; i++) {
-				v.addElement(buf[i]);
+				a.add(buf[i]);
 			}
 		} else {
 			for(int i=start; i<end; i++) {
-				v.addElement(buf[i]);
+				a.add(buf[i]);
 			}
 		}
-		return(v.elements());
+		return(a);
 	}
 
 	/**
@@ -74,8 +87,11 @@ public class RingBuffer extends Object {
 	 */
 	public String toString() {
 		StringBuffer sb=new StringBuffer();
+		sb.append("{RingBuffer cap=");
+		sb.append(getCapacity());
+		sb.append(" s=");
 		sb.append(start);
-		sb.append(",");
+		sb.append(", e=");
 		sb.append(end);
 		sb.append(" [");
 		for(int i=0; i<buf.length; i++) {
@@ -83,66 +99,28 @@ public class RingBuffer extends Object {
 			sb.append(" ");
 		}
 		sb.append("]\n\t");
-		Vector v=new Vector();
-		for(Enumeration e=getData(); e.hasMoreElements(); ) {
-			v.addElement(e.nextElement());
+		ArrayList a=new ArrayList();
+		for(Iterator i=getData().iterator(); i.hasNext(); ) {
+			a.add(i.next());
 		}
-		sb.append(v);
+		sb.append(a);
+		sb.append("}");
 		return(sb.toString());
 	}
 
 	/**
-	 * Get the size of this RingBuffer (total size, not number stored).
+	 * Get the number of objects in this RingBuffer.
 	 */
 	public int getSize() {
-		return(buf.length);
-	}
-
-	// This is only done for testing from main()
-	private static void verify(RingBuffer rb) throws Exception {
-
-		// OK, now verify it's correct.
-		Vector v=new Vector();
-		for(Enumeration e=rb.getData(); e.hasMoreElements(); ) {
-			v.addElement(e.nextElement());
-		}
-		// Verify the size.
-		if(v.size()!=rb.getSize()) {
-			throw new Exception("It's not full "
-				+ "got " + v.size() + " instead of " + rb.getSize());
-		}
-
-		int i=((Integer)v.elementAt(0)).intValue();
-		for(Enumeration e=v.elements(); e.hasMoreElements(); i++) {
-			Integer itmp=(Integer)e.nextElement();
-			int tmp=itmp.intValue();
-			if(tmp!=i) {
-				throw new Exception("Out of sequence, expected "
-					+ i + " but got " + tmp + ":  " + rb);
-			}
-		}
+		return(size);
 	}
 
 	/**
-	 * Testing and what not.
+	 * Get the total capacity of this RingBuffer.
+	 * @return the number of objects this RingBuffer will hold
 	 */
-	public static void main(String args[]) throws Exception {
-		RingBuffer rb=new RingBuffer(Integer.parseInt(args[0]));
-
-		// Fill it.
-		for(int i=0; i<rb.getSize(); i++) {
-			rb.addObject(new Integer(i));
-			System.out.println(rb);
-		}
-
-		// Do more extensive testing.
-		for(int i=rb.getSize(); i<1000; i++) {
-			rb.addObject(new Integer(i));
-			System.out.println(rb);
-			verify(rb);
-			Thread.sleep(125);
-		}
-
+	public int getCapacity() {
+		return(buf.length);
 	}
 
 }
