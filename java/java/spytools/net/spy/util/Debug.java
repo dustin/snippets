@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Beyond.com <dustin@beyond.com>
 //
-// $Id: Debug.java,v 1.2 2001/04/03 07:59:29 dustin Exp $
+// $Id: Debug.java,v 1.3 2001/07/03 08:59:24 dustin Exp $
 
 package net.spy.util;
 
@@ -42,7 +42,7 @@ public class Debug extends Object {
 				if(of!=null) {
 					try {
 						FileOutputStream fos=new FileOutputStream(of);
-						PrintWriter debugOut=new PrintWriter(fos);
+						PrintWriter debugOut=new PrintWriter(fos, true);
 						debugOut.println(getTimestamp() + ":  Initialized.");
 						debugs.put(propname, debugOut);
 					} catch(Exception e) {
@@ -78,9 +78,12 @@ public class Debug extends Object {
 	 * Close a file when this object goes away.
 	 */
 	public void finalize() throws Throwable {
-		PrintWriter debugOut=(PrintWriter)debugs.get(propname);
-		if(debugOut!=null) {
-			debugOut.close();
+		synchronized(debug_mutex) {
+			PrintWriter debugOut=(PrintWriter)debugs.get(propname);
+			if(debugOut!=null) {
+				debugOut.close();
+				debugs.remove(propname);
+			}
 		}
 		super.finalize();
 	}

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.8 2001/04/26 07:21:57 dustin Exp $
+ * $Id: SpyLog.java,v 1.9 2001/07/03 08:59:21 dustin Exp $
  */
 
 package net.spy.log;
@@ -30,18 +30,6 @@ public class SpyLog extends Object {
 	private String queue_name=null;
 
 	/**
-	 * Instantiate a SpyLog entry with the default flusher.
-	 * @deprecated Please specify a queue name
-	 */
-	public SpyLog() {
-		this("GenericSpyLogQueue");
-		Exception e=new Exception("Using deprecated API!");
-		System.err.println("Warning:  " + e);
-		e.printStackTrace();
-	}
-
-
-	/**
 	 * Instantiate a SpyLog interface for the given queue name with the
 	 * default flusher.
 	 */
@@ -68,19 +56,6 @@ public class SpyLog extends Object {
 
 		// Grab a queue object
 		queue=new SpyLogQueue(queue_name);
-	}
-	/**
-	 * Instantiate a SpyLog entry with an alternative log flusher.  An
-	 * alternative log flusher may log into a SQL database, or to a pager,
-	 * or email, etc...
-	 *
-	 * @deprecated Please specify a queue name.
-	 */
-	public SpyLog(SpyLogFlusher f) {
-		this("GenericSpyLogQueue", f);
-		Exception e=new Exception("Using deprecated API!");
-		System.err.println("Warning:  " + e);
-		e.printStackTrace();
 	}
 
 	/**

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.14 2001/07/03 07:37:06 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.15 2001/07/03 08:59:23 dustin Exp $
  */
 
 package net.spy.log;
@@ -31,7 +31,9 @@ public class SpyLogFlusher extends Thread {
 
 	// private static BufferedWriter log_file=null;
 	private SpyLogQueue log_queue=null;
-	boolean keep_going=true;
+	private boolean keep_going=true;
+
+	private long sleepTime=900000;
 
 	/**
 	 * Path to the logfile.  The default logfile is /tmp/spy.log, but this
@@ -68,6 +70,20 @@ public class SpyLogFlusher extends Thread {
 		// Exception e=new Exception("Instantiated SpyLogFlusher-" + name);
 		// e.printStackTrace();
 		configure();
+	}
+
+	/**
+	 * Set the sleep time between flushes.
+	 */
+	protected void setSleepTime(long sleepTime) {
+		this.sleepTime=sleepTime;
+	}
+
+	/**
+	 * Get the current sleep time.
+	 */
+	public long getSleepTime() {
+		return(sleepTime);
 	}
 
 	/**
@@ -156,7 +172,7 @@ public class SpyLogFlusher extends Thread {
 				lastRun=new Date();
 
 				// Wait for something to get added...with timeout
-				log_queue.waitForQueue(600000);
+				log_queue.waitForQueue(sleepTime);
 
 			} catch(Exception e) {
 				lastError=e;
