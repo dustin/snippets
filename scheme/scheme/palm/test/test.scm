@@ -18,6 +18,7 @@
 (define answer4-psh 3004)
 ; Buttons
 (define add-btn 4001)
+(define next-btn 4002)
 
 ;
 ; Utility stuff
@@ -58,40 +59,72 @@
 ; Show the correct answer (used in edit forms, etc...)
 (define (set-select-button which)
   (map (lambda (x) (
-	ctl-set-val x #f)) (list answer1-psh answer2-psh answer3-psh answer4-psh))
+      ctl-set-val x #f)) (list answer1-psh answer2-psh answer3-psh answer4-psh))
   (ctl-set-val (+ answer-psh-base which) #t))
 
 ; Find out how many records we have
 (define (n-records)
  (car (hb-info testdb)))
 
+; Get the data for the given list of questions
+(define (get-test-data questions)
+ (map (lambda (x) (get-record x)) questions))
+
+; Get a non-random test
+(define (normal-test)
+ (get-test-data (gen-nlist 0 (- (n-records) 1))))
+
 ; Get a random test
 (define (random-test)
- (map (lambda (x) (get-record x) (gen-nlist 0 (n-records)))))
+ (shuffle (normal-test)))
+
+;
+; UI stuff
+;
 
 ; Populate the textual fields in the current form
 (define (populate-fields data)
-	(fld-set-text question-fld (list-ref data 0 ))
-	(fld-set-text answer1-fld (list-ref data 1 ))
-	(fld-set-text answer2-fld (list-ref data 2 ))
-	(fld-set-text answer3-fld (list-ref data 3 ))
-	(fld-set-text answer4-fld (list-ref data 4 )))
+    (fld-set-text question-fld (list-ref data 0 ))
+    (fld-set-text answer1-fld (list-ref data 1 ))
+    (fld-set-text answer2-fld (list-ref data 2 ))
+    (fld-set-text answer3-fld (list-ref data 3 ))
+    (fld-set-text answer4-fld (list-ref data 4 )))
 
 ; Run the actual test program
-(define (test)
+(define (edit-test)
   (set-resdb "TestTaker")
-  (let ( (testdata (random-test)) )
+  (let ( (testdata (normal-test)) )
     ; Edit the first record
-    (edit-record (list-ref testdata 0))))
+    (edit-records (normal-test))))
+
+; Find the ``next item''
+(define (next-item current-item wrap)
+ (cond
+   ( (< current-item (- (n-records) 1)) (+ 1 current-item) )
+   (wrap 0)
+   (else #f)))
 
 ; Edit a given record
-(define (edit-record data)
+(define (edit-records test-data)
+  (let ( (current-item 0) (data (list-ref test-data 0)))
   (frm-popup 1000
     (lambda (event . args)
       (case event
         ((menu) (frm-return 'bye))
-		; When we open the form, populate it with the nth record from the DB
+        ; When we open the form, populate it with the nth record from the DB
         ((frm-open)
-			(populate-fields data)
-			(set-select-button (string->object (list-ref data 5)))))
-        (else #f))))
+            (populate-fields data)
+            (set-select-button (string->object (list-ref data 5))))
+        ; Buttons
+        ((ctl-select)
+          ; I don't know how to do this with case...
+          (cond
+            ; Do this if it's the ``next'' button
+            ((eqv? (car args) next-btn)
+             (set! current-item (next-item current-item #t))
+             (set! data (list-ref test-data current-item))
+             (populate-fields data)
+             (set-select-button (string->object (list-ref data 5))))
+            ; Do this for all other buttons
+            (else (display "Unknown button:  ")(display args)(newline))))
+        (else #f))))))
