@@ -1,13 +1,16 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Remote.java,v 1.1 2002/11/11 18:22:21 dustin Exp $
+// $Id: Remote.java,v 1.2 2002/11/15 11:13:19 dustin Exp $
 
 package net.spy.rpc.services;
 
 import java.util.Vector;
+import java.util.Enumeration;
 
 import org.apache.xmlrpc.XmlRpcHandler;
 import org.apache.xmlrpc.Invoker;
+
+import net.spy.SpyUtil;
 
 import net.spy.log.Logger;
 import net.spy.log.LoggerFactory;
@@ -46,6 +49,15 @@ public abstract class Remote extends Object implements XmlRpcHandler {
 				logger.debug("Executing " + method);
 			}
 			rv=invoker.execute(method, params);
+		} catch(NoSuchMethodException ex) {
+			Vector v=new Vector(params.size());
+			for(Enumeration e=params.elements(); e.hasMoreElements(); ) {
+				v.addElement(e.nextElement().getClass().getName());
+			}
+			String args=SpyUtil.join(v.iterator(), ", ");
+			logger.error("Could not find method " + method + "("
+				+ args + ")", ex);
+			throw ex;
 		} catch(Exception e) {
 			// Log the error on our end
 			logger.error("XMLRPC Error", e);
