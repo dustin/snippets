@@ -26,7 +26,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/temperature/SpyTemp.class net/spy/SpyRunner.class \
 	net/spy/nmap/NmapEntry.class net/spy/nmap/NmapPort.class \
 	net/spy/nmap/NmapParser.class net/spy/WatchDog.class \
-	net/spy/info/Stocks.class net/spy/info/StockQuote.class
+	net/spy/info/Stocks.class net/spy/info/StockQuote.class \
+	net/spy/info/UPS.class
 
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature net.spy.util \
