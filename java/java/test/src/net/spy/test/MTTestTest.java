@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MTTestTest.java,v 1.2 2002/07/12 07:41:37 dustin Exp $
+// $Id: MTTestTest.java,v 1.3 2002/07/12 07:45:12 dustin Exp $
 
 package net.spy.test;
 
@@ -51,7 +51,7 @@ public class MTTestTest extends MTTest {
 	// End regular JUnit stuff, the next two tests are parallel tests.
 
 	/**
-	 * Test a synchronized ArrayList, see if it does any better.
+	 * Test concurrent access to a synchronized ArrayList.
 	 */
 	public void testMTSynchronizedArrayList() {
 		// This time, test an array list that's synchronized.
