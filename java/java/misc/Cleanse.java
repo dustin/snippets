@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Cleanse.java,v 1.7 2001/03/16 19:11:08 dustin Exp $
+// $Id: Cleanse.java,v 1.8 2001/03/17 01:49:32 dustin Exp $
 
 import java.util.*;
 import java.sql.*;
@@ -8,9 +8,12 @@ import java.sql.*;
 public class Cleanse extends Object {
 
 	private Word wordList[]=null;
+	private int lengthOffsets[]=null;
 	private Vector toremove=null;
 	private int nremoved=0;
 	private static final String SOURCE="jdbc:postgresql://dhcp-104/dustin";
+
+	private String lastword=null;
 
 	// How many passes before we run flush()
 	private static final int BATCHSIZE=500;
@@ -54,6 +57,14 @@ public class Cleanse extends Object {
 			}
 			nremoved+=toremove.size();
 			pst.close();
+
+			if(lastword!=null) {
+				PreparedStatement pst2=conn.prepareStatement(
+					"update lastword set word=?");
+				pst2.setString(1, lastword + ":");
+				pst2.executeUpdate();
+				pst2.close();
+			}
 			conn.close();
 			toremove.removeAllElements();
 		}
@@ -65,13 +76,23 @@ public class Cleanse extends Object {
 		for(int i=0; i<wordList.length; i++) {
 			Word current=wordList[i];
 			String current_s=current.getWord();
+			lastword=current_s;
 			boolean current_removed=false;
 
-			System.out.println("Examining " + current);
+			int startingpoint=i+1;
+
+			// Find the starting point for this word
+			int l;
+			for(l=current_s.length()+1;
+				l<lengthOffsets.length && lengthOffsets[l]!=-1; l++) {
+			}
+			if(l<lengthOffsets.length && lengthOffsets[l]>0) {
+				startingpoint=lengthOffsets[l];
+			}
 
 			stats.click();
 			stats.start();
-			for(int j=i+1; j<wordList.length; j++) {
+			for(int j=startingpoint; j<wordList.length; j++) {
 				Word checking=wordList[j];
 
 				// Make sure the word we're checking still exists, and that
@@ -100,8 +121,11 @@ public class Cleanse extends Object {
 			}
 
 			stats.stop();
-			System.out.println("Processed in " + stats.getLastTime()
-				+ " - " + stats.getStats());
+			if(i%10 == 0) {
+				System.out.println("Processed " + lastword
+					+ " in " + stats.getLastTime()
+					+ " - " + stats.getStats());
+			}
 		} // outer loop
 		// A final flush, as we're done now.
 	}
@@ -113,23 +137,41 @@ public class Cleanse extends Object {
 		Statement st=conn.createStatement();
 		System.out.println("Executing query.");
 
-		ResultSet rs=st.executeQuery(
+		ResultSet rs=st.executeQuery("select word from lastword");
+		rs.next();
+		lastword=rs.getString("word");
+		rs.close();
+
+		rs=st.executeQuery(
 			"select celeb_key, word, length(word) as l\n"
 			+ " from wordlist\n"
 			+ " where not exists (\n"
 			+ "  select badword from badwords\n"
 			+ "   where badwords.badword=wordlist.word\n"
 			+ " )\n"
+			+ " and length(word) >= (select length(word) from lastword)\n"
 			+ " order by l, word\n"
 			);
-		System.out.println("Fetching results.");
+		System.out.println("Fetching results (lastword is " + lastword + ")");
 		int i=0;
+		boolean addok=false;
 		Vector vtmp=new Vector(250000);
 		while(rs.next()) {
 			int key=rs.getInt("celeb_key");
 			String tmp=rs.getString("word");
 			String word=tmp.substring(0, tmp.indexOf(':'));
-			vtmp.addElement(new Word(key, word));
+			if(addok) {
+				vtmp.addElement(new Word(key, word));
+			} else {
+				// We can start adding once we get to the lastword
+				if( (tmp.length() >= lastword.length())
+					&& tmp.compareTo(lastword)>=0) {
+
+					System.out.println("Saving now, we found " + tmp);
+					addok=true;
+					vtmp.addElement(new Word(key, word));
+				}
+			}
 			if(i % 100 == 0) {
 				System.out.println("Read " + i + " thingies.");
 			}
@@ -139,11 +181,35 @@ public class Cleanse extends Object {
 		st.close();
 		conn.close();
 
+		Word wtmp=(Word)vtmp.elementAt(0);
+		int minlength=wtmp.getWord().length();
+		wtmp=(Word)vtmp.elementAt(vtmp.size()-1);
+		int maxlength=wtmp.getWord().length();
+
+		System.out.println("Minimum length is " + minlength
+			+ " maximum length is " + maxlength);
+
+		lengthOffsets=new int[maxlength+1];
+		for(int l=0; l<lengthOffsets.length; l++) {
+			lengthOffsets[l]=-1;
+		}
+
 		System.out.println("Copying vector to array.");
 		wordList=new Word[vtmp.size()];
 		for(i=0; i<vtmp.size(); i++) {
 			wordList[i]=(Word)vtmp.elementAt(i);
+			// Index the lengths
+			int length=wordList[i].getWord().length();
+			if(lengthOffsets[length]==-1) {
+				lengthOffsets[length]=i;
+			}
 		}
+
+		System.out.print("Length offsets:  ");
+		for(i=0; i<lengthOffsets.length; i++) {
+			System.out.print(i + ":" + lengthOffsets[i] + " ");
+		}
+		System.out.println("");
 
 		// Clean this up real quick.
 		vtmp.removeAllElements();
@@ -196,19 +262,25 @@ public class Cleanse extends Object {
 		}
 
 		public String getStats() {
-			double avgProcessTime=((double)totalTime/(double)done)/1000.0;
-			double estimate=avgProcessTime*(double)left;
+			String rv=null;
+			try {
+				double avgProcessTime=((double)totalTime/(double)done)/1000.0;
+				double estimate=avgProcessTime*(double)left;
 
-			java.text.NumberFormat nf=java.text.NumberFormat.getInstance();
-			nf.setMaximumFractionDigits(2);
+				java.text.NumberFormat nf=java.text.NumberFormat.getInstance();
+				nf.setMaximumFractionDigits(2);
 
-			return("Avg=" + nf.format(avgProcessTime)
-				+ "s, Estimate=" + nf.format(estimate) + "s"
-				+ " ("
-				+ new java.util.Date(
-					System.currentTimeMillis()+(1000*(long)estimate)
-					)
-				+ ")");
+				rv="Avg=" + nf.format(avgProcessTime)
+					+ "s, Estimate=" + nf.format(estimate) + "s"
+					+ " ("
+					+ new java.util.Date(
+						System.currentTimeMillis()+(1000*(long)estimate)
+						)
+					+ ")";
+			} catch(Exception e) {
+				rv="Error getting stats:  " + e;
+			}
+			return(rv);
 		}
 
 	}
