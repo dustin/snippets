@@ -18,4 +18,4 @@ ps(DisplayFunction) ->
 
 % Show proceses using the default display function
 ps() ->
-	ps(fun (P) -> show_process(P) end).
+	ps(fun show_process/1).
