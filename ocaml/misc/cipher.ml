@@ -159,6 +159,9 @@ let check_words words =
 let make_map m input output =
 	let rv = ref m in
 	for i = 0 to (String.length input) - 1 do
+		if(CharMap.mem input.[i] !rv) then
+			if(CharMap.find input.[i] !rv <> output.[i]) then
+				raise Not_found;
 		rv := CharMap.add input.[i] output.[i] !rv
 	done;
 	!rv
@@ -192,6 +195,7 @@ let apply_map m word =
 let print_solution m words =
 	print_endline("Possible solution:");
 	List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
+	print_endline "-----------";
 ;;
 
 let rec solve_rest m freqs words orig_words =
@@ -240,11 +244,11 @@ let rec solve_rest m freqs words orig_words =
 
 let solve freqs words orig_words =
 	print_endline "Solving...";
-	List.iter (fun w -> let m = make_map CharMap.empty (List.hd words) w in
-			(* print_endline("Starting word:  " ^ w); *)
+	List.iter (fun w ->
 			try
+				let m = make_map CharMap.empty (List.hd words) w in
+				(* print_endline("Starting word:  " ^ w); *)
 				ignore(solve_rest m freqs (List.tl words) orig_words);
-				print_endline "-----------";
 			with Not_found -> (); (* print_endline("NO MATCH"); *)
 		) (Hashtbl.find frequencies (String.length (List.hd words)))
 ;;
@@ -271,10 +275,10 @@ let solve_rotation words =
 				let ri = li + n in
 				if (ri > (int_of_char 'z')) then (
 					loop (CharMap.add c (char_of_int (ri - 26)) m)
-						(char_of_int (li + 1))
+						(char_of_int (succ li))
 				) else (
 					loop (CharMap.add c (char_of_int ri) m)
-						(char_of_int (li + 1))
+						(char_of_int (succ li))
 				)
 			)
 		in loop CharMap.empty 'a'
