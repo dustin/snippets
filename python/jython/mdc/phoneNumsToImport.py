@@ -16,6 +16,7 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 import os
 import sys
 import glob
+import string
 
 def usage():
 	sys.stderr.write("Usage:  %s inputDir mdcInput mdcPhoneMap\n"
@@ -32,15 +33,21 @@ except IndexError:
 theInput=open(infileName, 'w')
 thePhoneMap=open(phoneMapName, 'w')
 
-for batchname in glob.glob1(thedir, "*"):
-	fn=os.path.join(thedir, batchname)
+for thefile in glob.glob1(thedir, "*.csv"):
+	fn=os.path.join(thedir, thefile)
+	batchname=thefile[0:-4]
 
 	f=open(fn)
 	for l in f.readlines():
-		l=l.strip()
-		pn,sn = l.split(",")
-		thePhoneMap.write(pn + "," + sn + "\n")
-		theInput.write(batchname + ",0," + sn + ",3.5.9" + "\n")
+		try:
+			l=string.strip(l)
+			pn,sn = string.split(l, ",")
+			pn=string.strip(pn)
+			sn=string.strip(sn)
+			thePhoneMap.write(pn + "," + sn + "\n")
+			theInput.write(batchname + ",0," + sn + ",3.5.9" + "\n")
+		except ValueError:
+			sys.stderr.write("``" + l + "'' is broken\n")
 	f.close()
 
 theInput.close()
