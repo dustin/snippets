@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PoolTest.java,v 1.3 2002/07/10 20:00:30 dustin Exp $
+// $Id: PoolTest.java,v 1.4 2002/07/10 20:45:27 dustin Exp $
 
 package net.spy.test;
 
@@ -18,6 +18,7 @@ import net.spy.pool.*;
 public class PoolTest extends TestCase {
 
 	private ObjectPool op=null;
+	private PoolPrinter poolPrinter=null;
 
 	public PoolTest(String name) {
 		super(name);
@@ -38,6 +39,7 @@ public class PoolTest extends TestCase {
 		conf.put("test.start", "100");
 		conf.put("test.max", "100");
 		conf.put("test.yellow", "75");
+		conf.put("test.max_age", "300000");
 		op=new ObjectPool(conf);
 		try {
 			synchronized(op.getClass()) {
@@ -49,6 +51,13 @@ public class PoolTest extends TestCase {
 			pe.printStackTrace();
 			fail("Couldn't create the pool.");
 		}
+
+		poolPrinter=new PoolPrinter(op);
+	}
+
+	protected void tearDown() {
+		System.err.println("Shutting down the pool printer");
+		poolPrinter.shutDown();
 	}
 
 	public void testFetch250WithoutClosing() {
@@ -114,6 +123,8 @@ public class PoolTest extends TestCase {
 		int successes=0;
 		for(Enumeration e=v.elements(); e.hasMoreElements();) {
 			TestTask tt=(TestTask)e.nextElement();
+			// Make sure the tests stop running
+			tt.shutDown();
 			successes+=tt.getSuccesses();
 		}
 
@@ -122,6 +133,37 @@ public class PoolTest extends TestCase {
 	}
 
 	// Private support classes
+
+	// Print the object pool every five seconds.
+	private class PoolPrinter extends Thread {
+
+		private ObjectPool op=null;
+		private boolean keepGoing=true;
+
+		public PoolPrinter(ObjectPool op) {
+			super();
+			this.op=op;
+			this.setDaemon(true);
+			this.setName("PoolPrinter");
+			this.start();
+		}
+
+		public void shutDown() {
+			keepGoing=false;
+		}
+
+		public void run() {
+			while(keepGoing) {
+				try {
+					sleep(5000);
+
+					System.out.println(op);
+				} catch(InterruptedException ie) {
+					ie.printStackTrace();
+				}
+			}
+		}
+	}
 
 	// Actual poolable
 	private class TestPoolable extends PoolAble {
@@ -148,6 +190,7 @@ public class PoolTest extends TestCase {
 		private int success=0;
 		private int runs=0;
 		private boolean checkBackIn=false;
+		private boolean keepGoing=true;
 
 		public TestTask(int runs, boolean checkBackIn) {
 			super();
@@ -164,10 +207,14 @@ public class PoolTest extends TestCase {
 			return(success);
 		}
 
+		public void shutDown() {
+			keepGoing=false;
+		}
+
 		public void run() {
 			Random r=new Random();
 			ObjectPool op=new ObjectPool(new SpyConfig());
-			for(int i=0; i<runs; i++) {
+			for(int i=0; keepGoing && i<runs; i++) {
 				try {
 					PooledObject po=op.getObject("test");
 
