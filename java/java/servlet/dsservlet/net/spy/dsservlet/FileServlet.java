@@ -1,12 +1,13 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: FileServlet.java,v 1.2 2000/11/06 10:04:51 dustin Exp $
+// $Id: FileServlet.java,v 1.3 2000/11/07 10:49:00 dustin Exp $
 
 package net.spy.dsservlet;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.net.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -50,9 +51,10 @@ public class FileServlet extends HttpServlet {
 		log(dsbean.getUsername() + " requested " + show_id);
 
 		// Send the data
-		File f=show.getFile();
+		ShowLocator sl=show.getLocator();
 		response.setContentType("video/quicktime");
-		sendFile(f, response.getOutputStream());
+		response.setContentLength((int)sl.length());
+		sendFile(sl, response.getOutputStream());
 
 		log(dsbean.getUsername() + " received " + show_id);
 
@@ -63,9 +65,11 @@ public class FileServlet extends HttpServlet {
 
 	// If this thing fails, it'll blow up and we will not mark the item as
 	// having been sent.
-	protected void sendFile(File f, OutputStream os) throws IOException {
-		long len=f.length();
-		InputStream is=new FileInputStream(f);
+	protected void sendFile(ShowLocator sl, OutputStream os)
+		throws IOException {
+
+		long len=sl.length();
+		InputStream is=sl.getInputStream();
 		byte buffer[]=new byte[8192];
 		while(len>0) {
 			byte tmpbuf[]=null;
@@ -78,7 +82,11 @@ public class FileServlet extends HttpServlet {
 			if(lenread>0) {
 				len-=lenread;
 			}
-			os.write(tmpbuf);
+			if(lenread<tmpbuf.length) {
+				log("Read fewer bytes than expected:  " + lenread
+					+ " instead of " + tmpbuf.length);
+			}
+			os.write(tmpbuf, 0, lenread);
 		}
 		try {
 			os.close();

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Show.java,v 1.3 2000/11/06 10:04:52 dustin Exp $
+// $Id: Show.java,v 1.4 2000/11/07 10:49:01 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -10,12 +10,13 @@ import java.io.*;
 import net.spy.*;
 
 public class Show extends Object {
-	protected String show_id=null;
-	protected java.util.Date submitted=null;
-	protected String submitted_to=null;
-	protected java.util.Date completed=null;
+	protected String _show_id=null;
+	protected java.util.Date _submitted=null;
+	protected String _submitted_to=null;
+	protected java.util.Date _completed=null;
+	protected long _length=0;
 
-	protected final String filePath="/afs/spy.net/home/dustin/public_html/ds/";
+	protected ShowLocator sl=null;
 
 	public Show(ResultSet rs) throws Exception {
 		super();
@@ -45,56 +46,59 @@ public class Show extends Object {
 			"update show_distribution set completed = now()\n"
 			+ " where show_id = ? and submitted_to = ?"
 			);
-		pst.setString(1, show_id);
-		pst.setString(2, submitted_to);
+		pst.setString(1, _show_id);
+		pst.setString(2, _submitted_to);
 		pst.executeUpdate();
 	}
 
-	public File getFile() {
-		return(new File(filePath + show_id));
+	public ShowLocator getLocator() {
+		if(sl==null) {
+			sl=new ShowLocator(_show_id);
+		}
+		return(sl);
 	}
 
 	protected void initFromResultSet(ResultSet rs) throws Exception {
-		show_id=rs.getString("show_id");
-		submitted=rs.getDate("submitted");
-		submitted_to=rs.getString("submitted_to");
-		completed=rs.getTimestamp("completed");
+		_show_id=rs.getString("show_id");
+		_submitted=rs.getDate("submitted");
+		_submitted_to=rs.getString("submitted_to");
+		_completed=rs.getTimestamp("completed");
+		_length=(long)rs.getInt("length");
 	}
 
 	public String toString() {
 		String comp=null;
-		if(completed==null) {
+		if(_completed==null) {
 			comp="no";
 		} else {
-			comp=completed.toString();
+			comp=_completed.toString();
 		}
 
-		return(submitted_to + " " + submitted + " " + show_id
+		return(_submitted_to + " " + _submitted + " " + _show_id
 			+ " completed:  " + comp);
 	}
 
 	public String getShowID() {
-		return(show_id);
+		return(_show_id);
 	}
 
 	public java.util.Date getSubmittedDate() {
-		return(submitted);
+		return(_submitted);
 	}
 
 	public String getSubittedTo() {
-		return(submitted_to);
+		return(_submitted_to);
 	}
 
 	public java.util.Date getCompletedDate() {
-		return(completed);
+		return(_completed);
 	}
 
 	public boolean isComplete() {
-		return(completed!=null);
+		return(_completed!=null);
 	}
 
 	public long getLength() {
-		File f=getFile();
-		return(f.length());
+		return(_length);
 	}
 }
