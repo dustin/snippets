@@ -31,7 +31,13 @@ let rec pvt_skip_chars s l i =
 			i
 ;;
 
-(* Find the index of one of these characters, or -1 if it doesn't exist *)
+(**
+	Find the index of one of these characters, or -1 if it doesn't exist.
+
+	@param str the string to search
+	@param l the list of characters
+	@param i the index at which to begin the search
+ *)
 let rec str_index_of_one str l i =
 	if i < String.length str then
 		if is_my_letter l (String.get str i) then
