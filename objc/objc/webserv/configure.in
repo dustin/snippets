@@ -1,0 +1,25 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(httpd/httpd.m)
+AC_CONFIG_HEADER(include/config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROGRAM_CHECK(AR, ar, ar, )
+
+dnl Checks for libraries.
+AC_CHECK_LIB(nsl, main)
+AC_CHECK_LIB(socket, main)
+AC_CHECK_LIB(objc, main)
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(socket strdup select)
+
+AC_OUTPUT(misc/Makefile httpd/Makefile Makefile)

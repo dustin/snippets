@@ -1,13 +1,15 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dSocket.m,v 1.1 1997/04/15 06:11:42 dustin Exp $
+ * $Id: dSocket.m,v 1.2 1997/04/15 21:49:49 dustin Exp $
  */
 
 #include <dSocket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -21,6 +23,13 @@
     [super init];
     listening=0;
     s=-1;
+    return self;
+}
+
+-clear;
+{
+    close(s);
+    [self init];
     return self;
 }
 
@@ -48,6 +57,10 @@
     sin.sin_addr.s_addr = htonl(INADDR_ANY);
 
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
+	(char *)&reuse, sizeof(int));
+
+    reuse=1;
+    setsockopt(s, IPPROTO_TCP, TCP_NODELAY,
 	(char *)&reuse, sizeof(int));
 
     if( bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0)

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dString.h,v 1.2 1997/04/15 06:11:25 dustin Exp $
+ * $Id: dString.h,v 1.3 1997/04/15 21:49:44 dustin Exp $
  */
 
 #ifndef _DSTRING_H
@@ -21,6 +21,7 @@
 }
 - init;
 - init:(int)s;
+- oappend: astring;
 - append:(const char *)astring;
 - setto:(const char *)astring;
 - (int) length;
@@ -32,8 +33,8 @@
 - (int) readfile  :(const char *)filename;
 - (int) scompare  :(const char *)nother;
 - (int) compare   :nother;
-- (int) ncompare  :nother len:(int)length;
-- (int) sncompare :(const char *)nother len:(int)length;
+- (int) compare  :nother len:(int)length;
+- (int) scompare :(const char *)nother len:(int)length;
 - (char *) dup;
 -kw;
 @end

@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: httpd.m,v 1.1 1997/04/15 06:09:17 dustin Exp $
+ * $Id: httpd.m,v 1.2 1997/04/15 21:49:39 dustin Exp $
  */
 
 #include <dString.h>
 #include <dSocket.h>
 #include <dWeb.h>
+#include <utility.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +20,8 @@ void main(void)
 
     req=[[dRequest alloc] init];
 
+    for(;;)
+    {
     ns=[socket accept];
     if([ns getsocket]>=0)
     {
@@ -32,12 +35,22 @@ void main(void)
 	    [string print];
         }
     }
+
+    if([req verify]==0)
+    {
+	puts("Request was valid.");
+	puts("Doing showdoc");
+	[req showdoc :ns];
+	puts("Done with showdoc");
+    }
     else
     {
-        puts("Problem in houston...");
+	puts("Request was invalid.");
     }
 
     [req print];
 
     puts("done");
+    [ns clear];
+    }
 }

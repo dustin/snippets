@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dSocket.h,v 1.1 1997/04/15 06:11:23 dustin Exp $
+ * $Id: dSocket.h,v 1.2 1997/04/15 21:49:42 dustin Exp $
  */
 
 #ifndef _DSOCKET_H
@@ -18,6 +18,7 @@
     int port;
 }
 -init;
+-clear;
 - (int) islistening;
 - listento: (int) p;
 - (int) getsocket;

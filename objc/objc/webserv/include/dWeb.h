@@ -1,14 +1,17 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dWeb.h,v 1.1 1997/04/15 06:11:26 dustin Exp $
+ * $Id: dWeb.h,v 1.2 1997/04/15 21:49:45 dustin Exp $
  */
 
 #ifndef _DWEB_H
 #define _DWEB_H 1
 
+#define WEBROOT "/tmp/webroot"
+
 #include <objc/Object.h>
 #include <dString.h>
+#include <dSocket.h>
 
 #ifdef IWANTMETHODNAMES
 static char *methodnames[]={
@@ -34,7 +37,8 @@ static char *methodnames[]={
 @interface dRequest : Object
 {
 @private
-    id request;    // This should be a dString
+    id request;      // This should be a dString
+    id requestpath;  // String, too
     int version;
     int docnum;
     int special;
@@ -46,6 +50,9 @@ static char *methodnames[]={
 - clear;
 - (int) parse :string;
 - print;
+- showdoc :socket;
+- (int) verify;
+- (int) isspecial;
 @end
 
 #endif

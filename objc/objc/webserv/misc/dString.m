@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: dString.m,v 1.2 1997/04/15 06:11:44 dustin Exp $
+ * $Id: dString.m,v 1.3 1997/04/15 21:49:51 dustin Exp $
  */
 
 #include <dString.h>
+#include <dSocket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,14 +86,14 @@
     return (![nother scompare: string]);
 }
 
-- (int) sncompare :(const char *)nother len:(int)length
+- (int) scompare :(const char *)nother len:(int)length
 {
     return(strncmp(string, nother, length));
 }
 
-- (int) ncompare :nother len:(int)length
+- (int) compare :nother len:(int)length
 {
-    return(![nother sncompare :string len:length]);
+    return(![nother scompare :string len:length]);
 }
 
 - (int) length
@@ -110,6 +111,16 @@
 {
     [self clear];
     [self append: astring];
+}
+
+-oappend: astring
+{
+    char *b;
+
+    b=[astring dup];
+    [self append :b];
+    free(b);
+    return self;
 }
 
 -append:(const char*)astring
@@ -157,14 +168,19 @@
 
     f=open(filename, O_RDONLY, 0);
     if(f<0)
+    {
+	perror(filename);
 	return -1;
+    }
 
     for(;;)
     {
 	s=read(f, buf, 1023);
-	if(s!=1023)
+	printf("Got %d bytes\n", s);
+	buf[s]=0x00;
+        [self append:buf];
+	if(s<1023)
 	    break;
-	[self append:buf];
     }
     close(f);
 

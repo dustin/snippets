@@ -1,0 +1,17 @@
+# Copyright (c) 1997  Dustin Sallings
+# $Id: Makefile.in,v 1.1 1997/04/15 21:49:30 dustin Exp $
+
+DIRS=misc httpd
+AUTOCRAP=Makefile httpd/Makefile misc/Makefile include/config.h config.status \
+	config.log config.cache
+
+all:
+	rm -f httpd/httpd
+	for i in $(DIRS); do cd $$i && $(MAKE) ; cd .. ; done
+
+clean:
+	for i in $(DIRS); do cd $$i && $(MAKE) $@ ; cd .. ; done
+
+ultrabrite:
+	for i in $(DIRS); do cd $$i && $(MAKE) clean ; cd .. ; done
+	-rm -f $(AUTOCRAP)
