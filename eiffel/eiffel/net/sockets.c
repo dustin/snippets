@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 1999/05/18 07:47:34 dustin Exp $
+ * $Id: sockets.c,v 1.2 1999/05/24 05:58:41 dustin Exp $
  */
 
 #include <stdio.h>
@@ -47,4 +47,9 @@ int getservsocket(int port)
     }
 
     return(s);
+}
+
+int c_recv(int socket, char *buf, int size)
+{
+	return(recv(fd, buf, size, 0));
 }
