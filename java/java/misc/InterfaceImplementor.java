@@ -9,7 +9,7 @@ import java.util.*;
 
 public class InterfaceImplementor extends Object {
 
-	public static String decodeType(Class type) {
+	protected String decodeType(Class type) {
 		String rv=null;
 		if(type.isArray()) {
 			rv=decodeType(type.getComponentType()) + "[]";
@@ -19,7 +19,8 @@ public class InterfaceImplementor extends Object {
 		return(rv);
 	}
 
-	public static String displayMethodName(Method method) throws Exception {
+	// Display the method signature
+	protected String displayMethodName(Method method) throws Exception {
 		String ret="";
 
 		// Get the modifiers
@@ -64,47 +65,61 @@ public class InterfaceImplementor extends Object {
 		return(ret);
 	}
 
-	public static void implement(Method method) throws Exception {
+	protected String implement(Method method) throws Exception {
 		// Start
-		System.out.println("\t// InterfaceImplementor added "
-			+ method.getName());
-		System.out.println("\t" + displayMethodName(method) + " {");
+		String ret=null;
+		ret="\t// InterfaceImplementor added " + method.getName() + "\n";
+		ret+="\t" + displayMethodName(method) + " {" + "\n";
 
 		Class e[]=method.getExceptionTypes();
 		// If we can throw an exception, do so.
 		if(e.length>0) {
-			System.out.println("\t\tthrow new "
-				+ e[0].getName() + "(\"Not Implemented yet.\");");
+			ret+="\t\tthrow new "
+				+ e[0].getName() + "(\"Not Implemented yet.\");\n";
 		} else {
 			// OK, let's check the return value...
 			Class rt=method.getReturnType();
 			if(rt.isPrimitive()) {
 				if(rt == Boolean.TYPE) {
-					System.out.println("\t\treturn false;");
+					ret+="\t\treturn false;\n";
 				} else if(rt == Void.TYPE) {
 					// Do nothing (nothing to do!)
 				} else {
-					System.out.println("\t\treturn 0;");
+					ret+="\t\treturn 0;\n";
 				}
 			} else {
-				System.out.println("\t\treturn null;");
+				ret+="\t\treturn null;\n";
 			}
 		}
 
-		System.out.println("\t}");
+		ret+="\t}\n\n";
+		return(ret);
+	}
+
+	public String makeSource(String className) throws Exception {
+		String ret=null;
+		Class c=Class.forName(className);
+		Method methods[]=c.getDeclaredMethods();
+
+		// Whether it extends or implements (is it a class or Interface)
+		String extimp="extends";
+		if(c.isInterface()) {
+			extimp="implements";
+		}
+
+		ret="public class BLAH " + extimp + " " + className + " {\n\n";
+		for(int i=0; i<methods.length; i++) {
+			String dc=methods[i].getDeclaringClass().getName();
+			ret+=implement(methods[i]);
+		}
+		ret+=("}\n");
+		return(ret);
 	}
 
 	public static void main(String args[]) throws Exception {
 		String className=args[0];
-		Class c=Class.forName(className);
-		Method methods[]=c.getDeclaredMethods();
+		InterfaceImplementor i=new InterfaceImplementor();
 
-		System.out.println("public class BLAH implements " + className
-			+ " {");
-		for(int i=0; i<methods.length; i++) {
-			String dc=methods[i].getDeclaringClass().getName();
-			implement(methods[i]);
-		}
-		System.out.println("}");
+		System.out.print(i.makeSource(className));
 	}
 }
