@@ -12,6 +12,7 @@
    hash of 5381.
  *)
 
+(** CDB creation handle. *)
 type cdb_creator = {
 	table_count: int array;
 	mutable pointers: (int * int) list;
@@ -152,6 +153,46 @@ let close_cdb_out cdc =
 	close_out cdc.out
 ;;
 
+(** {1 Iterating a cdb file} *)
+
+(* read a little-endian integer *)
+let read_le f =
+	let a = (input_byte f) in
+	let b = (input_byte f) in
+	let c = (input_byte f) in
+	let d = (input_byte f) in
+	a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24)
+;;
+
+(**
+ Iterate a CDB.
+
+ @param f the function to call for every key/value pair
+ @param fn the name of the cdb to iterate
+ *)
+let iter f fn =
+	let fin = open_in_bin fn in
+	try
+		(* Figure out where the end of all data is *)
+		let eod = read_le fin in
+		(* Seek to the record section *)
+		seek_in fin 2048;
+		let rec loop() =
+			if ((pos_in fin) < eod) then (
+				let klen = read_le fin in
+				let dlen = read_le fin in
+				let key = String.create klen in
+				let data = String.create dlen in
+				really_input fin key 0 klen;
+				really_input fin data 0 dlen;
+				f key data;
+				loop()
+			) in
+		loop();
+		close_in fin;
+	with x -> close_in fin; raise x;
+;;
+
 (** test app to create ``test.cdb'' and put some stuff in it *)
 let main() =
 	let c = open_out "test.cdb" in
@@ -160,6 +201,7 @@ let main() =
 	add c "c" "3";
 	add c "dustin" "We're number one!";
 	close_cdb_out c;
+	iter (fun k v -> print_endline(k ^ " -> " ^ v)) "test.cdb";
 ;;
 
 (* Start main if we're interactive. *)
