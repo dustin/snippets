@@ -6,9 +6,13 @@
 -export([twoprocess/1, echo/0, nprocess/2, ringProcess/1, nprocessStar/2]).
 
 echo() ->
-	receive {From, N} ->
-		io:format("Sending back ~p from ~p\n", [N, self()]),
-		From ! N
+	receive
+		{From, N} ->
+			io:format("Sending back ~p from ~p\n", [N, self()]),
+			From ! N;
+		stop ->
+			io:format("Stopping ~p\n", [self()]),
+			true
 	end,
 	echo().
 
@@ -23,7 +27,8 @@ loop(N, With) ->
 % Bounce N messages between two proceses
 twoprocess(N) ->
 	W = spawn_link(coursemp, echo, []),
-	loop(N, W).
+	loop(N, W),
+	W ! stop.
 
 %
 % nm stuff
@@ -66,12 +71,21 @@ ntimes(_, 0) -> ok;
 ntimes(F, N) ->
 	F(), ntimes(F, N-1).
 
+% two-way broadcast (get a response)
 broadcast2Way(Msg, Procs) ->
+	io:format("Broadcasting ~p to ~p\n", [Msg, Procs]),
 	lists:foreach(fun (P) ->
 		P ! Msg,
 		receive Rv -> io:format("bcast: ~p received ~p\n", [self(), Rv]) end
 		end, Procs).
 
+% Plain broadcast
+broadcast(Msg, Procs) ->
+	io:format("Broadcasting ~p to ~p\n", [Msg, Procs]),
+	lists:foreach(fun (P) -> P ! Msg end, Procs).
+
 nprocessStar(N, M) ->
 	Procs = listBuilder(fun () -> spawn_link(coursemp, echo, []) end, M, []),
-	ntimes(fun () -> broadcast2Way({self(), ping}, Procs) end, N).
+	ntimes(fun () -> broadcast2Way({self(), ping}, Procs) end, N),
+	broadcast(stop, Procs).
+
