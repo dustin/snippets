@@ -13,7 +13,7 @@ try:
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 except ImportError:
     import ClientCookie
-    cj = ClientCookie.LWPCookieJar()
+    cj = ClientCookie.MozillaCookieJar()
     opener = ClientCookie.build_opener(ClientCookie.HTTPCookieProcessor(cj))
 
 if __name__ == '__main__':
