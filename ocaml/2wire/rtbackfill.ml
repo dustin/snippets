@@ -39,8 +39,9 @@ let main() =
 				Printf.printf "update %s -t %s %s:%s\n" fn
 					(String.concat ":" (List.rev keys))
 					(Int32.to_string ts) (String.concat ":" (List.rev vals));
-			with Failure("nth") ->
-				Printf.eprintf "Problem with line:  %s (ignoring)\n" l
+			with x ->
+				Printf.eprintf "%s on line:  %s (ignoring)\n"
+					(Printexc.to_string x) l
 		) stdin;
 ;;
 
