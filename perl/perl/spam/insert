@@ -1,0 +1,162 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: insert,v 1.1 1997/10/14 21:13:56 dustin Exp $
+#
+# This is used to insert messages into the database and
+# puts them in the webroot for viewing.
+
+use Postgres;
+use MD5;
+
+$messdir="/usr/people/dustin/public_html/spam/messages";
+
+sub ensurePath
+{
+    local($fn)=@_;
+    local(@a, $np);
+
+    if(-d $fn)
+    {
+        return();
+    }
+
+    @a=split(/\//, $fn);
+
+    pop(@a);
+    $np=join('/', @a);
+    &ensurePath($np);
+
+    if(! -d $np )
+    {
+        mkdir($np, 0755);
+    }
+}
+
+sub getFilename
+{
+    my($spammer)=@_;
+    my($name, $time, $i);
+
+    $time=time();
+
+    for($i=0; $i<999999; $i++)
+    {
+	$name="$spammer/$time.$i";
+
+	last unless(-f "$messdir/$name");
+    }
+    return($name);
+}
+
+sub checkId
+{
+    my($id)=@_;
+    my($query, $count, $s);
+
+    $query="select count(*) from bill_info where spam_id=$id;";
+
+    if(!($s=$dbh->execute($query)))
+    {
+	print "ERROR:\n$query\n$Postgres::error\n";
+	return(-1);
+    }
+
+    ($count)=$s->fetchrow();
+
+    if($count>0)
+    {
+	return(0);
+    }
+
+    return(-1);
+}
+
+$file=$ARGV[0];
+$spammer=$ARGV[1];
+
+$dbh=db_connect("spam");
+
+umask 022;
+
+if(checkId($spammer))
+{
+    print "Invalid SPAM Id:  $spammer\n";
+    exit(1);
+}
+
+$size=(stat($ARGV[0]))[7];
+
+print "Size:\t$size\n";
+
+open(F, $file);
+
+while(<F>)
+{
+    chop;
+    last if(/^$/);
+
+    if(/Subject: (.*)/)
+    {
+        $subject=$1;
+    }
+
+    if(/Date:.*([0-9]{2}) ([A-z]{3}) ([0-9]{4}) ([:0-9]{8}) ([-0-9]+)/)
+    {
+	$date="$2 $1 $3 $4 $5";
+    }
+}
+
+print "Subject:\t$subject\n";
+print "Date:\t$date\n";
+
+$md5=new MD5;
+$md5->reset;
+while(<F>)
+{
+    $md5->add($_);
+}
+
+$digest=$md5->hexdigest;
+
+print "Checksum:\t$digest\n";
+
+
+$fn=&getFilename($spammer);
+
+$subject=~s/\'/\\\'/g;
+
+$dbh->execute("begin");
+
+$query ="insert into messages values($spammer,\n";
+$query.="    '$fn',\n";
+$query.="    '$subject',\n";
+$query.="    '$digest',\n";
+$query.="    $size,\n";
+$query.="    '$date');\n";
+
+if(!($dbh->execute($query)))
+{
+    print "ERROR:\n$query\n$Postgres::error\n";
+    $dbh->execute("abort");
+    exit(0);
+}
+
+$amount=sprintf("%.2f", ($size/1024)*5);
+
+$query ="insert into trans values($spammer,\n";
+$query.="    $amount,\n";
+$query.="    '$size byte message',\n";
+$query.="    '$fn');\n";
+
+if(!($dbh->execute($query)))
+{
+    print "ERROR:\n$query\n$Postgres::error\n";
+    $dbh->execute("abort");
+    exit(0);
+}
+
+$dbh->execute("commit");
+
+&ensurePath("$messdir/$fn");
+system("cp $ARGV[0] $messdir/$fn");
+chmod (0644, "$messdir/$fn");

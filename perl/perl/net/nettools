@@ -1,0 +1,61 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: nettools,v 1.1 1997/07/31 08:08:47 dustin Exp $
+
+# This function returns an integer with the leftmost $nbits set.
+
+sub bitsToN
+{
+    local($nbits)=@_;
+    local($ret);
+
+    $ret=1;
+
+    for(1..$nbits)
+    {
+        $ret<<=1;
+        $ret++;
+    }
+
+    for($nbits..31)
+    {
+        $ret<<=1;
+    }
+
+    return($ret);
+}
+
+# Now, let's convert that int to a dotted quad.
+
+sub intToDQ
+{
+    local($addr)=@_;
+    local(@a);
+
+    $a[0]=$a[1]=$a[2]=$a[3]=$addr;
+
+    $a[0]&=0xff000000;
+    $a[0]>>=24;
+
+    $a[1]&=0x00ff0000;
+    $a[1]>>=16;
+
+    $a[2]&=0x0000ff00;
+    $a[2]>>=8;
+
+    $a[3]&=0x000000ff;
+
+    return("$a[0].$a[1].$a[2].$a[3]");
+}
+
+if($#ARGV<0)
+{
+    $x=24;
+}
+else
+{
+    $x=$ARGV[0];
+}
+
+printf("0x%x\n", &bitsToN($x));
+print &intToDQ(&bitsToN($x)) . "\n";

@@ -1,0 +1,37 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1997  Dustin Sallings
+# $Id: mess2debt,v 1.1 1997/10/14 21:13:56 dustin Exp $
+#
+# This inserts a transaction for every existing message.
+
+use Postgres;
+
+$dbh=db_connect("spam") || die("No spam");
+
+$query="select spam_id, size, fn from messages;";
+
+if(!($s=$dbh->execute($query)))
+{
+    die("Error:\n$query\n$Postgres::error");
+}
+
+$dbh->execute("begin");
+
+while(@r=$s->fetchrow())
+{
+    $amount=sprintf("%.2f", ($r[1]/1024)*5);
+    $query ="insert into trans values($r[0], $amount,\n";
+    $query.="    '$r[1] byte message',\n";
+    $query.="    '$r[2]');";
+
+    if(!($dbh->execute($query)))
+    {
+	print "Query problem:\n$query\n$Postgres::error\n";
+	$dbh->execute("abort");
+	exit(0);
+    }
+
+    print "$query\n";
+}
+
+$dbh->execute("commit");
