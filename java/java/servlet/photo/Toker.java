@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Toker.java,v 1.2 1999/09/15 18:52:08 dustin Exp $
+ * $Id: Toker.java,v 1.3 1999/09/30 17:43:08 dustin Exp $
  */
 
 import java.util.*;
@@ -50,10 +50,12 @@ public class Toker {
 		byte b[]=new byte[8192];
 		FileInputStream f = new FileInputStream(file);
 		String input="", tmp;
+		int size;
 
-		while( f.read(b) >=0 ) {
+		while( (size=f.read(b)) >=0 ) {
 			tmp = new String(b);
-			input += tmp;
+			// Substring to get rid of all the damned nulls
+			input += tmp.substring(0, size);
 		}
 
 		return(input);
