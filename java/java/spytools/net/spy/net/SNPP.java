@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.14 2001/04/15 07:05:29 dustin Exp $
+// $Id: SNPP.java,v 1.15 2001/08/08 06:58:38 dustin Exp $
 
 package net.spy.net;
 
@@ -23,7 +23,7 @@ public class SNPP extends Object {
 	private PrintWriter prout=null;
 
 	// 2way support
-	private boolean goes_both_ways=true;
+	private boolean goes_both_ways=false;
 	private String msg_tag=null;
 
 	/**
