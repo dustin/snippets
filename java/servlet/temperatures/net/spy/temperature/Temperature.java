@@ -156,7 +156,7 @@ public class Temperature extends PngServlet {
 	private String getWML() {
 		StringBuffer sb=new StringBuffer(64);
 
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd-hh:mm:ss");
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
 
 		sb.append("<?xml version=\"1.0\"?>\n");
 		sb.append("<!DOCTYPE wml PUBLIC ");
