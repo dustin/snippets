@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: ten,v 1.3 1997/12/14 21:32:37 dustin Exp $
+# $Id: ten,v 1.4 1997/12/15 09:32:39 dustin Exp $
 
 . /home/monitor/lib/shellconf
 
@@ -28,5 +28,7 @@ $HOMEBIN/statelog &
 # $HOMEBIN/goldengate &
 
 $HOMEBIN/checkwebserver $libdir/urllist &
+
+$HOMEBIN/checkpsql &
 
 wait

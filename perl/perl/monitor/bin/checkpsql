@@ -1,0 +1,17 @@
+#!/bin/sh
+# $Id: checkpsql,v 1.1 1997/12/15 09:32:38 dustin Exp $
+
+. /home/monitor/lib/shellconf
+
+# Try out a simple database request and see if it's processing.
+
+/usr/local/pgsql/bin/psql -c "\\d" photo > /dev/null
+
+if [ $? = 0 ]
+then
+    echo "<font color=\"007f00\">Passed.</font>" > $webroot/out/psql.out
+else
+    echo "<font color=\"ff0000\">Failed.</font>" > $webroot/out/psql.out
+fi
+
+chmod 644 $webroot/out/psql.out
