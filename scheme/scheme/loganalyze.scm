@@ -88,5 +88,6 @@
 					(set! line (read-line in))
 					(cond
 						((char=? #\# (string-ref line 0)) #f)
+						((= 0 (length line )) #f)
 						( else
 							(set! aq (append aq (list (afterQuery line))))))))))
