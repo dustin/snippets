@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Promise.java,v 1.2 2002/07/10 04:26:35 dustin Exp $
+// $Id: Promise.java,v 1.3 2002/08/18 07:32:14 dustin Exp $
 
 package net.spy.util;
 
@@ -29,9 +29,10 @@ public abstract class Promise extends Object {
 	 * we were promised.
 	 */
 	public final Object getObject() throws BrokenPromiseException {
-		if(!hasRun) {
+		if(hasRun == false) {
 			try {
 				rv=execute();
+				hasRun=true;
 			} catch(BrokenPromiseException bpe) {
 				this.bpe=bpe;
 				throw bpe;
