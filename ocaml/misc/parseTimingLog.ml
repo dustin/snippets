@@ -216,10 +216,9 @@ let main() =
 				with
 					Not_found -> prerr_endline("Type not found:  "
 						^ le.le_ttype);
-			with
-				| x ->
-					prerr_endline("Unknown error on " ^ l);
-					prerr_endline(Printexc.to_string x);
+			with x ->
+				prerr_endline("Unknown error on " ^ l);
+				prerr_endline(Printexc.to_string x);
 			)
 		(fun l -> (strstr l "TransactionTiming" 40) >= 40)
 		Pervasives.stdin;
