@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSItem.java,v 1.1 2001/04/26 19:16:00 dustin Exp $
+// $Id: RSSItem.java,v 1.2 2001/04/26 21:02:12 dustin Exp $
 
 package net.spy.rss;
 
@@ -15,6 +15,7 @@ public class RSSItem extends Object {
 	private int erval=1800;
 	// Last update
 	private long lastUpdate=0;
+	private long lastRequest=0;
 
 	private String url=null;
 
@@ -53,10 +54,25 @@ public class RSSItem extends Object {
 	 * Get the content from the RSS.
 	 */
 	public String getContent() {
+		lastRequest=System.currentTimeMillis();
 		if(xml==null) {
 			xml="<no_data_found/>";
 		}
 		return(xml);
+	}
+
+	/**
+	 * Find out the last time someone cared about this news item.
+	 */
+	public long lastRequest() {
+		return(lastRequest);
+	}
+
+	/**
+	 * Find out what this thing is looking at.
+	 */
+	public String getURL() {
+		return(url);
 	}
 
 	/**

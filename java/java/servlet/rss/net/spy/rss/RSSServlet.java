@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSServlet.java,v 1.3 2001/04/26 19:16:01 dustin Exp $
+// $Id: RSSServlet.java,v 1.4 2001/04/26 21:02:13 dustin Exp $
 
 package net.spy.rss;
 
@@ -14,7 +14,9 @@ import com.caucho.xsl.*;
 
 public class RSSServlet extends HttpServlet {
 
-	private RSSStore rssstore=null;
+	// This is static because pages may directly request stuff from it as
+	// long as it's initialized and properly in a servlet engine.
+	private static RSSStore rssstore=null;
 
 	/**
 	 * Initialize this thingy.
@@ -29,7 +31,7 @@ public class RSSServlet extends HttpServlet {
 	/**
 	 * What to do when the man shuts us down.
 	 */
-	public void destory() {
+	public void destroy() {
 		log("Shutting down RSSStore");
 		rssstore.shutdown();
 	}
@@ -63,8 +65,18 @@ public class RSSServlet extends HttpServlet {
 		}
 	}
 
-	protected String getHTML(String url, String stylesheet)
+	/**
+	 * Get the HTML for a specific RSS and stylesheet.  This only works in
+	 * a servlet environment when the RSSServlet has been properly
+	 * initialized.
+	 */
+	public static String getHTML(String url, String stylesheet)
 		throws Exception {
+
+		// This only works under the proper conditions.
+		if(rssstore==null) {
+			throw new Exception("RSSStore has not been initialized.");
+		}
 
 		// Get the content from the RSS store.
 		String xml=rssstore.getContent(url);

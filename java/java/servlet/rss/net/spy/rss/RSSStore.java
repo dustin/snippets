@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: RSSStore.java,v 1.1 2001/04/26 19:16:02 dustin Exp $
+// $Id: RSSStore.java,v 1.2 2001/04/26 21:02:14 dustin Exp $
 
 package net.spy.rss;
 
@@ -12,8 +12,12 @@ import net.spy.net.*;
  */
 public class RSSStore extends Thread {
 
+	// Don't let them idle more than an hour
+	private static final int MAX_IDLE_TIME=3600000;
+
 	private Hashtable sites=null;
 	private boolean notdone=true;
+	private int runs=0;
 
 	/**
 	 * Get an instance of RSSStore.
@@ -29,7 +33,8 @@ public class RSSStore extends Thread {
 	 */
 	public String toString() {
 		int numSites=sites.size();
-		return(super.toString() + " - " + numSites + " sites watched.");
+		return(super.toString() + " - "
+			+ numSites + " sites watched, " + runs + " runs");
 	}
 
 	/**
@@ -38,16 +43,33 @@ public class RSSStore extends Thread {
 	public void run() {
 		// Flip through the list every five minutes and get it updated.
 		while(notdone) {
+			runs++;
+			long now=System.currentTimeMillis();
+			Vector toremove=new Vector();
+			// Update and queue removals
 			for(Enumeration e=sites.elements(); e.hasMoreElements(); ) {
+
 				RSSItem ri=(RSSItem)e.nextElement();
-				ri.update();
+				// Throw away anything that's too old, otherwise, update it
+				if( (now-ri.lastRequest()) > MAX_IDLE_TIME) {
+					toremove.addElement(ri.getURL());
+				} else {
+					ri.update();
+				}
 			}
+			// Remove the things that we don't want anymore.
+			for(Enumeration e=toremove.elements(); e.hasMoreElements(); ) {
+				String key=(String)e.nextElement();
+				sites.remove(key);
+			}
+			// Try to take a nap.
 			try {
 				sleep(5*60*1000);
 			} catch(Exception e) {
 				// Don't worry about this one.
 			}
 		}
+		System.err.println("RSS Thread shutting down.");
 	}
 
 	/**
