@@ -41,19 +41,16 @@ public class CLASSNAME extends TWObject {
 
             rv=new HashMap();
 
-            ResultSet rs=DOQUERY;
+            ResultSet rs=db.executeQuery();
 
             while(rs.next()) {
                 CLASSNAME inst=new CLASSNAME(rs);
 
                 // Add it to the map
-                rv.put(new Integer(pc.getId()), inst);
+                rv.put(new Integer(inst.getId()), inst);
             }
 
             rs.close();
-
-            db.close();
-            db=null;
 
         } catch(SQLException e) {
             throw new EXC("Problem initializing category list", e);
