@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 1996  Dustin Sallings
+ *
+ * $Id: makepasswd.c,v 1.2 1997/08/26 06:09:17 dustin Exp $
+ */
+
 #include <stdio.h>
 #include <time.h>
 
