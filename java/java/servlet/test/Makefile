@@ -15,7 +15,7 @@ SCP=scp
 DEST=bleu.west.spy.net:/usr/local/apache/java
 # DEST=170.1.69.194:/usr/local/apache/java
 
-CLASSES=TestTaker.class net/spy/test/TestSession.class \
+CLASSES=net/spy/test/TestTaker.class net/spy/test/TestSession.class \
 	net/spy/test/TestConfig.class net/spy/test/TestSessionSweeper.class \
 	net/spy/test/TestUser.class net/spy/test/TestTest.class \
 	net/spy/test/TestQuestion.class net/spy/test/TestAnswer.class

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: TestSession.java,v 1.2 1999/11/19 07:29:21 dustin Exp $
+ * $Id: TestSession.java,v 1.3 2000/01/10 09:05:52 dustin Exp $
  */
 
 package net.spy.test;
@@ -102,6 +102,7 @@ public class TestSession extends Object
 	protected void gradeTest() throws ServletException {
 		int i, total=0, correct=0;
 		String out="";
+		String failures="";
 
 		for(i=0; ; i++) {
 			String s = request.getParameter("question_" + i);
@@ -111,6 +112,11 @@ public class TestSession extends Object
 			int which=Integer.valueOf(s).intValue();
 			if(test.getQuestion(i).getAnswer(which).isCorrect()) {
 				correct++;
+			} else {
+				failures+="<li>" + test.getQuestion(i).getQuestion()
+					+ "<br>\nA:  "
+					+ test.getQuestion(i).getAnswer().getAnswer()
+					+ "</li>\n";
 			}
 			total++;
 		}
@@ -126,6 +132,7 @@ public class TestSession extends Object
 		h.put("TOTAL", "" + total);
 		h.put("CORRECT", "" + correct);
 		h.put("PERCENT", "" + percent);
+		h.put("FAILURES", failures);
 		out=tokenize("grade.inc", h);
 		send_response(out);
 	}

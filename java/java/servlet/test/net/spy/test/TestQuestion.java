@@ -1,6 +1,6 @@
 // Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
 //
-// $Id: TestQuestion.java,v 1.1 1999/11/19 07:29:21 dustin Exp $
+// $Id: TestQuestion.java,v 1.2 2000/01/10 09:05:50 dustin Exp $
 
 package net.spy.test;
 
@@ -49,6 +49,16 @@ public class TestQuestion {
 
 	public TestAnswer getAnswer(int which) {
 		return(answers[which]);
+	}
+
+	public TestAnswer getAnswer() {
+		TestAnswer ret=null;
+		for(int i=0; i<4; i++) {
+			if(answers[i].isCorrect()) {
+				ret=answers[i];
+			}
+		}
+		return(ret);
 	}
 
 	public void dump() {
