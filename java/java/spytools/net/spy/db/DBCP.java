@@ -1,9 +1,10 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBCP.java,v 1.1 2002/08/27 18:54:43 dustin Exp $
+// $Id: DBCP.java,v 1.2 2002/08/27 20:29:40 dustin Exp $
 
 package net.spy.db;
 
+import java.sql.PreparedStatement;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.sql.Time;
 
+import java.util.Map;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public abstract class DBCP extends DBSP {
 	public boolean execute() throws SQLException  {
 		boolean rv=true;
 		prepare();
-		rv=pst.execute();
+		rv=getPreparedStatement().execute();
 		return(rv);
 	}
 
@@ -61,7 +63,7 @@ public abstract class DBCP extends DBSP {
 	 * @return The CallableStatement for getting the RC's from.
 	 */
 	public CallableStatement getCallableStatement() {
-		CallableStatement rc=(CallableStatement)pst;
+		CallableStatement rc=(CallableStatement)getPreparedStatement();
 		return(rc);
 	}
 
@@ -74,15 +76,20 @@ public abstract class DBCP extends DBSP {
 	protected void applyArgs(Collection v, boolean output_args)
 			throws SQLException {
 
+		PreparedStatement pst=getPreparedStatement();
 		// Get the statement
 		if (pst==null) {
-			if(cachetime>0) {
+			if(getCacheTime()>0) {
 				throw new Error ("Not Implemented!!");
-				//pst=prepareStatement(query, cachetime);
+				//pst=prepareStatement(query, getCacheTime());
 			} else {
-				pst=prepareCall(query);
+				pst=prepareCall(getQuery());
 			}
 		}
+
+		// Get the arguments and types
+		Map args=getArgs();
+		Map types=getTypes();
 
 		// Use this iterator for the now positional arguments
 		for(Iterator e=v.iterator(); e.hasNext(); ) {
@@ -102,14 +109,14 @@ public abstract class DBCP extends DBSP {
 
 			try {
 				if(output_args) {
-					if (debug) {
+					if (isDebugEnabled()) {
 						System.err.println("OUT -> Setting column "
 							+key+"("+i+") type "+type);
 					}
 					CallableStatement cst=(CallableStatement)pst;
 					cst.registerOutParameter(i, type);
 				} else {
-					if (debug) {
+					if (isDebugEnabled()) {
 						System.err.println("IN -> Setting column "
 							+key+"("+i+") type "+type);
 					}
@@ -193,7 +200,7 @@ public abstract class DBCP extends DBSP {
 		// Get ready to build our query.
 		StringBuffer querySb=new StringBuffer(256);
 		querySb.append("{call ");
-		querySb.append(spname);
+		querySb.append(getSPName());
 		querySb.append(" (");
 
 		// input vars
@@ -220,11 +227,13 @@ public abstract class DBCP extends DBSP {
 		querySb.append(")}");
 		String query=querySb.toString().trim();
 
+		PreparedStatement pst=getPreparedStatement();
+
 		// Get a prepared statement, varies whether it's cachable or not.
 		if (pst==null) {
-			if(cachetime>0) {
+			if(getCacheTime()>0) {
 				throw new Error("Not Implemented");
-				//pst=prepareCall(query, cachetime);
+				//pst=prepareCall(query, getCacheTime());
 			} else {
 				pst=prepareCall(query);
 			}
@@ -235,7 +244,5 @@ public abstract class DBCP extends DBSP {
 		applyArgs(getRequiredArgs(), false);
 		applyArgs(getOutputArgs(), true);
 	}
-
-
 
 }

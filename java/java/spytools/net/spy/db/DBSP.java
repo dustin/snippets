@@ -1,6 +1,6 @@
 // Copyright (c) 2001  SPY internetworking <dustin@spy.net>
 //
-// $Id: DBSP.java,v 1.14 2002/08/27 18:54:43 dustin Exp $
+// $Id: DBSP.java,v 1.15 2002/08/27 20:29:42 dustin Exp $
 
 package net.spy.db;
 
@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.spy.SpyConfig;
 
@@ -33,9 +34,9 @@ import net.spy.SpyConfig;
 public abstract class DBSP extends SpyCacheDB {
 
 	// The arguments themselves
-	protected HashMap args=null;
+	private HashMap args=null;
 	// The data type of this argument
-	protected HashMap types=null;
+	private HashMap types=null;
 
 	/**
 	 * Required fields and their types.
@@ -56,25 +57,25 @@ public abstract class DBSP extends SpyCacheDB {
 	/**
 	 * Output fields and their types.
 	 */
-	protected HashMap output=null;
+	private HashMap output=null;
 	/**
 	 * Output fields in order.
 	 */
-	protected ArrayList outputInorder=null;
+	private ArrayList outputInorder=null;
 
 	// SP name
-	protected String spname=null;
+	private String spname=null;
 
 	// Caching info
-	protected long cachetime=0;
+	private long cachetime=0;
 
-	protected boolean debug=false;
+	private boolean debug=false;
 
 	// The query
-	protected String query=null;
+	private String query=null;
 
 	// My prepared statement
-	protected PreparedStatement pst=null;
+	private PreparedStatement pst=null;
 
 	/**
 	 * Get a new DBSP object with a given config.
@@ -176,6 +177,33 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
+	 * Get the cache time configured for this SP.
+	 *
+	 * @return the time (in seconds) the results will be valid
+	 */
+	public long getCacheTime() {
+		return(cachetime);
+	}
+
+	/**
+	 * Set the prepared statement on which this DBSP will operate.
+	 *
+	 * @param pst the prepared statement
+	 */
+	protected void setPreparedStatement(PreparedStatement pst) {
+		this.pst=pst;
+	}
+
+	/**
+	 * Get the prepared statement on which this DBSP will operate.
+	 *
+	 * @param pst the prepared statement
+	 */
+	protected PreparedStatement getPreparedStatement() {
+		return(pst);
+	}
+
+	/**
 	 * Define a field to be required.
 	 *
 	 * @param name the name of the field
@@ -250,10 +278,45 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
+	 * Get the arguments as passed in.
+	 *
+	 * @return an unmodifiable view of the current arguments.
+	 */
+	protected Map getArgs() {
+		return(Collections.unmodifiableMap(args));
+	}
+
+	/**
+	 * Get the types for all the arguments.
+	 *
+	 * @return a mapping of arg name -&gt; Integer type
+	 */
+	protected Map getTypes() {
+		return(Collections.unmodifiableMap(types));
+	}
+
+	/**
+	 * Reset all arguments.
+	 */
+	protected void resetArgs() {
+		args.clear();
+		types.clear();
+	}
+
+	/**
 	 * Set the stored procedure to the given value.
 	 */
 	protected void setSPName(String to) {
 		this.spname=to;
+	}
+
+	/**
+	 * Get the SP name.
+	 *
+	 * @return the name of the SP to call, or null if not applicable
+	 */
+	protected String getSPName() {
+		return(spname);
 	}
 
 	/**
@@ -371,8 +434,8 @@ public abstract class DBSP extends SpyCacheDB {
 
 		// Get a prepared statement, varies whether it's cachable or not.
 		// XXX: This duplicates what goes on in applyArgs()
-		if(cachetime>0) {
-			pst=prepareStatement(query, cachetime);
+		if(getCacheTime()>0) {
+			pst=prepareStatement(query, getCacheTime());
 		} else {
 			pst=prepareStatement(query);
 		}
@@ -384,9 +447,20 @@ public abstract class DBSP extends SpyCacheDB {
 
 	/**
 	 * Set the value of debug for this instance.
+	 *
+	 * @param db the debug value to set
 	 */
 	protected void setDebug(boolean db) {
 		this.debug=db;
+	}
+
+	/**
+	 * Find out if debug is enabled.
+	 *
+	 * @return true if debug is enabled
+	 */
+	protected boolean isDebugEnabled() {
+		return(debug);
 	}
 
 	/**
@@ -427,6 +501,13 @@ public abstract class DBSP extends SpyCacheDB {
 	}
 
 	/**
+	 * Get the query this DBSP will be calling.
+	 */
+	protected String getQuery() {
+		return(query);
+	}
+
+	/**
 	 * Fill in the arguments (with types) for the given list of parameters.
 	 *
 	 * @param query the query we'll be calling
@@ -435,8 +516,8 @@ public abstract class DBSP extends SpyCacheDB {
 	protected void applyArgs(Collection v) throws SQLException {
 
 		// Get the statement
-		if(cachetime>0) {
-			pst=prepareStatement(query, cachetime);
+		if(getCacheTime()>0) {
+			pst=prepareStatement(query, getCacheTime());
 		} else {
 			pst=prepareStatement(query);
 		}
