@@ -28,13 +28,10 @@ class LogFile:
 
 	def __open(self):
 		sys.stderr.write("# Opening " + `self` + "\n")
-		try:
+		if self.__filename[-3:] == ".gz":
 			self.__input=gzip.open(self.__filename)
-		except IOError, e:
-			if e[0] == 'Not a gzipped file':
-				self.__input=open(self.__filename)
-			else:
-				raise e
+		else:
+			self.__input=open(self.__filename)
 		# Mark it as open
 		self.__isOpen=1
 		# Get the next line
