@@ -26,7 +26,10 @@ class Transaction(com.twowire.database.SimpleSavableImpl):
 		itxl=com.twowire.database.sp.app.mdcscrape.InsertTxnList(conn)
 		itxl.setSerialNumber(sn)
 		itxl.setTxnKey(self.tid.intValue())
-		itxl.setCreatedDate(java.sql.Timestamp(self.now))
+		ts=m['endDate']
+		if ts is None:
+			ts = java.util.Date()
+		itxl.setCreatedDate(java.sql.Timestamp(ts.getTime()))
 		itxl.executeUpdate()
 		itxl.close()
 
@@ -45,7 +48,9 @@ class Transaction(com.twowire.database.SimpleSavableImpl):
 						# print "Storing " + `dk` + " as " + lv
 						idv.executeUpdate()
 					else:
-						print "NO KEY FOR " + `lk`
+						if not lk == 'components':
+							print "NO KEY FOR " + `lk` + " would have stored " \
+								+ `lv`
 
 		idv.close()
 
@@ -59,13 +64,14 @@ class DBRecorder(com.twowire.app.mdcscrape.AbstractMDCRecorder):
 		self.le=gl.getLookupEntries(conf, "data_list", "data_key")
 		self.gpk=net.spy.db.GetPK.getInstance()
 		self.tp=com.twowire.database.TransactionPipeline.getInstance()
+		self.tp.setBlockSize(200)
 
 	def __getTransId(self):
 		return self.gpk.getPrimaryKey(self.conf, "txn_list")
 
 	def reportSuccessfulJob(self, p):
 		id=self.__getTransId()
-		print "DBRecorder sees " + `p` + " which will be txn_id: " + `id`
+		# print "DBRecorder sees " + `p` + " which will be txn_id: " + `id`
 		self.tp.addTransaction(Transaction(self.le, id, p), self.conf)
 
 	def finished(self):
