@@ -70,9 +70,10 @@ class LogFile:
 		"""Parse the timestamp"""
 
 		try:
-			self.__oldGetTimestamp()
+			rv=self.__oldGetTimestamp()
 		except ValueError:
-			self.__clfGetTimestamp()
+			rv=self.__clfGetTimestamp()
+		return rv
 
 	def __clfGetTimestamp(self):
 		"""Parse a timestamp in Common Log Format."""
@@ -117,6 +118,10 @@ class LogMux:
 		# Keep it in sequence
 		bisect.insort(self.__logfiles, lf)
 
+	def getQueue(self):
+		"""Get the queue."""
+		return(self.__logfiles)
+
 	def next(self):
 		"""Get the next log entry"""
 
@@ -150,6 +155,9 @@ if __name__ == '__main__':
 	lm=LogMux()
 	for fn in sys.argv[2:]:
 		lm.addLogFile(LogFile(fn))
+	# sys.stderr.write("# Queue:\n")
+	# for lf in lm.getQueue():
+		# sys.stderr.write("#  " + `lf` + ":" + `lf.getTimestamp()` +  "\n")
 
 	line=lm.next()
 	while line!='':
