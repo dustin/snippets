@@ -1,7 +1,7 @@
 /*
  * Copyright 1996 SPY Internetworking
  *
- * $Id: parsedetail.c,v 1.1 1997/01/12 09:37:09 dustin Exp $
+ * $Id: parsedetail.c,v 1.2 1997/09/20 05:57:18 dustin Exp $
  */
 
 #include <stdio.h>
@@ -99,14 +99,6 @@ register int i, j=0;
 				out.month, out.day, out.year, out.time);
 		break;
 	case '\t':
-	/*
-		for(i=0; !isalpha(line[i])&&i<strlen(line); i++);
-		thing[j++]=line+i;
-		for(; line[i]!='=' && i<strlen(line); i++);
-		line[i-1]=0;
-		thing[j++]=line+i+2;
-		insert(thing[0], thing[1]);
-	*/
 		i=1;
 		thing[j++]=line+1;
 		for(; line[i]!='=' && i<strlen(line); i++);
