@@ -145,11 +145,8 @@ main(int argc, char *argv[])
 {
 #ifndef X11COMPILE
   long c;
-
-#else
   long x = MAX_X / 2;
   long y = MAX_Y / 2;
-
 #endif
 
 #ifdef X11COMPILE
