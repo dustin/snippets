@@ -1,0 +1,168 @@
+#!/bin/sh
+# Copyright (c) 1997  SPY Internetworking
+# $Id: discover,v 1.1 2000/05/11 00:03:49 dustin Exp $ \
+exec /usr/local/bin/scotty -nf $0 $*
+
+mib load rfc1213.mib
+mib load rfc1696.mib
+mib load cisco.mib
+mib load cisco-smi.mib
+mib load CISCO-CDP-MIB-V1SMI.mib
+
+set donePeers() ()
+
+set communities() ()
+
+# load the communities from the communities file
+proc loadCommunities { } {
+	global communities
+	set file "communities"
+	if [ catch {open $file} input ] {
+		return
+	}
+	while { [gets $input line] != -1} {
+		set host [lindex $line 0]
+		set comm [lindex $line 1]
+		set communities($host) $comm
+	}
+	close $input
+}
+
+# get the community for a host
+proc getCommunity { host } {
+	global communities
+	set community $communities(-default-)
+	catch { set community $communities($host) }
+	return $community
+}
+
+# Get a list of all CDP peers off of the passed in interface for a given
+# snmp session.
+proc getPeers { s i } {
+	set what "cdpCachePlatform.$i"
+	set ret {}
+	catch {
+		$s walk vbl $what {
+			set vb    [lindex $vbl 0]
+			set oid [lindex $vb  0]
+			set id [lindex [ split $oid . ] end]
+			lappend ret $id
+		}
+	}
+	return $ret
+}
+
+# Find out what the name of the peer is on an interface.  We do a bunch of
+# crap to make sure it's a usable name.
+proc peerName { s i peer } {
+	set what "cdpCacheDeviceId.$i.$peer"
+	catch {set name [lindex [lindex [$s get $what] 0] 2]}
+	set nameparts [ split $name . ]
+	set newparts {}
+	# Things that indicate we've found the domain
+	set domainparts { beyond software }
+	# Rip out the domain
+	foreach p $nameparts {
+		set found 0
+		foreach dp $domainparts {
+			if { [ string compare $p $dp ] == 0 } {
+				set found 1
+			}
+		}
+		if { $found == 1 } {
+			break;
+		}
+		lappend newparts $p
+	}
+	# This is a hack for those cisco switches that put ()'s in the name
+	set name [ join $newparts . ]
+	set n [ string first \( $name ]
+	if { $n > 0 } {
+		set name [ string range $name [expr $n + 1 ] end ]
+	}
+	return $name
+}
+
+# Display the peer
+proc displayPeer { s i peer offset name } {
+	set what "cdpCachePlatform.$i.$peer"
+	set code [catch {set platform [lindex [lindex [$s get $what] 0] 2]}]
+	set what "cdpCacheDevicePort.$i.$peer"
+	set code [catch {set port [lindex [lindex [$s get $what] 0] 2]}]
+
+	puts "[makeRoom $offset]$name@$port ($platform)"
+}
+
+# Create a space offset so's that we can read this.
+proc makeRoom { offset } {
+	set r ""
+	for { set i 0 } { $i < $offset } { incr i } {
+		set r "$r  "
+	}
+	return $r
+}
+
+# This does the actual work.
+proc walk { offset host } {
+	# puts "Walking $host"
+	global donePeers
+
+	set donePeers($host) 1
+
+	set pt [lindex [lindex [icmp echo $host] 0] 1]
+
+	if { $pt>-1 } {
+
+		set community [getCommunity $host]
+		set code [catch {snmp session -address $host -community $community} s]
+
+		set what "ifNumber.0"
+		set code [catch {set nint [lindex [lindex [$s get $what] 0] 2]}]
+		if $code {
+			set nint 0
+		}
+
+		# flip through all interfaces figuring out whether they're worthy
+		# or not.
+		for {set i 1} {$i <= $nint} {incr i} {
+			# We only care about operational interfaces.
+			set what "ifOperStatus.$i"
+			set code [catch {set ans [lindex [lindex [$s get $what] 0] 2]}]
+			if {[string compare $ans "up"] == 0} {
+
+				set what "ifDescr.$i"
+				set code [catch {set desc [lindex [lindex [$s get $what] 0] 2]}]
+				if $code {
+					set desc "$i"
+				}
+
+				# puts "[makeRoom $offset]$host interface $i ($desc)"
+				puts "[makeRoom $offset]$host $desc"
+
+				set peers [ getPeers $s $i ]
+				foreach peer $peers {
+					set name [ peerName $s $i $peer ]
+					displayPeer $s $i $peer [expr $offset + 1 ] $name
+					set doneit 0
+					catch { set doneit $donePeers($name) }
+					if { $doneit == 0 } {
+						walk [expr $offset + 2 ] $name
+					}
+				}
+			# Operational interfaces
+			}
+
+		# For each interface
+		}
+	# If we could ping the thing
+	}
+# for each router
+}
+
+# Load the communities
+loadCommunities
+
+# Start with an offset of 0 and whatever host we said to start on
+walk 0 [lindex $argv 0]
+
+exit 0
