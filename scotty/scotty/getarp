@@ -28,7 +28,7 @@ proc getArps { s } {
             set value [lindex $vb  2]
 			# Find the name for the IP address
 			if {[catch {dns ptr $ip} ptr]} { set ptr "" }
-            puts "$ip $value $ptr"
+            puts "$value $ip $ptr"
         }
     } err]} {
         puts stderr $err
