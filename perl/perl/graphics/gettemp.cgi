@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: gettemp.cgi,v 1.3 1999/09/22 08:09:31 dustin Exp $
+# $Id: gettemp.cgi,v 1.4 1999/09/27 00:51:54 dustin Exp $
 
 use LWP::UserAgent;
 use CGI;
@@ -77,5 +77,7 @@ $black=$img->colorAllocate(0,0,0);
 # $img->line(66,65, 93,92, $black);
 ($x,$y)=otherpoints($temp);
 $img->line(66,65, ($x+66), ($y+65), $black);
+# Put the actual temperature all up in there.
+$img->string(gdSmallFont, 52, 75, $temp, $black);
 
 print $img->gif;
