@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.1 2002/03/20 10:53:47 dustin Exp $
+# $Id: nntpsucka.py,v 1.2 2002/03/20 10:59:21 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -47,6 +47,9 @@ class NNTPSucka:
 					if self.headerMatches(l):
 						self.dest.putline(l)
 				else:
+					if l == '.':
+						print "*** L was ., adding a dot. ***"
+						l = '..'
 					self.dest.putline(l)
 		self.dest.putline('.')
 		self.dest.getresp()
