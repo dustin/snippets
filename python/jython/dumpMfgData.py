@@ -7,6 +7,7 @@ arch-tag: EC7AE8F1-1A2C-11D8-89BE-000393CFE6B8
 
 import java
 import com
+import string
 
 cbais=java.io.ByteArrayInputStream
 cois=java.io.ObjectInputStream
@@ -31,4 +32,5 @@ while enumerator.hasMoreElements():
 		if ois is not None:
 			ois.close()
 
-	printOut(mfg.getBoxNum(), mfg.getSerialNumber(), mfg.getPca())
+	# The double parens may look funny, but we're passing a tuple.
+	printOut((mfg.getBoxNum(), mfg.getSerialNumber(), mfg.getPca()))
