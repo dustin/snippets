@@ -106,7 +106,7 @@ public class eBayWatch implements Runnable {
 		pane.setLayout( new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		JLabel label=new JLabel("Item No:  ");
-		item_no = new JTextField(16);
+		item_no = new JTextField(32);
 
 		pane.add(label);
 		pane.add(item_no);
