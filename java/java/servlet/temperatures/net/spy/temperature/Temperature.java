@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.13 2002/08/10 05:28:49 dustin Exp $
+ * $Id: Temperature.java,v 1.14 2002/08/21 07:25:48 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -119,14 +119,13 @@ public class Temperature extends PngServlet implements ImageObserver
 				throw new ServletException("Unknown location: " + which);
 			}
 			try {
-				HTTPFetch f = new HTTPFetch(url);
-				String s;
+				URLWatcher uw=URLWatcher.getInstance();
+				String s=uw.getContent(new URL(url));
 				int temptmp;
-				s=f.getData();
 				t=Double.valueOf(s).doubleValue();
 				temptmp=(int)(t*100.0);
 				t=(double)temptmp/100;
-				log("Fetching " + which + " from " + url);
+				// log("Fetching " + which + " from " + url);
 			} catch(Exception e) {
 				throw new ServletException("Error getting temperature", e);
 			}
