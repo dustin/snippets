@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
  *
- * $Id: CachedResultSetStub.java,v 1.1 2000/11/05 08:27:35 dustin Exp $
+ * $Id: CachedResultSetStub.java,v 1.2 2000/11/05 09:19:17 dustin Exp $
  */
 
 package net.spy.db;
@@ -58,14 +58,6 @@ public class CachedResultSetStub extends Object implements Cloneable {
 			// The exceptions this thing throws, well, aren't
 		}
 		return(null);
-	}
-
-	/**
-	 * Rewind the result set...used as part of the cloning process.
-	 */
-	public void rewind() {
-		resultEnum=null;
-		result=null;
 	}
 
 	// Read in all of the results, and do our best to conver them to
