@@ -79,16 +79,17 @@ public class SwingTherm implements Runnable {
 	public void run() {
 		while(true) {
 
-			try {
-				for(int i=0; i<args.length; i++) {
+			for(int i=0; i<args.length; i++) {
+				try {
 					double t=spytemp.getTemp(args[i]);
 					hash.put(args[i], new Double(t));
 					System.out.println("Got new temperature for "
 						+ args[i] + ":  " + t);
+				} catch(Exception e) {
+					System.err.println("Error getting temperature for "
+						+ args[i] + ":  " + e);
 				}
 				base.repaint();
-			} catch(Exception e) {
-				// Nothin'
 			}
 
 			// Wait

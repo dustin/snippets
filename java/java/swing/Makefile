@@ -4,7 +4,7 @@ JAVAHOME=/usr/pkg/java
 JAR=$(JAVAHOME)/bin/jar
 JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
-C1=/home/dustin/lib/java/swingall.jar:/home/dustin/lib/java/postgresql.jar
+C1=/home/dustin/lib/java/swingall.jar
 C2=/home/dustin/lib/java/spy.jar
 CLASSPATH=$(C1):$(C2):.
 
