@@ -8,10 +8,14 @@
 
 import jarray
 import time
+import sys
+import traceback
 
 from java.util import StringTokenizer
+import java
 
 from net.spy import SpyUtil
+import net
 
 from org.apache.commons.httpclient import HttpClient
 from org.apache.commons.httpclient import UsernamePasswordCredentials
@@ -61,13 +65,13 @@ class PageHandler:
 	"""Superclass for all handlers"""
 
 	def handle(self, lines):
-		print "NOOP HANDLER"
+		return "NOOP HANDLER"
 
 class SystemSummaryHandler(PageHandler):
 	"""Handle the system summary page"""
 
 	def handle(self, lines):
-		print "SYSTEM SUMMARY HANDLER"
+		# print "SYSTEM SUMMARY HANDLER"
 		stuff={}
 		part="START"
 		component=None
@@ -87,13 +91,13 @@ class SystemSummaryHandler(PageHandler):
 					else:
 						stuff['components'][component]=l
 
-		print stuff
+		return stuff
 
 class LinkSummaryHandler(PageHandler):
 	"""Handle the link summary page"""
 
 	def handle(self, lines):
-		print "LINK SUMMARY HANDLER"
+		# print "LINK SUMMARY HANDLER"
 		stuff={}
 		for i in range(len(lines)):
 			l = lines[i]
@@ -106,13 +110,13 @@ class LinkSummaryHandler(PageHandler):
 			elif l == "PPPoE Access Concentrator:":
 				stuff['accessConcentrator']=lines[i+1]
 
-		print stuff
+		return stuff
 
 class LinkStatsHandler(PageHandler):
 	"""Handle the link stats page"""
 
 	def handle(self, lines):
-		print "LINK STATS HANDLER"
+		# print "LINK STATS HANDLER"
 		stuff={}
 		section="START"
 		for i in range(len(lines)):
@@ -139,12 +143,12 @@ class LinkStatsHandler(PageHandler):
 			elif l == 'Transmit:':
 				stuff[section + 'xmit']=lines[i+1]
 				stuff[section + 'recv']=lines[i+2]
-		print stuff
+		return stuff
 
 class LinkDetailedStatsHandler(PageHandler):
 
 	def handle(self, lines):
-		print "LINK DETAILED STATS HANDLER"
+		# print "LINK DETAILED STATS HANDLER"
 		stuff={}
 		for i in range(len(lines)):
 			l = lines[i]
@@ -153,7 +157,7 @@ class LinkDetailedStatsHandler(PageHandler):
 				stuff[l + "24Hr"] = lines[i+2]
 				stuff[l + "15m"] = lines[i+3]
 				stuff[l + "Since"] = lines[i+4]
-		print stuff
+		return stuff
 
 class DeviceListHandler(PageHandler):
 
@@ -166,7 +170,7 @@ class DeviceListHandler(PageHandler):
 		return rv
 
 	def handle(self, lines):
-		print "NETWORK DEVICE LIST HANDLER"
+		# print "NETWORK DEVICE LIST HANDLER"
 		devices=[]
 		for i in range(len(lines)):
 			l = lines[i]
@@ -175,7 +179,7 @@ class DeviceListHandler(PageHandler):
 			if (i + 2 < len(lines)) and self.isAMacAddress(lines[i+2]):
 				devices.append( (lines[i], lines[i+1], lines[i+2], lines[i+3]))
 
-		print devices
+		return devices
 
 pages=('system_summary.html', 'link_summary.html', 'link_statistics.html',
 	'link_detailed_statistics.html', 'network_device_list.html')
@@ -189,52 +193,74 @@ handlers['link_statistics.html']=LinkStatsHandler()
 handlers['link_detailed_statistics.html']=LinkDetailedStatsHandler()
 handlers['network_device_list.html']=DeviceListHandler()
 
-def processResults(p, body):
-	sbody=SpyUtil.deHTML(get.getResponseBodyAsString())
-	lines=[]
-	st=StringTokenizer(sbody, "\r\n")
-	while(st.hasMoreTokens()):
-		lines.append(st.nextToken().strip())
-	# Remove empty lines
-	lines=filter(lambda x: x != '', lines)
-	# Call the handler
-	handlers[p].handle(lines)
+class Processor(java.lang.Runnable):
+
+	def __init__(self, sn, vn, auth, url):
+		self.sn=sn
+		self.vn=vn
+		self.auth=auth
+		self.url=url
+
+	def processResults(self, p, body):
+		sbody=SpyUtil.deHTML(body)
+		lines=[]
+		st=StringTokenizer(sbody, "\r\n")
+		while(st.hasMoreTokens()):
+			lines.append(st.nextToken().strip())
+		# Remove empty lines
+		lines=filter(lambda x: x != '', lines)
+		# Call the handler
+		return handlers[p].handle(lines)
+
+	def doBox(self):
+		# The client
+		client = HttpClient();
+		client.setConnectionTimeout(5000)
+		# the auth
+		client.getState().setCredentials("remote", None,
+			UsernamePasswordCredentials(self.sn, self.auth))
+
+		for p in pages:
+
+			start=time.time()
+			get = GetMethod(self.url + "management/" + p)
+			# print "Fetching " + p
+			get.setHttp11(1)
+			get.setDoAuthentication(1)
+
+			status=client.executeMethod(get)
+			stuff=self.processResults(p, get.getResponseBodyAsString())
+			print stuff
+			get.releaseConnection()
+			stop=time.time()
+
+	def run(self):
+		try:
+			self.doBox()
+		except:
+			e=sys.exc_info()
+			# traceback.print_exception(e[0], e[1], e[2])
+
 
 # Main
 # get = GetMethod("https://462211000079:syhtob1ZmavwmayI8Y6GRg%3D%3D@208.35.230.144:50001/management/")
 
 Protocol.registerProtocol("https", Protocol("https", MySSLSocketFactory(), 443))
-client = HttpClient();
-# auth
-client.getState().setCredentials("remote", None,
-	UsernamePasswordCredentials("462211000079", "syhtob1ZmavwmayI8Y6GRg=="))
-client.getState().setAuthenticationPreemptive(1)
 
-timings={}
-for i in range(10):
-	for p in pages:
+tp=net.spy.util.ThreadPool("Fetcher", 100)
+stats=net.spy.util.ProgressStats(197108)
 
-		start=time.time()
-		get = GetMethod("https://208.35.230.144:50001/management/" + p)
-		print "Fetching " + p
-		get.setHttp11(1)
-		get.setDoAuthentication(1)
+l=sys.stdin.readline()
+while l != '':
+	(sn, vn, auth, url)=l.strip().split(" ")
 
-		status=client.executeMethod(get)
-		processResults(p, get.getResponseBodyAsString())
-		get.releaseConnection()
-		stop=time.time()
+	stats.start()
+	print "# ", sn, vn, auth, url
+	tp.addTask(Processor(sn, vn, auth, url))
+	tp.waitForTaskCount(200)
+	stats.stop()
 
-		if not timings.has_key(p):
-			timings[p]=[]
-		timings[p].append(stop-start)
+	print stats
 
-def add(x,y): return x + y
-
-print ""
-print timings
-print ""
-for k in timings.keys():
-	v=timings[k]
-	avg=reduce(add, v) / len(v)
-	print k + ":  " + `avg`
+	l=sys.stdin.readline()
+tp.waitForCompletion()
