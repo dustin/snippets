@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: stringutils.ml,v 1.7 2002/12/12 01:04:09 dustin Exp $
+ * $Id: stringutils.ml,v 1.8 2002/12/13 03:28:33 dustin Exp $
  *)
 
 let rec is_my_letter(l, c): bool =
@@ -112,6 +112,26 @@ let split_chars(s, l, limit) =
  *)
 
 (* Locate a string in another string *)
-let strstr(source, dest): int =
-	5
+let rec strstr(haystack, needle, offset): int =
+	if ((String.length needle) + offset) > (String.length haystack) then
+		-1
+	else
+		if (String.sub haystack offset (String.length needle)) = needle then
+			offset
+		else
+			if (String.contains_from haystack (offset+1) (String.get needle 0))
+			then
+				strstr(haystack, needle,
+					(String.index_from haystack (offset+1)
+						(String.get needle 0)))
+			else
+				-1
 ;;
+
+(*
+ Test:
+ strstr("abcdef", "def", 0);;
+ strstr("abcdef", "efg", 0);;
+ strstr("abcdef", "abc", 0);;
+ strstr("abcdef", "xyz", 0);;
+ *)
