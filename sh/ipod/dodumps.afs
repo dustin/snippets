@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# arch-tag: AF376FF0-4162-11D8-A616-000393CFE6B8
 
 FILEROOT=afsdumps
 

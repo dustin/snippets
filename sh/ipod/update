@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# arch-tag: AFFC1B1C-4162-11D8-9523-000393CFE6B8
 
 RSYNC=rsync
 
