@@ -1,6 +1,6 @@
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: WatchDog.java,v 1.1 2000/01/29 02:54:12 dustin Exp $
+// $Id: WatchDog.java,v 1.2 2000/10/13 06:50:13 dustin Exp $
 
 package net.spy;
 
@@ -24,6 +24,7 @@ public class WatchDog extends Thread {
 		super();
 		this.lifetime=lifetime;
 		this.setDaemon(true);
+		this.setName("WatchDog");
 	}
 
 	public void run() {

@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.16 2000/07/28 23:19:55 dustin Exp $
+// $Id: PoolContainer.java,v 1.17 2000/10/13 06:50:23 dustin Exp $
 
 package net.spy.pool;
 
@@ -70,6 +70,13 @@ public class PoolContainer extends Object {
 		this.conf=pf.getConfig();
 
 		initialize();
+	}
+
+	/**
+	 * Get the name of the pool.
+	 */
+	public String getName() {
+		return(name);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPool.java,v 1.13 2000/07/25 18:55:01 dustin Exp $
+// $Id: ObjectPool.java,v 1.14 2000/10/13 06:50:19 dustin Exp $
 
 package net.spy.pool;
 
@@ -30,10 +30,13 @@ import net.spy.SpyConfig;
  */
 
 public class ObjectPool extends Object {
-	protected static Hashtable pools=null;
 	protected Exception objectException=null;
 	protected SpyConfig conf=null;
-	protected ObjectPoolCleaner cleaner=null;
+	// This is static so we can check up on it.
+	protected static ObjectPoolCleaner cleaner=null;
+	// This is static because we want everyone to see the same pools, of
+	// course.
+	protected static Hashtable pools=null;
 
 	public ObjectPool(SpyConfig conf) {
 		super();
@@ -115,6 +118,17 @@ public class ObjectPool extends Object {
 	}
 
 	/**
+	 * Get a count of the number of object pools.
+	 */
+	public int numPools() {
+		int n=0;
+		synchronized (pools) {
+			n=pools.size();
+		}
+		return(n);
+	}
+
+	/**
 	 * Dump out the object pools.
 	 */
 	public String toString() {
@@ -142,7 +156,14 @@ public class ObjectPool extends Object {
 		Vector v=new Vector();
 		synchronized (pools) {
 			for(Enumeration e=pools.elements(); e.hasMoreElements(); ) {
-				v.addElement(e.nextElement());
+				PoolContainer pc=(PoolContainer)e.nextElement();
+
+				// If it's empty, remove it.
+				if(pc.avaliableObjects()==0) {
+					destroyPool(pc.getName());
+				} else {
+					v.addElement(pc);
+				}
 			}
 		}
 		for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
@@ -166,8 +187,12 @@ public class ObjectPool extends Object {
 	}
 
 	protected synchronized void initialize() {
+		// Do we have a pool?
 		if(pools==null) {
 			pools=new Hashtable();
+		}
+		// Is our cleaner working?
+		if(cleaner==null || (!cleaner.isAlive())) {
 			cleaner=new ObjectPoolCleaner(this);
 		}
 	}

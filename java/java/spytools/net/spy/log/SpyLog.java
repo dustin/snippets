@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLog.java,v 1.4 2000/07/27 20:05:49 dustin Exp $
+ * $Id: SpyLog.java,v 1.5 2000/10/13 06:50:15 dustin Exp $
  */
 
 package net.spy.log;
@@ -117,6 +117,15 @@ public class SpyLog extends Object {
 				// We don't care if it's already started.
 			}
 			flushers.addElement(f);
+		}
+	}
+
+	/**
+	 * Remove the given flusher.
+	 */
+	public void removeFlusher(SpyLogFlusher f) {
+		synchronized(flushers) {
+			flushers.removeElement(f);
 		}
 	}
 

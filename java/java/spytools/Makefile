@@ -65,7 +65,7 @@ SDEST=bleu.west.spy.net:/usr/local/apache/java
 
 .SUFFIXES: .java .class .jar
 
-all: spy.jar
+all: $(CLASSES)
 
 doc: $(CLASSES)
 	$(JAVADOC) -public -d doc $(PACKAGES)

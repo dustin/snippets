@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.5 2000/07/27 20:05:50 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.6 2000/10/13 06:50:17 dustin Exp $
  */
 
 package net.spy.log;
@@ -48,6 +48,8 @@ public class SpyLogFlusher extends Thread {
 		setDaemon(true);
 		setName("SpyLogFlusher-" + name);
 		this.queue_name=name;
+		// Exception e=new Exception("Instantiated SpyLogFlusher-" + name);
+		// e.printStackTrace();
 		configure();
 	}
 
@@ -59,6 +61,8 @@ public class SpyLogFlusher extends Thread {
 		setDaemon(true);
 		setName("SpyLogFlusher-" + name);
 		this.queue_name=name;
+		// Exception e=new Exception("Instantiated SpyLogFlusher-" + name);
+		// e.printStackTrace();
 		configure();
 	}
 
