@@ -1,4 +1,22 @@
-<html><head><title>Info for %OID%</title></head>
+<html><head><title>Info for %OID%</title>
+
+<script language="javascript">
+
+<!-- hide me from non-JavaScript-enabled browsers
+
+function openWindow(URL,name) {
+
+	popupWin = window.open(URL, name, 'resizable=yes,scrollbars=yes');
+
+	if ( (navigator.appName != "Microsoft Internet Explorer")
+	      && (navigator.appVersion.substring(0,1) == "3") )
+        popupWin.focus();
+
+}
+// done hiding -->
+</script>
+
+</head>
 <body bgcolor="#fFfFfF">
 
 <center>
@@ -27,6 +45,11 @@ Keywords:<br>
 Info:<br>
 </font>
 %INFO%
+
+<p>
+
+<a href="javascript:openWindow('%SELF_URI%?func=display&oid=%OID%')">Open
+in new window</a>
 
 <hr>
 </body></html>
