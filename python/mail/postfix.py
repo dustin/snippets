@@ -26,7 +26,8 @@ class PolicyEngine:
         self.log=logging.getLogger("PolicyEngine")
 
     def process(self, attributes):
-        """Process the given attributes and return a PolicyResponse"""
+        """Process the given attributes and return a valid response or None if
+           the you wish to declare that you don't care about the response."""
         raise NotImplemented
 
     def run(self, input=sys.stdin, output=sys.stdout):
@@ -40,6 +41,8 @@ class PolicyEngine:
             if l == '':
                 # Empty line...we need to prep a response
                 response=self.process(attrs)
+                if response is None:
+                    response = PolicyResponse.DUNNO
                 self.log.debug("Response is " + response)
                 output.write("action=" + response + "\n\n")
                 attrs={}
@@ -89,7 +92,5 @@ class GreylistPolicyEngine(PolicyEngine):
         if age is None or age < self.delay:
             rv = PolicyResponse.DEFER_IF_PERMIT
             self.storeKey(key)
-        else:
-            rv = PolicyResponse.DUNNO
 
         return rv
