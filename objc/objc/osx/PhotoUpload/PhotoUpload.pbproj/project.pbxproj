@@ -123,6 +123,7 @@
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -252,7 +253,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 1;
 		};
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -375,77 +375,92 @@
 			refType = 4;
 		};
 		F5601AEF0353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = Credits.html;
 			path = English.lproj/Credits.html;
 			refType = 4;
 		};
 		F5601AF00353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = DumpMatrix.h;
 			refType = 4;
 		};
 		F5601AF10353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = DumpMatrix.m;
 			refType = 4;
 		};
 		F5601AF20353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = HideableProgressIndicator.h;
 			refType = 4;
 		};
 		F5601AF30353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = HideableProgressIndicator.m;
 			refType = 4;
 		};
 		F5601AF40353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = HideableTextField.h;
 			refType = 4;
 		};
 		F5601AF50353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = HideableTextField.m;
 			refType = 4;
 		};
 		F5601AF60353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = SizeScaler.h;
 			refType = 4;
 		};
 		F5601AF70353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = SizeScaler.m;
 			refType = 4;
 		};
 		F5601AF80353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadController.h;
 			refType = 4;
 		};
 		F5601AF90353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadController.m;
 			refType = 4;
 		};
 		F5601AFA0353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadParams.h;
 			refType = 4;
 		};
 		F5601AFB0353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadParams.m;
 			refType = 4;
 		};
 		F5601AFC0353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadThread.h;
 			refType = 4;
 		};
 		F5601AFD0353732F0109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = UploadThread.m;
 			refType = 4;
@@ -544,6 +559,7 @@
 			refType = 4;
 		};
 		F5601B14035373480109FEFA = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
@@ -665,11 +681,13 @@
 			refType = 4;
 		};
 		F5A4F41B0356A76901A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = BatchController.h;
 			refType = 4;
 		};
 		F5A4F41C0356A76901A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = BatchController.m;
 			refType = 4;
@@ -693,11 +711,13 @@
 			};
 		};
 		F5BA4842035523AD01A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = Batch.h;
 			refType = 4;
 		};
 		F5BA4843035523AD01A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = Batch.m;
 			refType = 4;
@@ -736,11 +756,13 @@
 			};
 		};
 		F5BAF2D2036CDA3201ED6A41 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = BatchUploadController.h;
 			refType = 4;
 		};
 		F5BAF2D3036CDA3201ED6A41 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = BatchUploadController.m;
 			refType = 4;
@@ -767,6 +789,7 @@
 			refType = 4;
 		};
 		F5D1960B0362869401A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = English;
 			path = English.lproj/Localizable.strings;
@@ -779,6 +802,7 @@
 			};
 		};
 		F5D1960F03628AC801A801C4 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = PhotoUpload.h;
 			refType = 4;
