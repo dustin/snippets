@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.8 1999/05/11 06:23:12 dustin Exp $
+ * $Id: parselist.h,v 1.9 1999/05/12 18:07:43 dustin Exp $
  */
 
 #include <syslog.h>
@@ -15,6 +15,9 @@
 #error No vsnprintf *OR* vsprintf?  Call your vendor.
 #endif
 #endif
+
+/* the size of an IP address */
+#define IP_SIZE 32
 
 /* Length of a line */
 #define LINELEN 90
@@ -53,8 +56,8 @@
 
 /* The config structure */
 struct config_t {
-	struct hashtable *hash[33]; /* 0-32, one for each bit */
-	unsigned int masks[33];
+	struct hashtable *hash[IP_SIZE+1]; /* one for each bit (including 0) */
+	unsigned int masks[IP_SIZE+1];
 };
 
 void _log(const char *format, ...);

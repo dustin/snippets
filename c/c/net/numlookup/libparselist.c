@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.18 1999/05/11 07:10:41 dustin Exp $
+ * $Id: libparselist.c,v 1.19 1999/05/12 18:07:42 dustin Exp $
  */
 
 #include <stdio.h>
@@ -25,14 +25,14 @@ initConfig(void)
 	struct config_t config;
 	int i;
 
-	for(i=0; i<33; i++) {
+	for(i=0; i<=IP_SIZE; i++) {
 		config.hash[i] = hash_init(HASHSIZE);
 
 		/* Canned masks */
 		if(i==0) {
 			config.masks[0]=0;
 		} else {
-			config.masks[i]=(0xffffffff << (32-i));
+			config.masks[i]=(0xffffffff << (IP_SIZE-i));
 		}
 	}
 
@@ -114,7 +114,7 @@ readconfig(void)
 			continue;
 		}
 
-		if (mask < 0 || mask > 32) {
+		if (mask < 0 || mask > IP_SIZE) {
 			_log("ERROR, netmask is invalid:  %s\n", line);
 			continue;
 		}
@@ -140,7 +140,7 @@ destroyConfig(struct config_t config)
 {
 	int     i;
 
-	for (i = 0; i < 33; i++) {
+	for (i = 0; i <= IP_SIZE; i++) {
 		if (config.hash[i]) {
 			hash_destroy(config.hash[i]);
 		}
@@ -155,7 +155,7 @@ search(struct config_t config, unsigned int ip)
 
 	/* We have an array of integer hashes of all of our known networks.  The
 	 * array offset is the netmask (CIDR), so lookups are quick and accurate */
-	for (i = 32; i >= 0; i--) {
+	for (i = IP_SIZE; i >= 0; i--) {
 		addr=ip&config.masks[i];
 		h=hash_find(config.hash[i], addr);
 		if(h) {
