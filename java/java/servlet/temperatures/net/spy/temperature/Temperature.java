@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.19 2002/11/25 01:57:48 dustin Exp $
+ * $Id: Temperature.java,v 1.20 2003/02/23 08:05:25 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -9,7 +9,7 @@ package net.spy.temperature;
 import java.io.*;
 import java.util.*;
 import java.net.*;
-import sun.misc.*;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -97,8 +97,29 @@ public class Temperature extends PngServlet {
 				}
 			} else {
 				// If there's no therm, and no out, list the temps
-				out=listTemps();
-				send_response(response, out);
+				// If readings is provided, show the readings with the
+				// thermometers
+
+				String encodings=request.getHeader("Accept");
+				// If the wml parameter is given, or we figure out the
+				// browser supports it
+				if( (request.getParameter("wml")!=null) ||
+					(encodings!=null && encodings.indexOf("text/vnd.wap.wml")>0)
+					) {
+
+					// WML support, let's do the WML page.
+					out=getWML();
+					send_response(response, out, "text/vnd.wap.wml");
+				} else {
+					// No WML support, do the HTML things.
+					if(request.getParameter("readings") != null) {
+						out=listReadings();
+						send_response(response, out);
+					} else {
+						out=listTemps();
+						send_response(response, out);
+					}
+				}
 			}
 		} else {
 			// Show the non-graphical representation of the temperature
@@ -117,6 +138,48 @@ public class Temperature extends PngServlet {
 		return(ret);
 	}
 
+	private String listReadings() {
+		String ret="";
+
+		for(Iterator i=gatherer.getSeen().entrySet().iterator(); i.hasNext();) {
+			Map.Entry me=(Map.Entry)i.next();
+			ret+=me.getKey() + "=" + me.getValue() + "\n";
+		}
+
+		return(ret);
+	}
+
+	private String getWML() {
+		StringBuffer sb=new StringBuffer(64);
+
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy/MM/dd-hh:mm:ss");
+
+		sb.append("<?xml version=\"1.0\"?>\n");
+		sb.append("<!DOCTYPE wml PUBLIC ");
+		sb.append("\"-//WAPFORUM//DTD WML 1.1//EN\" ");
+		sb.append("\"http://www.wapforum.org/DTD/wml_1.1.xml\">\n");
+		sb.append("<wml>\n");
+		sb.append("<card title=\"Temperatures\">\n");
+		sb.append("<p>");
+		sb.append(sdf.format(new java.util.Date()));
+		sb.append("</p>\n");
+		sb.append("<p>\n");
+		// Add the contents
+		for(Iterator i=gatherer.getSeen().entrySet().iterator(); i.hasNext();) {
+			Map.Entry me=(Map.Entry)i.next();
+			sb.append(me.getKey());
+			sb.append("=");
+			Sample s=(Sample)me.getValue();
+			sb.append(s.getSample());
+			sb.append("<br/>\n");
+		}
+		sb.append("</p>\n");
+		sb.append("</card>\n");
+		sb.append("</wml>");
+
+		return(sb.toString());
+	}
+
 	private String getTemp(String which)
 		throws ServletException {
 
@@ -130,15 +193,21 @@ public class Temperature extends PngServlet {
 		return("" + t);
 	}
 
-	private void send_response(HttpServletResponse response, String o) {
+	private void send_response(HttpServletResponse response, String o,
+		String type) {
+
 		try {
-			response.setContentType("text/plain");
+			response.setContentType(type);
 			PrintWriter out=response.getWriter();
 			out.print(o);
 			out.close();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void send_response(HttpServletResponse response, String o) {
+		send_response(response, o, "text/plain");
 	}
 
 	// Graphical representation of the image.

@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Gatherer.java,v 1.3 2002/11/25 07:23:08 dustin Exp $
+// $Id: Gatherer.java,v 1.4 2003/02/23 08:05:21 dustin Exp $
 
 package net.spy.temperature;
 
@@ -196,38 +196,6 @@ public class Gatherer extends SpyThread {
 			} catch(Throwable t) {
 				getLogger().fatal("UNEXPECTED ERROR IN GATHERER", t);
 			}
-		}
-	}
-
-	private class Sample extends Object {
-
-		private String name=null;
-		private long birthday=0;
-		private long modtime=0;
-		private Double sample=null;
-
-		private Sample(String name) {
-			super();
-			this.name=name;
-			birthday=System.currentTimeMillis();
-		}
-
-		public String toString() {
-			return("{Sample:  " + name + " val=" + sample
-				+ " age=" + age() + "}");
-		}
-
-		public long age() {
-			return(System.currentTimeMillis()-modtime);
-		}
-
-		public Double getSample() {
-			return(sample);
-		}
-
-		public void setSample(Double s) {
-			sample=s;
-			modtime=System.currentTimeMillis();
 		}
 	}
 
