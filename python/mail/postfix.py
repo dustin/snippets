@@ -48,7 +48,7 @@ class PolicyEngine(object):
                 if response is None:
                     response = PolicyResponse.DUNNO
 
-                self.log.info("Response is %s", response)
+                self.log.debug("Response is %s", response)
                 output.write("action=" + response + "\n\n")
                 output.flush()
                 # Reset the attributes for the next request
