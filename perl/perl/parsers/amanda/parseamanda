@@ -1,0 +1,52 @@
+#!/usr/local/bin/perl
+# Copyright (c) 1999  Dustin Sallings
+# $Id: parseamanda,v 1.1 1999/08/30 18:10:49 dustin Exp $
+
+sub getmonth
+{
+	my($month)=@_;
+	my(%months);
+
+	%months=( 'January' => 1, 'February' => 2, 'March' => 3, 'April' => 4,
+		'May' => 5, 'June' => 6, 'July' => 7, 'August' => 8, 'September' => 9,
+		'October' => 10, 'November' => 11, 'December' => 12
+	);
+	return(sprintf("%02d", $months{$month}));
+}
+
+while(<>) {
+	next unless(/^Subject: WestSPY AMANDA MAIL REPORT FOR (\w+) (\d+), (\d+)/);
+
+	if($3 < 1990) {
+		print STDERR "Error on $_\n";
+		next;
+	}
+
+	my($year, $mon, $day)=($3, getmonth($1), sprintf("%02d", $2));
+
+	while($_=<>) {
+		if(/^Output Size .meg.\s+([0-9\.]+)/o) {
+			$store{$year}{$mon}{$day}{'Output'}=$1;
+		} elsif(/^Original Size .meg.\s+([0-9\.]+)/o) {
+			$store{$year}{$mon}{$day}{'Original'}=$1;
+		}
+
+		last if(/^From /);
+	}
+	last if(eof());
+}
+
+for $year (sort(keys(%store))) {
+	print "$year\n";
+	for $mon (sort(keys(%{$store{$year}}))) {
+		print "\t$mon\n";
+		open(OUT, ">$year$mon.dat");
+		for $day (sort(keys(%{$store{$year}{$mon}}))) {
+			print OUT "$day $store{$year}{$mon}{$day}{'Output'} " .
+				"$store{$year}{$mon}{$day}{'Original'}\n";
+			print "\t\t$day: $store{$year}{$mon}{$day}{'Output'}:".
+				"$store{$year}{$mon}{$day}{'Original'}\n";
+		}
+		close(OUT);
+	}
+}
