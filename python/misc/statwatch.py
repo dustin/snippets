@@ -97,8 +97,11 @@ if __name__ == '__main__':
 	# Production aliases
 	servers['noc0'] = servers['prod']
 	# Staging aliases
-	servers['noc1'] = servers['50']
-	servers['staging'] = servers['50']
+	try:
+		servers['noc1'] = servers['50']
+		servers['staging'] = servers['50']
+	except KeyError:
+		pass
 	# Farooq
 	servers['noc5']=['http://noc.noc5.2wire.com/admin/monitor/stat']
 	# Dustin
