@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: searchindex.py,v 1.2 2002/04/16 08:48:41 dustin Exp $
+$Id: searchindex.py,v 1.3 2002/04/26 09:03:39 dustin Exp $
 """
 
 import anydbm
@@ -66,12 +66,17 @@ class SearchWatcher:
 		self.__checkTips(g, query, matchCallback)
 		self.__checkComments(g, query, matchCallback)
 
+		i=0
 		for rs in g:
 			idx,r = rs
 			key=query+'/results ' + r['URL']
 			if not self.db.has_key(key):
 				self.db[key]=str(time.time)
 				matchCallback('url', r)
+			i+=1
+			# Don't do more than 256 results
+			if i > 256:
+				break
 
 if __name__=='__main__':
 	sw=SearchWatcher('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX', proxy='juan:3128')
