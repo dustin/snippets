@@ -2,7 +2,7 @@
 //
 // Copyright (c) 1999 Dustin Sallings
 //
-// $Id: SNPP.java,v 1.6 2000/01/27 10:23:02 dustin Exp $
+// $Id: SNPP.java,v 1.7 2000/01/28 19:14:46 dustin Exp $
 
 package net.spy.net;
 
@@ -100,6 +100,15 @@ public class SNPP {
 	}
 
 	/**
+	 * gets the message tag on a 2way page
+	 *
+	 * @return the tag, or null if there is no tag
+	 */
+	public String getTag() {
+		return(msg_tag);
+	}
+
+	/**
 	 * Send a simple page.
 	 *
 	 * @param id SNPP recipient ID.
@@ -144,19 +153,17 @@ public class SNPP {
 	/**
 	 * Check for a response from a 2way message.
 	 *
+	 * @param msg_tag the message tag to look up.
+	 *
 	 * @return the response message, or NULL if it's not ready
 	 *
 	 * @exception Exception when the msta command fails, or we're not doing
 	 * 2way.
 	 */
-	public String getResponse() throws Exception {
+	public String getResponse(String tag) throws Exception {
 		String ret=null;
 		if(goes_both_ways) {
-			if(msg_tag == null) {
-				throw new Exception("No msg tag received, have you done a "
-					+ "2way page yet?");
-			}
-			cmd("msta " + msg_tag);
+			cmd("msta " + tag);
 			if(currentstatus == 889) {
 				String tmp=new String(currentmessage);
 				tmp=tmp.substring(tmp.indexOf(" ")).trim();
@@ -168,6 +175,22 @@ public class SNPP {
 			throw new Exception("I don't go both ways.");
 		}
 		return(ret);
+	}
+
+	/**
+	 * Check for a response from a 2way message.
+	 *
+	 * @return the response message, or NULL if it's not ready
+	 *
+	 * @exception Exception when the msta command fails, or we're not doing
+	 * 2way.
+	 */
+	public String getResponse() throws Exception {
+		if(msg_tag == null) {
+			throw new Exception("No msg tag received, have you done a "
+				+ "2way page yet?");
+		}
+		return(getResponse(msg_tag));
 	}
 
 	/**
