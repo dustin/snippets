@@ -1,5 +1,5 @@
 // Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
-// $Id: Example.java,v 1.1 1999/11/24 09:06:47 dustin Exp $
+// $Id: Example.java,v 1.2 1999/11/25 09:37:00 dustin Exp $
 
 import java.util.*;
 import java.lang.*;
@@ -16,10 +16,19 @@ public class Example {
 		try {
 			ImageServer i = new ImageServerImpl();
 			i = (ImageServer)Naming.lookup("//localhost/ImageServer");
-			ImageData image = i.getImage(505, false);
+			ImageData image = i.getImage(600, true);
+			dumpit(image);
 		} catch(Exception e) {
 			System.out.println("Exception:  " + e);
 		}
 		System.exit(0);
+	}
+
+	public static void dumpit(ImageData d) throws Exception {
+		Vector v=d.image_data;
+		int i;
+		for(i=0; i<v.size(); i++) {
+			System.out.write( (byte[])v.elementAt(i));
+		}
 	}
 }
