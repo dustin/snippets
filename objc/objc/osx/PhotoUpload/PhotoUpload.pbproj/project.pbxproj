@@ -23,6 +23,8 @@
 				F5D455220342CB2701A801C4,
 				F56B38FB0342D1B701A801C4,
 				F56B38FC0342D1B701A801C4,
+				F56E788F0350314901A801C4,
+				F56E78900350314901A801C4,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -281,6 +283,7 @@
 				F5F3A43E033CF57301A801C4,
 				F5D455230342CB2701A801C4,
 				F56B38FD0342D1B701A801C4,
+				F56E78910350314901A801C4,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -303,6 +306,7 @@
 				F5F3A43D033CF57301A801C4,
 				F5D455240342CB2701A801C4,
 				F56B38FE0342D1B701A801C4,
+				F56E78920350314901A801C4,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -498,6 +502,28 @@
 		};
 		F56B38FE0342D1B701A801C4 = {
 			fileRef = F56B38FC0342D1B701A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F56E788F0350314901A801C4 = {
+			isa = PBXFileReference;
+			path = SizeScaler.h;
+			refType = 4;
+		};
+		F56E78900350314901A801C4 = {
+			isa = PBXFileReference;
+			path = SizeScaler.m;
+			refType = 4;
+		};
+		F56E78910350314901A801C4 = {
+			fileRef = F56E788F0350314901A801C4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F56E78920350314901A801C4 = {
+			fileRef = F56E78900350314901A801C4;
 			isa = PBXBuildFile;
 			settings = {
 			};

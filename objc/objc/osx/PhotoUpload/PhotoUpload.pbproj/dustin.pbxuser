@@ -13,18 +13,17 @@
 			F5F17F5F033CF3AF01A801C4,
 		);
 		perUserDictionary = {
-			PBXPerProjectTemplateStateSaveDate = 54962795;
+			PBXPerProjectTemplateStateSaveDate = 55585448;
 			PBXWorkspaceContents = (
 				{
 					LeftSlideOut = {
 						Split0 = {
 							Split0 = {
 								NavContent0 = {
-									bookmark = F55924730346B05301A801C4;
+									bookmark = F56E78A80350351801A801C4;
 									history = (
 										F5D455290342D18101A801C4,
 										F5084A0F0345945901A801C4,
-										F5084A100345945901A801C4,
 										F5084A110345945901A801C4,
 										F5084A120345945901A801C4,
 										F5084A130345945901A801C4,
@@ -36,7 +35,12 @@
 										F5084A1A0345945901A801C4,
 										F5084A1B0345945901A801C4,
 										F55924700346B05301A801C4,
-										F55924710346B05301A801C4,
+										F56E78930350351801A801C4,
+										F56E78940350351801A801C4,
+										F56E78950350351801A801C4,
+										F56E78960350351801A801C4,
+										F56E78970350351801A801C4,
+										F56E78980350351801A801C4,
 									);
 									prevStack = (
 										F5F3A446033CF80401A801C4,
@@ -70,6 +74,21 @@
 										F5DD8132033E568801A801C4,
 										F5084A1D0345945901A801C4,
 										F55924720346B05301A801C4,
+										F56E78990350351801A801C4,
+										F56E789A0350351801A801C4,
+										F56E789B0350351801A801C4,
+										F56E789C0350351801A801C4,
+										F56E789D0350351801A801C4,
+										F56E789E0350351801A801C4,
+										F56E789F0350351801A801C4,
+										F56E78A00350351801A801C4,
+										F56E78A10350351801A801C4,
+										F56E78A20350351801A801C4,
+										F56E78A30350351801A801C4,
+										F56E78A40350351801A801C4,
+										F56E78A50350351801A801C4,
+										F56E78A60350351801A801C4,
+										F56E78A70350351801A801C4,
 									);
 								};
 								NavCount = 1;
@@ -167,7 +186,7 @@
 								Frame = "{{0, 0}, {646, 127}}";
 							};
 							Tab3 = {
-								Frame = "{{0, 0}, {565, 265}}";
+								Frame = "{{0, 0}, {646, 265}}";
 							};
 							TabCount = 4;
 							TabsVisible = YES;
@@ -229,11 +248,10 @@
 					WindowLocation = "{13, 180}";
 				},
 			);
-			PBXWorkspaceStateSaveDate = 54962795;
+			PBXWorkspaceStateSaveDate = 55585448;
 		};
 		perUserProjectItems = {
 			F5084A0F0345945901A801C4 = F5084A0F0345945901A801C4;
-			F5084A100345945901A801C4 = F5084A100345945901A801C4;
 			F5084A110345945901A801C4 = F5084A110345945901A801C4;
 			F5084A120345945901A801C4 = F5084A120345945901A801C4;
 			F5084A130345945901A801C4 = F5084A130345945901A801C4;
@@ -248,9 +266,29 @@
 			F541BE86033DB8CC01A801C4 = F541BE86033DB8CC01A801C4;
 			F541BE87033DB8CC01A801C4 = F541BE87033DB8CC01A801C4;
 			F55924700346B05301A801C4 = F55924700346B05301A801C4;
-			F55924710346B05301A801C4 = F55924710346B05301A801C4;
 			F55924720346B05301A801C4 = F55924720346B05301A801C4;
-			F55924730346B05301A801C4 = F55924730346B05301A801C4;
+			F56E78930350351801A801C4 = F56E78930350351801A801C4;
+			F56E78940350351801A801C4 = F56E78940350351801A801C4;
+			F56E78950350351801A801C4 = F56E78950350351801A801C4;
+			F56E78960350351801A801C4 = F56E78960350351801A801C4;
+			F56E78970350351801A801C4 = F56E78970350351801A801C4;
+			F56E78980350351801A801C4 = F56E78980350351801A801C4;
+			F56E78990350351801A801C4 = F56E78990350351801A801C4;
+			F56E789A0350351801A801C4 = F56E789A0350351801A801C4;
+			F56E789B0350351801A801C4 = F56E789B0350351801A801C4;
+			F56E789C0350351801A801C4 = F56E789C0350351801A801C4;
+			F56E789D0350351801A801C4 = F56E789D0350351801A801C4;
+			F56E789E0350351801A801C4 = F56E789E0350351801A801C4;
+			F56E789F0350351801A801C4 = F56E789F0350351801A801C4;
+			F56E78A00350351801A801C4 = F56E78A00350351801A801C4;
+			F56E78A10350351801A801C4 = F56E78A10350351801A801C4;
+			F56E78A20350351801A801C4 = F56E78A20350351801A801C4;
+			F56E78A30350351801A801C4 = F56E78A30350351801A801C4;
+			F56E78A40350351801A801C4 = F56E78A40350351801A801C4;
+			F56E78A50350351801A801C4 = F56E78A50350351801A801C4;
+			F56E78A60350351801A801C4 = F56E78A60350351801A801C4;
+			F56E78A70350351801A801C4 = F56E78A70350351801A801C4;
+			F56E78A80350351801A801C4 = F56E78A80350351801A801C4;
 			F5D455290342D18101A801C4 = F5D455290342D18101A801C4;
 			F5DD812F033E568801A801C4 = F5DD812F033E568801A801C4;
 			F5DD8130033E568801A801C4 = F5DD8130033E568801A801C4;
@@ -297,16 +335,6 @@
 	F5084A0F0345945901A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = F50849F8034561C001A801C4;
-	};
-	F5084A100345945901A801C4 = {
-		fRef = F5F3A43C033CF57301A801C4;
-		isa = PBXTextBookmark;
-		name = "UploadController.h: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 867;
-		vrLoc = 78;
 	};
 	F5084A110345945901A801C4 = {
 		fRef = F56B38FC0342D1B701A801C4;
@@ -409,7 +437,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: 39";
 		rLen = 0;
-		rLoc = 2383;
+		rLoc = 2406;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 614;
@@ -417,55 +445,242 @@
 	F55924700346B05301A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {436, 233}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {171, 358}}";
-			TOCViewSelectedItems = (
-				PBXTargetSummarySettingsModule,
-			);
-		};
-	};
-	F55924710346B05301A801C4 = {
-		fRef = F5F3A43B033CF57301A801C4;
-		isa = PBXTextBookmark;
-		rLen = 1;
-		rLoc = 270;
-		rType = 1;
 	};
 	F55924720346B05301A801C4 = {
 		isa = PBXTargetBookmark;
 		trg = 29B97326FDCFA39411CA2CEA;
-		uiCtxt = {
-			TOCViewDetailVisibleRect = "{{0, 0}, {436, 233}}";
-			TOCViewExpandedItems = (
-				"com.apple.target-editor-pane.settings",
-				"com.apple.target-editor-pane.settings.simple",
-				"com.apple.target-editor-pane.info-plist",
-				"com.apple.target-editor-pane.info-plist.simple",
-				"com.apple.target-editor-pane.buildphases",
-			);
-			TOCViewMasterVisibleRect = "{{0, 0}, {171, 358}}";
-			TOCViewSelectedItems = (
-				PBXTargetSummarySettingsModule,
-			);
-		};
 	};
-	F55924730346B05301A801C4 = {
+	F56E78930350351801A801C4 = {
+		fRef = F56E78A90350351801A801C4;
+		isa = PBXTextBookmark;
+		name = "NSGeometry.h: 17";
+		rLen = 0;
+		rLoc = 284;
+		rType = 0;
+		vrLen = 702;
+		vrLoc = 0;
+	};
+	F56E78940350351801A801C4 = {
+		fRef = F56E78AA0350351801A801C4;
+		isa = PBXTextBookmark;
+		name = "NSImage.h: 65";
+		rLen = 6;
+		rLoc = 1862;
+		rType = 0;
+		vrLen = 1349;
+		vrLoc = 1437;
+	};
+	F56E78950350351801A801C4 = {
+		fRef = F5F3A43C033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 846;
+		vrLoc = 78;
+	};
+	F56E78960350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 13";
+		rLen = 0;
+		rLoc = 241;
+		rType = 0;
+		vrLen = 321;
+		vrLoc = 0;
+	};
+	F56E78970350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 13";
+		rLen = 0;
+		rLoc = 211;
+		rType = 0;
+		vrLen = 469;
+		vrLoc = 0;
+	};
+	F56E78980350351801A801C4 = {
 		fRef = F5F3A43B033CF57301A801C4;
 		isa = PBXTextBookmark;
-		name = "UploadController.m: awakeFromNib";
+		name = "UploadController.m: iconSize";
 		rLen = 0;
-		rLoc = 7944;
+		rLoc = 3280;
 		rType = 0;
-		vrLen = 715;
-		vrLoc = 7290;
+		vrLen = 1126;
+		vrLoc = 2516;
+	};
+	F56E78990350351801A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: selectFiles:";
+		rLen = 0;
+		rLoc = 2676;
+		rType = 0;
+		vrLen = 1156;
+		vrLoc = 2447;
+	};
+	F56E789A0350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 239;
+		vrLoc = 0;
+	};
+	F56E789B0350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 217;
+		vrLoc = 0;
+	};
+	F56E789C0350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 18";
+		rLen = 0;
+		rLoc = 314;
+		rType = 0;
+		vrLen = 322;
+		vrLoc = 0;
+	};
+	F56E789D0350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 14";
+		rLen = 0;
+		rLoc = 298;
+		rType = 0;
+		vrLen = 511;
+		vrLoc = 0;
+	};
+	F56E789E0350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 18";
+		rLen = 0;
+		rLoc = 314;
+		rType = 0;
+		vrLen = 322;
+		vrLoc = 0;
+	};
+	F56E789F0350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 17";
+		rLen = 0;
+		rLoc = 296;
+		rType = 0;
+		vrLen = 503;
+		vrLoc = 0;
+	};
+	F56E78A00350351801A801C4 = {
+		fRef = F5F3A43C033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 846;
+		vrLoc = 78;
+	};
+	F56E78A10350351801A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: iconSize";
+		rLen = 0;
+		rLoc = 3280;
+		rType = 0;
+		vrLen = 1154;
+		vrLoc = 2516;
+	};
+	F56E78A20350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: initWithSize:";
+		rLen = 37;
+		rLoc = 260;
+		rType = 0;
+		vrLen = 503;
+		vrLoc = 0;
+	};
+	F56E78A30350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 13";
+		rLen = 0;
+		rLoc = 241;
+		rType = 0;
+		vrLen = 321;
+		vrLoc = 0;
+	};
+	F56E78A40350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 14";
+		rLen = 0;
+		rLoc = 239;
+		rType = 0;
+		vrLen = 593;
+		vrLoc = 39;
+	};
+	F56E78A50350351801A801C4 = {
+		fRef = F56E788F0350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.h: 13";
+		rLen = 0;
+		rLoc = 241;
+		rType = 0;
+		vrLen = 321;
+		vrLoc = 0;
+	};
+	F56E78A60350351801A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: iconSize";
+		rLen = 0;
+		rLoc = 3280;
+		rType = 0;
+		vrLen = 1126;
+		vrLoc = 2516;
+	};
+	F56E78A70350351801A801C4 = {
+		fRef = F56E78900350314901A801C4;
+		isa = PBXTextBookmark;
+		name = "SizeScaler.m: 13";
+		rLen = 0;
+		rLoc = 211;
+		rType = 0;
+		vrLen = 469;
+		vrLoc = 0;
+	};
+	F56E78A80350351801A801C4 = {
+		fRef = F5F3A43B033CF57301A801C4;
+		isa = PBXTextBookmark;
+		name = "UploadController.m: sc";
+		rLen = 0;
+		rLoc = 3156;
+		rType = 0;
+		vrLen = 844;
+		vrLoc = 0;
+	};
+	F56E78A90350351801A801C4 = {
+		isa = PBXFileReference;
+		name = NSGeometry.h;
+		path = /System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSGeometry.h;
+		refType = 0;
+	};
+	F56E78AA0350351801A801C4 = {
+		isa = PBXFileReference;
+		name = NSImage.h;
+		path = /System/Library/Frameworks/AppKit.framework/Versions/C/Headers/NSImage.h;
+		refType = 0;
 	};
 	F5D455290342D18101A801C4 = {
 		fRef = F5D455410342D18101A801C4;
@@ -485,7 +700,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: selectFiles:";
 		rLen = 0;
-		rLoc = 2391;
+		rLoc = 2414;
 		rType = 0;
 		vrLen = 617;
 		vrLoc = 0;
@@ -703,7 +918,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7730;
+		rLoc = 8053;
 		rType = 0;
 		vrLen = 715;
 		vrLoc = 728;
@@ -713,7 +928,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7288;
+		rLoc = 7611;
 		rType = 0;
 		vrLen = 718;
 		vrLoc = 726;
@@ -723,7 +938,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7288;
+		rLoc = 7611;
 		rType = 0;
 		vrLen = 717;
 		vrLoc = 726;
@@ -743,7 +958,7 @@
 		isa = PBXTextBookmark;
 		name = "UploadController.m: awakeFromNib:";
 		rLen = 0;
-		rLoc = 7226;
+		rLoc = 7549;
 		rType = 0;
 		vrLen = 719;
 		vrLoc = 731;

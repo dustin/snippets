@@ -1,6 +1,7 @@
 #import "UploadController.h"
 #import "UploadThread.h"
 #import "UploadParams.h"
+#import "SizeScaler.h"
 #import <EDCommon/EDCommon.h>
 #import <XMLRPC/XMLRPC.h>
 
@@ -92,6 +93,7 @@
 
     if (rv == NSOKButton) {
         files=[filePanel filenames];
+        NSSize cellSize=[imgMatrix cellSize];
 
         // This is what's displayed in the image box.
         id array=[NSMutableArray arrayWithCapacity: [files count]];
@@ -100,14 +102,19 @@
             id f=[files objectAtIndex: i];
             // Get the image, and name it the filename.
             NSImage *img=[[NSImage alloc] initByReferencingFile: f];
+            [img setScalesWhenResized: YES];
+            // Figure out the image icon size to display, and scale the image
+            SizeScaler *sc=[[SizeScaler alloc] initWithSize: [img size]];
+            NSSize iconSize=[sc scaleTo: cellSize];
+            [img setSize: iconSize];
             [img setName: f];
-            // Get the image cell and set the image and stuff
-            NSImageCell *imgCell=[[NSImageCell alloc] init];
+            // Get the button cell and set the image and stuff
+            NSButtonCell *imgCell=[[NSButtonCell alloc] init];
             [imgCell setImage:img];
-            [imgCell setImageFrameStyle: NSImageFramePhoto];
             // Add it to the array
             [array addObject: imgCell];
             // Don't need these anymore
+            [sc release];
             [imgCell release];
             [img release];
         }
