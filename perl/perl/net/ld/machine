@@ -1,0 +1,38 @@
+#!/usr/local/bin/perl
+
+use LWP::UserAgent;
+use CGI;
+use strict;
+
+sub getfile
+{
+	my($ua,$req,$res);
+	$ua=LWP::UserAgent->new;
+	$ua->agent('Getit/0.0' . $ua->agent);
+	$req=HTTP::Request->new('GET', $_[0]);
+	$res=$ua->request($req);
+	return($res->content);
+}
+
+my($operation, @hosts);
+
+if(defined($ENV{'REQUEST_METHOD'})) {
+	my $q=CGI->new;
+	$operation=$q->param('operation');
+	@hosts=$q->param('host');
+} else {
+	$operation=shift(@ARGV);
+	@hosts=@ARGV;
+}
+
+my $base="http://hazard/ld/machines/";
+my $host;
+
+for $host (@ARGV) {
+	my(@a)=split(/\n/, getfile("$base/$host"));
+
+	for(@a) {
+		my(@b)=split(/\s+/, $_);
+		print "$operation real $host $b[1]\n";
+	}
+}
