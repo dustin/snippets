@@ -57,6 +57,7 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/Base64.class \
 	net/spy/util/Base64OutputStream.class \
 	net/spy/util/Base64InputStream.class \
+	net/spy/util/UUInputStream.class \
 	net/spy/util/TimeStampedHash.class \
 	net/spy/util/Digest.class \
 	net/spy/util/SPGen.class \
