@@ -8,14 +8,16 @@ OCAMLC=ocamlc
 
 .PHONY: stringutils
 
-all: stringutils fileutils docs
+all: stringutils fileutils lru docs
 
 fileutils: fileutils.cmi fileutils.mli
 
 stringutils: stringutils.cmi stringutils.mli
 
+lru: lru.cmi lru.mli
+
 testtop: stringutils fileutils
-	$(OCAMLMKTOP) -o testtop unix.cma fileutils.cmo stringutils.cmo
+	$(OCAMLMKTOP) -o testtop unix.cma fileutils.cmo stringutils.cmo lru.cmo
 
 docs:
 	mkdir -p doc
