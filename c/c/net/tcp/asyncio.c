@@ -24,8 +24,8 @@ int getConnectingSocket()
 	int port;
 	struct sockaddr_in sin;
 
-	host="bleu.west.spy.net";
-	port=80;
+	host="www.beyond.com";
+	port=23;
 
 	printf("Doing DNS lookup...");
 	fflush(stdout);
@@ -41,11 +41,13 @@ int getConnectingSocket()
 	memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
 	flags = fcntl(s, F_GETFL);
-	r=fcntl(s, F_SETFL, flags & ~O_NONBLOCK);
+	r=fcntl(s, F_SETFL, flags | O_NONBLOCK);
 	assert( r >= 0);
 
+	printf("Calling connect...");
+	fflush(stdout);
 	r=connect(s, (struct sockaddr *)&sin, sizeof(sin));
-	printf("Connect returned %d\n", r);
+	printf("returned %d\n", r);
 	perror("connect");
 
 	FD_SET(s, &efdset);
