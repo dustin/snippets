@@ -128,7 +128,7 @@
         [imgMatrix addRowWithCells: array];
         [imgMatrix sizeToCells];
         [imgMatrix setMode: NSListModeMatrix];
-        [imgMatrix selectCellAtRow:0 column:1];
+        // [imgMatrix selectCellAtRow:0 column:1];
     }
 
 }
