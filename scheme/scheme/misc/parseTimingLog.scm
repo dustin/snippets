@@ -1,6 +1,6 @@
 ; Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 ;
-; $Id: parseTimingLog.scm,v 1.3 2002/12/28 21:11:03 dustin Exp $
+; $Id: parseTimingLog.scm,v 1.4 2003/01/06 17:53:26 dustin Exp $
 
 (module parse-timing-log
 	(import
@@ -165,7 +165,7 @@
 (define (print-block block filename)
   (print-block-header filename)
   (display " ")
-  (display (per-block-ts block))
+  (display (llong->string (flonum->llong (per-block-ts block))))
   (display ":")
   (display
 	(string-join
