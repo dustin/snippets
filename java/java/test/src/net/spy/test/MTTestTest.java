@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: MTTestTest.java,v 1.1 2002/07/12 07:18:27 dustin Exp $
+// $Id: MTTestTest.java,v 1.2 2002/07/12 07:41:37 dustin Exp $
 
 package net.spy.test;
 
@@ -25,6 +25,8 @@ public class MTTestTest extends MTTest {
 		super(name);
 	}
 
+	// Regular JUnit stuff
+
 	/**
 	 * Get the test suite.
 	 */
@@ -46,8 +48,10 @@ public class MTTestTest extends MTTest {
 		assertEquals("One and one aren't equal?", 1, 1);
 	}
 
+	// End regular JUnit stuff, the next two tests are parallel tests.
+
 	/**
-	 * Test a synchrnonized ArrayList, see if it does any better.
+	 * Test a synchronized ArrayList, see if it does any better.
 	 */
 	public void testMTSynchronizedArrayList() {
 		// This time, test an array list that's synchronized.
@@ -59,6 +63,10 @@ public class MTTestTest extends MTTest {
 
 	/**
 	 * Abuse a non-synchronized ArrayList.  Make it cry.
+	 *
+	 * This one is a bit more complicated as it is expected to fail, so it
+	 * has to catch the failure and only raise the assertion if the
+	 * expected failure does not occur.
 	 */
 	public void testMTArrayListAbuse() {
 		// This is the object we'll be testing, an ArrayList.  They're not
@@ -80,6 +88,7 @@ public class MTTestTest extends MTTest {
 		}
 	}
 
+	// This method actually makes the jobs and runs them in a thread pool.
 	private void performListTest(List testMe) {
 		// Going to create all of the tests here
 		Vector tasks=new Vector();
