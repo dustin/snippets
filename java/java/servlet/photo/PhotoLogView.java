@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoLogView.java,v 1.4 1999/10/12 22:54:09 dustin Exp $
+ * $Id: PhotoLogView.java,v 1.5 1999/10/19 07:11:29 dustin Exp $
  */
 
 import java.io.*;
@@ -12,11 +12,11 @@ import sun.misc.*;
 // The class
 public class PhotoLogView extends PhotoHelper
 {
-	PhotoServlet photoservlet;
+	PhotoSession photosession;
 
-	public PhotoLogView(PhotoServlet p) throws Exception {
+	public PhotoLogView(PhotoSession p) throws Exception {
 		super();
-		photoservlet=p;
+		photosession=p;
 	}
 
 	public String getViewersOf(Integer photo_id) throws Exception {
@@ -44,7 +44,7 @@ public class PhotoLogView extends PhotoHelper
 
 			Hashtable htmp = new Hashtable();
 			htmp.put("PHOTO_ID", photo_id.toString());
-			out=PhotoUtil.tokenize(photoservlet, "log/viewers_top.inc", htmp);
+			out=PhotoUtil.tokenize(photosession, "log/viewers_top.inc", htmp);
 
 			while(rs.next()) {
 				Hashtable h = new Hashtable();
@@ -53,11 +53,11 @@ public class PhotoLogView extends PhotoHelper
 				h.put("USER_AGENT", rs.getString(3));
 				h.put("CACHED", rs.getString(4));
 				h.put("TS", rs.getString(5));
-				out+=PhotoUtil.tokenize(photoservlet, "log/viewers_match.inc",
+				out+=PhotoUtil.tokenize(photosession, "log/viewers_match.inc",
 					h);
 			}
 
-			out+=PhotoUtil.tokenize(photoservlet, "log/viewers_bottom.inc",
+			out+=PhotoUtil.tokenize(photosession, "log/viewers_bottom.inc",
 				new Hashtable());
 
 		} catch(Exception e) {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoUtil.java,v 1.5 1999/10/10 20:58:44 dustin Exp $
+ * $Id: PhotoUtil.java,v 1.6 1999/10/19 07:11:33 dustin Exp $
  */
 
 import java.lang.*;
@@ -58,7 +58,7 @@ public class PhotoUtil
 	}
 
 	// Tokenize a template file and return the tokenized stuff.
-	public static String tokenize(PhotoServlet p, String file, Hashtable vars) {
+	public static String tokenize(PhotoSession p, String file, Hashtable vars) {
 		Toker t=new Toker();
 		String ret;
 
