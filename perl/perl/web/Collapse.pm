@@ -1,6 +1,6 @@
 # Copyright (c) 1997  Dustin Sallings
 #
-# $Id: Collapse.pm,v 1.3 1997/12/31 09:45:24 dustin Exp $
+# $Id: Collapse.pm,v 1.4 1997/12/31 09:49:58 dustin Exp $
 
 package Collapse;
 
@@ -79,6 +79,7 @@ sub _show_array_html
             {
                 $pad.="    ";
             }
+
             if(ref($ary->[0]))
             {
                 $label="";
@@ -211,6 +212,10 @@ use Collapse;     # Core Billit libraries (includes Postgres.pm and CGI.pm)
     Create a new collapse object using array @a for the list of lists to
 create the boxes, and %h for the list to expand.
 
+    The data in @a is lists of lists.  The first element can be plain
+text, and will be treated as the label for the section, however, this is
+optional, depending on your needs.
+
 =item get_ary
 
     Return the array.
@@ -222,5 +227,13 @@ create the boxes, and %h for the list to expand.
 =item print_html
 
     Print the array as html unordered lists.
+
+=item set_html_expand($text)
+
+    Set the text for the Expand button in HTML output.
+
+=item set_html_collapse($text)
+
+    Set the text for the Collapse button in HTML output.
 
 =cut
