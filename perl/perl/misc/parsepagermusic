@@ -11,12 +11,32 @@ sub quote
 $data="";
 $title="";
 
+$wascrn=0;
+
 while(<>) {
 	chomp;
+
+	# Check to see if it's a CRN thing
+	if(/^From/) {
+		if(/^From.*(mrdizco\@my2way.com\|8777585855\@worldcom.com)/) {
+			$wascrn=1;
+		} else {
+			$wascrn=0;
+		}
+	}
+
 	s/\s*twowayAlerts.com\s*//ogi;
 	s/\s*2wayx.com\s*/ 2WX/ogi;
+
+	# If it didn't seem to come from CRN, get CRN outta there.
+	if($wascrn==0) {
+		s/\*?crn\*?//gi;
+		s/\*?jobutta[*!]?//gi;
+	}
+
 	if(/\[!A0\]\[D32801\]!\*\s*(.*?)\s*(\;.*\*!)/o) {
 		$title=$1;
+		$title=~s/\"//g;
 		/(\[!A0\]\[D32801\]!.*\*!)/o;
 		$data=$1;
 		while($_=<> && ($_!~/\*\!/o)) {
