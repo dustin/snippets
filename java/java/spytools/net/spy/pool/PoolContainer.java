@@ -1,5 +1,5 @@
 //
-// $Id: PoolContainer.java,v 1.31 2001/08/30 20:50:45 dustin Exp $
+// $Id: PoolContainer.java,v 1.32 2001/08/31 00:17:20 dustin Exp $
 
 package net.spy.pool;
 
@@ -358,14 +358,11 @@ public class PoolContainer extends Object {
 		long rv=(long)getPropertyInt("max_age", 0);
 		synchronized(pool) {
 			int pool_size=totalObjects();
-
 			// Only create a new maxAge if we're above our minimum threshold
-			if(pool_size>_init_objects) {
+			if(pool_size>_min_objects) {
 				float percent_full=(float)pool_size/(float)_max_objects;
 				float factor=1-percent_full;
-
 				rv=(long)((double)rv*factor);
-
 				// All connections should be available for at least 5 seconds
 				if(rv<5000) {
 					rv=5000;
