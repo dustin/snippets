@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1997  Dustin Sallings
-# $Id: makefilter,v 1.1 1997/10/21 07:51:19 dustin Exp $
+# $Id: makefilter,v 1.2 1997/10/21 07:52:37 dustin Exp $
 #
 # Create procmail .spammers file
 
@@ -24,7 +24,7 @@ while(($spam)=$s->fetchrow())
 
     $match++;
 
-    if(length("$tmp$spam")>50)
+    if(length($tmp.$spam)>50)
     {
 	$spammers.="$tmp\\\n";
 	$tmp="";
