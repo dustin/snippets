@@ -11,6 +11,7 @@ from __future__ import generators
 import time
 import UserList
 import unittest
+import logging
 import postfix
 
 class DummyPolicy(postfix.PolicyEngine):
@@ -132,4 +133,10 @@ class PolicyTest(unittest.TestCase):
         self.assertMessage(l[0], postfix.PolicyResponse.DEFER_IF_PERMIT)
 
 if __name__ == '__main__':
+    # Logging config
+    hdlr=logging.FileHandler(",test.log", "w")
+    hdlr.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
+    logging.root.addHandler(hdlr)
+    logging.root.setLevel(logging.DEBUG)
+
     unittest.main()

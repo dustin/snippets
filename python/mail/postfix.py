@@ -17,7 +17,7 @@ class PolicyResponse:
 
     DEFER_IF_PERMIT="defer_if_permit Service temporarily unavailable"
 
-class PolicyEngine:
+class PolicyEngine(object):
     """Superclass for all postfix policy engines."""
 
     def __init__(self):
@@ -40,17 +40,21 @@ class PolicyEngine:
             l=l.rstrip()
             if l == '':
                 # Empty line...we need to prep a response
+                self.log.debug("Request is %s", attrs)
+
                 response=self.process(attrs)
                 if response is None:
                     response = PolicyResponse.DUNNO
-                self.log.debug("Response is " + response)
+
+                self.log.debug("Response is %s", response)
                 output.write("action=" + response + "\n\n")
+                # Reset the attributes for the next request
                 attrs={}
             else:
                 # Just another thing to parse
                 parts=l.split('=', 2)
                 if len(parts) != 2:
-                    self.log.warn("Invalid/unexpected input line: " + l)
+                    self.log.warn("Invalid/unexpected input line: %s", l)
                 else:
                     attrs[parts[0]]=parts[1]
 
@@ -86,6 +90,8 @@ class GreylistPolicyEngine(PolicyEngine):
         """
         PolicyEngine.__init__(self)
 
+        self.log=logging.getLogger("GreylistPolicyEngine")
+
         self.db=db
         self.delay=delay
 
@@ -111,7 +117,10 @@ class GreylistPolicyEngine(PolicyEngine):
 
         age=self.getAge(key)
         if age is None or age < self.delay:
+            self.log.info("Requesting %s to be deferred", key)
             rv = PolicyResponse.DEFER_IF_PERMIT
             self.storeKey(key)
+        else:
+            self.log.debug("Passing %s", key)
 
         return rv
