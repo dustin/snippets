@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: PoolTest.java,v 1.5 2002/07/11 07:56:07 dustin Exp $
+// $Id: PoolTest.java,v 1.6 2002/07/11 23:22:13 dustin Exp $
 
 package net.spy.test;
 
@@ -9,13 +9,13 @@ import java.util.*;
 import junit.framework.*;
 
 import net.spy.SpyConfig;
-import net.spy.util.*;
 import net.spy.pool.*;
+import net.spy.test.*;
 
 /**
  * Test suite for pooling stuff.
  */
-public class PoolTest extends TestCase {
+public class PoolTest extends MTTest {
 
 	private ObjectPool op=null;
 	private PoolPrinter poolPrinter=null;
@@ -42,11 +42,7 @@ public class PoolTest extends TestCase {
 		conf.put("test.max_age", "300000");
 		op=new ObjectPool(conf);
 		try {
-			synchronized(op.getClass()) {
-				if(!op.hasPool("test")) {
-					op.createPool("test", new TestPoolFiller("test", conf));
-				}
-			}
+			op.createPool("test", new TestPoolFiller("test", conf));
 		} catch(PoolException pe) {
 			pe.printStackTrace();
 			fail("Couldn't create the pool.");
@@ -60,10 +56,15 @@ public class PoolTest extends TestCase {
 			System.err.println("Shutting down the pool printer");
 			poolPrinter.shutDown();
 		}
+		try {
+			op.destroyPool("test");
+		} catch(PoolException pe) {
+			fail("Couldn't destroy pool.");
+		}
 	}
 
 	public void testFetch250WithoutClosing() {
-		mtTest("testFetch1000WithClosing", false, 10, 25, 10);
+		mtTest("testFetch250WithoutClosing", false, 10, 25, 10);
 	}
 
 	public void testFetch1000WithClosing() {
@@ -71,67 +72,43 @@ public class PoolTest extends TestCase {
 	}
 
 	public void testFetch2500BigWithoutClosing() {
-		mtTest("testFetch1000WithClosing", false, 250, 250, 10);
+		mtTest("testFetch2500BigWithoutClosing", false, 250, 250, 10);
 	}
 
 	public void testFetch10000BigWithClosing() {
-		mtTest("testFetch1000WithClosing", true, 250, 1000, 10);
+		mtTest("testFetch10000BigWithClosing", true, 250, 1000, 10);
 	}
 
 	private void mtTest(String name, boolean close,
 		int threads, int tasks, int each) {
-		ThreadPool tp=new ThreadPool(name, threads);
-		Vector v=new Vector();
-		for(int i=0; i<tasks; i++) {
-			v.addElement(new TestTask(each, close));
-		}
-		for(Enumeration e=v.elements(); e.hasMoreElements();) {
-			tp.addTask((Runnable)e.nextElement());
-		}
-		try {
-			// Wait for all jobs to finish, *or* for an error to occur.
-			boolean finished=false;
-			boolean shutdown=false;
-			while(!finished) {
-				// If all of the tasks have been accepted, tell the pool we
-				// won't be sending in anymore
-				if(tp.getTaskCount()==0 && !shutdown) {
-					tp.shutdown();
-					shutdown=true;
-				}
 
-				// If all of the threads are gone, we're finished.
-				if(tp.getActiveThreadCount() == 0) {
-					finished=true;
-				}
+		// We can't use the factory because the test are inner classes.
+		// MTTaskFactory fac=new MTTaskFactory(touse, each, true);
 
-				// Check for errors
-				int errors=0;
-				for(Enumeration e=v.elements(); e.hasMoreElements();) {
-					TestTask tt=(TestTask)e.nextElement();
-					errors+=tt.getFailures();
-				}
-				assertTrue(errors == 0);
+        Vector v=new Vector();
+        for(int i=0; i<tasks; i++) {
+            MTTask t=null;
+            if(close) {
+                t=new PoolTestMTTask(each, true);
+            } else {
+                t=new PoolTestMTTaskNoReturn(each, true);
+            }
+            v.addElement(t);
+        }
 
-				// Wait a second before looping
-				Thread.sleep(1000);
-			}
-		} catch(InterruptedException ie) {
-			ie.printStackTrace();
-			fail("Interrupted");
-		}
+		// Run the parallel test
+		runParallel(v.elements(), threads);
 
-		// Count the successes
-		int successes=0;
-		for(Enumeration e=v.elements(); e.hasMoreElements();) {
-			TestTask tt=(TestTask)e.nextElement();
-			// Make sure the tests stop running
-			tt.shutDown();
-			successes+=tt.getSuccesses();
-		}
+        // Count the successes, just to be sure
+        int successes=0;
+        for(Enumeration e=v.elements(); e.hasMoreElements();) {
+            PoolTestMTTask t=(PoolTestMTTask)e.nextElement();
+            successes+=t.getSuccesses();
+        }
 
-		// Make sure there were enough successes
-		assertTrue(successes == (each * tasks));
+        int expected=(tasks*each);
+        assertTrue("Expected " + expected + " successes, got " + successes,
+            (successes == expected));
 	}
 
 	// Private support classes
@@ -186,56 +163,56 @@ public class PoolTest extends TestCase {
 		}
 	}
 
-	// Thread pool task for MT testing
-	private class TestTask extends Object implements Runnable {
-		private int failures=0;
-		private int success=0;
-		private int runs=0;
-		private boolean checkBackIn=false;
-		private boolean keepGoing=true;
+	public class PoolTestMTTask extends MTTask {
 
-		public TestTask(int runs, boolean checkBackIn) {
-			super();
+		private int successes=0;
+		protected Random r=null;
 
-			this.runs=runs;
-			this.checkBackIn=checkBackIn;
+		public PoolTestMTTask(int iterations, boolean stopOnFailure) {
+			super(iterations, stopOnFailure);
+			r=new Random();
 		}
 
-		public int getFailures() {
-			return(failures);
-		}
-
+		// Return the number of times the test was successful.
 		public int getSuccesses() {
-			return(success);
+			return(successes);
 		}
 
-		public void shutDown() {
-			keepGoing=false;
-		}
+		/**
+		 * Perform the operation on the object pool.
+		 */
+		protected void poolOp() throws InterruptedException, PoolException {
 
-		public void run() {
-			Random r=new Random();
 			ObjectPool op=new ObjectPool(new SpyConfig());
-			for(int i=0; keepGoing && i<runs; i++) {
-				try {
-					PooledObject po=op.getObject("test");
+			PooledObject po=op.getObject("test");
+			Thread.sleep(r.nextInt(100));
+			po.checkIn();
+		}
 
-					Thread.sleep(r.nextInt(100));
-
-					if(checkBackIn) {
-						po.checkIn();
-					}
-
-					success++;
-				} catch(InterruptedException ie) {
-					ie.printStackTrace();
-					failures++;
-				} catch(PoolException pe) {
-					pe.printStackTrace();
-					failures++;
-				}
+		public void performTest() {
+			try {
+				poolOp();
+				successes++;
+			} catch(InterruptedException ie) {
+				addFailure(ie);
+			} catch(PoolException pe) {
+				addFailure(pe);
 			}
 		}
-	} // testTask
+	}
+
+	// Same as above, but don't check the object back in
+	public class PoolTestMTTaskNoReturn extends PoolTestMTTask {
+		public PoolTestMTTaskNoReturn(int iterations, boolean stopOnFailure) {
+			super(iterations, stopOnFailure);
+		}
+
+		protected void poolOp() throws InterruptedException, PoolException {
+			ObjectPool op=new ObjectPool(new SpyConfig());
+			PooledObject po=op.getObject("test");
+			Thread.sleep(r.nextInt(100));
+		}
+
+	}
 
 }
