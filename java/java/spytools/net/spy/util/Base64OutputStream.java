@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Base64OutputStream.java,v 1.1 2001/03/31 10:01:40 dustin Exp $
+// $Id: Base64OutputStream.java,v 1.2 2001/03/31 10:13:03 dustin Exp $
 
 package net.spy.util;
 
@@ -23,14 +23,9 @@ public class Base64OutputStream extends FilterOutputStream {
 		crlf[1]='\n';
 	}
 
-	public void write(byte b) throws IOException {
-		byte ba[]=new byte[1];
-		write(ba, 0, 1);
-	}
-
 	public void write(byte data[], int offset, int length) throws IOException {
 		for(int i=offset; i<offset+length; i++) {
-			writeByte(data[i]);
+			write(data[i]);
 		}
 	}
 
@@ -38,7 +33,7 @@ public class Base64OutputStream extends FilterOutputStream {
 		if(currentByte>0) {
 			byte tmp[]=new byte[currentByte];
 			System.arraycopy(buffer, 0, tmp, 0, currentByte);
-			out.write(base64.encode(buffer).getBytes());
+			out.write(base64.encode(tmp).getBytes());
 			out.write(crlf);
 		} else {
 			// Unless this is a new line, add a newline.
@@ -49,7 +44,7 @@ public class Base64OutputStream extends FilterOutputStream {
 		super.close();
 	}
 
-	private void writeByte(byte datum) throws IOException {
+	public void write(byte datum) throws IOException {
 		buffer[currentByte++]=datum;
 		if(currentByte==3) {
 			out.write(base64.encode(buffer).getBytes());
