@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.1 1998/06/27 04:08:37 dustin Exp $
+ * $Id: main.c,v 1.2 1998/06/27 04:09:23 dustin Exp $
  */
 
 #include <config.h>
@@ -22,7 +22,7 @@
 
 static RETSIGTYPE serv_conn_alrm(int sig);
 
-int _debug=3;
+int _debug=0;
 
 #define MAXSEL 1024
 
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 
     req.port=-1;
 
-    while( (c=getopt(argc, argv, "r:")) >=0) {
+    while( (c=getopt(argc, argv, "r:d")) >=0) {
 	switch(c) {
 	    case 'r':
 		req=parseurl(optarg);
@@ -134,6 +134,10 @@ int main(int argc, char **argv)
 		    return(1); /* I don't like exit */
 		}
 	        break;
+
+	    case 'd':
+		_debug=3;
+		break;
 
 	    case '?':
 	        usage(argv);
