@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.3 2001/02/08 05:33:12 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.4 2001/03/27 09:30:52 dustin Exp $
  */
 
 package net.spy.db;
@@ -16,6 +16,9 @@ import java.sql.*;
 
 public class SpyCacheDB extends SpyDB {
 
+	// If a connection was passed, use it here.
+	private Connection passedConnection=null;
+
 	/**
 	 * Get a SpyCacheDB object as specified in the passed in config file.
 	 *
@@ -25,6 +28,15 @@ public class SpyCacheDB extends SpyDB {
 	 */
 	public SpyCacheDB(SpyConfig conf) throws SQLException {
 		super(conf);
+	}
+
+	/**
+	 * Get a SpyCacheDB object that will use the given Connection object
+	 * for any needed queries.
+	 */
+	public SpyCacheDB(Connection conn) {
+		super(new SpyConfig());
+		this.passedConnection=conn;
 	}
 
 	/**
@@ -49,6 +61,20 @@ public class SpyCacheDB extends SpyDB {
 
 		ResultSet crsret=(ResultSet)crs.newCopy();
 		return(crsret);
+	}
+
+	/**
+	 * Override getConn so that we can use the passed config if necessary.
+	 */
+	public Connection getConn() throws SQLException {
+		Connection conn=null;
+
+		if(passedConnection==null) {
+			conn=super.getConn();
+		} else {
+			conn=passedConnection;
+		}
+		return(conn);
 	}
 
 	/**

@@ -47,6 +47,8 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/util/InterfaceImplementor.class \
 	net/spy/util/QuickRun.class \
 	net/spy/util/Debug.class \
+	net/spy/util/SPGen.class \
+	'net/spy/util/SPGen$$Parameter.class' \
 	net/spy/pool/ObjectPool.class \
 	'net/spy/pool/ObjectPool$$ObjectPoolCleaner.class' \
 	net/spy/pool/PoolAble.class \
@@ -67,6 +69,9 @@ CLASSES=net/spy/SpyConfig.class net/spy/SpyDB.class \
 	net/spy/db/CachePreparedStatement.class \
 	net/spy/db/CachedResultSet.class \
 	net/spy/db/SpyCacheDB.class \
+	net/spy/db/DBNull.class \
+	net/spy/db/DBSP.class \
+	net/spy/db/DBSQL.class \
 	net/spy/db/TypeNames.class
 
 	# net/spy/loader/ClassReLoader.class
@@ -117,6 +122,8 @@ net/spy/rmi/RObjectImpl_Stub.class: \
 	net/spy/pool/ObjectPool.class
 
 'net/spy/SpyConfig$$SpyConfigReader.class': net/spy/SpyConfig.class
+
+'net/spy/util/SPGen$$Parameter.class': net/spy/util/SPGen.class
 
 # Generated CachedResultSet.java (to class)
 net/spy/db/CachedResultSet.java: \

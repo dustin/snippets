@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2000  Dustin Sallings <dustin@beyond.com>
+ * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.6 2001/03/11 11:51:00 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.7 2001/03/27 09:30:48 dustin Exp $
  */
 
 package net.spy.db;
