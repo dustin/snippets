@@ -1,0 +1,20 @@
+# Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
+#
+# $Id: Makefile.in,v 1.1 2001/02/25 01:08:56 dustin Exp $
+
+DEFS=@DEFS@
+CFLAGS=@CFLAGS@ $(DEFS) -DMYMALLOC
+LDFLAGS=@LDFLAGS@ @LIBS@
+
+OBJS=httplog.o mymalloc.o
+
+httplog: $(OBJS)
+	$(CC) -o $@ httplog.o mymalloc.o $(LDFLAGS)
+
+clean:
+	rm -f httplog $(OBJS)
+
+distclean: clean
+	rm -f config.log config.cache config.status Makefile
+
+httplog.o: httplog.c httplog.h
