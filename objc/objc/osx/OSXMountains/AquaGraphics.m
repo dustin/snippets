@@ -8,36 +8,7 @@
 
 #import "AquaGraphics.h"
 
-
 @implementation AquaGraphics
-
-#include "paint.h"
-
-Graph g={
-1024,
-768,
-0,
-0.3,
-1.0,
-0.3,
-0.6,
-2.5,
-4.0,
-(40.0 * PI)/180.0,
-0.0,
-0.5,
-0.0,
-0.6,
-DEF_COL,
-60,
-10,
-2,
-FALSE,
-TRUE,
-20,
-0,
-0
-};
 
 /* Blank a region */
 void blank_region(lx,ly,ux,uy)
@@ -61,20 +32,28 @@ int h;
   */
 }
 
+/*
 void plot_pixel( x, y, value )
 int x;
 int y;
 Gun value;
 {
-    /* Insert implementation here */
+    // Insert implementation here
 	NSLog(@"Plotting at %d,%d", x, y);
 }
+*/
 
-void scroll_screen( dist )
-int dist;
+void scroll_screen(NSRect bounds, int dist )
 {
     /* Insert scrolling implementation here */
 	NSLog(@"Scrolling %d", dist);
+	NSRect portion=NSMakeRect(dist, 0, bounds.size.width-dist,
+		bounds.size.height);
+	// NSPoint p=NSMakePoint(0, bounds.size.height);
+	NSPoint p=NSMakePoint(0, 0);
+	NSCopyBits(0, portion, p);
+	blank_region((int)bounds.size.width-dist, 0,
+		(int)bounds.size.width, (int)bounds.size.height);
 }
 
 @end

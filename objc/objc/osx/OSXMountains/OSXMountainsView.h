@@ -12,6 +12,8 @@
 @interface OSXMountainsView : ScreenSaverView
 {
 
+	NSRect bounds;
+
 }
 
 @end

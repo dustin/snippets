@@ -152,12 +152,10 @@
 			files = (
 				32DBCFA90370C50100C91783,
 				F500797B0118B23101CA0E54,
-				DAF35DA90442ACE700A80132,
-				DAF35DAA0442ACE700A80132,
-				DAF35DAB0442ACE700A80132,
-				DAF35DAC0442ACE800A80132,
-				DAF35DB00442ACEA00A80132,
 				DAF35DB70442B0E100A80132,
+				DA0C6E670443E14C00A80132,
+				DA0C6E6B0443E15E00A80132,
+				DA47668E0443E5C500A80132,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,11 +172,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F500797C0118B23101CA0E54,
-				DAF35DA70442ACE600A80132,
-				DAF35DA80442ACE600A80132,
-				DAF35DAD0442ACE800A80132,
-				DAF35DAE0442ACE900A80132,
 				DAF35DB80442B0E100A80132,
+				DA0C6E680443E14C00A80132,
+				DA0C6E6C0443E15E00A80132,
+				DA47668F0443E5C500A80132,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,10 +233,16 @@
 		};
 		08FB77AFFE84173DC02AAC07 = {
 			children = (
+				DA0C6E650443E14C00A80132,
+				DA0C6E660443E14C00A80132,
+				DA0C6E690443E15E00A80132,
+				DA0C6E6A0443E15E00A80132,
 				F50079790118B23001CA0E54,
 				F500797A0118B23001CA0E54,
 				DAF35DB50442B0E100A80132,
 				DAF35DB60442B0E100A80132,
+				DA47668C0443E5C500A80132,
+				DA47668D0443E5C500A80132,
 			);
 			isa = PBXGroup;
 			name = Classes;
@@ -315,16 +318,6 @@
 //324
 		32DBCFA70370C4F300C91783 = {
 			children = (
-				DAF35DA30442AA7C00A80132,
-				DAF35DA40442AA7C00A80132,
-				DAF35D9F0442AA7300A80132,
-				DAF35DA00442AA7300A80132,
-				DAF35D9B0442AA6B00A80132,
-				DAF35D9C0442AA6B00A80132,
-				DAF35D990442AA6200A80132,
-				DAF35D970442AA5D00A80132,
-				DAF35D950442AA4A00A80132,
-				DAF35D930442AA0800A80132,
 				32DBCFA80370C50100C91783,
 			);
 			isa = PBXGroup;
@@ -353,116 +346,74 @@
 //DA2
 //DA3
 //DA4
-		DAF35D930442AA0800A80132 = {
-			fileEncoding = 30;
+		DA0C6E650443E14C00A80132 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
-			path = artist.c;
+			path = Mountain.h;
 			refType = 4;
 		};
-		DAF35D950442AA4A00A80132 = {
-			fileEncoding = 30;
+		DA0C6E660443E14C00A80132 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
-			path = calcalt.c;
+			path = Mountain.m;
 			refType = 4;
 		};
-		DAF35D970442AA5D00A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = copyright.h;
-			refType = 4;
-		};
-		DAF35D990442AA6200A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = crinkle.h;
-			refType = 4;
-		};
-		DAF35D9B0442AA6B00A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = patchlevel.h;
-			refType = 4;
-		};
-		DAF35D9C0442AA6B00A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = paint.h;
-			refType = 4;
-		};
-		DAF35D9F0442AA7300A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = print_alg.c;
-			refType = 4;
-		};
-		DAF35DA00442AA7300A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = random.c;
-			refType = 4;
-		};
-		DAF35DA30442AA7C00A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = vroot.h;
-			refType = 4;
-		};
-		DAF35DA40442AA7C00A80132 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			path = xmountains.c;
-			refType = 4;
-		};
-		DAF35DA70442ACE600A80132 = {
-			fileRef = DAF35D930442AA0800A80132;
+		DA0C6E670443E14C00A80132 = {
+			fileRef = DA0C6E650443E14C00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		DAF35DA80442ACE600A80132 = {
-			fileRef = DAF35D950442AA4A00A80132;
+		DA0C6E680443E14C00A80132 = {
+			fileRef = DA0C6E660443E14C00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		DAF35DA90442ACE700A80132 = {
-			fileRef = DAF35D970442AA5D00A80132;
+		DA0C6E690443E15E00A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Artist.h;
+			refType = 4;
+		};
+		DA0C6E6A0443E15E00A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Artist.m;
+			refType = 4;
+		};
+		DA0C6E6B0443E15E00A80132 = {
+			fileRef = DA0C6E690443E15E00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		DAF35DAA0442ACE700A80132 = {
-			fileRef = DAF35D990442AA6200A80132;
+		DA0C6E6C0443E15E00A80132 = {
+			fileRef = DA0C6E6A0443E15E00A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		DAF35DAB0442ACE700A80132 = {
-			fileRef = DAF35D9C0442AA6B00A80132;
+		DA47668C0443E5C500A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Fold.h;
+			refType = 4;
+		};
+		DA47668D0443E5C500A80132 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			path = Fold.m;
+			refType = 4;
+		};
+		DA47668E0443E5C500A80132 = {
+			fileRef = DA47668C0443E5C500A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		DAF35DAC0442ACE800A80132 = {
-			fileRef = DAF35D9B0442AA6B00A80132;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DAF35DAD0442ACE800A80132 = {
-			fileRef = DAF35DA00442AA7300A80132;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DAF35DAE0442ACE900A80132 = {
-			fileRef = DAF35D9F0442AA7300A80132;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		DAF35DB00442ACEA00A80132 = {
-			fileRef = DAF35DA30442AA7C00A80132;
+		DA47668F0443E5C500A80132 = {
+			fileRef = DA47668D0443E5C500A80132;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -11,24 +11,6 @@
 
 @implementation OSXMountainsView
 
-Parm fold_param;
-
--(void)initParameters:(NSRect)frame isPreview:(BOOL)isPreview
-{
-  fold_param.mean=0;
-  fold_param.rg1=FALSE;
-  fold_param.rg2=FALSE;
-  fold_param.rg3=TRUE;
-  fold_param.cross=TRUE;
-  fold_param.force_front=TRUE;
-  fold_param.force_back=FALSE;
-  fold_param.forceval=-1.0;
-  fold_param.fdim = 0.65;
-  fold_param.mix   =0.0;
-  fold_param.midmix=0.0;
-
-}
-
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
     self = [super initWithFrame:frame isPreview:isPreview];
@@ -49,10 +31,9 @@ Parm fold_param;
     [super stopAnimation];
 }
 
-- (void)drawRect:(NSRect)rect
+-(void)drawString:(NSRect)rect
 {
-	NSLog(@"Drawing in %.0f,%.0f", rect.size.width, rect.size.height);
-    [super drawRect:rect];
+	bounds=rect;
     NSString *tmpString = @"Test String";
     NSMutableDictionary * attribs = [NSMutableDictionary dictionary];
 
@@ -68,9 +49,17 @@ Parm fold_param;
     [tmpString drawAtPoint:p withAttributes:attribs];
 }
 
+- (void)drawRect:(NSRect)rect
+{
+	NSLog(@"Drawing in %.0f,%.0f", rect.size.width, rect.size.height);
+    [super drawRect:rect];
+	[self drawString: rect];
+}
+
 - (void)animateOneFrame
 {
-    [self setNeedsDisplay: true];
+	scroll_screen(bounds, 10);
+    // [self setNeedsDisplay: true];
     return;
 }
 
