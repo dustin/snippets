@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: redirect.h,v 1.5 1998/01/06 08:03:30 dustin Exp $
+ * $Id: redirect.h,v 1.6 1998/01/10 03:33:42 dustin Exp $
  */
 
 #ifndef REDIRECT_H
@@ -50,6 +50,5 @@ struct cluster **getcluster(char *p, int stats);
 void freeCluster(struct cluster **c);
 int getclientsocket(char *host, int port);
 int getservsocket(char *host, int port);
-void resettraps(void);
 
 #endif

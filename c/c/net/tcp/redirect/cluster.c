@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: cluster.c,v 1.5 1998/01/06 08:03:27 dustin Exp $
+ * $Id: cluster.c,v 1.6 1998/01/10 03:33:38 dustin Exp $
  */
 
 #include <config.h>
@@ -37,7 +37,7 @@ extern int _debug;
  * Duplicate a cluster and everything in it and return a pointer to
  * the new cluster.
  */
-struct cluster *clusterDup(struct cluster a)
+static struct cluster *clusterDup(struct cluster a)
 {
     struct cluster *c;
 
@@ -76,7 +76,7 @@ void freeCluster(struct cluster **c)
  * p1 is the cluster name, p2 is the element name.
  * defalrm is the default tcp timeout alarm time
  */
-struct cluster lookupClusterEnt(char *p1, char *p2, int defalrm)
+static struct cluster lookupClusterEnt(char *p1, char *p2, int defalrm)
 {
     char key[80];
     struct cluster element;
@@ -106,7 +106,7 @@ struct cluster lookupClusterEnt(char *p1, char *p2, int defalrm)
 /*
  * Round robin clustering.
  */
-struct cluster **clustRoundRobin(char *p, int stats)
+static struct cluster **clustRoundRobin(char *p, int stats)
 {
     char **list=NULL;
     char key[80];
@@ -152,7 +152,7 @@ struct cluster **clustRoundRobin(char *p, int stats)
     return(cluster);
 }
 
-struct cluster **clustTopDown(char *p, int stats)
+static struct cluster **clustTopDown(char *p, int stats)
 {
     char **list=NULL;
     char key[80];

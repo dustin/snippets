@@ -1,5 +1,5 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.3 1998/01/05 00:15:29 dustin Exp $
+# $Id: Makefile.in,v 1.4 1998/01/10 03:33:37 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
@@ -13,7 +13,15 @@ OBJS=main.o sockets.o cluster.o
 SRCS=main.c sockets.c cluster.c
 EXES=redirect
 AUTOJUNK=config.h config.status config.cache config.log Makefile
-JUNK=$(OBJS) $(EXES)
+
+# Lint stuff
+LINT=@LINT@
+LINTFLAGS=$(INCLUDES) -DVERSION=\"$(VERSION)\" -v -x -u
+LINTS=main.ln sockets.ln cluster.ln
+
+JUNK=$(OBJS) $(EXES) $(LINTS)
+
+.SUFFIXES: .c .o .l .a .ln
 
 redirect: readconfig $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
@@ -22,6 +30,12 @@ readconfig: readconfig/readconfig.a
 
 readconfig/readconfig.a:
 	cd @top_srcdir@/readconfig && make && cd @top_srcdir@
+
+lint: $(LINTS)
+	$(LINT) $(LINTFLAGS) $(LINTS)
+
+.c.ln: $<
+	$(LINT) $(LINTFLAGS) -c $<
 
 clean:
 	rm -f $(JUNK) core

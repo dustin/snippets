@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.10 1998/01/06 08:03:28 dustin Exp $
+ * $Id: main.c,v 1.11 1998/01/10 03:33:41 dustin Exp $
  */
 
 #include <config.h>
@@ -23,7 +23,9 @@
 struct confType *cf;
 int _debug;
 
-RETSIGTYPE serv_sigint(int sig)
+static void resettraps(void);
+
+static RETSIGTYPE serv_sigint(int sig)
 {
     char *pidfile;
     _ndebug(0, ("Exit type signal caught, shutting down...\n"));
@@ -36,14 +38,14 @@ RETSIGTYPE serv_sigint(int sig)
     exit(0);
 }
 
-RETSIGTYPE serv_cluster_alrm(int sig)
+static RETSIGTYPE serv_cluster_alrm(int sig)
 {
     _ndebug(2, ("Caught alrm on connect attempt\n"));
     resettraps();
     return;
 }
 
-void resettraps(void)
+static void resettraps(void)
 {
     signal(SIGINT, serv_sigint);
     signal(SIGQUIT, serv_sigint);
@@ -53,7 +55,7 @@ void resettraps(void)
 
 }
 
-int checkpidfile(char *filename)
+static int checkpidfile(char *filename)
 {
     int pid, ret;
     FILE *f;
@@ -81,7 +83,7 @@ int checkpidfile(char *filename)
     return(ret);
 }
 
-void writepid(int pid)
+static void writepid(int pid)
 {
     FILE *f;
     int r;
@@ -118,7 +120,7 @@ void writepid(int pid)
 }
 
 
-void detach(void)
+static void detach(void)
 {
    int pid, i;
    char *tmp;
@@ -149,7 +151,7 @@ void detach(void)
    umask(7);
 }
 
-int mapcon(char *p, int stats)
+static int mapcon(char *p, int stats)
 {
     char key[80];
     char **list=NULL;
@@ -214,7 +216,7 @@ int mapcon(char *p, int stats)
     return(s);
 }
 
-int listento(char *gimme)
+static int listento(char *gimme)
 {
      char *host, *tmp, *ptr;
      int port=-1, s;
@@ -243,7 +245,7 @@ int listento(char *gimme)
      return(s);
 }
 
-void _main(void)
+static void _main(void)
 {
     char **ports;
     struct sockaddr_in fsin;
