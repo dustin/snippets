@@ -1,4 +1,5 @@
 (* Time parsing *)
+(* arch-tag: 51B91D7A-05DC-11D8-976E-000393DC8AE4 *)
 
 module Time =
 
