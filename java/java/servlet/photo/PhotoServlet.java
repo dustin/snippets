@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: PhotoServlet.java,v 1.20 1999/09/30 06:53:07 dustin Exp $
+ * $Id: PhotoServlet.java,v 1.21 1999/10/02 20:24:42 dustin Exp $
  */
 
 import java.io.*;
@@ -20,12 +20,15 @@ import com.javaexchange.dbConnectionBroker.*;
 // The class
 public class PhotoServlet extends HttpServlet
 {
-	public Integer remote_uid;
-	public String remote_user, self_uri;
-	DbConnectionBroker dbs;
-	RHash rhash;
-	MultipartRequest multi;
-	PhotoLogger logger;
+	public Integer remote_uid=null;
+	public String remote_user=null, self_uri=null;
+	DbConnectionBroker dbs=null;
+	RHash rhash=null;
+	MultipartRequest multi=null;
+	PhotoLogger logger=null;
+
+	// Users
+	Hashtable userdb=null;
 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
@@ -41,6 +44,14 @@ public class PhotoServlet extends HttpServlet
 			throw new ServletException ("dbs broke: " + e.getMessage());
 		}
 
+		// Populate the userdb hash
+		try {
+			userdb=new Hashtable();
+			init_userdb();
+		} catch(Exception e) {
+			throw new ServletException("Can't get userdb:  " + e);
+		}
+
 		// Get an rhash to cache images and shite.
 		try {
 			rhash = new RHash("//dhcp-104/RObjectServer");
@@ -49,6 +60,42 @@ public class PhotoServlet extends HttpServlet
 		}
 
 		logger = new PhotoLogger();
+	}
+
+	protected void init_userdb() throws Exception {
+		Connection photo=null;
+		boolean worked=false;
+		Exception why=null;
+
+		try {
+			photo=getDBConn();
+			Statement st = photo.createStatement();
+			ResultSet rs=st.executeQuery("select * from wwwusers");
+
+			while(rs.next()) {
+				PhotoUser u = new PhotoUser();
+
+				u.id=new Integer(rs.getInt("id"));
+				u.username=rs.getString("username");
+				u.password=rs.getString("password");
+				u.email=rs.getString("email");
+				u.realname=rs.getString("realname");
+				u.canadd=rs.getBoolean("canadd");
+
+				log("Adding user " + u.username);
+				userdb.put(u.username, u);
+			}
+			worked=true;
+		} catch(Exception e) {
+			worked=false;
+			why=e;
+		} finally {
+			freeDBConn(photo);
+		}
+
+		if(worked==false) {
+			throw new ServletException("Couldn't get list:  " + why);
+		}
 	}
 
 	// Do a GET request (just call doPost)
@@ -82,6 +129,8 @@ public class PhotoServlet extends HttpServlet
 			// throw new ServletException("Not authenticated...");
 			remote_user = "guest";
 		}
+
+		log("Remote user is " + remote_user);
 
 		// Get the UID for the username now that we have a database
 		// connection.
@@ -170,31 +219,13 @@ public class PhotoServlet extends HttpServlet
 
 	// Find out if the authenticated user can add stuff.
 	private boolean canadd() {
-		String query;
 		boolean r=false;
-		Connection photo=null;
 
 		try{
-			photo=getDBConn();
-			Statement st=photo.createStatement();
-
-			query = "select canadd from wwwusers where username='"
-				+ remote_user + "'";
-
-			ResultSet rs = st.executeQuery(query);
-			while(rs.next()) {
-				String tmp;
-				tmp = rs.getString(1);
-				if(tmp.startsWith("t")) {
-					r=true;
-				}
-			}
+			PhotoUser p = (PhotoUser)userdb.get(remote_user);
+			r=p.canadd;
 		} catch(Exception e) {
-			log(e.getMessage());
-		} finally {
-			if(photo != null) {
-				freeDBConn(photo);
-			}
+			log("Error getting canadd permissions:  " + e.getMessage());
 		}
 
 		return(r);
@@ -554,28 +585,13 @@ public class PhotoServlet extends HttpServlet
 		// This is our exception, in case we need it.
 		ServletException x;
 		x = new ServletException("Unknown user: " + remote_user);
-		Connection photo;
 
 		try {
-			photo=getDBConn();
+			PhotoUser p=(PhotoUser)userdb.get(remote_user);
+			remote_uid = p.id;
 		} catch(Exception e) {
 			throw x;
 		}
-
-		query = "select getwwwuser('" + remote_user + "')";
-		try {
-			Statement st = photo.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			if(rs.next()) {
-				remote_uid=Integer.valueOf(rs.getString(1));
-			} else {
-				throw x;
-			}
-		} catch(SQLException e) {
-			System.out.println(e.getSQLState());
-			throw x;
-		}
-		finally { freeDBConn(photo); }
 	}
 
 	// Build the bigass complex search query.
