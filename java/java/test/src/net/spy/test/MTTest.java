@@ -1,5 +1,5 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTest.java,v 1.1 2002/07/11 20:58:40 dustin Exp $
+// $Id: MTTest.java,v 1.2 2002/07/11 23:21:57 dustin Exp $
 
 package net.spy.test;
 
@@ -94,12 +94,18 @@ public class MTTest extends TestCase {
 				for(Enumeration e=tasks.elements(); e.hasMoreElements();) {
 					MTTask mt=(MTTask)e.nextElement();
 					errors+=mt.getFailureCount();
-					lastError=mt.getLastFailure();
+                    if(mt.getFailureCount()>0) {
+					    lastError=mt.getLastFailure();
+                    }
 				}
 
 				// If there were any errors, abort
 				if(errors>0) {
 					// First, shut down all the currently running tasks
+                    /*
+					System.err.println(
+							"There were errors, shutting down the tasks.");
+                    */
 					for(Enumeration e=tasks.elements(); e.hasMoreElements();) {
 						MTTask mt=(MTTask)e.nextElement();
 						mt.shutDown();
@@ -117,11 +123,14 @@ public class MTTest extends TestCase {
 					}
 
 					fail(msg);
+
+					finished=true;
 				}
 			}
 
 		} finally {
 			if(!shutdown) {
+				// System.err.println("Shutting down in the finally block.");
 				tp.shutdown();
 			}
 		} // Make sure the pool gets shut down

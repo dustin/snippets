@@ -1,5 +1,5 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTask.java,v 1.1 2002/07/11 20:58:39 dustin Exp $
+// $Id: MTTask.java,v 1.2 2002/07/11 23:21:55 dustin Exp $
 
 package net.spy.test;
 
@@ -69,6 +69,8 @@ public abstract class MTTask extends Object implements Runnable {
 		lastFailure=f;
 
 		if(stopOnFailure) {
+			// System.err.println("FAILURE!  Stopping");
+			f.printStackTrace();
 			shutDown();
 		}
 	}
