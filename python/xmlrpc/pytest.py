@@ -4,12 +4,12 @@
 
 from sys import argv
 import xmlrpclib
-import time
+import pprint
 
 server=xmlrpclib.Server(argv[1])
 
 method = getattr(server, argv[2])
 if len(argv)>2:
-	print apply(method, argv[3:])
+	pprint.pprint(apply(method, argv[3:]))
 else:
-	print method()
+	pprint.pprint(method())

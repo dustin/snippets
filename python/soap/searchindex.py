@@ -71,7 +71,7 @@ class SearchWatcher:
 			idx,r = rs
 			key=query+'/results ' + r['URL']
 			if not self.db.has_key(key):
-				self.db[key]=str(time.time)
+				self.db[key]=str(time.time())
 				matchCallback('url', r)
 			i+=1
 			# Don't do more than 256 results
