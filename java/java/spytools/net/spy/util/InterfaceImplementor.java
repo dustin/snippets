@@ -355,6 +355,7 @@ public class InterfaceImplementor extends Object {
 		String superclassName=null;
 		String interfaceName=null;
 		String outclass=null;
+		String outdir=".";
 
 		// parse the arguments
 		for(int i=0; i<args.length; i++) {
@@ -364,6 +365,8 @@ public class InterfaceImplementor extends Object {
 				interfaceName=args[++i];
 			} else if(args[i].equals("-outputclass")) {
 				outclass=args[++i];
+			} else if(args[i].equals("-outputdir")) {
+				outdir=args[++i];
 			} else {
 				System.err.println("Unknown argument:  " + args[i]);
 				usage();
@@ -394,7 +397,7 @@ public class InterfaceImplementor extends Object {
 			// Set the output class name
 			i.setOutputClass(outclass);
 
-			String fn="";
+			String fn=outdir + File.separatorChar;
 			String op=i.getOutPackageName();
 			String oc=i.getOutClassName();
 			// Figure out if there's a package name, if so, make sure the
