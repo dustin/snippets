@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
  *
- * $Id: rrdrstat.c,v 1.4 2002/02/01 21:07:18 dustin Exp $
+ * $Id: rrdrstat.c,v 1.5 2002/02/01 22:48:46 dustin Exp $
  */
 
 #include <stdio.h>
@@ -25,7 +25,8 @@ process(const char *host, statstime *stat)
 
 	/* usr wio sys idl pgin pgout intr ipkts opkts coll errors cs load */
 	sprintf(buf,
-		"update %s.rrd N:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%f:%f:%f",
+		"update %s.rrd "
+			"N:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%lu:%f:%f:%f",
 		host,
 		stat->cp_time[0], stat->cp_time[1],
 		stat->cp_time[2], stat->cp_time[3],
