@@ -133,6 +133,8 @@ static float ctof(float c)
 /* Draw the underling thermometer, then some lines over it */
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+	// Get an autorelease pool here
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     // Figure out whether it's celsius or farenheit
     NSString *u=[defaults objectForKey: @"units"];
     // If it's changed, update it.
@@ -187,6 +189,7 @@ static float ctof(float c)
 
     // Now tell it to draw the arm.
     [self drawArm: cellFrame];
+	[pool release];
 }
 
 @end
