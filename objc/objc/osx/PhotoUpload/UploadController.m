@@ -110,6 +110,83 @@
 
 - (IBAction)upload:(id)sender
 {
+    NSDate *date=[NSCalendarDate dateWithString: [dateTaken stringValue]
+                                 calendarFormat: @"%Y/%m/%d"];
+    NSString *k=[keywords stringValue];
+    if([k length] == 0) {
+        [self alert:@"Keywords not Given"
+            message:@"The keywords field must be filled in."];
+        return;
+    }
+    NSString *d=[description stringValue];
+    if([d length] == 0) {
+        [self alert:@"Description not Given"
+            message:@"The description field must be filled in."];
+        return;
+    }
+    NSString *cat=[categories titleOfSelectedItem];
+    NSString *u=[username stringValue];
+    NSString *p=[password stringValue];
+
+    NSMutableDictionary *dict=[[NSMutableDictionary alloc] initWithCapacity:10];
+
+    [dict setObject:u forKey:@"username"];
+    [dict setObject:p forKey:@"password"];
+    [dict setObject:k forKey:@"keywords"];
+    [dict setObject:d forKey:@"info"];
+    [dict setObject:date forKey:@"taken"];
+    [dict setObject:cat forKey:@"category"];
+
+    // Fix up the progress bar
+    [progressBar setMinValue: 0];
+    [progressBar setMaxValue: [files count]];
+    [progressBar setDoubleValue: 0];
+    [progressBar setHidden: FALSE];
+    // And the uploading text
+    [uploadingText setHidden: FALSE];
+    [uploadButton setEnabled: FALSE];
+
+    int i=0;
+    for(i=0; i<[files count]; i++) {
+        // Update the progress bar and text
+        [progressBar displayIfNeeded];
+        [self updateProgressText: i of:[files count]];
+
+        // Get the file data
+        NSData *myData = [NSData dataWithContentsOfFile:[files objectAtIndex:i]];
+        [dict setObject:myData forKey:@"image"];
+
+        NS_DURING
+            // get the XML RPC connection
+            connection = [XRConnection connectionWithURL:
+                [NSURL URLWithString:[url stringValue]]];
+            // Make the call
+            NSArray *args=[NSArray arrayWithObject:dict];
+            id result = [connection performRemoteMethod:@"addImage.addImage"
+                                            withObjects:args];
+            NSLog(@"Uploaded image %@\n", result);
+
+        NS_HANDLER
+            // On error, open up a window and let the user know
+            [self alert:@"Upload Error" message:[localException description]];
+        NS_ENDHANDLER
+        // Increment the progress bar
+        [progressBar incrementBy:1];
+    }
+    // Hide the progress bar and uploading text
+    [progressBar setHidden:TRUE];
+    [uploadingText setHidden:TRUE];
+    // Indicate the upload window needs to wake up and redraw stuff
+    [uploadButton setEnabled: TRUE];
+
+    [dict release];
+}
+
+- (void)updateProgressText: (int)current of:(int)max
+{
+    NSString *msg=[NSString stringWithFormat:@"Uploading %d of %d", (current+1), max];
+    [uploadingText setStringValue: msg];
+    [uploadingText displayIfNeeded];
 }
 
 - (void)awakeFromNib
@@ -135,6 +212,7 @@
     NSDate *today = [NSDate date];
     [dateTaken setStringValue:[today descriptionWithCalendarFormat:@"%Y/%m/%d"
                                                           timeZone:nil locale:nil]];
+
     [authWindow makeKeyAndOrderFront: self];
 }
 

@@ -3,7 +3,7 @@
 //  PhotoUpload
 //
 //  Created by Dustin Sallings on Sat Sep 21 2002.
-//  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2002 SPY Internetworking. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

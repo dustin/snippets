@@ -37,4 +37,5 @@
 - (IBAction)upload:(id)sender;
 
 - (void)alert:(id)title message:(id)msg;
+- (void)updateProgressText: (int)current of:(int)max;
 @end
