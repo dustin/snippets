@@ -39,6 +39,6 @@ int main(int argc, char **argv)
 		gettimeofday(&timers[1], tzp);
 
 		TVDIFF(timers[0], timers[1], a, b, c);
-		printf("%s %d %u.%u seconds\n", fn, i, a, b);
+		printf("%s %d %u.%06u\n", fn, i, a, b);
 	}
 }
