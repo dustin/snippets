@@ -55,15 +55,13 @@
 
 -(void)awakeFromNib
 {
-    // Grab an image
-    NSURL *u=[[NSURL alloc]
-        initWithString: @"http://bleu.west.spy.net/therm/images/therm-c.gif"];
-    NSImage *ci=[[NSImage alloc] initByReferencingURL: u];
-    [u release];
-    u=[[NSURL alloc]
-        initWithString: @"http://bleu.west.spy.net/therm/images/therm-f.gif"];
-    NSImage *fi=[[NSImage alloc] initByReferencingURL: u];
-    [u release];
+    // Load the images from the bundle
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *path = [mainBundle pathForResource:@"therm-c" ofType:@"png"];
+    NSImage *ci = [[NSImage alloc]initWithContentsOfFile:path];
+    path = [mainBundle pathForResource:@"therm-f" ofType:@"png"];
+    NSImage *fi = [[NSImage alloc]initWithContentsOfFile:path];
+
     // Create the collection of thermometers
     therms=[[NSMutableArray alloc] initWithCapacity: 6];
     [therms retain];

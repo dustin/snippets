@@ -130,6 +130,7 @@
 				4A9504CCFFE6A4B311CA0CBA,
 				4A9504CDFFE6A4B311CA0CBA,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -167,6 +168,8 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				DAC72A7304108DB200A80132,
+				DAC72A7404108DB200A80132,
 				29B97318FDCFA39411CA2CEA,
 				089C165CFE840E0CC02AAC07,
 			);
@@ -264,7 +267,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -280,6 +282,8 @@
 			files = (
 				080E96DCFE201CFB7F000001,
 				089C165EFE840E0CC02AAC07,
+				DAC72A7504108DB200A80132,
+				DAC72A7604108DB200A80132,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,6 +348,38 @@
 //4A2
 //4A3
 //4A4
+//DA0
+//DA1
+//DA2
+//DA3
+//DA4
+		DAC72A7304108DB200A80132 = {
+			isa = PBXFileReference;
+			path = "therm-f.png";
+			refType = 4;
+		};
+		DAC72A7404108DB200A80132 = {
+			isa = PBXFileReference;
+			path = "therm-c.png";
+			refType = 4;
+		};
+		DAC72A7504108DB200A80132 = {
+			fileRef = DAC72A7304108DB200A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAC72A7604108DB200A80132 = {
+			fileRef = DAC72A7404108DB200A80132;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//DA0
+//DA1
+//DA2
+//DA3
+//DA4
 //F50
 //F51
 //F52
