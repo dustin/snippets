@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: ObjectPoolConnectionSource.java,v 1.3 2002/08/04 01:08:03 dustin Exp $
+// $Id: ObjectPoolConnectionSource.java,v 1.4 2002/08/23 07:46:22 dustin Exp $
 
 package net.spy.db;
 
@@ -87,6 +87,9 @@ public class ObjectPoolConnectionSource extends Object
 	 * @see ConnectionSource
 	 */
 	public void returnConnection(Connection conn) throws SQLException {
+		if(object==null) {
+			throw new SQLException("Object is null, already returned?");
+		}
 		object.checkIn();
 		object=null;
 	}

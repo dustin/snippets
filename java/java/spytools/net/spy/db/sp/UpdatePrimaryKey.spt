@@ -1,0 +1,18 @@
+#
+# $Id: UpdatePrimaryKey.spt,v 1.1 2002/08/23 07:46:25 dustin Exp $
+#
+
+@package
+net.spy.db.sp
+
+@description
+Update the primary key table.
+
+@sql
+update primary_key
+	set primary_key=primary_key+?
+	where table_name=?
+
+@params
+incr_amount required INTEGER The amount to increment
+table_name required VARCHAR The name of the table owning the primary key
