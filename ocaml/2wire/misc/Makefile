@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=mailCompress hlgrep missingNumbers
+PROGS=mailCompress hlgrep missingNumbers magicSquare
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -25,6 +25,10 @@ hlgrep: hlgrep.ml
 missingNumbers: missingNumbers.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		missingNumbers.ml
+
+magicSquare: magicSquare.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		magicSquare.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o

@@ -162,7 +162,7 @@ let sqsum x = x * ( (x * x) + 1) / 2;;
 let main() =
 	Arg.parse [
 		"-s", Arg.Set_int size,
-			"Size of the square to calculate (default 4x4)";
+			"Size of the square to calculate (default 3x3)";
 		]
 		(fun s -> ()) "Calculate all magic squares.";
 	print_endline("Calculating magic squares of size " ^ (string_of_int !size));
