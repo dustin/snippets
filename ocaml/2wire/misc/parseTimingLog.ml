@@ -10,6 +10,9 @@ open List;;
 open Stringutils;;
 open Fileutils;;
 
+(* This exception is thrown when we go back in time *)
+exception Back_in_time of string;;
+
 (* The type for log entries *)
 type log_entry = {
 	le_time: float;
@@ -47,6 +50,12 @@ let extended_log_types =
 	List.concat (List.map (fun x ->
 		(List.map (fun y -> x ^ y) ["time";"count";"start";"end"]))
 		log_types)
+;;
+
+(* Stringify a log entry *)
+let string_of_log_entry le =
+	(string_of_float le.le_time) ^ ":" ^ le.le_serial ^ " " ^ le.le_ttype
+		^ " " ^ le.le_state
 ;;
 
 (* Get the block that contains the counts for the given log entry.
@@ -142,6 +151,8 @@ let process le rrd =
 	let at = approx_time le.le_time in
 	if at != global_state.g_last_ts then
 		begin
+			if at < global_state.g_last_ts then
+				raise (Back_in_time (string_of_log_entry le));
 			if global_state.g_last_ts != 0 then
 				print_entry rrd;
 			reset_global at
