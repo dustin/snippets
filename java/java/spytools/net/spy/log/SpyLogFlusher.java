@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.10 2001/02/08 06:06:57 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.11 2001/04/03 04:02:53 dustin Exp $
  */
 
 package net.spy.log;
@@ -32,6 +32,7 @@ public class SpyLogFlusher extends Thread {
 
 	// private static BufferedWriter log_file=null;
 	private SpyLogQueue log_queue=null;
+	boolean keep_going=true;
 
 	/**
 	 * Path to the logfile.  The default logfile is /tmp/spy.log, but this
@@ -110,6 +111,11 @@ public class SpyLogFlusher extends Thread {
 		return(log_queue.size());
 	}
 
+	/**
+	 * This method should writes the log entries to their final
+	 * destination.  The default implementation writes the log entries to a
+	 * file.  This method should probably be overridden to be useful.
+	 */
 	protected void doFlush() {
 		Vector v = flush();
 		// Only do all this crap if there's something to log.
@@ -132,10 +138,23 @@ public class SpyLogFlusher extends Thread {
 		}
 	}
 
+	/**
+	 * Stop was taken and deprecated by those fools at Javasoft.  I use
+	 * close here because it's kinda the right thing to do, as we're
+	 * closing the log...sorta.
+	 */
+	public void close() {
+		keep_going=false;
+	}
+
+	/**
+	 * Periodically process the log queue.  You probably don't want to
+	 * override this.
+	 */
 	public void run() {
 		log_queue = new SpyLogQueue(queue_name);
 
-		for(;;) {
+		while(keep_going) {
 			try {
 				// Flush first, ask questions later.
 				doFlush();
