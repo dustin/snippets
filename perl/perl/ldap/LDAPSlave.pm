@@ -1,4 +1,6 @@
 package LDAPSlave;
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+# $Id: LDAPSlave.pm,v 1.2 2000/02/10 21:21:35 dustin Exp $
 
 use strict;
 use Net::LDAP;
