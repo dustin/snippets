@@ -11,21 +11,25 @@ let encode s =
 	(string_of_int (String.length s)) ^ ":" ^ s ^ ","
 ;;
 
-(* The maximum length of a string we'll read (999,999,999 bytes) *)
-let max_string_size = 999999999;;
+(* The maximum length of a string we'll read
+   (length of the max length of strings) *)
+let max_string_length_length =
+	String.length(string_of_int Sys.max_string_length)
+;;
 
 (** Get the next netstring from the given stream. *)
 let decode in_stream =
 	let rec loop l =
-		if (List.length l > 9) then failwith "Size too long";
+		if (List.length l > max_string_length_length) then
+			failwith "Size too long";
 		let c = Stream.next in_stream in
 		if (c = ':') then (
-			int_of_string (Extstring.string_of_chars l)
+			int_of_string (Extstring.string_of_chars (List.rev l))
 		) else (
-			loop (l @ [c])
+			loop (c::l)
 		) in
 	let size = loop [] in
-	if (size > max_string_size) then
+	if (size > Sys.max_string_length) then
 		failwith ("Won't read a nestring of length " ^ (string_of_int size));
 	let data = Stream.npeek size in_stream in
 	List.iter (fun _ -> Stream.junk in_stream) data;
