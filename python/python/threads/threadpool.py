@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: threadpool.py,v 1.1 2002/03/27 00:13:08 dustin Exp $
+# $Id: threadpool.py,v 1.2 2002/03/27 04:01:39 dustin Exp $
 
 import threading
 import exceptions
 import traceback
 import time
+import threadutil
 
 class Job:
 	"""Superclass for all jobs."""
@@ -84,6 +85,11 @@ class RunThread(threading.Thread):
 		# super.init
 		threading.Thread.__init__(self)
 
+		# A reference to the object that this is currently running
+		self.running=None
+		# Mark the start time of a job
+		self.startTime=0
+
 		# Our reference to the queue
 		self.queue=queue
 		# This reminds us to keep going
@@ -100,9 +106,24 @@ class RunThread(threading.Thread):
 
 	def runJob(self, job):
 		try:
+			self.startTime=time.time()
+			self.running=job
 			job.run()
 		except:
 			traceback.print_exc()
+		self.running=None
+
+	def __str__(self):
+		# Get the regular string representation, minus the > on the end.
+		rv=threading.Thread.__repr__(self)[0:-1]
+
+		if self.running == None:
+			rv+=" - idle"
+		else:
+			rv+=" - running " + str(self.running.__class__) + " for "
+			rv+="%.2fs" % (time.time() - self.startTime)
+		rv+=">"
+		return rv
 
 	def run(self):
 		while self.going:
@@ -170,10 +191,13 @@ class SampleTask(Job):
 
 def main():
 	tp=ThreadPool("Test Pool", 15)
+	threadutil.dumpThreads()
 	try:
 		for i in range(100):
+			threadutil.dumpThreads()
 			tp.addTask(SampleTask())
 
+		threadutil.dumpThreads()
 		for i in range(100):
 			tp.waitForTaskCount(50)
 			print "Adding a new task."
@@ -182,6 +206,7 @@ def main():
 		tp.waitForTaskCount(0)
 		print "All tasks have been accepted, shutting down."
 		tp.shutdown()
+		threadutil.dumpThreads()
 
 		print "Done."
 	except:
