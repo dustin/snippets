@@ -1,6 +1,6 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 //
-// $Id: spy.pov,v 1.4 2003/04/21 08:36:05 dustin Exp $
+// $Id: spy.pov,v 1.5 2003/04/21 21:58:28 dustin Exp $
 
 #include "colors.inc"
 #include "shapes.inc"
@@ -10,10 +10,23 @@
 
 #include "spy_words.inc"
 
-camera {
-	location <0, -1.8, -10>
-	look_at <0, 0, 0>
-}
+#if(clock_on=0)
+	camera {
+		location <0, -1.8, -10>
+		look_at <0, 0, 0>
+	}
+#else
+	#debug concat("\nClock is ", str(clock,5,5), "\n")
+
+	camera {
+		location <0, clock-1.8, -10*clock>
+		look_at <0, 0, 0>
+		#local r = 90-(90*clock);
+		#debug concat("Angle is ", str(r,2,2), " for ", str(clock,5,5), "\n")
+		rotate <0, 0, r>
+	}
+#end
+
 
 sky_sphere { S_Cloud5 }
 
