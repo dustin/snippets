@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: StockQuote.java,v 1.2 2000/03/20 22:42:53 dustin Exp $
+// $Id: StockQuote.java,v 1.3 2000/03/21 19:06:35 dustin Exp $
 
 package net.spy.info;
 
@@ -85,7 +85,7 @@ public class StockQuote extends Object {
 	 */
 	public String toString() {
 		String ret="";
-		ret=symbol + ":  " + price + " ";
+		ret=symbol + ": " + price + " ";
 		if(change>0.0) {
 			ret+="+";
 		}
