@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
  *
- * $Id: CachePreparedStatementStub.java,v 1.12 2002/07/10 05:41:17 dustin Exp $
+ * $Id: CachePreparedStatementStub.java,v 1.13 2002/08/08 21:56:34 dustin Exp $
  */
 
 package net.spy.db;
@@ -117,7 +117,7 @@ public class CachePreparedStatementStub extends Object {
 
 		int hc=hashCode();
 		String key="dbcache_prepared_" + hc;
-		SpyCache cache=new SpyCache();
+		SpyCache cache=SpyCache.getInstance();
 		CachedResultSet crs=(CachedResultSet)cache.get(key);
 		if(crs==null) {
 			try {
@@ -273,9 +273,9 @@ public class CachePreparedStatementStub extends Object {
 
 	// Implemented
 	public void close() throws SQLException {
-	db=null;
-	queryStr=null;
-	args=null;
-	types=null;
+		db=null;
+		queryStr=null;
+		args=null;
+		types=null;
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2000 Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyCacheDB.java,v 1.7 2002/07/10 05:41:23 dustin Exp $
+ * $Id: SpyCacheDB.java,v 1.8 2002/08/08 21:56:35 dustin Exp $
  */
 
 package net.spy.db;
@@ -52,7 +52,7 @@ public class SpyCacheDB extends SpyDB {
 	public ResultSet executeQuery(String query, long lifetime)
 		throws SQLException {
 
-		SpyCache cache=new SpyCache();
+		SpyCache cache=SpyCache.getInstance();
 		String key="cachedb_" + query;
 		CachedResultSet crs=(CachedResultSet)cache.get(key);
 		if(crs==null) {

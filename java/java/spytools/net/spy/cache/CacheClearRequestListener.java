@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: CacheClearRequestListener.java,v 1.3 2002/07/10 04:24:59 dustin Exp $
+// $Id: CacheClearRequestListener.java,v 1.4 2002/08/08 21:56:31 dustin Exp $
 
 package net.spy.cache;
 
@@ -88,7 +88,7 @@ public class CacheClearRequestListener extends Thread {
 		requests++;
 
 		// Do it.
-		SpyCache cache=new SpyCache();
+		SpyCache cache=SpyCache.getInstance();
 		cache.uncacheLike(prefix);
 	}
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyCache.java,v 1.14 2002/08/03 07:11:52 dustin Exp $
+ * $Id: SpyCache.java,v 1.15 2002/08/08 21:56:32 dustin Exp $
  */
 
 package net.spy.cache;
@@ -29,17 +29,53 @@ import net.spy.util.TimeStampedHash;
  * based on prefix.
  */
 public class SpyCache extends Object {
-	private static TimeStampedHash cacheStore=null;
-	private static SpyCacheCleaner cacheCleaner=null;
-	private static ReferenceQueue refQueue=null;
 
-	/**
-	 * Get a new SpyCache object.
-	 */
-	public SpyCache() {
+	private TimeStampedHash cacheStore=null;
+	private SpyCacheCleaner cacheCleaner=null;
+	private ReferenceQueue refQueue=null;
+
+	private static SpyCache instance=null;
+
+	// This is a singleton, the constructor should only be called once.
+	private SpyCache() {
 		super();
 
 		init();
+	}
+
+	private void init() {
+		cacheStore=new TimeStampedHash();
+		refQueue=new ReferenceQueue();
+	}
+
+	private void checkThread() {
+		if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
+			// Do the same thing synchronized
+			synchronized(SpyCache.class) {
+				if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
+					cacheCleaner=new SpyCacheCleaner(cacheStore, refQueue);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get the instance of SpyCache.
+	 *
+	 * @return the instance of SpyCache, or a new instance if required
+	 */
+	public static SpyCache getInstance() {
+		if(instance == null) {
+			synchronized(SpyCache.class) {
+				if(instance==null) {
+					instance=new SpyCache();
+				}
+			}
+		}
+
+		instance.checkThread();
+
+		return(instance);
 	}
 
 	/**
@@ -109,20 +145,6 @@ public class SpyCache extends Object {
 				}
 			} // for loop
 		} // lock
-	}
-
-	private synchronized void init() {
-		synchronized(SpyCache.class) {
-
-			if(cacheStore==null) {
-				cacheStore=new TimeStampedHash();
-				refQueue=new ReferenceQueue();
-			}
-
-			if(cacheCleaner==null || (!cacheCleaner.isAlive())) {
-				cacheCleaner=new SpyCacheCleaner(cacheStore, refQueue);
-			}
-		}
 	}
 
 	////////////////////////////////////////////////////////////////////
