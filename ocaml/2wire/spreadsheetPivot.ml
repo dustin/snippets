@@ -35,6 +35,10 @@ let print_line all_fields it =
 			with Not_found ->
 				print_string(",")
 			) all_fields;
+		(* If all values are integer, this will add them up in another column
+		print_string("," ^ string_of_int(Hashtbl.fold
+			(fun k v c -> c + (int_of_string v)) it.fields 0));
+		*)
 		print_newline()
 	)
 ;;
@@ -54,15 +58,14 @@ let main() =
 	let current_record = ref {sn=""; fields=Hashtbl.create 1; } in
 	Fileutils.iter_file_lines (fun l ->
 		let parts = Extstring.split l ',' 3 in
-		if !current_record.sn = List.hd parts then (
-			Hashtbl.replace !current_record.fields
-				(List.nth parts 1) (List.nth parts 2)
-		) else (
+		if !current_record.sn <> List.hd parts then (
 			(* Only print a record if we found some values *)
 			if(not (!current_record.sn = "")) then
 				print_line all_fields !current_record;
-			current_record := {sn=List.hd parts; fields=Hashtbl.create 1; }
-		)
+			current_record := {sn=List.hd parts; fields=Hashtbl.create 1; };
+		);
+		Hashtbl.replace !current_record.fields
+			(List.nth parts 1) (List.nth parts 2);
 	)
 	Sys.argv.(1)
 ;;
