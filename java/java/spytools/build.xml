@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.20 2002/08/12 21:59:35 dustin Exp $
+	$Id: build.xml,v 1.21 2002/08/13 04:18:07 dustin Exp $
 
 	-->
 
@@ -130,6 +130,16 @@
 
   <target name="tests" depends="test-classes">
     <java classname="net.spy.test.AllTests">
+			<classpath refid="myclasses"/>
+			<classpath refid="junitclasses"/>
+      <classpath>
+        <pathelement path="tests"/>
+			</classpath>
+    </java>
+  </target>
+
+  <target name="tests-quick" depends="test-classes">
+    <java classname="net.spy.test.QuickTests">
 			<classpath refid="myclasses"/>
 			<classpath refid="junitclasses"/>
       <classpath>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings
  *
- * $Id: CacheTest.java,v 1.2 2002/08/12 22:43:10 dustin Exp $
+ * $Id: CacheTest.java,v 1.3 2002/08/13 04:18:10 dustin Exp $
  */
 
 package net.spy.test;
@@ -62,7 +62,7 @@ public class CacheTest extends TestCase {
 		assertEquals("Incorrect value returned from cache.", tmp, val);
 
 		// Make sure enough time has passed
-		Thread.sleep(1500);
+		Thread.sleep(1000);
 
 		// Make sure we *don't* get the object from the cache
 		i=(Integer)cache.get(key);
@@ -88,7 +88,7 @@ public class CacheTest extends TestCase {
 		assertEquals("Incorrect value returned from cache.", tmp, val);
 
 		// Make sure enough time has passed
-		Thread.sleep(1500);
+		Thread.sleep(1000);
 
 		// Make sure we *don't* get the object from the cache
 		i=(Integer)cache.get(key);
