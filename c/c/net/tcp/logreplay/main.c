@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.2 1998/12/06 19:58:59 dustin Exp $
+ * $Id: main.c,v 1.3 1998/12/07 08:32:50 dustin Exp $
  */
 
 #include <config.h>
@@ -207,84 +207,8 @@ dostats(int i, char *request, struct timeval timers[3],
 		fflush(stdout);
 }
 
-struct
-log_entry **
-get_config(char *path)
-{
-	FILE   *f;
-	char    buf[64 * 1024];	/* Nothing wrong with a 64k buffer, right? */
-	struct log_entry **list;
-	struct log_entry log;
-	int     size = 64 * 1024, index = 0;
-	char   *p, *p2;
-
-	f = fopen(path, "r");
-	if (f == NULL)
-		return (NULL);
-
-	list = (void *) malloc(size * sizeof(struct log_entry **));
-	assert(list);
-
-#define LAPPEND(a) if(index == size-1) { \
-		size=size*(64*1024); \
-		list=realloc(list, size*sizeof(struct log_entry **)); \
-		assert(list); \
-	} \
-	list[index]=(void *)malloc(sizeof(struct log_entry)); \
-	assert(list[index]); \
-	list[index]->timeoffset=a.timeoffset; \
-	list[index]->IP=a.IP; \
-	list[index]->request=a.request; \
-	index++;
-
-	while (fgets(buf, 64 * 1024, f)) {
-		log.timeoffset = 0;
-		log.IP = NULL;
-		log.request = NULL;
-		log.timeoffset = atoi(buf);
-		p = strchr(buf, '\t');
-		p++;
-		p2 = strchr(p, '\t');
-		*p2 = 0x00;
-		log.IP = strdup(p);
-
-		p2++;
-		p2[strlen(p2) - 1] = 0x00;
-		log.request = strdup(p2);
-		LAPPEND(log);
-	}
-	list[index] = 0x00;
-
-	return (list);
-}
-
-void
-print_conf(struct log_entry **logs)
-{
-	int     i;
-
-	for (i = 0; logs[i]; i++) {
-		assert(logs[i]->IP);
-		assert(logs[i]->request);
-		printf("Time offset:  %d\n\tIP:  %s\n\tRequest:  %s\n\n",
-		    logs[i]->timeoffset, logs[i]->IP, logs[i]->request);
-	}
-}
-
-void
-freelogs(struct log_entry **logs)
-{
-	int     i;
-	for (i = 0; logs[i]; i++) {
-		free(logs[i]->IP);
-		free(logs[i]->request);
-		free(logs[i]);
-	}
-	free(logs);
-}
-
 int
-open_connection(char *host, int port, struct log_entry *log)
+open_connection(char *host, int port, struct log_entry log)
 {
 	int     s, i;
 
@@ -292,13 +216,13 @@ open_connection(char *host, int port, struct log_entry *log)
 	if (s < 0)
 		return (-1);
 
-	i = send(s, log->request, strlen(log->request), 0);
+	i = send(s, log.request, strlen(log.request), 0);
 	i += send(s, "\r\n\r\n", 4, 0);
 	return (s);
 }
 
 void
-process(char *host, int port, struct log_entry **logs, int flags)
+process(char *host, int port, FILE *f, int flags)
 {
 	int     s, size, index, connected = 0, selected;
 	fd_set  fdset, tfdset;
@@ -306,10 +230,14 @@ process(char *host, int port, struct log_entry **logs, int flags)
 	char    buf[8192];
 	struct timeval t;
 	struct timeval timers[MAXSEL][3], tmptime;
-	int     bytes[MAXSEL];
+	int     bytes[MAXSEL], done=0;
 	char   *requests[MAXSEL];
 	int    delays[MAXSEL];
 	void   *tzp=NULL;
+	struct log_entry log;
+
+	if(getlog(f, &log)!=0)
+		return;
 
 	start_time = time(NULL);
 
@@ -319,14 +247,14 @@ process(char *host, int port, struct log_entry **logs, int flags)
 	 * The Loop(tm).  Here, we loop as long as we have more logs entries to
 	 * process, or we have connections open.
 	 */
-	for (index = 0; logs[index] || connected > 0;) {
+	while ( (!done) || connected > 0) {
 
 		current_time = time(NULL);
 
 		/* This loop runs if/as long as there are new log entries that need
 		 * to be processed on this loop run */
-		while (logs[index]
-		    && logs[index]->timeoffset <= (current_time - start_time)) {
+		while ( (!done)
+		        && log.timeoffset <= (current_time - start_time)) {
 
 			/*
 			 * printf("Need to start one for %d (we're at %d):\n\t%s\n",
@@ -335,19 +263,25 @@ process(char *host, int port, struct log_entry **logs, int flags)
 			 */
 
 			gettimeofday(&tmptime, tzp);
-			s = open_connection(host, port, logs[index]);
+			s = open_connection(host, port, log);
 			if (s > 0) {
 				/* Record timers, etc... */
 				timers[s][0] = tmptime;
 				gettimeofday(&timers[s][1], tzp);
-				requests[s] = logs[index]->request;
-				delays[s] = logs[index]->timeoffset;
+				requests[s] = strdup(log.request);
+				delays[s] = log.timeoffset;
 
 				bytes[s] = 0;
 				connected++;
 				FD_SET(s, &tfdset);
 			}
 			index++;
+			if(log.IP)
+				free(log.IP);
+			if(log.request)
+				free(log.request);
+			if(getlog(f, &log)!=0)
+				done=1;
 		}
 
 		fdset = tfdset;
@@ -365,6 +299,7 @@ process(char *host, int port, struct log_entry **logs, int flags)
 						gettimeofday(&timers[i][2], tzp);
 						dostats(i, requests[i], timers[i], bytes[i],
 							delays[i], flags);
+						free(requests[i]);
 						close(i);
 						connected--;
 						FD_CLR(i, &tfdset);
@@ -380,14 +315,14 @@ process(char *host, int port, struct log_entry **logs, int flags)
 int
 main(int argc, char **argv)
 {
-	struct log_entry **logs;
+	FILE *f;
 
-	logs = get_config(argv[1]);
-	if (logs == NULL) {
-		printf("Couldn't parse any logs...\n");
-		return (1);
+	f=fopen(argv[1], "r");
+	if(f==NULL) {
+		perror(argv[1]);
+		return(-1);
 	}
-	process("bleu.west.spy.net", 80, logs, 0xffffffff);
-	freelogs(logs);
+
+	process("bleu.west.spy.net", 80, f, 0xffffffff);
 	return(0);
 }

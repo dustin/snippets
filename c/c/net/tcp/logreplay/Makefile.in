@@ -1,5 +1,5 @@
 # Copyright (c) 1998  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1998/12/06 09:32:25 dustin Exp $
+# $Id: Makefile.in,v 1.2 1998/12/07 08:32:48 dustin Exp $
 
 SHELL=/bin/sh
 CC=@CC@
@@ -11,8 +11,8 @@ LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 
 .SUFFIXES: .c .o .l .a .ln
-OBJS=main.o sockets.o
-SRCS=main.c sockets.c
+OBJS=main.o sockets.o parseline.o
+SRCS=main.c sockets.c parseline.c
 LINTS=main.ln sockets.ln
 EXES=logreplay
 AUTOJUNK=config.h config.status config.cache config.log Makefile
