@@ -1,5 +1,5 @@
 # Copyright (c) 1997  Dustin Sallings
-# $Id: Makefile.in,v 1.1 1998/03/17 04:04:55 dustin Exp $
+# $Id: Makefile.in,v 1.2 1998/03/17 04:10:31 dustin Exp $
 
 .SUFFIXES: .m .o
 
@@ -10,16 +10,16 @@ OBJC=@CC@
 LIBS=@LIBS@
 LDFLAGS=$(LIBS)
 EXES=test
-MISCOBJS=dString.o dSSocket.o dCSocket.o
-SOURCE=dString.m dSSocket.m dCSocket.m
+MISCOBJS=dString.o dSSocket.o dCSocket.o dSNPP.o
+SOURCE=dString.m dSSocket.m dCSocket.m dSNPP.m
 JUNK=$(EXES) *.o *.a
 
 snpp.a:	$(MISCOBJS)
 	$(AR) $@ $(MISCOBJS)
 	$(RANLIB) $@
 
-test:   misc.a test.o
-	$(OBJC) -o $@ test.o misc.a $(LIBS)
+test:   snpp.a test.o
+	$(OBJC) -o $@ test.o snpp.a $(LIBS)
 
 clean:
 	-rm -f $(JUNK)
