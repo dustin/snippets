@@ -4,6 +4,8 @@
  * arch-tag: F31E0A41-A042-11D8-BB34-000393CFE6B8
  *)
 
+open Unix;;
+
 exception Duplicate of string;;
 
 type in_record = {
@@ -64,7 +66,7 @@ let genBoxNum product_line sn =
 ;;
 
 (* Make a record as a hash table of all known fields *)
-let makeRecord modelMap l =
+let makeRecord modelMap ts l =
 	let ht = Hashtbl.create 1 in
 	(* Get all of the fields into the hashtable *)
 	List.iter (fun i -> Hashtbl.add ht i "") cdb_fields;
@@ -81,6 +83,7 @@ let makeRecord modelMap l =
 		htr "pca" record.in_model;
 		htr "version" record.in_version;
 		htr "authcode" record.in_secret;
+		htr "moddate" ts;
 		Some (makeOutRecord product_line record.in_sn ht)
 	with Not_found ->
 		prerr_endline("Unknown model:  " ^ record.in_model);
@@ -88,8 +91,8 @@ let makeRecord modelMap l =
 ;;
 
 (* Store a parsed record *)
-let storeRecord db modelMap l =
-	match (makeRecord modelMap l) with
+let storeRecord db modelMap ts l =
+	match (makeRecord modelMap ts l) with
 	  None -> ()
 	| Some(k,v) ->
 		print_endline(k ^ " -- " ^ v);
@@ -109,13 +112,23 @@ let loadMfgKeys from =
 		) from
 ;;
 
+let processFile destcdb modelMap filename =
+	let tm = Unix.gmtime (Unix.stat filename).st_mtime in
+	let ts = Printf.sprintf "%04d%02d%02dT%02d%02d%02d"
+			(tm.tm_year + 1900) (tm.tm_mon + 1) tm.tm_mday
+			tm.tm_hour tm.tm_min tm.tm_sec in
+	Printf.eprintf "File timestamp is %s\n" ts;
+	Fileutils.iter_file_lines (storeRecord destcdb modelMap ts) filename
+
+;;
+
 let main () =
 	let destcdb = Cdb.open_out Sys.argv.(1) in
 	loadMfgKeys Sys.argv.(2);
 	let modelMap = Hashtbl.create 1 in
 	print_endline(makeMetaInf());
 	Fileutils.iter_file_lines (parseModelMap modelMap) Sys.argv.(3);
-	Fileutils.iter_file_lines (storeRecord destcdb modelMap) Sys.argv.(4);
+	processFile destcdb modelMap Sys.argv.(4);
 	Cdb.close_cdb_out destcdb
 ;;
 

@@ -30,6 +30,10 @@ extractKeys: extractKeys.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa dbm.cmxa spy.cmxa mfgcdb.cmx extractKeys.ml
 
+cdbprefix: cdbprefix.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa dbm.cmxa spy.cmxa cdbprefix.ml
+
 buildMfgCache: buildMfgCache.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa dbm.cmxa spy.cmxa mfgcdb.cmx buildMfgCache.ml
