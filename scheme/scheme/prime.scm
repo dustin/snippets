@@ -31,7 +31,7 @@
 						( (m 3 (+ m 2)) )
 
 						; Loop until done
-						(done)
+						(done prime)
 
 						; The calculation
 						(cond
@@ -40,8 +40,6 @@
 							((divisible? x m) (set! prime #f) (set! done #t))
 						)
 					)
-				; Return whether we're prime or not
-				prime
 				)
 			)
 		)
@@ -55,24 +53,14 @@
 		(cond
 			((= x 1) (set! x 2))
 			((= x 2) x)
-			((is-even? x) (set! x (+ 1 x)))
-		)
+			((is-even? x) (set! x (+ 1 x))))
 
 		(let ((nextp x)(done #f))
-
 			(do
 				( (p x (+ p 2)))
-
-				(done)
-
+				(done nextp)
 				(cond
-					((isprime p) (set! done #t) (set! nextp p))
-				)
-			)
-			nextp
-		)
-	)
-)
+					((isprime p) (set! done #t) (set! nextp p)))))))
 
 ; Find all the prime numbers from x to y
 (define listprimes
@@ -81,12 +69,6 @@
 		(let ((plist '()))
 			(do
 				( (i x (nextprime i)))
-				((> i y))
+				((> i y) plist)
 
-				(set! plist (append plist (list i)))
-			)
-
-			plist
-		)
-	)
-)
+				(set! plist (append plist (list i)))))))
