@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  beyond.com (dustin@beyond.com)
  *
- * $Id: parselist.h,v 1.5 1999/05/10 21:19:38 dustin Exp $
+ * $Id: parselist.h,v 1.6 1999/05/10 22:53:11 dustin Exp $
  */
 
 #include <syslog.h>
@@ -19,19 +19,19 @@
 /* Length of a line */
 #define LINELEN 90
 
-/* Path to the config file */
-#define CONFIGFILE "list"
-
 /* Amount of time (in seconds) to run library loop before checking the
  * library */
-#define LIFETIME 11
+#define LIFETIME 60
 
 /* How long to run the emergency function (in seconds) if the library
  * doesn't load */
 #define EMERGENCY_TIME 30
 
+/* Path to the config file */
+#define CONFIGFILE "/usr/local/apache_mod/conf/rewrite.conf"
+
 /* The library to load */
-#define THELIB "./libparselist.so"
+#define THELIB "/usr/local/apache_mod/bin/libparselist.so"
 
 /* The function to run in the library */
 #define THEFUNC "main"

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: libparselist.c,v 1.15 1999/05/10 21:19:35 dustin Exp $
+ * $Id: libparselist.c,v 1.16 1999/05/10 22:53:08 dustin Exp $
  */
 
 #include <stdio.h>
@@ -102,6 +102,11 @@ readconfig(void)
 		int     a[4], mask, n, addr;
 		char    data[LINELEN];
 
+		if(strlen(line)==0) {
+			/* skip if the line is blank */
+			continue;
+		}
+
 		n = sscanf(line, "%d.%d.%d.%d/%d:%s",
 			&a[0], &a[1], &a[2], &a[3], &mask, data);
 		if (n != 6) {
@@ -173,11 +178,13 @@ main(int argc, char **argv)
 	config = readconfig();
 	t=time(0);
 
+	_log("Beginning main lib loop at %d\n", (int)t);
+
 	while ( (time(0)-t) < LIFETIME ) {
 		tmp = fgets(buf, LINELEN - 1, stdin);
 		if (tmp == NULL) {
-			(void)sleep(1);
-			break;
+			_log("Received EOF, exiting...\n");
+			exit(0);
 		}
 		buf[strlen(buf) - 1] = 0x00;
 		val = search(config, parseIP(buf));
@@ -189,6 +196,8 @@ main(int argc, char **argv)
 			_log("AHH!!!!  Nothing found for %s", buf);
 		}
 	}
+
+	_log("Ending main lib loop at %d\n", (int)time(0));
 
 	destroyConfig(config);
 	closelog(); /* I don't think it hurts to do this if it isn't open */

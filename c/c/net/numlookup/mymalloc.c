@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: mymalloc.c,v 1.3 1999/05/10 05:03:36 dustin Exp $
+ * $Id: mymalloc.c,v 1.4 1999/05/10 22:53:09 dustin Exp $
  */
 
 #include <stdio.h>
@@ -12,9 +12,15 @@
 #include <limits.h>
 #include <assert.h>
 
+#include "parselist.h"
+
 /* #define NUM_MEMBUCKETS 16369 */
 /* #define NUM_MEMBUCKETS 24571 */
 #define NUM_MEMBUCKETS 12289
+
+/* Hack to make everything use the logging stuff */
+
+#define printf _log
 
 #ifdef MYMALLOC
 static struct memories {
@@ -141,12 +147,11 @@ _mdebug_dump(void)
 		avg += _mem_stats[i];
 	}
 
-	printf("Hash size was %d buckets\n"
-	    "Highest:  %d\n"
-	    "Lowest:   %d\n"
-	    "Average:  %d\n"
-	    "Empty:    %d\n",
-	    NUM_MEMBUCKETS, max, min, avg / NUM_MEMBUCKETS, empty);
+	printf("Hash size was %d buckets\n", NUM_MEMBUCKETS);
+	printf("Highest:  %d\n", max);
+	printf("Lowest:   %d\n", min);
+	printf("Average:  %d\n", avg / NUM_MEMBUCKETS);
+	printf("Empty:    %d\n", empty);
 }
 
 void
