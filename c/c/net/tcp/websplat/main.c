@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.6 1998/08/26 01:59:07 dustin Exp $
+ * $Id: main.c,v 1.7 1998/08/26 03:02:53 dustin Exp $
  */
 
 #include <config.h>
@@ -26,15 +26,17 @@ int     _debug = 0;
 
 #define MAXSEL 1024
 
-#define DO_STATS 1
+#define DO_STATS      1
+#define MACHINE_STATS 2
 
-#define TVDIFF(tv1, tv2, a, b) \
+#define TVDIFF(tv1, tv2, a, b, c) \
+	c=0; \
     a=tv2.tv_sec-tv1.tv_sec; \
     if(tv2.tv_usec<tv1.tv_usec) { \
         a--; \
-        tv2.tv_usec+=1000000; \
+		c=1000000; \
     } \
-    b=tv2.tv_usec-tv1.tv_usec;
+    b=(tv2.tv_usec+c)-tv1.tv_usec;
 
 static void
 resettraps(void)
@@ -42,7 +44,7 @@ resettraps(void)
 	signal(SIGALRM, serv_conn_alrm);
 }
 
-static RETSIGTYPE
+static  RETSIGTYPE
 serv_conn_alrm(int sig)
 {
 	resettraps();
@@ -125,33 +127,56 @@ parseurl(char *url)
 void
 usage(char **argv)
 {
-	printf("Usage:  %s [-ds] [-n max_conns] request_url\n", argv[0]);
+	printf("Usage:  %s [-dsS] [-n max_conns] request_url\n", argv[0]);
 }
 
 void
-dostats(int i, struct timeval timers[3])
+dostats(int i, struct timeval timers[3], int bytes, int flags)
 {
-	int     a, b;
+	int     a, b, c;
 	char    times[3][50];
+	char    tmp[20];
+	float   tmpf;
 
-	printf("Stats for %d\n", i);
+	if (flags & MACHINE_STATS) {
+		static int whatsup = 0;
 
-	strcpy(times[0], ctime(&timers[0].tv_sec));
-	strcpy(times[1], ctime(&timers[1].tv_sec));
-	strcpy(times[2], ctime(&timers[2].tv_sec));
+		if (whatsup == 0) {
+			whatsup = 1;
+			/* Show what's up */
+			printf("# descriptor:start_sec:start_usec:connect_sec:connect_usec"
+			    ":end_sec:end_usec\n");
+		}
+		printf("%d:%u:%u:%u:%u:%u:%u:%d\n",
+		    i, timers[0].tv_sec, times[0],
+		    timers[1].tv_sec, times[1],
+		    timers[2].tv_sec, times[2], bytes);
 
-	printf("\t%d/%s\t%d/%s\t%d/%s",
-	    timers[0].tv_usec, times[0],
-	    timers[1].tv_usec, times[1],
-	    timers[2].tv_usec, times[2]);
+	} else {
 
-	TVDIFF(timers[0], timers[1], a, b);
+		printf("Stats for %d\n", i);
 
-	printf("\tConnect time: %d.%d seconds\n", a, b);
+		strcpy(times[0], ctime(&timers[0].tv_sec));
+		strcpy(times[1], ctime(&timers[1].tv_sec));
+		strcpy(times[2], ctime(&timers[2].tv_sec));
 
-	TVDIFF(timers[1], timers[2], a, b);
+		printf("\t%d/%u %s\t%d/%u %s\t%d/%u %s",
+		    timers[0].tv_usec, timers[0].tv_sec, times[0],
+		    timers[1].tv_usec, timers[1].tv_sec, times[1],
+		    timers[2].tv_usec, timers[2].tv_sec, times[2]);
 
-	printf("\tTransfer time: %d.%d seconds\n", a, b);
+		TVDIFF(timers[0], timers[1], a, b, c);
+
+		printf("\tConnect time: %u.%u seconds\n", a, b);
+
+		TVDIFF(timers[1], timers[2], a, b, c);
+
+		printf("\tTransfer time: %u.%u seconds\n", a, b);
+		sprintf(tmp, "%u.%u", a, b);
+		tmpf = atof(tmp);
+
+		printf("\tAbout %.2f Bytes/s\n", (float) ((float) bytes / tmpf));
+	}
 }
 
 int
@@ -160,14 +185,15 @@ main(int argc, char **argv)
 	int     s, selected, size, c, i, maxhits = 65535, n = 0, flags = 0;
 	fd_set  fdset, tfdset;
 	struct timeval timers[MAXSEL][3];
-	struct timeval tmptime, t;
+	int     bytes[MAXSEL];
+	struct timeval tmptime;
 	char    buf[8192];
 	struct url req;
 	void   *tzp;
 
 	req.port = -1;
 
-	while ((c = getopt(argc, argv, "dn:s")) >= 0) {
+	while ((c = getopt(argc, argv, "dn:sS")) >= 0) {
 		switch (c) {
 
 		case 'd':
@@ -180,6 +206,10 @@ main(int argc, char **argv)
 
 		case 's':
 			flags |= DO_STATS;
+			break;
+
+		case 'S':
+			flags |= (DO_STATS | MACHINE_STATS);
 			break;
 
 		case '?':
@@ -199,8 +229,8 @@ main(int argc, char **argv)
 		printf("Invalid URL format:  %s\n", argv[optind]);
 		return (1);	/* I don't like exit */
 	}
-	printf("Host:  %s\nPort:  %d\nFile:  %s\nMax:   %d\n",
-	    req.host, req.port, req.req, maxhits);
+	_ndebug(2, ("Host:  %s\nPort:  %d\nFile:  %s\nMax:   %d\n",
+		req.host, req.port, req.req, maxhits));
 
 	FD_ZERO(&tfdset);
 
@@ -219,7 +249,8 @@ main(int argc, char **argv)
 				timers[s][0] = tmptime;
 			}
 			if (s > 0) {
-				printf("Got one: %d...\n", s);
+				_ndebug(2, ("Got one: %d...\n", s));
+				bytes[s] = 0;
 				FD_SET(s, &tfdset);
 
 				/* Sending */
@@ -230,12 +261,10 @@ main(int argc, char **argv)
 			}
 		}
 		fdset = tfdset;
-		t.tv_sec = 0;
-		t.tv_usec = 2600;
 
 		_ndebug(2, ("Selecting...\n"));
 
-		if ((selected = select(MAXSEL, &fdset, NULL, NULL, &t)) > 0) {
+		if ((selected = select(MAXSEL, &fdset, NULL, NULL, NULL)) > 0) {
 			int     i;
 			for (i = 0; i < MAXSEL; i++) {
 				if (FD_ISSET(i, &fdset)) {
@@ -248,11 +277,12 @@ main(int argc, char **argv)
 
 						if (flags & DO_STATS) {
 							gettimeofday(&timers[i][2], tzp);
-							dostats(i, timers[i]);
+							dostats(i, timers[i], bytes[i], flags);
 						}
 						FD_CLR(i, &fdset);
 						n--;
 					} else {
+						bytes[i] += size;
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
 					}
 				}
