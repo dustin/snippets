@@ -1,112 +1,115 @@
 #!/bin/sh
 # Copyright (c) 1997  SPY Internetworking <dustin@spy.net>
-# $Id: checkinterrors,v 1.8 2000/05/24 00:25:11 dustin Exp $ \
+# $Id: checkinterrors,v 1.9 2000/08/07 22:28:34 dustin Exp $ \
 exec scotty -nf $0 $*
 
 mib load rfc1213.mib
 mib load rfc1696.mib
+mib load rfc1573.mib
 mib load cisco.mib
 
-set file [lindex $argv 0 ]
-
 set exit_code 0
+set total_errors 0
 set problems {}
 
-if [catch {open $file} input] {
-	puts stderr "Cannot open input file:  $file"
-	exit -1
-}
+set host [lindex $argv 0]
+set warn [lindex $argv 1]
+set file_prefix [expr {$argc == 3 ? [lindex $argv 2] : "/tmp/echeck"}]
 
-while {[gets $input line] != -1} {
-	set host "[lindex $line 0]"
-	set community [expr {$line == 2 ? [lindex $argv 1] : "public"}]
+set community "public"
 
-	set pt [lindex [lindex [icmp echo $host] 0] 1]
+set pt [lindex [lindex [icmp echo $host] 0] 1]
 
-	if { $pt>-1 } {
+if { $pt>-1 } {
 
-		set code [catch {snmp session -address $host -community $community} s]
+	set code [catch {snmp session -address $host -community $community} s]
 
-		set what "ifNumber.0"
-		set code [catch {set nint [lindex [lindex [$s get $what] 0] 2]}]
-		if $code {
-			set nint 0
-		}
-
-		set sizes() ()
-		set rfile "/tmp/echeck.$host"
-		if [catch {open $rfile} rinput] {
-			# puts "Error opening input file for $host"
-		} else {
-			while {[gets $rinput line] != -1} {
-				set n [lindex $line 0]
-				set i [lindex $line 1]
-				set o [lindex $line 2]
-
-				set sizes(ierror.$n) $i
-				set sizes(oerror.$n) $o
-			}
-			close $rinput
-		}
-
-		if [catch {open $rfile w} routput] {
-			puts stderr "Cannot open save file for $host!"
-			exit -1
-		}
-
-		# flip through all interfaces figuring out whether they're worthy
-		# or not.
-		for {set i 1} {$i <= $nint} {incr i} {
-			set what "ifDescr.$i"
-			set code [catch {set desc [lindex [lindex [$s get $what] 0] 2]}]
-			if $code {
-				set desc "$i"
-			}
-
-			# We actually need to read this stuff in.
-			set old_ierrors 0
-			set old_oerrors 0
-
-			catch { set old_ierrors $sizes(ierror.$i) }
-			catch { set old_oerrors $sizes(oerror.$i) }
-
-			# Find if we have any errors
-			set what "ifInErrors.$i"
-			set code [catch {set ierrors [lindex [lindex [$s get $what] 0] 2]}]
-			set what "ifOutErrors.$i"
-			set code [catch {set oerrors [lindex [lindex [$s get $what] 0] 2]}]
-
-			# If an interface has more errors than it should, then tell us
-			if {$ierrors > $old_ierrors || $oerrors > $old_oerrors} {
-				set idiff [ expr $ierrors - $old_ierrors ]
-				set odiff [ expr $oerrors - $old_oerrors ]
-
-				set deltas {}
-
-				if { $idiff > 0 } {
-					lappend deltas "i=$idiff"
-				}
-				if { $odiff > 0 } {
-					lappend deltas "o=$odiff"
-				}
-
-				# puts "$host:$desc:$idiff:$odiff"
-				lappend problems "$host:$i:$desc:[join $deltas :]"
-
-				# Something more intelligent should happen here
-				if {$exit_code == 0} {
-					set exit_code 2
-				}
-			}
-			# Store the current reading in the file...
-			puts $routput "$i $ierrors $oerrors $desc"
-
-		# For each interface
-		}
-		close $routput
-	# If we could ping the thing
+	set what "ifNumber.0"
+	set code [catch {set nint [lindex [lindex [$s get $what] 0] 2]}]
+	if $code {
+		set nint 0
 	}
-# for each router
+
+	set sizes() ()
+	set rfile "$file_prefix.$host"
+	if [catch {open $rfile} rinput] {
+		# puts "Error opening input file for $host"
+	} else {
+		while {[gets $rinput line] != -1} {
+			set n [lindex $line 0]
+			set i [lindex $line 1]
+			set o [lindex $line 2]
+
+			set sizes(ierror.$n) $i
+			set sizes(oerror.$n) $o
+		}
+		close $rinput
+	}
+
+	if [catch {open $rfile w} routput] {
+		puts stderr "Cannot open save file for $host!"
+		exit -1
+	}
+
+	# flip through all interfaces figuring out whether they're worthy
+	# or not.
+	for {set i 1} {$i <= $nint} {incr i} {
+		set what "ifName.$i"
+		set code [catch {set name [lindex [lindex [$s get $what] 0] 2]}]
+		if $code {
+			set name "$i"
+		}
+
+		# We actually need to read this stuff in.
+		set old_ierrors 0
+		set old_oerrors 0
+
+		catch { set old_ierrors $sizes(ierror.$i) }
+		catch { set old_oerrors $sizes(oerror.$i) }
+
+		# Find if we have any errors
+		set what "ifInErrors.$i"
+		set code [catch {set ierrors [lindex [lindex [$s get $what] 0] 2]}]
+		set what "ifOutErrors.$i"
+		set code [catch {set oerrors [lindex [lindex [$s get $what] 0] 2]}]
+
+		# If an interface has more errors than it should, then tell us
+		if {$ierrors > $old_ierrors || $oerrors > $old_oerrors} {
+			set idiff [ expr $ierrors - $old_ierrors ]
+			set odiff [ expr $oerrors - $old_oerrors ]
+
+			set deltas {}
+
+			if { $idiff > 0 } {
+				set total_errors [ expr $total_errors + $idiff ]
+				lappend deltas "i=$idiff"
+			}
+			if { $odiff > 0 } {
+				set total_errors [ expr $total_errors + $odiff ]
+				lappend deltas "o=$odiff"
+			}
+
+			# puts "$host:$name:$idiff:$odiff"
+			lappend problems "$host:$i:$name:[join $deltas :]"
+		}
+		# Store the current reading in the file...
+		puts $routput "$i $ierrors $oerrors $name"
+
+	# For each interface
+	}
+	close $routput
+
+	if { $total_errors > 0 } {
+		if { $total_errors > $warn } {
+			set exit_code 2
+		} else {
+			set exit_code 1
+		}
+	}
+# If we could ping the thing
+} else {
+	puts stderr "Could not ping $host"
+	set exit_code 2
 }
 
 if {$exit_code > 0} {
