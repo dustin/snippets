@@ -51,6 +51,7 @@ Parm fold_param;
 
 - (void)drawRect:(NSRect)rect
 {
+	NSLog(@"Drawing in %.0f,%.0f", rect.size.width, rect.size.height);
     [super drawRect:rect];
     NSString *tmpString = @"Test String";
     NSMutableDictionary * attribs = [NSMutableDictionary dictionary];

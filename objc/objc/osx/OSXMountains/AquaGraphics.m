@@ -43,6 +43,7 @@ TRUE,
 void blank_region(lx,ly,ux,uy)
 int lx,ly,ux,uy;
 {
+	NSLog(@"Blanking %d,%d to %d,%d", lx, ly, ux, uy);
     NSEraseRect(NSMakeRect(lx, ly, (ux-lx), (uy-ly)));
 }
 
@@ -53,6 +54,7 @@ int w;
 int h;
 {
   /* flush outstanding plots */
+	NSLog(@"Flushing %d,%d to %d,%d", x, y, w, h);
   /*
   plot_pixel(-1,0,0);
   XCopyArea(dpy,pix,win,gc,x,y,w,h,x,y);
@@ -65,12 +67,14 @@ int y;
 Gun value;
 {
     /* Insert implementation here */
+	NSLog(@"Plotting at %d,%d", x, y);
 }
 
 void scroll_screen( dist )
 int dist;
 {
     /* Insert scrolling implementation here */
+	NSLog(@"Scrolling %d", dist);
 }
 
 @end
