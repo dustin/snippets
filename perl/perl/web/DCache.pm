@@ -1,6 +1,6 @@
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: DCache.pm,v 1.3 1998/01/15 07:29:33 dustin Exp $
+# $Id: DCache.pm,v 1.4 1998/01/15 07:30:31 dustin Exp $
 #
 # This is a CGI document caching system.
 
@@ -117,7 +117,7 @@ sub checkcache
 	    else
 	    {
 		# Must be a filename...
-		@=stat($compare);
+		@a=stat($compare);
 	        $s2=$a[9];
 	        if($s1>$s2)
 	        {
