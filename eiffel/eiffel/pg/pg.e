@@ -1,9 +1,13 @@
 indexing
    description: "Postgres database access...";
+   version: "$Revision: 1.12 $";
+   author: "Dustin Sallings <dustin@spy.net>";
+   copyright: "1999";
+   license: "See forum.txt.";
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.11 1999/05/26 17:57:16 dustin Exp $
+-- $Id: pg.e,v 1.12 1999/05/28 01:40:38 dustin Exp $
 --
 class PG
 

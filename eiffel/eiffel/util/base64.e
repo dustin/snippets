@@ -1,7 +1,8 @@
 indexing
    description: "Base64 stuff.";
+   author: "Dustin Sallings <dustin@spy.net>";
+   version: "$Revision: 1.11 $";
    copyright: "1999";
-   author: "Dustin Sallings";
    licensing: "EFLL <see forum.txt>";
 class BASE64
 

@@ -1,5 +1,9 @@
 indexing
    description: "CGI Processing routines.";
+   author: "Dustin Sallings <dustin@spy.net>";
+   version: "$Revision: 1.5 $";
+   copyright: "1999";
+   license: "See forum.txt";
 class CGI
 
 creation {ANY}
