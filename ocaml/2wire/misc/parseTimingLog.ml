@@ -40,7 +40,7 @@ let perBlock=Hashtbl.create 1;;
 
 (* Parse time from the given timestamp *)
 let parse_time(l: string): float =
-	let times = split_chars(l, [' '; ':'; '-'; ','], 8) in
+	let times = split_chars l [' '; ':'; '-'; ','] 8 in
 	fst(Unix.mktime {
 		tm_sec = int_of_string(List.nth times 5);
 		tm_min = int_of_string(List.nth times 4);
@@ -59,7 +59,7 @@ let approx_time t = 60 * ((int_of_float t) / 60) ;;
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
 
-	let parts = split(l, ' ', 12) in
+	let parts = split l ' ' 12 in
 		{
 			(* line[0:23] *)
 			le_time = parse_time(String.sub l 0 24);
@@ -163,7 +163,7 @@ let main() =
 	try
 		while true do
 			let l = (read_line()) in
-			if strstr(l, "TransactionTiming", 40) >= 40 then
+			if (strstr l "TransactionTiming" 40) >= 40 then
 				process(get_log_entry(l))
 		done;
 	with End_of_file -> ();

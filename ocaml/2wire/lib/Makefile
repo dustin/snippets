@@ -6,9 +6,13 @@ OCAMLOPT=ocamlopt
 
 .PHONY: stringutils
 
-all: stringutils
+all: stringutils docs
 
 stringutils: stringutils.cmi stringutils.mli
+
+docs:
+	mkdir -p doc
+	ocamldoc -d doc -html *.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o

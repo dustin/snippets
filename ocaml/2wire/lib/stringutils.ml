@@ -4,6 +4,10 @@
  * arch-tag: 8D25F171-05DC-11D8-9773-000393DC8AE4
  *)
 
+(**
+Various string utilities that seemed to be missing from ocaml.
+*)
+
 let rec is_my_letter(l, c): bool =
 	if l = [] then
 		false
@@ -93,26 +97,44 @@ let rec pvt_rec_split(rv, str, c, i, limit): '_a list =
 			rv
 ;;
 
-(* Split a string into a list of Strings *)
-let split(s, c, limit) =
+(**
+ Split a string into a list of Strings.
+ @param s the original string
+ @param c the character on which to split
+ @param limit the maximum number of splits to do
+ @return an array of strings of the split elements
+*)
+let split s c limit =
 	pvt_rec_split([], s, c, 0, limit)
 ;;
 
-(* Split a string into a list of Strings *)
-let split_chars(s, l, limit) =
+(**
+ Split a string into a list of Strings.
+ @param s the original string
+ @param l the list of characters on which to split
+ @param limit the maximum number of splits to do
+ @return an array of strings
+*)
+let split_chars s l limit =
 	pvt_rec_split_chars([], s, l, 0, limit)
 ;;
 
 (*
  * Test:
- * split("123 456   789", ' ', 99);;
- * split("123 456   789  ", ' ', 99);;
- * split("123 456   789  ", ' ', 2);;
- * split_chars("123:456- -789", [':'; ' '; '-'], 99);;
+ * split "123 456   789" ' ' 99;;
+ * split "123 456   789  " ' ' 99;;
+ * split "123 456   789  " ' ' 2;;
+ * split_chars "123:456- -789" [':'; ' '; '-'] 99;;
  *)
 
-(* Locate a string in another string *)
-let rec strstr(haystack, needle, offset): int =
+(**
+ Locate a string in another string.
+ @param haystack the string in which we are searching
+ @param needle the thing for which we are looking
+ @param offset where to begin the search (0 for the beginning)
+ @return the offset of the first match, or -1 if there is no match
+ *)
+let rec strstr haystack needle offset: int =
 	if ((String.length needle) + offset) > (String.length haystack) then
 		-1
 	else
@@ -121,17 +143,17 @@ let rec strstr(haystack, needle, offset): int =
 		else
 			if (String.contains_from haystack (offset+1) (String.get needle 0))
 			then
-				strstr(haystack, needle,
+				strstr haystack needle
 					(String.index_from haystack (offset+1)
-						(String.get needle 0)))
+						(String.get needle 0))
 			else
 				-1
 ;;
 
 (*
  Test:
- strstr("abcdef", "def", 0);;
- strstr("abcdef", "efg", 0);;
- strstr("abcdef", "abc", 0);;
- strstr("abcdef", "xyz", 0);;
+ strstr "abcdef" "def" 0;;
+ strstr "abcdef" "efg" 0;;
+ strstr "abcdef" "abc" 0;;
+ strstr "abcdef" "xyz" 0;;
  *)
