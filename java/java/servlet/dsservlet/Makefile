@@ -4,7 +4,7 @@ JAVAC=$(JAVAHOME)/bin/javac
 JAVA=$(JAVAHOME)/bin/java
 MYLIB=/home/dustin/lib/java
 C1=$(MYLIB)/jsdk.jar:$(MYLIB)/gifservlet.jar
-C2=$(MYLIB)/spy.jar
+C2=$(MYLIB)/spy.jar:$(MYLIB)/cos.jar
 CLASSPATH=$(C1):$(C2):.
 SERVLETRUNNER=/home/dustin/lib/java/JSDK2.0/bin/servletrunner
 

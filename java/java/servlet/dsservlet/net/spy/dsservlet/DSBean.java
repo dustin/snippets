@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: DSBean.java,v 1.1 2000/11/06 07:59:27 dustin Exp $
+// $Id: DSBean.java,v 1.2 2000/11/06 10:04:49 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -11,13 +11,53 @@ import net.spy.*;
 public class DSBean extends Object {
 
 	protected String username="guest";
+	protected Hashtable users=null;
 
 	public DSBean() {
 		super();
+		initUsers();
 	}
 
-	public void setUsername(String username) {
+	public void setUsername(String username) throws Exception {
+		// Make sure the user exists
+		if(!users.containsKey(username)) {
+			throw new Exception("Authentication error");
+		}
 		this.username=username;
+	}
+
+	public String getUsername() {
+		return(username);
+	}
+
+	// Currently does nothing, maybe someday it'll do something
+	public void setPassword(String password) {
+	}
+
+	protected void initUsers() {
+		users=new Hashtable();
+		users.put("dustin", "blah");
+		users.put("jennifer", "blah");
+	}
+
+	public Enumeration listAll() throws Exception {
+		SpyDB db=new SpyDB(
+			new SpyConfig("/afs/spy.net/misc/web/etc/misc.conf"));
+
+		// Only me
+		if(!username.equals("dustin")) {
+			throw new Exception("Access denied");
+		}
+
+		PreparedStatement pst=db.prepareStatement(
+			"select * from show_distribution\n"
+			+ "  order by submitted");
+		ResultSet rs=pst.executeQuery();
+		Vector v=new Vector();
+		while(rs.next()) {
+			v.addElement(new Show(rs));
+		}
+		return(v.elements());
 	}
 
 	public Enumeration listUnseen() throws Exception {

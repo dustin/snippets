@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Show.java,v 1.2 2000/11/06 08:42:50 dustin Exp $
+// $Id: Show.java,v 1.3 2000/11/06 10:04:52 dustin Exp $
 
 package net.spy.dsservlet;
 
@@ -91,5 +91,10 @@ public class Show extends Object {
 
 	public boolean isComplete() {
 		return(completed!=null);
+	}
+
+	public long getLength() {
+		File f=getFile();
+		return(f.length());
 	}
 }
