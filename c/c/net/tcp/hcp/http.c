@@ -2,7 +2,7 @@
  * Check Webserver Status
  * Copyright (c) 1997 SPY Internetworking
  *
- * $Id: http.c,v 1.2 1998/11/11 06:35:08 dustin Exp $
+ * $Id: http.c,v 1.3 1998/11/11 07:05:52 dustin Exp $
  * $Source: /Users/dustin/stuff/cvstest/c/net/tcp/hcp/http.c,v $
  *
  */
@@ -19,6 +19,10 @@
 #include <assert.h>
 #include <ctype.h>
 
+#ifndef HAVE_SNPRINTF
+#include <stdarg.h>
+#endif /* HAVE_SNPRINTF */
+
 #include "http.h"
 
 #ifndef HAVE_SNPRINTF
@@ -29,10 +33,12 @@
  */
 int snprintf(char *s, size_t n, const char *format, ...)
 {
-    va_list ap;
-    va_start(ap, format);
-    vsnprintf(s, n-1, format, ap);
-    va_end(ap);
+	int i;
+	va_list ap;
+	va_start(ap, format);
+	i=vsnprintf(s, n-1, format, ap);
+	va_end(ap);
+	return(i);
 }
 #endif
 
