@@ -1,6 +1,6 @@
 #!/usr/bin/env ioServer
 #
-# $Id: webServer.io,v 1.12 2003/08/22 08:23:48 dustin Exp $
+# $Id: webServer.io,v 1.13 2003/08/29 05:33:55 dustin Exp $
 
 // Object definitions
 
@@ -333,10 +333,8 @@ WebUrlStdHandler parsePost = method(req, socket,
 WebUrlStdHandler getParameters = method(req, socket,
 	rv = Nil
 	m = req reqMethod
-	if(m beginsWith("GET"),
-		rv = parseGet(req, socket))
-	if(m beginsWith("POST"),
-		rv = parsePost(req, socket))
+	if(m == "GET", rv = parseGet(req, socket))
+	if(m == "POST", rv = parsePost(req, socket))
 	rv
 )
 
