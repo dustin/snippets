@@ -11,7 +11,7 @@ PARTS=extstring fileutils lru linkedlist base64 cdb netstring extlist \
 
 .PHONY: $(PARTS)
 
-all: $(PARTS) docs
+all: libspy docs
 
 base64: base64.cmi base64.mli
 
@@ -38,6 +38,17 @@ testtop: $(PARTS)
 		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
 		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
 		cdb.cmo netstring.cmo
+
+libspy: $(PARTS)
+	$(MKLIB) -o spy \
+		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
+		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
+		cdb.cmo netstring.cmo \
+		fileutils.cmx extstring.cmx extlist.cmx extoption.cmx \
+		extstream.cmx linkedlist.cmx lru.cmx base64.cmx \
+		cdb.cmx netstring.cmx
+	ln spy.a libspy.a
+
 
 docs: $(PARTS)
 	mkdir -p doc
