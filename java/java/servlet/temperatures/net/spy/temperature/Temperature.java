@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: Temperature.java,v 1.20 2003/02/23 08:05:25 dustin Exp $
+ * $Id: Temperature.java,v 1.21 2003/06/28 22:55:45 dustin Exp $
  */
 
 package net.spy.temperature;
@@ -109,8 +109,10 @@ public class Temperature extends PngServlet {
 
 					// WML support, let's do the WML page.
 					out=getWML();
+					log("Sending wml response (" + encodings + ")");
 					send_response(response, out, "text/vnd.wap.wml");
 				} else {
+					log("Sending plain response (" + encodings + ")");
 					// No WML support, do the HTML things.
 					if(request.getParameter("readings") != null) {
 						out=listReadings();
