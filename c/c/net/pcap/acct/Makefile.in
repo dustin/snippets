@@ -1,0 +1,8 @@
+CFLAGS=-g -I/usr/local/include
+LIBS=@LIBS@
+acct: filter.o main.o
+	$(CC) -o $@ filter.o main.o $(LIBS)
+
+clean:
+	@touch blahblah.o
+	rm -f *.o acct

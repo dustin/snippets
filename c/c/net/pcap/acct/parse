@@ -1,0 +1,29 @@
+#!/usr/local/bin/perl
+use Data::Dumper;
+
+%stats=();
+$processed=0;
+$dropped=0;
+
+while(<>) {
+	chomp;
+
+	if(/^#/) {
+		/.*?(\d+).*?(\d+)/;
+		$processed=$1;
+		$dropped=$2;
+	} else {
+		my %parts=map { split('=', $_, 2); } split;
+		my $key=$parts{'PROTO'}."\@".$parts{'s'}.":".$parts{'sp'}."-"
+			.$parts{'d'}.":".$parts{'dp'};
+
+		# Specific entry
+		$stats{$key}+=$parts{'l'};
+		# Total entry
+		$stats{'total_length'}+=$parts{'l'};
+	}
+}
+
+print Dumper(\%stats);
+
+print "Processed $processed packets and dropped $dropped\n";
