@@ -23,7 +23,7 @@ parseTimingLog: parseTimingLog.ml
 mailCompress: mailCompress.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib -I /usr/local/lib/ocaml/site-lib \
 		unix.cmxa \
-		stringutils.cmx fileutils.cmx gz.cmxa \
+		stringutils.cmx fileutils.cmx linkedlist.cmx lru.cmx gz.cmxa \
 		mailCompress.ml
 
 parseTimingLogbc: parseTimingLog.ml
