@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: xmlservices.py,v 1.5 2002/05/01 20:33:47 dustin Exp $
+$Id: xmlservices.py,v 1.6 2002/05/02 19:09:43 dustin Exp $
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
@@ -22,6 +22,10 @@ class Handler:
 	def getQueueSize(self):
 		"""Get the number of jobs in the queue."""
 		return(len(self.queue.schedular.queue))
+
+	def emptyJobQueue(self):
+		"""Empty the job queue."""
+		self.queue.schedular.queue.clear()
 
 	def listDescriptors(self):
 		"""Get a list of all job descriptors in the queue."""
