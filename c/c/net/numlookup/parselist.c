@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.6 1999/05/08 17:29:17 dustin Exp $
+ * $Id: parselist.c,v 1.7 1999/05/08 22:04:55 dustin Exp $
  */
 
 #include <stdio.h>
@@ -100,7 +100,9 @@ main(int argc, char **argv)
 	}
 
 	/* close it, we're leaving now, not that any of this will ever happen */
+#ifndef lint
 	if(lib)
 		dlclose(lib);
 	return(0);
+#endif /* lint */
 }

@@ -24,7 +24,7 @@ clean:
 	rm -f $(EXES) $(MYLIBS) $(OBJS) $(LINTS)
 
 lint: $(LINTS)
+	$(LINT) $(LINTFLAGS) $(LINTS)
 
 .c.ln: $<
 	$(LINT) $(LINTFLAGS) -c $<
-
