@@ -10,7 +10,7 @@
     </td>
 
     <td>
-	<a href="%REQUEST_URI%?func=display&oid=%OID%">
+	<a href="%SELF_URI%?func=display&oid=%OID%">
         <img border="0" src="%ITOP%/tn/%IMAGE%"></a>
     </td>
 
