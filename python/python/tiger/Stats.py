@@ -33,8 +33,6 @@ class Stats:
 		avgproctime= self.totaltime / self.done
 		estimate = avgproctime * self.left
 
-		print "Total time is " + str(self.totaltime)
-
 		if self.statname == None:
 			rv=""
 		else:
