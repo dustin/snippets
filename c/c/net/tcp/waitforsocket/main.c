@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.1 2003/06/12 17:05:44 dustin Exp $
+ * $Id: main.c,v 1.2 2003/06/12 18:47:10 dustin Exp $
  */
 
 #include <config.h>
@@ -14,9 +14,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <assert.h>
+
+/* Socket getter */
+int getclientsocket(char *host, int port);
 
 static RETSIGTYPE serv_conn_alrm(int sig);
 
@@ -57,8 +61,8 @@ main(int argc, char **argv)
 	resettraps();
 
 	while(s<0) {
-		s = getclientsocket(hostname, port);
 		time_t t=time(NULL);
+		s = getclientsocket(hostname, port);
 		if(s<0) {
 			fprintf(stderr, "Failed to connect at %s", ctime(&t));
 			sleep(1);
@@ -67,4 +71,6 @@ main(int argc, char **argv)
 		}
 	}
 	close(s);
+
+	return(0);
 }
