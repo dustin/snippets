@@ -11,7 +11,7 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 # 408-528-8699,423116024600
 
 # # Desired output:
-# 0,0,443118043057,3.5.9
+# 0,0,443118043057,443118043057.mdc.cms.2wire.com
 
 import os
 import sys
@@ -45,7 +45,8 @@ for thefile in glob.glob1(thedir, "*.csv"):
 			pn=string.strip(pn)
 			sn=string.strip(sn)
 			thePhoneMap.write(pn + "," + sn + "\n")
-			theInput.write(batchname + ",0," + sn + ",3.5.9" + "\n")
+			theInput.write(batchname + ",0," + sn + ","
+				+ sn + ".mdc.cms.2wire.com" + "\n")
 		except ValueError:
 			sys.stderr.write("``" + l + "'' is broken\n")
 	f.close()
