@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# $Id: google.py,v 1.4 2002/04/16 05:30:22 dustin Exp $
+# $Id: google.py,v 1.5 2002/04/16 08:48:39 dustin Exp $
 
 from __future__ import generators
 
@@ -14,16 +14,14 @@ class ResultsNotReady:
 
 class GoogleSearch:
 
-	# This is my key
-	myKey='2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX'
-
 	soapfalse=SOAP.booleanType(0)
 	soaptrue=SOAP.booleanType(1)
 
-	def __init__(self):
+	def __init__(self, key, proxy=None):
 		"""Get a new google search thing."""
 		self.server=SOAP.SOAPProxy("http://api.google.com/search/beta2",
-			namespace='urn:GoogleSearch')
+			namespace='urn:GoogleSearch', http_proxy=proxy)
+		self.key=key
 		self.results=None
 
 	# This makes it easy to quote the strings
@@ -52,7 +50,7 @@ class GoogleSearch:
 	def _performQuery(self, startId):
 
 		self.results=self.server.doGoogleSearch(
-			GoogleSearch.s(GoogleSearch.myKey),
+			GoogleSearch.s(self.key),
 			GoogleSearch.s(self.query), startId, 10, self.filter,
 			GoogleSearch.s(self.restrict), self.safeSearch,
 			GoogleSearch.s(self.lr), GoogleSearch.s(self.ie),
@@ -97,8 +95,9 @@ class GoogleSearch:
 		return self.results[which]
 
 if __name__ == '__main__':
+	myKey='2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX'
 	query=sys.argv[1]
-	g=GoogleSearch()
+	g=GoogleSearch(myKey, proxy='juan:3128')
 	g.doSearch(query)
 
 	# Print meta information:

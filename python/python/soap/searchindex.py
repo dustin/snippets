@@ -2,7 +2,7 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: searchindex.py,v 1.1 2002/04/16 05:30:24 dustin Exp $
+$Id: searchindex.py,v 1.2 2002/04/16 08:48:41 dustin Exp $
 """
 
 import anydbm
@@ -28,8 +28,10 @@ class MatchPrinter:
 class SearchWatcher:
 	"""Watch a set of search terms for result changes."""
 
-	def __init__(self):
+	def __init__(self, key, proxy=None):
 		self.db=anydbm.open("searchdb", "c")
+		self.key=key
+		self.proxy=proxy
 
 	def __checkTips(self, g, query, matchCallback):
 		tips=g['searchTips']
@@ -57,7 +59,7 @@ class SearchWatcher:
 			mp=MatchPrinter(query)
 			matchCallback=mp.match
 
-		g=google.GoogleSearch()
+		g=google.GoogleSearch(self.key, self.proxy)
 		g.doSearch(query)
 
 		# Check tips and comments
@@ -72,6 +74,6 @@ class SearchWatcher:
 				matchCallback('url', r)
 
 if __name__=='__main__':
-	sw=SearchWatcher()
+	sw=SearchWatcher('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX', proxy='juan:3128')
 	for q in sys.argv[1:]:
 		sw.checkQuery(q)
