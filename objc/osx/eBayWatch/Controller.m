@@ -2,24 +2,8 @@
 
 @implementation Controller
 
--(void)setBusy: (bool)to
-{
-    if(to) {
-        howBusy++;
-        [busySignal startAnimation: self];
-        [busySignal setHidden: false];
-    } else {
-        howBusy--;
-        if(howBusy==0) {
-            [busySignal stopAnimation: self];
-            [busySignal setHidden: true];
-        }
-    }
-}
-
 -(void)addItem: (NSString *)itemId withDescription: (NSString *)str
 {
-    [self setBusy: true];
     // First, grab a new item.
     Item *i=[[Item alloc]
         initWithId: itemId
@@ -41,7 +25,6 @@
     [i release];
     [table reloadData];
     [addWindow orderOut: self];
-    [self setBusy: false];
 }
 
 -(void)updateDefaults
@@ -173,7 +156,6 @@
 {
     NSLog(@"Updating...");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self setBusy: true];
     float t=0.0;
     NSEnumerator *enumerator = [watching objectEnumerator];
     id object;
@@ -181,7 +163,6 @@
         [object update];
         t+=[object price];
     }
-    [self setBusy: false];
 
 	NSString *msg=[[NSString alloc]
 		initWithFormat: @"Latest update:  %@", [self friendlyNow]];
@@ -206,14 +187,44 @@
 // before hanging on an update.
 -(void)awakeInitialization
 {
-    howBusy=0;
-    // [busySignal setUsesThreadedAnimation: true];
-    [busySignal setHidden: true];
-    [busySignal setStyle: NSProgressIndicatorSpinningStyle];
-
     defaults=[NSUserDefaults standardUserDefaults];
     id savedWatching=[defaults objectForKey:@"watching"];
     [self initSaved: savedWatching];
+}
+
+-(void)sortBy:(NSString *)columnName ascending:(BOOL)asc
+{
+	id priceDescriptor=[[[NSSortDescriptor alloc]
+		initWithKey:columnName ascending:asc] autorelease];
+	id sortDescriptors=[NSArray arrayWithObject:priceDescriptor];
+	[table setSortDescriptors: sortDescriptors];
+	[table reloadData];
+}
+
+-(void)sortBy:(NSString *)columnName
+{
+	if([columnName isEqualTo:lastColumnName]) {
+		sortAscending = !sortAscending;
+	} else {
+		[lastColumnName release];
+		lastColumnName=columnName;
+		[lastColumnName retain];
+		sortAscending=YES;
+	}
+	[self sortBy:lastColumnName ascending:sortAscending];
+}
+
+// This is for handling the sorting...
+-(void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)col
+{
+	NSLog(@"Clicked on column %@", [col identifier]);
+	[self sortBy:[col identifier]];
+	[tableView setIndicatorImage:nil inTableColumn:lastColumn];
+	[tableView setIndicatorImage:[NSImage imageNamed:
+			(sortAscending?
+				@"NSAscendingSortIndicator":@"NSDescendingSortIndicator")]
+		inTableColumn:col];
+	lastColumn=col;
 }
 
 - (void)awakeFromNib
@@ -224,10 +235,9 @@
     [total setFloatValue: 0.0];
 
 	// View sorting
-	id priceDescriptor=[[[NSSortDescriptor alloc]
-		initWithKey:@"price" ascending:NO] autorelease];
-	id sortDescriptors=[NSArray arrayWithObject:priceDescriptor];
-	[table setSortDescriptors: sortDescriptors];
+	lastColumnName=[[NSString alloc] initWithString:@"price"];
+	sortAscending=NO;
+	[self sortBy:lastColumnName ascending:sortAscending];
 
     // one-off timer to initialize after this window loads.
     [self performSelector: @selector(awakeInitialization)

@@ -8,7 +8,6 @@
 @interface Controller : NSObject
 {
     IBOutlet NSWindow *addWindow;
-    IBOutlet NSProgressIndicator *busySignal;
     IBOutlet NSTextField *itemDescription;
     IBOutlet NSTextField *itemNumber;
     IBOutlet NSTableView *table;
@@ -19,6 +18,11 @@
     Watching *watching;
     NSUserDefaults *defaults;
     int howBusy;
+
+	// For sorting
+	NSTableColumn *lastColumn;
+	NSString *lastColumnName;
+	BOOL sortAscending;
 }
 - (IBAction)addItem:(id)sender;
 - (IBAction)importItems:(id)sender;

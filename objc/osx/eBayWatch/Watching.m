@@ -40,15 +40,9 @@
     objectValueForTableColumn:(NSTableColumn *)aTableColumn
     row:(int)rowIndex
 {
-    id rv=nil;
-
     // NSLog(@"Asking for row %d of %@", rowIndex, [aTableColumn identifier]);
     id theItem=[contents objectAtIndex: rowIndex];
-    if([[aTableColumn identifier] isEqualToString: @"description"]) {
-        rv=[theItem description];
-    } else {
-		rv=[NSNumber numberWithFloat: [theItem price]];
-    }
+	id rv=[theItem valueForKey:[aTableColumn identifier]];
 
     return(rv);
 }

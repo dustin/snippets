@@ -13,7 +13,6 @@
             LANGUAGE = ObjC;
             OUTLETS = {
                 addWindow = NSWindow;
-                busySignal = NSProgressIndicator;
                 itemDescription = NSTextField;
                 itemNumber = NSTextField;
                 lastChange = NSTextField;
