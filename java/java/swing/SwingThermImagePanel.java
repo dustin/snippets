@@ -14,12 +14,24 @@ class SwingThermImagePanel extends JPanel {
 	String which=null;
 	Hashtable hash=null;
 
+	Color black=null;
+	Color white=null;
+
+	Dimension size=null;
+
 	public SwingThermImagePanel(Image image, String which, Hashtable hash) {
 		super();
 
 		this.image=image;
 		this.which=which;
 		this.hash=hash;
+
+		black=new Color(0, 0, 0);
+		white=new Color(255, 255, 255);
+
+		setBackground(white);
+
+		size=new Dimension(133,146);
 
 		font=new Font("SanSerif", Font.PLAIN, 10);
 	}
@@ -42,6 +54,9 @@ class SwingThermImagePanel extends JPanel {
 		}
 
 		g.setFont(font);
+
+		// Further operations will be black.
+		g.setColor(black);
 
 		// Go ahead and draw the thermometer now.
 		g.drawImage(image, 0, 0, this);
@@ -71,15 +86,14 @@ class SwingThermImagePanel extends JPanel {
 			// Draw the line.
 			g.drawLine(66, 65,  (int)x2, (int)y2);
 			// Draw the temperature
-			g.drawString("" + temp, 52, 80);
+			g.drawString("" + temp, 52, 82);
 		} else {
-			g.drawString("Error", 52, 80);
+			g.drawString("Error", 52, 82);
 		}
 		g.drawString(which, 5, 142);
 	}
 
 	public Dimension getPreferredSize() {
-		// return(new Dimension(133,132));
-		return(new Dimension(133,146));
+		return(size);
 	}
 }
