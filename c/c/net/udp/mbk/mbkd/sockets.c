@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.1 1998/10/01 06:39:14 dustin Exp $
+ * $Id: sockets.c,v 1.2 1998/10/01 16:44:42 dustin Exp $
  */
 
 #include <stdio.h>
@@ -53,14 +53,14 @@ logConnect(struct sockaddr_in fsin)
 }
 
 int
-getservsocket(int port)
+getservsocket_udp(int port)
 {
 	int     reuse = 1, s;
 	struct sockaddr_in sin;
 
 	signal(SIGPIPE, SIG_IGN);
 
-	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		perror("server: socket");
 		exit(1);
 	}
@@ -69,15 +69,8 @@ getservsocket(int port)
 	sin.sin_port = htons(port);
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-	    (char *) &reuse, sizeof(int));
-
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		perror("server: bind");
-		exit(1);
-	}
-	if (listen(s, 5) < 0) {
-		perror("server: listen");
 		exit(1);
 	}
 	return (s);

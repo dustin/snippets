@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: main.c,v 1.1 1998/10/01 06:39:11 dustin Exp $
+ * $Id: main.c,v 1.2 1998/10/01 16:44:40 dustin Exp $
  */
 
 #include <config.h>
@@ -32,67 +32,90 @@
 
 struct config conf;
 
-static void writepid(int pid)
+static void
+writepid(int pid)
 {
-    FILE *f;
-    int r;
+	FILE   *f;
+	int     r;
 
-    r=checkpidfile(conf.pidfile);
+	r = checkpidfile(conf.pidfile);
 
-    switch(r) {
-        case PID_NOFILE:
-            break;
-        case PID_STALE:
-            puts("Stale PID file found, overriding.");
-            break;
-        case PID_ACTIVE:
-            puts("Active PID file found, exiting...");
-            kill(pid, SIGTERM);
-            exit(1);
-    }
+	switch (r) {
+	case PID_NOFILE:
+		break;
+	case PID_STALE:
+		puts("Stale PID file found, overriding.");
+		break;
+	case PID_ACTIVE:
+		puts("Active PID file found, exiting...");
+		kill(pid, SIGTERM);
+		exit(1);
+	}
 
-    if(NULL ==(f=fopen(conf.pidfile, "w")) ) {
-    perror(conf.pidfile);
-    return;
-    }
+	if (NULL == (f = fopen(conf.pidfile, "w"))) {
+		perror(conf.pidfile);
+		return;
+	}
+	fprintf(f, "%d\n", pid);
 
-    fprintf(f, "%d\n", pid);
-
-    fclose(f);
+	fclose(f);
 }
 
-static void detach(void)
+static void
+detach(void)
 {
-   int pid, i;
-   char *tmp;
+	int     pid, i;
+	char   *tmp;
 
-   pid=fork();
+	pid = fork();
 
-   if(pid>0) {
-       printf("Running on PID %d\n", pid);
-       writepid(pid);
-       exit(0);
-   }
+	if (pid > 0) {
+		printf("Running on PID %d\n", pid);
+		writepid(pid);
+		exit(0);
+	}
+	setsid();
 
-   setsid();
+	/* close uneeded file descriptors */
 
-   /* close uneeded file descriptors */
+	for (i = 0; i < 256; i++)
+		close(i);
 
-   for(i=0; i<256; i++)
-        close(i);
+	tmp = rcfg_lookup(conf.cf, "etc.working_directory");
+	if (tmp == NULL)
+		tmp = "/";
 
-   tmp=rcfg_lookup(conf.cf, "etc.working_directory");
-   if(tmp==NULL)
-       tmp="/";
-
-   chdir(tmp);
-   umask(7);
+	chdir(tmp);
+	umask(7);
 }
 
-int main(int argc, char **argv)
+void
+process_main()
 {
-	conf.pidfile="/tmp/mbkd.pid";
-    detach();
-    sleep(20);
-    return(0);
+	int     s, len, stat;
+	struct sockaddr_in from;
+	struct mbk mbk_packet;
+	log_msg("Processing...\n");
+
+	s = getservsocket_udp(1099);
+
+	len=1024;
+
+	stat = recvfrom(s, (char *)&mbk_packet, sizeof(mbk_packet),
+	    0, (struct sockaddr *) &from, &len);
+	if (stat < 0) {
+		perror("recvfrom");
+	}
+	printf("Read %d bytes\n", stat);
+	printf("Length:\t%d\nAuth:\t0x%x\nData:\t%s\n", mbk_packet.len,
+	       mbk_packet.auth, mbk_packet.data);
+}
+
+int
+main(int argc, char **argv)
+{
+	conf.pidfile = "/tmp/mbkd.pid";
+	/* detach(); */
+	process_main();
+	return (0);
 }
