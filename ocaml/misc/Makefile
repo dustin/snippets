@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=mailCompress hlgrep missingNumbers magicSquare
+PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -29,6 +29,10 @@ missingNumbers: missingNumbers.ml
 magicSquare: magicSquare.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		magicSquare.ml
+
+waitForSocket: waitForSocket.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib unix.cmxa \
+		waitForSocket.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
