@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Dustin Sallings
  *
- * $Id: SpyLogFlusher.java,v 1.13 2001/07/03 07:30:14 dustin Exp $
+ * $Id: SpyLogFlusher.java,v 1.14 2001/07/03 07:37:06 dustin Exp $
  */
 
 package net.spy.log;
@@ -41,6 +41,8 @@ public class SpyLogFlusher extends Thread {
 	private String queue_name=null;
 
 	private Date lastRun=null;
+	private Date lastErrorTime=null;
+	private Exception lastError=null;
 
 	/**
 	 * Get a SpyFlusher for the given queue.
@@ -80,6 +82,12 @@ public class SpyLogFlusher extends Thread {
 			sb.append(", last run:  ");
 			sb.append(lastRun);
 		}
+		if(lastError!=null) {
+			sb.append(", last error:  ");
+			sb.append(lastError);
+			sb.append(" - at - ");
+			sb.append(lastErrorTime);
+		}
 		return(sb.toString());
 	}
 
@@ -93,7 +101,6 @@ public class SpyLogFlusher extends Thread {
 	 * Return the current queue of things to be logged
 	 */
 	protected Vector flush() {
-		lastRun=new Date();
 		return(log_queue.flush());
 	}
 
@@ -109,26 +116,20 @@ public class SpyLogFlusher extends Thread {
 	 * destination.  The default implementation writes the log entries to a
 	 * file.  This method should probably be overridden to be useful.
 	 */
-	protected void doFlush() {
+	protected void doFlush() throws Exception {
 		Vector v = flush();
 		// Only do all this crap if there's something to log.
 		if(v.size() > 0) {
 			// The logfile is only open long enough for us to write our log
 			// entries to it.
-			BufferedWriter log_file=null;
-			try {
-				log_file=new BufferedWriter(
-					new FileWriter(logfile, true));
-				for(int i = 0; i<v.size(); i++) {
-					SpyLogEntry l = (SpyLogEntry)v.elementAt(i);
-					log_file.write(l.toString() + "\n");
-				}
-				log_file.flush();
-				log_file.close(); // Close it, we're done!
-
-			} catch(Exception e) {
-				System.err.println("BAD LOG ERRROR!  " + e);
+			BufferedWriter log_file=log_file=new BufferedWriter(
+				new FileWriter(logfile, true));
+			for(Enumeration e=v.elements(); e.hasMoreElements(); ) {
+				SpyLogEntry l = (SpyLogEntry)e.nextElement();
+				log_file.write(l.toString() + "\n");
 			}
+			log_file.flush();
+			log_file.close(); // Close it, we're done!
 		}
 	}
 
@@ -152,11 +153,14 @@ public class SpyLogFlusher extends Thread {
 			try {
 				// Flush first, ask questions later.
 				doFlush();
+				lastRun=new Date();
 
 				// Wait for something to get added...with timeout
-				log_queue.waitForQueue(60000);
+				log_queue.waitForQueue(600000);
 
 			} catch(Exception e) {
+				lastError=e;
+				lastErrorTime=new Date();
 				System.err.println("Error flushing logs:  " + e);
 				e.printStackTrace();
 			}
