@@ -1,12 +1,14 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTask.java,v 1.2 2002/07/11 23:21:55 dustin Exp $
+// $Id: MTTask.java,v 1.3 2002/07/12 04:43:02 dustin Exp $
 
 package net.spy.test;
 
+import junit.framework.Assert;
+
 /**
- * A test that will be performed in parallel.
+ * A test that may be performed in multiple threads simultaneously.
  */
-public abstract class MTTask extends Object implements Runnable {
+public abstract class MTTask extends Assert implements Runnable {
 
 	private int failures=0;
 	private Throwable lastFailure=null;
@@ -49,6 +51,8 @@ public abstract class MTTask extends Object implements Runnable {
 
 	/**
 	 * Return the number of failures this task has identified.
+	 *
+	 * @return the number of failures this task has identified
 	 */
 	public int getFailureCount() {
 		return(failures);
@@ -56,6 +60,8 @@ public abstract class MTTask extends Object implements Runnable {
 
 	/**
 	 * Find out why the last failure occurred.
+	 *
+	 * @return the last failure, null if there has not been a failure
 	 */
 	public Throwable getLastFailure() {
 		return(lastFailure);
@@ -63,14 +69,14 @@ public abstract class MTTask extends Object implements Runnable {
 
 	/**
 	 * Add a new failure, including the message.
+	 *
+	 * @param f add a failure, incrementing the count
 	 */
 	protected synchronized void addFailure(Throwable f) {
 		failures++;
 		lastFailure=f;
 
 		if(stopOnFailure) {
-			// System.err.println("FAILURE!  Stopping");
-			f.printStackTrace();
 			shutDown();
 		}
 	}
@@ -120,7 +126,6 @@ public abstract class MTTask extends Object implements Runnable {
 			try {
 				performTest();
 			} catch(Throwable t) {
-				t.printStackTrace();
 				addFailure(t);
 			}
 		}

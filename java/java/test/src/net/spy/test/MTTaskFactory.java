@@ -1,5 +1,5 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTaskFactory.java,v 1.2 2002/07/11 21:38:03 dustin Exp $
+// $Id: MTTaskFactory.java,v 1.3 2002/07/12 04:43:03 dustin Exp $
 
 package net.spy.test;
 
@@ -29,7 +29,10 @@ public class MTTaskFactory extends Object {
 	 * given class that will each perform the given number of iterations of
 	 * its test and have the given stopOnFailure setting.
 	 *
-	 * @exception NoSuchMethodException if a matching constructor can't be found
+	 * @param mtTaskClass a Class instance that represents a subclass of
+	 * 	MTTask
+	 * @param iterations the number of iterations the instance will loop
+	 * @param stopOnFailure if true, failures will cause the loop to stop
 	 */
 	public MTTaskFactory(Class mtTaskClass, int iterations,
 		boolean stopOnFailure) {
@@ -78,6 +81,8 @@ public class MTTaskFactory extends Object {
 
 	/**
 	 * Get a new instance of an MTTask.
+	 *
+	 * @return a freshly baked subclass of MTTask, as requested
 	 */
 	public MTTask newInstance()
 		throws InstantiationException, IllegalAccessException,

@@ -1,5 +1,5 @@
 // Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-// $Id: MTTest.java,v 1.2 2002/07/11 23:21:57 dustin Exp $
+// $Id: MTTest.java,v 1.3 2002/07/12 04:43:05 dustin Exp $
 
 package net.spy.test;
 
@@ -7,6 +7,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 import junit.framework.TestCase;
+import junit.framework.AssertionFailedError;
 
 import net.spy.util.ThreadPool;
 
@@ -36,6 +37,8 @@ public class MTTest extends TestCase {
 		for(int i=0; i<nRuns; i++) {
 			try {
 				v.addElement(fac.newInstance());
+			} catch(AssertionFailedError e) {
+				throw e;
 			} catch(Throwable t) {
 				t.printStackTrace();
 				fail("Could not create MTTask instance:  " + t);
@@ -114,23 +117,35 @@ public class MTTest extends TestCase {
 					// Now, pass the error back up.
 					String msg=null;
 					if(lastError!=null) {
+						// If it's an AssertionFailedError throw it up
+						if(lastError instanceof AssertionFailedError) {
+							throw (AssertionFailedError)lastError;
+						}
 						msg=lastError.getMessage();
+						if(msg==null) {
+							msg="Encountered a "
+								+ lastError.getClass().getName()
+								+ " while processing.";
+						}
 					}
 
+					// This really shouldn't happen too often, but in case
+					// we found an error but either couldn't find the
+					// Throwable that caused it, or the Throwable had no
+					// message, print a little summary thing.
 					if(msg==null) {
 						msg="Encountered " + errors
 							+ " unknown error(s) while processing";
 					}
 
+					// Whatever we got here, fail and go home
 					fail(msg);
-
-					finished=true;
 				}
 			}
 
 		} finally {
 			if(!shutdown) {
-				// System.err.println("Shutting down in the finally block.");
+				// System.err.println("*** Shutting down in the finally block");
 				tp.shutdown();
 			}
 		} // Make sure the pool gets shut down
