@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 Dustin Sallings
  *
- * $Id: sockets.c,v 1.2 2003/06/12 18:56:39 dustin Exp $
+ * $Id: sockets.c,v 1.3 2003/06/12 20:18:14 dustin Exp $
  */
 
 #include <stdio.h>
@@ -19,17 +19,37 @@
 #include <syslog.h>
 #include <netinet/tcp.h>
 
+static int waitForConnect(int s)
+{
+	int selected=0;
+	fd_set rset;
+	struct timeval tv;
+
+	FD_ZERO(&rset);
+	FD_SET(s, &rset);
+
+	/* Wait up to five seconds */
+	tv.tv_sec=5;
+	tv.tv_usec=0;
+
+	selected=select(s+1, &rset, NULL, NULL, &tv);
+
+	/* True if there was at least one thing that hinted as being available */
+	return(selected == 1);
+}
+
 int
-getclientsocket(char *host, int port)
+attemptConnection(char *host, int port)
 {
 	struct hostent *hp;
 	int     success, i, flag;
 	register int s = -1;
 	struct linger l;
 	struct sockaddr_in sin;
+	int fflags =0;
 
 	if (host == NULL || port == 0) {
-		return (-1);
+		return (0);
 	}
 
 	if ((hp = gethostbyname(host)) == NULL) {
@@ -38,7 +58,7 @@ getclientsocket(char *host, int port)
 #else
 		fprintf(stderr, "Error looking up %s\n", host);
 #endif
-		return (-1);
+		return (0);
 	}
 	success = 0;
 
@@ -46,7 +66,7 @@ getclientsocket(char *host, int port)
 	for (i = 0; i < 1; i++) {
 		if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
-			return (-1);
+			return (0);
 		}
 		sin.sin_family = AF_INET;
 		sin.sin_port = htons(port);
@@ -61,17 +81,18 @@ getclientsocket(char *host, int port)
 			sizeof(int)) < 0) {
 			puts("Nagle algorithm not dislabled.");
 		}
-		/*
-		if(sock_opts & NON_BLOCKING) {
-			int fflags = fcntl(s, F_GETFL);
-			if(fcntl(s, F_SETFL, fflags | O_NONBLOCK) < 0) {
-				perror("fcntl");
-			}
+
+		/* Configure non-blocking IO */
+		fflags = fcntl(s, F_GETFL);
+		if(fcntl(s, F_SETFL, fflags | O_NONBLOCK) < 0) {
+			perror("fcntl");
 		}
-		*/
+
 		if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 			if(errno==EINPROGRESS) {
 				success = 1;
+			} else {
+				perror("connect");
 			}
 		} else {
 			success = 1;
@@ -79,12 +100,14 @@ getclientsocket(char *host, int port)
 		}
 	}
 
-	if (!success) {
-		if(s>=0) {
-			close(s);
-		}
-		s = -1;
+	/* If we got this far, wait for data */
+	if(success) {
+		success=waitForConnect(s);
 	}
 
-	return (s);
+	if(s>=0) {
+		close(s);
+	}
+
+	return (success == 1);
 }
