@@ -26,7 +26,7 @@
         [ScreenSaverDefaults defaultsForModuleWithName:@"ImageSaver"];
     urlString = [defaults stringForKey:@"url"];
     if(urlString == nil) {
-        urlString = @"http://bleu.west.spy.net/~dustin/images/mountain.jpg";
+        urlString = @"http://bleu.west.spy.net/therm/House";
         [defaults setObject: urlString forKey: @"url"];
     }
     updateInterval=[defaults floatForKey:@"interval"];
@@ -35,8 +35,9 @@
         [defaults setFloat: updateInterval forKey: @"interval"];
     }
 
-    // Fetch the initial image
-    [self fetchImage];
+	// Update right away
+	[self performSelector: @selector(fetchImage)
+        withObject:nil afterDelay:1.0];
 
     // Setting timer
     updateTimer=[NSTimer scheduledTimerWithTimeInterval:updateInterval
@@ -74,7 +75,6 @@
 
 - (void)drawRect:(NSRect)rect
 {
-    // NSLog(@"Drawing.");
     [super drawRect:rect];
     if(currentImage != nil) {
         // Make sure the image has been scaled.
