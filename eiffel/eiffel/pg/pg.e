@@ -3,7 +3,7 @@ indexing
 --
 -- Copyright (c) 1999  Dustin Sallings
 --
--- $Id: pg.e,v 1.5 1999/05/25 07:42:29 dustin Exp $
+-- $Id: pg.e,v 1.6 1999/05/26 01:51:43 dustin Exp $
 --
 class PG
 
@@ -11,6 +11,12 @@ creation {ANY}
    make
 
 feature {ANY}
+
+   make is
+      -- Make an uninitialized PG object.
+      do
+         current_row := 0;
+      end -- make
 
    current_row: INTEGER;
       -- Current row number we're on.
@@ -55,7 +61,7 @@ feature {ANY}
    query(q: STRING): BOOLEAN is
       -- Query on an open database connection
       require
-         connected: conn /= Void;
+		 is_connected;
       do
          res := pg_query(conn,q.to_external);
          if res = Void then
@@ -68,7 +74,7 @@ feature {ANY}
    get_row: BOOLEAN is
       -- Get the next row of data back
       require
-         no_results: res /= Void;
+		has_results;
       local
          i, fields: INTEGER;
          s: STRING;
@@ -95,6 +101,8 @@ feature {ANY}
             Result := true;
          end;
       end -- get_row
+
+feature {ANY} -- Connection options
 
    set_host(to: STRING) is
       -- Set database host to connect to
@@ -138,13 +146,22 @@ feature {ANY}
          !!password.copy(to);
       end -- set_password
 
-   make is
-      -- Doesn't really do anything, but we need a make.
-      do
-         current_row := 0;
-      end -- make
 
-feature {NONE}
+feature {ANY} -- status
+
+	is_connected: BOOLEAN is
+		-- Find out if we're connected.
+		do
+         Result := (conn /= Void);
+		end
+
+	has_results: BOOLEAN is
+		-- Find out if we have results
+		do
+         Result := (res /= Void);
+		end
+
+feature {PG}
    -- Internal data stuff
 
    conn: POINTER;
@@ -174,7 +191,7 @@ feature {NONE}
    password: STRING;
       -- Database password
 
-feature {NONE}
+feature {PG}
 
    pg_connect(h, p, o, t, d, u, pass: POINTER): POINTER is
       external "C_WithoutCurrent"
