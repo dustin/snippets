@@ -1,0 +1,20 @@
+#!/bin/sh
+# Copyright (c) 1999  Dustin Sallings
+# $Id: doplots,v 1.1 1999/08/30 18:58:06 dustin Exp $
+
+for i in *.dat
+do
+	f=`echo $i | sed 's/.dat//' `
+	DATE=`echo $f | sed -e 's/-/\//' `
+
+	sed -e "s,@DATE@,$DATE,g" -e "s/@FILE@/$i/g" plot.generic > plot.amanda
+
+	# We're going to do PBM and then convert it until we get a better
+	# gnuplot
+	gnuplot plot.amanda > $f.pbm
+	cjpeg $f.pbm > $f.jpg
+	rm -f $f.pbm
+
+	# Kill the tmp plot thingy
+	rm -f plot.amanda
+done

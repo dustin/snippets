@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1999  Dustin Sallings
-# $Id: parseamanda,v 1.1 1999/08/30 18:10:49 dustin Exp $
+# $Id: parseamanda,v 1.2 1999/08/30 18:58:06 dustin Exp $
 
 sub getmonth
 {
@@ -40,7 +40,7 @@ for $year (sort(keys(%store))) {
 	print "$year\n";
 	for $mon (sort(keys(%{$store{$year}}))) {
 		print "\t$mon\n";
-		open(OUT, ">$year$mon.dat");
+		open(OUT, ">$year-$mon.dat");
 		for $day (sort(keys(%{$store{$year}{$mon}}))) {
 			print OUT "$day $store{$year}{$mon}{$day}{'Output'} " .
 				"$store{$year}{$mon}{$day}{'Original'}\n";

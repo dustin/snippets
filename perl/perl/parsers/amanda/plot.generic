@@ -1,0 +1,13 @@
+# This is the template for doing plots against the amanda data.
+# Copyright (c) 1999  Dustin Sallings
+# $Id: plot.generic,v 1.1 1999/08/30 18:58:08 dustin Exp $
+
+set title "Backup Report for @DATE@"
+set data style linespoints
+set grid
+set xlabel "Day of Month"
+set ylabel "Megabytes"
+set terminal pbm small color
+plot '@FILE@' using 1:2 t 'Total to Tape',\
+	'@FILE@' using 1:3 t 'Total from Disk'
+# pause -1 "Damnit"
