@@ -3,7 +3,7 @@
 
     <td>
         Keywords: %KEYWORDS%<br>
-        Category:  %CATEGORY%<br>
+        Category:  %CAT%<br>
         Size:  %SIZE% bytes<br>
         Taken:  %TAKEN%<br>
         Added:  %TS%<br>
