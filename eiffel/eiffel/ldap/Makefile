@@ -1,3 +1,8 @@
+# $Id: Makefile,v 1.4 1999/06/06 22:45:31 dustin Exp $
+#
+# Copyright (c) 1999 Dustin Sallings
+# See forum.txt for license
+
 E=smalleiffel
 EC=$(E) compile
 

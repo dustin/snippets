@@ -1,5 +1,11 @@
+indexing
+	author: "Dustin Sallings <dustin@spy.net>";
+	copyright: "1997 Dustin Sallings <dustin@spy.net>";
+	license: "See forum.txt";
+	version: "$Revision: 1.5 $";
+
 class
-	LDAPTEST
+	LDAPTEST -- Test LDAP program
 
 creation
 	make

@@ -1,5 +1,11 @@
+indexing
+	author: "Dustin Sallings <dustin@spy.net>";
+	copyright: "1997 Dustin Sallings <dustin@spy.net>";
+	license: "See forum.txt";
+	version: "$Revision: 1.5 $";
+
 class
-	LDAP
+	LDAP -- LDAP Access Routines.
 
 feature {NONE} -- data and destruction
 

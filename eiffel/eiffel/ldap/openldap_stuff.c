@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 1999 Dustin Sallings <dustin@spy.net>
+ *
+ * $Id: openldap_stuff.c,v 1.5 1999/06/06 22:45:35 dustin Exp $
+ * See forum.txt for licensing information.
+ */
+
 #ifdef OPENLDAP
 
 #include <assert.h>
