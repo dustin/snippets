@@ -203,6 +203,21 @@ let isdir p =
 ;;
 
 (**
+ Iterate all of the files in a directory via a given directory listing
+ function.
+
+ @param lsfunc the name of the function which will return a list of filenames
+	from a given directory
+ @param dir the name of the directory to process
+ @param func a function that will receive the directory name, list of filenames
+	and an argument
+ @param arg an arbitrary argument that will be passed to the function
+ *)
+let dir_iter_via lsfunc dir func arg =
+	func dir (lsfunc dir) arg
+;;
+
+(**
  Iterate all of the files in a directory.
 
  @param dir the name of the directory to process
@@ -214,7 +229,29 @@ let dir_iter dir func arg =
 ;;
 
 (**
- Walk a directory tree.
+ Walk a directory tree (depth first).
+
+ @param lsfunc the function to list files in a directory
+ @param dir the directory to search
+ @param func function to call (see fold_directory)
+ @param arg the argument to pass to the function
+ *)
+let rec walk_dir_via lsfunc dir func arg =
+	dir_iter_via lsfunc dir
+		(fun d l a ->
+			(* Split into dirs and files *)
+			let (dirs, files) =
+				List.partition (fun x -> isdir (Filename.concat d x)) l in
+			(* Recurse through the dirs *)
+			List.iter (fun x -> walk_dir_via lsfunc
+							(Filename.concat d x) func arg) dirs;
+			(* And then process the files *)
+			func d files arg)
+	arg
+;;
+
+(**
+ Walk a directory tree (depth first).
 
  @param dir the directory to search
  @param func function to call (see fold_directory)

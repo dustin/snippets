@@ -21,7 +21,15 @@ val lsdir : string -> string list
 val stat_func : (string -> Unix.stats) ref
 val set_stat_func : (string -> Unix.stats) -> unit
 val isdir : string -> bool
-val dir_iter : string -> (string -> string list -> 'a -> 'b) -> 'a -> 'b
+
+val dir_iter_via :
+	(string -> string list) -> string ->
+		(string -> string list -> 'c -> unit) -> 'c -> unit
+val walk_dir_via :
+	(string -> string list) ->
+		string -> (string -> string list -> 'a -> unit) -> 'a -> unit
+
+val dir_iter : string -> (string -> string list -> 'a -> unit) -> 'a -> unit
 val walk_dir : string -> (string -> string list -> 'a -> unit) -> 'a -> unit
 
 (*
