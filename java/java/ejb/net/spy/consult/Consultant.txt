@@ -1,0 +1,25 @@
+EntityDescriptor {
+	BeanHomeName	= "ConsultantHome";
+	EnterpriseBeanClassName = net.spy.consult.ConsultantBean;
+	HomeInterfaceClassName = net.spy.consult.ConsultantHome;
+	RemoteInterfaceClassName = net.spy.consult.Consultant;
+
+	ControlDescriptors =
+		{
+			{
+				IsolationLevel = TRANSACTION_READ_COMMITTED;
+				RunAsMode = SPECIFIED_IDENTITY;
+				TransactionAttribute = TX_REQUIRED;
+			};
+		};
+	EnvironmentProperties    = "Consultant.properties";
+	ContainerManagedFields =
+		{
+			id;
+			fn;
+			ln;
+			ssn;
+		};
+	PrimaryKeyClassName	= net.spy.consult.ConsultantPK;
+	Reentrant = false;
+}
