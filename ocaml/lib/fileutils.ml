@@ -112,6 +112,15 @@ let fold_file_lines f init_value fn =
 
 (** {1 Functions for processing directories} *)
 
+(** Ensure the given path exists.  (make all directories up to this path) *)
+let rec mkdirs perm path =
+	try
+		Unix.access path [Unix.F_OK]
+	with Unix.Unix_error (e,i,o) ->
+		mkdirs perm (Filename.dirname path);
+		Unix.mkdir path perm
+;;
+
 (**
  Debug routine to pass to a directory folding routine.
  *)
