@@ -1,0 +1,53 @@
+#!/usr/local/bin/perl
+# Make a log replay configuration file.
+
+use POSIX;
+
+sub parseline {
+	my($line)=@_;
+	my(@tmp, @ret, %mon);
+
+	%mon=(
+		'Jan' => 0,
+		'Feb' => 1,
+		'Mar' => 2,
+		'Apr' => 3,
+		'May' => 4,
+		'Jun' => 5,
+		'Jul' => 6,
+		'Aug' => 7,
+		'Sep' => 8,
+		'Oct' => 9,
+		'Nov' => 10,
+		'Dec' => 11
+	);
+
+	if(!($line=~/([\d\.]+).*?\[(.*?)\]\s+\"(.*?)\"/o)) {
+		return();
+	}
+	@ret=($2,$1,$3);
+
+	# looks like this:  03/Dec/1998:05:17:07 -0800
+	@tmp=split(/[:\/\s]+/, $ret[0]);
+	$ret[0]=mktime($tmp[5], $tmp[4], $tmp[3], $tmp[0],
+		$mon{$tmp[1]}, $tmp[2]-1900);
+
+	return(@ret);
+}
+
+my(@tuple, $base);
+
+@tuple=();
+
+while(!@tuple) {
+	print "Calibrating...\n";
+	$_=<>;
+	@tuple=parseline($_);
+}
+
+$base=$tuple[0];
+
+while(<>) {
+	@tuple=parseline($_);
+	print $tuple[0]-$base . "\t$tuple[1]\t$tuple[2]\n";
+}
