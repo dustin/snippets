@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 # Copyright (c) 1998  Dustin Sallings
 #
-# $Id: gettemp,v 1.1 2002/04/24 08:30:55 dustin Exp $
+# $Id: gettemp,v 1.2 2002/04/24 18:28:41 dustin Exp $
 #
 # Temperature reporting and alerting script.
 #
@@ -57,11 +57,11 @@ sub pageNormal
 	# People to page
 	$snpp->send(Pager => 'dustin', Message => $text);
 	$snpp->_RESE();
-	# $snpp->send(Pager => 'brandonk', Message => $text);
+	$snpp->send(Pager => 'brandonk', Message => $text);
 	$snpp->quit();
 }
 
-sub nntpNormal()
+sub nntpNormal
 {
 	my %temps=@_;
 	my $text="";
