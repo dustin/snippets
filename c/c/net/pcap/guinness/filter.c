@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  dustin sallings
  *
- * $Id: filter.c,v 1.1 1998/10/04 07:01:55 dustin Exp $
+ * $Id: filter.c,v 1.2 1998/10/04 08:52:21 dustin Exp $
  */
 
 #include <stdio.h>
@@ -18,8 +18,11 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <pcap.h>
+#include <pwd.h>
 
 #include <mbkd.h>
+
+#include "guinness.h"
 
 static pcap_t *pcap_socket;
 static int    dlt_len;
@@ -36,7 +39,6 @@ void process(int flags)
 	struct bpf_program prog;
 	bpf_u_int32 network, netmask;
 	char *filter=NULL;
-	int c;
 
 	filter="tcp";
 
@@ -92,7 +94,7 @@ void process(int flags)
 		signal_handler(-1);
 	}
 
-	fprintf(stderr, "interface: %s, filter: %s", interface, filter);
+	fprintf(stderr, "interface: %s, filter: %s\n", interface, filter);
 
 	for(;;)
 	    pcap_loop(pcap_socket, -1, (pcap_handler)filter_packet, NULL);
@@ -147,6 +149,9 @@ static void log_syn(struct ip *ip, struct tcphdr *tcp)
 {
     char buf[32];
 	MBK *mbk;
+	int uid;
+	struct in_addr ip_src, ip_dst;
+	struct passwd *p;
 
 	mbk=mbk_new("localhost", 1099, "630712e3e78e9ac261f13b8918c1dbdc");
     sprintf(buf, "%u", ntohs(tcp->th_sport));
@@ -155,6 +160,20 @@ static void log_syn(struct ip *ip, struct tcphdr *tcp)
 	mbk->append(mbk, "dport", buf);
 	mbk->append(mbk, "src", hostlookup(ip->ip_src.s_addr));
 	mbk->append(mbk, "dest", hostlookup(ip->ip_dst.s_addr));
+
+	ip_src=ip->ip_src;
+	ip_dst=ip->ip_dst;
+
+	if(k_getuid (&ip_dst, tcp->th_dport, &ip_src, tcp->th_sport, &uid) >= 0) {
+		sprintf(buf, "%d", uid);
+		mbk->append(mbk, "uid", buf);
+
+		if( (p=getpwuid(uid)) != NULL) {
+		    mbk->append(mbk, "username", p->pw_name);
+		} else {
+			log_msg("getpwuid(%d) did not return a valid passwd entry\n", uid);
+		}
+	}
 
 	mbk->send(mbk);
 
