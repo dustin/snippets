@@ -7,6 +7,7 @@ $Id: indexmp3,v 1.1 2002/08/05 06:26:40 dustin Exp $
 """
 
 import os, sys
+import string
 import getopt
 import exceptions
 
@@ -40,9 +41,10 @@ class Mirror:
 		# Grab the directory part of the destination
 		newdira=newa[:-1]
 		# Get the string form of the new path
-		newpath=apply(os.path.join, newa)
+		newdir=string.lower(apply(os.path.join, newdira))
+		newpath=os.path.join(newdir, newa[-1])
 		# Make sure the destination directory exists
-		self.mkdirs(newdira)
+		self.mkdirs(os.path.split(newdir))
 		# Make sure the destination file does *not* exist
 		if os.path.exists(newpath):
 			# raise ExistingFile(newpath)
