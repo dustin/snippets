@@ -1,106 +1,83 @@
 indexing
    description: "CGI Processing routines.";
    author: "Dustin Sallings <dustin@spy.net>";
-   version: "$Revision: 1.7 $";
+   version: "$Revision: 1.8 $";
    copyright: "1999";
    license: "See forum.txt";
+
 class CGI
    -- A simple CGI data handling class.  Probably slow for large amounts of
    -- data, doesn't handle multipart form/data (yet, I need it to), and
    -- doesn't handle multiple values per key (not directly anyway).
 
 creation {ANY}
-   make, parse
+   make, test
 
 feature {ANY}
 
    make is
-      -- Standalone, we simply parse the data, and print it back out.
-      local
-         c: CHARACTER;
       do
+         get_cgi_data;
          parse;
-         display;
       end -- make
+
+   test(s: STRING) is
+      do
+         cgi_input := s;
+         parse;
+      end -- test
 
    display is
       -- Display our data.
       require
-         has_data;
+         have_cgi_data;
       local
          i: INTEGER;
-         kv: KEYVALUE;
       do
          from
             i := 1;
          until
             i > cgi_data.count
          loop
-            kv := cgi_data @ i;
-            io.put_string(kv.key);
+            io.put_string(cgi_data.key(i));
             io.put_string(" -> ");
-            io.put_string(kv.value);
-            io.put_string("%N");
+            io.put_string(cgi_data.item(i));
+            io.put_string("<br>%N");
             i := i + 1;
          end;
       end -- display
 
+   has(key: STRING): BOOLEAN is
+      require
+         have_cgi_data;
+      do
+         Result := cgi_data.has(key);
+      end -- has
+
    lookup(key: STRING): STRING is
       -- Get the value for a key
       require
-         key /= Void;
-         has_data;
-      local
-         i: INTEGER;
-         kv: KEYVALUE;
+         have_cgi_data;
+         cgi_data.has(key);
       do
-         from
-            i := 1;
-         until
-            i > cgi_data.count or Result /= Void
-         loop
-            kv := cgi_data.item(i);
-            if kv.key.is_equal(key) then
-               Result := kv.value;
-            end;
-            i := i + 1;
-         end;
+         Result := cgi_data.at(key);
       ensure
          Result /= Void;
       end -- lookup
 
-   parse is
-      -- Parse the CGI data, only done once.
-      local
-         a, b: ARRAY[STRING];
-         kv: KEYVALUE;
-         s: STRING;
-         i: INTEGER;
-		 tried: BOOLEAN;
-      once
-		 if not tried then
-         get_cgi_data;
-         a := split_on(cgi_input,'&');
-         !!cgi_data.with_capacity(1,1);
-         from
-            i := 1;
-         until
-            i > a.count
-         loop
-            s := a @ i;
-            b := split_on(s,'=');
-            !!kv.make(decode_string(b.item(1)),decode_string(b.item(2)));
-            cgi_data.add_last(kv);
-            i := i + 1;
+   find(key: STRING): STRING is
+      -- Get the value for a key; void otherwise
+      do
+         if have_cgi_data and then has(key) then
+            Result := lookup(key);
          end;
-		 has_data:=true;
-		 end
-	  rescue
-		tried:=true;
-		retry;
-      end -- parse
+      end -- find
 
-   has_data: BOOLEAN;
+   have_cgi_data: BOOLEAN is
+      -- Verify we have parsed the CGI data.
+      do
+         Result := cgi_data /= Void;
+      end -- have_cgi_data
 
 feature {ANY} -- Misc features, probably should be in a utility class
 
@@ -157,7 +134,7 @@ feature {ANY} -- Features that really belong in a string class.
          if s.count > 0 then
             split_buffer.clear;
             split_on_in(s,split_buffer,on);
-            if not split_buffer.empty then
+            if not split_buffer.is_empty then
                Result := split_buffer.twin;
             end;
          end;
@@ -205,12 +182,43 @@ feature {ANY} -- Features that really belong in a string class.
          end;
       end -- split_on_in
 
+   cgi_data: DICTIONARY[STRING,STRING];
+      -- The parsed input
+
 feature {CGI} -- The parsed data.
 
-   cgi_data: ARRAY[KEYVALUE];
-      -- The actual input.
-
    cgi_input: STRING;
+
+   parse is
+      -- Parse the CGI data, only done once.
+      local
+         a, b: ARRAY[STRING];
+         s, val: STRING;
+         i: INTEGER;
+      once
+         a := split_on(cgi_input,'&');
+         !!cgi_data.make;
+         from
+            i := 1;
+         until
+            a = Void or else i > a.count
+         loop
+            s := a @ i;
+            b := split_on(s,'=');
+            inspect
+               b.count
+            when 1 then
+                  cgi_data.put("",decode_string(b.item(1)))
+            when 2 then
+                  val := decode_string(b.item(2));
+                  val.left_adjust;
+                  val.right_adjust;
+                     -- Remove leading and trailing blanks
+                  cgi_data.put(val,decode_string(b.item(1)))
+            end;
+            i := i + 1;
+         end;
+      end -- parse
 
    get_cgi_data is
       -- Find the CGI form data and return it.
