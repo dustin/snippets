@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 #
-# $Id: nntpsucka.py,v 1.8 2002/03/20 19:59:30 dustin Exp $
+# $Id: nntpsucka.py,v 1.9 2002/03/20 20:00:22 dustin Exp $
 
 import nntplib
 from nntplib import NNTP
@@ -132,7 +132,7 @@ class NNTPSucka:
 			except nntplib.NNTPTemporaryError, e:
 				# Save it if it's duplicate
 				if str(e).find("Duplicate"):
-					self.db[messid]=str(time.time())
+					self.markArticle(messid)
 					self.stats.addDup()
 				else:
 					self.stats.addOther()
