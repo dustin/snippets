@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1998  Dustin Sallings
  *
- * $Id: main.c,v 1.17 1999/06/16 20:48:28 dustin Exp $
+ * $Id: main.c,v 1.18 1999/06/16 22:04:07 dustin Exp $
  */
 
 #include <config.h>
@@ -143,8 +143,12 @@ parseurl(char *url)
 		ret=stat(getenv("WEBSPLAT_POST"), &st);
 		assert(ret>=0);
 
-		sprintf(buf, "Content-length: %d\r\n\r\n", st.st_size);
+		sprintf(buf, "Content-Length: %d\r\n", st.st_size);
 		str_append(&grow, buf);
+
+		str_append(&grow, "Content-Type: application/x-www-form-urlencoded\r\n");
+
+		str_append(&grow,  "\r\n");
 
 		f=fopen(getenv("WEBSPLAT_POST"), "r");
 		assert(f);
@@ -156,7 +160,7 @@ parseurl(char *url)
 		fclose(f);
 	} else {
 		/* This ends the request if we're doing a GET */
-		str_append(&grow,  "\n");
+		str_append(&grow,  "\r\n");
 	}
 
 	u.httpreq=grow.string;
@@ -493,7 +497,7 @@ main(int argc, char **argv)
 						bytes[i] += size;
 						str_append(&strings[i], buf);
 						_ndebug(2, ("Got %d bytes from %d\n", size, i));
-						_ndebug(3, ("%s", buf));
+						_ndebug(2, ("%s", buf));
 					}
 				}
 				if (selected == 0)
