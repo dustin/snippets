@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002  Dustin Sallings
  *
- * $Id: CacheTest.java,v 1.1 2002/08/12 21:59:37 dustin Exp $
+ * $Id: CacheTest.java,v 1.2 2002/08/12 22:43:10 dustin Exp $
  */
 
 package net.spy.test;
@@ -58,9 +58,11 @@ public class CacheTest extends TestCase {
 		// Check again immediately
 		i=(Integer)cache.get(key);
 		assertNotNull("Didn't get value for " + key, i);
+		int tmp=i.intValue();
+		assertEquals("Incorrect value returned from cache.", tmp, val);
 
 		// Make sure enough time has passed
-		Thread.sleep(1000);
+		Thread.sleep(1500);
 
 		// Make sure we *don't* get the object from the cache
 		i=(Integer)cache.get(key);
@@ -82,9 +84,11 @@ public class CacheTest extends TestCase {
 		// Check again immediately
 		i=(Integer)cache.get(key);
 		assertNotNull("Didn't get value for " + key, i);
+		int tmp=i.intValue();
+		assertEquals("Incorrect value returned from cache.", tmp, val);
 
 		// Make sure enough time has passed
-		Thread.sleep(1000);
+		Thread.sleep(1500);
 
 		// Make sure we *don't* get the object from the cache
 		i=(Integer)cache.get(key);
