@@ -1,6 +1,6 @@
 -- Copyright (c) 1998  Dustin Sallings
 --
--- $Id: photo.sql,v 1.18 1999/09/29 07:37:51 dustin Exp $
+-- $Id: photo.sql,v 1.19 1999/09/30 06:56:24 dustin Exp $
 --
 -- Use this to bootstrap your SQL database to do cool shite with the
 -- photo album.
@@ -151,7 +151,7 @@ create function catsum (integer)
 
 -- Log image retrievals.
 
-create table log (
+create table photo_log (
 	photo_id integer not null,
 	wwwuser_id integer not null,
 	remote_addr inet not null,
@@ -161,15 +161,15 @@ create table log (
 	ts datetime default (datetime(now()))
 );
 
-grant all on log to nobody;
+grant all on photo_log to nobody;
 
-create index log_photo_id on log(photo_id);
-create index log_wwwuser_id on log(wwwuser_id);
-create index log_remote_addr on log(remote_addr);
+create index photo_log_photo_id on photo_log(photo_id);
+create index photo_log_wwwuser_id on photo_log(wwwuser_id);
+create index photo_log_remote_addr on photo_log(remote_addr);
 
 create view log_user_ip_agent as
 	select wwwusers.username, log.remote_addr, log.user_agent
-		from wwwusers, log
+		from wwwusers, photo_log log
 	  where wwwusers.id = log.wwwuser_id
 ;
 
