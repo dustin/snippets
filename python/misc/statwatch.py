@@ -11,18 +11,60 @@ import string
 import urllib
 import traceback
 
-def updateHost(url, h, prefix=""):
-    """Update the dict h with the values from the given URL (matching the
-        prefix"""
-    u=urllib.URLopener()
-    r=u.open(url)
-    for l in r.readlines():
-        l=l.rstrip()
-        (k, v) = l.split(' = ')
-        if(k.startswith(prefix)):
-            v=int(v)
-            ov=h.get(k, 0)
-            h[k] = (v+ov)
+# Check for threading support and enable a multi-threaded update
+try:
+    import threading
+
+    class UpdateThread(threading.Thread):
+        """Thread that updates a host."""
+
+        def __init__(self, host, prefix=""):
+            """Initialize the thread"""
+            # Super init
+            threading.Thread.__init__(self)
+
+            self.host=host
+            self.prefix=""
+
+            self.setDaemon(True)
+            self.start()
+
+        def run(self):
+            """Perform the update"""
+            self.host.update(self.prefix)
+
+    # Remember that we have threading support
+    HAS_THREADING=True
+
+except ImportError:
+    # No thread support
+    HAS_THREADING=False
+
+class Host:
+    """A host to watch"""
+
+    def __init__(self, url):
+        self.url=url
+        self.vals={}
+
+    def update(self, prefix=""):
+        """Update this host with values from the given URL"""
+        u=urllib.URLopener()
+        r=u.open(self.url)
+        h={}
+        for l in r.readlines():
+            l=l.rstrip()
+            (k, v) = l.split(' = ')
+            if(k.startswith(prefix)):
+                v=int(v)
+                h[k] = v
+        self.vals=h
+
+    def __repr__(self):
+        return "<Host: " + self.url + ">"
+
+    # Alias str() to ``
+    __str__ = __repr__
 
 def signed(x):
     rv=""
@@ -32,30 +74,66 @@ def signed(x):
         rv = "+" + `x`
     return rv
 
-def updateAll(urls, h, prefix=""):
-    """Update all of the URLs into the given dict.  Return the deltas"""
-    deltas={}
-    tmp={}
-    for u in urls:
-        try:
-            updateHost(u, tmp, prefix)
-        except IOError:
-            print "***  Error on " + str(u) + ":"
-            print "***   " + traceback.format_exception_only(\
-                sys.exc_type, sys.exc_value)[0]
+def mergeDicts(dicts):
+    """Merge a list of dictionaries into one dictionary with the sum of the
+    values of all of the dictionaries."""
+    rv={}
+    for h in dicts:
+        for k,v in h.iteritems():
+            ov=rv.get(k, 0)
+            rv[k]=(v + ov)
+    return rv
 
-    # Now that we've got all the individuals, add them all up
+if HAS_THREADING:
+    def doUpdate(hosts, prefix=""):
+        """Have all the host objects update themselves"""
+        threads=[]
+        for host in hosts:
+            try:
+                threads.append(UpdateThread(host, prefix))
+            except IOError:
+                print "***  Error on " + str(host) + ":"
+                print "***   " + traceback.format_exception_only(\
+                    sys.exc_type, sys.exc_value)[0]
+
+        # Wait for all of the threads to finish
+        for t in threads:
+            t.join()
+else:
+    sys.stderr.write("\n!!!Warning:  no thread support!\n\n")
+    def doUpdate(hosts, prefix=""):
+        """Have all the host objects update themselves"""
+        for host in hosts:
+            try:
+                host.update(prefix)
+            except IOError:
+                print "***  Error on " + str(host) + ":"
+                print "***   " + traceback.format_exception_only(\
+                    sys.exc_type, sys.exc_value)[0]
+
+def updateAll(hosts, oldvals, prefix=""):
+    """Update all of the hosts into the given dict.  Return the deltas"""
+    doUpdate(hosts, prefix)
+    dicts=[]
+    for host in hosts:
+        dicts.append(host.vals)
+    # Merge all the dicts
+    tmp=mergeDicts(dicts)
+
+    # Now that we've got all the individuals, add them all up and calculate
+    # deltas
+    deltas={}
     ks=tmp.keys()
     ks.sort()
     for k in ks:
         v=tmp[k]
-        ov=h.get(k, 0)
+        ov=oldvals.get(k, 0)
         if v != ov:
             d=(v-ov)
             deltas[k]=d
             # Display the current value
             print k + ":  " + `v` + " (" + signed(d) + ")"
-        h[k]=v
+        oldvals[k]=v
     return deltas
 
 def showTimes(times, readings):
@@ -121,6 +199,7 @@ if __name__ == '__main__':
 
     # Get the server list
     u=servers.get(hparam, None)
+    hosts=None
 
     # If we didn't get one, print a nice happy error
     if u is None:
@@ -132,6 +211,9 @@ if __name__ == '__main__':
             print "\t" + s
         print ""
         raise "Invalid cluster:  " + sys.argv[1]
+    else:
+        # Construct a host object for each URL
+        hosts=map(Host, u)
     print "Using the following URLs:  " + `u`
 
     # Check to see if a prefix was applied
@@ -144,7 +226,7 @@ if __name__ == '__main__':
     while 1:
         print "--------------------------------------- " \
             + time.ctime(time.time())
-        deltas=updateAll(u, h, prefix)
+        deltas=updateAll(hosts, h, prefix)
         print ""
         showTimes(timeCalcs, deltas)
         print ""
