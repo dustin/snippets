@@ -7,11 +7,11 @@
 (** Functions for processing lines of files. *)
 
 (**
- * Apply the given function to each line in the giving channel.
- *
- * @param f the function to apply to each line
- * @param ch the in_channel to read
- *)
+ Apply the given function to each line in the giving channel.
+
+ @param f the function to apply to each line
+ @param ch the in_channel to read
+*)
 let fold_lines f ch =
 	try
 		while true do
@@ -22,13 +22,13 @@ let fold_lines f ch =
 ;;
 
 (**
- * Apply the given function to each line in the giving channel if the function
- * c returns true for the line.
- *
- * @param f the function to apply to each line
- * @param c the condition to test on the line
- * @param ch the in_channel to read
- *)
+ Apply the given function to each line in the giving channel if the function
+ c returns true for the line.
+
+ @param f the function to apply to each line
+ @param c the condition to test on the line
+ @param ch the in_channel to read
+*)
 let conditional_fold_lines f c ch =
 	fold_lines (function x -> if c x then f x) ch;
 ;;
