@@ -88,7 +88,7 @@ GENERATED=net/spy/db/CachePreparedStatement.java \
 
 PACKAGES=net.spy net.spy.net net.spy.rmi net.spy.temperature \
 	net.spy.info net.spy.pool net.spy.log net.spy.cache net.spy.util \
-	net.spy.db
+	net.spy.db net.spy.cron
 
 FDEST=/home/dustin/lib/java
 SCP=scp
