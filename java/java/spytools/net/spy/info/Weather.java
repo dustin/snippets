@@ -1,6 +1,6 @@
 // Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
 //
-// $Id: Weather.java,v 1.1 2000/03/22 02:43:49 dustin Exp $
+// $Id: Weather.java,v 1.2 2000/03/22 04:22:27 dustin Exp $
 
 package net.spy.info;
 
@@ -19,6 +19,7 @@ public class Weather extends Object {
 	protected String info=null;
 	protected String relevent=null;
 	protected String shortWeather=null;
+	protected String city=null;
 
 	protected Hashtable hinfo=null;
 
@@ -96,16 +97,26 @@ public class Weather extends Object {
 				// we really only care about the first section
 				if(lines[i].startsWith("CURRENTLY")) {
 					section=1;
-				} else if(section==1 && lines[i].startsWith("Temp:")) {
+				} else if(section>0
+					&& lines[i].startsWith("Temp:")) {
 					section=2;
-				} else if(lines[i].startsWith("Detailed Local Forecast")) {
+				} else if(section>1
+					&& lines[i].startsWith("Detailed Local Forecast")) {
 					section=3;
 				}
 
+				// Section zero is basically the header before we have the
+				// city name
+				if(section==0 && city==null) {
+					city=lines[i];
+					int sds=city.indexOf(" - ");
+					city=city.substring(sds+3, city.length());
+					shortWeather+=city + "\r\n";
+				} // Section zero
 				// Section two is the first information section...we're
 				// going to parse it into the hinfo hash, odd lines are
 				// keys, even lines are values
-				if(section==2) {
+				else if(section==2) {
 					int colon=lines[i].indexOf(":");
 					// Key is the stuff before the colon
 					String key=lines[i].substring(0, colon);
@@ -126,9 +137,11 @@ public class Weather extends Object {
 					relevent+=lines[i] + "\n";
 				}
 			} // For loop through lines
-			if(info.indexOf("Unable to track shipment") >= 0) {
-				hinfo.put("ERROR", "Unable to track shipment.  "
-					+ "Invalid tracking number?");
+			if(section==0) {
+				String error_string="Unable to get weather.  "
+					+ "Invalid zip code?";
+				hinfo.put("ERROR", error_string);
+				shortWeather=error_string;
 			} else {
 				error=false;
 			}
