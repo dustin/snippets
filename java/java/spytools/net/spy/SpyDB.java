@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyDB.java,v 1.22 2000/11/28 10:21:31 dustin Exp $
+ * $Id: SpyDB.java,v 1.23 2000/11/30 20:55:45 dustin Exp $
  */
 
 package net.spy;
@@ -187,10 +187,24 @@ public class SpyDB extends Object {
 		// password
 		tmpconf.put(name + ".dbPass", conf.get("dbPass"));
 
+		// Set the database options:
+		setDBOptions(tmpconf);
+
 		// Grab the poolfiller with our temporary config.
 		JDBCPoolFiller pf=new JDBCPoolFiller(name, tmpconf);
 		// OK, add the pool.
 		pool.createPool(name, pf);
+	}
+
+	// Set DB options
+	private void setDBOptions(SpyConfig tmpconf) {
+		for(Enumeration e=conf.propertyNames(); e.hasMoreElements(); ) {
+			String pname=(String)e.nextElement();
+			if(pname.startsWith("dboption.")) {
+				String ovalue=conf.get(pname);
+				tmpconf.put(name + "." + pname, ovalue);
+			}
+		}
 	}
 
 	/**
@@ -247,7 +261,7 @@ public class SpyDB extends Object {
 	 */
 	public Connection getConn() throws Exception {
 		if(conn==null) {
-			log("New connection");
+			// log("New connection");
 			getDBConn();
 		}
 		return(conn);
@@ -262,7 +276,7 @@ public class SpyDB extends Object {
 	 * Note:  This should rarely be called directly.
 	 */
 	public void freeDBConn() {
-		log("Freeing");
+		// log("Freeing");
 		if(object!=null) {
 			object.checkIn();
 			object=null;
@@ -345,5 +359,18 @@ public class SpyDB extends Object {
 			scopy=sout;
 		}
 		return(scopy);
+	}
+
+	/**
+	 * Test plan, given a config file, create a database connection and do
+	 * a select 1.
+	 */
+	public static void main(String args[]) throws Exception {
+		SpyDB db=new SpyDB(new SpyConfig(args[0]));
+		ResultSet rs=db.executeQuery("select 1");
+		rs.next();
+		System.out.println("Got results:  " + rs.getString(1));
+		System.out.println("Sleeping...");
+		Thread.sleep(15000);
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999  Dustin Sallings <dustin@spy.net>
  *
- * $Id: SpyConfig.java,v 1.12 2000/10/18 22:37:54 dustin Exp $
+ * $Id: SpyConfig.java,v 1.13 2000/11/30 20:55:44 dustin Exp $
  */
 
 package net.spy;
@@ -19,7 +19,7 @@ import java.io.*;
  * to pass config filepaths into.
  */
 
-public class SpyConfig extends Hashtable {
+public class SpyConfig extends Properties {
 	protected static Hashtable configStore=null;
 	protected static Hashtable configTimeStamps=null;
 
@@ -183,7 +183,6 @@ public class SpyConfig extends Hashtable {
 	 * @param value config value
 	 *
 	 */
-
 	public void orput(String key, String value) {
 		if(!containsKey(key)) {
 			put(key, value);
