@@ -18,13 +18,13 @@ stringutils: stringutils.cmi stringutils.mli
 
 linkedlist: linkedlist.cmi linkedlist.mli
 
-lru: lru.cmi lru.mli
+lru: linkedlist lru.cmi lru.mli
 
 testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
-		fileutils.cmo stringutils.cmo lru.cmo linkedlist.cmo
+		fileutils.cmo stringutils.cmo linkedlist.cmo lru.cmo
 
-docs:
+docs: $(PARTS)
 	mkdir -p doc
 	ocamldoc -d doc -html *.ml
 
