@@ -4,7 +4,7 @@
 Break up directories into managable chunks.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.4 2002/04/07 10:34:26 dustin Exp $
+$Id: chunkify.py,v 1.5 2002/04/07 10:45:34 dustin Exp $
 """
 
 import os, sys
@@ -114,7 +114,7 @@ def main():
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], 'c:m:zp')
 	except getopt.GetoptError, e:
-		raise UsageError(e[1])
+		raise UsageError(e)
 
 	chunkname=None
 	makezip=None
@@ -130,6 +130,11 @@ def main():
 			maxsize=int(pair[1])
 		elif pair[0]=='-p':
 			dopause=1
+
+	if len(args)<1:
+		raise UsageError("No start dir specified.")
+	if chunkname==None:
+		raise UsageError("No chunk name specified.")
 
 	startdir=args[0]
 	print "Starting from " + startdir
@@ -151,5 +156,6 @@ def usage():
 if __name__ == '__main__':
 	try:
 		main()
-	except UsageError:
+	except UsageError, e:
+		print e
 		usage()
