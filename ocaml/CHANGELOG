@@ -2,6 +2,18 @@
 # arch-tag: automatic-ChangeLog--dustin@spy.net--projects-2004/snippets--ocaml--1.0
 #
 
+2004-07-31 00:14:50 GMT	Dustin Sallings <dustin@spy.net>	patch-74
+
+    Summary:
+      Insignificant base64 optimizations...just playing around.
+    Revision:
+      snippets--ocaml--1.0--patch-74
+
+
+    modified files:
+     CHANGELOG lib/base64.ml test/b64test.ml
+
+
 2004-07-19 08:14:03 GMT	Dustin Sallings <dustin@spy.net>	patch-73
 
     Summary:

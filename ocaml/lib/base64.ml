@@ -22,16 +22,17 @@ let char_map = [|
 
 (** {1 Functions for encoding} *)
 
-(** Encode a chunk.  The chunk is either a 1, 2, or 3 element list. *)
+(** Encode a chunk.  The chunk is either a 1, 2, or 3 element array. *)
 let encode_chunk chars =
-	if(List.length chars = 0 || List.length chars > 3) then
-		raise (Invalid_encode_chunk(List.length chars));
+	let llength = List.length chars in
+	if(llength = 0 || llength > 3) then
+		raise (Invalid_encode_chunk(llength));
 	let chunk = String.make 4 '=' in
-	let a = List.nth chars 0 in
+	let a = List.hd chars in
 	let tmpa = (((Char.code a) land 3) lsl 4) in
 	chunk.[0] <- char_map.( (Char.code a) lsr 2);
 	(* Check for another character *)
-	if (List.length chars < 2) then (
+	if (llength < 2) then (
 		chunk.[1] <- char_map.(tmpa);
 		chunk;
 	) else (
@@ -39,7 +40,7 @@ let encode_chunk chars =
 		let tmpb = ((Char.code b) lsr 4) in
 		let tmpa2 = ((Char.code b) land 0x0f) lsl 2 in
 		chunk.[1] <- char_map.(tmpa lor tmpb);
-		if (List.length chars < 3) then (
+		if (llength < 3) then (
 			chunk.[2] <- char_map.(tmpa2);
 			chunk
 		) else (
@@ -157,11 +158,9 @@ let decode data_stream =
 		try
 			let chunk = Stream.npeek 4 clean_stream in
 			List.iter (fun x -> Stream.junk clean_stream) chunk;
-			if (List.length chunk = 0) then (
-				None
-			) else (
-				Some (decode_chunk chunk)
-			)
+			match chunk with
+				  [] -> None
+				| _  -> Some(decode_chunk chunk)
 		with Stream.Failure -> None in
 	Stream.from get_block
 ;;
