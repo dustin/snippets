@@ -1,6 +1,6 @@
 // Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
 //
-// $Id: URLItem.java,v 1.1 2002/08/19 07:08:31 dustin Exp $
+// $Id: URLItem.java,v 1.2 2002/08/19 07:11:17 dustin Exp $
 
 package net.spy.net;
 
@@ -84,7 +84,7 @@ public class URLItem extends Object {
 	/**
 	 * Get the URL this thing is watching.
 	 *
-	 * @return
+	 * @return the URL
 	 */
 	public URL getURL() {
 		return(url);
