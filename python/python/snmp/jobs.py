@@ -3,7 +3,7 @@
 Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: jobs.py,v 1.2 2002/04/05 01:08:12 dustin Exp $
+$Id: jobs.py,v 1.3 2002/04/09 00:44:15 dustin Exp $
 """
 
 # time is important
@@ -29,6 +29,7 @@ class Job:
 	"""Superclass of all jobs."""
 
 	db=None
+	prefix=None
 
 	def __init__(self, descriptor, freq):
 		"""Get a job that repeats at the given frequency.
@@ -40,14 +41,16 @@ class Job:
 		self.frequency=freq
 		if Job.db == None:
 			Job.db=storage.DBMStorage('hostmarks.db')
+		if self.prefix==None:
+			self.prefix='unknown'
 
 	def getDescriptor(self):
 		"""Get the descriptor this job uses."""
-		return self.descriptor
+		return ':'.join((self.prefix, self.descriptor))
 
 	def mark(self):
 		"""Mark activity on a host."""
-		Job.db[self.descriptor]=str(time.time())
+		Job.db[self.getDescriptor()]=str(time.time())
 
 	def go(self):
 		"""This method is called when it's time to perform the job."""
@@ -63,10 +66,11 @@ class VolatileJob(Job):
 		Job.__init__(self, descriptor, freq)
 		if VolatileJob.db==None:
 			VolatileJob.db=storage.VolatileStorage()
+		self.prefix='volatile'
 
 	def recordState(self, state):
 		"""Record the current state of the task."""
-		VolatileJob.db.recordState(self.descriptor, state)
+		VolatileJob.db.recordState(self.getDescriptor(), state)
 
 class SNMPJob(Job):
 	"""An SNMP query job that needs to be performed."""
@@ -125,6 +129,7 @@ class RRDJob(Job):
 		if RRDJob.rrd == None:
 			RRDJob.rrd=storage.RRDStorage()
 		self.file=rrdfile
+		self.prefix='performance'
 
 	def getFilename(self):
 		"""Get the name of the rrd file this job manipulates."""
