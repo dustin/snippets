@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997  Dustin Sallings
  *
- * $Id: parselist.c,v 1.8 1999/05/08 22:22:00 dustin Exp $
+ * $Id: parselist.c,v 1.9 1999/05/08 22:39:54 dustin Exp $
  */
 
 #include <stdio.h>
@@ -11,8 +11,7 @@
 #include <sys/stat.h>
 #include <dlfcn.h>
 
-#define THELIB "./libparselist.so"
-#define THEFUNC "main"
+#include "parselist.h"
 
 /*
  * Getfunc grabs the function from the shared object and returns it.  It's
@@ -29,13 +28,8 @@ getfunc(void *lib)
 	}
 	func = dlsym(lib, THEFUNC);
 	if (func == NULL) {
-		/* fprintf(stderr, "Trying _libtest_main\n"); */
+		/* try the lib with an underscore */
 		func = dlsym(lib, "_"THEFUNC);
-		/*
-		 * if(func==NULL) {
-		 * fprintf(stderr, "Damnit...couldn't find it there, either\n");
-		 * }
-		 */
 	}
 	return (func);
 }
@@ -58,8 +52,15 @@ lastmod(char *file)
 static void emergency(void)
 {
 	char buf[80], *tmp;
-	tmp=fgets(buf, 79, stdin);
-	puts("ERROR");
+	time_t t;
+
+	t=time(0);
+
+	/* We'll run the emergency loop based on time */
+	while( (time(0)-t)<EMERGENCY_TIME ) {
+		tmp=fgets(buf, 79, stdin);
+		puts("ERROR");
+	}
 }
 
 int

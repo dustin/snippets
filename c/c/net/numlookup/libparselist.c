@@ -201,13 +201,14 @@ int
 main(int argc, char **argv)
 {
 	struct config_t config;
-	int     i;
 	char   *val, *tmp;
 	char    buf[LINELEN];
+	time_t	t;
 
 	config = readconfig();
+	t=time(0);
 
-	for (i = 0; i < LIFETIME; i++) {
+	while ( (time(0)-t) < LIFETIME ) {
 		tmp = fgets(buf, LINELEN - 1, stdin);
 		if (tmp == NULL) {
 			(void)sleep(1);
