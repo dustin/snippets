@@ -1,0 +1,114 @@
+# Copyright (c) 1998  Dustin Sallings
+#
+# $Id: DCache.pm,v 1.1 1998/01/15 06:13:06 dustin Exp $
+#
+# This is a CGI document caching system.
+
+package DCache;
+
+use strict;
+use MD5;
+
+sub new
+{
+    shift;
+    my $self={};
+
+    $self->{cachedir}="/tmp/dcache";
+
+    bless($self);
+    return($self);
+}
+
+sub getname
+{
+    my($self, $in)=@_;
+    my($md, $dig);
+
+    $md=MD5->new;
+    $md->add($in);
+    $dig=$md->hexdigest;
+    $dig=~s/(.{2})(.{16}).*/\1\/\2/g;
+    $dig=$self->{cachedir}."/$dig";
+    return($dig);
+}
+
+sub ensurepath
+{
+    my($fn)=@_;
+    my(@a, $np);
+
+    if(-d $fn)
+    {
+        return();
+    }
+
+    @a=split(/\//, $fn);
+
+    pop(@a);
+    $np=join('/', @a);
+    &ensurepath($np);
+
+    if(! -d $np )
+    {
+        mkdir($np, 0755);
+    }
+}
+
+sub cache
+{
+    my($self, $id, $mime, $data)=@_;
+    my($name);
+
+    $name=getname($self, $id);
+    ensurepath($name);
+
+    open(DC_OUT, ">$name");
+    print DC_OUT "X-Cache: $id\n";
+    print DC_OUT "Content-type: $mime\n\n";
+    print DC_OUT $data;
+    close(DC_OUT);
+}
+
+sub getcache
+{
+    my($self, $id)=@_;
+    my($name, $out);
+
+    $name=getname($self, $id);
+    open(DC_IN, $name);
+    # Eat my tag
+    <DC_IN>;
+    $out="";
+    while(<DC_IN>)
+    {
+	$out.=$_;
+    }
+    close(DC_IN);
+    return($out);
+}
+
+sub checkcache
+{
+    my($self, $id)=@_;
+    my($name, $r);
+
+    $r=0;
+    $name=getname($self, $id);
+    if(-f $name)
+    {
+	open(DC_IN, $name);
+	$_=<DC_IN>;
+	if(/X-Cache: (.*)/)
+	{
+	    if($id eq $1)
+	    {
+		$r=1;
+	    }
+	}
+	close(DC_IN);
+    }
+    return($r);
+}
+
+1;
