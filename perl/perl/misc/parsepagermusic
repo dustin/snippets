@@ -22,7 +22,7 @@ while(<>) {
 			chomp;
 			$data.=$_;
 		}
-		print "insert into music(title, data) values(" . quote($title)
+		print "insert into newmusic(title, data) values(" . quote($title)
 			. ", " . quote($data) . ");\n";
 	}
 }
