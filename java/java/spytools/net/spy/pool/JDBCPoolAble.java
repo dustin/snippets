@@ -1,5 +1,5 @@
 //
-// $Id: JDBCPoolAble.java,v 1.6 2001/08/30 00:51:15 dustin Exp $
+// $Id: JDBCPoolAble.java,v 1.7 2002/03/01 21:25:34 dustin Exp $
 
 package net.spy.pool;
 
@@ -59,5 +59,32 @@ public class JDBCPoolAble extends PoolAble {
 			available=false;
 		}
 		return(ret);
+	}
+
+	/**
+	 * Overridden to deal with SQL Warnings.
+	 *
+	 * @see PoolAble
+	 */
+	public synchronized void checkIn() {
+		try {
+			Connection c=(Connection)intGetObject();
+			if(c!=null) {
+				SQLWarning sw=c.getWarnings();
+				if(sw!=null) {
+					System.err.println(
+						"The following warnings were on the DB Connection:");
+					while(sw!=null) {
+						sw.printStackTrace();
+						sw=sw.getNextWarning();
+					}
+					c.clearWarnings();
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		// Perform the normal checkIn
+		super.checkIn();
 	}
 }
