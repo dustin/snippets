@@ -10,8 +10,9 @@
     </td>
 
     <td>
-	<a href="%SELF_URI%?func=display&id=%IMAGE%">
-        <img border="0" src="%IMAGEDATA%"></a>
+	<a href="%SELF_URI%?func=display&search_id=%ID%">
+        <img border="0"
+		src="%SELF_URI%?func=getimage&photo_id=%IMAGE%&thumbnail=1"></a>
     </td>
 
 </tr>

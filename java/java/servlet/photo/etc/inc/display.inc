@@ -15,12 +15,18 @@ function openWindow(URL,name) {
 }
 // done hiding -->
 </script>
-%STYLESHEET%
 </head>
 <body bgcolor="#fFfFfF">
 
+<table width="100%"> <!-- % -->
+<tr>
+	<td align="left">%PREV%</td>
+	<td align="right">%NEXT%</td>
+</tr>
+</table>
+
 <center>
-<img src="%IMAGEDATA%">
+<img src="%SELF_URI%?func=getimage&photo_id=%IMAGE%">
 </center>
 <p>
 
@@ -48,8 +54,11 @@ Info:<br>
 
 <a href="javascript:openWindow('%SELF_URI%?func=display&id=%IMAGE%')">Open
 in new window</a><br>
-<a href="javascript:openWindow('%CGIDIR%/img.cgi/%IMAGE%')">Open image only
-in new window</a><br>
+<a href="javascript:openWindow('%SELF_URI%?func=getimage&photo_id=%IMAGE%')">
+Open image only in new window</a><br>
+<a href="%SELF_URI%?func=logview&view=viewers&which=%IMAGE%">Who's seen
+this?</a><br>
+<a href="%SELF_URI%?func=display&id=%IMAGE%">Linkable image</a><br>
 
 <hr>
 </body></html>
