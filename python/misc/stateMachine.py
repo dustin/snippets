@@ -13,7 +13,7 @@ import unittest
 class StateRv(object):
     """Return values for state machines."""
 
-    def __init__(self, state, response, prefixes=None, postfixes=None):
+    def __init__(self, state, response, prefixes=[], postfixes=[]):
         """Instantiate a state rv with a state and optional lists of prefix
         and postfix state machines to adjust the values.
 
@@ -76,13 +76,12 @@ class StateMachineList(object):
         # Extract the response for the return value
         rv = newState.response
 
-        # Check for a postfix
-        if newState.postfixes is not None:
-            for sm in newState.postfixes:
-                self.addMachine(sm)
+        # Add the postfixes
+        for sm in newState.postfixes:
+            self.addMachine(sm)
 
         # Check for prefixes
-        if newState.prefixes is not None and len(newState.prefixes) > 0:
+        if len(newState.prefixes) > 0:
             # We're prefixing a state machine to the list.  Preserve the
             # starting state for the current machine and add the new state.
             # The list is reversed because we want to have them run in returned
@@ -274,7 +273,7 @@ class StateMachineTest(unittest.TestCase):
         # Try it postfixing
         slist.addMachine(TestMachine({StateMachine.STATE_INIT: StateRv(1, RV),
             1: StateRv(2, RV),
-            2: StateRv(3, RV, prefixes=None, postfixes=[TestMachine()]),
+            2: StateRv(3, RV, postfixes=[TestMachine()]),
             3: StateRv(4, RV),
             4: StateRv(5, RV),
             5: StateRv(StateMachine.STATE_DONE, RV)}))
