@@ -5,7 +5,7 @@
 
 	Copyright (c) 2002	Dustin Sallings <dustin@spy.net>
 
-	$Id: build.xml,v 1.21 2002/08/13 04:18:07 dustin Exp $
+	$Id: build.xml,v 1.22 2002/08/13 05:10:15 dustin Exp $
 
 	-->
 
@@ -45,7 +45,7 @@
 		</delete>
 	</target>
 
-	<target name="docs" depends="all">
+	<target name="docs" depends="all" unless="docs.upToDate">
 		<mkdir dir="docs"/>
 		<javadoc destdir="docs"
 			author="true"
@@ -56,12 +56,26 @@
 			windowtitle="Spy.jar Documentation">
 			<link href="http://java.sun.com/j2se/1.3/docs/api/"/>
 		</javadoc>
+		<property name="docs.upToDate" value="true"/>
 	</target>
 
+	<!-- Install various locations I use the jar around the house. -->
+	<target name="spy-install" depends="spy.jar">
+		<copy file="spy.jar" tofile="/afs/.spy.net/misc/web/java/jar/spy.jar"/>
+		<copy file="spy.jar"
+			tofile="/afs/.spy.net/misc/web/root/money/WEB-INF/lib/spy.jar"/>
+		<copy file="spy.jar"
+			tofile="/afs/.spy.net/misc/web/root/therm/WEB-INF/lib/spy.jar"/>
+		<copy file="spy.jar"
+			tofile="/afs/.spy.net/misc/web/root/photo/WEB-INF/lib/spy.jar"/>
+		<copy file="spy.jar"
+			tofile="/afs/.spy.net/misc/web/root/beckerphoto/WEB-INF/lib/spy.jar"/>
+	</target>
+
+	<!-- Regular install -->
 	<target name="install" depends="install-jar,install-docs"/>
 
 	<target name="install-jar" depends="spy.jar">
-		<delete file="/afs/spy.net/home/dustin/public_html/soft/spy.jar"/>
 		<copy file="spy.jar"
 			tofile="/afs/spy.net/home/dustin/public_html/soft/spy.jar"/>
 		<copy file="spy.jar" tofile="${user.home}/lib/java/spy.jar"/>
@@ -85,7 +99,8 @@
 		</jar>
 	</target>
 
-	<target name="spy.jar" depends="all,properties,docs">
+	<target name="spy.jar" unless="spy.jar.upToDate"
+		depends="all,properties,docs">
 		<jar jarfile="spy.jar" basedir=".">
 			<manifest>
 				<attribute name="Main-Class" value="net.spy.BuildInfo"/>
@@ -96,10 +111,11 @@
 			<include name="net/spy/**/*.java"/>
 			<include name="net/spy/**/*.properties"/>
 		</jar>
+		<property name="spy.jar.upToDate" value="true"/>
 	</target>
 
 	<!-- Build properties, memorabilia, etc... -->
-	<target name="properties">
+	<target name="properties" unless="properties.upToDate">
 		<delete file="net/spy/build.properties"/>
 		<buildnumber file="etc/build.number"/>
 		<propertyfile file="net/spy/build.properties">
@@ -110,6 +126,7 @@
 			<entry key="build.number" value="${build.number}"/>
 			<entry key="build.date" type="date" value="now"/>
 		</propertyfile>
+		<property name="properties.upToDate" value="true"/>
 	</target>
 
 	<target name="all" depends="rmic,dbstuff">
@@ -161,7 +178,19 @@
 	<target name="dbstuff" depends="resultset,preparedstatement">
 	</target>
 
-	<target name="resultset" depends="interfaceimplementor">
+	<!-- Do nothing -->
+	<target name="noop"/>
+
+	<!-- Build the result set -->
+	<target name="checkrsupdate">
+		<uptodate property="rs.uptodate"
+			srcfile="net/spy/db/CachedResultSetStub.java"
+			targetfile="net/spy/db/CachedResultSet.java"/>
+	</target>
+
+	<!-- real target for the result set -->
+	<target name="resultset" unless="rs.uptodate"
+		depends="checkrsupdate,interfaceimplementor">
 		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/db/CachedResultSetStub.java"/>
@@ -177,21 +206,29 @@
 		</java>
 	</target>
 
-	<target name="preparedstatement" depends="resultset,interfaceimplementor">
+	<!-- Build the prepared statement set -->
+	<target name="checkpstupdate">
+		<uptodate property="pst.uptodate"
+			srcfile="net/spy/db/CachePreparedStatementStub.java"
+			targetfile="net/spy/db/CachePreparedStatement.java"/>
+	</target>
+
+	<!-- The real target for prepared statements -->
+	<target name="preparedstatement" unless="pst.uptodate"
+		depends="checkpstupdate,resultset,interfaceimplementor">
 		<javac srcdir="." destdir="." deprecation="on" debug="on" verbose="off">
 			<classpath refid="myclasses"/>
 			<include name="net/spy/db/CachePreparedStatementStub.java"/>
 		</javac>
-
 		<java classname="net.spy.util.InterfaceImplementor" >
-				<arg value="-interface"/>
-					<arg value="java.sql.PreparedStatement"/>
-				<arg value="-superclass"/>
-					<arg value="net.spy.db.CachePreparedStatementStub"/>
-				<arg value="-outputclass"/>
-					<arg value="net.spy.db.CachePreparedStatement"/>
-				<classpath refid="myclasses"/>
-		</java>
+			<arg value="-interface"/>
+				<arg value="java.sql.PreparedStatement"/>
+			<arg value="-superclass"/>
+				<arg value="net.spy.db.CachePreparedStatementStub"/>
+			<arg value="-outputclass"/>
+				<arg value="net.spy.db.CachePreparedStatement"/>
+			<classpath refid="myclasses"/>
+	</java>
 
 	</target>
 
