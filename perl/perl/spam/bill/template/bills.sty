@@ -1,7 +1,7 @@
 % Copyright 1996-1997  Dustin Sallings
-% $Id: bills.sty,v 1.1 1997/10/22 05:08:22 dustin Exp $
+% $Id: bills.sty,v 1.2 1997/10/22 07:08:59 dustin Exp $
 
-\typeout{Dustin's coolass bill stylesheet $Revision: 1.1 $ $Date: 1997/10/22 05:08:22 $}
+\typeout{Dustin's coolass bill stylesheet $Revision: 1.2 $ $Date: 1997/10/22 07:08:59 $}
 
 \newcommand{\nl}{\hfill\par}
 
@@ -15,6 +15,44 @@
 
 \setlength{\reswidth}{2.0in}
 \setlength{\resspacing}{.25in}
+
+% Globals
+
+\def\billfrom#1{\gdef\@billfrom{#1}}
+\def\@billfrom{\@latex@warning@no@line{No \noexpand\billfrom given}}
+
+\def\billto#1{\gdef\@billto{#1}}
+\def\@billto{\@latex@warning@no@line{No \noexpand\billto given}}
+
+\def\billdate#1{\gdef\@billdate{#1}}
+\gdef\@billdate{\today}
+
+\def\billnumber#1{\gdef\@billnumber{#1}}
+\def\@billnumber{\@latex@warning@no@line{No \noexpand\billnumber given}}
+
+\def\billacctid#1{\gdef\@billacctid{#1}}
+\def\@billacctid{\@latex@warning@no@line{No \noexpand\billacctid given}}
+
+\def\billstart#1{\gdef\@billstart{#1}}
+\def\@billstart{\@latex@warning@no@line{No \noexpand\billstart given}}
+
+\def\billend#1{\gdef\@billend{#1}}
+\def\@billend{\@latex@warning@no@line{No \noexpand\billend given}}
+
+\def\billcomment#1{\gdef\@billcomment{#1}}
+\def\@billcomment{}
+
+\def\billcharges#1{\gdef\@billcharges{#1}}
+\def\@billcharges{\@latex@warning@no@line{No \noexpand\billcharges given}}
+
+\def\billforward#1{\gdef\@billforward{#1}}
+\def\@billforward{\@latex@warning@no@line{No \noexpand\billforward given}}
+
+\def\billcredits#1{\gdef\@billcredits{#1}}
+\def\@billcredits{\@latex@warning@no@line{No \noexpand\billcredits given}}
+
+\def\billtotal#1{\gdef\@billtotal{#1}}
+\def\@billtotal{\@latex@warning@no@line{No \noexpand\billtotal given}}
 
 % This takes two arguments, the label and the information, both can be
 % as long as needed
@@ -65,3 +103,108 @@
 % this is just to have it
 
 \newcommand{\leap}{\bigskip\bigskip\bigskip}
+
+% Header, takes a single arg, and that's the title
+
+\newcommand{\billheader}[1]
+{
+\noindent
+\begin{center}
+{\Huge\tt\bf #1}
+
+\bigskip
+\noindent
+{\Huge
+\bf
+I\ N\ V\ O\ I\ C\ E
+}
+\end{center}
+\vskip .5in
+
+}
+
+\newcommand{\makebillfrom}
+{
+\noindent
+\addrentry{From:}{\@billfrom}
+\hfill
+}
+
+\newcommand{\makebillto}
+{
+\noindent
+\addrentry{To:}{\@billto}
+\hfill
+}
+
+\newcommand{\makeiboxa}
+{
+\fatbox{%
+\hfill \makebox[2.2in][l]{Invoice date:\hfill \@billdate}\\
+\hfill \makebox[2.2in][l]{Invoice Number:\hfill \@billnumber}\\
+\hfill \makebox[2.2in][l]{Account ID:\hfill \@billacctid}\\
+}
+}
+
+\newcommand{\makeiboxb}
+{
+\fatbox{%
+\makebox[2.2in][l]{From date:\hfill \@billstart}\\
+\makebox[2.2in][l]{To date:\hfill \@billend}\\
+}
+}
+
+\newcommand{\makebilltop}
+{
+\makebillfrom
+\makeiboxa
+
+\leap
+
+\makebillto
+\makeiboxb
+
+\bigskip\bigskip
+
+\noindent
+\@billcomment
+\leap
+
+}
+
+\newcommand{\makebillbottom}
+{
+\vfill
+
+\hfill
+\fatbox{%
+\makebox[2.2in][l]{Total charges:\hfill\$\@billcharges}\\
+\makebox[2.2in][l]{Balance Forward:\hfill\$\@billforward}\\
+\makebox[2.2in][l]{Total Credits:\hfill\$\@billcredits}\\
+\makebox[2.2in][l]{Amount Due:\hfill\$\@billtotal}\\
+}
+}
+
+\newcommand{\makebilltrans}[1]
+{
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Date & Description & Debit Amount & Credit Amount \\
+\hline
+\hline
+#1
+\end{tabular}
+\end{center}
+}
+
+\newcommand{\makebill}[2]
+{
+\billheader{#1}
+
+\makebilltop
+
+\makebilltrans{#2}
+
+\makebillbottom
+}
