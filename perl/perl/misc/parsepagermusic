@@ -1,0 +1,26 @@
+#!/usr/local/bin/perl
+
+sub quote
+{
+	my($t)=@_;
+
+	$t=~s/\'/\\\'/g;
+	return("'$t'");
+}
+
+$data="";
+$title="";
+
+while(<>) {
+	chomp;
+	if(/^\[!A0\]\[D32801\]!\*\s*(.*?)\s*\;/) {
+		$title=$1;
+		$data=$_;
+		while($_=<> && ($_!~/\*\!/)) {
+			chomp;
+			$data.=$_;
+		}
+		print "insert into music(title, data) values(" . quote($title)
+			. ", " . quote($data) . ");\n";
+	}
+}
