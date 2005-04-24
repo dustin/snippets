@@ -4,7 +4,7 @@
 Break up directories into managable chunks.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-$Id: chunkify.py,v 1.7 2002/07/09 01:45:16 dustin Exp $
+$Id: chunkify.py,v 1.4 2005/04/24 04:41:26 robbie Exp $
 """
 
 import os, sys
@@ -16,19 +16,67 @@ class UsageError(exceptions.Exception):
     """Exception thrown for an invalid usage."""
     pass
 
+class Output(object):
+
+    def finished(self):
+        pass
+
+class FileOut(Output):
+
+    def finished(self):
+        self.fout.close()
+
+class ZipOutput(FileOut):
+
+    def __init__(self, outfn):
+        self.fout=zipfile.ZipFile(outfn + ".zip", 'w')
+
+    def addFile(self, fn):
+        self.fout.write(fn)
+
+class ListOutput(FileOut):
+
+    def __init__(self, outfn):
+        self.fout=file(outfn, 'w')
+
+    def addFile(self, fn):
+        self.fout.write(fn + "\n")
+
+class SymlinkOutput(Output):
+    def __init__(self, outfn):
+        self.top=os.getcwd()
+        self.mydir=outfn
+
+    def __ensurePath(self, fn):
+        if fn != "" and not os.path.exists(fn):
+            self.__ensurePath(os.path.dirname(fn))
+            print "Making", fn
+            os.mkdir(fn)
+
+    def addFile(self, fn):
+        dn=os.path.dirname(fn)
+        bfn=os.path.basename(fn)
+        destdir=os.path.join(self.mydir, dn)
+        destfn=os.path.join(destdir, bfn)
+        # Overwrite the source file with the full path
+        fn=os.path.join(self.top, fn)
+        # print "Linking", fn, "->", destfn
+        self.__ensurePath(destdir)
+        os.symlink(fn, destfn)
+
 class Chunker:
 
     # Default maximum size (650MB)
     DEFAULT_MAXSIZE=(650*1024*1024)
 
-    def __init__(self, filebase, makezip=None, maxsize=DEFAULT_MAXSIZE):
+    def __init__(self, filebase, outClass=ListOutput, maxsize=DEFAULT_MAXSIZE):
         """Get a chunker using the given base filenames for list files.
 
         Optionally, supply a maximum size for each file, and choose between
         whether to make a zip file or just a list of the files."""
         # Arguments
         self.filebase=filebase
-        self.makezip=makezip
+        self.outClass=outClass
         self.maxsize=maxsize
 
         if self.maxsize==None:
@@ -38,10 +86,10 @@ class Chunker:
         self.currentSize=-1
         # Current file ID (1, 2, etc...)
         self.currentFileId=0
-        # Current file (zipfile or list file)
-        self.currentFile=None
         # New file callback
         self.nfcallback=None
+        # The output object
+        self.output=None
         # Now, go fetch a new file
         self.__newfile()
 
@@ -63,24 +111,16 @@ class Chunker:
         # Reset the file size to zero
         self.currentSize=0
         # If there's an open file already, close it
-        if self.currentFile:
-            self.currentFile.close()
+        if self.output:
+            self.output.finished()
         # Move on to the next file.
         self.currentFileId+=1
         # Create the base filename
         fn=self.filebase + "." + str(self.currentFileId)
-        # Append .zip if it's a zip file
-        if self.makezip:
-            fn+='.zip'
         # Perform the callback (if any)
         if self.nfcallback!=None:
             self.nfcallback(self, fn)
-        # Create either a zip file, or regular file, depending on what the
-        # caller wants
-        if self.makezip:
-            self.currentFile=zipfile.ZipFile(fn, 'w')
-        else:
-            self.currentFile=file(fn, 'w')
+        self.output=self.outClass(fn)
 
     def __storeFile(self, path):
         # Get the size of the file
@@ -92,11 +132,8 @@ class Chunker:
             self.__newfile()
         # Increment the size
         self.currentSize+=size
-        # If we're just making a list, append a newline to the filename
-        if not self.makezip:
-            path+='\n'
         # Store the file.
-        self.currentFile.write(path)
+        self.output.addFile(path)
 
     def process(self, path):
         """Process the given path."""
@@ -128,7 +165,7 @@ def parseSize(s):
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'c:m:zp')
+        opts, args = getopt.getopt(sys.argv[1:], 'c:m:zps')
     except getopt.GetoptError, e:
         raise UsageError(e)
 
@@ -136,12 +173,15 @@ def main():
     makezip=None
     maxsize=None
     dopause=None
+    outClass=ListOutput
 
     for pair in opts:
         if pair[0]=='-c':
             chunkname=pair[1]
         elif pair[0]=='-z':
-            makezip=1
+            outClass=ZipOutput
+        elif pair[0]=='-s':
+            outClass=SymlinkOutput
         elif pair[0]=='-m':
             maxsize=parseSize(pair[1])
         elif pair[0]=='-p':
@@ -152,7 +192,7 @@ def main():
     if chunkname==None:
         raise UsageError("No chunk name specified.")
 
-    chunker=Chunker(chunkname, makezip, maxsize)
+    chunker=Chunker(chunkname, outClass, maxsize)
     if dopause:
         chunker.registerNewFileCallback(pauseCallback)
     for d in args[0:]:
