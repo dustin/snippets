@@ -165,7 +165,7 @@ def parseSize(s):
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'c:m:zps')
+        opts, args = getopt.getopt(sys.argv[1:], 'c:m:o:p')
     except getopt.GetoptError, e:
         raise UsageError(e)
 
@@ -175,13 +175,15 @@ def main():
     dopause=None
     outClass=ListOutput
 
+    outClasses={'zip': ZipOutput, 'list': ListOutput, 'symlink': SymlinkOutput}
+
     for pair in opts:
         if pair[0]=='-c':
             chunkname=pair[1]
-        elif pair[0]=='-z':
-            outClass=ZipOutput
-        elif pair[0]=='-s':
-            outClass=SymlinkOutput
+        elif pair[0]=='-o':
+            if not outClasses.has_key(pair[1]):
+                raise UsageError("Unknown output type:  %s" % pair[1])
+            outClass=outClasses[pair[1]]
         elif pair[0]=='-m':
             maxsize=parseSize(pair[1])
         elif pair[0]=='-p':
@@ -201,11 +203,11 @@ def main():
 
 def usage():
     print "Usage:  " + sys.argv[0] \
-        + " -c basefile [-m chunksize] [-z] [-p] startpath"
+        + " -c basefile [-m chunksize] [-o list|zip|symlink] [-p] startpath"
     print "\t-c specifies the base name for each file"
     print "\t-m specifies the chunk size (in bytes, or with k/m/g extension)"
     print "\t   each file (default, 650m)"
-    print "\t-z chooses to make zip files rather than file lists."
+    print "\t-o is the output type (either list, zip, or symlink)"
     print "\t-p pauses before creating each file (after the first)."
     print "\tstartpath is the directory to traverse."
 
