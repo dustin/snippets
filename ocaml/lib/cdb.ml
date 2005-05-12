@@ -15,7 +15,8 @@
 (** CDB creation handle. *)
 type cdb_creator = {
 	table_count: int array;
-	mutable pointers: (Int32.t * int) list;
+	(* Hash index pointers *)
+	mutable pointers: (Int32.t * Int32.t) list;
 	out: out_channel;
 };;
 
@@ -94,11 +95,15 @@ let hash_to_bucket h len =
 	Int32.to_int (Int32.rem (Int32.shift_right_logical h 8) (Int32.of_int len))
 ;;
 
+let pos_out_32 x =
+	Int64.to_int32 (LargeFile.pos_out x)
+;;
+
 (** Add a value to the cdb *)
 let add cdc k v =
 	(* Add the hash to the list *)
 	let h = hash k in
-	cdc.pointers <- (h, pos_out cdc.out) :: cdc.pointers;
+	cdc.pointers <- (h, pos_out_32 cdc.out) :: cdc.pointers;
 	let table = hash_to_table h in
 	cdc.table_count.(table) <- cdc.table_count.(table) + 1;
 
@@ -114,14 +119,14 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Length of the table *)
 	let len = tc * 2 in
 	(* Store the table position *)
-	slot_table := (pos_out cdc.out, len) :: !slot_table;
+	slot_table := (pos_out_32 cdc.out, Int32.of_int len) :: !slot_table;
 	(* Build the hash table *)
 	let ht = Array.make len None in
 	let cur_p = ref table_start.(i) in
 	(* Lookup entries by slot number *)
 	let lookupSlot x =
 		try Hashtbl.find slot_pointers x
-		with Not_found -> (Int32.zero,0)
+		with Not_found -> (Int32.zero,Int32.zero)
 	in
 	(* from 0 to tc-1 because the loop will run an extra time otherwise *)
 	for u = 0 to (tc - 1) do
@@ -142,10 +147,10 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Write this hash table *)
 	Array.iter (fun hpp ->
 			let h,t = match hpp with
-				None -> Int32.zero,0
+				None -> Int32.zero,Int32.zero
 				| Some(h,t) -> h,t;
 			in
-			write_le32 cdc h; write_le cdc t
+			write_le32 cdc h; write_le32 cdc t
 		) ht;
 ;;
 
@@ -173,7 +178,7 @@ let close_cdb_out cdc =
 		cdc.table_count;
 	(* write out the pointer sets *)
 	seek_out cdc.out 0;
-	List.iter (fun x -> write_le cdc (fst x); write_le cdc (snd x))
+	List.iter (fun x -> write_le32 cdc (fst x); write_le32 cdc (snd x))
 		(List.rev !slot_table);
 	close_out cdc.out
 ;;
