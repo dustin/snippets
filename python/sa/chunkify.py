@@ -7,7 +7,7 @@ Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: chunkify.py,v 1.4 2005/04/24 04:41:26 robbie Exp $
 """
 
-import os, sys
+import os, sys, stat
 import zipfile
 import getopt
 import exceptions
@@ -122,30 +122,48 @@ class Chunker:
             self.nfcallback(self, fn)
         self.output=self.outClass(fn)
 
+    def __hasRoomFor(self, file):
+        return self.currentSize + file[1][stat.ST_SIZE] < self.maxsize
+
     def __storeFile(self, path):
         # Get the size of the file
-        size=os.path.getsize(path)
-        # # print path + " is a file of " + str(size) + " bytes."
-        # Figure out if we need a new file
-        if self.currentSize + size > self.maxsize:
-            print "Need a new file for " + path
-            self.__newfile()
+        size=path[1][stat.ST_SIZE]
         # Increment the size
         self.currentSize+=size
         # Store the file.
-        self.output.addFile(path)
+        self.output.addFile(path[0])
+
+    def __bySize(self, a, b):
+        return cmp(b[1][stat.ST_SIZE], a[1][stat.ST_SIZE])
+
+    def __getSortedDir(self, path):
+        # Get the fully qualified directory listing
+        paths=[os.path.join(path, f) for f in os.listdir(path)]
+        # Get the same in a tuple with their stats
+        statted = [(p, os.stat(p)) for p in paths]
+        statted.sort(self.__bySize)
+        dirs=[e[0] for e in statted if stat.S_ISDIR(e[1][0])]
+        files=[e for e in statted if not stat.S_ISDIR(e[1][0])]
+        return dirs, files
 
     def process(self, path):
         """Process the given path."""
         print "Processing " + path
-        if(os.path.isdir(path)):
-            for f in os.listdir(path):
-                self.process(os.path.join(path, f))
-        else:
-            try:
-                self.__storeFile(path)
-            except OSError, e:
-                print e
+        dirs, files=self.__getSortedDir(path)
+        for dir in dirs:
+            self.process(dir)
+        offset = 0
+        # Flip through all of the files of a directory to find the largest
+        # things that will fit until we've used all available space.
+        while len(files) > 0:
+            if offset >= len(files):
+                self.__newfile()
+                offset=0
+            if self.__hasRoomFor(files[offset]):
+                self.__storeFile(files[offset])
+                del files[offset]
+            else:
+                offset+=1
 
 def pauseCallback(chunker, fn):
     print "--- Press enter to create " + fn + " ---"
