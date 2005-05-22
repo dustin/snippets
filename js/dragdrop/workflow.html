@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Copyright (c) 2005  Dustin Sallings <dustin+html@spy.net>
+  -->
+<html>
+	<head>
+		<title>Workflow UI</title>
+	<style type="text/css">
+		#workFlowManager h1 {
+			font-size: small;
+			text-align: center;
+			margin: 0px;
+			background: #ffc;
+		}
+
+		#workFlowManager div {
+			margin: 5px;
+		}
+
+		#workFlowManager ul, #workFlowManager ol {
+			padding: 0px;
+			margin: 0px;
+			list-style: none;
+		}
+
+		#workFlowManager li {
+			/* Width = div.width - margin*2 - padding*2 - 2 */
+			width: 136px;
+			margin: 1px;
+			padding: 5px;
+			border: solid 1px black;
+		}
+
+		#workItems {
+			float: left;
+			width: 150px;
+			border: solid 1px;
+		}
+
+		#workFlow {
+			float: left;
+			width: 150px;
+			border: solid 1px;
+		}
+	</style>
+	</head>
+
+<script language="JavaScript" type="text/javascript" src="../debug.js"></script>
+
+<script language="JavaScript">
+	var workflow=new Object();
+	workflow.x1=0;
+	workflow.y1=0;
+	workflow.x2=0;
+	workflow.y2=0;
+	workflow.list=new Array();
+
+	var availableItems=new Array();
+
+	// Preload the images
+	var poofImages=new Array();
+	function loadPoofImages() {
+		for(var i=1; i<=5; i++) {
+			var pic=new Image(127, 124);
+			pic.src="poof" + i + ".png";
+			pic.setAttribute("style", "position: absolute; display:none;");
+			document.body.appendChild(pic);
+
+			poofImages.push(pic);
+		}
+	}
+
+	function loadItems() {
+		for(var i=0; i<4; i++) {
+			var item=new Object();
+			item.id="workItem_" + i;
+			item.name="Thing " + i;
+			item.params=new Array();
+			for(var j=0; j<i; j++) {
+				var paramName="param " + j;
+				item.params.push(paramName);
+			}
+			availableItems.push(item);
+		}
+	}
+
+	function setupItems() {
+		loadItems();
+		var items=document.getElementById("availableWorkItems");
+		for(var i=0; i<availableItems.length; i++) {
+			var li=document.createElement("li");
+			li.setAttribute("onmousedown", "makeItem(event, " + i + ");");
+			li.setAttribute("id", availableItems[i].id);
+			li.appendChild(document.createTextNode(availableItems[i].name));
+			items.appendChild(li);
+		}
+	}
+
+	function setup() {
+		setupItems();
+		// XXX:  This doesn't seem to work in Safari
+		loadPoofImages();
+	}
+
+	var animationTimer=null;
+
+	var dragOb=new Object();
+	dragOb.zIndex=0;
+
+	function findWorkflow() {
+		var workFlow=document.getElementById("workFlow");
+		workflow.div=workFlow;
+		workflow.x1=workFlow.offsetLeft;
+		workflow.y1=workFlow.offsetTop;
+		workflow.x2=workFlow.offsetWidth + workFlow.offsetLeft;
+		workflow.y2=workFlow.offsetTop + workFlow.offsetHeight;
+	}
+
+	function makeIndicator(source) {
+		// OK, now clone the node for a visual effect
+		dragOb.indicator=document.createElement("div");
+		dragOb.indicator.id="tmpNode";
+		dragOb.indicator.appendChild(source.firstChild.cloneNode(true));
+		dragOb.indicator.setAttribute("style", "position: absolute;"
+			+ "border: solid black 1px;"
+			+ "left: " + dragOb.elStartLeft + "px;"
+			+ "top: " + dragOb.elStartTop + "px;"
+			+ "width: " + source.offsetWidth + "px;"
+			+ "padding: 5px;"
+			+ "display: block;"
+			);
+			document.body.appendChild(dragOb.indicator);
+	}
+
+	function setupDrag(event, isNew) {
+		findWorkflow();
+		var el=event.target;
+		var oid=el.id;
+		var x, y;
+
+		dragOb.elNode=el;
+		dragOb.oid=oid;
+		// Don't drag text nodes
+		if(dragOb.elNode.nodeType == 3) {
+			dragOb.elNode = dragOb.elNode.parentNode;
+		}
+
+		dragOb.cursorStartX = event.clientX + window.scrollX;
+		dragOb.cursorStartY = event.clientY + window.scrollY;
+		dragOb.elStartLeft  = parseInt(dragOb.elNode.offsetLeft, 10);
+		dragOb.elStartTop   = parseInt(dragOb.elNode.offsetTop, 10);
+		dragOb.isNew = isNew;
+
+		// Disable normal mouse events
+		document.addEventListener("mousemove", dragItem, true);
+		document.addEventListener("mouseup", dropItem, true);
+		event.preventDefault();
+		makeIndicator(el);
+	}
+
+	function makeItem(event, index) {
+		dragOb.itemIndex=index;
+		setupDrag(event, true);
+	}
+
+	function moveOrRemove(event, index) {
+		dragOb.itemIndex=index;
+		setupDrag(event, false);
+	}
+
+	function dragItem(event) {
+		var x, y;
+		x = event.clientX + window.scrollX;
+		y = event.clientY + window.scrollY;
+
+		dragOb.cursorX=x;
+		dragOb.cursorY=y;
+
+		dragOb.currentX=dragOb.elStartLeft + x - dragOb.cursorStartX;
+		dragOb.currentY=dragOb.elStartTop + y - dragOb.cursorStartY;
+		event.preventDefault();
+
+		dragOb.indicator.style.left = dragOb.currentX + "px";
+		dragOb.indicator.style.top = dragOb.currentY + "px";
+
+		if(isOverWorkflowArea()) {
+			dragOb.indicator.style.display="none;";
+		} else {
+			dragOb.indicator.style.display="block;";
+		}
+	}
+
+	function clearThing(thing) {
+		while(thing.hasChildNodes()) {
+			thing.removeChild(thing.firstChild);
+		}
+	}
+
+	function reDisplay() {
+		var work=document.getElementById("workFlowList");
+		clearThing(work);
+		for(var i=0; i<workflow.list.length; i++) {
+			var theItem=document.createElement("li");
+			theItem.appendChild(document.createTextNode(workflow.list[i].name));
+			theItem.setAttribute("onmousedown", "moveOrRemove(event, " + i  +");");
+			work.appendChild(theItem);
+
+			for(var j=0; j<workflow.list[i].params.length; j++) {
+				if(j == 0) {
+					theItem.appendChild(document.createElement("hr"));
+				} else {
+					theItem.appendChild(document.createElement("br"));
+				}
+				theItem.appendChild(document.createTextNode(
+					workflow.list[i].params[j] + ": "));
+				var formField=document.createElement("input");
+				formField.setAttribute("name", "item." + i + "." + j);
+				formField.setAttribute("size", "8");
+				theItem.appendChild(formField);
+			}
+
+			workflow.list[i].x1=theItem.offsetLeft;
+			workflow.list[i].y1=theItem.offsetTop;
+			workflow.list[i].x2=theItem.offsetWidth + theItem.offsetLeft;
+			workflow.list[i].y2=theItem.offsetTop + theItem.offsetHeight;
+		}
+	}
+
+	// Return true if the dragOb is over the workflow area
+	function isOverWorkflowArea() {
+		return(dragOb.cursorX >= workflow.x1
+			&& dragOb.cursorX <= workflow.x2
+			&& dragOb.cursorY >= workflow.y1
+			&& dragOb.cursorY <= workflow.y2);
+	}
+
+	// Animate a poof when an item is removed
+	function animatePoof(which) {
+			clearTimeout(animationTimer);
+			// Turn off the display of all of the images
+			for(var i=0; i<poofImages.length; i++) {
+				poofImages[i].style.display="none";
+			}
+			if(which < poofImages.length) {
+				var img=poofImages[which];
+				img.style.left = (dragOb.cursorX - (img.width / 2)) + "px";
+				img.style.top = (dragOb.cursorY - (img.height / 2)) + "px";
+				img.style.display="block;";
+				animationTimer = setTimeout("animatePoof(" + (which+1) + ");" , 50);
+			}
+	}
+
+	function dropItem(event) {
+		document.removeEventListener("mousemove", dragItem, true);
+		document.removeEventListener("mouseup", dropItem, true);
+
+		if(dragOb.isNew) {
+			if(isOverWorkflowArea()) {
+				newItem=availableItems[dragOb.itemIndex];
+				workflow.list.push(newItem);
+			}
+		} else {
+			if(!isOverWorkflowArea()) {
+				// remove the item from the workflow
+				workflow.list.splice(dragOb.itemIndex, 1);
+				animatePoof(0);
+			}
+		}
+
+		document.body.removeChild(dragOb.indicator);
+		reDisplay();
+	}
+
+</script>
+
+	<body onload="setup();">
+		<div id="workFlowManager">
+			<div id="workItems">
+				<h1>Available Work Items</h1>
+				<ul id="availableWorkItems">
+				</ul>
+			</div>
+			<div id="workFlow">
+				<h1>Your Workflow</h1>
+				<form method="POST" action="">
+					<ol id="workFlowList">
+					</ol>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>
+
