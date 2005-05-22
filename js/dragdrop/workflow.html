@@ -9,7 +9,7 @@
 		<title>Workflow UI</title>
 	<style type="text/css">
 		#workFlowManager h1 {
-			font-size: small;
+			font-size: medium;
 			text-align: center;
 			margin: 0px;
 			background: #ffc;
@@ -101,6 +101,7 @@
 
 	function setup() {
 		setupItems();
+		findWorkflow();
 		// XXX:  This doesn't seem to work in Safari
 		loadPoofImages();
 	}
@@ -111,12 +112,12 @@
 	dragOb.zIndex=0;
 
 	function findWorkflow() {
-		var workFlow=document.getElementById("workFlow");
-		workflow.div=workFlow;
-		workflow.x1=workFlow.offsetLeft;
-		workflow.y1=workFlow.offsetTop;
-		workflow.x2=workFlow.offsetWidth + workFlow.offsetLeft;
-		workflow.y2=workFlow.offsetTop + workFlow.offsetHeight;
+		var workFlowDiv=document.getElementById("workFlow");
+		workflow.div=workFlowDiv;
+		workflow.x1=workFlowDiv.offsetLeft;
+		workflow.y1=workFlowDiv.offsetTop;
+		workflow.x2=workFlowDiv.offsetWidth + workFlowDiv.offsetLeft;
+		workflow.y2=workFlowDiv.offsetTop + workFlowDiv.offsetHeight;
 	}
 
 	function makeIndicator(source) {
@@ -135,8 +136,8 @@
 			document.body.appendChild(dragOb.indicator);
 	}
 
-	function setupDrag(event, isNew) {
-		findWorkflow();
+	function setupDrag(event, index, isNew) {
+		dragOb.itemIndex=index;
 		var el=event.target;
 		var oid=el.id;
 		var x, y;
@@ -162,13 +163,11 @@
 	}
 
 	function makeItem(event, index) {
-		dragOb.itemIndex=index;
-		setupDrag(event, true);
+		setupDrag(event, index, true);
 	}
 
 	function moveOrRemove(event, index) {
-		dragOb.itemIndex=index;
-		setupDrag(event, false);
+		setupDrag(event, index, false);
 	}
 
 	function dragItem(event) {
