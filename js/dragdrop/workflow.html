@@ -45,6 +45,14 @@
 			width: 150px;
 			border: solid 1px;
 		}
+
+		#workFlowHint {
+			color: gray;
+			background: white;
+			padding-top: 75px;
+			padding-bottom: 75px;
+			text-align: center;
+		}
 	</style>
 	</head>
 
@@ -226,6 +234,12 @@
 			workflow.list[i].x2=theItem.offsetWidth + theItem.offsetLeft;
 			workflow.list[i].y2=theItem.offsetTop + theItem.offsetHeight;
 		}
+		var hint=document.getElementById("workFlowHint");
+		if(workflow.list.length == 0) {
+			hint.style.display="block";
+		} else {
+			hint.style.display="none";
+		}
 		findWorkflow();
 	}
 
@@ -285,6 +299,9 @@
 			</div>
 			<div id="workFlow">
 				<h1>Your Workflow</h1>
+				<div id="workFlowHint">
+					Drag items here to create a workflow.
+				</div>
 				<form method="POST" action="">
 					<ol id="workFlowList">
 					</ol>
