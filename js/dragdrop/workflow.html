@@ -144,8 +144,10 @@
 			+ "top: " + dragOb.elStartTop + "px;"
 			+ "width: " + source.offsetWidth + "px;"
 			+ "padding: 5px;"
-			+ "background: none;"
+			+ "background: white;"
 			+ "display: block;"
+			+ "-moz-opacity: .8;"
+			+ "-khtml-opacity: .8;"
 			);
 			document.body.appendChild(dragOb.indicator);
 	}
@@ -201,9 +203,9 @@
 
 		if(isOverWorkflowArea()) {
 			dragOb.indicator.style.background=
-				'url("add.png") no-repeat bottom right;';
+				'white url("add.png") no-repeat bottom right;';
 		} else {
-			dragOb.indicator.style.background="none;";
+			dragOb.indicator.style.background="white;";
 		}
 	}
 
