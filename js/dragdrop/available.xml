@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!-- Copyright (c) 2005  Dustin Sallings (dustin@spy.net) -->
+
+<workitems>
+	<workitem id="1">
+		<name>Sync Settings</name>
+	</workitem>
+	<workitem id="17">
+		<name>Set Setting</name>
+		<arguments>
+			<argument>Name</argument>
+			<argument>Value</argument>
+		</arguments>
+	</workitem>
+	<workitem id="19">
+		<name>Get Setting</name>
+		<arguments>
+			<argument>Name</argument>
+		</arguments>
+	</workitem>
+	<workitem id="23">
+		<name>Send Notification</name>
+		<arguments>
+			<argument>Name</argument>
+		</arguments>
+	</workitem>
+</workitems>

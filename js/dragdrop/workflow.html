@@ -86,23 +86,42 @@
 		}
 	}
 
-	function loadItems() {
-		for(var i=0; i<4; i++) {
-			var item=new Object();
-			item.id="workItem_" + i;
-			item.name="Thing " + i;
-			item.params=new Array();
-			for(var j=0; j<i; j++) {
-				var paramName="param " + j;
-				item.params.push(paramName);
-			}
-			availableItems.push(item);
-		}
+	function getData(el, which) {
+		stuff=el.getElementsByTagName(which);
+		return stuff[0].firstChild.nodeValue;
 	}
 
-	function setupItems() {
-		loadItems();
+	function loadItems() {
+		var req = new XMLHttpRequest();
+		req.onreadystatechange = function() {
+			if (req.readyState == 4) {
+				if(req.status == 200 || req.status == 0
+					|| req.status == undefined) {
+					// Load items
+					var items=req.responseXML.getElementsByTagName("workitem");
+					availableItems=new Array();
+					for(var i=0; i<items.length; i++) {
+						var item=new Object();
+						item.id=items[i].getAttribute("id");
+						item.name=getData(items[i], "name");
+						item.params=new Array();
+						var parameters=items[i].getElementsByTagName("argument");
+						for(var j=0; j<parameters.length; j++) {
+							item.params.push(parameters[j].firstChild.nodeValue);
+						}
+						availableItems.push(item);
+					} // all items
+					displayWorkItems();
+				} // good status
+			} // got status
+		} // on ready state change
+		req.open("GET", "available.xml", true);
+		req.send(null);
+	}
+
+	function displayWorkItems() {
 		var items=document.getElementById("availableWorkItems");
+		clearThing(items);
 		for(var i=0; i<availableItems.length; i++) {
 			var li=document.createElement("li");
 			li.setAttribute("onmousedown", "makeItem(event, " + i + ");");
@@ -113,7 +132,7 @@
 	}
 
 	function setup() {
-		setupItems();
+		loadItems();
 		findWorkflow();
 		// XXX:  This doesn't seem to work in Safari
 		loadPoofImages();
@@ -147,7 +166,7 @@
 			+ "background: white;"
 			+ "display: block;"
 			+ "-moz-opacity: .8;"
-			+ "-khtml-opacity: .8;"
+			// + "-khtml-opacity: .8;"
 			);
 			document.body.appendChild(dragOb.indicator);
 	}
