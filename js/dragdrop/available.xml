@@ -25,4 +25,14 @@
 			<argument>Name</argument>
 		</arguments>
 	</workitem>
+	<workitem id="37">
+		<name>Reboot</name>
+	</workitem>
+	<workitem id="42">
+		<name>Get Related Parameters</name>
+		<arguments>
+			<argument>Pattern</argument>
+			<argument>Get</argument>
+		</arguments>
+	</workitem>
 </workitems>

@@ -15,6 +15,13 @@
 			background: #ffc;
 		}
 
+		#workFlowManager h2 {
+			font-size: small;
+			margin: 0px;
+			font-weight: normal;
+			cursor: move;
+		}
+
 		#workFlowManager div {
 			margin: 5px;
 		}
@@ -27,11 +34,11 @@
 
 		#workFlowManager li {
 			/* Width = div.width - margin*2 - padding*2 - 2 */
+			font-size: small;
 			width: 136px;
 			margin: 1px;
 			padding: 5px;
 			border: solid 1px black;
-			cursor: move;
 		}
 
 		#workItems {
@@ -126,7 +133,9 @@
 			var li=document.createElement("li");
 			li.setAttribute("onmousedown", "makeItem(event, " + i + ");");
 			li.setAttribute("id", availableItems[i].id);
-			li.appendChild(document.createTextNode(availableItems[i].name));
+			var h2=document.createElement("h2");
+			h2.appendChild(document.createTextNode(availableItems[i].name));
+			li.appendChild(h2);
 			items.appendChild(li);
 		}
 	}
@@ -234,14 +243,43 @@
 		}
 	}
 
+	function showWarnings(i) {
+		var workflowItem=workflow.list[i];
+		var numRequired=workflowItem.params.length;
+		var numFilled=0;
+		for(var j=0; j<workflowItem.values.length; j++) {
+			if(workflowItem.values[j].length > 0) {
+				numFilled++;
+			}
+		}
+		// debug(numRequired + " required args, " + numFilled + " filled");
+		if(numRequired == numFilled) {
+			workflowItem.li.style.background='white;';
+		} else {
+			workflowItem.li.style.background=
+				'white url("warn.png") no-repeat top right;';
+		}
+	}
+
+	function takeInput(field, workItemIndex, paramIndex) {
+		var data=field.value;
+		var workflowItem=workflow.list[workItemIndex];
+		workflowItem.values[paramIndex]=data;
+		showWarnings(workItemIndex);
+	}
+
 	function reDisplay() {
 		var work=document.getElementById("workFlowList");
 		clearThing(work);
 		for(var i=0; i<workflow.list.length; i++) {
 			var theItem=document.createElement("li");
-			theItem.appendChild(document.createTextNode(workflow.list[i].name));
-			theItem.setAttribute("onmousedown", "moveOrRemove(event, " + i  +");");
+			var h2=document.createElement("h2");
+			theItem.appendChild(h2);
+			h2.appendChild(document.createTextNode(workflow.list[i].name));
+			h2.setAttribute("onmousedown", "moveOrRemove(event, " + i  +");");
 			work.appendChild(theItem);
+
+			workflow.list[i].li=theItem;
 
 			for(var j=0; j<workflow.list[i].params.length; j++) {
 				if(j == 0) {
@@ -249,13 +287,19 @@
 				} else {
 					theItem.appendChild(document.createElement("br"));
 				}
+
 				theItem.appendChild(document.createTextNode(
 					workflow.list[i].params[j] + ": "));
 				var formField=document.createElement("input");
 				formField.setAttribute("name", "item." + i + "." + j);
 				formField.setAttribute("size", "8");
+				formField.setAttribute("onkeyup",
+					"takeInput(this, " + i + ", " + j + ");");
 				theItem.appendChild(formField);
 			}
+
+			// Show the warnings for the given item
+			showWarnings(i);
 
 			workflow.list[i].x1=theItem.offsetLeft;
 			workflow.list[i].y1=theItem.offsetTop;
@@ -301,7 +345,11 @@
 
 		if(dragOb.isNew) {
 			if(isOverWorkflowArea()) {
-				newItem=availableItems[dragOb.itemIndex];
+				var newItem=new Object();
+				newItem.id=availableItems[dragOb.itemIndex].id;
+				newItem.name=availableItems[dragOb.itemIndex].name;
+				newItem.params=availableItems[dragOb.itemIndex].params;
+				newItem.values=new Array();
 				workflow.list.push(newItem);
 			}
 		} else {
