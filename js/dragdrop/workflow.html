@@ -226,14 +226,27 @@
 			&& workflow.list.length > 0 && currentY < workflow.list[0].y1) {
 
 			dragOb.nearWhich=-1;
+			workflow.list[0].li.style.margin="20px 1px 1px 1px;";
 		} else {
 			for(var i=0; i<workflow.list.length; i++) {
 				var oby1=workflow.list[i].y1;
 				var oby2=workflow.list[i].y2;
 				if(i != dragOb.nearWhich && currentY > oby1 && currentY < oby2) {
+					clearDropPositionIndicator();
 					dragOb.nearWhich=i;
+					workflow.list[i].li.style.margin="1px 1px 20px 1px;";
 				}
 			}
+		}
+	}
+
+	function clearDropPositionIndicator() {
+		if(workflow.list.length > 0) {
+			var index=dragOb.nearWhich;
+			if(index < 0) {
+				index=0;
+			}
+			workflow.list[index].li.style.margin="1px 1px 1px 1px";
 		}
 	}
 
@@ -257,6 +270,8 @@
 			dragOb.indicator.style.background=
 				'white url("add.png") no-repeat bottom right;';
 		} else {
+			dragOb.nearWhich=-2;
+			clearDropPositionIndicator();
 			dragOb.indicator.style.background="white;";
 		}
 	}
@@ -306,6 +321,7 @@
 
 		for(var i=0; i<workflow.list.length; i++) {
 			var theItem=document.createElement("li");
+			theItem.style.margin="1px 1px 1px 1px;";
 			var h2=document.createElement("h2");
 			// Append the child we've built
 			theItem.appendChild(h2);
