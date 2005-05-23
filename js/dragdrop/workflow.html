@@ -151,6 +151,7 @@
 
 	var dragOb=new Object();
 	dragOb.zIndex=0;
+	dragOb.nearWhich=-1;
 
 	function findWorkflow() {
 		var workFlowDiv=document.getElementById("workFlow");
@@ -204,6 +205,11 @@
 		document.addEventListener("mouseup", dropItem, true);
 		event.preventDefault();
 		makeIndicator(el);
+
+		if(!isNew) {
+			var removing=workflow.list.splice(dragOb.itemIndex, 1);
+			dragOb.movingObject=removing[0];
+		}
 	}
 
 	function makeItem(event, index) {
@@ -212,6 +218,23 @@
 
 	function moveOrRemove(event, index) {
 		setupDrag(event, index, false);
+	}
+
+	function locateDropPosition() {
+		var currentY=dragOb.currentY;
+		if(dragOb.nearWhich != -1
+			&& workflow.list.length > 0 && currentY < workflow.list[0].y1) {
+
+			dragOb.nearWhich=-1;
+		} else {
+			for(var i=0; i<workflow.list.length; i++) {
+				var oby1=workflow.list[i].y1;
+				var oby2=workflow.list[i].y2;
+				if(i != dragOb.nearWhich && currentY > oby1 && currentY < oby2) {
+					dragOb.nearWhich=i;
+				}
+			}
+		}
 	}
 
 	function dragItem(event) {
@@ -230,6 +253,7 @@
 		dragOb.indicator.style.top = dragOb.currentY + "px";
 
 		if(isOverWorkflowArea()) {
+			locateDropPosition();
 			dragOb.indicator.style.background=
 				'white url("add.png") no-repeat bottom right;';
 		} else {
@@ -271,13 +295,22 @@
 	function reDisplay() {
 		var work=document.getElementById("workFlowList");
 		clearThing(work);
+
+		// First, clear or hide the hint so the math will be right below
+		var hint=document.getElementById("workFlowHint");
+		if(workflow.list.length == 0) {
+			hint.style.display="block";
+		} else {
+			hint.style.display="none";
+		}
+
 		for(var i=0; i<workflow.list.length; i++) {
 			var theItem=document.createElement("li");
 			var h2=document.createElement("h2");
+			// Append the child we've built
 			theItem.appendChild(h2);
 			h2.appendChild(document.createTextNode(workflow.list[i].name));
 			h2.setAttribute("onmousedown", "moveOrRemove(event, " + i  +");");
-			work.appendChild(theItem);
 
 			workflow.list[i].li=theItem;
 
@@ -298,6 +331,9 @@
 				theItem.appendChild(formField);
 			}
 
+			// Append the new child
+			work.appendChild(theItem);
+
 			// Show the warnings for the given item
 			showWarnings(i);
 
@@ -305,12 +341,6 @@
 			workflow.list[i].y1=theItem.offsetTop;
 			workflow.list[i].x2=theItem.offsetWidth + theItem.offsetLeft;
 			workflow.list[i].y2=theItem.offsetTop + theItem.offsetHeight;
-		}
-		var hint=document.getElementById("workFlowHint");
-		if(workflow.list.length == 0) {
-			hint.style.display="block";
-		} else {
-			hint.style.display="none";
 		}
 		findWorkflow();
 	}
@@ -350,13 +380,15 @@
 				newItem.name=availableItems[dragOb.itemIndex].name;
 				newItem.params=availableItems[dragOb.itemIndex].params;
 				newItem.values=new Array();
-				workflow.list.push(newItem);
+				workflow.list.splice(dragOb.nearWhich+1, 0, newItem);
 			}
 		} else {
 			if(!isOverWorkflowArea()) {
-				// remove the item from the workflow
-				workflow.list.splice(dragOb.itemIndex, 1);
+				// Poof to make it clear the removal is permanent
 				animatePoof(0);
+			} else {
+				// Over the workflow area, we're repositioning, just reinsert
+				workflow.list.splice(dragOb.nearWhich+1, 0, dragOb.movingObject);
 			}
 		}
 
