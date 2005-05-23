@@ -322,6 +322,11 @@
 		for(var i=0; i<workflow.list.length; i++) {
 			var theItem=document.createElement("li");
 			theItem.style.margin="1px 1px 1px 1px;";
+			var hidden=document.createElement("input");
+			hidden.setAttribute("type", "hidden");
+			hidden.setAttribute("name", "item." + i);
+			hidden.setAttribute("value", workflow.list[i].id);
+			theItem.appendChild(hidden);
 			var h2=document.createElement("h2");
 			// Append the child we've built
 			theItem.appendChild(h2);
@@ -341,6 +346,9 @@
 					workflow.list[i].params[j] + ": "));
 				var formField=document.createElement("input");
 				formField.setAttribute("name", "item." + i + "." + j);
+				if(workflow.list[i].values[j]) {
+					formField.setAttribute("value", workflow.list[i].values[j]);
+				}
 				formField.setAttribute("size", "8");
 				formField.setAttribute("onkeyup",
 					"takeInput(this, " + i + ", " + j + ");");
@@ -426,9 +434,10 @@
 				<div id="workFlowHint">
 					Drag items here to create a workflow.
 				</div>
-				<form method="POST" action="">
+				<form method="POST" action="http://bleu.west.spy.net/cgi-bin/test.py">
 					<ul id="workFlowList">
 					</ul>
+				<input type="submit" value="Save"/>
 				</form>
 			</div>
 		</div>
