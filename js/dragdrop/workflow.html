@@ -144,6 +144,7 @@
 			+ "top: " + dragOb.elStartTop + "px;"
 			+ "width: " + source.offsetWidth + "px;"
 			+ "padding: 5px;"
+			+ "background: none;"
 			+ "display: block;"
 			);
 			document.body.appendChild(dragOb.indicator);
@@ -199,9 +200,10 @@
 		dragOb.indicator.style.top = dragOb.currentY + "px";
 
 		if(isOverWorkflowArea()) {
-			dragOb.indicator.style.display="none;";
+			dragOb.indicator.style.background=
+				'url("add.png") no-repeat bottom right;';
 		} else {
-			dragOb.indicator.style.display="block;";
+			dragOb.indicator.style.background="none;";
 		}
 	}
 
