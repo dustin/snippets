@@ -119,10 +119,52 @@
 						availableItems.push(item);
 					} // all items
 					displayWorkItems();
+					loadCurrent();
 				} // good status
 			} // got status
 		} // on ready state change
 		req.open("GET", "available.xml", true);
+		req.send(null);
+	}
+
+	// Load the current workflow.
+	function loadCurrent() {
+		var req = new XMLHttpRequest();
+		req.onreadystatechange = function() {
+			if (req.readyState == 4) {
+				if(req.status == 200 || req.status == 0
+					|| req.status == undefined) {
+					// Load items
+					var items=req.responseXML.getElementsByTagName("workitem");
+					workflow.list=new Array();
+					for(var i=0; i<items.length; i++) {
+						var item=new Object();
+						item.id=getData(items[i], "itemId");
+						var protoItem=null;
+						for(var j=0; j<availableItems.length && protoItem == null; j++) {
+							if(availableItems[j].id == item.id) {
+								protoItem=availableItems[j];
+							}
+						}
+						// Only add it if we found the proto
+						if(protoItem != null) {
+							item.name=protoItem.name;
+							item.params=protoItem.params;
+							item.values=new Array();
+							var parameters=items[i].getElementsByTagName("param");
+							for(var j=0; j<parameters.length; j++) {
+								item.values.push(parameters[j].firstChild.nodeValue);
+							}
+							workflow.list.push(item);
+						} else {
+							debug("Didn't find proto " + item.id);
+						}
+					} // all items
+					reDisplay();
+				} // good status
+			} // got status
+		} // on ready state change
+		req.open("GET", "current.xml", true);
 		req.send(null);
 	}
 

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!-- Copyright (c) 2005  Dustin Sallings (dustin@spy.net) -->
+
+<workflow>
+	<workitem>
+		<itemId>37</itemId>
+	</workitem>
+	<workitem>
+		<itemId>23</itemId>
+		<params>
+			<param>x.Test</param>
+		</params>
+	</workitem>
+	<workitem>
+		<itemId>42</itemId>
+		<params>
+			<param>SomePattern</param>
+			<param>SomeValue</param>
+		</params>
+	</workitem>
+</workflow>
