@@ -33,26 +33,32 @@
 		}
 
 		#workFlowManager li {
-			/* Width = div.width - margin*2 - padding*2 - 2 */
 			font-size: small;
-			width: 136px;
 			margin: 1px;
-			padding: 5px;
+			padding: 1px;
 			border: solid 1px black;
 		}
 
 		#workItems {
 			float: left;
-			width: 150px;
+			width: 200px;
 			border: solid 1px;
 		}
+
+		/* Width = div.width - margin*2 - padding*2 - 2 */
+    #workItems li {
+			width: 194px;
+    }
 
 		#workFlow {
 			float: left;
-			width: 150px;
+			width: 450px;
 			border: solid 1px;
 		}
 
+    #workFlow li {
+			width: 444px;
+    }
 		#workFlowHint {
 			color: gray;
 			background: white;
@@ -80,12 +86,17 @@
 
 	var availableItems=new Array();
 
+  var imgBase="";
+
+  // The geometry is off by this much in the CMS UI
+  var geometryAdjustY=0;
+
 	// Preload the images
 	var poofImages=new Array();
 	function loadPoofImages() {
 		for(var i=1; i<=5; i++) {
 			var pic=new Image(127, 124);
-			pic.src="poof" + i + ".png";
+			pic.src=imgBase + "poof" + i + ".png";
 			pic.setAttribute("style", "position: absolute; display:none;");
 			document.body.appendChild(pic);
 
@@ -156,8 +167,6 @@
 								item.values.push(parameters[j].firstChild.nodeValue);
 							}
 							workflow.list.push(item);
-						} else {
-							debug("Didn't find proto " + item.id);
 						}
 					} // all items
 					reDisplay();
@@ -199,9 +208,9 @@
 		var workFlowDiv=document.getElementById("workFlow");
 		workflow.div=workFlowDiv;
 		workflow.x1=workFlowDiv.offsetLeft;
-		workflow.y1=workFlowDiv.offsetTop;
-		workflow.x2=workFlowDiv.offsetWidth + workFlowDiv.offsetLeft;
-		workflow.y2=workFlowDiv.offsetTop + workFlowDiv.offsetHeight;
+		workflow.y1=workFlowDiv.offsetTop + geometryAdjustY;
+		workflow.x2=workflow.x1 + workFlowDiv.offsetWidth;
+		workflow.y2=workflow.y1 + workFlowDiv.offsetHeight;
 	}
 
 	function makeIndicator(source) {
@@ -209,10 +218,14 @@
 		dragOb.indicator=document.createElement("div");
 		dragOb.indicator.id="tmpNode";
 		dragOb.indicator.appendChild(source.firstChild.cloneNode(true));
+
+    var w=dragOb.indicator.offsetWidth;
+    var h=dragOb.indicator.offsetHeight;
+
 		dragOb.indicator.setAttribute("style", "position: absolute;"
 			+ "border: solid black 1px;"
-			+ "left: " + dragOb.elStartLeft + "px;"
-			+ "top: " + dragOb.elStartTop + "px;"
+			+ "left: " + (dragOb.currentX - (w / 2)) + "px;"
+			+ "top: " + (dragOb.currentY - (h / 2)) + "px;"
 			+ "width: " + source.offsetWidth + "px;"
 			+ "padding: 5px;"
 			+ "background: white;"
@@ -305,13 +318,15 @@
 		dragOb.currentY=dragOb.elStartTop + y - dragOb.cursorStartY;
 		event.preventDefault();
 
-		dragOb.indicator.style.left = dragOb.currentX + "px";
-		dragOb.indicator.style.top = dragOb.currentY + "px";
+    var w=dragOb.indicator.offsetWidth;
+    var h=dragOb.indicator.offsetHeight;
+    dragOb.indicator.style.left = x - (w / 2) + "px";
+    dragOb.indicator.style.top = y - (h / 2) + "px";
 
 		if(isOverWorkflowArea()) {
 			locateDropPosition();
 			dragOb.indicator.style.background=
-				'white url("add.png") no-repeat bottom right;';
+				'white url("' + imgBase + 'add.png") no-repeat bottom right;';
 		} else {
 			dragOb.nearWhich=-2;
 			clearDropPositionIndicator();
@@ -339,7 +354,7 @@
 			workflowItem.li.style.background='white;';
 		} else {
 			workflowItem.li.style.background=
-				'white url("warn.png") no-repeat top right;';
+				'white url("' + imgBase + 'warn.png") no-repeat top right;';
 		}
 	}
 
@@ -392,7 +407,7 @@
 				if(workflow.list[i].values[j]) {
 					formField.setAttribute("value", workflow.list[i].values[j]);
 				}
-				formField.setAttribute("size", "8");
+				formField.setAttribute("size", "24");
 				formField.setAttribute("onkeyup",
 					"takeInput(this, " + i + ", " + j + ");");
 				theItem.appendChild(formField);
@@ -404,10 +419,10 @@
 			// Show the warnings for the given item
 			showWarnings(i);
 
-			workflow.list[i].x1=theItem.offsetLeft;
-			workflow.list[i].y1=theItem.offsetTop;
-			workflow.list[i].x2=theItem.offsetWidth + theItem.offsetLeft;
-			workflow.list[i].y2=theItem.offsetTop + theItem.offsetHeight;
+		  workflow.list[i].x1=theItem.offsetLeft;
+		  workflow.list[i].y1=theItem.offsetTop;
+		  workflow.list[i].x2=workflow.list[i].x1 + theItem.offsetWidth;
+		  workflow.list[i].y2=workflow.list[i].y1 + theItem.offsetHeight;
 		}
 		findWorkflow();
 	}
