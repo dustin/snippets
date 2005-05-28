@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Copyright (c) 2005  Dustin Sallings <dustin+html@spy.net>
+  -->
+<html>
+	<head>
+		<title>Highlight Demo</title>
+
+<style type="text/css">
+	#zoomBox {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		width: 0px;
+		height: 0px;
+		background: red;
+		-moz-opacity: 0.5;
+	}
+
+	#hlimage {
+		cursor: crosshair;
+	}
+
+</style>
+
+<script language="JavaScript" type="text/javascript" src="../debug.js">
+</script>
+
+<script language="JavaScript">
+	var boxOb=new Object();
+	boxOb.boxX1=0;
+	boxOb.boxY1=0;
+	boxOb.boxX2=0;
+	boxOb.boxY2=0;
+
+	function showHighlight(event) {
+		boxOb.boxX1=event.clientX + window.scrollX;
+		boxOb.boxY1=event.clientY + window.scrollY;
+		document.addEventListener("mousemove", movingHighlight, true);
+		document.addEventListener("mouseup", setupTag, true);
+		event.preventDefault();
+	}
+
+	function movingHighlight(event) {
+		boxOb.boxX2=event.clientX + window.scrollX;
+		boxOb.boxY2=event.clientY + window.scrollY;
+
+		var boxDiv=document.getElementById("zoomBox");
+		boxDiv.style.left=Math.min(boxOb.boxX1, boxOb.boxX2) + "px;";
+		boxDiv.style.top=Math.min(boxOb.boxY1, boxOb.boxY2) + "px;";
+		boxDiv.style.width=Math.abs(boxOb.boxX1 - boxOb.boxX2) + "px;";
+		boxDiv.style.height=Math.abs(boxOb.boxY1 - boxOb.boxY2) + "px;";
+	}
+
+	function setupTag(event) {
+		document.removeEventListener("mousemove", movingHighlight, true);
+		document.removeEventListener("mouseup", setupTag, true);
+
+		var boxDiv=document.getElementById("zoomBox");
+		boxDiv.style.width="0px;";
+		boxDiv.style.height="0px;";
+		/*
+		debug("Tagging from " + boxOb.boxX1 + "," + boxOb.boxY1
+			+ " to " + boxOb.boxX2 + "," + boxOb.boxY2);
+		*/
+		event.preventDefault();
+	}
+</script>
+
+	</head>
+
+	<body>
+		<div id="hlimagediv">
+			<div id="zoomBox"></div>
+			<img onmousedown="showHighlight(event);"
+				id="hlimage" src="239.jpg" alt="Family Picture"/>
+		</div>
+	</body>
+</html>
+
