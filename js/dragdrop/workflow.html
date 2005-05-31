@@ -288,6 +288,7 @@
 				var oby1=workflow.list[i].y1;
 				var oby2=workflow.list[i].y2;
 				if(i != dragOb.nearWhich && currentY > oby1 && currentY < oby2) {
+					debug("Clearing " + dragOb.nearWhich);
 					clearDropPositionIndicator();
 					dragOb.nearWhich=i;
 					workflow.list[i].li.style.margin="1px 1px 20px 1px;";

@@ -58,14 +58,25 @@
 		document.removeEventListener("mousemove", movingHighlight, true);
 		document.removeEventListener("mouseup", setupTag, true);
 
-		var boxDiv=document.getElementById("zoomBox");
-		boxDiv.style.width="0px;";
-		boxDiv.style.height="0px;";
 		/*
 		debug("Tagging from " + boxOb.boxX1 + "," + boxOb.boxY1
 			+ " to " + boxOb.boxX2 + "," + boxOb.boxY2);
 		*/
+
+		document.theForm.x.value=Math.min(boxOb.boxX1, boxOb.boxX2);
+		document.theForm.y.value=Math.min(boxOb.boxY1, boxOb.boxY2);
+		document.theForm.w.value=Math.abs(boxOb.boxX1 - boxOb.boxX2);
+		document.theForm.h.value=Math.abs(boxOb.boxY1 - boxOb.boxY2);
+		var formDiv=document.getElementById("selectForm");
+		formDiv.style.display="block";
+
 		event.preventDefault();
+	}
+
+	function clearSelection() {
+		var boxDiv=document.getElementById("zoomBox");
+		boxDiv.style.width="0px;";
+		boxDiv.style.height="0px;";
 	}
 </script>
 
@@ -76,6 +87,19 @@
 			<div id="zoomBox"></div>
 			<img onmousedown="showHighlight(event);"
 				id="hlimage" src="239.jpg" alt="Family Picture"/>
+		</div>
+		<div id="selectForm" style="display: none;"
+			onsubmit="clearSelection(); return true;">
+			<form name="theForm" method="POST"
+				action="http://bleu.west.spy.net/cgi-bin/test.py">
+				x: <input name="x" size="3"/>
+				y: <input name="y" size="3"/>
+				w: <input name="w" size="3"/>
+				h: <input name="h" size="3"/><br/>
+				keywords: <input name="keywords"/><br/>
+				description: <input name="descr"><br/>
+				<input type="submit" value="Save"/>
+			</form>
 		</div>
 	</body>
 </html>
