@@ -20,13 +20,13 @@
 	}
 
 	#hlimage {
+		text-align: center;
+	}
+	#hlimage img {
 		cursor: crosshair;
 	}
 
 </style>
-
-<script language="JavaScript" type="text/javascript" src="../debug.js">
-</script>
 
 <script language="JavaScript">
 	var boxOb=new Object();
@@ -35,7 +35,20 @@
 	boxOb.boxX2=0;
 	boxOb.boxY2=0;
 
+	boxOb.imgX=0;
+	boxOb.imgY=0;
+	boxOb.imgX2=0;
+	boxOb.imgY2=0;
+
 	function showHighlight(event) {
+		// Find the image
+		var imageDiv=document.getElementById("hlimage");
+		var theImage=imageDiv.getElementsByTagName("img")[0];
+		boxOb.imgX=theImage.offsetLeft;
+		boxOb.imgY=theImage.offsetTop;
+		boxOb.imgX2=boxOb.imgX + theImage.offsetWidth;
+		boxOb.imgY2=boxOb.imgY + theImage.offsetHeight;
+
 		boxOb.boxX1=event.clientX + window.scrollX;
 		boxOb.boxY1=event.clientY + window.scrollY;
 		document.addEventListener("mousemove", movingHighlight, true);
@@ -44,10 +57,14 @@
 	}
 
 	function movingHighlight(event) {
-		boxOb.boxX2=event.clientX + window.scrollX;
-		boxOb.boxY2=event.clientY + window.scrollY;
+		// Don't allow the selection to go outside of the image.
+		boxOb.boxX2=Math.min(boxOb.imgX2,
+			Math.max(boxOb.imgX, event.clientX + window.scrollX));
+		boxOb.boxY2=Math.min(boxOb.imgY2,
+			Math.max(boxOb.imgY, event.clientY + window.scrollY));
 
 		var boxDiv=document.getElementById("zoomBox");
+
 		boxDiv.style.left=Math.min(boxOb.boxX1, boxOb.boxX2) + "px;";
 		boxDiv.style.top=Math.min(boxOb.boxY1, boxOb.boxY2) + "px;";
 		boxDiv.style.width=Math.abs(boxOb.boxX1 - boxOb.boxX2) + "px;";
@@ -58,13 +75,11 @@
 		document.removeEventListener("mousemove", movingHighlight, true);
 		document.removeEventListener("mouseup", setupTag, true);
 
-		/*
-		debug("Tagging from " + boxOb.boxX1 + "," + boxOb.boxY1
-			+ " to " + boxOb.boxX2 + "," + boxOb.boxY2);
-		*/
-
-		document.theForm.x.value=Math.min(boxOb.boxX1, boxOb.boxX2);
-		document.theForm.y.value=Math.min(boxOb.boxY1, boxOb.boxY2);
+		// Figure out where the box starts, and fill in the form
+		document.theForm.x.value=
+			Math.min(boxOb.boxX1, boxOb.boxX2) - boxOb.imgX;
+		document.theForm.y.value=
+			Math.min(boxOb.boxY1, boxOb.boxY2) - boxOb.imgY;
 		document.theForm.w.value=Math.abs(boxOb.boxX1 - boxOb.boxX2);
 		document.theForm.h.value=Math.abs(boxOb.boxY1 - boxOb.boxY2);
 		var formDiv=document.getElementById("selectForm");
@@ -83,15 +98,16 @@
 	</head>
 
 	<body>
-		<div id="hlimagediv">
-			<div id="zoomBox"></div>
+		<div id="zoomBox"></div>
+		<div id="hlimage">
 			<img onmousedown="showHighlight(event);"
-				id="hlimage" src="239.jpg" alt="Family Picture"/>
+				src="239.jpg" alt="Family Picture"/>
 		</div>
-		<div id="selectForm" style="display: none;"
-			onsubmit="clearSelection(); return true;">
+		<div id="selectForm" style="display: none;">
 			<form name="theForm" method="POST"
-				action="http://bleu.west.spy.net/cgi-bin/test.py">
+				action="http://bleu.west.spy.net/cgi-bin/test.py"
+				onsubmit="clearSelection(); return true;">
+
 				x: <input name="x" size="3"/>
 				y: <input name="y" size="3"/>
 				w: <input name="w" size="3"/>
