@@ -27,18 +27,44 @@
 
 			var TIMEOUT=2000;
 
-			function animateFlip(from, to, start, until) {
+			function animateFlip(from, to, crossed, start, until) {
 				var now=new Date().getTime();
 				var duration=until-start;
 				var togo=(until-now);
 				// debug("Animation has " + togo + "ms to go");
+				var toEl=document.getElementById(to);
 				if(togo > 0) {
-					nextEl.style.display="";
-					currentEl.style.display="none";
+					var fromEl=document.getElementById(from);
+
+					var distance=Math.abs((duration/2) - togo);
+
+					var itemWidth=219 * (distance*2 / duration);
+					var leftSIDE=20 + ((219-itemWidth)/2);
 					/*
-					animationTimer=setTimeout("animageFlip(" + currentEl
-						+ ", " + nextEl + ", " + start + ", " + until + ");", 25);
+					debug("Item width is " + itemWidth + " for " + distance
+						+ " at " + togo);
 					*/
+
+					if(togo < (duration / 2)) {
+						if(!crossed) {
+							crossed=true;
+							toEl.style.display="";
+							fromEl.style.display="none";
+						}
+
+						toEl.style.width=itemWidth + "px";
+						toEl.style.left=leftSIDE+"px";
+					} else {
+						fromEl.style.width=itemWidth + "px";
+						fromEl.style.left=leftSIDE+"px";
+					}
+
+					animationTimer=setTimeout("animateFlip('" + from
+						+ "', '" + to + "', " + crossed
+						+ ", " + start + ", " + until + ");", 25);
+				} else {
+					toEl.style.width="219px";
+					toEl.style.left="20px";
 				}
 			}
 
@@ -50,11 +76,8 @@
 					nextImage="img1";
 				}
 
-				nextEl=document.getElementById(nextImage);
-				currentEl=document.getElementById(currentImage);
-
 				var d=new Date().getTime();
-				animateFlip(currentEl, nextEl, d, d+1000);
+				animateFlip(currentImage, nextImage, false, d, d+1000);
 
 				currentImage=nextImage;
 				rollTimer=setTimeout("swapImages();", TIMEOUT);
