@@ -16,11 +16,10 @@
 				left: 20px;
 			}
 		</style>
-		<script language="JavaScript" type="text/javascript" src="../debug.js">
-		</script>
-		<script language="JavaScript" type="text/javascript" src="rotate.js">
-		</script>
-		<script language="JavaScript" type="text/javascript">
+		<script type="text/javascript" src="../debug.js"></script>
+		<script type="text/javascript" src="rotate.js"></script>
+		<script type="text/javascript">
+			// <![CDATA[
 			function setup() {
 				makeImgInfo("img1", 219, 20);
 				makeImgInfo("img2", 219, 20);
@@ -28,11 +27,14 @@
 				document.getElementById("img2").style.display="none";
 				rollTimer=setTimeout("swapImages();", TIMEOUT);
 			}
+			// ]]>
 	</script>
 	</head>
 
 	<body onload="setup();">
-		<img id="img1" src="5978.jpg"/>
-		<img id="img2" src="6007.jpg"/>
+		<p>
+			<img id="img1" alt="img1" src="5978.jpg"/>
+			<img id="img2" alt="img2" src="6007.jpg"/>
+		</p>
 	</body>
 </html>
