@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Copyright (c) 2005  Dustin Sallings <dustin+html@spy.net>
+  -->
+<html>
+	<head>
+		<title>Thumbnail Display</title>
+		<style type="text/css">
+			img {
+				position: absolute;
+				width: 219px;
+				height: 146px;
+				top: 20px;
+				left: 20px;
+			}
+		</style>
+		<script language="JavaScript" type="text/javascript" src="../debug.js">
+		</script>
+		<script language="JavaScript">
+
+			var rollTimer=null;
+			var animationTimer=null;
+
+			var currentImage="img1";
+
+			var TIMEOUT=2000;
+
+			function animateFlip(from, to, start, until) {
+				var now=new Date().getTime();
+				var duration=until-start;
+				var togo=(until-now);
+				// debug("Animation has " + togo + "ms to go");
+				if(togo > 0) {
+					nextEl.style.display="";
+					currentEl.style.display="none";
+					/*
+					animationTimer=setTimeout("animageFlip(" + currentEl
+						+ ", " + nextEl + ", " + start + ", " + until + ");", 25);
+					*/
+				}
+			}
+
+			function swapImages() {
+				var nextImage="";
+				if(currentImage == "img1") {
+					nextImage="img2";
+				} else {
+					nextImage="img1";
+				}
+
+				nextEl=document.getElementById(nextImage);
+				currentEl=document.getElementById(currentImage);
+
+				var d=new Date().getTime();
+				animateFlip(currentEl, nextEl, d, d+1000);
+
+				currentImage=nextImage;
+				rollTimer=setTimeout("swapImages();", TIMEOUT);
+			}
+
+			function setup() {
+				document.getElementById("img2").style.display="none";
+				rollTimer=setTimeout("swapImages();", TIMEOUT);
+			}
+		</script>
+	</head>
+
+	<body onload="setup();">
+		<img id="img1" src="5978.jpg"/>
+		<img id="img2" src="6007.jpg"/>
+	</body>
+</html>
