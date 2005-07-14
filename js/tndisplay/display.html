@@ -27,23 +27,28 @@
 
 			var TIMEOUT=2000;
 
+			var imgInfo=new Object();
+
+			function makeImgInfo(name, width, left) {
+				var storage=new Object();
+				storage.width=width;
+				storage.left=left;
+				imgInfo[name]=storage;
+			}
+			makeImgInfo("img1", 219, 20);
+			makeImgInfo("img2", 219, 20);
+
 			function animateFlip(from, to, crossed, start, until) {
 				var now=new Date().getTime();
 				var duration=until-start;
 				var togo=(until-now);
-				// debug("Animation has " + togo + "ms to go");
 				var toEl=document.getElementById(to);
 				if(togo > 0) {
 					var fromEl=document.getElementById(from);
 
 					var distance=Math.abs((duration/2) - togo);
 
-					var itemWidth=219 * (distance*2 / duration);
-					var leftSIDE=20 + ((219-itemWidth)/2);
-					/*
-					debug("Item width is " + itemWidth + " for " + distance
-						+ " at " + togo);
-					*/
+					var widthFactor=distance*2 / duration;
 
 					if(togo < (duration / 2)) {
 						if(!crossed) {
@@ -52,9 +57,14 @@
 							fromEl.style.display="none";
 						}
 
+						var itemWidth=(widthFactor * imgInfo[to].width);
+						var leftSIDE=imgInfo[to].left + ((imgInfo[to].width-itemWidth)/2);
 						toEl.style.width=itemWidth + "px";
 						toEl.style.left=leftSIDE+"px";
 					} else {
+						var itemWidth=(widthFactor * imgInfo[from].width);
+						var leftSIDE=imgInfo[from].left
+							+ ((imgInfo[from].width-itemWidth)/2);
 						fromEl.style.width=itemWidth + "px";
 						fromEl.style.left=leftSIDE+"px";
 					}
@@ -63,8 +73,8 @@
 						+ "', '" + to + "', " + crossed
 						+ ", " + start + ", " + until + ");", 25);
 				} else {
-					toEl.style.width="219px";
-					toEl.style.left="20px";
+					toEl.style.width=imgInfo[to].width + "px";
+					toEl.style.left=imgInfo[to].left + "px";
 				}
 			}
 
