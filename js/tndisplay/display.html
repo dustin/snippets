@@ -18,86 +18,17 @@
 		</style>
 		<script language="JavaScript" type="text/javascript" src="../debug.js">
 		</script>
-		<script language="JavaScript">
-
-			var rollTimer=null;
-			var animationTimer=null;
-
-			var currentImage="img1";
-
-			var TIMEOUT=2000;
-
-			var imgInfo=new Object();
-
-			function makeImgInfo(name, width, left) {
-				var storage=new Object();
-				storage.width=width;
-				storage.left=left;
-				imgInfo[name]=storage;
-			}
-			makeImgInfo("img1", 219, 20);
-			makeImgInfo("img2", 219, 20);
-
-			function animateFlip(from, to, crossed, start, until) {
-				var now=new Date().getTime();
-				var duration=until-start;
-				var togo=(until-now);
-				var toEl=document.getElementById(to);
-				if(togo > 0) {
-					var fromEl=document.getElementById(from);
-
-					var distance=Math.abs((duration/2) - togo);
-
-					var widthFactor=distance*2 / duration;
-
-					if(togo < (duration / 2)) {
-						if(!crossed) {
-							crossed=true;
-							toEl.style.display="";
-							fromEl.style.display="none";
-						}
-
-						var itemWidth=(widthFactor * imgInfo[to].width);
-						var leftSIDE=imgInfo[to].left + ((imgInfo[to].width-itemWidth)/2);
-						toEl.style.width=itemWidth + "px";
-						toEl.style.left=leftSIDE+"px";
-					} else {
-						var itemWidth=(widthFactor * imgInfo[from].width);
-						var leftSIDE=imgInfo[from].left
-							+ ((imgInfo[from].width-itemWidth)/2);
-						fromEl.style.width=itemWidth + "px";
-						fromEl.style.left=leftSIDE+"px";
-					}
-
-					animationTimer=setTimeout("animateFlip('" + from
-						+ "', '" + to + "', " + crossed
-						+ ", " + start + ", " + until + ");", 25);
-				} else {
-					toEl.style.width=imgInfo[to].width + "px";
-					toEl.style.left=imgInfo[to].left + "px";
-				}
-			}
-
-			function swapImages() {
-				var nextImage="";
-				if(currentImage == "img1") {
-					nextImage="img2";
-				} else {
-					nextImage="img1";
-				}
-
-				var d=new Date().getTime();
-				animateFlip(currentImage, nextImage, false, d, d+1000);
-
-				currentImage=nextImage;
-				rollTimer=setTimeout("swapImages();", TIMEOUT);
-			}
-
+		<script language="JavaScript" type="text/javascript" src="rotate.js">
+		</script>
+		<script language="JavaScript" type="text/javascript">
 			function setup() {
+				makeImgInfo("img1", 219, 20);
+				makeImgInfo("img2", 219, 20);
+				addPair("img1", "img2");
 				document.getElementById("img2").style.display="none";
 				rollTimer=setTimeout("swapImages();", TIMEOUT);
 			}
-		</script>
+	</script>
 	</head>
 
 	<body onload="setup();">

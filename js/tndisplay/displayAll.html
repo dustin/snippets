@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Copyright (c) 2005  Dustin Sallings <dustin+html@spy.net>
+  -->
+<html>
+	<head>
+		<title>Check out my Thumbnails</title>
+		<style type="text/css">
+			body {
+				background: black;
+			}
+		</style>
+    <script language="JavaScript" type="text/javascript" src="../debug.js">
+		</script>
+    <script language="JavaScript" type="text/javascript" src="rotate.js">
+		</script>
+    <script language="JavaScript" type="text/javascript">
+
+			function getData(el, which) {
+				var stuff=el.getElementsByTagName(which);
+				return stuff[0].firstChild.nodeValue;
+			}
+
+			function shuffleItems(items) {
+				for(var i=0; i<items.length; i++) {
+					var which=Math.round(Math.random()*(items.length-1));
+					var tmp=items[which];
+					items[which]=items[i];
+					items[i]=tmp;
+				}
+			}
+
+			function setItems(items) {
+
+				var imageDisplacementW=250;
+				var imageDisplacementH=150;
+
+				var numImages=items.length;
+				if(numImages % 2 == 1) {
+					numImages--;
+				}
+				var currentX=10;
+				var currentY=10;
+
+				var locations=new Array();
+				var baseXs=new Array();
+				var done=false;
+				// get the first half of the images.
+				for(var i=0; i<numImages/2 && !done; i++) {
+
+					if((currentX + items[i].width) > window.innerWidth) {
+						currentX = 10;
+						currentY += imageDisplacementH;
+					}
+
+					if((currentY + 10) < window.innerHeight) {
+						// OK, this is a keeper
+						baseXs.push(currentX);
+						var myX = currentX + (imageDisplacementW - items[i].width)/2;
+
+						// Let's load the images
+						var pic=new Image(items[i].width, items[i].height);
+						pic.src="imgs/" + items[i].id + ".jpg";
+						pic.id="img" + items[i].id;
+
+						pic.setAttribute("style", "position: absolute; "
+							+ "left: " + myX + "px; top: " + currentY + "px;");
+						document.body.appendChild(pic);
+						locations.push(pic);
+
+						makeImgInfo(pic.id, items[i].width, myX);
+
+						currentX += imageDisplacementW;
+					} else {
+						done=true;
+					}
+				}
+				// Pair them with the second half.
+				for(var pairPos=0; pairPos<locations.length; pairPos++) {
+					var i=pairPos + locations.length;
+
+					var pic=new Image(items[i].width, items[i].height);
+					pic.src="imgs/" + items[i].id + ".jpg";
+					pic.id="img" + items[i].id;
+
+					var myX = baseXs[pairPos] + (imageDisplacementW - items[i].width)/2;
+
+					pic.setAttribute("style", "position: absolute; display:none; "
+						+ "left: " + myX + "px; "
+						+ "top: " + locations[pairPos].style.top) + "px;";
+					document.body.appendChild(pic);
+
+					makeImgInfo(pic.id, items[i].width, myX);
+					addPair(locations[pairPos].id, pic.id);
+				}
+				// Start the swapping.
+				swapImages();
+			}
+
+			function loadItems() {
+				var req = new XMLHttpRequest();
+				req.onreadystatechange = function() {
+					if (req.readyState == 4) {
+						if(req.status == 200 || req.status == 0
+							|| req.status == undefined) {
+							// OK, load the items
+							var items=req.responseXML.getElementsByTagName("photo");
+							var itemList=new Array();
+							for(var i=0; i<items.length; i++) {
+								var item=new Object();
+								item.id=getData(items[i], "id");
+								item.width=parseInt(getData(items[i], "width"));
+								item.height=parseInt(getData(items[i], "height"));
+								itemList.push(item);
+							} // all items
+							shuffleItems(itemList);
+							setItems(itemList);
+						}
+					} // good load
+				} // onreadystatechange
+				req.open("GET", "someimages.xml");
+				req.send(null);
+			} // loadItems
+
+			function setup() {
+				loadItems();
+			}
+		</script>
+	</head>
+
+	<body onload="setup();">
+	</body>
+</html>
+
