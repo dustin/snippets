@@ -88,7 +88,8 @@
 						makeImgInfo(pic2.id, items[i+1].width, pic2x);
 						addPair(pic1.id, pic2.id);
 
-						currentX += imageDisplacementW;
+						// Take one pixel off the width since it seems to add one
+						currentX += imageDisplacementW - 1;
 
 					} else {
 						// no more room
@@ -97,7 +98,7 @@
 				}
 
 				// Start the swapping.
-				setTimeout("swapImages();", 2000);
+				setTimeout("swapImages();", 5000);
 			}
 
 			// Find out what images we have available for display
