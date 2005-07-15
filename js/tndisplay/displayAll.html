@@ -33,8 +33,14 @@
 
 			function setItems(items) {
 
-				var imageDisplacementW=250;
-				var imageDisplacementH=150;
+				var imageDisplacementW=0;
+				var imageDisplacementH=0;
+
+				// Figure out the max width and heights
+				for(var i=0; i<items.length; i++) {
+					imageDisplacementW=Math.max(imageDisplacementW, items[i].width);
+					imageDisplacementH=Math.max(imageDisplacementH, items[i].height);
+				}
 
 				var numImages=items.length;
 				if(numImages % 2 == 1) {
@@ -47,7 +53,7 @@
 				// Get pairs of images to display
 				for(var i=0; i<numImages && !done; i+=2) {
 
-					if((currentX + items[i].width) > window.innerWidth) {
+					if((currentX + imageDisplacementW) > window.innerWidth) {
 						currentX = 10;
 						currentY += imageDisplacementH;
 					}
