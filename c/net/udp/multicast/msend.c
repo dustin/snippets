@@ -24,12 +24,34 @@
 void
 usage(const char *prog)
 {
-	fprintf(stderr, "Usage %s [-v] [-f] [-s] [-g group] [-p port] msg\n", prog);
+	fprintf(stderr, "Usage %s [-v] [-f] [-s] [-g group] [-p port] "
+		"[-A bindaddr] [-P bindport] msg\n", prog);
 	fprintf(stderr, " default group:  %s\n", HELLO_GROUP);
 	fprintf(stderr, " default port:   %d\n", HELLO_PORT);
 	fprintf(stderr, " -v turns on verbose mode\n");
 	fprintf(stderr, " -s turns on netstring encoding of arguments\n");
 	exit(1);
+}
+
+void
+bindSocket(int fd, char *addrStr, int port)
+{
+	struct sockaddr_in addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+
+	/* Default to INADDR_ANY */
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_port = htons(port);
+
+	if(addrStr != NULL) {
+		addr.sin_addr.s_addr = inet_addr(addrStr);
+	}
+
+	if (bind(fd, (struct sockaddr *) & addr, sizeof(addr)) < 0) {
+		perror("bind");
+		exit(1);
+	}
 }
 
 int
@@ -42,16 +64,24 @@ main(int argc, char *argv[])
 	char            msgbuf[MSGBUFSIZE];
 	char           *group=HELLO_GROUP;
 	int             port=HELLO_PORT;
+	char           *bindAddr=NULL;
+	int             bindPort=0;
 	char           *msg=NULL;
 
 	/* Parse the args */
-	while((c=getopt(argc, argv, "g:p:vs")) != -1) {
+	while((c=getopt(argc, argv, "g:p:A:P:vs")) != -1) {
 		switch(c) {
 			case 'g':
 				group=optarg;
 				break;
 			case 'p':
 				port=atoi(optarg);
+				break;
+			case 'A':
+				bindAddr=optarg;
+				break;
+			case 'P':
+				bindPort=atoi(optarg);
 				break;
 			case 'v':
 				verbose++;
@@ -73,6 +103,10 @@ main(int argc, char *argv[])
 		perror("socket");
 		exit(1);
 	}
+
+	/* Perform the bindings if applicable */
+	bindSocket(fd, bindAddr, bindPort);
+
 	/* set up destination address */
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
