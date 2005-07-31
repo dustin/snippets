@@ -13,7 +13,7 @@ W="where datname not in ('template0', 'template1', 'photodemo')"
 
 if [ "x$DEST" = "x" ]
 then
-	DEST=/data/bak/
+	DEST=/data/bak/purple/db/
 fi
 
 PLACE=$DEST
