@@ -16,17 +16,19 @@ class UrlHasher:
         pass
 
     def getUrlHash(self, url):
-        data=self._getUrlData(url)
         m=md5.new()
-        m.update(data)
+        u=urllib2.urlopen(url)
+
+        blocksize=8192
+        r=u.read(blocksize)
+        while len(r) > 0:
+            m.update(r)
+            r=u.read(blocksize)
+        u.close()
+
         d=m.digest()
         e=base64.encodestring(d).rstrip()
         return e
-
-    def _getUrlData(self, url):
-        u=urllib2.urlopen(url)
-        s=''.join(u.readlines())
-        return s
 
 class UrlWatcher:
 
