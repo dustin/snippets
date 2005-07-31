@@ -1,0 +1,62 @@
+#!/bin/sh
+# arch-tag: 865-014-11-8-0030187026
+
+DEST=$1
+
+PATH=$PATH:/usr/local/bin
+
+PSQL="psql"
+PDUMP="pg_dump"
+W="where datname not in ('template0', 'template1', 'photodemo')"
+# W="where datname in ('money','misc')"
+# W="where datname in('spyshop', 'money')"
+
+if [ "x$DEST" = "x" ]
+then
+	DEST=/data/bak/
+fi
+
+PLACE=$DEST
+
+cat <<EOF
+*
+* Dumping databasen at `date` to $DEST
+*
+EOF
+
+dumpDB() {
+	db="$1"
+	echo "Dumping $db..."
+
+	$HOME/local.bin/tablelister '' dustin '' $db | ( while read l
+	do
+		schema=`echo $l | awk '{print $1}'`
+		table=`echo $l | awk '{print $2}'`
+		echo "Grabbing $table from $schema"
+		$PDUMP -n "$schema" -t "$table" "$db" \
+			| $HOME/local.bin/db_dumps_stream "$PLACE" "$db.$schema.$table"
+	done )
+}
+
+(
+
+mkdir -p $PLACE
+cd $PLACE
+
+for i in `$PSQL -t -c "select datname from pg_database $W" template1`
+do
+	# echo "Analyzing $i ..."
+	# $PSQL -c "analyze;" $i
+
+	dumpDB "$i"
+	# $PDUMP $i | $HOME/bin/db_dumps_stream $PLACE $i
+
+	echo ""
+
+done
+
+wait
+
+echo "Current sizes of dumps:"
+du -sk *
+)

@@ -1,0 +1,19 @@
+#!/bin/sh
+# arch-tag: 8680-014-11-8-0030187026
+
+# PWD=/Users/dustin/bak/db
+# PREVPATH=/tmp/prev/00249
+# NEWPATH=/tmp/new/00249
+# PREVDIR=/tmp/prev
+# SHLVL=2
+# DIGEST=86b75c42abd2156cba20885ad5e13a50
+# BLOCK=249
+# NEWDIR=/tmp/new
+
+HOME=/home/dustin
+export HOME
+
+GPG=/usr/local/bin/gpg
+
+$HOME/local.bin/passwordhander $HOME/.sigpw $GPG -se --passphrase-fd 4 \
+	--batch -r primary -r work > $NEWPATH
