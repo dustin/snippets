@@ -93,25 +93,27 @@ class GPG(object):
         args=[self.gpg, '--batch']
         args.extend(op.getCmd())
 
+        errs=None
+
         sub=subprocess.Popen(args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             close_fds=True)
+
         try:
-            sub.stdin.write(instream.read())
-            sub.stdin.close()
-        except IOError, e:
-            errs=sub.stderr.read()
-            raise EncryptionError(errs)
+            try:
+                sub.stdin.write(instream.read())
+                sub.stdin.close()
 
-        # Non-exception path
-        errs=sub.stderr.read()
-        outstream.write(sub.stdout.read())
-
-        pid, status=os.waitpid(sub.pid, 0)
-        if status != 0:
-            raise EncryptionError(errs)
+                errs=sub.stderr.read()
+                outstream.write(sub.stdout.read())
+            except IOError, e:
+                errs=sub.stderr.read()
+        finally:
+            pid, status=os.waitpid(sub.pid, 0)
+            if status != 0:
+                raise EncryptionError(errs)
 
         return errs
 
