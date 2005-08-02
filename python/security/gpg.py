@@ -40,6 +40,28 @@ class AsciiArmor(Operation):
     def getCmd(self):
         return ["-a"]
 
+class NoDefaultKeyrings(Operation):
+    """Do not use the default keyrings."""
+    def getCmd(self):
+        return ['--no-default-keyring']
+
+class Keyring(Operation):
+    """Add a keyring location."""
+
+    krOp='--keyring'
+
+    def __init__(self, loc):
+        """Initialize a Keyring object with the given location."""
+        self.loc=loc
+
+    def getCmd(self):
+        return [self.krOp, self.loc]
+
+class SecretKeyring(Keyring):
+    """Add a secret keyring location."""
+
+    krOp='--secret-keyring'
+
 class CompositeCommand(Operation):
     """Command made up of multiple other commands."""
 
@@ -52,6 +74,9 @@ class CompositeCommand(Operation):
             rv.extend(x.getCmd())
         return rv
 
+class EncryptionError(exceptions.Exception):
+    """Exception thrown when there are problems encrypting data."""
+
 class GPG(object):
     """GPG Interface."""
 
@@ -60,9 +85,10 @@ class GPG(object):
 
         self.gpg=gpg_location
 
-    def __execute(self, op, instream, outstream, errstream):
+    def __execute(self, op, instream, outstream):
         """Execute the given set of operations reading data from the given
-        input stream and writing to the given output stream."""
+        input stream and writing to the given output stream.
+        Returns the string containing all warnings."""
 
         args=[self.gpg, '--batch']
         args.extend(op.getCmd())
@@ -72,23 +98,36 @@ class GPG(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             close_fds=True)
-        sub.stdin.write(instream.read())
-        sub.stdin.close()
+        try:
+            sub.stdin.write(instream.read())
+            sub.stdin.close()
+        except IOError, e:
+            errs=sub.stderr.read()
+            raise EncryptionError(errs)
+
+        # Non-exception path
+        errs=sub.stderr.read()
         outstream.write(sub.stdout.read())
-        errstream.write(sub.stderr.read())
 
-        os.waitpid(sub.pid, 0)
+        pid, status=os.waitpid(sub.pid, 0)
+        if status != 0:
+            raise EncryptionError(errs)
 
-    def encryptString(self, recips, msg):
+        return errs
+
+    def encryptString(self, recips, msg, pubring=None):
         """Convenience method for encrypting a message.
-           Returns (encrypted_msg, warnings) as strings"""
+           Returns (encryptedString, warningMessages) as strings"""
 
-        ops=CompositeCommand([AsciiArmor(), Encrypt(recips)])
+        keyringOps=[]
+        if pubring is not None:
+            keyringOps=[NoDefaultKeyrings(), Keyring(pubring) ]
+
+        ops=CompositeCommand(keyringOps + [AsciiArmor(), Encrypt(recips)])
 
         sbuf=cStringIO.StringIO()
-        ebuf=cStringIO.StringIO()
-        self.__execute(ops, cStringIO.StringIO(msg), sbuf, ebuf)
-        return sbuf.getvalue(), ebuf.getvalue()
+        warnings=self.__execute(ops, cStringIO.StringIO(msg), sbuf)
+        return sbuf.getvalue(), warnings
 
 def findGPG(gpgName='gpg'):
     """Find the location of GPG on your system."""

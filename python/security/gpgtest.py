@@ -5,6 +5,7 @@ Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
 # arch-tag: 4F5BAC9B-85BE-46C1-AA9C-59E8E9F5AFD1
 
+import os
 import unittest
 import exceptions
 
@@ -42,6 +43,21 @@ class OpTest(unittest.TestCase):
         op=gpg.AsciiArmor()
         self.assertEquals(op.getCmd(), ['-a'])
 
+    def testKeyringCmd(self):
+        """Test the keyring command."""
+        op=gpg.Keyring("/tmp/whatever")
+        self.assertEquals(op.getCmd(), ['--keyring', '/tmp/whatever'])
+
+    def testSecretKeyringCmd(self):
+        """Test the secret keyring command."""
+        op=gpg.SecretKeyring("/tmp/whatever")
+        self.assertEquals(op.getCmd(), ['--secret-keyring', '/tmp/whatever'])
+
+    def testNoDefaultKeyringCmd(self):
+        """Test the command that disables default keyrings."""
+        op=gpg.NoDefaultKeyrings()
+        self.assertEquals(op.getCmd(), ['--no-default-keyring'])
+
     def testCompositeCommand(self):
         """Test the command compositing."""
         op=gpg.CompositeCommand([gpg.AsciiArmor(),
@@ -66,15 +82,41 @@ class GPGTest(unittest.TestCase):
         except exceptions.Exception, e:
             self.assertEquals(str(e), "Cannot find GPG")
 
-    def testEncryptString(self):
-        """Test encrypting a string."""
-        g=gpg.GPG(gpg.findGPG())
-        encrypted, warnings=g.encryptString(['primary'], 'hello')
-        lines=encrypted.split("\n")
+    def assertEncrypted(self, data):
+        """This is a little silly in that it really just checks to see that
+        something *looks* encrypted, but it's a start."""
+        lines=data.split("\n")
         self.failUnless("-----BEGIN PGP MESSAGE-----" in lines)
         self.failUnless("-----END PGP MESSAGE-----" in lines)
         # begin, end, version, empty line, data, checksum
         self.failUnless(len(lines) > 6)
+
+    def testEncryptString(self):
+        """Test encrypting a string."""
+        g=gpg.GPG(gpg.findGPG())
+        encrypted, warnings=g.encryptString(['primary'], 'hello')
+        self.assertEncrypted(encrypted)
+
+    def testEncryptWithKeyring(self):
+        """Test encrypting with a specific keyring."""
+        # Where our keyrings are
+        pubring=os.path.join(os.getcwd(), "rings", "pubtest.gpg")
+        g=gpg.GPG(gpg.findGPG())
+        encrypted, warnings=g.encryptString(['nobody@example.com'], 'hello',
+            pubring)
+        self.assertEncrypted(encrypted)
+
+    def testFailingEncryption(self):
+        """Test an attempt to encrypt with an invalid key should fail."""
+        g=gpg.GPG(gpg.findGPG())
+        try:
+            encrypted, warnings=g.encryptString(['ThisKeyDoesNotExist'],
+                'hello')
+            fail("Expected encryption to fail, returned\n" + encrypted
+                + " with warnings:\n" + warnings)
+        except gpg.EncryptionError, e:
+            self.failUnless(str(e).find("public key not found") > 0,
+                "Got the wrong error:\n" + str(e))
 
 if __name__ == '__main__':
     unittest.main()
