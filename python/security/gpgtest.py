@@ -52,9 +52,23 @@ class OpTest(unittest.TestCase):
 class GPGTest(unittest.TestCase):
     """Test the GPG object."""
 
+    def testFindGPG(self):
+        """Positive test finding gpg"""
+        # Just make sure we got something
+        self.failIf(len(gpg.findGPG()) == 0)
+
+    def testNegativeFindGPG(self):
+        """Negative test finding gpg."""
+        # This should fail to find the requested binary
+        try:
+            fnd=gpg.findGPG('ThisShouldNotExist')
+            self.fail("Shouldn't have found ThisShouldNotExist, got:  " + fnd)
+        except exceptions.Exception, e:
+            self.assertEquals(str(e), "Cannot find GPG")
+
     def testEncryptString(self):
         """Test encrypting a string."""
-        g=gpg.GPG('/usr/local/bin/gpg')
+        g=gpg.GPG(gpg.findGPG())
         encrypted, warnings=g.encryptString(['primary'], 'hello')
         lines=encrypted.split("\n")
         self.failUnless("-----BEGIN PGP MESSAGE-----" in lines)

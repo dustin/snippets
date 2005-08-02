@@ -7,6 +7,7 @@ Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 # arch-tag: 52E1C7DC-0810-4EB6-B254-6368D46068C0
 
 import os
+import stat
 import exceptions
 import subprocess
 import cStringIO
@@ -88,3 +89,17 @@ class GPG(object):
         ebuf=cStringIO.StringIO()
         self.__execute(ops, cStringIO.StringIO(msg), sbuf, ebuf)
         return sbuf.getvalue(), ebuf.getvalue()
+
+def findGPG(gpgName='gpg'):
+    """Find the location of GPG on your system."""
+    gpg=None
+    path=os.getenv("PATH", "").split(':')
+    for p in path:
+        testPath=os.path.join(p, gpgName)
+        if os.path.exists(testPath):
+            gpg=testPath
+            break
+    if gpg is None:
+        raise exceptions.Exception("Cannot find GPG")
+
+    return gpg
