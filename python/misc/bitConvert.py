@@ -10,13 +10,7 @@ import sys
 import sha
 import base64
 import struct
-import unittest
-
-# Magnet URL form
-# Family guy 4.5
-# magnet:?xt=urn:btih:ZWFN4PTZBQPJPSYZOS754NLL4SNMR4OY
-# As I find it on the site
-# cd8ade3e790c1e97cb1974bfde356be49ac8f1d8
+import doctest
 
 # Base32 (from python 2.4)  {{{
 EMPTYSTRING = ''
@@ -41,6 +35,9 @@ def b32encode(s):
     """Encode a string using Base32.
 
     s is the string to encode.  The encoded string is returned.
+
+    >>> b32encode("test")
+    'ORSXG5A='
     """
     parts = []
     quanta, leftover = divmod(len(s), 5)
@@ -77,78 +74,14 @@ def b32encode(s):
     elif leftover == 4:
         return encoded[:-1] + '='
     return encoded
-
-
-def b32decode(s, casefold=False, map01=None):
-    """Decode a Base32 encoded string.
-
-    s is the string to decode.  Optional casefold is a flag specifying whether
-    a lowercase alphabet is acceptable as input.  For security purposes, the
-    default is False.
-
-    RFC 3548 allows for optional mapping of the digit 0 (zero) to the letter O
-    (oh), and for optional mapping of the digit 1 (one) to either the letter I
-    (eye) or letter L (el).  The optional argument map01 when not None,
-    specifies which letter the digit 1 should be mapped to (when map01 is not
-    None, the digit 0 is always mapped to the letter O).  For security
-    purposes the default is None, so that 0 and 1 are not allowed in the
-    input.
-
-    The decoded string is returned.  A TypeError is raised if s were
-    incorrectly padded or if there are non-alphabet characters present in the
-    string.
-    """
-    quanta, leftover = divmod(len(s), 8)
-    if leftover:
-        raise TypeError('Incorrect padding')
-    # Handle section 2.4 zero and one mapping.  The flag map01 will be either
-    # False, or the character to map the digit 1 (one) to.  It should be
-    # either L (el) or I (eye).
-    if map01:
-        s = _translate(s, {'0': 'O', '1': map01})
-    if casefold:
-        s = s.upper()
-    # Strip off pad characters from the right.  We need to count the pad
-    # characters because this will tell us how many null bytes to remove from
-    # the end of the decoded string.
-    padchars = 0
-    mo = re.search('(?P<pad>[=]*)$', s)
-    if mo:
-        padchars = len(mo.group('pad'))
-        if padchars > 0:
-            s = s[:-padchars]
-    # Now decode the full quanta
-    parts = []
-    acc = 0
-    shift = 35
-    for c in s:
-        val = _b32rev.get(c)
-        if val is None:
-            raise TypeError('Non-base32 digit found')
-        acc += _b32rev[c] << shift
-        shift -= 5
-        if shift < 0:
-            parts.append(binascii.unhexlify(hex(acc)[2:-1]))
-            acc = 0
-            shift = 35
-    # Process the last, partial quanta
-    last = binascii.unhexlify(hex(acc)[2:-1])
-    if padchars == 1:
-        last = last[:-1]
-    elif padchars == 3:
-        last = last[:-2]
-    elif padchars == 4:
-        last = last[:-3]
-    elif padchars == 6:
-        last = last[:-4]
-    elif padchars <> 0:
-        raise TypeError('Incorrect padding')
-    parts.append(last)
-    return EMPTYSTRING.join(parts)
 # }}}
 
 def unhex(s):
-    """Unhexify a hex string."""
+    """Unhexify a hex string.
+
+    >>> unhex("44757374696e")
+    'Dustin'
+    """
     # Must be an even number of digits
     assert len(s) % 2 == 0
     rv=""
@@ -158,26 +91,36 @@ def unhex(s):
     return rv
 
 def hexToBase64(s):
+    """Convert a hex string to base 64
+
+    >>> hexToBase64("44757374696e")
+    'RHVzdGlu'
+    """
     return base64.encodestring(unhex(s)).strip()
 
 def hexToBase32(s):
+    """Convert a hext string to base 32
+
+    >>> hexToBase32("cd8ade3e790c1e97cb1974bfde356be49ac8f1d8")
+    'ZWFN4PTZBQPJPSYZOS754NLL4SNMR4OY'
+    """
     return b32encode(unhex(s)).strip()
 
-class Tests(unittest.TestCase):
+def convertShasToMagnets(shas):
+    """Convert sha1 hashes to magnet URLs.
+    For example, for the 5th episode of Season 4 of Family guy:
 
-    def testUnhex(self):
-        self.assertEquals(unhex("44757374696e"), "Dustin")
-
-    def testHexToBase64(self):
-        self.assertEquals(hexToBase64("44757374696e"), "RHVzdGlu")
-
-    def testFamilyGuy(self):
-        self.assertEquals(
-            hexToBase32("cd8ade3e790c1e97cb1974bfde356be49ac8f1d8"),
-            "ZWFN4PTZBQPJPSYZOS754NLL4SNMR4OY")
+    >>> convertShasToMagnets(['cd8ade3e790c1e97cb1974bfde356be49ac8f1d8'])
+    ['magnet:?xt=urn:btih:ZWFN4PTZBQPJPSYZOS754NLL4SNMR4OY']
+    """
+    return ["magnet:?xt=urn:btih:%s" % hexToBase32(s) for s in shas]
 
 if __name__ == '__main__':
-    for s in sys.argv[1:]:
-        print "magnet:?xt=urn:btih:%s" % hexToBase32(s)
+
+    if len(sys.argv) == 1:
+        doctest.testmod(verbose=True)
+        print "\nUsage:  %s sha [sha] [...]\n" % (sys.argv[0],)
+
+    '\n'.join(convertShasToMagnets(sys.argv[1:]))
 
 # vim: foldmethod=marker
