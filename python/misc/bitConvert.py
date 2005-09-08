@@ -121,6 +121,6 @@ if __name__ == '__main__':
         doctest.testmod(verbose=True)
         print "\nUsage:  %s sha [sha] [...]\n" % (sys.argv[0],)
 
-    '\n'.join(convertShasToMagnets(sys.argv[1:]))
+    print '\n'.join(convertShasToMagnets(sys.argv[1:]))
 
 # vim: foldmethod=marker
