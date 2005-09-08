@@ -97,7 +97,7 @@ class GoogleSearch:
 if __name__ == '__main__':
     myKey='2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX'
     query=sys.argv[1]
-    g=GoogleSearch(myKey, proxy='juan:3128')
+    g=GoogleSearch(myKey)
     g.doSearch(query)
 
     # Print meta information:

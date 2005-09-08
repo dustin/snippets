@@ -79,6 +79,6 @@ class SearchWatcher:
                 break
 
 if __name__=='__main__':
-    sw=SearchWatcher('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX', proxy='juan:3128')
+    sw=SearchWatcher('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX')
     for q in sys.argv[1:]:
         sw.checkQuery(q)
