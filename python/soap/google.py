@@ -5,7 +5,7 @@
 from __future__ import generators
 
 import sys
-import SOAP
+import SOAPpy
 
 class ResultsNotReady:
     """Exception raised when attempting to use search results
@@ -14,28 +14,22 @@ class ResultsNotReady:
 
 class GoogleSearch:
 
-    soapfalse=SOAP.booleanType(0)
-    soaptrue=SOAP.booleanType(1)
-
     def __init__(self, key, proxy=None):
         """Get a new google search thing."""
-        self.server=SOAP.SOAPProxy("http://api.google.com/search/beta2",
+        self.server=SOAPpy.SOAPProxy("http://api.google.com/search/beta2",
             namespace='urn:GoogleSearch', http_proxy=proxy)
         self.key=key
         self.results=None
-
-    # This makes it easy to quote the strings
-    s=SOAP.stringType
 
     def doSearch(self, query, filter=1, restrict='', safeSearch=0,
         lr='', ie='', oe=''):
         """Perform a google search."""
 
-        if filter: filter=GoogleSearch.soaptrue
-        else: filter=GoogleSearch.soapfalse
+        if filter: filter=True
+        else: filter=False
 
-        if safeSearch: safeSearch=GoogleSearch.soaptrue
-        else: safeSearch=GoogleSearch.soapfalse
+        if safeSearch: safeSearch=True
+        else: safeSearch=False
 
         self.query=query
         self.filter=filter
@@ -50,11 +44,8 @@ class GoogleSearch:
     def _performQuery(self, startId):
 
         self.results=self.server.doGoogleSearch(
-            GoogleSearch.s(self.key),
-            GoogleSearch.s(self.query), startId, 10, self.filter,
-            GoogleSearch.s(self.restrict), self.safeSearch,
-            GoogleSearch.s(self.lr), GoogleSearch.s(self.ie),
-            GoogleSearch.s(self.oe))
+            self.key, self.query, startId, 10, self.filter,
+            self.restrict, self.safeSearch, self.lr, self.ie, self.oe)
 
     # Verify we have search results ready
     def __checkResults(self):
