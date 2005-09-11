@@ -1,4 +1,4 @@
 # arch-tag: 746989D9-FB34-4719-87E6-23B7B3541B93
 
-precious ^(searchdb.db)$
+precious ^(searchdb.db|rssdb.db)$
 
