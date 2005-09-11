@@ -9,13 +9,14 @@ import anydbm
 import time
 import sys
 import google
-import xml.dom.minidom
 import md5
+import xml.dom.minidom
+from xml.dom.ext import PrettyPrint
 
 MAX_AGE=(86400*15)
-MAX_RESULTS=5
+MAX_RESULTS=20
 
-def xgetResults(key, query):
+def getResults(key, query):
     rv=[]
 
     db=anydbm.open("rssdb", "c")
@@ -99,4 +100,7 @@ def buildDocument(results, keywords):
 if __name__=='__main__':
     results=getResults('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX', sys.argv[1])
 
-    print buildDocument(results, sys.argv[1]).toprettyxml()
+    doc=buildDocument(results, sys.argv[1])
+
+    PrettyPrint(doc, stream=sys.stdout, encoding='UTF-8',
+        indent=' ', preserveElements=None)
