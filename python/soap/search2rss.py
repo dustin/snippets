@@ -14,7 +14,7 @@ import xml.dom.minidom
 from xml.dom.ext import PrettyPrint
 
 MAX_AGE=(86400*15)
-MAX_RESULTS=20
+MAX_RESULTS=100
 
 def getResults(key, query):
     rv=[]
