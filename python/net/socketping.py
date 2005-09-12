@@ -11,6 +11,7 @@ import sys
 import errno
 import socket
 import select
+import traceback
 
 def getSocket(host, port):
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,18 +56,33 @@ def waitForIt(sockets, timeout):
 
     return foundOne
 
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print "Usage:  %s timeout host:port [host:port] [...]" % sys.argv[0]
-        sys.exit(2)
-
+def main():
+    rv=0
     timeout=float(sys.argv[1])
     stuff=[x.split(':') for x in sys.argv[2:]]
 
     sockets=[getSocket(a, int(b)) for a, b in stuff]
     if waitForIt(sockets, timeout):
         print ":) Got a response."
-        sys.exit(0)
+        rv=0
     else:
         print ":( no hosts responded in %.2f seconds" % timeout
-        sys.exit(2)
+        rv=2
+
+    return rv
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print "Usage:  %s timeout host:port [host:port] [...]" % sys.argv[0]
+        sys.exit(3)
+
+    rv=0
+    try:
+        rv=main()
+    except:
+        sys.stdout.write(
+            traceback.format_exception_only(sys.exc_type, sys.exc_value)[0])
+        traceback.print_exc()
+        rv=3
+
+    sys.exit(rv)
