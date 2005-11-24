@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<soapenv:Envelope
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cwmp="urn:dslforum-org:cwmp-1-0">
+  <soapenv:Header>
+    <cwmp:ID soapenv:mustUnderstand="1">%(id)s</cwmp:ID>
+  </soapenv:Header>
+  <soapenv:Body>
+    <cwmp:Inform>
+      <DeviceId>
+        <Manufacturer>%(manufacturer)s</Manufacturer>
+        <OUI>%(oui)s</OUI>
+        <ProductClass>%(pca)s</ProductClass>
+        <SerialNumber>%(serial)s</SerialNumber>
+      </DeviceId>
+      <Event>
+        <EventStruct>
+          <EventCode>0 BOOTSTRAP</EventCode>
+          <CommandKey/>
+        </EventStruct>
+      </Event>
+      <MaxEnvelopes>1</MaxEnvelopes>
+      <CurrentTime>2002-04-04T11:11:27Z</CurrentTime>
+      <RetryCount>0</RetryCount>
+      <ParameterList>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.SpecVersion</Name>
+          <Value>1.0</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.HardwareVersion</Name>
+          <Value>2700-000345-002</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.SoftwareVersion</Name>
+          <Value>4.21.5</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.DeviceInfo.ProvisioningCode</Name>
+          <Value>%(keycode)s</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+          <Value>http://tr69/</Value>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.ManagementServer.ParameterKey</Name>
+          <Value/>
+        </ParameterValueStruct>
+        <ParameterValueStruct>
+          <Name>InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.ExternalIPAddress</Name>
+          <Value>208.35.230.144</Value>
+        </ParameterValueStruct>
+      </ParameterList>
+    </cwmp:Inform>
+  </soapenv:Body>
+</soapenv:Envelope>
+<!-- arch-tag: FB05E1D7-F555-494B-B26B-94C44FC9BA0C -->

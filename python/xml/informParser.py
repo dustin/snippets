@@ -6,77 +6,23 @@ Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 # arch-tag: 0189CC85-D42F-4EAE-9C77-EE95AB5E7925
 
 import sys
+import saxkit
 import xml.sax
+import unittest
 
 SOAPENV=u'http://schemas.xmlsoap.org/soap/envelope/'
 CWMP=u'urn:dslforum-org:cwmp-1-0'
-
-class ElementHandler(xml.sax.handler.ContentHandler):
-    """Interface for element parsing."""
-
-    parsers={}
-
-    def __init__(self):
-        xml.sax.handler.ContentHandler.__init__(self)
-
-    def getParser(self, name):
-        """Get the child parser for the given name"""
-        return self.parsers[name]
-
-    def addChild(self, name, child):
-        """Add a parsed child object."""
-
-class RootHandler(ElementHandler):
-    element=None
-    def __init__(self, type, handler):
-        ElementHandler.__init__(self)
-        self.parsers[type]=handler
-
-    def addChild(self, name, child):
-        assert self.element is None
-        self.element=child
-
-class StackedHandler(xml.sax.handler.ContentHandler):
-    """SAX event handler that will delegate results to sub handlers."""
-    stack=[]
-    root=None
-
-    def __init__(self, rootType, rootHandler):
-        """root type and handler expected."""
-
-        xml.sax.handler.ContentHandler.__init__(self)
-        self.root=RootHandler(rootType, rootHandler)
-        self.stack.append(self.root)
-
-    def startElementNS(self, name, qname, attrs):
-        handler=self.stack[-1].getParser(name)
-        self.stack.append(handler)
-        handler.startElementNS(name, qname, attrs)
-
-    def endElementNS(self, name, qname):
-        child=self.stack.pop()
-        child.endElementNS(self, name)
-        handler=self.stack[-1]
-        handler.addChild(name, child)
-
-    def characters(self, content):
-        handler=self.stack[-1]
-        handler.characters(content)
-
-    def getRootElement(self):
-        return self.root.element
 
 #
 # Begin implementation of SOAP parsing
 #
 
-class SoapMessage(ElementHandler):
-
-    header=None
-    body=None
+class SoapMessage(saxkit.ElementHandler):
 
     def __init__(self):
-        ElementHandler.__init__(self)
+        saxkit.ElementHandler.__init__(self)
+        self.header=None
+        self.body=None
         self.parsers[(SOAPENV, u'Header')]=SoapHeader()
         self.parsers[(SOAPENV, u'Body')]=SoapBody()
 
@@ -88,10 +34,13 @@ class SoapMessage(ElementHandler):
         else:
             raise "Invalid part", name
 
-class HeaderItem(ElementHandler):
-    name=None
-    attrs={}
-    content=""
+class HeaderItem(saxkit.ElementHandler):
+
+    def __init__(self):
+        saxkit.ElementHandler.__init__(self)
+        self.name=None
+        self.attrs={}
+        self.content=""
 
     def startElementNS(self, name, qname, attrs):
         self.name=name
@@ -105,8 +54,12 @@ class HeaderItem(ElementHandler):
         return "{HeaderItem name=" + `self.name` + ", attrs=" + `self.attrs` \
             + ", content=" + `self.content` + "}"
 
-class SoapHeader(ElementHandler):
-    headers=[]
+class SoapHeader(saxkit.ElementHandler):
+
+    def __init__(self):
+        saxkit.ElementHandler.__init__(self)
+        self.headers=[]
+
     def getParser(self, item):
         return HeaderItem()
 
@@ -116,30 +69,18 @@ class SoapHeader(ElementHandler):
     def __repr__(self):
         return "{Header " + `len(self.headers)` + " header(s) found}"
 
-class SimpleValueParser(ElementHandler):
-    value=""
-
-    def characters(self, content):
-        self.value+=content
-
-    def getValue(self):
-        return self.value
-
-    def __repr__(self):
-        return "{SimpleValue " + `self.value` + "}"
-
-class DeviceId(ElementHandler):
+class DeviceId(saxkit.ElementHandler):
     manufacturer=None
     oui=None
     productClass=None
     serialNumber=None
 
     def __init__(self):
-        ElementHandler.__init__(self)
-        self.parsers[(None, 'Manufacturer')]=SimpleValueParser()
-        self.parsers[(None, 'OUI')]=SimpleValueParser()
-        self.parsers[(None, 'ProductClass')]=SimpleValueParser()
-        self.parsers[(None, 'SerialNumber')]=SimpleValueParser()
+        saxkit.ElementHandler.__init__(self)
+        self.parsers[(None, 'Manufacturer')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'OUI')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'ProductClass')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'SerialNumber')]=saxkit.SimpleValueParser()
 
     def addChild(self, name, val):
         if name == (None, 'Manufacturer'):
@@ -160,14 +101,14 @@ class DeviceId(ElementHandler):
             + ", sn=" + `self.serialNumber` \
             + "}"
 
-class Event(ElementHandler):
+class Event(saxkit.ElementHandler):
     eventCode=None
     commandKey=None
 
     def __init__(self):
-        ElementHandler.__init__(self)
-        self.parsers[(None, 'EventCode')]=SimpleValueParser()
-        self.parsers[(None, 'CommandKey')]=SimpleValueParser()
+        saxkit.ElementHandler.__init__(self)
+        self.parsers[(None, 'EventCode')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'CommandKey')]=saxkit.SimpleValueParser()
 
     def addChild(self, name, val):
         shortName=name[1]
@@ -180,11 +121,12 @@ class Event(ElementHandler):
         return "{Event '" + self.eventCode + "', cmd='" \
             + self.commandKey + "'}"
 
-class EventList(ElementHandler):
-    events=[]
+class EventList(saxkit.ElementHandler):
+
     def __init__(self):
-        ElementHandler.__init__(self)
+        saxkit.ElementHandler.__init__(self)
         self.parsers[(None, 'EventStruct')]=Event
+        self.events=[]
 
     def getParser(self, name):
         # This one works a little differently...needs to return a new instance
@@ -196,20 +138,19 @@ class EventList(ElementHandler):
     def __repr__(self):
         return "{Events: " + `self.events` + "}"
 
-class Parameters(ElementHandler):
-
-    params={}
+class Parameters(saxkit.ElementHandler):
 
     def __init__(self):
-        ElementHandler.__init__(self)
+        saxkit.ElementHandler.__init__(self)
+        self.params={}
 
-        class ParamValStruct(ElementHandler):
+        class ParamValStruct(saxkit.ElementHandler):
             name=None
             value=None
             def __init__(self):
-                ElementHandler.__init__(self)
-                self.parsers[(None, 'Name')]=SimpleValueParser()
-                self.parsers[(None, 'Value')]=SimpleValueParser()
+                saxkit.ElementHandler.__init__(self)
+                self.parsers[(None, 'Name')]=saxkit.SimpleValueParser()
+                self.parsers[(None, 'Value')]=saxkit.SimpleValueParser()
 
             def addChild(self, name, val):
                 shortName=name[1]
@@ -229,19 +170,20 @@ class Parameters(ElementHandler):
     def addChild(self, name, val):
         self.params[val.name]=val.value
 
-class Inform(ElementHandler):
-    parts={}
+class Inform(saxkit.ElementHandler):
     def __init__(self):
-        ElementHandler.__init__(self)
+        saxkit.ElementHandler.__init__(self)
         self.parsers[(None, 'DeviceId')]=DeviceId()
         self.parsers[(None, 'Event')]=EventList()
-        self.parsers[(None, 'MaxEnvelopes')]=SimpleValueParser()
-        self.parsers[(None, 'CurrentTime')]=SimpleValueParser()
-        self.parsers[(None, 'RetryCount')]=SimpleValueParser()
+        self.parsers[(None, 'MaxEnvelopes')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'CurrentTime')]=saxkit.SimpleValueParser()
+        self.parsers[(None, 'RetryCount')]=saxkit.SimpleValueParser()
         self.parsers[(None, 'ParameterList')]=Parameters()
 
+        self.parts={}
+
     def addChild(self, name, val):
-        if isinstance(val, SimpleValueParser):
+        if isinstance(val, saxkit.SimpleValueParser):
             self.parts[name[1]]=val.getValue()
         else:
             self.parts[name[1]]=val
@@ -255,8 +197,11 @@ class BodyParserRegistry(object):
 # Singleton body parser
 bodyParser=BodyParserRegistry()
 
-class SoapBody(ElementHandler):
-    body=None
+class SoapBody(saxkit.ElementHandler):
+
+    def __init__(self):
+        saxkit.ElementHandler.__init__(self)
+        self.body=None
 
     def addChild(self, name, child):
         assert self.body is None
@@ -267,22 +212,41 @@ class SoapBody(ElementHandler):
         parserClass=bodyParser.getParser(item)
         return parserClass()
 
+class InformTest(unittest.TestCase):
+
+    def setUp(self):
+        self.handler=saxkit.StackedHandler(
+            (SOAPENV, u'Envelope'), SoapMessage())
+        parser=xml.sax.make_parser()
+        parser.setFeature(xml.sax.handler.feature_namespaces, True)
+        parser.setContentHandler(self.handler)
+        parser.parse("sample/informbootstrap.xml")
+        self.sm=self.handler.getRootElement()
+
+    def testInstances(self):
+        self.failUnless(isinstance(self.sm, SoapMessage))
+        self.failUnless(isinstance(self.sm.body, SoapBody))
+        self.failUnless(isinstance(self.sm.header, SoapHeader))
+
+    def testHeader(self):
+        self.assertEquals(len(self.sm.header.headers), 1)
+
+    def testBody(self):
+        b=self.sm.body.body.parts
+        self.assertEquals(b['DeviceId'].manufacturer, '%(manufacturer)s')
+        self.assertEquals(b['DeviceId'].oui, '%(oui)s')
+        self.assertEquals(b['DeviceId'].productClass, '%(pca)s')
+        self.assertEquals(b['DeviceId'].serialNumber, '%(serial)s')
+
+        self.assertEquals(len(b['Event'].events), 1)
+
+        informArgs=('DeviceId', 'Event', 'MaxEnvelopes', 'CurrentTime',
+            'RetryCount')
+
+        # for k in informArgs:
+        #     print k, "=", soapMessage.body.body.parts[k]
+
+        # print soapMessage.body.body.parts['ParameterList'].params
+
 if __name__ == '__main__':
-    handler=StackedHandler((SOAPENV, u'Envelope'), SoapMessage())
-    parser=xml.sax.make_parser()
-    parser.setFeature(xml.sax.handler.feature_namespaces, True)
-    parser.setContentHandler(handler)
-    parser.parse(sys.argv[1])
-
-    soapMessage=handler.getRootElement()
-    print "Header", soapMessage.header
-    print "   Headers", soapMessage.header.headers
-    print "Body", soapMessage.body.body
-
-    informArgs=('DeviceId', 'Event', 'MaxEnvelopes', 'CurrentTime',
-        'RetryCount')
-
-    for k in informArgs:
-        print k, "=", soapMessage.body.body.parts[k]
-
-    print soapMessage.body.body.parts['ParameterList'].params
+    unittest.main()
