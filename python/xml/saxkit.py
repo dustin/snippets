@@ -68,6 +68,7 @@ class SimpleValueParser(ElementHandler):
 
     def __init__(self):
         ElementHandler.__init__(self)
+        self.attrs={}
         self.value=""
 
     def characters(self, content):
@@ -76,22 +77,41 @@ class SimpleValueParser(ElementHandler):
     def getValue(self):
         return self.value
 
+    def startElementNS(self, name, qname, attrs):
+        self.attrs=dict([(k, attrs[k]) for k in attrs.getNames()])
+        self.attrs=attrs
+
+    def __getitem__(self, k):
+        return self.attrs[k]
+
     def __repr__(self):
         return "{SimpleValue " + `self.value` + "}"
 
 class SimpleListParser(ElementHandler):
-    """Parser for lists of simple values."""
+    """Parser for lists of values."""
 
-    def __init__(self):
+    def __init__(self, parserFactory=SimpleValueParser):
+        """Construct a SimpleListParser with an optional value parser."""
         ElementHandler.__init__(self)
         self.values=[]
+        self.factory=parserFactory
 
     def getParser(self, name):
-        return SimpleValueParser()
+        return self.factory()
 
     def getValues(self):
         """Get the contained values."""
         return self.values
 
     def addChild(self, name, child):
-        self.values.append(child.getValue())
+        if isinstance(child, SimpleValueParser):
+            self.values.append(child.getValue())
+        else:
+            self.values.append(child)
+
+class IgnoringParser(ElementHandler):
+    """Parser that ignores any of its children."""
+
+    def getParser(self, name):
+        print "Ignoring", name
+        return IgnoringParser()
