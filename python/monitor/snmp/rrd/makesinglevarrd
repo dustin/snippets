@@ -1,0 +1,17 @@
+#!/bin/sh
+# Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
+# $Id: makesinglevarrd,v 1.1 2002/04/09 21:14:53 dustin Exp $
+# arch-tag: E789DB74-9A8C-4598-B603-5B5A57A26373
+
+for i in "$@"
+do
+	/usr/local/rrdtool-1.0.33/bin/rrdtool create "$i" \
+		-s 60 \
+		DS:var:COUNTER:300:0:1250000 \
+		RRA:AVERAGE:0.5:5:8640 \
+		RRA:MAX:0.5:5:8640 \
+		RRA:AVERAGE:0.5:120:2160 \
+		RRA:MAX:0.5:120:2160 \
+		RRA:AVERAGE:0.5:1440:1825 \
+		RRA:MAX:0.5:1440:1825
+done
