@@ -56,19 +56,13 @@ def appendText(doc, el, name, val):
     el.appendChild(newel)
     return newel
 
-def appendCData(doc, el, name, val):
-    newel = doc.createElement(name)
-    newel.appendChild(doc.createCDATASection(val))
-    el.appendChild(newel)
-    return newel
-
 def appendItem(doc, channel, rsltTuple):
     r, pos, ts = rsltTuple
     it = doc.createElement("item")
     appendText(doc, it, "link", r['URL'])
     appendText(doc, it, "pubDate", formatTimestamp(ts))
     appendText(doc, it, "title", r['title'].strip())
-    appendCData(doc, it, "description", r['snippet'].strip())
+    appendText(doc, it, "description", r['snippet'].strip())
 
     channel.appendChild(it)
 
