@@ -59,7 +59,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     protocol_version="HTTP/1.0"
     server_version = "InjectingProxy/1.0"
     unusableOutHeaders=['connection', 'content-length']
-    unusableInHeaders=['connection', 'keep-alive', 'proxy-connection']
+    unusableInHeaders=['connection', 'keep-alive', 'proxy-connection', 'host']
     rbufsize = 0
 
     def __mungeHeaders(self, headers, unusable, inject):
@@ -67,7 +67,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for h in headers.headers:
             usable=True
             for u in unusable:
-                if h.lower().find(u) >= 0:
+                if h.lower().find(u + ":") >= 0:
                     usable=False
             if usable:
                 rv.append(h.strip())
@@ -82,7 +82,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def getUsableInHeaders(self, headers):
         return self.__mungeHeaders(headers, self.unusableInHeaders,
-            ('Connection: close', 'Proxy-Connection: close',))
+            ('Connection: close',))
 
     def headersToDict(self, headers):
         rv={}
