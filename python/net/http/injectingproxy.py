@@ -13,30 +13,14 @@ import urlparse
 import urllib2
 import gzip
 import cStringIO
+import logging
+import traceback
 
-class StupidResponse:
-    def __init__(self, u, h):
-        self.u=u
-        self.h=h
-    def geturl(self):
-        return self.u
-    def info(self):
-        return self.h
-
-class ErrorHandler(urllib2.HTTPDefaultErrorHandler):
-    def __init__(self, proxy):
-        self.proxy=proxy
-
-    def http_error_default(self, req, fp, code, msg, hdrs):
-        s=self.proxy.connection
-        print code, "for", req.get_full_url()
-        s.send("HTTP/1.0 " + `code` + " " + msg + "\r\n")
-        s.send(self.proxy.convertHeaders(self.proxy.getUsableOutHeaders(hdrs)))
-        s.send(fp.read())
-        s.close()
-        return StupidResponse(req, hdrs)
+class AccessDenied(exceptions.Exception):
+    """Exception raised when an unauthorized URL is requested."""
 
 class Injector:
+    """Make the decision of when and what to inject."""
 
     acceptableMimeTypes=('text/html')
     blacklist=('www.yahoo.com',)
@@ -45,15 +29,18 @@ class Injector:
         self.content=content
 
     def shouldInject(self, proxyReq, mimeType):
+        """Return true if the request should be injected."""
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
             proxyReq.path, 'http')
         return mimeType in self.acceptableMimeTypes \
             and netloc not in self.blacklist
 
     def getInjection(self):
+        """Return the data to inject."""
         return self.content
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    """Handles each request."""
 
     injector = Injector()
     protocol_version="HTTP/1.0"
@@ -70,39 +57,31 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if h.lower().find(u + ":") >= 0:
                     usable=False
             if usable:
-                rv.append(h.strip())
+                colon=h.index(":")
+                k=h[:colon]
+                v=h[colon+1:].strip()
+                rv.append((k, v))
         for h in inject:
             rv.append(h)
         return rv
 
-    def getUsableOutHeaders(self, headers):
+    def __getUsableOutHeaders(self, headers):
         return self.__mungeHeaders(headers, self.unusableOutHeaders,
-            ('Connection: close', 'Proxy-Connection: close',
-            'X-Served-Via: ' + self.server_version))
+            (('Connection', 'close'), ('Proxy-Connection', 'close'),
+            ('X-Served-Via', self.server_version)))
 
-    def getUsableInHeaders(self, headers):
+    def __getUsableInHeaders(self, headers):
         return self.__mungeHeaders(headers, self.unusableInHeaders,
-            ('Connection: close',))
+            (('Connection', 'close'),))
 
-    def headersToDict(self, headers):
-        rv={}
-        for h in headers:
-            colon=h.index(":")
-            k=h[:colon]
-            v=h[colon+1:].strip()
-            rv[k]=v
-        return rv
+    # Disable default logging
+    def log_request(self, code='-', size='-'):
+        pass
 
-    def convertHeaders(self, headers):
-        return '\r\n'.join(headers) + "\r\n\r\n"
-
-    def getOpener(self):
-        return urllib2.build_opener(ErrorHandler(self))
-
-    def handleInjection(self, response, data):
+    def __handleInjection(self, response, data):
         sender=self.connection.send
         close=self.connection.close
-        # Lots of special gzip  handling
+        # Lots of special gzip handling
         if response.info().getheader('Content-Encoding') == 'gzip':
             data=gzip.GzipFile('', 'r', 0, cStringIO.StringIO(data)).read()
             class Writer:
@@ -126,40 +105,83 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         close()
 
+    def __respond(self, req):
+        code=200
+        msg="OK"
+        try:
+            res=urllib2.urlopen(req)
+        except urllib2.HTTPError, e:
+            res=e
+            code=e.code
+            msg=e.msg
+        headers=self.__getUsableOutHeaders(res.info())
+        self.send_response(code)
+        for h in headers:
+            self.send_header(h[0], h[1])
+        self.end_headers()
+        if code == 200 and self.injector.shouldInject(self, res.info().type):
+            logging.info("%s-%d-Injecting into %s" % (req.get_method(),
+                code, self.path))
+            self.__handleInjection(res, res.read())
+        else:
+            logging.info("%s-%d-Not injecting into %s" % (req.get_method(),
+                code, self.path))
+            self.connection.send(res.read())
+        res.close()
+
+    def __resolveUrl(self, u):
+        rv=u
+        if rv[:4] != 'http':
+            rv="http://localhost:80" + u
+        try:
+            (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
+                rv, 'http')
+            bannedDomains=('.2wire.com',)
+            bannedIps=('10.',)
+            for b in bannedIps:
+                if netloc[:len(b)] == b:
+                    raise AccessDenied, rv
+            for b in bannedDomains:
+                if netloc[-len(b):] == b:
+                    raise AccessDenied, rv
+        except AccessDenied, e:
+            logging.warn("Access denied: " + e[0])
+            self.send_response(403)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Connection", "close")
+            self.send_header("Proxy-Connection", "close")
+            self.end_headers()
+            self.connection.send("Access denied: " + e[0])
+            raise e
+        return rv
+
     def do_GET(self):
-        inHeaders=self.getUsableInHeaders(self.headers)
-        print "GET", self.path
-        req=urllib2.Request(self.path, None, self.headersToDict(inHeaders))
-        response=self.getOpener().open(req)
-        self.sendResponse(response)
+        inHeaders=self.__getUsableInHeaders(self.headers)
+        req=urllib2.Request(self.__resolveUrl(self.path), None, dict(inHeaders))
+        self.__respond(req)
 
     def do_POST(self):
-        inHeaders=self.getUsableInHeaders(self.headers)
-        print "POST", self.path
+        inHeaders=self.__getUsableInHeaders(self.headers)
         toRead=int(self.headers['Content-length'])
-        req=urllib2.Request(self.path, self.connection.recv(toRead),
-            self.headersToDict(inHeaders))
-        response=self.getOpener().open(req)
-        self.sendResponse(response)
-
-    def sendResponse(self, response):
-        if not isinstance(response, StupidResponse):
-            headers=self.getUsableOutHeaders(response.info())
-            self.connection.send("HTTP/1.0 200 OK\r\n")
-            self.connection.send(self.convertHeaders(headers))
-            if self.injector.shouldInject(self, response.info().type):
-                print "Injecting into", self.path
-                self.handleInjection(response, response.read())
-            else:
-                print "Not injecting into", self.path
-                self.connection.send(response.read())
-            response.close()
+        req=urllib2.Request(self.__resolveUrl(self.path),
+            self.connection.recv(toRead), dict(inHeaders))
+        self.__respond(req)
 
 class ThreadingHTTPServer(SocketServer.ThreadingMixIn,
     BaseHTTPServer.HTTPServer):
-    pass
+
+    def handle_error(self, request, client_address):
+        etype, value, tb = sys.exc_info()
+        logging.warn("Error occurred from %s\n%s" % (client_address[0],
+            "".join(traceback.format_exception(etype, value, tb))))
 
 if __name__ == '__main__':
+    hdlr=logging.StreamHandler()
+    fmt=logging.Formatter("%(levelname)s:%(asctime)s:%(message)s")
+    hdlr.setFormatter(fmt)
+    logging.root.addHandler(hdlr)
+    logging.root.setLevel(logging.INFO)
+
     # Get the listening address
     server_address = ('', 8000)
 
@@ -173,5 +195,5 @@ if __name__ == '__main__':
     httpd = ThreadingHTTPServer(server_address, ProxyHandler)
 
     sa = httpd.socket.getsockname()
-    print "Serving HTTP on", sa[0], "port", sa[1], "..."
+    logging.info("Serving HTTP on %s:%d" % (sa[0], sa[1]))
     httpd.serve_forever()
