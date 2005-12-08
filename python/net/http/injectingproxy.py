@@ -15,6 +15,10 @@ import gzip
 import cStringIO
 import logging
 import traceback
+import getopt
+import random
+import sets
+import re
 
 class AccessDenied(exceptions.Exception):
     """Exception raised when an unauthorized URL is requested."""
@@ -22,11 +26,13 @@ class AccessDenied(exceptions.Exception):
 class Injector:
     """Make the decision of when and what to inject."""
 
-    acceptableMimeTypes=('text/html')
-    blacklist=('www.yahoo.com',)
-
-    def __init__(self, content="<h1>I was injected!!!</h1>"):
-        self.content=content
+    def __init__(self, files, blacklist=[], mimeTypes=('text/html',)):
+        self.blacklist=blacklist
+        self.acceptableMimeTypes=mimeTypes
+        r=random.Random()
+        def randomFile():
+            return r.choice(files)
+        self.randomFile=randomFile
 
     def shouldInject(self, proxyReq, mimeType):
         """Return true if the request should be injected."""
@@ -37,12 +43,20 @@ class Injector:
 
     def getInjection(self):
         """Return the data to inject."""
-        return self.content
+        aFile=self.randomFile()
+        f=open(aFile)
+        try:
+            rv=f.read()
+        finally:
+            f.close()
+        return rv
 
 class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """Handles each request."""
 
-    injector = Injector()
+    # An injector must be, um, injected into this class
+    injector=None
+    bannedPatterns=[]
     protocol_version="HTTP/1.0"
     server_version = "InjectingProxy/1.0"
     unusableOutHeaders=['connection', 'content-length']
@@ -129,29 +143,32 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.send(res.read())
         res.close()
 
+    def __sendText(self, code, msg):
+        self.send_response(code)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Connection", "close")
+        self.send_header("Proxy-Connection", "close")
+        self.end_headers()
+        self.connection.send(msg)
+
     def __resolveUrl(self, u):
         rv=u
         if rv[:4] != 'http':
-            rv="http://localhost:80" + u
+            if self.defaultUrl is None:
+                msg="No default URL, and not a proxy request"
+                self.__sendText(400, msg)
+                raise exceptions.Exception, msg
+            else:
+                rv=self.defaultUrl + u
+                logging.info("Using default URL to get " + rv)
         try:
             (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
                 rv, 'http')
-            bannedDomains=('.2wire.com',)
-            bannedIps=('10.',)
-            for b in bannedIps:
-                if netloc[:len(b)] == b:
-                    raise AccessDenied, rv
-            for b in bannedDomains:
-                if netloc[-len(b):] == b:
+            for p in self.bannedPatterns:
+                if p.search(netloc):
                     raise AccessDenied, rv
         except AccessDenied, e:
-            logging.warn("Access denied: " + e[0])
-            self.send_response(403)
-            self.send_header("Content-Type", "text/plain")
-            self.send_header("Connection", "close")
-            self.send_header("Proxy-Connection", "close")
-            self.end_headers()
-            self.connection.send("Access denied: " + e[0])
+            self.__sendText(403, "Access denied: " + e[0])
             raise e
         return rv
 
@@ -175,7 +192,42 @@ class ThreadingHTTPServer(SocketServer.ThreadingMixIn,
         logging.warn("Error occurred from %s\n%s" % (client_address[0],
             "".join(traceback.format_exception(etype, value, tb))))
 
-if __name__ == '__main__':
+class UsageError(exceptions.Exception):
+    """Exception thrown for an invalid usage."""
+
+def main():
+    port=8000
+    noInjectList=sets.Set()
+    denied=[]
+    mimeTypes=sets.Set()
+    mimeTypes.add("text/html")
+    defaultUrl=None
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'd:n:x:p:m:')
+    except getopt.GetoptError, e:
+        raise UsageError(e)
+
+    for op, val in opts:
+        if op == '-p':
+            port=int(val)
+        if op == '-d':
+            defaultUrl=val.rstrip('/')
+        if op == '-m':
+            mimeTypes.add(val)
+        if op == '-n':
+            f=open(val)
+            noInjectList=sets.Set([x.strip() for x in f.readlines()])
+            f.close()
+        if op == '-x':
+            f=open(val)
+            denied=[re.compile(x.strip()) for x in f.readlines() if x[0] != '#']
+            f.close()
+
+    if len(args) == 0:
+        raise UsageError, "You need to provide at least one injection file."
+
+    # Logger setup
     hdlr=logging.StreamHandler()
     fmt=logging.Formatter("%(levelname)s:%(asctime)s:%(message)s")
     hdlr.setFormatter(fmt)
@@ -183,17 +235,35 @@ if __name__ == '__main__':
     logging.root.setLevel(logging.INFO)
 
     # Get the listening address
-    server_address = ('', 8000)
+    server_address = ('', port)
 
     # Set up the injector if we get a filename.
-    if len(sys.argv) > 1:
-        f=open(sys.argv[1])
-        ProxyHandler.injector=Injector(f.read())
-        f.close()
+    ProxyHandler.injector=Injector(args, noInjectList, mimeTypes)
+    ProxyHandler.bannedPatterns=denied
+    ProxyHandler.defaultUrl=defaultUrl
 
     # Get the server going
     httpd = ThreadingHTTPServer(server_address, ProxyHandler)
 
     sa = httpd.socket.getsockname()
     logging.info("Serving HTTP on %s:%d" % (sa[0], sa[1]))
+    logging.info("Servicing the following types:  " + ', '.join(mimeTypes))
+    logging.info("Denying access to %d sites, ignoring %d" \
+        % (len(denied), len(noInjectList)))
+    if defaultUrl is not None:
+        logging.info("Default URL is " + defaultUrl)
     httpd.serve_forever()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except UsageError, e:
+        print e
+        print "Usage:  " + sys.argv[0] + \
+            " [-d defaultUrl] [-n file] [-m type [-m type ...]]"
+        print "\t\t[-p port] [-x file] injectfile [injectfile ...]"
+        print "\t-d is used to specify a default URL for non-proxy operation"
+        print "\t-n a file containing hosts to ignore"
+        print "\t-x a file containing hostname patterns that are denied"
+        print "\t-p the port to listen on"
+        print "\t-m adds a mime type to the acceptable mime type list"
