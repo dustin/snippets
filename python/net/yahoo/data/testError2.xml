@@ -1,0 +1,6 @@
+<Error xmlns="urn:yahoo:api"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://api.yahoo.com/Api/V1/error.xsd">
+      The following errors were detected:
+	<Message>spanish inquisition</Message>
+</Error>
