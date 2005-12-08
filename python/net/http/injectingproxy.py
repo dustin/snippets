@@ -56,7 +56,7 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # An injector must be, um, injected into this class
     injector=None
-    bannedPatterns=[]
+    accessPolicy=[]
     protocol_version="HTTP/1.0"
     server_version = "InjectingProxy/1.0"
     unusableOutHeaders=['connection', 'content-length']
@@ -164,9 +164,16 @@ class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
                 rv, 'http')
-            for p in self.bannedPatterns:
+            match=None
+            for access,p,pstr in self.accessPolicy:
                 if p.search(netloc):
-                    raise AccessDenied, rv
+                    logging.debug("%s matches '%s':  %s", netloc, pstr, access)
+                    match=access
+                    break
+            if match is None:
+                raise AccessDenied, "No match for " + rv
+            if match != 'OK':
+                raise AccessDenied, "Access denied: " + rv
         except AccessDenied, e:
             self.__sendText(403, "Access denied: " + e[0])
             raise e
@@ -198,17 +205,21 @@ class UsageError(exceptions.Exception):
 def main():
     port=8000
     noInjectList=sets.Set()
-    denied=[]
+    # By default, allow everything
+    access=[('OK', re.compile('.*'), '.*')]
     mimeTypes=sets.Set()
     mimeTypes.add("text/html")
     defaultUrl=None
+    logLevel=logging.INFO
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'd:n:x:p:m:')
+        opts, args = getopt.getopt(sys.argv[1:], 'd:n:a:p:m:D')
     except getopt.GetoptError, e:
         raise UsageError(e)
 
     for op, val in opts:
+        if op == '-D':
+            logLevel=logging.DEBUG
         if op == '-p':
             port=int(val)
         if op == '-d':
@@ -219,9 +230,14 @@ def main():
             f=open(val)
             noInjectList=sets.Set([x.strip() for x in f.readlines()])
             f.close()
-        if op == '-x':
+        if op == '-a':
             f=open(val)
-            denied=[re.compile(x.strip()) for x in f.readlines() if x[0] != '#']
+            # Clear the access list to be read from a file
+            access=[]
+            for x in f.readlines():
+                if x[0] != '#':
+                    a=x.strip().split('\t')
+                    access.append((a[0], re.compile(a[1]), a[1]))
             f.close()
 
     if len(args) == 0:
@@ -232,14 +248,14 @@ def main():
     fmt=logging.Formatter("%(levelname)s:%(asctime)s:%(message)s")
     hdlr.setFormatter(fmt)
     logging.root.addHandler(hdlr)
-    logging.root.setLevel(logging.INFO)
+    logging.root.setLevel(logLevel)
 
     # Get the listening address
     server_address = ('', port)
 
     # Set up the injector if we get a filename.
     ProxyHandler.injector=Injector(args, noInjectList, mimeTypes)
-    ProxyHandler.bannedPatterns=denied
+    ProxyHandler.accessPolicy=access
     ProxyHandler.defaultUrl=defaultUrl
 
     # Get the server going
@@ -248,8 +264,8 @@ def main():
     sa = httpd.socket.getsockname()
     logging.info("Serving HTTP on %s:%d" % (sa[0], sa[1]))
     logging.info("Servicing the following types:  " + ', '.join(mimeTypes))
-    logging.info("Denying access to %d sites, ignoring %d" \
-        % (len(denied), len(noInjectList)))
+    logging.info("Access policy contains %d sites, ignoring %d" \
+        % (len(access), len(noInjectList)))
     if defaultUrl is not None:
         logging.info("Default URL is " + defaultUrl)
     httpd.serve_forever()
@@ -260,10 +276,11 @@ if __name__ == '__main__':
     except UsageError, e:
         print e
         print "Usage:  " + sys.argv[0] + \
-            " [-d defaultUrl] [-n file] [-m type [-m type ...]]"
+            "[-D] [-d defaultUrl] [-n file] [-m type [-m type ...]]"
         print "\t\t[-p port] [-x file] injectfile [injectfile ...]"
+        print "\t-D enables debug logging"
         print "\t-d is used to specify a default URL for non-proxy operation"
         print "\t-n a file containing hosts to ignore"
-        print "\t-x a file containing hostname patterns that are denied"
+        print "\t-a a file containing access control policy"
         print "\t-p the port to listen on"
         print "\t-m adds a mime type to the acceptable mime type list"
