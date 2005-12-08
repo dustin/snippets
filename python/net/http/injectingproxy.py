@@ -39,7 +39,7 @@ class Injector:
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
             proxyReq.path, 'http')
         return mimeType in self.acceptableMimeTypes \
-            and netloc not in self.blacklist
+            and netloc != '' and netloc not in self.blacklist
 
     def getInjection(self):
         """Return the data to inject."""
