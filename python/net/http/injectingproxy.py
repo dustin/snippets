@@ -276,8 +276,9 @@ if __name__ == '__main__':
     except UsageError, e:
         print e
         print "Usage:  " + sys.argv[0] + \
-            "[-D] [-d defaultUrl] [-n file] [-m type [-m type ...]]"
-        print "\t\t[-p port] [-x file] injectfile [injectfile ...]"
+            " [-D] [-d defaultUrl] [-n file]"
+        print "    [-m type [-m type ...]] [-p port] [-x file] " \
+            + "injectfile [injectfile ...]"
         print "\t-D enables debug logging"
         print "\t-d is used to specify a default URL for non-proxy operation"
         print "\t-n a file containing hosts to ignore"
