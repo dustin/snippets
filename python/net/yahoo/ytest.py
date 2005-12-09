@@ -31,6 +31,20 @@ class TestGeocoding(unittest.TestCase):
         self.assertEquals(addr.zipcode, "94089-1019")
         self.assertEquals(addr.country, "US")
 
+    def testParsing2(self):
+        "Validate we can parse responses given a bad response I got"
+        g=ymap.Geocoding("x")
+        r=g._parseResponse(self.getFileData("data/testAddResponse2.xml"))
+        self.assertEquals(len(r), 1)
+        addr=r[0]
+        self.assertAlmostEqual(addr.latitude, 29.5148)
+        self.assertAlmostEqual(addr.longitude, -98.5235)
+        self.failUnless(addr.address is None)
+        self.assertEquals(addr.city, "SAN ANTONIO")
+        self.assertEquals(addr.state, "TX")
+        self.assertEquals(addr.zipcode, "78213")
+        self.assertEquals(addr.country, "US")
+
     def testExceededErrorParsing(self):
         "Validate we can parse limit exceeded errors"
         g=ymap.Geocoding("x")
