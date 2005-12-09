@@ -82,7 +82,7 @@ class Geocoding(object):
                 if msg == "limit exceeded":
                     raise LimitExceeded, msg
                 else:
-                    raise UnknownError, msg
+                    raise UnknownError, msg + ":  " + docString
             # Get results
             assert document.firstChild.nodeName == "ResultSet"
             rv=[]
