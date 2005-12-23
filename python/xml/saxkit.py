@@ -119,4 +119,4 @@ class IgnoringParser(ElementHandler):
     def getParser(self, name):
         if self.verbose:
             print "Ignoring", name
-        return IgnoringParser()
+        return IgnoringParser(self.verbose)
