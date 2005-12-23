@@ -112,6 +112,11 @@ class SimpleListParser(ElementHandler):
 class IgnoringParser(ElementHandler):
     """Parser that ignores any of its children."""
 
+    def __init__(self, verbose=True):
+        ElementHandler.__init__(self)
+        self.verbose=verbose
+
     def getParser(self, name):
-        print "Ignoring", name
+        if self.verbose:
+            print "Ignoring", name
         return IgnoringParser()
