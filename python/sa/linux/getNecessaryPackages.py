@@ -40,7 +40,8 @@ if __name__ == '__main__':
         else:
             allPkgs.add(i)
 
-    pkgFiles=analyzerpms.getRequiredFromDir(rpmsrc, allPkgs)
+    pkgFiles=list(analyzerpms.getRequiredFromDir(rpmsrc, allPkgs))
+    pkgFiles.sort()
 
     print "Adding", len(pkgFiles), "files"
     shutil.rmtree(dest)

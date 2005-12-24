@@ -12,6 +12,8 @@ import string
 import dircache
 import rpm
 
+TRACKING=None
+
 class Package(object):
     def __init__(self, filename, h):
         self.filename=filename
@@ -42,7 +44,7 @@ class Package(object):
     def __repr__(self):
         return "<Package provide=%s, provver=%s, requires=%s, reqver=%s>" \
             % (`self.provides`, `self.providever`, `self.requires`,
-            `self.requirever`, `self.files`)
+            `self.requirever`)
 
 def getDetails(path, filename):
     fn=os.path.join(path, filename)
@@ -76,17 +78,28 @@ def __getRequired(provides, wanted, need):
     for w in wanted:
         try:
             need[w]=provides[w].filename
+            if TRACKING is not None:
+                if provides[w].filename.find(TRACKING) >= 0:
+                    print "Package", provides[w].filename, "provides", w
             lookingat.append(provides[w])
         except KeyError, e:
             print "Could not find package providing", w
 
     for p in lookingat:
         req=[r for r in p.requires if r not in need]
+        for r in req:
+            if TRACKING is not None:
+                if r.find(TRACKING) >= 0 or p.filename.find(TRACKING) >= 0:
+                    print "Package", p.filename, "requires", r
         if len(req) > 0:
             __getRequired(provides, req, need)
 
 def getRequred(provides, wanted):
     need={}
+    for w in wanted:
+        if TRACKING is not None:
+            if w.find(TRACKING) >= 0:
+                print "Base wants", w
     __getRequired(provides, wanted, need)
     return sets.Set(need.values())
 
