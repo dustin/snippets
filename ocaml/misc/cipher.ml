@@ -65,6 +65,8 @@ let final_letters = [
 let dictionary = Hashtbl.create 250000;;
 let frequencies = Hashtbl.create 50;;
 
+let want_view = ref false;;
+
 (* Stuff we've seen *)
 let is_a_word w =
 	try
@@ -201,6 +203,10 @@ let print_solution m words =
 ;;
 
 let rec solve_rest m freqs words orig_words =
+	if !want_view then (
+		want_view := false;
+		print_solution m orig_words;
+	);
 	match words with
 	  [] -> if(FreqSet.cardinal freqs =
 					(CharMap.fold (fun _ _ c -> c + 1) m 0)) then (
@@ -211,7 +217,7 @@ let rec solve_rest m freqs words orig_words =
 		let w = apply_map m h in (
 			if(try ignore(String.index w '.'); true with Not_found -> false)
 			then (
-				(* print_endline("\tChecking word " ^ w); *)
+				(* print_endline("\tChecking word " ^ w ^ " from " ^ h); *)
 				let rx = Str.regexp w in
 				let match_seen = ref false in
 				let rec loop fwl =
@@ -221,7 +227,7 @@ let rec solve_rest m freqs words orig_words =
 						if(Str.string_match rx fw 0) then (
 							match_seen := true;
 							(* print_endline("\t\tmatch:  " ^ w ^ " ~ " ^ fw);
-								*)
+							*)
 							try
 								solve_rest (make_map2 m h w fw)
 									freqs t orig_words;
@@ -298,6 +304,8 @@ let solve_rotation words =
 let main () =
 	load_words "freqs.txt";
 	let words = List.map String.lowercase (List.tl (Array.to_list Sys.argv)) in
+	Sys.set_signal Sys.sigquit (
+		Sys.Signal_handle(function s -> want_view := true));
 	solve_rotation words;
 	solve_hueristically words;
 ;;
