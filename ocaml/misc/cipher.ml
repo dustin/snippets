@@ -165,7 +165,12 @@ let word_weight freqs word =
 
 (* Get the weight by classification *)
 let classification_weight word =
-	List.length (Hashtbl.find frequencies (classifym word))
+	try
+		List.length (Hashtbl.find frequencies (classifym word))
+	with Not_found ->
+		Printf.eprintf "%s's classification (%s) matches no known word\n"
+			word (classifym word);
+		raise Not_found
 ;;
 
 (* Count the frequencies of all of the letters in the provided words *)
@@ -359,20 +364,39 @@ let complicated_weight_sorting freqs a b =
 	)
 ;;
 
-let solve_hueristically words =
+let solve_heuristically words =
 	let freqs = count_letter_freq words in
 	(* Remove all of the duplicates before getting the weighted list *)
 	let remh = Hashtbl.create 1 in
 	List.iter (fun w -> Hashtbl.replace remh w true) words;
 	let uniq_words = Hashtbl.fold (fun a b i -> a :: i) remh [] in
-	let weighed_words =
+	(* Get the words weighted on whatever weight sorting algorithm we use *)
+	let weighed_words1 =
 		List.sort (complicated_weight_sorting freqs) uniq_words in
+	(* Remove any words that don't contribute to solving the problem *)
+	let seen_letters = Hashtbl.create 1 in
+	let worth_map = Hashtbl.create 1 in
+	List.iter (fun w ->
+		let worth = ref 0 in
+		String.iter (fun c ->
+			if not (Hashtbl.mem seen_letters c) then (
+				worth := !worth + 1;
+				Hashtbl.add seen_letters c true
+			)
+		) w;
+		Hashtbl.add worth_map w !worth;
+		) weighed_words1;
+	(* We keep anything with a worth >= 1 *)
+	let weighed_words = List.filter (fun w -> (Hashtbl.find worth_map w) > 0)
+		weighed_words1 in
+	(* Display the stuff *)
 	print_endline("Letter frequencies:");
 	FreqSet.iter (fun i -> Printf.printf "\t%c -> %d\n" i.letter i.freq) freqs;
-	print_endline("Sorted by weight:");
+	print_endline("Contributing words sorted by weight:");
 	List.iter (fun w -> Printf.printf
-		"\t%s weighs %d with %d class matches (%s)\n"
-		w (word_weight freqs w) (classification_weight w) (classifym w))
+		"\t%s weighs %d, %d unique letters, %d class matches (%s)\n"
+		w (word_weight freqs w) (Hashtbl.find worth_map w)
+		(classification_weight w) (classifym w))
 		weighed_words;
 	Printf.printf "%!";
 	solve freqs weighed_words words;
@@ -412,7 +436,7 @@ let main () =
 	Sys.set_signal Sys.sigquit (
 		Sys.Signal_handle(function s -> want_view := true));
 	solve_rotation words;
-	solve_hueristically words;
+	solve_heuristically words;
 ;;
 
 (* Start main unless we're interactive. *)
