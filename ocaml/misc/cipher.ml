@@ -158,13 +158,39 @@ let check_words words =
 	);
 ;;
 
+(* Check if the mapping from s to d is available in the CharMap m.
+   Either return a CharMap with this new mapping, or raise Not_found.
+
+   A mapping is available if the source letter is not used as a key except
+   to map to the destination letter, or the destination letter is not used as a
+   destination unless mapped from the source letter.
+ *)
+let create_mapping s d m =
+	CharMap.iter (fun k v ->
+		if k = s && d <> v then raise Not_found;
+		if d = v && k <> s then raise Not_found;
+		) m;
+	CharMap.add s d m
+;;
+
+(*
+ This function takes two words:  a word from our cipher, and a possible word
+ match.
+ If the pattern can apply, a CharMap is returned mapping the input characters
+ to the output characters that will convert strings of that input to the
+ correct output.  If the pattern cannot apply, Not_found will be raised.
+
+ Example:
+ CharMap.empty iax cat
+ will return a CharMap instance with i -> c, a -> a, x -> t
+
+ CharMap.empty iix cat
+ will raise Not_found because i can't map to both c and a
+ *)
 let make_map m input output =
 	let rv = ref m in
 	for i = 0 to (String.length input) - 1 do
-		if(CharMap.mem input.[i] !rv) then
-			if(CharMap.find input.[i] !rv <> output.[i]) then
-				raise Not_found;
-		rv := CharMap.add input.[i] output.[i] !rv
+		rv := create_mapping input.[i] output.[i] !rv
 	done;
 	!rv
 ;;
@@ -177,7 +203,7 @@ let make_map2 m orig input output =
 			if(CharMap.mem orig.[i] m) then (
 				raise Not_found
 			) else (
-				rv := CharMap.add orig.[i] output.[i] !rv;
+				rv := create_mapping orig.[i] output.[i] !rv;
 			)
 		)
 	done;
@@ -242,7 +268,6 @@ let rec solve_rest m freqs words orig_words =
 					in
 				solve_rest (loop (Hashtbl.find frequencies (String.length w)))
 					freqs t orig_words
-				(* solve_rest m t *)
 			) else (
 				(* print_endline("\tWord is complete:  " ^ w); *)
 				solve_rest m freqs t orig_words
