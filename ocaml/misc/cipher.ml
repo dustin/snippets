@@ -32,6 +32,11 @@ module FreqSet = Set.Make(Letter_freq);;
 
 module CharMap = Map.Make(Char);;
 
+(* The character set matches.  This is a hack to prevent us from printing
+duplicate solutions.
+*)
+let matches = Hashtbl.create 1;;
+
 (* The valid character set (for filtering word lists) *)
 let char_set = List.fold_left (fun c x -> CharSet.add x c)
 	CharSet.empty single_letters;;
@@ -221,11 +226,14 @@ let apply_map m word =
 ;;
 
 let print_solution m words =
-	print_endline("Possible solution:");
-	CharMap.iter (fun k v -> Printf.printf "%c=%c " k v) m;
-	print_newline();
-	List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
-	print_endline "-----------";
+	if not (Hashtbl.mem matches m) then (
+		print_endline("Possible solution:");
+		CharMap.iter (fun k v -> Printf.printf "%c=%c " k v) m;
+		print_newline();
+		List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
+		print_endline "-----------";
+		Hashtbl.add matches m true;
+	);
 ;;
 
 let rec solve_rest m freqs words orig_words =
