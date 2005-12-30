@@ -236,6 +236,15 @@ let print_solution m words =
 	);
 ;;
 
+(* Return true if these two strings match (with . as a wildcard in w) *)
+let string_matches w fw =
+	let rv = ref true in
+	for i = 0 to (String.length w) - 1 do
+		if fw.[i] <> w.[i] && w.[i] <> '.' then rv := false
+	done;
+	!rv
+;;
+
 let rec solve_rest m freqs words orig_words =
 	if !want_view then (
 		want_view := false;
@@ -252,13 +261,12 @@ let rec solve_rest m freqs words orig_words =
 			if(try ignore(String.index w '.'); true with Not_found -> false)
 			then (
 				(* print_endline("\tChecking word " ^ w ^ " from " ^ h); *)
-				let rx = Str.regexp w in
 				let match_seen = ref false in
 				let rec loop fwl =
 					match fwl with
 					[] -> m
 					| fw::fwl2 ->
-						if(Str.string_match rx fw 0) then (
+						if(string_matches w fw) then (
 							match_seen := true;
 							(* print_endline("\t\tmatch:  " ^ w ^ " ~ " ^ fw);
 							*)
