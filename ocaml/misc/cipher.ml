@@ -7,6 +7,8 @@
 (* Simple cipher solver.  This should work for puzzles where there is a simple
 letter replacement. *)
 
+open Unix;;
+
 let single_letters = [
 	'e'; 't'; 'o'; 'a'; 'n'; 'i'; 'r'; 's'; 'h'; 'd'; 'l'; 'c'; 'w';
 	'u'; 'm'; 'f'; 'y'; 'g'; 'p'; 'b'; 'v'; 'k'; 'x'; 'q'; 'j'; 'z';
@@ -80,16 +82,46 @@ let is_a_word w =
 	with Not_found -> false
 ;;
 
+(* Word classification for match lookups (not very functional) *)
+let classify word =
+	let rv = ref "" in
+	let h = Hashtbl.create 1 in
+	let maxl = ref (Char.code 'a') in
+	String.iter (fun c ->
+		rv := !rv ^ String.make 1 (
+			try
+				Hashtbl.find h c
+			with Not_found ->
+				Hashtbl.add h c (Char.chr !maxl);
+				maxl := !maxl + 1;
+				(Char.chr (!maxl - 1))
+			)
+		) word;
+	!rv
+;;
+(* Memoization over the classification *)
+let classify_memo = Hashtbl.create 1;;
+let classifym word =
+	try Hashtbl.find classify_memo word
+	with Not_found ->
+		let c = classify word in
+		(*
+		Printf.printf "Classified %s as %s (%d matches)\n" word c
+			(List.length (Hashtbl.find frequencies c));
+		*)
+		Hashtbl.add classify_memo word c;
+		c
+;;
 
 let load_words infile =
 	let freqtmp = Hashtbl.create 50 in
 	let record word =
 		let freqs = (
 			try
-				Hashtbl.find freqtmp (String.length word)
+				Hashtbl.find freqtmp (classify word)
 			with Not_found ->
 				let tmp = ref [] in
-				Hashtbl.add freqtmp (String.length word) tmp;
+				Hashtbl.add freqtmp (classify word) tmp;
 				tmp
 		) in
 		try
@@ -129,6 +161,11 @@ let word_weight freqs word =
 	let rv = ref 0 in
 	String.iter (fun c -> rv := !rv + ((find_freq freqs c) - 1)) word;
 	!rv
+;;
+
+(* Get the weight by classification *)
+let classification_weight word =
+	List.length (Hashtbl.find frequencies (classifym word))
 ;;
 
 (* Count the frequencies of all of the letters in the provided words *)
@@ -226,13 +263,15 @@ let apply_map m word =
 ;;
 
 let print_solution m words =
-	if not (Hashtbl.mem matches m) then (
-		print_endline("Possible solution:");
-		CharMap.iter (fun k v -> Printf.printf "%c=%c " k v) m;
-		print_newline();
+	let key = CharMap.fold (fun k v i -> i ^ (Printf.sprintf "%c=%c " k v)) m ""
+		in
+	if not (Hashtbl.mem matches key) then (
+		let pt = times() in
+		Printf.printf "Possible solution (u=%.2f s=%.2f):\n%s\n"
+			pt.tms_utime pt.tms_stime key;
 		List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
-		print_endline "-----------";
-		Hashtbl.add matches m true;
+		Printf.printf "-----------\n%!";
+		Hashtbl.add matches key true;
 	);
 ;;
 
@@ -247,8 +286,8 @@ let string_matches w fw =
 
 let rec solve_rest m freqs words orig_words =
 	if !want_view then (
-		want_view := false;
 		print_solution m orig_words;
+		want_view := false;
 	);
 	match words with
 	  [] -> if(FreqSet.cardinal freqs =
@@ -282,7 +321,7 @@ let rec solve_rest m freqs words orig_words =
 						);
 						if(not !match_seen) then (raise Not_found) else m;
 					in
-				solve_rest (loop (Hashtbl.find frequencies (String.length w)))
+				solve_rest (loop (Hashtbl.find frequencies (classifym h)))
 					freqs t orig_words
 			) else (
 				(* print_endline("\tWord is complete:  " ^ w); *)
@@ -292,25 +331,50 @@ let rec solve_rest m freqs words orig_words =
 ;;
 
 let solve freqs words orig_words =
-	print_endline "Solving...";
+	let t = times() in
+	Printf.printf "Solving as of u=%.2f s=%.2f...\n%!" t.tms_utime t.tms_stime;
 	List.iter (fun w ->
 			try
 				let m = make_map CharMap.empty (List.hd words) w in
 				(* print_endline("Starting word:  " ^ w); *)
 				ignore(solve_rest m freqs (List.tl words) orig_words);
 			with Not_found -> (); (* print_endline("NO MATCH"); *)
-		) (Hashtbl.find frequencies (String.length (List.hd words)))
+		) (Hashtbl.find frequencies (classifym (List.hd words)))
+;;
+
+(* This is a fairly complicated weighted sort that tries to search words with
+ the least search space first (by order of magnitude only) followed by best
+ weighted match, and then exact search space *)
+let complicated_weight_sorting freqs a b =
+	let ca = (classification_weight a) in
+	let cb = (classification_weight b) in
+	let cw = compare (int_of_float (log (float_of_int ca)))
+		(int_of_float (log (float_of_int cb))) in
+	if cw <> 0 then (
+		cw
+	) else (
+		let ww = compare (word_weight freqs b) (word_weight freqs a) in
+		if ww <> 0 then ww
+		else compare ca cb
+	)
 ;;
 
 let solve_hueristically words =
 	let freqs = count_letter_freq words in
-	let weighed_words = List.sort (fun a b ->
-		compare (word_weight freqs b) (word_weight freqs a)) words in
+	(* Remove all of the duplicates before getting the weighted list *)
+	let remh = Hashtbl.create 1 in
+	List.iter (fun w -> Hashtbl.replace remh w true) words;
+	let uniq_words = Hashtbl.fold (fun a b i -> a :: i) remh [] in
+	let weighed_words =
+		List.sort (complicated_weight_sorting freqs) uniq_words in
 	print_endline("Letter frequencies:");
 	FreqSet.iter (fun i -> Printf.printf "\t%c -> %d\n" i.letter i.freq) freqs;
 	print_endline("Sorted by weight:");
-	List.iter (fun w -> Printf.printf "\t%s weighs %d\n"
-		w (word_weight freqs w)) weighed_words;
+	List.iter (fun w -> Printf.printf
+		"\t%s weighs %d with %d class matches (%s)\n"
+		w (word_weight freqs w) (classification_weight w) (classifym w))
+		weighed_words;
+	Printf.printf "%!";
 	solve freqs weighed_words words;
 ;;
 
