@@ -3,6 +3,9 @@
  {{:http://cr.yp.to/cdb/cdb.txt} http://cr.yp.to/cdb/cdb.txt}
  *)
 
+(** {1 Utilities} *)
+val hash : string -> int32
+
 (** {1 Building a CDB } *)
 
 type cdb_creator = {

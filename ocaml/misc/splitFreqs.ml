@@ -12,7 +12,7 @@ module CharSet = Set.Make(Char);;
 let classification_hash word =
 	(* This is the djb hashing algorithm.  Seems to do well *)
 	let h = ref 5381 in
-	String.iter (fun c -> h := ((!h lsl 5) + !h) + (int_of_char c)) word;
+	String.iter (fun c -> h := ((!h lsl 5) + !h) lxor (int_of_char c)) word;
 	Printf.sprintf "%02x" (!h land 0xff)
 ;;
 
