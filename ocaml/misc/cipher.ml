@@ -9,6 +9,11 @@ letter replacement. *)
 
 open Unix;;
 
+let datadir =
+	try getenv "CIPHER_DATADIR"
+	with Not_found -> ",tmp"
+;;
+
 let single_letters = [
 	'e'; 't'; 'o'; 'a'; 'n'; 'i'; 'r'; 's'; 'h'; 'd'; 'l'; 'c'; 'w';
 	'u'; 'm'; 'f'; 'y'; 'g'; 'p'; 'b'; 'v'; 'k'; 'x'; 'q'; 'j'; 'z';
@@ -82,6 +87,14 @@ let is_a_word w =
 	with Not_found -> false
 ;;
 
+(* This is used to locate word files *)
+let classification_hash word =
+	(* This is the djb hashing algorithm.  Seems to do well *)
+	let h = ref 5381 in
+	String.iter (fun c -> h := ((!h lsl 5) + !h) + (int_of_char c)) word;
+	Printf.sprintf "%02x" (!h land 0xff)
+;;
+
 (* Word classification for match lookups (not very functional) *)
 let classify word =
 	let rv = ref "" in
@@ -105,15 +118,12 @@ let classifym word =
 	try Hashtbl.find classify_memo word
 	with Not_found ->
 		let c = classify word in
-		(*
-		Printf.printf "Classified %s as %s (%d matches)\n" word c
-			(List.length (Hashtbl.find frequencies c));
-		*)
 		Hashtbl.add classify_memo word c;
 		c
 ;;
 
 let load_words infile =
+	Printf.printf "Loading words from %s\n" infile;
 	let freqtmp = Hashtbl.create 50 in
 	let record word =
 		let freqs = (
@@ -431,8 +441,14 @@ let solve_rotation words =
 
 (* Initial thing:  hl fkzc vd lds *)
 let main () =
-	load_words "freqs.txt";
 	let words = List.map String.lowercase (List.tl (Array.to_list Sys.argv)) in
+	(* Calculate the dictionary subsets that need to be loaded *)
+	let files = Hashtbl.create 1 in
+		List.iter (fun w -> Hashtbl.replace files
+			(Printf.sprintf "%s/%s.txt" datadir
+				(classification_hash (classify w))) true) words;
+	Hashtbl.iter (fun k v -> load_words k) files;
+
 	Sys.set_signal Sys.sigquit (
 		Sys.Signal_handle(function s -> want_view := true));
 	solve_rotation words;

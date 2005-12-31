@@ -44,11 +44,10 @@ let main () =
 	] in
 	let char_set = List.fold_left (fun c x -> CharSet.add x c)
 		CharSet.empty valid_chars in
-	let seen = Hashtbl.create 1 in
 	let matches = Hashtbl.create 1 in
 	let record word =
-		Hashtbl.replace matches (hashed_classified word) (word ::
-			try Hashtbl.find matches (hashed_classified word)
+		Hashtbl.replace matches (classify word) (word ::
+			try Hashtbl.find matches (classify word)
 			with Not_found -> []
 		)
 	in
@@ -58,12 +57,25 @@ let main () =
 			if(CharSet.mem c char_set) then () else (rv := false) ) w;
 		!rv
 	in
+	(* Read the data *)
 	Fileutils.conditional_iter_lines record check_chars stdin;
+	(* Convert the classified lists to hashed classified lists for fewer files
+	*)
+	let hashed = Hashtbl.create 1 in
+	let sizesf = open_out "class_sizes.txt" in
+	Hashtbl.iter (fun k v ->
+		Printf.fprintf sizesf "%s %d\n" k (List.length v);
+		Hashtbl.replace hashed (classification_hash k) (v @
+			try Hashtbl.find hashed (classification_hash k)
+			with Not_found -> []
+			)
+		) matches;
+	close_out sizesf;
 	Hashtbl.iter (fun k v ->
 		let f = open_out (k ^ ".txt") in
 		List.iter (fun w -> output_string f (w ^ "\n")) (List.rev v);
 		close_out f
-		) matches;
+		) hashed;
 ;;
 
 (* Start main unless we're interactive. *)
