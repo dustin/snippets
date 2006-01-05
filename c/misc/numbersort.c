@@ -12,12 +12,15 @@
  * digit phone numbers using less than 2MB of RAM.
  */
 
+/* 10^7 */
+#define NUM_NUMBERS 10000000
+#define MAX_PHONE_INPUT_LENGTH 32
+
 /* Phone number parser */
-int parseNumber(const char *num)
+inline int parseNumber(const char *num)
 {
-	int rv=0, i=0, j=0;
-	char *mutablenum=calloc(1, strlen(num)+1);
-	assert(mutablenum!=0);
+	int i=0, j=0;
+	char mutablenum[MAX_PHONE_INPUT_LENGTH];
 
 	for(i=0; i<strlen(num); i++) {
 		if(isdigit(num[i])) {
@@ -36,34 +39,36 @@ int parseNumber(const char *num)
 /* Get phone numbers from stdin, print them back to stdout */
 int main(int argc, char **argv)
 {
-	/* 1.5 MB buffer */
-	unsigned char buf[1024*1536];
-	char in[32];
+	/* Enough storage for 10^7 phone numbers */
+	unsigned char buf[NUM_NUMBERS/8];
+	char in[MAX_PHONE_INPUT_LENGTH];
 	int i=0;
 
 	memset(buf, 0x00, sizeof(buf));
 	memset(in, 0x00, sizeof(in));
 
 	/* Test my bit macros
-	for(i=0; i<10000000; i++) {
+	for(i=0; i<NUM_NUMBERS; i++) {
 		assert(BIT_GET(buf, i) == 0);
 		BIT_SET(buf, i);
 		assert(BIT_GET(buf, i) == 1);
 	}
 	*/
 
+	/* Read all of the phone numbers from stdin and put them in order */
 	while(fgets(in, sizeof(in), stdin) != NULL) {
 		assert(strlen(in) > 0);
 		assert(strlen(in) < sizeof(in));
-
+		assert(sizeof(buf) > (i/8));
 		BIT_SET(buf, parseNumber(in));
 	}
 
 	/* Print them back out */
-	for(i=0; i<10000000; i++) {
+	for(i=0; i<NUM_NUMBERS; i++) {
 		if(BIT_GET(buf, i)) {
 			printf("%07d\n", i);
 		}
 	}
 
+	return(0);
 }
