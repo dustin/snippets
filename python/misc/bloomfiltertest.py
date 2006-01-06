@@ -37,9 +37,30 @@ class BloomFilterTest(unittest.TestCase):
         self.bf=bloomfilter.BloomFilter(50)
 
     def testAdd(self):
+        """Test a simple string add to the bloom filter."""
         assert not "something" in self.bf
         self.bf.add("something")
         assert "something" in self.bf
+
+    def testHashGeneration(self):
+        """Validate that we will generate up to 100 unique hash functions."""
+        hf=self.bf._generateHashFunctions(100)
+        self.failUnlessEqual(len(hf), 100)
+
+    def __performTestWithSequence(self, seq):
+        found=[]
+        for s in seq:
+            if s in self.bf:
+                found.append(s)
+            self.bf.add(s)
+        # Make sure there weren't too many false positives
+        self.failUnless(len(found) < 2, "Too many false positives " + `found`)
+        for s in seq:
+            assert s in self.bf
+
+    def testIntegers(self):
+        """Test a bloom filter with integers instead of strings"""
+        self.__performTestWithSequence(range(50))
 
     def testBigAdd(self):
         """Test checking and adding 50 words in a 50 word bloom filter"""
@@ -93,15 +114,7 @@ betread
 tetronic
 Saxonish
 Isthmia""".split("\n")
-        found=[]
-        for w in words:
-            if w in self.bf:
-                found.append(w)
-            self.bf.add(w)
-        # Make sure there weren't too many false positives
-        assert len(found) < 2
-        for w in words:
-            assert w in self.bf
+        self.__performTestWithSequence(words)
 
 if __name__ == '__main__':
     unittest.main()

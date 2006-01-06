@@ -51,11 +51,30 @@ class BloomFilter(object):
         self.error_rate=error_rate
         self.size, k=self.__calculate_length_and_keys(numkeys, error_rate)
         self.array=BitArray(self.size)
+        self.hashes=self._generateHashFunctions(k)
+
+    def _generateHashFunctions(self, k):
+        """Generate k hash functions"""
         r=random.Random()
+        # Seed it with some arbitrary number to make it stable
+        r.seed(16369)
+
+        # Get some random values for our hash function
         maxv=int("7fffffff", 16)
-        # XXX:  Note that this does not guarantee k unique hashes
-        self.hashes=sets.Set([r.randint(0, maxv) for i in range(k)])
-        assert len(self.hashes) == k
+        hashes=sets.Set([r.randint(0, maxv) for i in range(k)])
+        assert len(hashes) == k
+
+        # This is the stub of the hash function
+        def doHash(h, key):
+            if isinstance(key, type("")):
+                m=md5.md5(key)
+                d=m.digest()
+                integers=struct.unpack("4l", d)
+                return reduce(lambda i, v: i ^ v, integers, h)
+            else:
+                return (hash(key) ^ h)
+
+        return [lambda key: doHash(h, key) for h in hashes]
 
     def __repr__(self):
         return "<BloomFilter m=" + `self.size` + ", n=" + `self.numkeys` \
@@ -76,12 +95,7 @@ class BloomFilter(object):
         return lowest_m, best_k
 
     def __getHashedVals(self, key):
-        def doHash(h, key):
-            m=md5.md5(key)
-            d=m.digest()
-            integers=struct.unpack("4l", d)
-            return reduce(lambda i, v: i ^ v, integers, h)
-        return [(doHash(h, key) % self.size) for h in self.hashes]
+        return [(h(key) % self.size) for h in self.hashes]
 
     def contains(self, el):
         """True if this bloom filter probably contains the given value."""
