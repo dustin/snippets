@@ -66,7 +66,7 @@ class BloomFilter(object):
 
         # This is the stub of the hash function
         def doHash(h, key):
-            if isinstance(key, type("")):
+            if isinstance(key, str):
                 m=md5.md5(key)
                 d=m.digest()
                 integers=struct.unpack("4l", d)
