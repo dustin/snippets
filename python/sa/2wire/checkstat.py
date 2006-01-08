@@ -52,32 +52,32 @@ def checkHighRange(val, warn, crit):
 def checkLowRange(val, warn, crit):
     """Check to make sure a number is above the warning and critical value.
 
-    if val > crit, returns (0, "OK")
     if val > warn, returns (1, "WARNING")
+    if val > crit, returns (0, "OK")
     else, returns (2, "CRITICAL")
     """
     rv, msg=-1, "UNKNOWN"
-    if val < warn:
-        rv, msg=1, "WARNING"
-    elif val < crit:
-        rwarnv, msg=2, "CRITICAL"
-    else:
+    if val > warn:
         rv, msg=0, "OK"
+    elif val > crit:
+        rv, msg=1, "WARNING"
+    else:
+        rv, msg=2, "CRITICAL"
 
     return rv, msg
 
-def runNagiosCheck(f):
+def runNagiosCheck(f, stdout=sys.stdout):
     """Run a nagios check function that returns an integer rv and a
     one-line-message, print the message and exit.  If the function throws an
     exception, print the exception in a usable way."""
     rv=-1
     try:
         rv, msg=f()
-        print msg
+        stdout.write(msg + "\n")
     except:
         import traceback
         e=sys.exc_info()
-        sys.stdout.write(''.join(traceback.format_exception_only(e[0], e[1])))
+        stdout.write(''.join(traceback.format_exception_only(e[0], e[1])))
     sys.exit(rv)
 
 def paramCheck(nm, warn, crit):
@@ -102,10 +102,10 @@ def check(getValFunc, host, service, minWarn, minCrit, maxWarn, maxCrit):
     return rv, "%s - %s - rate=%.2f (min=%s, max=%s)" \
             % (msg, service, rate, `(minWarn, minCrit)`, `(maxWarn, maxCrit)`)
 
-def runCheck(getValFunc):
+def runCheck(getValFunc, argsIn=sys.argv[1:], stdout=sys.stdout):
     """Run a check with the given value check function."""
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'l:L:h:H:')
+        opts, args = getopt.getopt(argsIn, 'l:L:h:H:')
         host, service=args
 
         minWarn, minCrit, maxWarn, maxCrit=None, None, None, None
@@ -125,5 +125,5 @@ def runCheck(getValFunc):
     if minWarn is None and maxWarn is None:
         usage("No range specified")
 
-    runNagiosCheck(lambda:
-        check(getValFunc, host, service, minWarn, minCrit, maxWarn, maxCrit))
+    runNagiosCheck(lambda: check(getValFunc, host, service,
+            minWarn, minCrit, maxWarn, maxCrit), stdout)
