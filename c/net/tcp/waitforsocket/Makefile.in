@@ -21,6 +21,10 @@ JUNK=$(OBJS) $(EXES) $(LINTS)
 waitforsocket: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
+main.o: main.c waitforsocket.h
+
+sockets.o: sockets.c waitforsocket.h
+
 lint: $(LINTS)
 	$(LINT) $(LINTS)
 
