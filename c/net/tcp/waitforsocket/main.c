@@ -9,11 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <time.h>
 #include <assert.h>
 
-/* Socket getter */
-int attemptConnection(char *, char *);
+#include "waitforsocket.h"
 
 static void
 usage(const char *name)
@@ -26,7 +26,8 @@ main(int argc, char **argv)
 {
 	char   *hostname=0x00;
 	char   *svc=0x00;
-	time_t  t=0;
+	time_t  t=0, status;
+	extern int errno;
 
 	if (argc < 3) {
 		usage(argv[0]);
@@ -36,9 +37,24 @@ main(int argc, char **argv)
 	hostname = argv[1];
 	svc=argv[2];
 
-	while(!attemptConnection(hostname, svc)) {
+	while((status=attemptConnection(hostname, svc)) != RV_SUCCESS) {
 		t=time(NULL);
-		fprintf(stderr, "Failed to connect at %s", ctime(&t));
+		char *err="unknown";
+		if(status == ERR_ERRNO) {
+			err=strerror(errno);
+		} else if(status == ERR_TIMEOUT) {
+			err="timeout";
+		} else if(status == ERR_DNS) {
+			err="getaddrinfo error";
+		} else {
+			/* This is basically a programming error, but it should at least
+			   be able to tell us *what* programming error. */
+			char buf[32];
+			snprintf(buf, sizeof(buf)-1, "unknown: %d", status);
+			err=buf;
+		}
+		assert(err != NULL);
+		fprintf(stderr, "Failed to connect (%s) at %s", err, ctime(&t));
 		sleep(1);
 	}
 	t=time(NULL);

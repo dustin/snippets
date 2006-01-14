@@ -20,6 +20,8 @@
 #include <syslog.h>
 #include <netinet/tcp.h>
 
+#include "waitforsocket.h"
+
 static int waitForConnect(int s)
 {
 	int selected=0;
@@ -27,7 +29,7 @@ static int waitForConnect(int s)
 	fd_set wset;
 	fd_set eset;
 	struct timeval tv;
-	int success=0;
+	int rv=ERR_ERRNO;
 
 	FD_ZERO(&rset);
 	FD_ZERO(&wset);
@@ -46,24 +48,26 @@ static int waitForConnect(int s)
 			char buf[1];
 			/* Make sure we can read a byte */
 			if(read(s, &buf, 1) == 1) {
-				success=1;
+				rv=RV_SUCCESS;
 			}
 		} else if(FD_ISSET(s, &wset)) {
-			success=1;
+			rv=RV_SUCCESS;
 		} else {
-			success=0;
+			rv=ERR_ERRNO;
 		}
+	} else {
+		rv=ERR_TIMEOUT;
 	}
 
 	/* True if there was at least one thing that hinted as being available */
-	return(success == 1);
+	return(rv);
 }
 
 int
 attemptConnection(char *host, char *svc)
 {
 	struct addrinfo hints, *res, *res0;
-	int     success, i, flag;
+	int     rv=ERR_ERRNO, i, flag;
 	register int s = -1;
 	struct linger l;
 	int fflags =0;
@@ -81,10 +85,8 @@ attemptConnection(char *host, char *svc)
 	if(err != 0) {
 		fprintf(stderr, "Error looking up %s:%s:  %s\n",
 			host, svc, gai_strerror(err));
-		return(0);
+		return(ERR_DNS);
 	}
-
-	success = 0;
 
 	/* of course, replace that 1 with the max number of con attempts */
 	cause="no addresses";
@@ -109,21 +111,21 @@ attemptConnection(char *host, char *svc)
 
 		if (connect(s, res->ai_addr, res->ai_addrlen) < 0) {
 			if(errno==EINPROGRESS) {
-				success = 1;
+				rv = RV_SUCCESS;
 				break;
 			} else {
 				cause="connect";
 			}
 		} else {
-			success = 1;
+			rv = RV_SUCCESS;
 			break;
 		}
 	}
 	freeaddrinfo(res0);
 
 	/* If we got this far, wait for data */
-	if(success) {
-		success=waitForConnect(s);
+	if(rv == RV_SUCCESS) {
+		rv=waitForConnect(s);
 	} else {
 		perror(cause);
 	}
@@ -132,5 +134,5 @@ attemptConnection(char *host, char *svc)
 		close(s);
 	}
 
-	return (success == 1);
+	return rv;
 }
