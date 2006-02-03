@@ -68,5 +68,20 @@ class CLITest(unittest.TestCase):
         self.__runTest(2, lambda h,s: 70,
             ['-L', '5', '-l', '10', '-h', '20', '-H', '50', 'a', 'b'])
 
+    def testRangeOKFloat(self):
+        "Test in-range float with a high and low check."
+        self.__runTest(0, lambda h,s: 15.3,
+            ['-L', '5', '-l', '15.2', '-h', '15.4', '-H', '50', 'a', 'b'])
+
+    def testRangeLowWarnFloat(self):
+        "Test low warning float with a high and low check."
+        self.__runTest(1, lambda h,s: 15.3,
+            ['-L', '5', '-l', '15.4', '-h', '15.5', '-H', '50', 'a', 'b'])
+
+    def testRangeHighWarnFloat(self):
+        "Test high warning float with a high and low check."
+        self.__runTest(1, lambda h,s: 15.3,
+            ['-L', '5', '-l', '15.1', '-h', '15.2', '-H', '50', 'a', 'b'])
+
 if __name__ == '__main__':
     unittest.main()

@@ -7,13 +7,17 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 
 import os
 
-def endswith(s, a):
-    rv = False
-    if len(s) > 4 and s[-4:].lower() in a:
-        rv = True
-    return rv
+try:
+    True
+except NameError:
+	True, False = 1, 0
 
-imgs=filter(lambda x: endswith(x, [".jpg", ".gif", ".png"]), os.listdir("."))
+imageTypes=[".jpg", ".gif", ".png"]
+
+def isImage(s):
+    return len(s) > 4 and s[-4:].lower() in imageTypes
+
+imgs=[fn for fn in os.listdir(".") if isImage(fn)]
 imgs.sort()
 
 print """

@@ -17,8 +17,8 @@ def usage(msg=None):
     sys.stderr.write(\
 """Usage:  %s [-l v] [-L v] [-h v] [-H v] host service
 
-target is the ideal rate for this reading in units per minute, and the warn and
-crit values are the distance from the target value.
+Retreive the value for the given service from the given host and ensure that it
+is within the desired range.
 
 Options:
 
@@ -110,10 +110,10 @@ def runCheck(getValFunc, argsIn=sys.argv[1:], stdout=sys.stdout):
 
         minWarn, minCrit, maxWarn, maxCrit=None, None, None, None
         for pair in opts:
-            if pair[0]=='-l': minWarn=int(pair[1])
-            elif pair[0]=='-L': minCrit=int(pair[1])
-            elif pair[0]=='-h': maxWarn=int(pair[1])
-            elif pair[0]=='-H': maxCrit=int(pair[1])
+            if pair[0]=='-l': minWarn=float(pair[1])
+            elif pair[0]=='-L': minCrit=float(pair[1])
+            elif pair[0]=='-h': maxWarn=float(pair[1])
+            elif pair[0]=='-H': maxCrit=float(pair[1])
     except getopt.GetoptError, e:
         usage(''.join(traceback.format_exception_only(e[0], e[1])))
     except ValueError:
