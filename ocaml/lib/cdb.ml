@@ -214,11 +214,13 @@ let iter f fn =
 	let fin = open_in_bin fn in
 	try
 		(* Figure out where the end of all data is *)
-		let eod = read_le fin in
+		let eod = read_le32 fin in
 		(* Seek to the record section *)
 		seek_in fin 2048;
 		let rec loop() =
-			if ((pos_in fin) < eod) then (
+			(* (pos_in fin) < eod *)
+			if (Int32.compare (Int64.to_int32 (LargeFile.pos_in fin)) eod < 0)
+				then (
 				let klen = read_le fin in
 				let dlen = read_le fin in
 				let key = String.create klen in
@@ -251,7 +253,7 @@ let open_cdb_in fn =
 	let tables = Array.make 256 (Int32.zero,0) in
 	(* Set the positions and lengths *)
 	Array.iteri (fun i it ->
-		let pos = Int32.of_int (read_le fin) in
+		let pos = read_le32 fin in
 		let len = read_le fin in
 		tables.(i) <- (pos,len)
 		) tables;
@@ -283,13 +285,13 @@ let get_matches cdf key =
 		) else (
 			(* Calculate the slot containing these entries *)
 			let lslot = ((hash_to_bucket kh hlen) + x) mod hlen in
-			let spos = (lslot * 8) + (Int32.to_int hpos) in
-			seek_in cdf.f spos;
+			let spos = Int32.add (Int32.of_int (lslot * 8)) hpos in
+			LargeFile.seek_in cdf.f (Int64.of_int32 spos);
 			let h = read_le32 cdf.f in
-			let pos = read_le cdf.f in
+			let pos = read_le32 cdf.f in
 			(* validate that we a real bucket *)
-			if (h = kh) && (pos > 0) then (
-				seek_in cdf.f pos;
+			if (h = kh) && ((Int32.compare pos Int32.zero) > 0) then (
+				LargeFile.seek_in cdf.f (Int64.of_int32 pos);
 				let klen = read_le cdf.f in
 				if (klen = String.length key) then (
 					let dlen = read_le cdf.f in
