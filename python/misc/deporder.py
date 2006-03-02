@@ -21,6 +21,8 @@
     of files.
 """
 
+# XXX:  http://en.wikipedia.org/wiki/Topological_sorting
+
 import sys
 import copy
 import string
