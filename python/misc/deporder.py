@@ -26,6 +26,7 @@
 import sys
 import copy
 import string
+import exceptions
 
 class DepFile:
     """A file containing dependencies."""
@@ -44,13 +45,13 @@ class DepFile:
         for line in f:
             ppos=string.find(line, '@PROVIDES')
             rpos=string.find(line, '@REQUIRES')
-            if ppos > 0:
+            if ppos >= 0:
                 # Provides
                 a=string.split(string.strip(line[ppos:]))
                 if self.provides is not None:
                     raise "Already defined provides for " + self.filename
                 self.provides = a[1]
-            elif rpos > 0:
+            elif rpos >= 0:
                 # Requires
                 a=string.split(string.strip(line[rpos:]))
                 self.requires.append(a[1])
@@ -75,9 +76,18 @@ class DepFile:
         """Get the name of the thing this DepFile provides."""
         return self.provides
 
-    def getFilename(self):
-        """Get the filename this Depfile represents."""
-        return self.filename
+class NotPlaced(exceptions.Exception):
+    """Exception raised when items were not placed."""
+
+    def __init__(self, items):
+        self.deps=[]
+        for i in items:
+            self.deps.extend(i.getRequirements())
+
+    def __repr__(self):
+        return "<NotPlaced, deps=" + `self.deps` + ">"
+
+    __str__ = __repr__
 
 class DependencyOrderer:
     """Deal with dependency ordering of DepFiles."""
@@ -93,12 +103,17 @@ class DependencyOrderer:
         """Perform the actual ordering."""
         output=[]
         notplaced=copy.copy(self.files)
+        # Provide a stable ordering
+        notplaced.sort(lambda a, b: cmp(a.filename, b.filename))
 
         runs = 0
         while len(notplaced)>0:
-            if runs > 100:
-                raise "Too many runs"
+            if runs > len(self.files):
+                raise NotPlaced(notplaced)
             runs = runs + 1
+
+            # Track the ones that were just added to preserve order
+            justadded=[]
 
             for d in notplaced:
                 missing=0
@@ -106,12 +121,14 @@ class DependencyOrderer:
                     found = 0
                     for o in output:
                         if o.getProvides() == r:
-                            found = 1
+                            if not o in justadded:
+                                found = 1
                     if found == 0:
                         missing = missing + 1
                 if missing == 0:
                     notplaced.remove(d)
                     output.append(d)
+                    justadded.append(d)
         self.files=output
 
     def __checkDepend(self):
@@ -136,4 +153,4 @@ if __name__ == '__main__':
         do.add(df)
 
     for f in do.getFiles():
-        print f.getFilename()
+        print f.filename

@@ -1,0 +1,5 @@
+@PROVIDES dependent
+@REQUIRES base
+@REQUIRES some
+@REQUIRES another
+arch-tag: 51E2D7C3-7686-44D9-A2CC-E8E4F7BAA111
