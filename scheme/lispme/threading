@@ -1,0 +1,92 @@
+; threading
+
+; fundamental coroutine maker
+; (from c2.com)
+(define (coroutine f)
+  (let ((current f)
+	  (status 'suspended))
+    (lambda args
+      (cond ((null? args)
+	(if (eq? status 'dead)
+	    (error 'dead-coroutine)
+	    (let ((cav
+	      (call/cc (lambda (rtn)
+		(let ((yielder (lambda (v)
+		  (call/cc (lambda (next)
+		    (rtn (cons next v)))))))
+		(current yielder)
+		(set! status 'dead))))))
+	    (if (pair? cav)
+		(begin
+		    (set! current (car cav))
+		    (cdr cav))
+		cav))))
+	((eq? (car args) 'status?)
+		status)
+	((eq? (car args) 'dead?)
+		(eq? status 'dead))
+	((eq? (car args) 'alive?)
+		(not (eq? status 'dead)))
+	((eq? (car args) 'kill!)
+		(set! status 'dead))
+	(#t '())))))
+
+; all threads being watched
+(define *threads* '())
+
+; spawn a new thread
+(define (spawn f . args)
+  (let ((soonest
+	(if (pair? args)
+		(car args)
+		(ts->number
+			(current-ts)))))
+    (set! *threads*
+      (cons (cons soonest (coroutine f))
+	*threads*))))
+
+(define (task-start t)
+  (car t))
+(define (task-func t)
+  (cdr t))
+
+(define (wait-for-next)
+  (if (pair? *threads*)
+    (let ((d (-
+	(apply min
+	  (map (curry task-start)
+	    *threads*))
+	(ts->number (current-ts)))))
+      (if (> d 0)
+	(wait (* 1000 d))))))
+
+(define (thread-loop-once)
+  (wait-for-next)
+  (let ((now (ts->number
+			(current-ts))))
+    (for-each (lambda (t)
+	(if (>= now (task-start t))
+		((task-func t))))
+      *threads*)
+    (set! *threads*
+      (filter (lambda (t)
+	((task-func t) 'alive?))
+        *threads*))
+    #n))
+
+(define (thread-loop)
+  (while (pair? *threads*)
+	(thread-loop-once)))
+
+(define (test-list l rtn)
+  (for-each
+    (lambda (i)
+	(display i) (newline) (rtn i))
+    l))
+
+(define (test-threads)
+ (spawn (curry test-list '(2 4 6 8 10)))
+ (spawn (curry test-list '(1 3 5 7 9)))
+ (spawn (curry test-list '(11 12 13))
+  (+ 5 (ts->number (current-ts))))
+ (thread-loop))

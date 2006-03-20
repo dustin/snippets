@@ -1,0 +1,34 @@
+; tcp/ip samples
+
+; retrieve currency exchange rates
+; via FXP protocol
+; use international currency codes
+; like EUR, USD, DEM, ATS etc. as
+; parameters
+(define (rate from to)
+  (let* ((sock (make-client-socket
+	"fxp.oanda.com" 5011))
+	(in (socket-input sock))
+	(out (socket-output sock)))
+    (display "fxp/1.1#0d#0a" out)
+    (display "quotecurrency: " out)
+    (display from out)
+    (display "#0d#0a" out)
+    (display "basecurrency: " out)
+    (display to out)
+    (display "#0d#0a#0d#0a" out)
+    (read-line in)
+    (read-line in)
+    (read-line in)
+    (let ((rate (read in)))
+	(socket-shutdown sock)
+	rate)))
+
+; retrieve current time from atomic
+; clock in Braunschweig, Germany
+(define (atomic-time)
+ (let ((sock (make-client-socket
+	"ptbtime1.ptb.de" 13)))
+    (write (read-line
+	(socket-input sock)))
+    (socket-shutdown sock) #n))"

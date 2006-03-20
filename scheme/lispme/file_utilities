@@ -1,0 +1,101 @@
+; file utilities
+
+; read-line for vfs
+(define (read-vfs-line vf)
+  (letrec ((loop (lambda (rv s)
+    (if (or (string=? s "")
+	(string=? s "#0a"))
+      rv
+      (loop (string-append rv s)
+	(vfs-read vf 1))))))
+    (let ((s (vfs-read vf 1)))
+      (if (or (not s) (string=? "" s))
+	#f
+	(loop "" s)))))
+
+; vfs line reader generator
+(define (make-vfs-line-reader inp)
+  (let ((buf (string-tokenize
+	  (vfs-read inp 512) "#0a")))
+    (letrec ((get-next (lambda ()
+      (if (pair? buf)
+        (if (pair? (cdr buf))
+	(let ((rv (car buf)))
+	  (set! buf (cdr buf)) rv)
+	  (let ((next
+		(vfs-read inp 512)))
+	    (if (or (eof-object? next)
+		(= 0 (string-length next)))
+	      (let ((rv (car buf)))
+		(set! buf '())
+		(if (= 0 (string-length rv))
+			#f rv))
+	      (begin
+		(set! buf (string-tokenize
+		  (string-append (car buf)
+		    next) "#0a"))
+		(get-next)))))
+	#f))))
+	get-next)))
+
+; operate on a memo file
+(define (with-file path f)
+  (let* ((i (open-input-file path))
+	(rv (f i)))
+    (close-input-port i)
+    rv))
+
+; this function takes
+; (i -> string -> i') and an
+; input port
+(define (fold-inp func init linereader)
+  (letrec ((loop (lambda (i)
+    (let ((line (linereader)))
+	(if (or (eof-object? line)
+		(not line)) i
+	  (loop (func i line)))))))
+	(loop init)))
+
+; iterate the lines of a memo file
+(define (fold-file f i fn)
+  (with-file fn (lambda (inp)
+    (fold-inp f i (lambda ()
+	(read-line inp))))))
+(define (iter-file f fn)
+  (fold-file f #n fn))
+
+; iterate the lines of a vfs file
+(define (fold-vfs-file f i vol fn)
+  (with-vfs-file vol fn (lambda (inp)
+    (fold-inp f i
+	(make-vfs-line-reader inp)))))
+(define (iter-vfs-file f vol fn)
+  (fold-vfs-file f #n fn))
+
+; do stuff with a vfs file open for
+; reading
+(define (with-vfs-file vol path f)
+  (let* ((i (vfs-open vol path 2))
+	(rv (f i)))
+    (vfs-close i)
+    rv))
+
+; read a text file...print a line at a
+; time
+(define (print-file fn)
+  (iter-file (lambda (n line)
+	(display n)(display "	")
+	(display line)
+	(newline))
+      fn))
+
+; copy a file from memo to fs
+(define (copy-file-to-vfs s d vid)
+  (vdisplay "cp '" s "' -> '" d "'")
+  (newline)
+  (let ((fout (vfs-open vid d #x1f)))
+    (iter-file (lambda (lno l)
+	(vfs-write fout l)
+	(vfs-write fout "#0a"))
+      s)
+    (vfs-close fout)))

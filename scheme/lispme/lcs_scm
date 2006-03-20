@@ -1,0 +1,81 @@
+; lcs.scm
+; scheme translation of LCS algorithm
+
+; see lcs.lua
+; func lcs.commonSubseqs:
+; find common subsequences
+; a, b: two vectors of type T
+; returns
+; list of common subsequences
+; the length of a
+; the length of b
+(define (commonSubseqs e? a b)
+  (let* ((m (vector-length a))
+	(n (vector-length b))
+	(l (make-vector (+ 1 m) '())))
+    (for 0 m (lambda (i)
+	(vector-set! l i
+		(make-vector (+ 1 n) 0))))
+    (for (- m 1) 0 (lambda (i)
+      (for (- n 1) 0 (lambda (j)
+        (cond ((or (> i m) (> j n))
+	  (vec2-set! l i j 0))
+	((e? (vector-ref a i)
+		(vector-ref b j))
+	  (vec2-set! l i j
+	    (+ 1 (vec2-ref l
+		(+ 1 i) (+ 1 j)))))
+	(else (vec2-set! l i j
+	  (max (vec2-ref l (+ 1 i) j)
+	    (vec2-ref l i (+ 1 j))))))))))
+  l))
+
+;  lcs.longestCommonSubseq:
+; find the LCS of two sequences
+;  a, b: two sequences of some type T
+; sub: subscription operator on T
+; s: a sequence of type T
+; i: a number
+; @returns
+;  len: length operator on T
+; s: a sequence of type T
+; @returns
+; s_: the LCS of a and b
+(define (lcs e? al bl)
+  (let* ((a (list->vector al))
+	(b (list->vector bl))
+	(l (commonSubseqs  e? a b))
+	(m (vector-length l))
+	(n (vector-length
+		(vector-ref l 0))))
+    (letrec ((loop (lambda (rv i j)
+      (if (or (>= i (- m 1)) (>= j (- n 1)))
+        (reverse rv)
+        (cond
+	((e? (vector-ref a i)
+		(vector-ref b j))
+	  (loop (cons (vector-ref a i) rv)
+		(+ 1 i) (+ 1 j)))
+	((>= (vec2-ref l (+ 1 i) j)
+		(vec2-ref l i (+ 1 j)))
+	  (loop rv (+ 1 i) j))
+	(else
+	  (loop rv i (+ 1 j))))))))
+  (loop '() 0 0))))
+
+; debug routine for printing common
+; subseq output
+(define (dbg-subseq v)
+  (for-each (lambda (x)
+	(display x) (newline))
+    (vector->list v)))
+
+; find the position of the given
+; needle in the given haystack
+; - #f if not found
+(define (findpos needle haystack)
+  (letrec ((loop (lambda (l n)
+    (cond ((null? l) #f)
+	((= (car l) needle) n)
+	(else (loop (cdr l) (succ n)))))))
+    (loop haystack 0)))

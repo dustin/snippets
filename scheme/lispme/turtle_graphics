@@ -1,0 +1,69 @@
+; turtle graphics
+
+(define *angle* 0)
+; x, y
+(define *pos* '(0 . 0))
+
+; turn a degrees
+(define (tturn a)
+  (set! *angle*
+    (modulo (+ *angle* a) 360)))
+
+(define (tset-angle a)
+  (set! *angle* 0)
+  (tturn a))
+
+; get the x and y offset for a move
+; d away at angle a degrees
+(define (offset a d)
+  (cons (* d (dcos a)) (* d (dsin a))))
+
+; move distance d
+; - return new position
+(define (tmove d)
+  (let* ((o (offset *angle* d))
+    (newx (+ (car *pos*) (car o)))
+    (newy (+ (cdr *pos*) (cdr o))))
+  (set! *pos* (cons newx newy))))
+
+(define (f->i a)
+  (integer (round a)))
+
+; draw a line for distance d
+(define (tdraw d)
+  (move
+    (f->i (car *pos*))
+    (f->i (cdr *pos*)))
+  (tmove d)
+  (draw
+    (f->i (car *pos*))
+    (f->i (cdr *pos*))))
+
+(define (koch d w)
+  (if (>= d 1)
+    (begin
+      (koch (pred d) (/ w 3))
+      (tturn -60)
+      (koch (pred d) (/ w 3))
+      (tturn 120)
+      (koch (pred d) (/ w 3))
+      (tturn -60)
+      (koch (pred d) (/ w 3)))
+    (tdraw w)))
+
+(define (do-koch)
+  (set! *pos* (cons 0 (* 160 0.5)))
+  (set! *angle* 0)
+  (koch 6 160)
+  (tturn 180)
+  (koch 6 160))
+
+(define (do-snowflake n d)
+  (set! *pos* (cons 0 (* 160 .75)))
+  (tset-angle -60)
+  (koch n d)
+  (tturn 120)
+  (koch n d)
+  (tturn 120)
+  (koch n d)
+)

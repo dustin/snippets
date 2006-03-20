@@ -25,34 +25,20 @@
   (newline)
   #f)
 
-(define (copy-file s d vid)
-  (vdisplay "cp " s " -> " d)
-  (newline)
-  (let ((fout (vfs-open vid d #x1f)))
-    (iter-file (lambda (lno l)
-	(vfs-write fout l)
-	(vfs-write fout "#0a"))
-      s)
-    (vfs-close fout)))
-
 (define (get-lbld-vols)
   (map (lambda (x)
 		(cons (vfs-vol-get-label x)
 			x)) (vfs-volumes)))
 
 (define (get-vol n)
-  (letrec ((loop (lambda (l)
-    (if (null? l) #f
-      (let ((i (car l)))
-        (if (equal? (car i) n) (cdr i)
-	  (loop (cdr l))))))))
-      (loop (get-lbld-vols))))
+  (let ((it (assoc n (get-lbld-vols))))
+    (if it (cdr it) #f)))
 
 (define (get-lst-txt l)
   (lst-get-text l (lst-get-sel l)))
 
 (define (ui-copy-file)
-  (copy-file
+  (copy-file-to-vfs
 	(get-lst-txt memoList)
 	(fld-get-text destName)
 	(get-vol (get-lst-txt vfsList)))

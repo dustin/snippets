@@ -3,13 +3,14 @@
 (define (hash o)
   (cond
     ((number? o) o)
+    ((char? o) (char->integer o))
     ((string? o)
       (bit-and #xffffffff
-        (fold (lambda (h c)
+        (fold-string (lambda (h c)
 	(bit-xor (char->integer c)
 	  (+ (bit-shift h 5) h)))
 	5381
-	(string->list o))))
+	o)))
     (else
       (error "unhashable"))))
 

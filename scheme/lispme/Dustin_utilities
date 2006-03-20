@@ -5,31 +5,15 @@
 (define (vdisplay . args)
   (for-each display args))
 
-; swap two entries in a list
-(define (swap l a b)
-  (let ((t (list-ref l a))
-	(v (list->vector l)))
-    (vector-set! v a
-	(vector-ref v b))
-    (vector-set! v b t)
-    (vector->list v)))
+; simple add and subtract shortcuts
+(macro (succ a) `(+ 1 ,(cadr a)))
+(macro (pred a) `(- ,(cadr a) 1))
 
-; slow sort
-(define (ssort l . comp)
-  (if (not (pair? l))
-	l
-    (let ((al (if (pair? comp)
-	(car comp) >)))
-      (if (and
-		(not (continuation? al))
-		(not (procedure? al)))
-	(set! al  >))
-      (do ((i 1 (+ 1 i)))
-	( (>= i (length l)) l)
-	(if (al (car l)
-		(list-ref l i))
-	  (set! l (swap l 0 i))))
-      (set-cdr! l (ssort (cdr l) al)))))
+; round to a given place
+; -1 = tens, 0 = ones, 1 = tenths
+(macro (rounditm a)
+  (let ((m (expt 10 (caddr a))))
+    `(/ (round (* ,(cadr a) ,m)) ,m)))
 
 ; Prefix a string (s) with a given
 ; string (p) until the requested
@@ -77,10 +61,6 @@
   (string-tokenize s
     (list->string (list c))))
 
-; ++ (increment a variable in-line)
-(macro (++ e)
-  `(set! ,(cadr e) (+ 1 ,(cadr e))))
-
 (macro (mprint a)
   (object->string (cdr a)))
 
@@ -89,6 +69,23 @@
   (let ((b (gensym)))
    `(lambda (,b)
       (,(cadr a) ,@(cddr a) ,b))))
+
+; simple for loop
+; note: this has two loops because it
+; was more efficient than having one
+(define (for start finish f)
+  (letrec ((loop+ (lambda (n)
+    (if (> n finish) #n
+      (begin
+        (f n)
+        (loop+ (+ 1 n))))))
+   (loop- (lambda (n)
+    (if (< n finish) #n
+      (begin
+        (f n)
+        (loop- (- n 1)))))))
+  ((if (> finish start)
+	loop+ loop-) start)))
 
 ; like perl's ..
 (define (make-range a b)
@@ -150,3 +147,58 @@
 	  (cons (car l) '())
 	  (qs (cadr p))))))))
       (qs lin))))
+
+; 2 dimensional vector mutator
+(define (vec2-set! v i j to)
+  (vector-set! (vector-ref v i) j to))
+
+; 2 dimensional vector accessor
+(define (vec2-ref v i j)
+  (vector-ref (vector-ref v i) j))
+
+; switch key/value pairs
+(define (reverse-pairs l)
+  (map (lambda (a)
+	(cons (cdr a) (car a))) l))
+
+; dedupe a list
+(define (uniq lin . opcomp)
+  (let ((comp (if (pair? opcomp)
+	(car opcomp) eq?)))
+  (letrec ((loop (lambda (l rv)
+    (if (null? l) (reverse rv)
+      (if (comp
+	    (if (null? rv)
+		(object->string (gensym))
+		(car rv))
+	    (car l))
+	(loop (cdr l) rv)
+	(loop (cdr l)
+		(cons (car l) rv)))))))
+    (loop (qsort lin) '()))))
+
+; calculate the intersection of 2 lists
+(define (retain-all l1 l2)
+  (filter (lambda (x)
+	(memq x l2)) l1))
+
+; remove anything from l1 that is
+; in l2
+(define (remove-all l1 l2)
+  (filter (lambda (x)
+	(not (memq x l2))) l1))
+
+; intersection of two sets
+(define (intersect l1 l2)
+  (retain-all (uniq l1) l2))
+
+; randomize a list
+(define (shuffle lin)
+  (qsort lin (lambda (a b)
+	(= (random 2) 0))))
+
+; are these functions equal given the
+; same input compared with the
+; given comparator?
+(define (fcmp cmp fa fb . a)
+  (cmp (apply fa a) (apply fb a)))

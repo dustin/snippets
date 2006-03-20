@@ -1,0 +1,79 @@
+; bloom filter
+
+; works around
+; (= (bit-shift 1 13) -8192)
+(define (bit-mask n)
+  (if (= n 13) 8192 (bit-shift 1 n)))
+
+(define (bit-set? n b)
+  (> (bit-and n (bit-mask b)) 0))
+
+(define (set-bit n b)
+  (bit-or n (bit-mask b)))
+
+(define (bit-test max)
+  (fold (lambda (i b)
+    (if (> b 0)
+      (if (not (bit-set? i (pred b)))
+        (error (pred b))))
+    (if (bit-set? i b)
+	(error b))
+  (set-bit i b)) 0 (range 0 max)))
+
+(define (rand-32)
+  (fold (lambda (i c)
+    (bit-or (random 256)
+	(abs (bit-shift i 8))))
+    0 (make-range 0 3)))
+
+; the above function was used to
+; create these for hashes:
+(define hash-seeds '(3479243644
+  100424016 3864497435
+  500535538 1376848689
+  2575957185 1636209833
+  1968067544 227370801 184631768
+  90536380 3382830181 3241210879
+  2966507432 1618064118
+  3596093901 2325006431))
+
+(define (make-hashes n)
+  (map (lambda (i)
+    (let ((hv (list-ref hash-seeds i)))
+      (lambda (s)
+	(bit-xor hv (hash s)))))
+    (make-range 0 (pred n))))
+
+; bloom filter with n bits
+(define (make-bloom-filter n k)
+  (cons 'bloom-filter
+    (cons 0
+      (cons (make-hashes k)
+        (cons n '())))))
+
+(define (bloom-filter? bf)
+  (and (pair? bf)
+	(eq? 'bloom-filter (car bf))))
+
+(define (bloom-filter-assert bf)
+  (if (not (bloom-filter? bf))
+    (error "not a bloom filter")))
+
+(define (bloom-filter-hash bf o)
+  (bloom-filter-assert bf)
+  (map (lambda (h)
+    (modulo (h o)  (cadddr bf)))
+      (caddr bf)))
+
+(define (bloom-filter-add bf o)
+  (bloom-filter-assert bf)
+  (cons 'bloom-filter
+    (cons (fold set-bit (cadr bf)
+        (bloom-filter-hash bf o))
+      (cddr bf))))
+
+(define (bloom-filter-has bf o)
+  (bloom-filter-assert bf)
+  (fold (lambda (i b)
+    (and i (bit-set? (cadr bf) b)))
+    #t  (bloom-filter-hash bf o)))

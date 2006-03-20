@@ -1,0 +1,17 @@
+; diff
+
+(define (subseq-len base a b)
+  (if (and (pair? a) (pair? b))
+    (subseq-len (+ base
+	(if (eq? (car a) (car b)) 1 0))
+	(cdr a) (cdr b))
+    base))
+
+(define (for-list-tails f lin)
+  (letrec ((loop  (lambda (n l)
+    (if (pair? l)
+      (begin
+	(f n l)
+	(loop (+ 1 n) (cdr l)))))))
+   (loop 0 lin)))
+

@@ -1,0 +1,109 @@
+; cards
+
+(define (make-deck)
+  (fold (lambda (rv i) (append rv
+    (list (cons #\c i) (cons #\h i)
+    (cons #\d i) (cons #\s i))))
+    '() (make-range 1 13)))
+
+(define (blackjack-sort l)
+  (qsort l (lambda (a b)
+	(< (cdr a) (cdr b)))))
+
+(define (blackjack-sum lin)
+  (letrec ((loop (lambda (rv l)
+	(if (or (null? l) (> rv 21))
+	  rv
+	  (let ((n (if (and
+				(< rv 11)
+				(= 1 (cdar l)))
+			11
+			(if (> (cdar l) 10)
+			  10
+			  (cdar l)))))
+	    (loop (+ rv n) (cdr l)))))))
+    (loop 0 (blackjack-sort lin))))
+
+(define *deck* '())
+
+(define (get-card)
+  (if (null? *deck*)
+	(error "Empty deck"))
+  (let ((rv (car *deck*)))
+    (set! *deck* (cdr *deck*))
+    rv))
+
+(define (blackjack-mk)
+  (list 'bj . ()))
+
+(define *hand* '())
+(define *dealer* '())
+
+(define (blackjack-hit bj)
+  (set-cdr! bj
+	(cons (get-card) (cdr bj))))
+
+(define (card-pprint l)
+  (map (lambda (x)
+    (let ((suit (car x)) (card (cdr x)))
+      (cons suit (case card
+	((1) #\A)
+	((11) #\J)
+	((12) #\Q)
+	((13) #\K)
+	(else card)))))
+      l))
+
+(define (blackjack-show who bj)
+  (vdisplay who ": "
+	(blackjack-sum (cdr bj)) ": "
+	(card-pprint (cdr bj)))
+  (newline)
+  #n)
+
+(define (blackjack-show-all)
+  (blackjack-show "dlr" *dealer*)
+  (blackjack-show "you" *hand*))
+
+(define (blackjack-reset)
+  (if (< (length *deck*) 10)
+    (set! *deck*
+	(shuffle (make-deck))))
+  (set! *dealer* (blackjack-mk))
+  (blackjack-hit *dealer*)
+  (set! *hand* (blackjack-mk))
+  (blackjack-hit *hand*)
+  (blackjack-hit *hand*))
+
+(define (blackjack-hit-check)
+  (blackjack-hit *hand*)
+  (let ((v (blackjack-sum
+		(cdr *hand*))))
+    (blackjack-show-all)
+    (if (> v 21)
+      (error "bust!")))
+  #n)
+
+(define (blackjack-score)
+  (let ((v (blackjack-sum
+		(cdr *hand*)))
+	  (dv (blackjack-sum
+		(cdr *dealer*))))
+    (blackjack-show-all)
+    (cond
+        ((> dv 21)
+	(display "You win!  :)"))
+        ((>= dv v)
+          (display "You lose!  :("))
+        (else ; more than dealer
+	(display "You win!  :)")))))
+
+(define (blackjack-stay)
+  (letrec ((loop (lambda ()
+      (blackjack-hit *dealer*)
+      (let ((dv (blackjack-sum
+		(cdr *dealer*))))
+	(if (<= dv 16)
+	      (loop))))))
+	(loop))
+  #n)

@@ -1,0 +1,75 @@
+; cipher
+
+(define letters (string->list
+  "etoanirshdlcwumfygpbvkxqjz"))
+
+(define (word-classify w)
+  (let ((m '()))
+    (fold-string (lambda (i c)
+        (if (not (assoc c m))
+          (set! m (cons
+            (cons c
+	    (if (null? m) #\a
+	      (integer->char
+	        (+ 1 (char->integer
+		(cdar m))))))
+	  m)))
+      (string-append i
+        (list->string
+	(list (cdr (assoc c m))))))
+     "" w)))
+
+(define (class-hash c)
+  (let ((h (integer->hex
+	(bit-and #xff (hash c)))))
+    (if (= 1 (string-length h))
+	(string-append "0" h)
+	h)))
+
+; count the frequencies of each letter
+; in a list of words
+(define (letter-freq words)
+  (fold (lambda (i w)
+     (fold-string (lambda (ig c)
+	(hashtbl-update! i c
+	  (lambda (o) (+ 1 o)) 1)) i w)
+     i)
+    (make-hashtbl) words))
+
+; weigh a word by the scores of its
+; letters as seen in ht
+(define (weigh-word ht w)
+  (fold-string  (lambda (i c)
+    (+ i (hashtbl-get ht c))) 0 w))
+
+(define (load-dict cin wanted vid fn)
+  (vdisplay "loading from " fn "#0a")
+  (fold-vfs-file (lambda (i w)
+    (let* ((c (word-classify w))
+		(bucket (assoc c i)))
+      (if (member c wanted)
+        (if bucket
+	(begin
+	  (set-cdr! bucket
+	    (list (append (cadr bucket)
+		(list w))))
+	  i)
+	(append i (list (list c (list w)))))
+      i)))
+    cin vid  fn))
+
+(define (load-dicts-for words)
+  (let* ((classes (uniq
+	        (map word-classify words)
+	        string=?))
+	      (hashes (uniq
+	        (map class-hash classes)
+	        string=?)))
+  (vdisplay "Will load " classes " from "
+    hashes "#0a")
+  (fold (lambda (i h)
+    (load-dict i classes
+      (car (vfs-volumes))
+      (string-append
+	"/dict/" h ".txt")))
+     '() hashes)))

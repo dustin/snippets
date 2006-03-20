@@ -1,0 +1,126 @@
+; blackjack-gui
+
+; mine . his
+(define *scores* '(0 . 0))
+
+; form constants
+(define g-my-list 100)
+(define g-dlr-list 101)
+(define l-my-ttl 400)
+(define l-dlr-ttl 401)
+(define m-new 600)
+(define m-deal 601)
+(define m-quit 602)
+(define b-hit 300)
+(define b-stay 301)
+
+(define (update-display)
+  (lst-set-list g-my-list
+    (card-pprint (cdr *hand*)))
+  (lst-set-list g-dlr-list
+    (card-pprint (cdr *dealer*)))
+  (fld-set-text l-my-ttl
+	(blackjack-sum (cdr *hand*)))
+  (fld-set-text l-dlr-ttl
+    (blackjack-sum (cdr *dealer*)))
+  #t)
+
+(define (bj-reset)
+    (blackjack-reset)
+    (if (and
+        (= 2 (length (cdr *hand*)))
+        (= 21 (blackjack-sum
+		(cdr *hand*))))
+	(game-over #t)))
+
+(define (game-over won)
+  (set! *scores*
+    (if won
+	(cons (+ 1 (car *scores*))
+		(cdr *scores*))
+	(cons (car *scores*)
+		(+ 1 (cdr *scores*)))))
+  (update-display)
+  (frm-popup 1100 (lambda (e . a)
+    (case e
+      ((frm-open)
+	(fld-set-text 400
+	  (string-append
+		(if won "You won!  :)"
+			"You lost.  :(")
+		"#0aYou:  "
+		  (object->string
+			(car *scores*))
+		"    -    Dlr:  "
+		  (object->string
+			(cdr *scores*)))))
+      ((ctl-select)
+	(blackjack-reset)
+	(frm-return #t))
+      (else #f))))
+  (update-display))
+
+(define (check-my-score)
+  (cond
+    ((> (blackjack-sum (cdr *hand*))
+		21)
+	(game-over #f))
+    ((and
+	(= 2 (length (cdr *hand*)))
+	(= 21 (blackjack-sum
+		(cdr *hand*))))
+	(game-over #t))
+    ((= 5 (length (cdr *hand*)))
+	(game-over #t))
+    (else #t)))
+
+(define (check-final-score)
+  (let (
+    (mine (blackjack-sum
+	(cdr *hand*)))
+    (his (blackjack-sum
+	(cdr *dealer*))))
+    (game-over
+      (or (and (> mine his)
+		(<= mine 21))
+	(> his 21)))))
+
+(define (process f)
+  (f)
+  (update-display))
+
+(define (mainHandler event . args)
+  ; (vdisplay "ev: " event args "#0a")
+  (case event
+    ((frm-open)
+	(process blackjack-reset)
+	(check-my-score))
+    ((menu)
+      (case (car args)
+	((600 601) ; new/deal
+	  (set! *scores* '(0 . 0))
+	  (blackjack-reset)
+	  (update-display)
+	  (check-my-score))
+	((602) ; quit
+	  (frm-return #t))
+	(else #f)))
+    ((ctl-select)
+      (case (car args)
+	((300) ; hit
+	  (process (lambda ()
+	    (blackjack-hit *hand*)))
+	  (check-my-score))
+	((301) ; hold
+	  (blackjack-stay)
+	  (check-final-score)
+	  (check-my-score))
+	(else #f)))
+    (else #f)))
+
+; The gui
+(define (run-gui)
+  (set! *resdb*
+    (dm-open-db "BlackJackUI" 1))
+  (frm-popup 1000
+      mainHandler))

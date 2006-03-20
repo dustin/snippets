@@ -1,0 +1,72 @@
+; db maint
+
+; record attribute definitione
+(define rec-att-defs
+  '( (#x10 . secret) (#x20 . busy)
+      (#x40 . dirty) (#x80 . delete)))
+
+(define db-att-defs
+  '(	(#x1 . resource)
+	(#x2 . read-only)
+	(#x4 . dirty) (#x8 . backup)
+	(#x10 . newer-ok)
+	(#x20 . reset-after-install)
+	(#x40 . copy-prevention)
+	(#x80 . stream)
+	(#x100 . hidden)
+	(#x200 . launchable-data)
+	(#x800 . open)))
+
+; decode attr for a single record
+(define (decode-rec-attr a)
+    (list
+	(bit-and #x0f a)
+	(att->list a rec-att-defs)))
+
+; opposite of the above
+(define (encode-rec-attr a)
+  (bit-or (car a)
+    (list->attr (cadr a) rec-att-defs)))
+
+; get a useful db info
+(define (decode-db-info info)
+  (append
+    (list (list-ref info 0) (list-ref info 1)
+      (att->list (list-ref info 2)
+	db-att-defs))
+    (list-tail info 3)))
+
+(define (fold-records f init dbname)
+  (let ((db
+	(dm-open-db dbname #x11)))
+    (letrec ((loop (lambda (i n)
+      (let ((att
+	(dm-get-rec-attr db n)))
+        (if att
+	(loop
+	  (f i n (decode-rec-attr att)
+		(dm-read-rec db n))
+	  (+ 1 n))
+	i)))))
+      (let ((rv (loop init 0)))
+        (dm-close-db db)
+        rv))))
+
+; iter the records
+(define (for-each-record f db)
+  (fold-records
+    (lambda (i n att rec) (f n att rec))
+    #t db))
+
+; look for records with a specific flag
+(define (get-recs-with-flag f flag d)
+  (for-each-record (lambda (n a r)
+    (if (member flag (cadr a))
+      (f n a r))) d))
+
+(define (print-rec-with-flag f)
+  (for-each (lambda (db)
+    (get-recs-with-flag (lambda (n a r)
+        (vdisplay db " " n ":  " a) (newline)
+      f db))
+    (dm-db-list "" ""))))

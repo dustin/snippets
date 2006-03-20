@@ -1,0 +1,19 @@
+; sms fixer
+
+; (recategorize 0 2 "SmsDB")
+
+(define (recategorize fc tc dbn)
+  (let ((recs (fold-records
+	(lambda (i n att rec)
+	  (if (= (car att) fc)
+		(cons (cons n att) i)
+		i)) '() dbn)))
+    (vdisplay "got " (length recs)
+	" records#0a")
+    (let ((dbw (dm-open-db dbn 3)))
+      (for-each (lambda (r)
+	(dm-set-rec-attr dbw (car r)
+	  (encode-rec-attr
+	    (cons tc (cddr r)))))
+        recs)
+      (dm-close-db dbw))))

@@ -1,9 +1,33 @@
 ; Dustin's math stuff
 
+; addition of a series (sum)
+; invokes f with curval
+(define (sum from to f)
+  (letrec ((loop (lambda (rv n)
+     (if (>= n to) (+ rv (f n))
+	(loop (+ rv (f n)) (+ n 1))))))
+    (loop 0 from)))
+
+; multiplication of a series (prod)
+; invokes f with curval
+(define (prod from to f)
+  (letrec ((loop (lambda (rv n)
+     (if (>= n to) (* rv (f n))
+	(loop (* rv (f n)) (+ n 1))))))
+    (loop 1 from)))
+
 ; factorial
-(define (factorial x)
+(define (factorial-simple x)
   (if (< x 2) 1
 	(* x (factorial (- x 1)))))
+
+; tail-recursive factorial
+(define (factorial x)
+  (letrec ((loop (lambda (rv n)
+	(if (<= n 2) rv
+	  (loop (* rv n) (pred n))))))
+    (if (< x 2) 1
+      (loop 2 x))))
 
 ; combinations (n things, k at a time)
 (define (combo n k)
@@ -20,13 +44,81 @@
 (define (avg l)
   (/ (apply + l) (length l)))
 
-; round to a given place
-; -1 = tens, 0 = ones, 1 = tenths
-(define (roundit x y)
-  (/ (round (* x (expt 10 y)))
-	(expt 10 y)))
-
 ; get nth percentile from a sample
 (define (%ile n l)
   (list-ref (qsort l)
     (integer (* (/ n 100.) (length l)))))
+
+; calculate birthday paradox
+; x = num items
+; n = num of people
+; rv = probability two are the same
+(define (bday-paradox x n)
+  (- 1 (prod 0 (- n 1) (lambda (i)
+	(- 1 (/ i x))))))
+
+; calculate x^y
+; (define (pow x y)
+;    (prod 1 y (lambda (n) x)))
+(define (pow x y) (expt x y))
+
+; compute log_n x
+(define (logn n x)
+  (/ (log x) (log n)))
+
+; how many bytes are required for
+; a 31 bit number
+; (logn 10 (pow 2 31))
+; how many bits are required to
+; store a 9 digit number
+; (logn 2 (pow 10 9))
+
+(define hex-digits
+  (list->vector (string->list
+	"0123456789abcdef")))
+
+(define (integer->hex i)
+  (if (zero? i) "0"
+    (letrec ((loop (lambda (rv n)
+      (if (zero? n) rv
+        (loop (cons
+	(vector-ref hex-digits
+	(bit-and n #xf)) rv)
+	(bit-shift n -4))))))
+    (list->string (loop '() i)))))
+
+; annual percentage yield
+; n = number of compounding periods
+;	per year
+; t = number of years
+; r = rate
+(define (apy n t r)
+  (* (/ 1 t)
+     (- (expt (+ 1 (/ r n)) (* n t)) 1)))
+
+; calculate interest of the given
+; principle at the given rate over
+; the given number of years
+(define (interest p r n)
+  (+ p (* p (apy 365 n r))))
+
+(define PI 3.1415926535898)
+
+; degrees to radians (and back)
+(macro (d2r n)
+  `(* ,(cadr n) ,(/ PI 180)))
+(macro (r2d n)
+  `(* ,(cadr n) ,(/ 180 PI)))
+
+; for trig in deg
+(macro (dsin n) `(sin (d2r ,(cadr n))))
+(macro (dcos n)
+  `(cos (d2r ,(cadr n))))
+(macro (dtan n)
+  `(tan (d2r ,(cadr n))))
+(macro (dasin n)
+  `(asin (d2r ,(cadr n))))
+(macro (dacos n)
+  `(acos (d2r ,(cadr n))))
+(macro (datan n)
+  `(atan (d2r ,(cadr n))))

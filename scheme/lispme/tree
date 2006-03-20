@@ -1,0 +1,79 @@
+; tree
+; purely functional trees
+
+(define (tree-new cmpeq cmp<)
+  (cons (cons cmpeq cmp<) '()))
+
+(define (tree-mknod a b c)
+  (cons a (cons b c)))
+
+(define (tree-parts t f)
+  (let ((cmp=? (caar t))
+	  (cmp< (cdar t))
+	  (abc (if (null? (cdr t))
+		'(1 2 3) (cdr t))))
+   (f cmp=? cmp< (car abc)
+    (cadr abc) (caddr abc))))
+
+(define (tree-mem t el)
+  (if (null? t) #f
+  (tree-parts t
+   (lambda (cmp=? cmp< a b c)
+    (if (cmp=? a el)
+      a
+      (if (cmp< el a)
+	(if (null? b) #f (tree-mem b el))
+	(if (null? c) #f (tree-mem c el))
+    ))))))
+
+(define (tree-add t el)
+  (if (null? t) (tree-mknod el '() '())
+  (if (tree-mem t el)
+    t
+    (tree-parts t
+     (lambda (cmp=? cmp< a b c)
+      (if (cmp< el a)
+	(tree-mknod a
+	  (if (null? b)
+		(tree-mknod el '() '())
+		(tree-add b el))
+	  c)
+	(tree-mknod a b
+	    (if (null? c)
+		(tree-mknod el '() '())
+		(tree-add c el)))))))))
+
+(define (tree-fold t f i)
+  (if (null? t)
+    t
+    (tree-parts t
+      (lambda (cmp=? cmp< a b c)
+	(let ((first-pass (if (null? b) i
+		(tree-fold b f i))))
+	  (let ((this-val (f a first-pass)))
+		(if (null? c) this-val
+		  (tree-fold c f this-val)))
+		)))))
+
+(define (tree-iter t f)
+  (tree-fold t
+	(lambda (i n) (f i) n) #n))
+
+(define (tree-to-list t)
+  (reverse (tree-fold t cons '())))
+
+(define (tree-of-list l)
+  (fold tree-add '() l))
+
+(define (tree-remove el t)
+    (tree-of-list
+      (filter (lambda (x)
+		(not (string=? el x)))
+	(tree-to-list t))))
+
+(define (tree-test)
+(tree-parts '(("cmp " 1) " a "  "b "  . "c ") (lambda (cmp=? cmp< a b c) (vdisplay cmp=? cmp< a b c))))
+
+;(define t (tree-of-list '("c" "d" "a" "b")))
+;(tree-iter (tree-remove "c" t) ;(lambda (x) (vdisplay x "#0a")))
+))

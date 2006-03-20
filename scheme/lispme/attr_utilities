@@ -1,0 +1,33 @@
+; attr utilities
+
+; vfs open flags (and example input)
+(define vfs-open-flags
+  '(	(#x1 . exclusive) (#x2 . read)
+	(#x5 . write) (#x7 . read-write)
+	(#x8 . create)
+	(#x10 . truncate)))
+
+; vfs file attrs
+(define vfs-attrs
+  '(	(#x1 . read-only)
+	(#x2 . hidden) (#x4 . system)
+	(#x8 . vol-label)
+	(#x10 . directory)
+	(#x20 . archived)
+	(#x40 . link)))
+
+; decode an attribute bitmask set
+(define (att->list a atl)
+ (map cdr
+      (filter (lambda (i)
+	(not (zero? (bit-and a (car i)))))
+	atl)))
+
+(define (list->attr l atl)
+  (let ((ratl (reverse-pairs atl)))
+  (fold (lambda (c v)
+    (bit-or c
+      (if (assoc v ratl)
+	(cdr (assoc v ratl))
+	0)))
+    0 l))

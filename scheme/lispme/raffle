@@ -1,0 +1,81 @@
+; raffle
+
+(define *nums* '())
+(define fldChecking 2001)
+(define fldMatches 2002)
+(define btnDelete 3010)
+
+(define (clear-nums)
+  (set! *nums* '()))
+
+(define (add-bulk a)
+   (set! *nums*
+     (qsort (append *nums*
+       (apply append
+         (map (lambda (x)
+	  (map object->string
+	    (make-range
+	      (car x) (cadr x))))
+	  a))))))
+
+(define (add-nums l h)
+  (add-bulk (cons (list l h) '())))
+
+(define (won? x)
+  (if (member x *nums*) #t #f))
+
+(define (prefix-matches p)
+  (filter (lambda (x)
+    (string=? p
+      (substring x 0 (string-length p))))
+    *nums*))
+
+; gui init
+(define (initialize)
+  (set! *resdb*
+    (dm-open-db "Raffler" 1)))
+
+(define (isANumButton x)
+  (and (>= x 3000) (< x 3010)))
+
+(define (gui-update-matches)
+  (let ((s (fld-get-text fldchecking)))
+    (fld-set-text fldmatches
+      (if (won? s)
+        "Winner!"
+        (let ((m (prefix-matches s)))
+	(string-append
+	    (object->string (length m))
+	    " "
+              (object->string m)))))))
+
+(define (gui-append-num n)
+  (fld-set-text fldchecking
+    (string-append
+	(fld-get-text fldchecking)
+	(object->string (- n 3000)))))
+
+(define (gui-delete-num)
+  (let ((s (fld-get-text fldchecking)))
+    (if (> (string-length s) 0)
+      (fld-set-text fldchecking
+        (substring s 0
+	(- (string-length s) 1))))))
+
+(define (mainHandler event . args)
+  (case event
+    ((ctl-select)
+      (cond
+	((isANumButton (car args))
+	  (gui-append-num (car args))
+	  (gui-update-matches))
+	((= (car args) btnDelete)
+	  (gui-delete-num)
+	  (gui-update-matches))
+	(else #f)))
+    (else #f)))
+
+; The gui
+(define (run-gui)
+  (frm-popup 1000
+      mainHandler))

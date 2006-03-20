@@ -1,0 +1,12 @@
+; state machine
+
+(define (sterr msg st)
+  (error (string-append msg
+	" in state "
+		(object->string st))))
+
+; the machine runner
+(define (run-machine cb st food)
+  (if (= st 'done) #n
+    (let* ((c (food)) (nst (cb st c)))
+    (run-machine cb nst food))))

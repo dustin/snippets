@@ -1,0 +1,31 @@
+; old utils
+
+; swap two entries in a list
+(define (swap l a b)
+  (let ((t (list-ref l a))
+	(v (list->vector l)))
+    (vector-set! v a
+	(vector-ref v b))
+    (vector-set! v b t)
+    (vector->list v)))
+
+; slow sort
+(define (ssort l . comp)
+  (if (not (pair? l))
+	l
+    (let ((al (if (pair? comp)
+	(car comp) >)))
+      (if (and
+		(not (continuation? al))
+		(not (procedure? al)))
+	(set! al  >))
+      (do ((i 1 (+ 1 i)))
+	( (>= i (length l)) l)
+	(if (al (car l)
+		(list-ref l i))
+	  (set! l (swap l 0 i))))
+      (set-cdr! l (ssort (cdr l) al)))))
+
+; ++ (increment a variable in-line)
+(macro (++ e)
+  `(set! ,(cadr e) (+ 1 ,(cadr e))))

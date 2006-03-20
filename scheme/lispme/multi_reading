@@ -1,0 +1,5 @@
+; multi-reading
+
+; given a collection of colored points,
+; determine the color for a given
+; point

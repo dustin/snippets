@@ -1,0 +1,23 @@
+; tree test
+; purely functional trees
+
+(define (tree-new cmpeq cmp<)
+  (cons (cons cmpeq cmp<) '()))
+
+(define (tree-mknod a b c)
+  (cons a (cons b c)))
+
+(define (tree-parts t f)
+  (let ((cmp=? (caar t))
+	  (cmp< (cdar t))
+	  (abc (if (null? (cdr t))
+		'(1 2 3) (cdr t))))
+   (f cmp=? cmp< (car abc)
+    (cadr abc) (caddr abc))))
+
+(define (tree-test)
+  (display "tree test#0a")
+  (let ((t (tree-new = >)))
+    (tree-parts t
+      (lambda (cmp=? cmp< a b c)
+        (vdisplay cmp=? cmp< a b c)))))
