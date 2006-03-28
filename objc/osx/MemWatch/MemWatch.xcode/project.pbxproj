@@ -7,6 +7,8 @@
 	objects = {
 		080E96DDFE201D6D7F000001 = {
 			children = (
+				DAF1FDE007A97C7600177AB0,
+				DAF1FDE107A97C7600177AB0,
 				DAC52AD20586690C00A04AB9,
 				DAC52AD30586690C00A04AB9,
 				DAC52AEA058669FD00A04AB9,
@@ -31,9 +33,9 @@
 			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -59,9 +61,8 @@
 			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
-			expectedFileType = wrapper.framework;
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -147,9 +148,9 @@
 			sourceTree = "<group>";
 		};
 		29B97316FDCFA39411CA2CEA = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = main.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -178,8 +179,8 @@
 			sourceTree = "<group>";
 		};
 		29B97319FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.nib;
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/MainMenu.nib;
 			refType = 4;
@@ -197,18 +198,16 @@
 			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
@@ -225,9 +224,9 @@
 //323
 //324
 		32CA4F630368D1EE00C91783 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = MemWatch_Prefix.pch;
 			refType = 4;
 			sourceTree = "<group>";
@@ -243,8 +242,6 @@
 //4A3
 //4A4
 		4A9504CCFFE6A4B311CA0CBA = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				DEBUGGING_SYMBOLS = YES;
@@ -259,8 +256,6 @@
 			name = Development;
 		};
 		4A9504CDFFE6A4B311CA0CBA = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -325,6 +320,7 @@
 				DAC52AEC058669FD00A04AB9,
 				DAADA78905866F5700E665B6,
 				DA42D1A40588E3FD00958DEA,
+				DAF1FDE207A97C7600177AB0,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,6 +361,7 @@
 				DAC52AED058669FD00A04AB9,
 				DAADA78A05866F5700E665B6,
 				DA42D1A50588E3FD00958DEA,
+				DAF1FDE307A97C7600177AB0,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -392,15 +389,15 @@
 			};
 		};
 		8D1107310486CEB800E47090 = {
-			expectedFileType = text.plist;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
 			path = Info.plist;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		8D1107320486CEB800E47090 = {
-			expectedFileType = wrapper.application;
+			explicitFileType = wrapper.application;
 			includeInIndex = 0;
 			isa = PBXFileReference;
 			path = MemWatch.app;
@@ -418,17 +415,17 @@
 //DA3
 //DA4
 		DA42D1A20588E3FD00958DEA = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = PreferenceController.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DA42D1A30588E3FD00958DEA = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = PreferenceController.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -456,8 +453,8 @@
 			sourceTree = "<group>";
 		};
 		DA42D1C30588E58500958DEA = {
-			expectedFileType = wrapper.nib;
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			name = English;
 			path = English.lproj/Preferences.nib;
 			refType = 4;
@@ -470,17 +467,17 @@
 			};
 		};
 		DAADA78705866F5700E665B6 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Plot.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAADA78805866F5700E665B6 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Plot.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -498,17 +495,17 @@
 			};
 		};
 		DAC52AD20586690C00A04AB9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Controller.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAC52AD30586690C00A04AB9 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Controller.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -526,17 +523,17 @@
 			};
 		};
 		DAC52AEA058669FD00A04AB9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = Stats.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		DAC52AEB058669FD00A04AB9 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			path = Stats.m;
 			refType = 4;
 			sourceTree = "<group>";
@@ -549,6 +546,34 @@
 		};
 		DAC52AED058669FD00A04AB9 = {
 			fileRef = DAC52AEB058669FD00A04AB9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAF1FDE007A97C7600177AB0 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = Datum.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DAF1FDE107A97C7600177AB0 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = Datum.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		DAF1FDE207A97C7600177AB0 = {
+			fileRef = DAF1FDE007A97C7600177AB0;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		DAF1FDE307A97C7600177AB0 = {
+			fileRef = DAF1FDE107A97C7600177AB0;
 			isa = PBXBuildFile;
 			settings = {
 			};

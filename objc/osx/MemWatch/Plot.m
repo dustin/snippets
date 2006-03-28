@@ -7,7 +7,7 @@
 //
 
 #import "Plot.h"
-
+#import "Datum.h"
 
 @implementation Plot
 
@@ -48,7 +48,7 @@
 }
 
 -(void)addDatum: (int)val {
-    [data addObject: [[NSNumber alloc] initWithInt: val]];
+    [data addObject: [[Datum alloc] initWithInt: val]];
     if(val > maxVal) {
         maxVal = val;
     }
