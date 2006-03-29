@@ -32,4 +32,3 @@ let stream_convert f source =
 		with Stream.Failure ->
 			Some (Stream.next !chunk)
 	)
-;;
