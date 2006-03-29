@@ -16,7 +16,6 @@ let rec is_my_letter l c =
 			true
 		else
 			is_my_letter (List.tl l) c
-;;
 
 (**
 	Find the index of one of these characters, or -1 if it doesn't exist.
@@ -33,7 +32,6 @@ let rec str_index_of_one str l i =
 			str_index_of_one str l (i + 1)
 	else
 		-1
-;;
 
 (* Private recursive function for splitting a stream in a buffer.
  skipf is the character skip function for when a match is found
@@ -62,7 +60,6 @@ let rec pvt_rec_split_chars skipf rv str l i limit =
 			rv
 		)
 	)
-;;
 
 (* Private recursive function for splitting a stream in a buffer *)
 let rec pvt_rec_split skipf rv str c i limit =
@@ -82,7 +79,6 @@ let rec pvt_rec_split skipf rv str c i limit =
 		else
 			rv
 	)
-;;
 
 (**
  Split a string into a list of Strings.
@@ -104,7 +100,6 @@ let split s c limit =
 		)
 		in
 	pvt_rec_split pvt_skip_char [] s c 0 limit
-;;
 
 (**
  Split a string into a list of Strings.  The difference between this function
@@ -123,7 +118,6 @@ let split_all s c limit =
 					else
 						succ i)
 			[] s c 0 limit
-;;
 
 (* skip characters in a string from the given list of characters *)
 let rec pvt_skip_chars s l i =
@@ -134,7 +128,6 @@ let rec pvt_skip_chars s l i =
 			pvt_skip_chars s l (i+1)
 		else
 			i
-;;
 
 (**
  Split a string into a list of Strings.
@@ -146,7 +139,6 @@ let rec pvt_skip_chars s l i =
 *)
 let split_chars s l limit =
 	pvt_rec_split_chars pvt_skip_chars [] s l 0 limit
-;;
 
 (**
  Split a string into a list of Strings.  The difference between this function
@@ -165,7 +157,6 @@ let split_chars_all s l limit =
 							else
 								succ i)
 			[] s l 0 limit
-;;
 
 (*
  * Test:
@@ -197,7 +188,6 @@ let rec strstr haystack needle offset =
 						(String.get needle 0))
 			else
 				-1
-;;
 
 (*
  Test:
@@ -220,7 +210,6 @@ let ends_with src pat =
 				((String.length src) - (String.length pat)) (String.length pat))
 	else
 		false
-;;
 
 (*
  Test:
@@ -240,7 +229,6 @@ let begins_with src pat =
 		(pat = String.sub src 0 (String.length pat))
 	else
 		false
-;;
 
 (*
  Test:
@@ -258,7 +246,6 @@ let string_of_chars l =
 	let rv = Buffer.create 64 in
 	List.iter (fun c -> Buffer.add_char rv c) l;
 	Buffer.contents rv
-;;
 
 (**
  Convert a character to a string.
@@ -267,7 +254,6 @@ let string_of_chars l =
  *)
 let string_of_char =
 	String.make 1
-;;
 
 (**
  Remove characters from the front of the given string.
@@ -275,17 +261,15 @@ let string_of_char =
 let remove_front chars s =
 	let pos = pvt_skip_chars s chars 0 in
 	String.sub s pos ((String.length s) - pos)
-;;
 
 (* The whitespace characters *)
-let pvt_whitespace = [' '; Char.chr 10; Char.chr 13; Char.chr 9];;
+let pvt_whitespace = [' '; Char.chr 10; Char.chr 13; Char.chr 9]
 
 (**
  Remove whitespace from the front of a string.
  *)
 let strip_front =
 	remove_front pvt_whitespace
-;;
 
 (**
  Remove characters from the end of a string.
@@ -305,18 +289,15 @@ let remove_end chars s =
 		String.sub s 0 (pos + 1)
 	else
 		""
-;;
 
 (**
  Remove whitespace from the end of a string.
  *)
 let strip_end =
 	remove_end pvt_whitespace
-;;
 
 (**
  Remove whitespace from both ends of a string.
  *)
 let strip s =
 	strip_front (strip_end s)
-;;
