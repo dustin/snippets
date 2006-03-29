@@ -6,7 +6,7 @@
 
 (** Split a word frequency file. *)
 
-module CharSet = Set.Make(Char);;
+module CharSet = Set.Make(Char)
 
 (* Hashing of the hash.  This gets us down to a maximum of 256 files. *)
 let classification_hash word =
@@ -14,7 +14,6 @@ let classification_hash word =
 	let h = ref 5381 in
 	String.iter (fun c -> h := ((!h lsl 5) + !h) lxor (int_of_char c)) word;
 	Printf.sprintf "%02x" (!h land 0xff)
-;;
 
 let classify word =
 	let rv = ref "" in
@@ -31,11 +30,9 @@ let classify word =
 			)
 		) word;
 	!rv
-;;
 
 let hashed_classified word =
 	classification_hash (classify word)
-;;
 
 let main () =
 	let valid_chars = [
@@ -75,8 +72,8 @@ let main () =
 		let f = open_out (k ^ ".txt") in
 		List.iter (fun w -> output_string f (w ^ "\n")) (List.rev v);
 		close_out f
-		) hashed;
+		) hashed
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

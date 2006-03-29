@@ -6,11 +6,11 @@
  * See http://ipsc.ksp.sk/sample.php?arg_contest=ipsc2004
  *)
 
-module StringSet = Set.Make(String);;
-module StringMap = Map.Make(String);;
+module StringSet = Set.Make(String)
+module StringMap = Map.Make(String)
 
 (* verbose output flag *)
-let verbose = ref false;;
+let verbose = ref false
 
 (* Recursively try to install all packages until we can't install anymore *)
 let rec resolve stuff seen rv =
@@ -31,12 +31,10 @@ let rec resolve stuff seen rv =
 	) else (
 		List.rev rv
 	)
-;;
 
 (* Make a string set from a list *)
 let setof l =
 	List.fold_left (fun acc x -> StringSet.add x acc) StringSet.empty l
-;;
 
 let run filename =
 	let stuff = Fileutils.fold_file_lines (fun l acc ->
@@ -58,7 +56,6 @@ let run filename =
 				StringSet.iter (fun el -> Printf.printf "\t%s\n" el) l
 			) installed
 	)
-;;
 
 (* Load the data and send it off for processing *)
 let main() =
@@ -67,5 +64,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

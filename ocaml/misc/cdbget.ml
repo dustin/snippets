@@ -7,7 +7,6 @@
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " cdbfile key [key...]");
 	exit 1
-;;
 
 let main() =
 	try
@@ -26,5 +25,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

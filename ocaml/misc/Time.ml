@@ -27,6 +27,6 @@ module Time =
 			method setHour h = hour <- h
 			method setMinute m = minute <- m
 			method setSecond s = second <- s
-	end;;
+	end
 
-end;;
+end

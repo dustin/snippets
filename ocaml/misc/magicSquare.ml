@@ -4,9 +4,9 @@
  * arch-tag: 01D5001A-2173-11D8-907F-00039359E8C6
  *)
 
-exception Validation_failure of string;;
+exception Validation_failure of string
 
-let size = ref 3;;
+let size = ref 3
 
 (* Translate the flat array to rows and columns *)
 let get_row m x =
@@ -16,14 +16,13 @@ let get_row m x =
 		rv := !rv @ [List.nth m (base + i)]
 	done;
 	!rv
-;;
+
 let get_col m x =
 	let rv = ref [] in
 	for i = 0 to (!size - 1) do
 		rv := !rv @ [List.nth m (x + (i * !size))]
 	done;
 	!rv
-;;
 
 (** Skip part of a list *)
 let rec list_skip m n =
@@ -31,7 +30,6 @@ let rec list_skip m n =
 		list_skip (List.tl m) (n - 1)
 	else
 		m
-;;
 
 (* Get the top left to bottom right diagonal *)
 let get_diag_down m =
@@ -44,7 +42,7 @@ let get_diag_down m =
 		fetch_down (rv @ [List.hd tmp]) tmp
 	) in
 	fetch_down [(List.hd m)] m
-;;
+
 (* Get the bottom left to top right diagonal *)
 let get_diag_up m =
 	let skip_size = (!size - 1) in
@@ -57,7 +55,6 @@ let get_diag_up m =
 		fetch_up (rv @ [List.hd tmp]) tmp
 	) in
 	fetch_up [(List.hd start_list)] start_list
-;;
 
 (* Display the matrix from the flat list *)
 let display_matrix m =
@@ -72,8 +69,7 @@ let display_matrix m =
 			print_string("|")) (get_row m rn);
 		print_newline()
 	done;
-	print_endline("-------");
-;;
+	print_endline("-------")
 
 (* Get the row/column containing a specific value *)
 let position_of x l =
@@ -83,49 +79,45 @@ let position_of x l =
 		else
 			position_of_rec x (List.tl l) (i + 1) in
 	position_of_rec x l 0
-;;
+
 let row_containing m v =
 	get_row m ((position_of v m) / (!size))
-;;
+
 let col_containing m v =
 	get_col m ((position_of v m) mod (!size))
-;;
+
 
 (* Validation rules *)
-let validation = ref [];;
+let validation = ref []
 
 (* Add a validation rule *)
 let add_rule name f =
 	validation := [(name, f)] @ !validation
-;;
 
 (* Run all of the validators *)
 let apply_rules m =
 	List.iter (fun (name, f) ->
 		if (false == f m) then
 			raise (Validation_failure name))
-		!validation;
-;;
+		!validation
 
 (* Validation support *)
 let sum l =
 	List.fold_left (+) 0 l
-;;
+
 let all_even a =
-	List.fold_left (fun y x -> y && ((x mod 2) == 0)) true a;
-;;
+	List.fold_left (fun y x -> y && ((x mod 2) == 0)) true a
+
 let all_odd a =
-	List.fold_left (fun y x -> y && ((x mod 2) == 1)) true a;
-;;
+	List.fold_left (fun y x -> y && ((x mod 2) == 1)) true a
 
 (* Debug stuff *)
-let snapshot = ref [];;
+let snapshot = ref []
 
 let display_array a =
 	print_string("[");
 	List.iter (fun i -> print_int(i); print_string("; ")) a;
-	print_endline("]");
-;;
+	print_endline("]")
 
 (* Generate the sequences *)
 let rec gen_seq	thesum a =
@@ -152,18 +144,16 @@ let rec gen_seq	thesum a =
 	) else (
 		recurse()
 	)
-;;
 
 (* Debug snapshot display *)
 let display_snapshot s =
 	print_endline("SNAPSHOT");
 	display_matrix !snapshot;
 	Gc.print_stat Pervasives.stdout;
-	print_endline("/SNAPSHOT");
-;;
+	print_endline("/SNAPSHOT")
 
 (** This is the value that the sums will be *)
-let sqsum x = x * ( (x * x) + 1) / 2;;
+let sqsum x = x * ( (x * x) + 1) / 2
 
 let main() =
 	Arg.parse [
@@ -193,5 +183,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

@@ -4,12 +4,11 @@
  * arch-tag: 771B6C22-2C66-11D8-AC9A-000393CB0F1E
  *)
 
-open Unix;;
+open Unix
 
 let lookup h =
 	let he = gethostbyname h in
 	he.h_addr_list.(0)
-;;
 
 let try_connect h p =
 	let s = socket PF_INET SOCK_STREAM 0 in
@@ -23,7 +22,6 @@ let try_connect h p =
 			(* In progress is what we want *)
 			s
 		| _ -> raise x
-;;
 
 let rec main_loop h p =
 	let s = try_connect h p in
@@ -52,7 +50,6 @@ let rec main_loop h p =
 		sleep 1;
 		main_loop h p;
 	)
-;;
 
 let main() =
 	if (Array.length Sys.argv) < 3 then (
@@ -63,5 +60,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

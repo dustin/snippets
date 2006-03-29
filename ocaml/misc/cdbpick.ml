@@ -4,12 +4,11 @@
  * arch-tag: 441FF6C1-A374-11D8-ABA9-000393CFE6B8
  *)
 
-module StringSet = Set.Make(String);;
+module StringSet = Set.Make(String)
 
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " limitfile srcfile destfile");
 	exit 1
-;;
 
 let main() =
 	try
@@ -30,5 +29,5 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end
 

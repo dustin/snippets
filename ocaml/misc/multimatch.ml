@@ -6,17 +6,15 @@
  * Look for lines in a file that match prefixes given in the limitfile.
  *)
 
-module StringSet = Set.Make(String);;
+module StringSet = Set.Make(String)
 
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " limitfile sourcefile");
 	exit 1
-;;
 
 let check_match s a b =
 	if (Extstring.begins_with s a) || (Extstring.begins_with s b) then
 		Printf.printf "%s\n" s
-;;
 
 let main() =
 	try
@@ -39,5 +37,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

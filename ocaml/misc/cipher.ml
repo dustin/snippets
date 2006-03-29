@@ -7,21 +7,20 @@
 (* Simple cipher solver.  This should work for puzzles where there is a simple
 letter replacement. *)
 
-open Unix;;
+open Unix
 
 let datadir =
 	try getenv "CIPHER_DATADIR"
 	with Not_found -> ",tmp"
-;;
 
 let single_letters = [
 	'e'; 't'; 'o'; 'a'; 'n'; 'i'; 'r'; 's'; 'h'; 'd'; 'l'; 'c'; 'w';
 	'u'; 'm'; 'f'; 'y'; 'g'; 'p'; 'b'; 'v'; 'k'; 'x'; 'q'; 'j'; 'z';
-];;
+]
 
-module CharSet = Set.Make(Char);;
+module CharSet = Set.Make(Char)
 
-type char_freq = { letter: char; freq: int; };;
+type char_freq = { letter: char; freq: int; }
 
 module Letter_freq = struct
 	type t = char_freq
@@ -33,51 +32,50 @@ module Letter_freq = struct
 			compare b.freq a.freq
 		)
 end
-;;
 
-module FreqSet = Set.Make(Letter_freq);;
+module FreqSet = Set.Make(Letter_freq)
 
-module CharMap = Map.Make(Char);;
+module CharMap = Map.Make(Char)
 
 (* The character set matches.  This is a hack to prevent us from printing
 duplicate solutions.
 *)
-let matches = Hashtbl.create 1;;
+let matches = Hashtbl.create 1
 
 (* The valid character set (for filtering word lists) *)
 let char_set = List.fold_left (fun c x -> CharSet.add x c)
-	CharSet.empty single_letters;;
+	CharSet.empty single_letters
 
 let digraphs = [
 	"th"; "er"; "on"; "an"; "re"; "he"; "in"; "ed"; "nd"; "ha"; "at"; "en";
 	"es"; "of"; "or"; "nt"; "ea"; "ti"; "to"; "it"; "st"; "io"; "le"; "is";
 	"ou"; "ar"; "as"; "de"; "rt"; "ve";
-];;
+]
 
 let trigraphs = [
 	"the"; "and"; "tha"; "ent"; "ion"; "tio"; "for"; "nde"; "has"; "nce";
 	"edt"; "tis"; "oft"; "sth"; "men";
-];;
+]
 
 let doubles = [
 	"ss"; "ee"; "tt"; "ff"; "ll"; "mm"; "oo";
-];;
+]
 
 let initial_letters = [
 	't'; 'o'; 'a'; 'w'; 'b'; 'c'; 'd'; 's'; 'f'; 'm'; 'r'; 'h'; 'i'; 'y'; 'e';
 	'g'; 'l'; 'n'; 'p'; 'u'; 'j'; 'k';
-];;
+]
 
 let final_letters = [
 	'e'; 's'; 't'; 'd'; 'n'; 'r'; 'y'; 'f'; 'l'; 'o'; 'g'; 'h'; 'a'; 'r'; 'm';
 	'p'; 'u'; 'w';
-];;
+]
 
 (* Dictionaries and stuff for checking the mappings *)
-let dictionary = Hashtbl.create 250000;;
-let frequencies = Hashtbl.create 50;;
+let dictionary = Hashtbl.create 250000
+let frequencies = Hashtbl.create 50
 
-let want_view = ref false;;
+let want_view = ref false
 
 (* Stuff we've seen *)
 let is_a_word w =
@@ -85,7 +83,6 @@ let is_a_word w =
 		ignore(Hashtbl.find dictionary w);
 		true
 	with Not_found -> false
-;;
 
 (* This is used to locate word files *)
 let classification_hash word =
@@ -93,7 +90,6 @@ let classification_hash word =
 	let h = ref 5381 in
 	String.iter (fun c -> h := ((!h lsl 5) + !h) lxor (int_of_char c)) word;
 	Printf.sprintf "%02x" (!h land 0xff)
-;;
 
 (* Word classification for match lookups (not very functional) *)
 let classify word =
@@ -111,7 +107,7 @@ let classify word =
 			)
 		) word;
 	!rv
-;;
+
 (* Memoization over the classification *)
 let classify_memo = Hashtbl.create 1;;
 let classifym word =
@@ -120,7 +116,6 @@ let classifym word =
 		let c = classify word in
 		Hashtbl.add classify_memo word c;
 		c
-;;
 
 let load_words infile =
 	Printf.printf "Loading words from %s\n" infile;
@@ -149,8 +144,7 @@ let load_words infile =
 	Fileutils.iter_file_lines (fun l ->
 		if(check_chars l) then record l) infile;
 	(* Reverse the word lists (we built them backwards) *)
-	Hashtbl.iter (fun k v -> Hashtbl.add frequencies k (List.rev !v)) freqtmp;
-;;
+	Hashtbl.iter (fun k v -> Hashtbl.add frequencies k (List.rev !v)) freqtmp
 
 let rec all_are_words l =
 	match l with
@@ -160,18 +154,15 @@ let rec all_are_words l =
 			all_are_words t
 		else
 			false
-;;
 
 let find_freq freqs c =
 	FreqSet.fold (fun x rv -> if(x.letter = c) then x.freq else rv) freqs 0
-;;
 
 (* Get the significance of this word in our crypto gram *)
 let word_weight freqs word =
 	let rv = ref 0 in
 	String.iter (fun c -> rv := !rv + ((find_freq freqs c) - 1)) word;
 	!rv
-;;
 
 (* Get the weight by classification *)
 let classification_weight word =
@@ -181,7 +172,6 @@ let classification_weight word =
 		Printf.eprintf "%s's classification (%s) matches no known word\n"
 			word (classifym word);
 		raise Not_found
-;;
 
 (* Count the frequencies of all of the letters in the provided words *)
 let count_letter_freq words =
@@ -196,8 +186,7 @@ let count_letter_freq words =
 			w
 		) words;
 	Hashtbl.fold (fun k v c ->
-		FreqSet.add {letter=k; freq=v} c) counts FreqSet.empty;
-;;
+		FreqSet.add {letter=k; freq=v} c) counts FreqSet.empty
 
 (* Word checker *)
 let check_words words =
@@ -212,8 +201,7 @@ let check_words words =
 				^ if(is_a_word w) then "word" else "not word")
 		) words;
 		false
-	);
-;;
+	)
 
 (* Check if the mapping from s to d is available in the CharMap m.
    Either return a CharMap with this new mapping, or raise Not_found.
@@ -228,7 +216,6 @@ let create_mapping s d m =
 		if d = v && k <> s then raise Not_found;
 		) m;
 	CharMap.add s d m
-;;
 
 (*
  This function takes two words:  a word from our cipher, and a possible word
@@ -250,7 +237,6 @@ let make_map m input output =
 		rv := create_mapping input.[i] output.[i] !rv
 	done;
 	!rv
-;;
 
 (* Like make_map, but will error on unavailable mappings *)
 let make_map2 m orig input output =
@@ -265,7 +251,6 @@ let make_map2 m orig input output =
 		)
 	done;
 	!rv
-;;
 
 let apply_map m word =
 	let rv = String.copy word in
@@ -275,7 +260,6 @@ let apply_map m word =
 			with Not_found -> '.'
 	done;
 	rv
-;;
 
 let print_solution m words =
 	let key = CharMap.fold (fun k v i -> i ^ (Printf.sprintf "%c=%c " k v)) m ""
@@ -287,8 +271,7 @@ let print_solution m words =
 		List.iter (fun w -> print_endline("\t" ^ apply_map m w)) words;
 		Printf.printf "-----------\n%!";
 		Hashtbl.add matches key true;
-	);
-;;
+	)
 
 (* Return true if these two strings match (with . as a wildcard in w) *)
 let string_matches w fw =
@@ -297,7 +280,6 @@ let string_matches w fw =
 		if fw.[i] <> w.[i] && w.[i] <> '.' then rv := false
 	done;
 	!rv
-;;
 
 let rec solve_rest m freqs words orig_words =
 	if !want_view then (
@@ -342,8 +324,7 @@ let rec solve_rest m freqs words orig_words =
 				(* print_endline("\tWord is complete:  " ^ w); *)
 				solve_rest m freqs t orig_words
 			)
-		);
-;;
+		)
 
 let solve freqs words orig_words =
 	let t = times() in
@@ -355,7 +336,6 @@ let solve freqs words orig_words =
 				ignore(solve_rest m freqs (List.tl words) orig_words);
 			with Not_found -> (); (* print_endline("NO MATCH"); *)
 		) (Hashtbl.find frequencies (classifym (List.hd words)))
-;;
 
 (* This is a fairly complicated weighted sort that tries to search words with
  the least search space first (by order of magnitude only) followed by best
@@ -372,7 +352,6 @@ let complicated_weight_sorting freqs a b =
 		if ww <> 0 then ww
 		else compare ca cb
 	)
-;;
 
 let solve_heuristically words =
 	let freqs = count_letter_freq words in
@@ -409,8 +388,7 @@ let solve_heuristically words =
 		(classification_weight w) (classifym w))
 		weighed_words;
 	Printf.printf "%!";
-	solve freqs weighed_words words;
-;;
+	solve freqs weighed_words words
 
 let solve_rotation words =
 	let build_rotation_map n =
@@ -436,8 +414,7 @@ let solve_rotation words =
 			print_endline("Solution at rot " ^ (string_of_int i));
 			print_solution m words;
 		)
-	done;
-;;
+	done
 
 (* Initial thing:  hl fkzc vd lds *)
 let main () =
@@ -452,8 +429,8 @@ let main () =
 	Sys.set_signal Sys.sigquit (
 		Sys.Signal_handle(function s -> want_view := true));
 	solve_rotation words;
-	solve_heuristically words;
+	solve_heuristically words
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

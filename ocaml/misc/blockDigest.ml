@@ -13,7 +13,6 @@
  *)
 let digest_of_block s len =
 	Digest.to_hex (Digest.substring s 0 len)
-;;
 
 (**
  Get the previously stored digest.
@@ -22,7 +21,6 @@ let get_old_digest ch =
 	try
 		input_line ch
 	with End_of_file -> ""
-;;
 
 (**
  Deal with the blocks.
@@ -52,16 +50,14 @@ let do_blocks blocksize bs bd digestin digestout ch =
 		)
 		in
 	loop 0
-;;
 
-let makefn = Printf.sprintf "%s/%05d";;
+let makefn = Printf.sprintf "%s/%05d"
 
 let block_same prevdir newdir n data digest old_digest =
 	let oldpath = makefn prevdir n in
 	let newpath = makefn newdir n in
 	(* print_endline ("Linking " ^ oldpath ^ " -> " ^ newpath); *)
 	Unix.link oldpath newpath
-;;
 
 exception Subprocess_error of int;;
 
@@ -87,7 +83,6 @@ let block_diff prevdir newdir prog n data digest old_digest =
 		| Unix.WSIGNALED v -> raise (Subprocess_error v)
 		| Unix.WSTOPPED v -> raise (Subprocess_error v)
 	)
-;;
 
 (**
  Process the given files.
@@ -108,7 +103,6 @@ let process blocksize bs bd datafn oldmd5 tmpmd5 =
 		(do_blocks blocksize bs bd (open_in oldmd5) newdigestch) Sys.argv.(1);
 	close_out newdigestch;
 	Unix.rename tmpmd5 oldmd5
-;;
 
 (**
  Args:  input_file digest_file diff_cmd

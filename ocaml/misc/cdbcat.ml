@@ -7,7 +7,6 @@
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " destfile srcfile [srcfile...]");
 	exit 1
-;;
 
 let runWithDest = function
 	dest::srcs ->
@@ -17,7 +16,6 @@ let runWithDest = function
 		List.iter (Cdb.iter (Cdb.add destcdb)) srcs;
 		Cdb.close_cdb_out destcdb
 	| [] -> usage ()
-;;
 
 let main() =
 	match (Array.to_list Sys.argv) with

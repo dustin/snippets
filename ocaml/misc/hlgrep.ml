@@ -4,7 +4,7 @@
  * arch-tag: D28A85E0-156E-11D8-A844-000393CFE6B8
  *)
 
-exception SubprocessError of string;;
+exception SubprocessError of string
 
 (* Get a string from the tput command. *)
 let tput x =
@@ -19,11 +19,10 @@ let tput x =
 		| _ -> raise (SubprocessError "Unknown error.");
 	end;
 	String.sub buf 0 len
-;;
 
 (* The two characters we need. *)
-let smso = tput "smso";;
-let rmso = tput "rmso";;
+let smso = tput "smso"
+let rmso = tput "rmso"
 
 let main() =
 	let regex = Str.regexp ("\\(" ^ (Array.get Sys.argv 1) ^ "\\)")
@@ -34,4 +33,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

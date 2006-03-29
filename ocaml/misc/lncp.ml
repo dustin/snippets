@@ -9,7 +9,6 @@
 (* Chop out the source dir part *)
 let rel fn a =
 	String.sub fn (String.length a) (String.length fn - String.length a)
-;;
 
 let linkto basedir d l a =
 	List.iter (fun fn ->
@@ -19,7 +18,6 @@ let linkto basedir d l a =
 		Fileutils.mkdirs 0o755 (Filename.dirname destfn);
 		Unix.link srcfn destfn
 	) l
-;;
 
 let main =
 	(* This will return a (unit -> unit) *)
@@ -28,4 +26,4 @@ let main =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

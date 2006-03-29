@@ -7,7 +7,6 @@
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " cdbfile");
 	exit 1
-;;
 
 let rec countStream s n =
 	try
@@ -16,7 +15,6 @@ let rec countStream s n =
 	with Stream.Failure ->
 		Stream.next s;
 		countStream s (n + 1)
-;;
 
 let main() =
 	let found = ref 0 in
@@ -41,5 +39,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end
