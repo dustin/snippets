@@ -17,14 +17,12 @@ let iteri f l =
 		  [] -> ()
 		| head::tail -> f x head; loop (x + 1) tail
 	in loop 0 l
-;;
 
 (**
  Shuffle (unsort) a list.
  *)
 let shuffle l =
 	List.sort (fun a b -> (Random.int 3) - 1) l
-;;
 
 (**
  Take a list of lists of equal length and produce a list of lists of the values
@@ -38,7 +36,6 @@ let shuffle l =
 let zip l =
     List.fold_left (fun i acc -> List.map2 (fun a b -> b::a) i acc)
 		(List.map (fun i -> [i]) (List.hd l)) (List.tl l)
-;;
 
 
 (**
@@ -50,4 +47,3 @@ let zip l =
 let rec nthtail l = function
 	  0 -> l
 	| n -> nthtail (List.tl l) (n - 1)
-;;
