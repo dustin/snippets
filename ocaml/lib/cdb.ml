@@ -18,15 +18,15 @@ type cdb_creator = {
 	(* Hash index pointers *)
 	mutable pointers: (Int32.t * Int32.t) list;
 	out: out_channel;
-};;
+}
 
 (** Initial hash value *)
-let hash_init = Int64.of_int 5381;;
+let hash_init = Int64.of_int 5381
 
-let ff64 = Int64.of_int 0xff;;
+let ff64 = Int64.of_int 0xff
 (* I need to do this of_string because it's larger than an ocaml int *)
-let ffffffff64 = Int64.of_string "0xffffffff";;
-let ff32 = Int32.of_int 0xff;;
+let ffffffff64 = Int64.of_string "0xffffffff"
+let ff32 = Int32.of_int 0xff
 
 (** Hash the given string. *)
 let hash s =
@@ -36,14 +36,12 @@ let hash s =
 								(Int64.of_int (int_of_char c)))
 						) s;
 	Int64.to_int32 !h
-;;
 
 let write_le cdc i =
 	output_byte cdc.out (i land 0xff);
 	output_byte cdc.out ((i lsr 8) land 0xff);
 	output_byte cdc.out ((i lsr 16) land 0xff);
 	output_byte cdc.out ((i lsr 24) land 0xff)
-;;
 
 (** Write a little endian integer to the file *)
 let write_le32 cdc i =
@@ -54,7 +52,6 @@ let write_le32 cdc i =
 	 (Int32.logand ff32 (Int32.shift_right_logical i 16)));
 	output_byte cdc.out (Int32.to_int
 		(Int32.logand ff32 (Int32.shift_right_logical i 24)))
-;;
 
 (**
 	Open a cdb creator for writing.
@@ -69,7 +66,6 @@ let open_out fn =
 	(* Skip over the header *)
 	seek_out s.out 2048;
 	s
-;;
 
 (**
 	Convert out_channel to cdb_creator.
@@ -84,20 +80,15 @@ let cdb_creator_of_out_channel out_channel =
 	(* Skip over the header *)
 	seek_out s.out 2048;
 	s
-;;
-
 
 let hash_to_table h =
 	Int32.to_int (Int32.logand h ff32)
-;;
 
 let hash_to_bucket h len =
 	Int32.to_int (Int32.rem (Int32.shift_right_logical h 8) (Int32.of_int len))
-;;
 
 let pos_out_32 x =
 	Int64.to_int32 (LargeFile.pos_out x)
-;;
 
 (** Add a value to the cdb *)
 let add cdc k v =
@@ -112,7 +103,6 @@ let add cdc k v =
 	write_le cdc (String.length v);
 	output_string cdc.out k;
 	output_string cdc.out v
-;;
 
 (** Process a hash table *)
 let process_table cdc table_start slot_table slot_pointers i tc =
@@ -151,8 +141,7 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 				| Some(h,t) -> h,t;
 			in
 			write_le32 cdc h; write_le32 cdc t
-		) ht;
-;;
+		) ht
 
 (** Close and finish the cdb creator. *)
 let close_cdb_out cdc =
@@ -181,7 +170,6 @@ let close_cdb_out cdc =
 	List.iter (fun x -> write_le32 cdc (fst x); write_le32 cdc (snd x))
 		(List.rev !slot_table);
 	close_out cdc.out
-;;
 
 (** {1 Iterating a cdb file} *)
 
@@ -192,7 +180,6 @@ let read_le f =
 	let c = (input_byte f) in
 	let d = (input_byte f) in
 	a lor (b lsl 8) lor (c lsl 16) lor (d lsl 24)
-;;
 
 (* Int32 version of read_le *)
 let read_le32 f =
@@ -202,7 +189,6 @@ let read_le32 f =
 	let d = (input_byte f) in
 	Int32.logor (Int32.of_int (a lor (b lsl 8) lor (c lsl 16)))
 				(Int32.shift_left (Int32.of_int d) 24)
-;;
 
 (**
  Iterate a CDB.
@@ -233,7 +219,6 @@ let iter f fn =
 		loop();
 		close_in fin;
 	with x -> close_in fin; raise x;
-;;
 
 (** {1 Searching } *)
 
@@ -242,7 +227,7 @@ type cdb_file = {
 	f: in_channel;
 	(* Position * length *)
 	tables: (Int32.t * int) array;
-};;
+}
 
 (** Open a CDB file for searching.
 
@@ -258,7 +243,6 @@ let open_cdb_in fn =
 		tables.(i) <- (pos,len)
 		) tables;
 	{f=fin; tables=tables}
-;;
 
 (**
  Close a cdb file.
@@ -267,7 +251,6 @@ let open_cdb_in fn =
  *)
 let close_cdb_in cdf =
 	close_in cdf.f
-;;
 
 (** Get a stream of matches.
 
@@ -312,7 +295,6 @@ let get_matches cdf key =
 			)
 		) in
 	Stream.from loop
-;;
 
 (**
  Find the first record with the given key.
@@ -325,4 +307,3 @@ let find cdf key =
 		Stream.next (get_matches cdf key)
 	with Stream.Failure ->
 		raise Not_found
-;;
