@@ -4,7 +4,7 @@
  * arch-tag: D336A06C-0A9C-11D8-988A-000393CFE6B8
  *)
 
-open Unix;;
+open Unix
 
 (** Functions for processing files. *)
 
@@ -35,7 +35,6 @@ let input_block ch buf pos len =
 		)
 	in
 	loop len
-;;
 
 (**
  Pervasives.open that will open ``-'' as stdin
@@ -43,7 +42,6 @@ let input_block ch buf pos len =
 let my_open fn =
 	if fn = "-" then Pervasives.stdin
 	else Pervasives.open_in fn
-;;
 
 
 (**
@@ -58,8 +56,7 @@ let iter_lines f ch =
 		loop() in
 	try
 		loop()
-	with End_of_file -> ();
-;;
+	with End_of_file -> ()
 
 (**
  Return the value of f called on each line of input along with the current
@@ -77,7 +74,6 @@ let rec fold_lines f init_value ch =
 		init_value
 	else
 		fold_lines f (f line init_value) ch
-;;
 
 (**
  Apply the given function to each line in the giving channel if the function
@@ -88,8 +84,7 @@ let rec fold_lines f init_value ch =
  @param ch the in_channel to read
 *)
 let conditional_iter_lines f c ch =
-	iter_lines (function x -> if c x then f x) ch;
-;;
+	iter_lines (function x -> if c x then f x) ch
 
 (**
 	Open a file for reading, and perform the given operation on it.
@@ -107,7 +102,6 @@ let operate_on_file_in f fn =
 	with x ->
 		close_in ch;
 		raise x
-;;
 
 (**
 	Open a file for writing and perform the given operations on it.
@@ -125,7 +119,6 @@ let operate_on_file_out f fn =
 	with x ->
 		close_out ch;
 		raise x
-;;
 
 (** Open a file for reading and iterate the lines.
 
@@ -134,7 +127,6 @@ let operate_on_file_out f fn =
 *)
 let iter_file_lines f fn =
 	operate_on_file_in (iter_lines f) fn
-;;
 
 (** Open a file for reading and iterate the lines.
 
@@ -144,7 +136,6 @@ let iter_file_lines f fn =
 *)
 let fold_file_lines f init_value fn =
 	operate_on_file_in (fold_lines f init_value) fn
-;;
 
 (** {1 Functions for processing directories} *)
 
@@ -155,7 +146,6 @@ let rec mkdirs perm path =
 	with Unix.Unix_error (e,i,o) ->
 		mkdirs perm (Filename.dirname path);
 		Unix.mkdir path perm
-;;
 
 (**
  Debug routine to pass to a directory folding routine.
@@ -163,7 +153,6 @@ let rec mkdirs perm path =
 let debug_dir_print d l a =
 	print_endline("Iterating " ^ d);
 	List.iter (fun x -> print_endline("\t" ^ (Filename.concat d x))) l
-;;
 
 (**
  Private recursive routine for creating a list from readdir.
@@ -172,7 +161,6 @@ let rec pvt_lsdir d a =
 	try
 		pvt_lsdir d ((readdir d) :: a)
 	with End_of_file -> a
-;;
 
 (**
  Get a list of files in a directory (excluding . and ..).
@@ -185,13 +173,12 @@ let lsdir dn =
 							(pvt_lsdir d []) in
 	closedir d;
 	rv
-;;
 
 (** Stat cache *)
-let stat_func = ref Unix.stat;;
+let stat_func = ref Unix.stat
 
 (** Set the stat function (allowing for caching or whatever) *)
-let set_stat_func f = stat_func := f;;
+let set_stat_func f = stat_func := f
 
 (**
  Is this path a directory?
@@ -200,7 +187,6 @@ let set_stat_func f = stat_func := f;;
  *)
 let isdir p =
 	(!stat_func p).st_kind = S_DIR
-;;
 
 (**
  Iterate all of the files in a directory via a given directory listing
@@ -215,7 +201,6 @@ let isdir p =
  *)
 let dir_iter_via lsfunc dir func arg =
 	func dir (lsfunc dir) arg
-;;
 
 (**
  Iterate all of the files in a directory.
@@ -226,7 +211,6 @@ let dir_iter_via lsfunc dir func arg =
  *)
 let dir_iter dir func arg =
 	func dir (lsdir dir) arg
-;;
 
 (**
  Walk a directory tree (depth first).
@@ -248,7 +232,6 @@ let rec walk_dir_via lsfunc dir func arg =
 			(* And then process the files *)
 			func d files arg)
 	arg
-;;
 
 (**
  Walk a directory tree (depth first).
@@ -268,4 +251,3 @@ let rec walk_dir dir func arg =
 			(* And then process the files *)
 			func d files arg)
 	arg
-;;
