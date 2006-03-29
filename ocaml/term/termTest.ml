@@ -4,19 +4,18 @@
  * arch-tag: 74C885B4-0F5E-11D8-A83D-000393CFE6B8
  *)
 
-open Unix;;
-open Char;;
+open Unix
+open Char
 
-let string_of_bool b = if b then "true" else "false";;
+let string_of_bool b = if b then "true" else "false"
 
-let string_of_char c = escaped c;;
+let string_of_char c = escaped c
 
 let printer a b =
 	print_string(a);
 	print_string(" = ");
 	print_string(b);
-	print_newline();
-;;
+	print_newline()
 
 let main() =
 	let tio = tcgetattr Unix.stdin in
@@ -57,8 +56,8 @@ let main() =
 	printer "vmin  " (string_of_int tio.c_vmin);
 	printer "vtime " (string_of_int tio.c_vtime);
 	printer "vstart" (string_of_char tio.c_vstart);
-	printer "vstop " (string_of_char tio.c_vstop);
+	printer "vstop " (string_of_char tio.c_vstop)
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

@@ -4,7 +4,7 @@
  * arch-tag: 565F9316-295B-11D8-8F80-000393CB0F1E
  *)
 
-let sc = Extstream.stream_convert Stream.of_string;;
+let sc = Extstream.stream_convert Stream.of_string
 
 let main() =
 	(* Print out the base64 encoded first argument *)
@@ -20,9 +20,8 @@ let main() =
 				Stream.iter (fun s -> output_string out s)
 			(Base64.decode (sc (Base64.encode (Stream.of_channel f)))))
 		Sys.argv.(1);
-	close_out out;
+	close_out out
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

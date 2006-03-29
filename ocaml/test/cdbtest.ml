@@ -4,12 +4,11 @@
  * arch-tag: 4310B523-2C79-11D8-B89E-000393CB0F1E
  *)
 
-open Cdb;;
+open Cdb
 
 let myadd c a b =
 	Printf.eprintf "Writing %s = %s\n" a b;
 	add c a b
-;;
 
 (** test app to create ``test.cdb'' and put some stuff in it *)
 let main() =
@@ -51,9 +50,8 @@ let main() =
 		with Not_found ->
 			print_endline("failed as expected")
 	);
-	close_cdb_in cdf;
+	close_cdb_in cdf
 ;;
 
-
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end
