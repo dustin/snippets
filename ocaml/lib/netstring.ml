@@ -9,13 +9,11 @@
 (** Encode a string into a netstring. *)
 let encode s =
 	(string_of_int (String.length s)) ^ ":" ^ s ^ ","
-;;
 
 (* The maximum length of a string we'll read
    (length of the max length of strings) *)
 let max_string_length_length =
 	String.length(string_of_int Sys.max_string_length)
-;;
 
 (** Get the next netstring from the given stream. *)
 let decode (in_stream: char Stream.t) =
@@ -40,4 +38,3 @@ let decode (in_stream: char Stream.t) =
 		failwith "Invalid netstring (didn't get a comma in the right place)"
 	);
 	Extstring.string_of_chars data
-;;
