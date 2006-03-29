@@ -14,7 +14,6 @@ type 'a node = {
 	mutable prev: 'a node;
 	mutable next: 'a node;
 } and 'a t = { mutable l: 'a node option; mutable cnt: int }
-;;
 
 (** Exception thrown when certain operations are attempted on an empty list. *)
 exception Empty_list;;
@@ -25,7 +24,6 @@ let create_node x =
 	tmp.next <- tmp;
 	tmp.prev <- tmp;
 	tmp
-;;
 
 (** Get the head node of the given list. *)
 let head_node l =
@@ -33,17 +31,14 @@ let head_node l =
 	None -> raise Empty_list
 	| Some el ->
 		el
-;;
 
 (** Get the size of the given linked list. *)
 let length l =
 	l.cnt
-;;
 
 (** Create a linked list. *)
 let create x =
 	{ l = Some (create_node x); cnt=1 }
-;;
 
 (*
 ** Create an empty linked list. *
@@ -71,8 +66,7 @@ let append x l =
 		el.prev.next <- tmp;
 		el.prev <- tmp;
 		l.cnt <- l.cnt + 1;
-		tmp;
-;;
+		tmp
 
 (** Iterate the given linked list. *)
 let iter f l =
@@ -85,14 +79,12 @@ let iter f l =
 				rec_iter ltmp.next;
 			in
 		rec_iter el
-;;
 
 (** Create a linked list from a list. *)
 let create_from_list l =
 	let rv = create (List.hd l) in
 	List.iter (fun x -> ignore(append x rv)) (List.tl l);
 	rv
-;;
 
 (** Convert this linked list into a regular list. *)
 let to_list l =
@@ -106,7 +98,6 @@ let to_list l =
 				[lcur.data]
 			in
 		rec_to_list el []
-;;
 
 (** Delete this item from the list it contains. *)
 let remove l it =
@@ -119,7 +110,6 @@ let remove l it =
 		if el = it then l.l <- Some el.next;
 		l.cnt <- l.cnt - 1;
 		()
-;;
 
 (** Pop the last item off the list. *)
 let pop_last l =
@@ -129,7 +119,6 @@ let pop_last l =
 		let last = el.prev.data in
 		remove l el.prev;
 		last
-;;
 
 (** Pop the first item off the list. *)
 let pop_first l =
@@ -139,4 +128,3 @@ let pop_first l =
 		let first = el.data in
 		remove l el;
 		first
-;;
