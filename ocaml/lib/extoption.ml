@@ -10,16 +10,13 @@ exception Empty_option;;
 let is_none = function
 	None -> true
 	| _ -> false
-;;
 
 (** Is this option some? *)
 let is_some = function
 	Some(x) -> true
 	| _ -> false
-;;
 
 (** Get an option value. *)
 let get_option o = function
 	Some(x) -> x
 	| None -> raise Empty_option
-;;
