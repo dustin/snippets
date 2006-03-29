@@ -24,10 +24,9 @@ type ('a, 'b) t = {
 	v: 'b;
 	n: 'a Linkedlist.node;
 }
-;;
 
 (** Illegal state exceptions. *)
-exception Illegal_state;;
+exception Illegal_state
 
 (**
  Create an LRU cache with the given maximum size.
@@ -39,7 +38,7 @@ let create max_size = {
 	seq = None;
 	func = (fun x -> raise Not_found);
 	size = max_size;
-};;
+}
 
 (**
  Create an LRU cache with an auto creation function.
@@ -52,7 +51,7 @@ let create_auto max_size f = {
 	seq = None;
 	func = f;
 	size = max_size;
-};;
+}
 
 (**
  Clear out this LRU cache.
@@ -61,8 +60,7 @@ let create_auto max_size f = {
  *)
 let empty lru =
 	Hashtbl.clear lru.keys;
-	lru.seq = None;
-;;
+	lru.seq = None
 
 (**
  Is this object a member of this LRU cache?
@@ -72,7 +70,6 @@ let empty lru =
  *)
 let mem lru k =
 	Hashtbl.mem lru.keys k
-;;
 
 (**
  Remove an object from the LRU cache.
@@ -90,7 +87,6 @@ let remove lru k =
 				Linkedlist.remove ll it.n;
 				()
 	with Not_found -> ()
-;;
 
 let remove_if_full lru =
 	match lru.seq with
@@ -100,7 +96,6 @@ let remove_if_full lru =
 			let f = Linkedlist.pop_first ll in
 			Hashtbl.remove lru.keys f;
 		()
-;;
 
 (**
  Add this item to the cache.
@@ -115,13 +110,12 @@ let add lru k v =
 			let tmpseq = Linkedlist.create k in
 			let head = Linkedlist.head_node tmpseq in
 				lru.seq <- Some tmpseq;
-				Hashtbl.add lru.keys k {n=head; v=v};
+				Hashtbl.add lru.keys k {n=head; v=v}
 		| Some(ll) ->
 			remove lru k;
 			remove_if_full lru;
 			let node = Linkedlist.append k ll in
-			Hashtbl.add lru.keys k {n=node; v=v};
-;;
+			Hashtbl.add lru.keys k {n=node; v=v}
 
 (**
  Get an object from the LRU cache.  This also updates the usage sequence thing.
@@ -141,8 +135,7 @@ let find lru k =
 	with Not_found ->
 		let rv = lru.func k in
 		add lru k rv;
-		rv;
-;;
+		rv
 
 (**
  Apply the given function all keys in this cache.
@@ -151,4 +144,3 @@ let iter_keys lru f =
 	match lru.seq with
 	None -> ()
 	| Some(ll) -> Linkedlist.iter f ll
-;;
