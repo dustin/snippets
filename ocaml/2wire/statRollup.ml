@@ -4,23 +4,21 @@
  * arch-tag: 7AEBB098-9EB2-11D8-AC70-000393CFE6B8
  *)
 
-open Statutils;;
+open Statutils
 
 (* Accumulator type *)
 type acct_t = {
 	ds: string;
 	cols: float list list;
-};;
+}
 
 (* Set of strings *)
-module StringSet = Set.Make(String);;
+module StringSet = Set.Make(String)
 
 (* All of the columns and their aggregation functions *)
 let columns =
 	columnMaker (fun t subt -> if (subt = "time") then avg else simpleAvg)
 		["HB"; "BOOT"; "KICK"; "XMLRPC"] ["time"; "count"; "start"; "end"]
-;;
-
 
 (* Display the results *)
 let real_display ds cols =
@@ -28,13 +26,11 @@ let real_display ds cols =
 	print_endline(String.concat "\t" (List.map2 (fun col data ->
 						string_of_float (86400.0 *. col.avg data))
 					columns cols))
-;;
 
 (* display if it was a good day *)
 let good_display baddays ds cols =
 	if (not (StringSet.mem ds baddays)) then
 		real_display ds cols
-;;
 
 (* Called with each line (this is an accumulator function) *)
 let gotLine display l acct =
@@ -51,7 +47,6 @@ let gotLine display l acct =
 	with x ->
 		prerr_endline("Error on " ^ l);
 		raise x
-;;
 
 let main() =
 	(* Create the display function to avoid the bad dates *)
@@ -65,5 +60,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

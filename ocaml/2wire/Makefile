@@ -5,86 +5,65 @@ OCAMLC=ocamlc
 
 # Set this to -p for profiler support
 PROFILE=
+SPYINC=-I ../lib
 
-PROGS=parseSQLLog parseTimingLog rrdIndex indexGWAuth spreadsheetPivot \
-	mfgcdb mfgcdb.cmi extractAuthInfo snmap statutils statutils.cmi statRollup \
-	rrdAggregate extractKeys buildMfgCache cdbprefix indexSnAndKey rtbackfill
+PROGS= extractKeys validateNoDups validateCdb validateKeys validateDump \
+	buildMfgDB mfgmerge cdbpick cdbcat cdbget validateKeysRev
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
 all: $(PROGS)
 
-parseSQLLog: parseSQLLog.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa parseSQLLog.ml
-
-rtbackfill: rtbackfill.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa rtbackfill.ml
-
-parseTimingLog: parseTimingLog.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa parseTimingLog.ml
-
-parseTimingLogbc: parseTimingLog.ml
-	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
-		unix.cma spy.cma parseTimingLog.ml
+install: $(PROGS)
+	cp $(PROGS) $(INSTDIR)
 
 extractKeys: extractKeys.ml mfgcdb.cmi
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
 		unix.cmxa spy.cmxa mfgcdb.cmx extractKeys.ml
 
-cdbprefix: cdbprefix.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa cdbprefix.ml
+validateCdb: validateCdb.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx validateCdb.ml
 
-indexSnAndKey: indexSnAndKey.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa indexSnAndKey.ml
+validateDump: validateDump.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx validateDump.ml
 
-buildMfgCache: buildMfgCache.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa buildMfgCache.ml
+validateNoDups: validateNoDups.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx validateNoDups.ml
 
-buildMfgCachebc: buildMfgCache.ml
-	$(OCAMLC) $(PROFILE) -w A -g -o $@ -I ../lib \
-		unix.cma spy.cma buildMfgCache.ml
+validateKeys: validateKeys.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx validateKeys.ml
 
-rrdIndex: rrdIndex.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa rrdIndex.ml
+validateKeysRev: validateKeysRev.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx validateKeysRev.ml
 
-spreadsheetPivot: spreadsheetPivot.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa spreadsheetPivot.ml
+cdbget: cdbget.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa cdbget.ml
 
-indexGWAuth: indexGWAuth.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa dbm.cmxa spy.cmxa indexGWAuth.ml
+buildMfgDB: buildMfgDB.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa buildMfgDB.ml
+
+mfgmerge: mfgmerge.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgmerge.ml
+
+cdbcat: cdbcat.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa cdbcat.ml
+
+cdbpick: cdbpick.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa cdbpick.ml
 
 mfgcdb: mfgcdb.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
 		unix.cmxa spy.cmxa mfgcdb.ml
-
-snmap: snmap.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa snmap.ml
-
-statutils: statutils.ml
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa statutils.ml
-
-rrdAggregate: rrdAggregate.ml statutils.cmi
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa statutils.cmx rrdAggregate.ml
-
-statRollup: statRollup.ml statutils.cmi
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa statutils.cmx statRollup.ml
-
-extractAuthInfo: extractAuthInfo.ml mfgcdb.cmi
-	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
-		unix.cmxa spy.cmxa mfgcdb.cmx extractAuthInfo.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
@@ -95,4 +74,4 @@ clean:
 	rm .buildtmp
 
 .ml.cmi:
-	$(MKLIB) -I ../lib $<
+	$(MKLIB) $(SPYINC) $<

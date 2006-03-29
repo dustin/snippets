@@ -7,7 +7,6 @@
 let usage() =
 	Printf.eprintf "Usage:  %s destcdb sourcefile\n" Sys.argv.(0);
 	exit(1)
-;;
 
 let main() =
 	try
@@ -24,5 +23,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

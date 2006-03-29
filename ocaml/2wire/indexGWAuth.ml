@@ -10,8 +10,8 @@ let main() =
 	Fileutils.iter_lines (fun l ->
 							Dbm.add db (List.hd (Extstring.split l '\t' 1)) l)
 						stdin;
-	Dbm.close db;
+	Dbm.close db
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

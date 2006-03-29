@@ -14,14 +14,12 @@ let nameMapping =
 	m "PACKAGESET_MODIFY_STATUS" "PKGSET_MOD";
 	m "PACKAGE_MODIFY_STATUS" "PKG_MOD";
 	ht
-;;
 
 let lookupName n =
 	try
 		Hashtbl.find nameMapping n
 	with Not_found ->
 		n
-;;
 
 let main() =
 	let fn = Sys.argv.(1) in
@@ -48,5 +46,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

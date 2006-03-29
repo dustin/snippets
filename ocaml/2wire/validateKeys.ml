@@ -4,7 +4,7 @@
  * arch-tag: 7F64B092-B8DD-11D8-A1B6-000393CFE6B8
  *)
 
-open Mfgcdb;;
+open Mfgcdb
 
 let validateCdb ht from =
 	let db = Mfgcdb.open_mfg_db from in
@@ -20,7 +20,6 @@ let validateCdb ht from =
 					r.sn r.gateway_key
 		) db;
 	Mfgcdb.close_mfg_db db
-;;
 
 let main () =
 	let ht = Hashtbl.create 1 in
@@ -40,5 +39,4 @@ let main () =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

@@ -10,12 +10,12 @@
  *)
 
 (* First, we need a Set type for storing strings *)
-module StringSet = Set.Make(String);;
+module StringSet = Set.Make(String)
 
 type iter_type = {
 	sn: string;
 	fields: (string,string) Hashtbl.t;
-};;
+}
 
 (* Print a line of the output csv *)
 let print_line all_fields it =
@@ -41,12 +41,10 @@ let print_line all_fields it =
 		*)
 		print_newline()
 	)
-;;
 
 (* Convience function for sizing a hashtbl *)
 let hlen h =
 	Hashtbl.fold (fun k v o -> 1 + o) h 0
-;;
 
 let main() =
 	(* First, let's find the list of all fields *)
@@ -71,4 +69,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

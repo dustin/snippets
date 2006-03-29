@@ -7,10 +7,13 @@
 (** Interface to manufacturing data *)
 
 (** Exception thrown when a particular gateway cannot be found. *)
-exception No_such_gateway of string;;
+exception No_such_gateway of string
+(** Exception thrown when attempting to use this on something other than a
+manufacturing cdb. *)
+exception Invalid_cdb
 
 (** The magic meta inf key. *)
-let magic_key = "meta_inf";;
+let magic_key = "meta_inf"
 
 (** The manufactured gateway type *)
 type mfg = {
@@ -25,7 +28,7 @@ type mfg = {
 	ssid: string;
 	date_mod: string;
 	wireless_id: string;
-};;
+}
 
 (** Handle to a manufacturing db. *)
 type mfg_db = {
@@ -33,12 +36,13 @@ type mfg_db = {
 	cdb: Cdb.cdb_file;
 	mfg_version: int;
 	cols: string list;
-};;
+}
 
-(** Open a manufacturing cache. *)
+(** Open a manufacturing db. *)
 let open_mfg_db path =
 	let cdbi = Cdb.open_cdb_in path in
-	let data = Cdb.find cdbi magic_key in
+	let data = try Cdb.find cdbi magic_key with Not_found -> raise Invalid_cdb
+		in
 	let data_stream = Stream.of_string data in
 	let mv = int_of_string (Netstring.decode data_stream) in
 	let rec loop rv s =
@@ -55,12 +59,10 @@ let open_mfg_db path =
 		mfg_version=mv;
 		cols=loop [] (Stream.of_string (Netstring.decode data_stream))
 	}
-;;
 
 (** Close the manufacturing db. *)
 let close_mfg_db cdbi =
 	Cdb.close_cdb_in cdbi.cdb
-;;
 
 (** Decode a record from a serial number match *)
 let decode_record cdbi sn data =
@@ -80,7 +82,6 @@ let decode_record cdbi sn data =
 		date_mod=Hashtbl.find rv "moddate";
 		wireless_id=Hashtbl.find rv "wirelessid";
 	}
-;;
 
 (** Get a specific manufacturing record.
 
@@ -90,14 +91,13 @@ let decode_record cdbi sn data =
 let lookup cdbi sn =
 	try
 		decode_record cdbi sn (Cdb.find cdbi.cdb sn)
-	with Stream.Failure ->
+	with Not_found ->
 		raise (No_such_gateway sn)
-;;
 
 (** Iterate all of the manufacturing records in the cdb.
 
 @param f the function to call with each manufacturing record
-@param cdbi the manufacturing cache
+@param cdbi the manufacturing db
 *)
 let iter f cdbi =
 	Cdb.iter (fun k v ->
@@ -106,8 +106,7 @@ let iter f cdbi =
 			if k <> magic_key && (String.sub k 0 1) <> "r" then (
 				f (decode_record cdbi k v)
 			)
-		) cdbi.path;
-;;
+		) cdbi.path
 
 (*
 let main() =

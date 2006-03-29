@@ -4,18 +4,16 @@
  * arch-tag: 85307-371-46-31-0012432
  *)
 
-open Statutils;;
+open Statutils
 
 (* All of the columns and their aggregation functions *)
 let columns =
 	columnMaker (fun _ _ -> avg)
 		["HB"; "BOOT"; "KICK"; "XMLRPC"] ["time"; "count"; "start"; "end"]
-;;
 
 let parseline l =
 	let allcols = Extstring.split l '\t' ((List.length columns) + 1) in
 	List.hd allcols, List.map float_of_string (List.tl allcols)
-;;
 
 let gotLine cdbs l stat =
 	let k, vs = parseline l in
@@ -26,7 +24,6 @@ let gotLine cdbs l stat =
 	print_endline(k ^ "\t" ^
 		(String.concat "\t" (List.map string_of_float vals)));
 	stat
-;;
 
 let process txt cdbs =
 	(* Print the first two lines *)
@@ -34,8 +31,7 @@ let process txt cdbs =
 			print_endline(input_line ch); (* header *)
 			print_endline(input_line ch); (* empty *)
 			Fileutils.fold_lines (gotLine cdbs) () ch
-		) txt;
-;;
+		) txt
 
 let main() =
 	let arglist = Array.to_list Sys.argv in
@@ -48,4 +44,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

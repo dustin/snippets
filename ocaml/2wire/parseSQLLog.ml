@@ -2,9 +2,9 @@
 (* arch-tag: 64C50361-05DC-11D8-AAF8-000393DC8AE4 *)
 (* 2wire SQL Log parser *)
 
-open Unix;;
-open Extstring;;
-open Fileutils;;
+open Unix
+open Extstring
+open Fileutils
 
 (** Log entry representing a single line from the file *)
 type log_entry = {
@@ -12,14 +12,14 @@ type log_entry = {
 	time: float;
 	calls: int;
 	calltime: int;
-};;
+}
 
 type stats = {
 	db_server: string;
 	mutable last_time: Nativeint.t;
 	mutable total_calls: int;
 	mutable total_time: int;
-};;
+}
 
 (* Parse time from the given timestamp *)
 let parse_time l =
@@ -35,7 +35,6 @@ let parse_time l =
 		tm_yday = 0;
 		tm_isdst = false
 		})
-;;
 
 (* Log entry printer *)
 let print_log_entry(l: log_entry) =
@@ -46,8 +45,7 @@ let print_log_entry(l: log_entry) =
 	print_int(l.calls);
 	print_string(" ");
 	print_int(l.calltime);
-	print_newline();
-;;
+	print_newline()
 
 (* Get a log entry from the line *)
 let get_log_entry(l: string): log_entry =
@@ -66,13 +64,11 @@ let get_log_entry(l: string): log_entry =
 				int_of_string(String.sub (List.hd tparts) 0
 					((String.length (List.hd tparts)) - 2))
 		}
-;;
 
 (* Round to the nearest minute *)
 let get_approx_time le =
 	let sixty = Nativeint.of_int 60 in
 	Nativeint.mul sixty (Nativeint.div (Nativeint.of_float le.time) sixty)
-;;
 
 (* Create a stat for each name in the names array *)
 let make_stats(name: string): stats =
@@ -80,7 +76,6 @@ let make_stats(name: string): stats =
 		last_time = Nativeint.zero;
 		total_calls = 0;
 		total_time = 0 }
-;;
 
 (* Process the line *)
 let process_entry rrd_prefix stuff le =
@@ -117,12 +112,10 @@ let process_entry rrd_prefix stuff le =
 		stuff.total_time <- (stuff.total_time +
 							(le.calltime / le.calls));
 	end
-;;
 
 let error_line(s: string) =
 	prerr_string("Error on line:  ");
-	prerr_endline(s);
-;;
+	prerr_endline(s)
 
 (* Process an individual line *)
 let process_line rrd servers l =
@@ -133,8 +126,7 @@ let process_line rrd servers l =
 	with
 		Failure("int_of_string") -> error_line(l);
 		| Failure("nth") -> error_line(l);
-		| Not_found -> error_line(l);
-;;
+		| Not_found -> error_line(l)
 
 (* Do the main thing *)
 let main() =
@@ -144,7 +136,7 @@ let main() =
 		(fun l -> process_line rrd servers l)
 		(fun l -> String.length l > 60
 						&& ((String.sub l 36 22) = "database.DBManager.sql"))
-		Pervasives.stdin;
+		Pervasives.stdin
 ;;
 
-if !Sys.interactive then () else begin main() end;;
+if !Sys.interactive then () else begin main() end

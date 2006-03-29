@@ -7,7 +7,6 @@
 let usage () =
 	prerr_endline("Usage:  " ^ Sys.argv.(0) ^ " prefix srcfile destfile");
 	exit 1
-;;
 
 let main() =
 	(* Validate there are enough args *)
@@ -24,5 +23,4 @@ let main() =
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end

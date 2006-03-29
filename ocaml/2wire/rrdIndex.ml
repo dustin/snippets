@@ -16,15 +16,13 @@ let index_one fn =
 				| Failure("hd") ->
 					print_endline("Format problem:  " ^ l))
 		(fn ^ ".txt");
-	Cdb.close_cdb_out cdb;
-;;
+	Cdb.close_cdb_out cdb
 
 let main() =
 	Arg.parse [ ]
 		index_one
-		"Index the given list of files.";
+		"Index the given list of files."
 ;;
 
 (* Start main unless we're interactive. *)
-if !Sys.interactive then () else begin main() end;;
-
+if !Sys.interactive then () else begin main() end
