@@ -9,7 +9,7 @@
  *)
 
 (** Exception raised when there's an attempt to encode a chunk incorrectly *)
-exception Invalid_encode_chunk of int;;
+exception Invalid_encode_chunk of int
 
 (** The character map of all base64 characters *)
 let char_map = [|
@@ -18,7 +18,6 @@ let char_map = [|
 	'a'; 'b'; 'c'; 'd'; 'e'; 'f'; 'g'; 'h'; 'i'; 'j'; 'k'; 'l'; 'm';
 	'n'; 'o'; 'p'; 'q'; 'r'; 's'; 't'; 'u'; 'v'; 'w'; 'x'; 'y'; 'z';
 	'0'; '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '+'; '/'|]
-;;
 
 (** {1 Functions for encoding} *)
 
@@ -50,8 +49,7 @@ let encode_chunk chars =
 			chunk.[3] <- char_map.((Char.code c) land 0x3f);
 			chunk
 		)
-	);
-;;
+	)
 
 (** Stream chunk encoder.
 
@@ -72,14 +70,12 @@ let encode_stream_chunk data_stream cnt =
 		Some (encode_chunk next ^
 			(if (((cnt + 1) mod 19) = 0) then "\r\n" else ""))
 	)
-;;
 
 (**
  Get a Stream of encoded data from the given stream of data.
  *)
 let encode data_stream =
 	Stream.from (encode_stream_chunk data_stream)
-;;
 
 (**
  Base64 encode the string data into a base64 encoded string.
@@ -88,17 +84,16 @@ let encode_to_string data_stream =
 	let buf = Buffer.create 512 in
 	Stream.iter (fun c -> Buffer.add_string buf c) (encode data_stream);
 	Buffer.contents buf
-;;
 
 (** Base64 encode a string *)
-let encode_string s = encode_to_string (Stream.of_string s);;
+let encode_string s = encode_to_string (Stream.of_string s)
 
 (* ---------------------------------------------------------------------- *)
 
 (** {1 Functions for decoding} *)
 
 (** Exception raised when there's a problem with the input stream. *)
-exception Invalid_decode_chunk of int;;
+exception Invalid_decode_chunk of int
 
 (** Reverse mapping of character to its index in the char_map *)
 let char_index =
@@ -108,12 +103,10 @@ let char_index =
 		Array.set rv (Char.code c) i
 	done;
 	rv
-;;
 
 (** Is the given character a valid base64 character? *)
 let is_base64_char c =
 	char_index.(Char.code c) != -1
-;;
 
 (** Decode a chunk represented as a list of characters.
  The chunk must be 2, 3, or 4 elements large.
@@ -137,7 +130,6 @@ let decode_chunk chars =
 		| _ -> raise (Invalid_decode_chunk(List.length fchars));
 	);
 	Buffer.contents rv
-;;
 
 (** Decode a stream of base64 characters into a stream of 3 or fewer byte
 	strings.
@@ -163,7 +155,6 @@ let decode data_stream =
 				| _  -> Some(decode_chunk chunk)
 		with Stream.Failure -> None in
 	Stream.from get_block
-;;
 
 (**
  Base64 decode the stream of base64 encoded data into a string.
@@ -172,10 +163,9 @@ let decode_to_string data_stream =
 	let buf = Buffer.create 512 in
 	Stream.iter (fun c -> Buffer.add_string buf c) (decode data_stream);
 	Buffer.contents buf
-;;
 
 (** Base64 decode a string to a string *)
-let decode_string s = decode_to_string (Stream.of_string s);;
+let decode_string s = decode_to_string (Stream.of_string s)
 
 (** {1 Functions for testing } *)
 
@@ -192,5 +182,4 @@ let test() =
 		) wordlist;
 	print_endline("Decode:");
 	List.iter (fun x -> print_endline(decode_string (encode_string x)))
-		wordlist;
-;;
+		wordlist
