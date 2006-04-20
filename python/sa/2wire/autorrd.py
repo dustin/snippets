@@ -67,9 +67,9 @@ def getRecordTypes(hostname, values):
 def createFile(filename, recipe):
     dirn=os.path.dirname(filename)
     if not os.access(dirn, os.X_OK):
-        sys.stderr.write("Creating dir %s\n" % (dirn,))
+        # sys.stderr.write("Creating dir %s\n" % (dirn,))
         os.makedirs(dirn)
-    sys.stderr.write("Creating file %s\n" % (filename,))
+    # sys.stderr.write("Creating file %s\n" % (filename,))
     print ' '.join(['create', filename, '-s', '300'] + recipe)
 
 def updateDatum(filename, value, recipe):

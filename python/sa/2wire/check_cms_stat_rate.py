@@ -9,10 +9,10 @@ Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 import cmsstat
 import checkstat
 
-def getVal(host, service):
+def getVal(host, service, default):
     url="http://%s:8080/admin/monitor/stat" % (host,)
 
-    val=cmsstat.StatFetcher(url).getValue(service)
+    val=cmsstat.StatFetcher(url).getValue(service, default)
     storedVal=cmsstat.ArchivedStat(host, service)
     # make sure we store a value for this
     storedVal.store(val)

@@ -26,6 +26,7 @@ Options:
     -L v  -  low critical value
     -h v  -  high warning value
     -H v  -  high critical value
+    -D v  -  a default value (for a stat that may or may not exist)
 
 If you specify a warning or critical option for high or low, you must specify
 the other.  I.e. specifying -l without -L will be an error.  Either low values
@@ -84,14 +85,15 @@ def paramCheck(nm, warn, crit):
     if warn is None and crit is None:
         pass
     elif warn is None and crit is not None:
-        usage("Warn value for %s specified without crit" % nm)
-    elif warn is not None and crit is None:
         usage("Crit value for %s specified without warn" % nm)
+    elif warn is not None and crit is None:
+        usage("Warn value for %s specified without crit" % nm)
 
-def check(getValFunc, host, service, minWarn, minCrit, maxWarn, maxCrit):
+def check(getValFunc, host, service, minWarn, minCrit,
+    maxWarn, maxCrit, default):
     url="http://%s:8080/admin/monitor/stat" % (host,)
 
-    rate=getValFunc(host, service)
+    rate=getValFunc(host, service, default)
 
     rv, msg=-1, "UNKNOWN"
     if minWarn is not None and minCrit is not None:
@@ -105,15 +107,16 @@ def check(getValFunc, host, service, minWarn, minCrit, maxWarn, maxCrit):
 def runCheck(getValFunc, argsIn=sys.argv[1:], stdout=sys.stdout):
     """Run a check with the given value check function."""
     try:
-        opts, args = getopt.getopt(argsIn, 'l:L:h:H:')
+        opts, args = getopt.getopt(argsIn, 'l:L:h:H:D:')
         host, service=args
 
-        minWarn, minCrit, maxWarn, maxCrit=None, None, None, None
+        minWarn=minCrit=maxWarn=maxCrit=default=None
         for pair in opts:
             if pair[0]=='-l': minWarn=float(pair[1])
             elif pair[0]=='-L': minCrit=float(pair[1])
             elif pair[0]=='-h': maxWarn=float(pair[1])
             elif pair[0]=='-H': maxCrit=float(pair[1])
+            elif pair[0]=='-D': default=float(pair[1])
     except getopt.GetoptError, e:
         usage(''.join(traceback.format_exception_only(e[0], e[1])))
     except ValueError:
@@ -126,4 +129,4 @@ def runCheck(getValFunc, argsIn=sys.argv[1:], stdout=sys.stdout):
         usage("No range specified")
 
     runNagiosCheck(lambda: check(getValFunc, host, service,
-            minWarn, minCrit, maxWarn, maxCrit), stdout)
+            minWarn, minCrit, maxWarn, maxCrit, default), stdout)

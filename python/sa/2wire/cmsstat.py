@@ -39,10 +39,14 @@ class StatFetcher(object):
             h[k] = v
         return h
 
-    def getValue(self, v):
+    def getValue(self, v, default=None):
         """Get a particular stat value."""
         h=self.getValues(self.url + "/" + v)
-        return h[v]
+        if default is not None:
+            rv=h.get(v, default)
+        else:
+            rv=h[v]
+        return rv
 
 class ArchivedStat(object):
     """Persist and obtain persistent stats."""
