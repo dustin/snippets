@@ -16,22 +16,22 @@ feature {ANY}
       do
          --  two is prime
          if number = 2 then
-            Result := true;
+            Result := True;
          else
             -- make sure it's not an even number
             if not (number \\ 2 = 0) then
                from
                   i := 3;
                until
-                  i * i > number or flag = true
+                  i * i > number or flag = True
                loop
                   if number \\ i = 0 then
-                     flag := true;
+                     flag := True;
                   end;
                   i := i + 2;
                end;
                if not flag then
-                  Result := true;
+                  Result := True;
                end;
             end;
          end;

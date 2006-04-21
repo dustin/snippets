@@ -1,12 +1,14 @@
 E=se
 EC=$(E) compile
 
-RPATH=-R /usr/local/pgsql/lib
+PG=/Users/dustin/local/pgsql-8.0.1
+RPATH=-R $(PG)/lib
 
 LOADPATH=$(HOME)/lib/se.loadpath
-EFLAGS=-g -I/usr/local/pgsql/include -loadpath $(LOADPATH)
-# LFLAGS=-L/usr/local/pgsql/lib $(RPATH) -lpq
-LFLAGS=-L/usr/local/pgsql/lib -lpq
+EFLAGS=-g -I$(PG)/include -loadpath $(LOADPATH)
+CPPFLAGS=-I$(PG)/include
+# LFLAGS=-L$(PG)/lib $(RPATH) -lpq
+LFLAGS=-L$(PG)/lib -lpq
 
 FILES=Makefile pgtest.e pg.e pg_cstuff.c pg_replicate.e
 

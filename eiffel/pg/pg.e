@@ -27,7 +27,7 @@ feature {PG} -- Creation is private
       do
          current_row := 0
          !!last_row.make(0,16)
-         last_row.clear
+         last_row.clear_count
          c_buffer := c_buffer.calloc(c_buffer_len)
          conn := nullpointer
 		 -- Default number of retries
@@ -132,10 +132,6 @@ feature {ANY} -- Query features
 
 	integer_is_between(i, low, high: INTEGER): BOOLEAN is
 		-- Make sure the given number is in the given range (inclusive)
-		require
-			i_is_provided: i /= Void
-			low_is_provided: low /= Void
-			high_is_provided: high /= Void
 		do
 			Result := (i >= low) and (i <= high)
 		end
@@ -187,7 +183,7 @@ feature {ANY} -- Query features
 	end
 
    get_row: BOOLEAN is
-      -- Get the next row of data back, returns false if there's no more data
+      -- Get the next row of data back, returns False if there's no more data
       require
          has_results: has_results
       local
@@ -197,11 +193,11 @@ feature {ANY} -- Query features
       do
          if current_row >= num_rows then
 			clear_results
-            Result := false
+            Result := False
          else
             from
                fields := pg_nfields(res)
-               last_row.clear
+               last_row.clear_count
                i := 0
             until
                i >= fields
@@ -212,7 +208,7 @@ feature {ANY} -- Query features
                i := i + 1
             end
             current_row := current_row + 1
-            Result := true
+            Result := True
          end
       end -- get_row
 
@@ -228,7 +224,7 @@ feature {ANY} -- Copy stuff
       do
          q := "copy " + table + " from STDIN"
          query(q)
-         tocopy := true
+         tocopy := True
       ensure
          copy_in_ready: copy_in_ready
       end -- copy_to
@@ -303,7 +299,7 @@ feature {ANY} -- Copy stuff
             check
                pg_putline(conn,tmp.to_external) = 0
             end
-            tocopy := false
+            tocopy := False
          else
             debug
                io.put_string("PG: Ending FROM copy%N")
@@ -351,7 +347,7 @@ feature {ANY} -- Utility
          i: INTEGER
       do
          !!tmp.copy("'")
-         if s.index_of('%'') < s.count then
+         if s.index_of('%'', 1) < s.count then
             -- We only need to do this slow copy if we've got a quote
             from
                i := 1
@@ -383,7 +379,7 @@ feature {ANY} -- Database Information
          q: STRING
       do
          !!Result.with_capacity(0,16)
-         Result.clear
+         Result.clear_count
          q := "select tablename from pg_tables " +
 			"where tablename not like 'pg_%%'"
 		 q := "select C.relname from pg_class C where relkind = 'r' " +
@@ -394,7 +390,7 @@ feature {ANY} -- Database Information
          from
             b := get_row
          until
-            b = false
+            b = False
          loop
             a := last_row
             Result.add_last(a @ 0)
@@ -414,13 +410,13 @@ feature {ANY} -- Database Information
          q: STRING
       do
          !!Result.with_capacity(0,16)
-         Result.clear
+         Result.clear_count
          !!q.copy("select * from pg_class where relkind='S'")
          query(q)
          from
             b := get_row
          until
-            b = false
+            b = False
          loop
             a := last_row
             Result.add_last(a @ 0)
@@ -534,11 +530,11 @@ feature {PG} -- Internal data stuff
    password: STRING
       -- Database password
 
-feature {PG} -- Destructor
+feature {ANY} -- Destructor
 
    dispose is
       do
-         if conn /= Void then
+         if conn /= nullpointer then
             debug
                io.put_string("PG: Closing database connection.%N")
             end

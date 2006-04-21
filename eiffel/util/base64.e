@@ -6,26 +6,12 @@ indexing
    licensing: "EFLL <see forum.txt>";
 class BASE64
 
-creation {ANY}
-   make
-
-feature {ANY} -- Constructors
-
-   make is
-      -- Initialization
-      do
-         init_const;
-		 -- initialize the binary constants.
-      end -- make
-
 feature {ANY} -- Actual encode/decode stuff
 
    encode(in: STRING): STRING is
       -- Base64 Encode.
-	  require
-		base64_initialized;
       local
-         ab, bb, cb, db, tmpa, tmpb: BIT 8;
+         ab, bb, cb, db, tmpa, tmpb: INTEGER_8;
          i, o: INTEGER;
          a, b, c: CHARACTER;
          second, third: BOOLEAN;
@@ -38,34 +24,34 @@ feature {ANY} -- Actual encode/decode stuff
             i > in.count
          loop
             a := in.item(i);
-            ab := a.to_bit;
+            ab := a.to_integer;
             if in.valid_index(i + 1) then
-               second := true;
+               second := True;
                b := in.item(i + 1);
-               bb := b.to_bit;
+               bb := b.to_integer;
                if in.valid_index(i + 2) then
-                  third := true;
+                  third := True;
                   c := in.item(i + 2);
-                  cb := c.to_bit;
+                  cb := c.to_integer;
                else
-                  third := false;
+                  third := False;
                end;
             else
-               second := false;
+               second := False;
             end;
             tmpa := ab;
-            Result.add_last(get_char(tmpa @>> 2));
-            tmpa := (ab and lasttwo) @<< 4;
+            Result.add_last(get_char(tmpa |>> 2));
+            tmpa := (ab & lasttwo) |<< 4;
             if second then
-               tmpb := bb @>> 4;
-               Result.add_last(get_char(tmpb or tmpa));
-               tmpa := bb and lastfour;
-               tmpa := tmpa @<< 2;
+               tmpb := bb |>> 4;
+               Result.add_last(get_char(tmpb | tmpa));
+               tmpa := bb & lastfour;
+               tmpa := tmpa |<< 2;
                if third then
-                  tmpb := cb and firsttwo;
-                  tmpb := tmpb @>> 6;
-                  Result.add_last(get_char(tmpa or tmpb));
-                  Result.add_last(get_char(cb and lastsix));
+                  tmpb := cb & firsttwo;
+                  tmpb := tmpb |>> 6;
+                  Result.add_last(get_char(tmpa | tmpb));
+                  Result.add_last(get_char(cb & lastsix));
                else
                   Result.add_last(get_char(tmpa));
                   Result.add_last('=');
@@ -86,10 +72,8 @@ feature {ANY} -- Actual encode/decode stuff
 
    decode(in: STRING): STRING is
       -- Base64 Decode.
-	  require
-		base64_initialized;
       local
-         ab, bb, cb, db, tmpa, tmpb: BIT 8;
+         ab, bb, cb, db, tmpa, tmpb: INTEGER_8;
          a, b, c: CHARACTER;
          first, second, third: BOOLEAN;
       do
@@ -101,66 +85,61 @@ feature {ANY} -- Actual encode/decode stuff
          loop
             if find_next(in) then
                ab := the_bits(in);
-               first := true;
+               first := True;
             else
-               first := false;
+               first := False;
             end;
             if find_next(in) then
                bb := the_bits(in);
             else
-               first := false;
+               first := False;
             end;
             if find_next(in) then
                if is_padding(in) then
-                  second := false;
+                  second := False;
                else
                   cb := the_bits(in);
-                  second := true;
+                  second := True;
                end;
             end;
             if find_next(in) then
                if is_padding(in) then
-                  third := false;
+                  third := False;
                else
                   db := the_bits(in);
-                  third := true;
+                  third := True;
                end;
             end;
             if first then
                -- first byte
-               tmpa := ab @<< 2;
-               tmpb := bb @>> 4 and lasttwo;
-               Result.add_last((tmpa or tmpb).to_character);
+               tmpa := ab |<< 2;
+               tmpb := bb |>> 4 & lasttwo;
+               Result.add_last((tmpa | tmpb).to_character);
                if second then
                   -- second byte
-                  tmpa := bb @<< 4;
-                  tmpb := cb @>> 2 and lastfour;
-                  Result.add_last((tmpa or tmpb).to_character);
+                  tmpa := bb |<< 4;
+                  tmpb := cb |>> 2 & lastfour;
+                  Result.add_last((tmpa | tmpb).to_character);
                   if third then
                      -- third byte
-                     Result.add_last((db or cb @<< 6).to_character);
+                     Result.add_last((db | (cb |<< 6)).to_character);
                   end;
                end;
             end;
          end;
       end -- decode
 
-	base64_initialized: BOOLEAN is
-		do
-			Result:=base64_isinitialized;
-		end
-
 feature {NONE}
 
-   the_bits(s: STRING): BIT 8 is
+   the_bits(s: STRING): INTEGER_8 is
       -- The bits of the current data
       require
          current_char <= s.count;
       local
          i: INTEGER;
       do
-         i := charmap.index_of(s.item(current_char)) - 1;
-         Result := truncate(i.to_bit);
+         i := charmap.index_of(s.item(current_char), 1) - 1;
+         Result := truncate(i);
       end -- the_bits
 
    is_padding(s: STRING): BOOLEAN is
@@ -173,19 +152,19 @@ feature {NONE}
       do
          current_char := current_char + 1;
          from
-            Result := false;
+            Result := False;
          until
-            current_char > s.count or Result = true
+            current_char > s.count or Result = True
          loop
             if charmap.has(s.item(current_char)) then
-               Result := true;
+               Result := True;
             else
                current_char := current_char + 1;
             end;
          end;
       end -- find_next
 
-   get_char(b: BIT 8): CHARACTER is
+   get_char(b: INTEGER_8): CHARACTER is
       -- Get the character this bit pattern represents.
       local
          i: INTEGER;
@@ -194,29 +173,31 @@ feature {NONE}
          Result := charmap.item(i + 1);
       end -- get_char
 
-   truncate(in: BIT 32): BIT 8 is
-      -- Truncate a BIT 32 to a BIT 8
+   truncate(in: INTEGER_32): INTEGER_8 is
+      -- Truncate a INTEGER_32 to a INTEGER_8
       do
-         Result := in.to_integer.to_character.to_bit;
+         Result := in.to_integer_8;
       end -- truncate
 
-   init_const is
-      -- Set up some constants, can't find a better way.
-      once
-		 lasttwo:= ("00000011").binary_to_integer.to_character.to_bit;
-		 lastfour:= ("00001111").binary_to_integer.to_character.to_bit;
-		 lastsix:= ("00111111").binary_to_integer.to_character.to_bit;
-		 firsttwo:= ("11000000").binary_to_integer.to_character.to_bit;
-		 base64_isinitialized:=true;
-      end -- init_const
+   lasttwo:INTEGER_8 is
+	once
+		Result := ("00000011").binary_to_integer.to_character.to_integer;
+	end
 
-   lasttwo: BIT 8;
+   lastfour:INTEGER_8 is
+	once
+		Result := ("00001111").binary_to_integer.to_character.to_integer;
+	end
 
-   lastfour: BIT 8;
+   lastsix:INTEGER_8 is
+	once
+		Result := ("00111111").binary_to_integer.to_character.to_integer;
+	end
 
-   lastsix: BIT 8;
-
-   firsttwo: BIT 8;
+   firsttwo:INTEGER_8 is
+	once
+		Result := ("11000000").binary_to_integer.to_character.to_integer;
+	end
 
    current_char: INTEGER;
 

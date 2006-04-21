@@ -117,8 +117,8 @@ feature {ANY} -- Misc features, probably should be in a utility class
          !!tmp.copy(in);
          tmp.to_upper;
          map := "0123456789ABCDEF";
-         a := map.index_of(tmp.item(1)) - 1;
-         b := map.index_of(tmp.item(2)) - 1;
+         a := map.index_of(tmp.item(1), 1) - 1;
+         b := map.index_of(tmp.item(2), 1) - 1;
          a := a * 16 + b;
          Result := a.to_character;
       end -- from_hex
@@ -132,7 +132,7 @@ feature {ANY} -- Features that really belong in a string class.
       do
          !!split_buffer.with_capacity(4,1);
          if s.count > 0 then
-            split_buffer.clear;
+            split_buffer.clear_count;
             split_on_in(s,split_buffer,on);
             if not split_buffer.is_empty then
                Result := split_buffer.twin;
@@ -160,7 +160,7 @@ feature {ANY} -- Features that really belong in a string class.
                c := s.item(i);
                if state = 0 then
                   if not (c = on) then
-                     tmp_string.clear;
+                     tmp_string.clear_count;
                      tmp_string.extend(c);
                      state := 1;
                   end;
@@ -182,7 +182,7 @@ feature {ANY} -- Features that really belong in a string class.
          end;
       end -- split_on_in
 
-   cgi_data: DICTIONARY[STRING,STRING];
+   cgi_data: HASHED_DICTIONARY[STRING,STRING];
       -- The parsed input
 
 feature {CGI} -- The parsed data.
@@ -225,13 +225,14 @@ feature {CGI} -- The parsed data.
       local
          tmp: STRING;
          i, top: INTEGER;
+		 sys: SYSTEM;
       once
-         tmp := get_environment_variable("REQUEST_METHOD");
+         tmp := sys.get_environment_variable("REQUEST_METHOD");
          if tmp /= Void then
             if tmp.is_equal("GET") then
-               cgi_input := get_environment_variable("QUERY_STRING");
+               cgi_input := sys.get_environment_variable("QUERY_STRING");
             elseif tmp.is_equal("POST") then
-               tmp := get_environment_variable("CONTENT_LENGTH");
+               tmp := sys.get_environment_variable("CONTENT_LENGTH");
                if tmp /= Void then
                   from
                      top := tmp.to_integer;

@@ -46,8 +46,6 @@ feature {ANY}
 			level := l
 			!!msg.copy(m)
 		ensure
-			timestamp /= Void
-			level /= Void
 			msg /= Void
 			level = l
 			msg.is_equal(m)
@@ -58,7 +56,6 @@ feature {LOGGER}
 
 	two_digit_number(n: INTEGER): STRING is
 		require
-			non_void_int: n /= Void
 			non_negative: n >= 0
 			less_than_100: n < 100
 		do

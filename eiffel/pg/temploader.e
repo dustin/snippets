@@ -11,6 +11,9 @@ inherit
 	LOGGER redefine make end
 	LINE_PROCESSOR
 
+insert
+	ARGUMENTS
+
 creation {ANY}
    make
 
@@ -43,11 +46,11 @@ feature {ANY}
 			process_input
 		end
 
-feature{NONE}
+feature {NONE}
 
 	db: PG
 
-	serials: DICTIONARY[INTEGER,STRING]
+	serials: HASHED_DICTIONARY[INTEGER,STRING]
 
 	init_sensors is
 		-- Initialize the sensors map
@@ -62,7 +65,7 @@ feature{NONE}
 				-- Get the first row
 				b := db.get_row
 			until
-				b = false
+				b = False
 			loop
 				a := db.last_row
 
@@ -79,6 +82,8 @@ feature{NONE}
 			end
 		end
 
+feature {LINE_PROCESSOR}
+
 	process_line(line: STRING) is
 		local
 			done: BOOLEAN
@@ -89,7 +94,7 @@ feature{NONE}
 		do
 			-- This allows failures to pass
 			if not done then
-				done := true
+				done := True
 
 				!!string_utils
 				a := string_utils.split_on(io.last_string, '%T')

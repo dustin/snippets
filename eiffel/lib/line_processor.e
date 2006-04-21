@@ -62,7 +62,6 @@ feature {LINE_PROCESSOR}
 		-- Process this line of the file.
 		require
 			has_line: line /= Void
-			has_line_number: line_number /= Void
 		deferred
 		end
 

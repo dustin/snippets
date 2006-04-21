@@ -1,6 +1,6 @@
 indexing
 	description: "Hello, damnit!"
-class HELLO creation
+class HELLO2 creation
 	make
 
 feature
@@ -11,12 +11,13 @@ feature
 		s: STRING;
 		a: ARRAY[STRING];
 		i: INTEGER;
+		sys: SYSTEM;
 	do
 		-- Print out the path after splitting
-		s:=get_environment_variable("PATH");
+		s:=sys.get_environment_variable("PATH");
 		io.put_string(s);
 		io.put_string("%N");
-		a:=s.split_on(':');
+		a:=s.split;
 
 		from
 			i:=1;

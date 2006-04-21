@@ -22,10 +22,9 @@ feature {ANY} -- Splitting
       -- split a string on a given character.
 	  require
 		has_string: s /= Void
-		has_char: on /= Void
       do
          if s.count > 0 then
-            split_buffer.clear
+            split_buffer.clear_count
             split_on_into(s,on,split_buffer)
             if not split_buffer.is_empty then
                Result := split_buffer.twin
@@ -37,7 +36,6 @@ feature {ANY} -- Splitting
       -- A version of split_on that adds to an existing collection.
       require
          have_string: s /= Void;
-         have_character: on /= Void;
          have_array: words /= Void;
       local
          state, i: INTEGER
@@ -82,7 +80,7 @@ feature {ANY} -- Splitting
 		has_char: chars /= Void
       do
          if s.count > 0 then
-            split_buffer.clear
+            split_buffer.clear_count
             split_onlist_into(s, chars, split_buffer)
             if not split_buffer.is_empty then
                Result := split_buffer.twin

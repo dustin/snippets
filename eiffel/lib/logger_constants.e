@@ -44,14 +44,12 @@ feature {ANY}
 
 	level_is_valid(level: INTEGER): BOOLEAN is
 		-- True if the level number represents a valid level number
-		require
-			non_void_level: level /= Void
 		do
 			inspect level
 				when debug_level, info_level, warn_level, error_level then
-					Result := true
+					Result := True
 				else
-					Result := false
+					Result := False
 			end
 		end
 
