@@ -11,12 +11,12 @@ feature {ANY} -- Actual encode/decode stuff
    encode(in: STRING): STRING is
       -- Base64 Encode.
       local
-         ab, bb, cb, db, tmpa, tmpb: INTEGER_8;
+         ab, bb, cb, tmpa, tmpb: INTEGER_8;
          i, o: INTEGER;
          a, b, c: CHARACTER;
          second, third: BOOLEAN;
       do
-         !!Result.make(256);
+         !!Result.make((in.count * 4 / 3).force_to_integer_32);
          from
             i := 1;
             o := 0;
@@ -74,10 +74,9 @@ feature {ANY} -- Actual encode/decode stuff
       -- Base64 Decode.
       local
          ab, bb, cb, db, tmpa, tmpb: INTEGER_8;
-         a, b, c: CHARACTER;
          first, second, third: BOOLEAN;
       do
-         !!Result.make(256);
+         !!Result.make((in.count * 3 / 4).force_to_integer_32);
          from
             current_char := 0;
          until
