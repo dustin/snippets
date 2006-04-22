@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<!-- Copyright (c) 2005  Dustin Sallings (dustin@spy.net)
+-->
+
+<project>
+
+	<pomVersion>3</pomVersion>
+	<groupId>spy</groupId>
+	<artifactId>init</artifactId>
+	<currentVersion>1.0</currentVersion>
+	<organization>
+		<name>SPY Internetworking</name>
+		<url>http://bleu.west.spy.net/~dustin/</url>
+	</organization>
+	<inceptionYear>1995</inceptionYear>
+	<package>net.spy.init</package>
+
+	<name>Initialization web app</name>
+	<description>
+		Initialization web app.
+	</description>
+
+	<shortDescription>Initialization web app</shortDescription>
+
+	<developers>
+		<name>Dustin Sallings</name>
+		<id>dustin</id>
+		<email>dustin@spy.net</email>
+		<organization>SPY Internetworking</organization>
+	</developers>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>spy</artifactId>
+			<version>2.1.140</version>
+			<properties><war.bundle>true</war.bundle></properties>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.3</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<sourceDirectory>${basedir}/src/java</sourceDirectory>
+	</build>
+
+</project>
