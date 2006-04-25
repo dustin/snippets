@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "waitforsocket.h"
 
@@ -27,7 +28,6 @@ main(int argc, char **argv)
 	char   *hostname=0x00;
 	char   *svc=0x00;
 	time_t  t=0, status;
-	extern int errno;
 
 	if (argc < 3) {
 		usage(argv[0]);
