@@ -5,6 +5,7 @@ Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 # arch-tag: E34FBB2B-44F4-4E91-AA7F-57CC763139CB
 """
 
+import os
 import anydbm
 import time
 import sys
@@ -92,9 +93,14 @@ def buildDocument(results, keywords):
     return doc
 
 if __name__=='__main__':
+
     results=getResults('2hOO7zk9TTDrPe0fpnxR0Yv/5K66pVHX', sys.argv[1])
 
-    doc=buildDocument(results, sys.argv[1])
-
-    PrettyPrint(doc, stream=sys.stdout, encoding='UTF-8',
-        indent=' ', preserveElements=None)
+    tmpfile=sys.argv[2] + ".tmp"
+    o=open(tmpfile, "w")
+    try:
+        PrettyPrint(buildDocument(results, sys.argv[1]),
+            stream=o, encoding='UTF-8', indent=' ', preserveElements=None)
+        os.rename(tmpfile, sys.argv[2])
+    except:
+        os.unlink(tmpfile)
