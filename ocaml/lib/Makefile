@@ -5,7 +5,7 @@ OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
 PARTS=extstring.cmx fileutils.cmx lru.cmx linkedlist.cmx base64.cmx cdb.cmx \
-	netstring.cmx extlist.cmx extoption.cmx extstream.cmx math.cmx
+	netstring.cmx extlist.cmx extoption.cmx extstream.cmx math.cmx test.cmx
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -17,7 +17,7 @@ testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
 		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
 		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
-		cdb.cmo netstring.cmo
+		cdb.cmo netstring.cmo test.cmo
 
 libspy: $(PARTS)
 	$(MKLIB) -o spy \
@@ -26,7 +26,7 @@ libspy: $(PARTS)
 		cdb.cmo netstring.cmo math.cmo \
 		fileutils.cmx extstring.cmx extlist.cmx extoption.cmx \
 		extstream.cmx linkedlist.cmx lru.cmx base64.cmx \
-		cdb.cmx netstring.cmx math.cmx
+		cdb.cmx netstring.cmx math.cmx test.cmx
 	rm -f libspy.a
 	ln spy.a libspy.a
 
@@ -71,3 +71,5 @@ math.cmo: math.cmi
 math.cmx: math.cmi
 netstring.cmo: extstring.cmi netstring.cmi
 netstring.cmx: extstring.cmx netstring.cmi
+test.cmo: test.cmi
+test.cmx: test.cmi

@@ -261,7 +261,6 @@ let get_matches cdf key =
 	let kh = hash key in
 	(* Find out where the hash table is *)
 	let hpos, hlen = cdf.tables.(hash_to_table kh) in
-	let incr_slot x = (if (1 + x) > hlen then 0 else (1 + x)) in
 	let rec loop x =
 		if(x >= hlen) then (
 			None
