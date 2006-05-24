@@ -68,7 +68,7 @@ let main() =
 			false
 		with Stream.Failure -> true));
 	(* this test should fail, but doesn't *)
-	run_test "test_iteration" (fun c ->
+	run_test "test_iteration" (fun _ ->
 		let htest = Hashtbl.create 1 in
 		Hashtbl.add htest "a" "1";
 		Hashtbl.add htest "b" "2";
