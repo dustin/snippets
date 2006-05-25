@@ -1,0 +1,14 @@
+# Copyright (c) 2000  Dustin Sallings <dustin@spy.net>
+
+CFLAGS=-O2 -Wall -Werror @DEFS@ @CPPFLAGS@ @CFLAGS@ -I/usr/local/include
+LIBS=@LDFLAGS@ @LIBS@
+
+multisniff: filter.o main.o hash.o mymalloc.o
+	$(CC) -o $@ filter.o main.o hash.o mymalloc.o $(LIBS)
+
+clean:
+	@touch blahblah.o
+	rm -f *.o multisniff
+
+distclean: clean
+	rm Makefile config.log config.status config.cache
