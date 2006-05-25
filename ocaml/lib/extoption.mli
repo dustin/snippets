@@ -9,4 +9,4 @@
 exception Empty_option
 val is_none : 'a option -> bool
 val is_some : 'a option -> bool
-val get_option : 'a -> 'b option -> 'b
+val get_option : 'a option -> 'a

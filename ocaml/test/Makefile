@@ -6,7 +6,7 @@ OCAMLC=ocamlc
 # Set this to -p for profiler support
 PROFILE=
 
-PROGS=b64test cdbtest cdbtestbc
+PROGS=b64test cdbtest cdbtestbc extlisttest extoptiontest extstringtest
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -15,6 +15,18 @@ all: $(PROGS)
 b64test: b64test.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa b64test.ml
+
+extlisttest: extlisttest.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa extlisttest.ml
+
+extoptiontest: extoptiontest.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa extoptiontest.ml
+
+extstringtest: extstringtest.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa extstringtest.ml
 
 cdbtest: cdbtest.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \

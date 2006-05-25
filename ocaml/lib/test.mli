@@ -30,6 +30,15 @@ val run_simple : test -> (test_result -> unit) -> test_result list
 (** True if there's a failure in this test result list. *)
 val has_failure : test_result list -> bool
 
+(** Run and exit with an appropriate exit status
+ * (0 for success, 1 for failure *)
+val run_and_exit : (unit -> unit) -> (unit -> unit) -> test
+    -> (test_result -> unit) -> unit
+
+(** Run and exit with an appropriate exit status
+ * (0 for success, 1 for failure *)
+val run_simple_and_exit : test -> (test_result -> unit) -> unit
+
 (** Print a test result verbosely (both failure and success) *)
 val print_result_verbose : test_result -> unit
 

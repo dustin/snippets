@@ -60,6 +60,16 @@ let rec has_failure = function
 	| TestSuccess(_)::tl -> has_failure tl
 	| TestFailure (_,_)::tl -> true
 
+let run_and_exit setup teardown tests printfunc =
+	let results = run_tests setup teardown tests printfunc in
+	prerr_newline ();
+	exit (if has_failure results then 1 else 0)
+
+let run_simple_and_exit tests printfunc =
+	let results = run_simple tests printfunc in
+	prerr_newline ();
+	exit (if has_failure results then 1 else 0)
+
 let print_result_verbose result =
 	match result with
 		  TestSuccess (name) ->

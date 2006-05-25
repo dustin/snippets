@@ -21,11 +21,9 @@ let main() =
 		 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			^ "0123456789!@#0^&*();:<>,. []{}")
 		] in
-	let results = Test.run_simple (Test.TestList
+	Test.run_simple_and_exit (Test.TestList
 		((List.map test_encode cases) @ (List.map test_decode cases)))
-		Test.print_result in
-	Printf.eprintf "\n";
-	exit (if Test.has_failure results then 1 else 0)
+		Test.print_result
 ;;
 
 (* Start main unless we're interactive. *)
