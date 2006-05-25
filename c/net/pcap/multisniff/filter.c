@@ -35,6 +35,8 @@ static pcap_t  *pcap_socket = NULL;
 static int      dlt_len = 0;
 static struct hashtable *hash=NULL;
 
+static int signalled=0;
+
 static void     filter_packet(u_char *, struct pcap_pkthdr *, u_char *);
 static void     showStats();
 static void     signal_handler(int);
@@ -43,6 +45,8 @@ static char    *itoa(int in);
 #ifdef USE_PTHREAD
 # define lock(a)   pthread_mutex_lock(&(hash->mutexen[a]))
 # define unlock(a) pthread_mutex_unlock(&(hash->mutexen[a]))
+static pthread_cond_t threadcond;
+static pthread_mutex_t threadmutex;
 #else
 # define lock(a)
 # define unlock(a)
@@ -51,10 +55,34 @@ static char    *itoa(int in);
 #ifdef USE_PTHREAD
 void *statusPrinter(void *data)
 {
+	int oldstate=0;
 	for(;;) {
-		sleep(PTHREAD_PRINT_INTERVAL);
+		time_t now=time(NULL);
+		struct timespec ts;
+
+		ts.tv_nsec=0;
+		ts.tv_sec=now + PTHREAD_PRINT_INTERVAL;
+
+		pthread_testcancel();
+		pthread_mutex_lock(&threadmutex);
+		pthread_cond_timedwait(&threadcond, &threadmutex, &ts);
+		pthread_mutex_unlock(&threadmutex);
+		pthread_testcancel();
+
+		if(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) < 0) {
+			perror("pthread_setcancelstate(disable)");
+			exit(1);
+		}
+
 		showStats();
+
+		if(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate) < 0) {
+			perror("pthread_setcancelstate(enable)");
+			exit(1);
+		}
 	}
+	printf("! Status thread shutting down.\n");
+	return NULL;
 }
 #else
 void nonThreadsStats()
@@ -71,6 +99,56 @@ void nonThreadsStats()
 }
 #endif /* USE_PTHREAD */
 
+#ifdef USE_PTHREAD
+static void cleanup(pthread_t sp) {
+	printf("Waiting for status printer thread.\n");
+	pthread_cancel(sp);
+	pthread_mutex_lock(&threadmutex);
+	pthread_cond_signal(&threadcond);
+	pthread_mutex_unlock(&threadmutex);
+	pthread_join(sp, NULL);
+	printf("Joined status printer thread.\n");
+#else
+static void cleanup() {
+#endif
+
+	hash_destroy(hash);
+	pcap_close(pcap_socket);
+#ifdef MYMALLOC
+	_mdebug_dump();
+#endif /* MYMALLOC */
+	exit(signalled);
+}
+
+static void setupSignals() {
+	sigset_t sigBlockSet;
+	struct sigaction sa;
+
+	sigemptyset(&sigBlockSet);
+	sigaddset(&sigBlockSet, SIGHUP);
+	if(sigprocmask(SIG_BLOCK, &sigBlockSet, NULL) < 0) {
+		perror("sigprocmask");
+		exit(1);
+	}
+
+	sa.sa_handler=signal_handler;
+	sa.sa_flags=0;
+	sigemptyset(&sa.sa_mask);
+
+	if(sigaction(SIGINT, &sa, NULL) < 0) {
+		perror("sigaction(INT)");
+		exit(1);
+	}
+	if(sigaction(SIGQUIT, &sa, NULL) < 0) {
+		perror("sigaction(QUIT)");
+		exit(1);
+	}
+	if(sigaction(SIGTERM, &sa, NULL) < 0) {
+		perror("sigaction(TERM)");
+		exit(1);
+	}
+}
+
 void
 process(int flags, const char *intf, const char *outdir, char *filter)
 {
@@ -83,10 +161,7 @@ process(int flags, const char *intf, const char *outdir, char *filter)
 	pthread_t		sp;
 #endif
 
-	signal(SIGHUP, SIG_IGN);
-	signal(SIGINT, signal_handler);
-	signal(SIGQUIT, signal_handler);
-	signal(SIGTERM, signal_handler);
+	setupSignals();
 
 	if (flags & FLAG_BIT(FLAG_PROMISC))	{
 		flagdef = 1;
@@ -132,6 +207,14 @@ process(int flags, const char *intf, const char *outdir, char *filter)
 #ifdef USE_PTHREAD
 	use_pthread="yes";
 	/* OK, create the status printer thread */
+	if(pthread_mutex_init(&threadmutex, NULL) < 0) {
+		perror("pthread_mutex_init");
+		exit(1);
+	}
+	if(pthread_cond_init(&threadcond, NULL) < 0) {
+		perror("pthread_cond_init");
+		exit(1);
+	}
 	pthread_create(&sp, NULL, statusPrinter, NULL);
 #endif /* USE_PTHREAD */
 
@@ -147,7 +230,7 @@ process(int flags, const char *intf, const char *outdir, char *filter)
 		exit(1);
 	}
 
-	for (;;) {
+	while (signalled==0) {
 		pcap_loop(pcap_socket, 100, (pcap_handler) filter_packet, NULL);
 #ifdef USE_PTHREAD
 		/* This is for bad pthread implementations */
@@ -156,6 +239,12 @@ process(int flags, const char *intf, const char *outdir, char *filter)
 		nonThreadsStats();
 #endif /* USE_PTHREAD */
 	}
+
+#if USE_PTHREAD
+	cleanup(sp);
+#else
+	cleanup();
+#endif
 }
 
 static void
@@ -301,10 +390,6 @@ mynet_ntoa(struct in_addr in)
 static void
 signal_handler(int s)
 {
-	hash_destroy(hash);
-	pcap_close(pcap_socket);
-#ifdef MYMALLOC
-	_mdebug_dump();
-#endif /* MYMALLOC */
-	exit(s);
+	signalled=s;
+	pcap_breakloop(pcap_socket);
 }

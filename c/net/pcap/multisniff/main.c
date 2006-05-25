@@ -21,7 +21,7 @@ usage(char *name)
 		name);
 	fprintf(stderr, "    -d specifies the output directory.\n");
 	fprintf(stderr, "    -p turns on promiscious sniffing.\n");
-	fprintf(stderr, "    -f <filter> Filter.\n");
+	fprintf(stderr, "    -f pcap filter expression.\n");
 	exit(1);
 }
 
