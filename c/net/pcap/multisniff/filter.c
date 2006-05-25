@@ -215,7 +215,10 @@ process(int flags, const char *intf, const char *outdir, char *filter)
 		perror("pthread_cond_init");
 		exit(1);
 	}
-	pthread_create(&sp, NULL, statusPrinter, NULL);
+	if(pthread_create(&sp, NULL, statusPrinter, NULL) < 0) {
+		perror("pthread_create");
+		exit(1);
+	}
 #endif /* USE_PTHREAD */
 
 	fprintf(stderr,"interface: %s, filter: %s, promiscuous: %s, threads: %s\n",
