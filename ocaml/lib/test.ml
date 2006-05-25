@@ -55,15 +55,20 @@ let run_tests setup teardown tests printfunc =
 
 let run_simple = run_tests (fun () -> ()) (fun () -> ())
 
+let rec has_failure = function
+	  [] -> false
+	| TestSuccess(_)::tl -> has_failure tl
+	| TestFailure (_,_)::tl -> true
+
 let print_result_verbose result =
 	match result with
 		  TestSuccess (name) ->
 			Printf.eprintf "success: %s\n" name
 		| TestFailure (name, reason) ->
-			Printf.eprintf "FAIL:  %s - %s\n" name reason
+			Printf.eprintf "\nFAIL:  %s - %s\n" name reason
 
 let print_result result =
 	match result with
 		  TestSuccess (name) -> Printf.eprintf "."
 		| TestFailure (name, reason) ->
-			Printf.eprintf "FAIL:  %s - %s\n" name reason
+			Printf.eprintf "\nFAIL:  %s - %s\n" name reason

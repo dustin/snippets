@@ -27,6 +27,9 @@ val run_tests : (unit -> unit) -> (unit -> unit) -> test
 (** Run a test suite that doesn't require setup or teardown *)
 val run_simple : test -> (test_result -> unit) -> test_result list
 
+(** True if there's a failure in this test result list. *)
+val has_failure : test_result list -> bool
+
 (** Print a test result verbosely (both failure and success) *)
 val print_result_verbose : test_result -> unit
 
