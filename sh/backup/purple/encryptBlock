@@ -15,5 +15,7 @@ export HOME
 
 GPG=/usr/local/bin/gpg
 
+mkdir -p `dirname $PREVPATH`
+
 $HOME/local.bin/passwordhander $HOME/.sigpw $GPG -se --passphrase-fd 4 \
-	--batch -r primary -r work > $NEWPATH
+	--batch -r primary -r work > $PREVPATH.tmp && mv $PREVPATH.tmp $PREVPATH
