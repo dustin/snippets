@@ -13,7 +13,14 @@
 HOME=/Users/dustin
 export HOME
 
-GPG=/usr/local/bin/gpg
+PWH=$HOME/bin/powerpc-apple-darwin/passwordhander
+GPG=$HOME/local.bin/gpg
 
-$HOME/bin/passwordhander $HOME/.sigpw $GPG -se --passphrase-fd 4 \
-	--batch -r primary -r work > $NEWPATH
+touch /tmp/gpg.out
+
+mkdir -p `dirname $PREVPATH`
+$PWH $HOME/.sigpw $GPG -se --passphrase-fd 4 \
+	--batch -r primary -r work > $PREVPATH.tmp 2>> /tmp/gpg.out \
+	&& mv $PREVPATH.tmp $PREVPATH
+
+exit 0

@@ -28,9 +28,8 @@ else
 	fi
 fi
 
-touch $place/../db.digests/$dbname
 mkdir -p $today/$dbname
-$HOME/local.bin/blockDigest - "$place/../db.digests/$dbname" \
-	$HOME/local.bin/encryptBlock $yesterday/$dbname $today/$dbname $blocksize
+$HOME/local.bin/blockDigest - \
+	$HOME/local.bin/encryptBlock $place/../md5s $today/$dbname $blocksize
 
 du -sk $today/$dbname
