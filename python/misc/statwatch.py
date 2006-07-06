@@ -1,5 +1,6 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 """
+Watch statistics on a CMS cluster.
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
 $Id: statwatch.py,v 1.4 2003/07/17 16:37:44 dustin Exp $
@@ -96,7 +97,7 @@ class Host:
     # Alias str() to ``
     __str__ = __repr__
 
-def signed(x):
+def __signed(x):
     rv=""
     xs=`x`
     if isinstance(x, float):
@@ -170,13 +171,13 @@ def updateAll(hosts, oldvals, prefix=""):
             deltas[k]=d
             # Display the current value
             if isinstance(v, float):
-                print "%s: %.4f: (%s)" % (k, v, signed(d))
+                print "%s: %.4f: (%s)" % (k, v, __signed(d))
             else:
-                print k + ":  " + `v` + " (" + signed(d) + ")"
+                print k + ":  " + `v` + " (" + __signed(d) + ")"
         oldvals[k]=v
     return deltas
 
-def showTimes(times, readings):
+def __showTimes(times, readings):
     for timeset in times:
         try:
             label=timeset[0]
@@ -193,7 +194,7 @@ def showTimes(times, readings):
             pass
 
 def getServers():
-    # Build the list of servers
+    """Build the list of known servers."""
     servers={}
 
     u=urllib.URLopener()
@@ -253,6 +254,6 @@ if __name__ == '__main__':
             + time.ctime(time.time())
         deltas=updateAll(hosts, h, prefix)
         print ""
-        showTimes(timeCalcs, deltas)
+        __showTimes(timeCalcs, deltas)
         print ""
         time.sleep(60)
