@@ -55,6 +55,12 @@ class Host:
         self.vals={}
         self.exception=None
 
+    def updateComplex(self, h, k, v):
+        a=v.split(' ')
+        for e in a[1:]:
+            (ek, ev)=e.split('=', 2)
+            h[k + '.' + ek] = float(ev)
+
     def update(self, prefix=""):
         """Update this host with values from the given URL"""
         u=urllib.URLopener()
@@ -64,8 +70,10 @@ class Host:
         for l in r.readlines():
             l=l.rstrip()
             (k, v) = l.split(' = ')
-            v=int(v)
-            h[k] = v
+            try:
+                h[k] = int(v)
+            except ValueError:
+                self.updateComplex(h, k, v)
         self.vals=h
 
     def setException(self, e):
@@ -90,10 +98,13 @@ class Host:
 
 def signed(x):
     rv=""
+    xs=`x`
+    if isinstance(x, float):
+        xs="%.4f" % (x)
     if x > 0:
-        rv = "+" + `x`
+        rv = "+" + xs
     else:
-        rv=`x`
+        rv=xs
     return rv
 
 def mergeDicts(dicts):
@@ -158,7 +169,10 @@ def updateAll(hosts, oldvals, prefix=""):
             d=(v-ov)
             deltas[k]=d
             # Display the current value
-            print k + ":  " + `v` + " (" + signed(d) + ")"
+            if isinstance(v, float):
+                print "%s: %.4f: (%s)" % (k, v, signed(d))
+            else:
+                print k + ":  " + `v` + " (" + signed(d) + ")"
         oldvals[k]=v
     return deltas
 
