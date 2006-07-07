@@ -24,6 +24,12 @@ class StatFetcher(object):
         """
         self.url=url;
 
+    def __updateComplex(self, h, k, v):
+        a=v.split(' ')
+        for e in a[1:]:
+            (ek, ev)=e.split('=', 2)
+            h[k + '.' + ek] = float(ev)
+
     def getValues(self, url=None):
         """Get a dict of all available stats."""
         if url is None:
@@ -35,8 +41,10 @@ class StatFetcher(object):
         for l in r.readlines():
             l=l.rstrip()
             (k, v) = l.split(' = ')
-            v=int(v)
-            h[k] = v
+            try:
+                h[k] = int(v)
+            except ValueError:
+                self.__updateComplex(h, k, v)
         return h
 
     def getValue(self, v, default=None):
