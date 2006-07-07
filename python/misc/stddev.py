@@ -9,21 +9,14 @@ import sys
 import math
 
 def sum(a):
-    rv = 0
-    for i in a:
-        rv += i
-    return rv
+    return reduce(lambda x,y: x+y, a)
 
 def avg(a):
     return (sum(a) / len(a))
 
 def stddev(a):
     av=float(avg(a))
-    rv=0.0
-    for i in a:
-        rv += pow((i - av), 2)
-    rv = math.sqrt(rv / float(len(a)))
-    return rv
+    return math.sqrt(reduce(lambda c,i: c+pow((i-av), 2), a, 0) / float(len(a)))
 
 if __name__ == '__main__':
     print stddev(map(int, sys.argv[1:]))
