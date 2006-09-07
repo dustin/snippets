@@ -4,7 +4,7 @@ Generate a C function to match strings.
 
 Input: a tab separated list of k->v pairs.
 
-Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
+Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
 # arch-tag: 380AB186-BD0D-4302-837B-A45CD42B699E
 
@@ -26,14 +26,14 @@ def buildIt(depth, prefix, stuff, fanout_below):
             if first:
                 p = tab
                 first=False
-            print p + 'if(memcmp(uppercased, "' + w + '", ' + str(l) + ') == 0) {'
+            assert w.isupper()
+            print p + 'if(memcmp(uppercased, "' + w + '\\0", ' \
+                + str(l+1) + ') == 0) {'
             print tab + '\trv=' + m[1] + ';'
             sys.stdout.write(tab + '}')
         print ""
     else:
-        prefixes=sets.Set()
-        for n,c in matches:
-            prefixes.add(n[0][0])
+        prefixes=sets.Set([n[0][0] for (n,c) in matches])
         print tab + "/* " + str(len(matches)) + ' matches for "' \
             + prefix + '" */'
         print tab + 'switch(uppercased[' + str(depth) + ']) {'
