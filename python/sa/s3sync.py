@@ -20,7 +20,11 @@ def sighandler(x, st):
     raise exceptions.Exception("Got signal " + `x`)
 
 if __name__ == '__main__':
-    httplib.MAXAMOUNT=512
+    # This doesn't exist in my older httplib, but s3 needs it
+    try:
+        httplib.MAXAMOUNT
+    except AttributeError:
+        httplib.MAXAMOUNT=8192
 
     top, bucket, prefix, s3id, s3auth = sys.argv[1:]
 
