@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 local.add(relpath)
 
                 if relpath not in remote:
-                    signal.alarm(15)
+                    signal.alarm(900)
                     print "Adding", relpath
                     f=open(relpath)
                     ob=s3.S3Object(relpath, f, {})
