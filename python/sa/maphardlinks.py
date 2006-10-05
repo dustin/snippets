@@ -9,6 +9,8 @@ import os
 import sys
 import stat
 
+import zipfile
+
 def initMd5s(md5dir):
     h={}
     for dirpath, dirnames, filenames in os.walk(md5dir):
@@ -17,21 +19,20 @@ def initMd5s(md5dir):
             h[s[stat.ST_INO]]=f
     return h
 
-def doTable(d, table, h, datedir):
+def doTable(d, table, h, zf):
     files=os.listdir(".")
     files.sort()
     seq=[]
     for f in files:
         inode=os.stat(f)[stat.ST_INO]
         seq.append(h[inode])
-    f=open(os.path.join(datedir, table), "w")
-    f.write('\n'.join(seq))
-    f.close()
 
-def doDate(d, h, datedir):
+    zf.writestr(d + '/' + table, '\n'.join(seq))
+
+def doDate(d, h, zf):
     for table in os.listdir("."):
         os.chdir(table)
-        doTable(d, table, h, datedir)
+        doTable(d, table, h, zf)
         os.chdir("..")
 
 def walkTrees(top, h, outdir):
@@ -40,12 +41,13 @@ def walkTrees(top, h, outdir):
     dates.sort()
     rv={}
     for d in dates:
-        datedir=os.path.join(outdir, d)
-        if not os.path.exists(datedir):
-            os.mkdir(datedir)
-        os.chdir(d)
-        doDate(d, h, datedir)
-        os.chdir("..")
+        zfn=os.path.join(outdir, d) + ".zip"
+        if not os.path.exists(zfn):
+            zf=zipfile.ZipFile(zfn, mode="w", compression=zipfile.ZIP_DEFLATED)
+            os.chdir(d)
+            doDate(d, h, zf)
+            os.chdir("..")
+            zf.close()
     return rv
 
 if __name__ == '__main__':
