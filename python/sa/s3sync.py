@@ -26,7 +26,7 @@ if __name__ == '__main__':
     except AttributeError:
         httplib.MAXAMOUNT=8192
 
-    top, bucket, prefix, s3id, s3auth = sys.argv[1:]
+    top, bucket, s3id, s3auth = sys.argv[1:]
 
     c=s3.S3Service(s3id, s3auth)
     bucket=c[bucket]
