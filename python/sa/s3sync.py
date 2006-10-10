@@ -64,6 +64,7 @@ def doAdditions(bucket, remote):
             local.add(relpath)
 
             if relpath not in remote:
+                assert not bucket.has_key(relpath)
                 addWithRetry(bucket, relpath)
                 added += 1
 
@@ -91,6 +92,14 @@ if __name__ == '__main__':
     bucket=c[bucket]
     assert bucket is not None
     remote=sets.Set(bucket.keys())
+    # Stupid special case of 1000 items because my list seems to get truncated
+    # there.  There should be a flag indicating whether this list was truncated
+    # or not, but apparently I don't get to see that from here.
+    if len(remote) == 1000:
+        print "Looking for buckets by hex prefix"
+        for p in "0123456789abcdef":
+            remote.union_update(sets.Set(bucket.keys(prefix=p)))
+    print "Found %d items" % (len(remote),)
     os.chdir(top)
 
     deleted=0
