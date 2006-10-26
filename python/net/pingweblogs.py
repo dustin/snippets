@@ -5,6 +5,7 @@ Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
 # arch-tag: DA2D06A8-BC30-4694-91DA-B93C39E8EE3C
 
+import traceback
 import xmlrpclib
 
 sites=[
@@ -26,5 +27,8 @@ locations=(
 for s in sites:
     for l in locations:
         w=xmlrpclib.Server(l[1])
-        print "pinging %s against %s" % (s[0], l[0])
-        print w.weblogUpdates.ping(s[0], s[1])
+        try:
+            print "pinging %s against %s" % (s[0], l[0])
+            print w.weblogUpdates.ping(s[0], s[1])
+        except:
+            traceback.print_exc()
