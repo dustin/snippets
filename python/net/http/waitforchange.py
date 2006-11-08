@@ -36,7 +36,7 @@ if __name__ == '__main__':
         etags.append(etag)
     status=304
     while status == 304:
-        time.sleep(5)
+        time.sleep(30)
         status, etag=getStatus(u, etags)
 
     print "Updated!"
