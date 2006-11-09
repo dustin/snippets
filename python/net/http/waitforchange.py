@@ -7,7 +7,7 @@ Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 
 import sys
 import time
-import urllib, urllib2
+import urllib2
 
 class StatusHandler(urllib2.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, headers):

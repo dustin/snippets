@@ -11,14 +11,54 @@ import shutil
 import signal
 import urllib2
 
-# You have thirty seconds to comply
-signal.alarm(30)
+class StatusHandler(urllib2.HTTPDefaultErrorHandler):
+    def http_error_default(self, req, fp, code, msg, headers):
+        result=urllib2.HTTPError(req.get_full_url(), code, msg, headers, fp)
+        result.code=code
+        return result
 
-wantedfile=sys.argv[2]
-tmpfile=wantedfile + ".tmp"
+def getEtag(wantedfile):
+    rv=None
+    etf=wantedfile + ".etag"
+    if os.path.exists(etf):
+        f=open(etf)
+        rv=f.read().strip()
+        f.close()
+    return rv
 
-i=urllib2.urlopen(sys.argv[1])
-o=open(tmpfile, "w")
+def saveEtag(wantedfile, etag):
+    if etag is not None:
+        etf=wantedfile + ".etag"
+        tmpfile=etf + ".tmp"
+        f=open(tmpfile, "w")
+        f.write(etag)
+        f.close()
+        os.rename(tmpfile, etf)
 
-shutil.copyfileobj(i, o)
-os.rename(tmpfile, wantedfile)
+def doUpdate(u, wantedfile):
+    tmpfile=wantedfile + ".tmp"
+
+    req=urllib2.Request(u)
+    etag=getEtag(wantedfile)
+    if etag is not None:
+        req.add_header('If-None-Match', etag);
+
+    opener=urllib2.build_opener(StatusHandler())
+    i=opener.open(req)
+
+    if i.code == 200:
+        o=open(tmpfile, "w")
+
+        shutil.copyfileobj(i, o)
+        os.rename(tmpfile, wantedfile)
+
+        etag=i.info().getheader('ETag')
+        saveEtag(wantedfile, etag)
+
+if __name__ == '__main__':
+
+    # You have thirty seconds to comply
+    signal.alarm(30)
+
+    wantedfile=sys.argv[2]
+    doUpdate(sys.argv[1], wantedfile)
