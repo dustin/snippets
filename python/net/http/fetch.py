@@ -46,7 +46,9 @@ def doUpdate(u, wantedfile):
     opener=urllib2.build_opener(StatusHandler())
     i=opener.open(req)
 
-    if i.code == 200:
+    # This looks a little strange, but it gives me python 2.2 compatibility
+    # If the code attr doesn't exist, or it does and it's 200, then we update.
+    if not hasattr(i, 'code') or i.code == 200:
         o=open(tmpfile, "w")
 
         shutil.copyfileobj(i, o)
