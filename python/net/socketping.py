@@ -25,40 +25,43 @@ def getSocket(host, port):
 
     return s
 
-def waitForThem(sockets, timeout, h):
-    mysockets = list(sockets)
+def waitForThem(sockets, timeout):
+    mysockets={}
+    for s, h, p in sockets:
+        mysockets[s]=(h,p)
     found=[]
     finished = time.time() + timeout
-    while mysockets != [] and time.time() < finished:
-        r,w,e = select.select(mysockets, mysockets, mysockets, timeout)
+    while mysockets != {} and time.time() < finished:
+        socks=mysockets.keys()
+        r,w,e = select.select(socks, socks, socks, timeout)
         # If a socket errored, just remove it
         for s in e:
-            mysockets.remove(s)
+            del mysockets[s]
         # If a socket is readable, try to read from it (may just be waiting to
         # send us an error).
         for s in r:
             try:
                 c=s.recv(1)
-                print "Found %s:%d" % h[s]
+                print "Found %s:%d" % mysockets[s]
                 found.append(s)
             except socket.error, e:
                 pass
-            mysockets.remove(s)
+            del mysockets[s]
         # If a socket is writable (and hasn't been removed already),
         # try to write to it.
         for s in w:
-            if s in mysockets:
+            if s in mysockets.keys():
                 try:
                     if s.send("x") == 1:
-                        print "Found %s:%d" % h[s]
+                        print "Found %s:%d" % mysockets[s]
                         found.append(s)
                 except socket.error, e:
                     pass
-                mysockets.remove(s)
+                del mysockets[s]
 
         # If we got nothing here, we timed out
         if r == w == e == []:
-            mysockets=[]
+            mysockets={}
 
     return found
 
@@ -66,15 +69,11 @@ def main():
     rv=0
     timeout=float(sys.argv[1])
     stuff=[x.split(':') for x in sys.argv[2:]]
-    h={}
     sockets=[]
     for a, b in stuff:
-        s=getSocket(a, int(b))
-        h[s]=(a, int(b))
-        sockets.append(s)
+        sockets.append((getSocket(a, int(b)), a, int(b)))
 
-    # sockets=[getSocket(a, int(b)) for a, b in stuff]
-    found=waitForThem(sockets, timeout, h)
+    found=waitForThem(sockets, timeout)
 
     return rv
 
