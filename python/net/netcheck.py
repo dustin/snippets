@@ -12,6 +12,7 @@ import time
 import errno
 import socket
 import select
+import syslog
 import traceback
 
 def getSocket(host, port):
@@ -64,10 +65,17 @@ def waitForThem(sockets, timeout):
     return found
 
 def findLiveSockets(timeout, socks):
+    assert len(socks) > 1
     sockets=[]
     for a, b in socks:
-        sockets.append((getSocket(a, int(b)), a, int(b)))
+        try:
+            sockets.append((getSocket(a, int(b)), a, int(b)))
+        except:
+            msg=traceback.format_exception_only(
+                sys.exc_type, sys.exc_value)[0] + "\n" + traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, msg)
 
+    assert len(sockets) > 1
     found=waitForThem(sockets, timeout)
     return found
 
@@ -86,16 +94,19 @@ def runLoop(timeout, socks):
         for f in found:
             f[0].close()
     except:
-        sys.stdout.write(
-            traceback.format_exception_only(sys.exc_type, sys.exc_value)[0])
-        traceback.print_exc()
+        msg=traceback.format_exception_only(sys.exc_type, sys.exc_value)[0] \
+            + "\n" + traceback.format_exc()
+        syslog.syslog(syslog.LOG_CRIT, msg)
     return rv
 
 def main(timeout, script, socks):
     while 1:
-        if not runLoop(timeout, socks):
+        if runLoop(timeout, socks):
+            syslog.syslog(syslog.LOG_DEBUG, "Everything's going so well")
+        else:
+            syslog.syslog(syslog.LOG_WARNING, "Running " + script)
             os.system(script)
-        time.sleep(60.0)
+        time.sleep(300.0)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
@@ -107,4 +118,9 @@ if __name__ == '__main__':
     script=sys.argv[2]
     socks=parseSockets(sys.argv[3:])
 
-    rv=main(timeout, script, socks)
+    if os.fork() == 0:
+        syslog.openlog("netcheck", syslog.LOG_PID, syslog.LOG_DAEMON)
+        rv=main(timeout, script, socks)
+        syslog.closelog()
+
+    sys.exit(0)
