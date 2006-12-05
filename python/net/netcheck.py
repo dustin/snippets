@@ -15,6 +15,9 @@ import select
 import syslog
 import traceback
 
+# Number of failures before retrying.
+MAX_FAILURES = 5
+
 def getSocket(host, port):
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setblocking(False)
@@ -100,13 +103,18 @@ def runLoop(timeout, socks):
     return rv
 
 def main(timeout, script, socks):
+    failures = 0
     while 1:
         if runLoop(timeout, socks):
+            failures = 0
             syslog.syslog(syslog.LOG_DEBUG, "Everything's going so well")
         else:
-            syslog.syslog(syslog.LOG_WARNING, "Running " + script)
-            os.system(script)
-        time.sleep(300.0)
+            failures += 1
+            syslog.syslog(syslog.LOG_INFO, "Failure #" + `failures`)
+            if failures > MAX_FAILURES
+                syslog.syslog(syslog.LOG_WARNING, "Running " + script)
+                os.system(script)
+        time.sleep(60.0)
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
