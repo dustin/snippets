@@ -1,0 +1,12 @@
+#!/bin/sh
+# arch-tag: 86BD9262-57D2-4198-96FF-523F0A7D5BCC
+
+F=/Users/dustin/MyApps/ffmpegX.app/Contents/Resources/ffmpeg
+
+for i in "$@"
+do
+	outfile=`basename $i .ASF`.avi
+	$F -i "$i" -y -threads 2 -map 0.0:0.0 -f avi -vcodec copy -b 940 \
+		-aspect 4:3 -s 640x480 -r ntsc -g 240 -me epzs -qmin 2 -qmax 15 \
+		-acodec aac -ab 128 -ar 11024 -ac 2 -map 0.1:0.1 "$outfile"
+done
