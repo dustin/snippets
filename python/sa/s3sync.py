@@ -70,11 +70,23 @@ def doAdditions(bucket, remote):
 
     return added, local
 
+def __retry(f, args, kwargs):
+    for i in range(3):
+        try:
+            return f(*args, **kwargs)
+        except:
+            if i == 2:
+                raise
+            else:
+                sys.stderr.write("Failure %d\n" % (i,))
+                traceback.print_exc()
+
 def doDeletions(bucket, todelete):
     deleted = 0
     for f in todelete:
         print "Deleting", f
-        bucket.delete(f)
+        # bucket.delete(f)
+        __retry(bucket.delete, [f], {})
         print "...done"
         deleted += 1
     return deleted
@@ -98,7 +110,8 @@ if __name__ == '__main__':
     if len(remote) == 1000:
         print "Looking for buckets by hex prefix"
         for p in "0123456789abcdef":
-            remote.union_update(sets.Set(bucket.keys(prefix=p)))
+            # remote.union_update(sets.Set(bucket.keys(prefix=p)))
+            remote.union_update(sets.Set(__retry(bucket.keys,[],{'prefix':p})))
     print "Found %d items" % (len(remote),)
     os.chdir(top)
 
