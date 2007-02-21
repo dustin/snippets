@@ -91,6 +91,16 @@ def doDeletions(bucket, todelete):
         deleted += 1
     return deleted
 
+def getAllBucketContents(b):
+    rv=sets.Set()
+    keys=__retry(bucket.keys, [], {'marker':None, 'delimiter':'^'})
+    remote.update(keys)
+    while len(keys) == 1000:
+        # keys=bucket.keys(marker=keys[-1], delimiter='^')
+        keys=__retry(bucket.keys, [], {'marker':keys[-1], 'delimiter':'^'})
+        remote.union_update(sets.Set(keys))
+    return rv
+
 if __name__ == '__main__':
     # This doesn't exist in my older httplib, but s3 needs it
     try:
@@ -103,16 +113,8 @@ if __name__ == '__main__':
     c=s3.S3Service(s3id, s3auth)
     bucket=c[bucket]
     assert bucket is not None
-    remote=sets.Set(bucket.keys())
-    # Stupid special case of 1000 items because my list seems to get truncated
-    # there.  There should be a flag indicating whether this list was truncated
-    # or not, but apparently I don't get to see that from here.
-    if len(remote) == 1000:
-        print "Looking for buckets by hex prefix"
-        for p in "0123456789abcdef":
-            # remote.union_update(sets.Set(bucket.keys(prefix=p)))
-            remote.union_update(sets.Set(__retry(bucket.keys,[],{'prefix':p})))
-    print "Found %d items" % (len(remote),)
+    remote=getAllBucketContents(bucket)
+    print "Found %d keys" % (len(remote),)
     os.chdir(top)
 
     deleted=0
