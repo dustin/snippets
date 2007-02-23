@@ -94,11 +94,11 @@ def doDeletions(bucket, todelete):
 def getAllBucketContents(b):
     rv=sets.Set()
     keys=__retry(bucket.keys, [], {'marker':None, 'delimiter':'^'})
-    remote.update(keys)
+    rv.update(keys)
     while len(keys) == 1000:
         # keys=bucket.keys(marker=keys[-1], delimiter='^')
         keys=__retry(bucket.keys, [], {'marker':keys[-1], 'delimiter':'^'})
-        remote.union_update(sets.Set(keys))
+        rv.union_update(sets.Set(keys))
     return rv
 
 if __name__ == '__main__':
