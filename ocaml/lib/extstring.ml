@@ -285,7 +285,7 @@ let remove_end chars s =
 				i
 		in
 	let pos = pvt_skip_chars_rev s ((String.length s) - 1) in
-	if pos > 0 then
+	if pos >= 0 then
 		String.sub s 0 (pos + 1)
 	else
 		""
