@@ -5,10 +5,10 @@ OCAMLC=ocamlc
 
 # Set this to -p for profiler support
 PROFILE=
-SPYINC=-I ../lib
+SPYINC=-I ../spy
 
 PROGS= extractKeys validateNoDups validateCdb validateKeys validateDump \
-	buildMfgDB mfgmerge cdbpick cdbcat cdbget validateKeysRev
+	buildMfgDB mfgmerge cdbpick cdbcat cdbget validateKeysRev mfglookup
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -40,6 +40,10 @@ validateKeys: validateKeys.ml mfgcdb.cmi
 validateKeysRev: validateKeysRev.ml mfgcdb.cmi
 	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
 		unix.cmxa spy.cmxa mfgcdb.cmx validateKeysRev.ml
+
+mfglookup: mfglookup.ml mfgcdb.cmi
+	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \
+		unix.cmxa spy.cmxa mfgcdb.cmx mfglookup.ml
 
 cdbget: cdbget.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ $(SPYINC) \

@@ -21,7 +21,7 @@ type mfg = {
 	sn: string;
 	id_string: string;
 	pca: string;
-	model_num: int;
+	model_num: string;
 	product_string: string;
 	version: string;
 	auth_code: string;
@@ -32,19 +32,30 @@ type mfg = {
 
 (** Handle to a manufacturing db. *)
 type mfg_db = {
-	path: string;
-	cdb: Cdb.cdb_file;
+	paths: string array;
+	cdbs: Cdb.cdb_file array;
 	mfg_version: int;
 	cols: string list;
 }
 
-(** Open a manufacturing db. *)
-let open_mfg_db path =
-	let cdbi = Cdb.open_cdb_in path in
-	let data = try Cdb.find cdbi magic_key with Not_found -> raise Invalid_cdb
-		in
+let read_properties path =
+	let rv = Hashtbl.create 1 in
+	Fileutils.iter_file_lines (fun l ->
+		let parts = Extstring.split l '=' 2 in
+		Hashtbl.replace rv (List.hd parts) (List.nth parts 1)
+		) (Printf.sprintf "%s/build.properties" path);
+	rv
+
+let count_cdbs path =
+	int_of_string ((Hashtbl.find (read_properties path) "numfiles"))
+
+let open_mfg_dbs version paths =
+	let cdbs = Array.map Cdb.open_cdb_in paths in
+	let data = try Cdb.find (Array.get cdbs 0) magic_key
+		with Not_found -> raise Invalid_cdb in
 	let data_stream = Stream.of_string data in
 	let mv = int_of_string (Netstring.decode data_stream) in
+	assert (mv = version);
 	let rec loop rv s =
 		try
 			let col = Netstring.decode s in
@@ -52,17 +63,25 @@ let open_mfg_db path =
 		with Stream.Failure ->
 			rv
 		in
-	(* And the return structure *)
 	{
-		path=path;
-		cdb=cdbi;
+		paths=paths;
+		cdbs=cdbs;
 		mfg_version=mv;
 		cols=loop [] (Stream.of_string (Netstring.decode data_stream))
 	}
 
+(** Open a manufacturing db. *)
+let open_mfg_db path =
+	if (Fileutils.isdir path) then
+		let num_cdbs = count_cdbs path in
+		open_mfg_dbs 4 (Array.init num_cdbs
+			(Printf.sprintf "%s/forward.%d.cdb" path))
+	else
+		open_mfg_dbs 3 (Array.make 1 path)
+
 (** Close the manufacturing db. *)
 let close_mfg_db cdbi =
-	Cdb.close_cdb_in cdbi.cdb
+	Array.iter Cdb.close_cdb_in cdbi.cdbs
 
 (** Decode a record from a serial number match *)
 let decode_record cdbi sn data =
@@ -74,7 +93,7 @@ let decode_record cdbi sn data =
 		sn=sn;
 		id_string=Hashtbl.find rv "idstring";
 		pca=Hashtbl.find rv "pca";
-		model_num=int_of_string (Hashtbl.find rv "modelnum");
+		model_num=Hashtbl.find rv "modelnum";
 		product_string=Hashtbl.find rv "productstring";
 		version=Hashtbl.find rv "version";
 		auth_code=Hashtbl.find rv "authcode";
@@ -83,6 +102,16 @@ let decode_record cdbi sn data =
 		wireless_id=Hashtbl.find rv "wirelessid";
 	}
 
+let get_cdb_for_key_from_array cdbs k =
+	let h = Int32.abs (Cdb.hash k) in
+	let which = (Int32.to_int (Int32.rem h
+		(Int32.of_int (Array.length cdbs)))) in
+	Array.get cdbs which
+
+(* Find the cdb to which this key applies *)
+let get_cdb_for_key cdbi k =
+	get_cdb_for_key_from_array cdbi.cdbs k
+
 (** Get a specific manufacturing record.
 
 @param cdbi the cdb input record
@@ -90,7 +119,7 @@ let decode_record cdbi sn data =
 *)
 let lookup cdbi sn =
 	try
-		decode_record cdbi sn (Cdb.find cdbi.cdb sn)
+		decode_record cdbi sn (Cdb.find (get_cdb_for_key cdbi sn) sn)
 	with Not_found ->
 		raise (No_such_gateway sn)
 
@@ -100,13 +129,14 @@ let lookup cdbi sn =
 @param cdbi the manufacturing db
 *)
 let iter f cdbi =
-	Cdb.iter (fun k v ->
-			(*  Decode this value if it's not the magic key or a reverse
-				mapping *)
-			if k <> magic_key && (String.sub k 0 1) <> "r" then (
-				f (decode_record cdbi k v)
-			)
-		) cdbi.path
+	Array.iter (fun path ->
+		Cdb.iter (fun k v ->
+				(*  Decode this value if it's not the magic key or a reverse
+					mapping *)
+				if k <> magic_key && (String.sub k 0 1) <> "r" then (
+					f (decode_record cdbi k v)
+				)
+			) path) cdbi.paths
 
 (*
 let main() =

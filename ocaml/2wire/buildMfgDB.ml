@@ -29,7 +29,10 @@ let cdb_fields = [
 ]
 
 let magic_key = "meta_inf"
-let version = "3"
+let version = "4"
+
+(* The column from the pca.dat file that will be included as the PCA *)
+let pcaPart = ref 1
 
 (* The mapping of seen IDs *)
 let seenIds = Hashtbl.create 1
@@ -129,8 +132,15 @@ let makeRecord modelMap ts l =
 		reportBadModel record.in_model;
 		None
 
+(* Find the cdb to which this key applies *)
+let get_cdb_for_key cdbs k =
+	let h = Int32.abs (Cdb.hash k) in
+	let which = (Int32.to_int (Int32.rem h
+		(Int32.of_int (Array.length cdbs)))) in
+	Array.get cdbs which
+
 (* Store a parsed record *)
-let storeRecord db modelMap ts l =
+let storeRecord rcdb cdbs modelMap ts l =
 	try
 		match (makeRecord modelMap ts l) with
 		  None -> ()
@@ -138,8 +148,9 @@ let storeRecord db modelMap ts l =
 			let boxnum = (Hashtbl.find ht "boxnum") in
 			Printf.printf "%s|%s\n" boxnum k;
 			(* Add the reverse lookup hint *)
-			Cdb.add db ("r" ^ boxnum) k;
-			Cdb.add db k v
+			Cdb.add rcdb ("r" ^ boxnum) k;
+			(* Add the forward lookup *)
+			Cdb.add (get_cdb_for_key cdbs k) k v
 	with x ->
 		Printf.eprintf "Error processing line %s\n" l;
 		raise x
@@ -148,7 +159,8 @@ let storeRecord db modelMap ts l =
 let parseModelMap ht l =
 	try
 		let parts = List.nth (Extstring.split_all l '|' 4) in
-		Hashtbl.add ht (parts 0) {mr_id=parts 1; mr_product_line=parts 2};
+		Hashtbl.add ht (parts 0) {	mr_id=parts !pcaPart;
+									mr_product_line=parts 2};
 	with Failure("nth") ->
 		Printf.eprintf "Error on model map line:  ``%s''\n" l
 
@@ -171,10 +183,10 @@ let getTimestamp filename =
 				tm.tm_hour tm.tm_min tm.tm_sec
 
 (* Process a specific file *)
-let processFile destcdb modelMap filename =
+let processFile rcdb cdbs modelMap filename =
 	if not (Extstring.begins_with filename ".") then
 		let ts = getTimestamp filename in
-		Fileutils.iter_file_lines (storeRecord destcdb modelMap ts) filename
+		Fileutils.iter_file_lines (storeRecord rcdb cdbs modelMap ts) filename
 
 (* Return the listing of a directory in a predictable order so we process
    files in the same order *)
@@ -182,20 +194,20 @@ let sorted_ls d =
 	List.sort compare (Fileutils.lsdir d)
 
 (* Process the files and directories passed in as anonymous arguments *)
-let processPaths destcdb modelMap paths =
+let processPaths rcdb cdbs modelMap paths =
 	List.iter (fun path ->
 			if Fileutils.isdir path then (
 				Fileutils.walk_dir_via sorted_ls path (fun d files arg ->
-						List.iter (processFile destcdb modelMap)
+						List.iter (processFile rcdb cdbs modelMap)
 							(List.map (Filename.concat d) files)) ()
 			) else (
-				processFile destcdb modelMap path
+				processFile rcdb cdbs modelMap path
 			)
 		) paths
 
 let usage() =
 	prerr_endline("Usage:  " ^ Sys.argv.(0)
-		^ " -d destcdb -m modelmap [-k mfgkeys] inputpath [inputpath ...]");
+		^ " -d destcdb -m modelmap [-k mfgkeys] [-n num_out_files] inputpath [inputpath ...]");
 	exit(1)
 
 (* If the user wants to use a reserved path DB, this will set it up *)
@@ -214,16 +226,36 @@ let setupReserved path =
 		) path;
 	Printf.eprintf "Next key is %d\n" !nextKey
 
+let build_props path num =
+	let tm = Unix.gmtime (Unix.time ()) in
+	let f = open_out (path ^ "/build.properties") in
+	Printf.fprintf f "version=%s\n" version;
+	Printf.fprintf f "numfiles=%d\n" num;
+	Printf.fprintf f "builddate=%04d%02d%02dT%02d%02d%02d\n"
+				(tm.tm_year + 1900) (tm.tm_mon + 1) tm.tm_mday
+				tm.tm_hour tm.tm_min tm.tm_sec;
+	close_out f
+
+let make_forward_cdb path n =
+	let cdb = Cdb.open_out (Printf.sprintf "%s/forward.%d.cdb" path n) in
+	Cdb.add cdb magic_key (makeMetaInf());
+	cdb
+
 (* This is where all the work's done, main *)
 let main () =
 	let destpath = ref "" in
 	let modelpath = ref "" in
+	let numfiles = ref 3 in
 	let anon = ref [] in
 	Arg.parse [
 			("-d", Arg.Set_string(destpath), "Location of the destination cdb");
 			("-m", Arg.Set_string(modelpath), "Location of the model map");
 			("-k", Arg.String(setupReserved),
-					"Location of the reserved mfg keys -> sn map")
+					"Location of the reserved mfg keys -> sn map");
+			("-n", Arg.Set_int(numfiles),
+					"How many forward files to produce.");
+			("-p", Arg.Unit(fun _ -> pcaPart := 0),
+					"Include a literal PCA instead of the ID.")
 		] (fun s -> anon := s :: !anon)  "Build manufacturing DB";
 	if("" = !destpath) then
 		usage();
@@ -232,21 +264,33 @@ let main () =
 	if([] = !anon) then
 		usage();
 
-	(* Open the destination cdb *)
-	let destcdb = Cdb.open_out !destpath in
-	(* add the meta_inf *)
-	Cdb.add destcdb magic_key (makeMetaInf());
+	Unix.mkdir !destpath 0o755;
+
+	(* Record the build properties *)
+	build_props !destpath !numfiles;
+
+	(* Get the reverse cdb *)
+	let rcdb = Cdb.open_out (Printf.sprintf "%s/reverse.cdb" !destpath) in
+	(* Create the forward indexes *)
+	let cdbs = Array.init !numfiles (make_forward_cdb !destpath) in
+
 	(* Initialize the model map *)
 	let modelMap = Hashtbl.create 1 in
 	Fileutils.iter_file_lines (parseModelMap modelMap) !modelpath;
+
 	(* process records *)
-	processPaths destcdb modelMap (List.rev !anon);
+	processPaths rcdb cdbs modelMap (List.rev !anon);
+
 	(* Go ahead and dump the hashtable to make a bit of room for indexing *)
 	Hashtbl.clear seenIds;
 	Hashtbl.clear reservedKeys;
-	(* Close and cleanup *)
+
 	Printf.eprintf "Indexing...\n";
-	Cdb.close_cdb_out destcdb;
+	(* Close the reverse indexes *)
+	Cdb.close_cdb_out rcdb;
+	(* Close the forward indexes *)
+	Array.iter Cdb.close_cdb_out cdbs;
+	(* Display all of the stuff we didn't found that was interesting *)
 	printMissingModels()
 ;;
 
