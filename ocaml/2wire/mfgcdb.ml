@@ -70,9 +70,14 @@ let open_mfg_dbs version paths =
 		cols=loop [] (Stream.of_string (Netstring.decode data_stream))
 	}
 
+(** Determine the version of the cdb at the given path *)
+let determine_version path =
+	try int_of_string ((Hashtbl.find (read_properties path) "version"))
+	with Sys_error s -> 3
+
 (** Open a manufacturing db. *)
 let open_mfg_db path =
-	if (Fileutils.isdir path) then
+	if (determine_version path) > 3 then
 		let num_cdbs = count_cdbs path in
 		open_mfg_dbs 4 (Array.init num_cdbs
 			(Printf.sprintf "%s/forward.%d.cdb" path))
@@ -93,7 +98,8 @@ let decode_record cdbi sn data =
 		sn=sn;
 		id_string=Hashtbl.find rv "idstring";
 		pca=Hashtbl.find rv "pca";
-		model_num=Hashtbl.find rv "modelnum";
+		model_num=(try Hashtbl.find rv "modelnum"
+			with Not_found -> "0");
 		product_string=Hashtbl.find rv "productstring";
 		version=Hashtbl.find rv "version";
 		auth_code=Hashtbl.find rv "authcode";

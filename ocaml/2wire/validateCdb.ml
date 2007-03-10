@@ -58,7 +58,7 @@ let open_cdbs stuff =
 	}
 
 let get_cdb_list path =
-	if (Fileutils.isdir path) then
+	if (Mfgcdb.determine_version path) > 3 then
 		{
 			revcdb_path=path ^ "/reverse.cdb";
 			forwardcdb_path=Array.init (Mfgcdb.count_cdbs path)
