@@ -7,6 +7,7 @@
 open Unix
 
 exception Duplicate of string
+exception Invalid_record of string
 
 type in_record = {
 	in_sn: string;
@@ -30,6 +31,9 @@ let cdb_fields = [
 
 let magic_key = "meta_inf"
 let version = "4"
+
+(* If true, report errors and then continue, else report and raise *)
+let continueOnError = ref false
 
 (* The column from the pca.dat file that will be included as the PCA *)
 let pcaPart = ref 1
@@ -91,7 +95,7 @@ let reportBadModel m =
 (* Print all of the bad models with their counts *)
 let printMissingModels () =
 	Hashtbl.iter (fun k v ->
-		Printf.eprintf "Unknown model ``%s'':  %d\n" k v
+		Printf.eprintf "Unknown model ``%s'':  %d\n%!" k v
 	) badModels
 
 (* Make a record as a hash table of all known fields *)
@@ -121,7 +125,7 @@ let makeRecord modelMap ts l =
 		let htr = Hashtbl.replace ht in
 		htr "boxnum" (string_of_int
 						(getBoxNum mr_rec.mr_product_line record.in_sn));
-		htr "modelnum" mr_rec.mr_id;
+		htr "modelnum" "0";
 		htr "pca" mr_rec.mr_id;
 		htr "version" ""; (* Don't include the version in the cdb anymore *)
 		htr "authcode" record.in_password;
@@ -152,8 +156,10 @@ let storeRecord rcdb cdbs modelMap ts l =
 			(* Add the forward lookup *)
 			Cdb.add (get_cdb_for_key cdbs k) k v
 	with x ->
-		Printf.eprintf "Error processing line %s\n" l;
-		raise x
+		Printf.eprintf "Error processing line %s:  %s\n%!" l
+			(Printexc.to_string x);
+		if not !continueOnError then
+			raise x
 
 (* Parse a model map line *)
 let parseModelMap ht l =
@@ -162,7 +168,7 @@ let parseModelMap ht l =
 		Hashtbl.add ht (parts 0) {	mr_id=parts !pcaPart;
 									mr_product_line=parts 2};
 	with Failure("nth") ->
-		Printf.eprintf "Error on model map line:  ``%s''\n" l
+		Printf.eprintf "Error on model map line:  ``%s''\n%!" l
 
 (* Get the timestamp of a file.  This will try to use it based on the name of
    the file, otherwise it will fall back to stat *)
@@ -184,9 +190,16 @@ let getTimestamp filename =
 
 (* Process a specific file *)
 let processFile rcdb cdbs modelMap filename =
-	if not (Extstring.begins_with filename ".") then
-		let ts = getTimestamp filename in
-		Fileutils.iter_file_lines (storeRecord rcdb cdbs modelMap ts) filename
+	try
+		if not (Extstring.begins_with filename ".") then
+			let ts = getTimestamp filename in
+			Fileutils.iter_file_lines (storeRecord rcdb cdbs modelMap ts)
+				filename
+	with x ->
+		Printf.eprintf "Error in file %s:  %s\n%!" filename
+			(Printexc.to_string x);
+		if not !continueOnError then
+			raise x
 
 (* Return the listing of a directory in a predictable order so we process
    files in the same order *)
@@ -222,9 +235,9 @@ let setupReserved path =
 					nextKey := id + 1
 				)
 			with x ->
-				Printf.eprintf "Error on ``%s'':  %s\n" l (Printexc.to_string x)
+				Printf.eprintf "Error on ``%s'':  %s\n%!" l (Printexc.to_string x)
 		) path;
-	Printf.eprintf "Next key is %d\n" !nextKey
+	Printf.eprintf "Next key is %d\n%!" !nextKey
 
 let build_props path num =
 	let tm = Unix.gmtime (Unix.time ()) in
@@ -255,7 +268,9 @@ let main () =
 			("-n", Arg.Set_int(numfiles),
 					"How many forward files to produce.");
 			("-p", Arg.Unit(fun _ -> pcaPart := 0),
-					"Include a literal PCA instead of the ID.")
+					"Include a literal PCA instead of the ID.");
+			("-x", Arg.Unit(fun _ -> continueOnError := true),
+					"Continue processing on errors.")
 		] (fun s -> anon := s :: !anon)  "Build manufacturing DB";
 	if("" = !destpath) then
 		usage();
@@ -285,7 +300,7 @@ let main () =
 	Hashtbl.clear seenIds;
 	Hashtbl.clear reservedKeys;
 
-	Printf.eprintf "Indexing...\n";
+	Printf.eprintf "Indexing...\n%!";
 	(* Close the reverse indexes *)
 	Cdb.close_cdb_out rcdb;
 	(* Close the forward indexes *)
