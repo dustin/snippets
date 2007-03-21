@@ -43,3 +43,29 @@ tuple_thing (One a) = Left (Left a)
 tuple_thing (Two x) = Left (Right x)
 tuple_thing (Three x) = Right (Left x)
 tuple_thing (Four x) = Right (Right x)
+
+-- 4.8 list stuff
+data List a = Nil
+	| Cons a (List a)
+
+listHead Nil = Nothing
+listHead (Cons a _) = Just a
+
+listTail Nil = Nothing
+listTail (Cons a Nil) = Just a
+listTail (Cons _ x) = listTail x
+
+listFoldl p i Nil = i
+listFoldl p i (Cons a x) = listFoldl p (p i a) x
+
+listFoldr p i Nil = i
+listFoldr p i (Cons a x) = p a (listFoldr p i x)
+
+-- 4.9 binary tree
+data BinaryTree a
+	= Leaf a
+	| Branch (BinaryTree a) a (BinaryTree a)
+
+elements (Leaf a) = [a]
+elements (Branch l x r) =
+	elements l ++ [x] ++ elements r
