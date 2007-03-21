@@ -69,3 +69,11 @@ data BinaryTree a
 elements (Leaf a) = [a]
 elements (Branch l x r) =
 	elements l ++ [x] ++ elements r
+
+-- 4.10 -- fold and reimplement elements using fold
+treeFold p i (Leaf e) = (p i e)
+treeFold p i (Branch l e r) =
+	treeFold p (treeFold p (p i e) r) l
+
+elements2 l =
+	treeFold (\i e -> e:i) [] l
