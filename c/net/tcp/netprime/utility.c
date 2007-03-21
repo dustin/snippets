@@ -55,7 +55,7 @@ int gettextcr(int s, char *buf)
 	}
     }
 
-    /*
+    /* 
     {
         if(buf[size-1]!='\r' && buf[size-1]!='\n')
             break;

@@ -1,12 +1,12 @@
 ; Handbase utilities
 
-;;; Curried to avoid repeated reading
+;;; Curried to avoid repeated reading 
 ;;; of catalog
 (define (hb-getrecord db)
   (let ((info (hb-info db)))
-    (lambda (rec)
-      (letrec ((getf (lambda (fd)
-	(convert
+    (lambda (rec) 
+      (letrec ((getf (lambda (fd) 
+	(convert 
 	  (if (= (caddr fd) 10)
 	    (hb-getlinks db rec (car fd))
 	    (hb-getfield db rec (car fd)))
@@ -16,7 +16,7 @@
       (map getf (cdr info)))))))
 
 (define (convert val type)
-   (case type
+   (case type 
     ((1 4 12 13 14) val)
     ((2 6) (string->object val))
     ((3 15) (parse-float val))
@@ -25,16 +25,16 @@
     ((7) 'image)
     ((8) (parse-date val))
     ((9) (parse-time val))
-    ((10) (map (hb-getrecord
+    ((10) (map (hb-getrecord 
 		(car val)) (cdr val)))
     ((11) 'linked)))
 
 ;;; Parse a float after replacing
 ;;; commas by dots
-(define (parse-float s)
-  (do ((i 0 (+ i 1)))
+(define (parse-float s) 
+  (do ((i 0 (+ i 1))) 
 	((>= i (string-length s))
-	(string->object s))
+ 	(string->object s))
     (if (eq? #\, (string-ref s i))
 	(string-set! s i #\.) #n)))
 
@@ -43,11 +43,11 @@
 (define (parse-date s)
   (let* ((d1 (find s #\. 0))
 	(d2 (find s #\. (+ d1 1)))
-	(y (string->object
+	(y (string->object 
 		(substring s (+ d2 1) 15)))
-	(m  (string->object
+	(m  (string->object 
 		(substring s (+ d1 1) d2)))
-	(d (string->object
+	(d (string->object 
 		(substring s 0 d1))))
   `(date ,(+ y (if (> y 50) 1900 2000))
 	,m ,d)))
@@ -56,9 +56,9 @@
 (define (parse-time s)
   (if (string=? "No Time" s)
   '(time #n)
-  `(time ,(string->object s)
-	,(string->object (substring s
-	   (+ 1 (find s #\: 0)) 10)))))
+  `(time ,(string->object s) 
+	,(string->object (substring s 
+  	   (+ 1 (find s #\: 0)) 10)))))
 
 ;;; Find char c in string s starting at
 ;;; position p. Returns #f if not found
@@ -66,4 +66,4 @@
   (cond ((>= p (string-length s)) #f)
 	((eq? c (string-ref s p)) p)
 	(else (find s c (+ 1 p)))))
-
+   

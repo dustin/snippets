@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 1997 SPY Internetworking
  *
  * $Id: sockets.c,v 1.3 1997/01/07 08:07:32 dustin Exp $
@@ -19,7 +19,7 @@
 
 extern struct global *glob;
 
-int
+int 
 initialize(void)
 {
   int reuse = 1;
@@ -68,7 +68,7 @@ initialize(void)
   return (s);
 }
 
-void
+void 
 con_add(int new)
 {
   struct dllist *n;
@@ -86,7 +86,7 @@ con_add(int new)
   printf("Added socket %d\n", n->socket);
 }
 
-void
+void 
 pipe_del(int n)
 {
   printf("Closing socket %d -- broken pipe...", n);
@@ -100,7 +100,7 @@ pipe_del(int n)
   puts("done");
 }
 
-void
+void 
 con_del(int n)
 {
   printf("Closing socket %d...", n);

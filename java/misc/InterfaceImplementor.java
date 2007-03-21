@@ -212,7 +212,7 @@ public class InterfaceImplementor extends Object {
 		if(superClass!=null) {
 			ret+="extends " + superClass.getName() + " ";
 		}
-
+		
 		ret+="implements " + interfaceClass.getName() + " {\n\n";
 		for(int i=0; i<methods.length; i++) {
 			String sig=getSignature(methods[i]);

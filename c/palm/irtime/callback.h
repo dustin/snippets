@@ -11,7 +11,7 @@
 
    We really want a function attribute "callback" which will insert this
    progloue and epilogoue automatically.
-
+   
       - Ian */
 
 register void *reg_a4 asm("%a4");

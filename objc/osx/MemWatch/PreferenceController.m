@@ -12,7 +12,7 @@
 @implementation PreferenceController
 
     -(void)startUp:(NSUserDefaults *)d
-{
+{   
     defaults=d;
     [self showWindow: self];
     [url setStringValue: [defaults objectForKey: @"url"]];

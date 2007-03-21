@@ -25,7 +25,7 @@ void initary(void)
    }
 }
 
-void
+void 
 display(void)
 {
 int i;
@@ -140,7 +140,7 @@ void menu(int which)
     }
 }
 
-void
+void 
 gfxinit(void)
 {
   glMatrixMode(GL_PROJECTION);
@@ -164,7 +164,7 @@ gfxinit(void)
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void
+void 
 main(int argc, char **argv)
 {
   glutInit(&argc, argv);

@@ -136,7 +136,7 @@ usage(char *progname)
 	);
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	struct status st;

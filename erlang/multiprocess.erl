@@ -12,7 +12,7 @@ loop() ->
 	receive
 		{From, Msg} ->
 			io:format("~p got ~s from ~s\n", [self(), Msg, From]),
-			loop()
+			loop() 
 	end.
 
 echo() ->

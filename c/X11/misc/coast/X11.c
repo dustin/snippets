@@ -59,7 +59,7 @@ init_window(void)
 /*
  * This is the event mask, a flag that determines which events will be
  * processed by XNextEvent();
- *
+ * 
  * Here I have told it I only want to process the button being pressed down
  * (there is a seperate one for released, but that won't be needed), and
  * exposure.  An exposure event occurs when a partially covered window is
@@ -67,7 +67,7 @@ init_window(void)
  * to a virtual desktop that has the window on it, and probably other things
  * I don't know about.  It's important to always process exposure events
  * unless you don't care.
- *
+ * 
  * I'm using BlackPixel() and WhitePixel() to find the values for black and
  * white.  These don't necessarily return black and white in the colormap,
  * but they are supposed to return different colors.
@@ -246,7 +246,7 @@ reportpos(int x, int y)
 
 void
 xcircle(int xc, int yc, int r)	/*
-				 * x, y, and radius
+				 * x, y, and radius 
 				 */
 {
   if (r < 1)
@@ -345,7 +345,7 @@ xplot()
       y = (long) ((float) max_y * (temp / lng_diff));
 
 /*
- * _setpixel(x, y);
+ * _setpixel(x, y); 
  */
 
       if (!island)

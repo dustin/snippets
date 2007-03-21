@@ -6,7 +6,7 @@ GLfloat light_position[] =
 {1.0, 1.0, 1.0, 0.0};
 GLUquadricObj *qobj;
 
-void
+void 
 display(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -14,7 +14,7 @@ display(void)
   glutSwapBuffers();
 }
 
-void
+void 
 gfxinit(void)
 {
   qobj = gluNewQuadric();
@@ -36,8 +36,8 @@ gfxinit(void)
   glEnable(GL_DEPTH_TEST);
   */
   glMatrixMode(GL_PROJECTION);
-  gluPerspective( /* field of view in degree */ 40.0,  /* aspect
-                                                          ratio
+  gluPerspective( /* field of view in degree */ 40.0,  /* aspect 
+                                                          ratio 
                                                         */ 1.0,
     /* Z near */ 1.0, /* Z far */ 10.0);
   glMatrixMode(GL_MODELVIEW);
@@ -47,7 +47,7 @@ gfxinit(void)
   glTranslatef(0.0, 0.0, -1.0);
 }
 
-void
+void 
 main(int argc, char **argv)
 {
   glutInit(&argc, argv);

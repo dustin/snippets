@@ -60,7 +60,7 @@ void makelist(l_header head, l_point **points)
 
     for(j=0; j<head.height-1; j++)
     {
-        glBegin(GL_QUAD_STRIP);
+        glBegin(GL_QUAD_STRIP); 
 
         glVertex3f(0.0, (float)j, points[j][0].z);
         glVertex3f(0.0, (float)j+1, points[j][0].z);

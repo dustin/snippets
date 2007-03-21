@@ -57,7 +57,7 @@ class LogFile:
     def getLine(self):
         """Get the current line in this file."""
         return(self.__currentLine)
-
+    
     def getTimestamp(self):
         """Get the current timestamp."""
         return(self.__timestamp)
@@ -65,7 +65,7 @@ class LogFile:
     def __cmp__(self, other):
         """Compare two objects by timestamp."""
         return(cmp(self.getTimestamp(), other.getTimestamp()))
-
+    
     def __getTimestamp(self):
         """Parse the timestamp"""
 
@@ -121,7 +121,7 @@ class LogMux:
     def getQueue(self):
         """Get the queue."""
         return(self.__logfiles)
-
+    
     def next(self):
         """Get the next log entry"""
 
@@ -158,10 +158,10 @@ if __name__ == '__main__':
     # sys.stderr.write("# Queue:\n")
     # for lf in lm.getQueue():
         # sys.stderr.write("#  " + `lf` + ":" + `lf.getTimestamp()` +  "\n")
-
+    
     line=lm.next()
     while line!='':
         outfile.write(line)
         line=lm.next()
-
+    
     outfile.close()

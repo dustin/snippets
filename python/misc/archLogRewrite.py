@@ -88,7 +88,7 @@ def rewriteFile(filename):
 
     if (len(headers) > 0):
         out=open(filename + ".tmp", "w")
-
+    
         lines.reverse()
         allheaders=0
         for l in lines:

@@ -44,7 +44,7 @@ function kittyCode() {
 			document.form.price.value="";
 			document.form.cuecat.value="";
 			document.form.country.value="";
-			// document.upcform.upc.value="";
+			// document.upcform.upc.value=""; 
 
             var a = /IBN/; var b = /IB5/; var c = /C39/; var a1=/UA5/;
             if (a.test(type)){
@@ -52,20 +52,20 @@ function kittyCode() {
             } else if (c.test(type)) {
                   document.form.isbn.value=code;
             } else if (b.test(type)) {
-				document.form.isbn.value=code.substr(3,9);
+ 				document.form.isbn.value=code.substr(3,9);
 				document.form.price.value=toPrice(code.substr(14));
 				var country="";
-				if (code.substr(13,1) ==5) {country="USA";
+				if (code.substr(13,1) ==5) {country="USA"; 
 				} else if (code.substr(13,1) ==6) {country="CANADA";
 				} else if (code.substr(13,1) ==9) {country="OTHER"; }
 				document.form.country.value=country;
 			} else if (a1.test(type)) {
-				document.form.isbn.value = upcISBNmap(code.substr(0,6))
+ 				document.form.isbn.value = upcISBNmap(code.substr(0,6))
 					+code.substr(12,5);
 				document.form.price.value=toPrice(code.substr(7,4));
 				var country="";
 				if (code.substr(6,1) ==5) {
-					country="USA";
+					country="USA"; 
 				} else if (code.substr(6,1) ==6) {
 					country="CANADA";
 				} else if (code.substr(6,1) ==9) {
@@ -86,9 +86,9 @@ function kittyCode() {
 				document.form.code.value="";
 			}
 
-			if (((type == "UPA") | (type=="UPE") )
+			if (((type == "UPA") | (type=="UPE") ) 
 				& (document.form.upcAutoLookup.checked)) {
-				window.location.href=
+	  	 		window.location.href=
 					"http://www.upcdatabase.com/item.pl?upc="+code;
 			}
 		} // Real CueCat input
@@ -100,7 +100,7 @@ function decodePart(str) {
 	var result = "";
 	var packer = 0;
 	var count = 0;
-
+	
 	var i = 0;
 	for (i=0; i < str.length; i++) {
 		// Get the offset to the current character in our map
@@ -139,7 +139,7 @@ function decodePart(str) {
 
 function decodeCC(str) {
 	var m = "0123456789ABCDEF";
-	var result = "";
+	var result = "";	
 	var i = 0;
 	for (i=0; i < str.length; i++) {
 		var x = str.charCodeAt(i)-32;
@@ -155,7 +155,7 @@ function checkISBN(str) {
 	var len = str.length;
 	var result = "";
 	if ((len>10) | (len<9) ) {
-		return result = "INVALID";
+		return result = "INVALID"; 
 	} else {
 		len=9;
 	}
@@ -183,26 +183,26 @@ function toPrice(str) {
 }
 
 function amazonURL(str) {
-	return "http://www.amazon.com/exec/obidos/ASIN/"+str+"/";
+	return "http://www.amazon.com/exec/obidos/ASIN/"+str+"/"; 
 }
 
 function nuURL(str) {
-	return "http://isbn.nu/"+str+"/price";
+	return "http://isbn.nu/"+str+"/price"; 
 }
 
 function chaptersURL(str) {
-	return "http://www.chapters.ca/books/details/default.asp?ISBN="+str;
+	return "http://www.chapters.ca/books/details/default.asp?ISBN="+str; 
 }
 
 function bnURL(str) {
-	return "http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn="+str;
+	return "http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn="+str; 
 }
 
 
 function formHandler(){
 	var temp = document.form.bookChoice.options[document.form.bookChoice.selectedIndex].value;
 
-	if (temp=="amazon") {
+	if (temp=="amazon") { 
 		document.form.url.value = amazonURL(document.form.isbn.value);
 	} else if (temp=="isbn.nu") {
 		document.form.url.value = nuURL(document.form.isbn.value);
@@ -212,12 +212,12 @@ function formHandler(){
 		document.form.url.value = bnURL(document.form.isbn.value);
 	}
 
-	window.location.href = document.form.url.value;
+	window.location.href = document.form.url.value; 
 }
 
 
 function upcHandler(){
-	if ((document.form.type.value == "UPA") |
+	if ((document.form.type.value == "UPA") | 
 		(document.form.type.value=="UPE") ) {
 		window.location.href=
 			"http://www.upcdatabase.com/item.pl?upc="+document.form.code.value;
@@ -266,7 +266,7 @@ function upcISBNmap(str) {
 		"071842","08439",
 		"072742","0441",
 		"076714","0671",
-		"076783","0770",
+		"076783","0770", 
 		"076814","0449",
 		"078021","0872",
 		"079808","0394",
@@ -288,6 +288,6 @@ function upcISBNmap(str) {
 	}
 
 	if (result=="")
-		result=str;
+		result=str; 
 	return(result);
 }

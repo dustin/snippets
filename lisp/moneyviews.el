@@ -17,5 +17,5 @@
     (insert s)))
 
 (defun show-data (d) "Show the data from the postgres result."
-
+  
 (shove-data-in "*results*" (get-money-data "show_account_values"))

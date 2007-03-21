@@ -43,7 +43,7 @@
     [attribs setObject:[NSColor whiteColor]
             forKey:NSForegroundColorAttributeName];
     NSSize wordSize=[tmpString sizeWithAttributes: attribs];
-    NSPoint p=NSMakePoint(
+    NSPoint p=NSMakePoint( 
         rect.origin.x + ((rect.size.width/2) - (wordSize.width/2)),
         rect.origin.y + (rect.size.height/2));
     [tmpString drawAtPoint:p withAttributes:attribs];

@@ -4,7 +4,7 @@ import java.text.*;
 public class TestLocale extends Object {
 	public static void main(String args[]) {
 		Locale l=null;
-
+		
 		if(args.length==3) {
 			l=new Locale(args[0], args[1], args[2]);
 		} else {

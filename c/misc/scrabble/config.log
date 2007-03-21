@@ -1,0 +1,25 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:528: checking for gcc
+configure:605: checking whether the C compiler (gcc  ) works
+configure:619: gcc -o conftest    conftest.c  1>&5
+configure:639: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:644: checking whether we are using GNU C
+configure:653: gcc -E conftest.c
+configure:668: checking whether gcc accepts -g
+configure:698: checking for ranlib
+configure:727: checking for ar
+configure:768: checking dictionary list
+configure:801: checking how to run the C preprocessor
+configure:822: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:862: checking for ANSI C header files
+configure:875: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:942: gcc -o conftest -g -O2   conftest.c  1>&5
+configure: In function 'main':
+configure:937: warning: incompatible implicit declaration of built-in function 'exit'
+configure:967: checking for working const
+configure:1021: gcc -c -g -O2  conftest.c 1>&5
+configure:1045: checking for strdup
+configure:1073: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1057: warning: conflicting types for built-in function 'strdup'

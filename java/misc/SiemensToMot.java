@@ -95,7 +95,7 @@ public class SiemensToMot extends Object {
 	public String toString() {
 		return(mot_data);
 	}
-
+	
 	public static void main(String args[]) throws Exception {
 		String name=args[0];
 		String fromfile=SpyUtil.getFileData(args[1]);

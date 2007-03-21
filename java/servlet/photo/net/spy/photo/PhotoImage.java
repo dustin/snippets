@@ -18,7 +18,7 @@ import net.spy.util.*;
 
 // The class
 public class PhotoImage extends PhotoHelper
-{
+{ 
 	static ImageServer server = null;
 	int image_id=-1;
 

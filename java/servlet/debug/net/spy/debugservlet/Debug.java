@@ -20,7 +20,7 @@ import net.spy.pool.*;
 
 // The class
 public class Debug extends HttpServlet
-{
+{ 
 
 	// The servlet context (for dumping servlets)
 	ServletContext context=null;
@@ -156,7 +156,7 @@ public class Debug extends HttpServlet
 		for(Enumeration e=context.getServletNames(); e.hasMoreElements(); ) {
 			String servletName=(String)e.nextElement();
 			Servlet s=null;
-
+			
 			ret+="<li>" + servletName + "\n<ul>\n";
 			try {
 				s=context.getServlet(servletName);
@@ -187,7 +187,7 @@ public class Debug extends HttpServlet
 				stuff+="<h1>Jserv Specific Stuff</h1>\n<ul>\n";
 				for(Enumeration e=(Enumeration)request.getAttribute(jservStuff);
 					e.hasMoreElements(); ) {
-
+				
 					String attr = e.nextElement().toString();
 					stuff+="<li>" + attr + "=";
 					if ( request.getAttribute(jservPrefix + attr) != null ) {

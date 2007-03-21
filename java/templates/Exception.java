@@ -5,7 +5,7 @@ package PACKAGE;
 import com.twowire.rpc.CMSException;
 
 /**
- *
+ * 
  */
 public class CLASSNAME extends CMSException {
 

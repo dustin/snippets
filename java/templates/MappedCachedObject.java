@@ -62,9 +62,9 @@ public class CLASSNAME extends TWObject {
         return(rv);
     }
 
-    /**
+    /** 
      * Get a CLASSNAME by integer ID.
-     *
+     * 
      * @param id the integer ID
      * @return the CLASSNAME instance
      * @throws EXC if there's a problem loading the map
@@ -79,7 +79,7 @@ public class CLASSNAME extends TWObject {
         return(rv);
     }
 
-    /**
+    /** 
      * Get a collection of all known CLASSNAME objects.
      * @return a collection of all CLASSNAME objects
      * @throws EXC if there's a problem creating this list
@@ -101,7 +101,7 @@ public class CLASSNAME extends TWObject {
         return(rv);
     }
 
-    /**
+    /** 
      * True if the object is an instance of CLASSNAME with the same ID.
      */
     public boolean equals(Object o) {
@@ -113,23 +113,23 @@ public class CLASSNAME extends TWObject {
         return(rv);
     }
 
-    /**
+    /** 
      * Get the hashcode for this object.
-     *
+     * 
      * @return the id
      */
     public int hashCode() {
         return(id);
     }
 
-    /**
+    /** 
      * Get the ID of this CLASSNAME.
      */
     public int getId() {
         return(id);
     }
 
-    /**
+    /** 
      * String me.
      */
     public String toString() {

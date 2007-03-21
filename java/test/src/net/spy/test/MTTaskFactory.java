@@ -70,7 +70,7 @@ public class MTTaskFactory extends Object {
                 System.err.println("Constructor:  " + list[i]);
             }
 			throw new Error(mtTaskClass.getName()
-				+ " appears to be a subclass of " + MTTask.class.getName()
+				+ " appears to be a subclass of " + MTTask.class.getName() 
 				+ " but couldn't find a valid constructor.");
 		}
 

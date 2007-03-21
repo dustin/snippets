@@ -12,7 +12,7 @@
 
 /* Blank a region */
 void blank_region(lx,ly,ux,uy)
-int lx,ly,ux,uy;
+int lx,ly,ux,uy; 
 {
 	NSLog(@"Blanking %d,%d to %d,%d", lx, ly, ux, uy);
     NSEraseRect(NSMakeRect(lx, ly, (ux-lx), (uy-ly)));

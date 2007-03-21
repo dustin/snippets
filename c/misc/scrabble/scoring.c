@@ -59,7 +59,7 @@ originalScoreLetter(char c)
 	return(rv);
 }
 
-int
+int 
 scoreWord(const char *word)
 {
 	int rv=0;

@@ -19,7 +19,7 @@ struct glob {
     double height;
 } glob;
 
-void
+void 
 display(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -27,7 +27,7 @@ display(void)
   glutSwapBuffers();
 }
 
-void
+void 
 gfxinit(char *filename)
 {
   FILE *f;
@@ -151,7 +151,7 @@ void reshape(int x, int y)
     glViewport(0,0,x,y);
 }
 
-void
+void 
 main(int argc, char **argv)
 {
   glutInit(&argc, argv);

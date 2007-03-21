@@ -58,7 +58,7 @@ main(int argc, char **argv)
 	docopy(source_d, s_w, dest_d, d_w);
 }
 
-Window
+Window 
 openInputWindow(Display * d)
 {
 	Window          w;

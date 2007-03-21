@@ -46,7 +46,7 @@ let print_line all_fields it =
 let hlen h =
 	Hashtbl.fold (fun k v o -> 1 + o) h 0
 
-let main() =
+let main() = 
 	(* First, let's find the list of all fields *)
 	let all_fields = Fileutils.fold_file_lines (fun l m->
 		StringSet.add (List.nth (Extstring.split l ',' 3) 1) m)

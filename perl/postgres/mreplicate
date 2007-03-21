@@ -18,7 +18,7 @@ $local=DBI->connect("dbi:Pg:dbname=modems", '','');
 $remote=DBI->connect("dbi:Pg:dbname=modems;host=propaganda", '','');
 
 %tables=(
-    'mod'     => [0,0,1],
+    'mod'     => [0,0,1], 
     'oem'     => [0,1],
     'strings' => [0,1,1],
 );

@@ -89,7 +89,7 @@ def buildDocument(results, keywords):
 
     for r in results:
         appendItem(doc, channel, r)
-
+    
     return doc
 
 if __name__=='__main__':

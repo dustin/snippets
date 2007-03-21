@@ -76,7 +76,7 @@ public class Logging {
 
 	private ThreadGroup getSystemGroup() {
 		ThreadGroup start=null, last=null;
-
+		
 		for(start=Thread.currentThread().getThreadGroup(); start!=null;) {
 			last=start;
 			start=start.getParent();

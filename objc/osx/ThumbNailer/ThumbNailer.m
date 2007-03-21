@@ -21,7 +21,7 @@
     [iconFamily setAsCustomIconForFile:imgFile];
 
     [image release];
-    [iconFamily release];
+    [iconFamily release];    
 }
 
 -(void)processFiles: (NSArray *)images
@@ -50,7 +50,7 @@
         // [processingText displayIfNeeded];
 
         [self processFile: imgFile];
-    }
+    }    
 }
 
 @end

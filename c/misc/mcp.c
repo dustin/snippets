@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 		perror("lseek");
 		exit(1);
 	}
-
+	
 	if( write(out, &buf, 1) < 1 ) {
 		perror("write");
 		exit(1);

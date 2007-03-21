@@ -98,7 +98,7 @@ main(int argc, char **argv)
 		set_pass(r.start, pass_attempt, passmap);
 
 		/*
-		 * printf("Trying packet %d\n", ++tries);
+		 * printf("Trying packet %d\n", ++tries); 
 		 */
 
 		i=0;

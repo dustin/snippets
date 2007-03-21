@@ -6,7 +6,7 @@ class OidResolve:
 
 	def lookupOid(self, name):
 		"""Look up an SNMP variable by name.
-
+		
 		i.e.
 			sysUptime.0        ->  1.3.6.1.2.1.1.3.0
 			1.3.6.1.2.1.1.3.0  ->  1.3.6.1.2.1.1.3.0
@@ -58,9 +58,9 @@ class OidResolve:
 		'ifMtu': '1.3.6.1.2.1.2.2.1.4',
 		'ifSpeed': '1.3.6.1.2.1.2.2.1.5',
 		'ifPhysAddress': '1.3.6.1.2.1.2.2.1.6',
-		'ifAdminHack': '1.3.6.1.2.1.2.2.1.7',
+		'ifAdminHack': '1.3.6.1.2.1.2.2.1.7',  
 		'ifAdminStatus': '1.3.6.1.2.1.2.2.1.7',
-		'ifOperHack': '1.3.6.1.2.1.2.2.1.8',
+		'ifOperHack': '1.3.6.1.2.1.2.2.1.8',             
 		'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
 		'ifLastChange': '1.3.6.1.2.1.2.2.1.9',
 		'ifName': '1.3.6.1.2.1.31.1.1.1.1',

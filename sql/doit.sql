@@ -94,7 +94,7 @@ select distinct username into table tmp1 from radius;
 alter table tmp1 add column times int;
 alter table tmp1 add column totaltime timespan;
 alter table tmp1 add column avgtime timespan;
-alter table tmp1 add column avgbpsin int;
+alter table tmp1 add column avgbpsin int; 
 alter table tmp1 add column avgbpsout int;
 
 -- find out how many times they dialed up

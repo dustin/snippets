@@ -5,14 +5,14 @@
 -(void)update {
     // NSLog(@"Controller updating.");
     [stats update];
-
+    
     int meg=1024*1024;
     NSString *statusStr = [[NSString alloc] initWithFormat: @"Current Free:  %dM - Total: %dM - Max: %dM",
         ([stats memFree] / meg), ([stats memTotal] / meg), ([stats memMax] / meg)];
     [status setStringValue: statusStr];
     [statusStr release];
     [plot addDatum: [stats memFree]];
-
+    
     // See if the timer's changed
     double erval=[[defaults objectForKey: @"frequency"] doubleValue];
     double cur=(double)[updater timeInterval];
@@ -68,13 +68,13 @@
 }
 
 -(void)awakeFromNib
-{
+{   
     NSLog(@"Starting MemWatch Controller.");
     // Initialize the defaults
     [self initDefaults];
 
     stats=[[Stats alloc] initWithDefaults: defaults];
-
+    
     // Do the initial update
     [self performSelector: @selector(update)
         withObject:nil

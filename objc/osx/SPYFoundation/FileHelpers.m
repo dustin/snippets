@@ -14,7 +14,7 @@
 -(BOOL)trashFile: (NSString *)deadFileWalking
 {
 	BOOL rv=FALSE;
-
+	
     NSWorkspace *ws=[NSWorkspace sharedWorkspace];
     const char *fn=[deadFileWalking UTF8String];
     NSString *theDir=[[NSString alloc] initWithCString: dirname(fn)];

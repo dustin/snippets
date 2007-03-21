@@ -29,6 +29,6 @@
 (define (atomic-time)
  (let ((sock (make-client-socket
 	"ptbtime1.ptb.de" 13)))
-    (write (read-line
+    (write (read-line 
 	(socket-input sock)))
     (socket-shutdown sock) #n))"

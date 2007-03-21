@@ -32,7 +32,7 @@ class NetworkCollector:
 
 	def addJob(self, job):
 		"""Add an SNMPjob to the queue.
-
+		
 		job is an SNMPJob object
 		"""
 		# Schedule the job to run immediately, it will be rescheduled to

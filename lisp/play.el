@@ -26,7 +26,7 @@
     (loop for i from 1 to y do
 	  (setq rv (* rv x)))
     rv))
-
+    
 (pow 2.0 512)
 
 

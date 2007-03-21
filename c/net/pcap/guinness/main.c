@@ -8,7 +8,7 @@
 #include <getopt.h>
 #include "guinness.h"
 
-void
+void 
 usage(char *name)
 {
 	printf("Usage:  %s [-p]\n", name);

@@ -10,9 +10,9 @@
 
 
 @interface PreferenceController : NSWindowController {
-    IBOutlet NSTextField *url;
+    IBOutlet NSTextField *url; 
     IBOutlet NSTextField *frequency;
-
+    
     NSUserDefaults *defaults;
 }
 

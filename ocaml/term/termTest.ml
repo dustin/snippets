@@ -39,24 +39,24 @@ let main() =
 	printer "parenb" (string_of_bool tio.c_parenb);
 	printer "parodd" (string_of_bool tio.c_parodd);
 	printer "hupcl " (string_of_bool tio.c_hupcl);
-	printer "clocal" (string_of_bool tio.c_clocal);
-	printer "isig  " (string_of_bool tio.c_isig);
-	printer "icanon" (string_of_bool tio.c_icanon);
-	printer "noflsh" (string_of_bool tio.c_noflsh);
-	printer "echo  " (string_of_bool tio.c_echo);
-	printer "echoe " (string_of_bool tio.c_echoe);
-	printer "echok " (string_of_bool tio.c_echok);
-	printer "echonl" (string_of_bool tio.c_echonl);
-	printer "vintr " (string_of_char tio.c_vintr);
-	printer "vquit " (string_of_char tio.c_vquit);
-	printer "verase" (string_of_char tio.c_verase);
-	printer "vkill " (string_of_char tio.c_vkill);
-	printer "veof  " (string_of_char tio.c_veof);
-	printer "veol  " (string_of_char tio.c_veol);
-	printer "vmin  " (string_of_int tio.c_vmin);
-	printer "vtime " (string_of_int tio.c_vtime);
-	printer "vstart" (string_of_char tio.c_vstart);
-	printer "vstop " (string_of_char tio.c_vstop)
+   	printer "clocal" (string_of_bool tio.c_clocal);
+   	printer "isig  " (string_of_bool tio.c_isig);
+   	printer "icanon" (string_of_bool tio.c_icanon);
+   	printer "noflsh" (string_of_bool tio.c_noflsh);
+   	printer "echo  " (string_of_bool tio.c_echo);
+   	printer "echoe " (string_of_bool tio.c_echoe);
+   	printer "echok " (string_of_bool tio.c_echok);
+   	printer "echonl" (string_of_bool tio.c_echonl);
+   	printer "vintr " (string_of_char tio.c_vintr);
+   	printer "vquit " (string_of_char tio.c_vquit);
+   	printer "verase" (string_of_char tio.c_verase);
+   	printer "vkill " (string_of_char tio.c_vkill);
+   	printer "veof  " (string_of_char tio.c_veof);
+   	printer "veol  " (string_of_char tio.c_veol);
+   	printer "vmin  " (string_of_int tio.c_vmin);
+   	printer "vtime " (string_of_int tio.c_vtime);
+   	printer "vstart" (string_of_char tio.c_vstart);
+   	printer "vstop " (string_of_char tio.c_vstop)
 ;;
 
 (* Start main unless we're interactive. *)

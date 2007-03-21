@@ -64,7 +64,7 @@ char *getExgError(Err e)
 void displayExgError(Err e)
 {
 	char *msg=NULL;
-
+	
 	msg=getExgError(e);
 	if(msg!=NULL) {
 		alertPopup(msg);
@@ -161,10 +161,10 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   ExgSocketType *exgsocket=NULL;
 
   switch(cmd) {
-	case sysAppLaunchCmdNormalLaunch:
+  	case sysAppLaunchCmdNormalLaunch:
 		do_send();
 		break;
-	case sysAppLaunchCmdExgAskUser:
+  	case sysAppLaunchCmdExgAskUser:
 		askparam=(ExgAskParamType *)cmdPBP;
 		askparam->result=exgAskOk;
 		break;
@@ -172,7 +172,7 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 		exgsocket=(ExgSocketType *)cmdPBP;
 		receiveData(exgsocket);
 		break;
-	default:
+  	default:
 		break;
   }
 

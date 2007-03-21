@@ -97,7 +97,7 @@ public class DSBean extends Object {
 	public static void main(String args[]) throws Exception {
 		DSBean dsb=new DSBean();
 		dsb.setUsername(args[0]);
-
+		
 		System.out.println("Unseen:");
 		for(Enumeration e=dsb.listUnseen(); e.hasMoreElements(); ) {
 			System.out.println(e.nextElement().toString());

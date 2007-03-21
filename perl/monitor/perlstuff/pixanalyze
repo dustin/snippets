@@ -285,7 +285,7 @@ if ($alert) {
 
 print(bold("The following ports are being ignored") . "\n");
 foreach $svc (@Okports) {
-    my ($port,$prot) = split(/\//,$svc,2);
+    my ($port,$prot) = split(/\//,$svc,2);    
     $svc="$Services{$svc}/$prot" if(defined($Services{$svc}));
     print "$svc (" . $Okcount{"$port/$prot"} , " attempts)\n";
 }

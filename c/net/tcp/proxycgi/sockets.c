@@ -16,7 +16,7 @@
 #include <syslog.h>
 #include <netinet/tcp.h>
 
-int
+int 
 getclientsocket(char *host, int port)
 {
 	struct hostent *hp;

@@ -34,7 +34,7 @@ class PreConditionError(BreachOfContractError):
 
 def postCondition(name, checkFunc):
     """Postcondition check for a function call.
-
+    
     checkFunc should look like this:
 
         f(rv, *a, **kwa)
@@ -55,7 +55,7 @@ def postCondition(name, checkFunc):
 
 def preCondition(name, checkFunc):
     """Precondition check for a function call.
-
+    
     checkFunc should look like this:
 
         f(*a, **kwa)

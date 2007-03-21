@@ -32,7 +32,7 @@ main(int argc, char *argv[])
   Display *display;
 
 /*
- * display *ConnectToServer();
+ * display *ConnectToServer(); 
  */
   Window rootwindow;
   int screen;

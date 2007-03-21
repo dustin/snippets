@@ -14,17 +14,17 @@ inherit
 insert
 	ARGUMENTS
 
-creation {ANY}
+creation {ANY} 
    make
 
-feature {ANY}
-
-	make is
-		-- Process the tempearture log from stdin.  Database name is the
+feature {ANY} 
+   
+	make is 
+   		-- Process the tempearture log from stdin.  Database name is the
 		-- first system argument, if provided.
 		local
 			dbserver: STRING
-		do
+		do  
 			-- Get the name of the database server from the commandline
 			if argument_count > 0 then
 				dbserver := argument(1)

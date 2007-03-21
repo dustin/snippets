@@ -17,7 +17,7 @@ import net.spy.SpyObject;
 /**
  * Perform global servlet engine initialization.
  */
-public class Init extends SpyObject implements ServletContextListener {
+public class Init extends SpyObject implements ServletContextListener { 
 
 	/**
 	 * Just perform basic initialization.
@@ -28,7 +28,7 @@ public class Init extends SpyObject implements ServletContextListener {
 		getLogger().info("Default locale is now %s", l);
 	}
 
-	/**
+	/** 
 	 * Shut down.
 	 */
 	public void contextDestroyed(ServletContextEvent contextEvent) {

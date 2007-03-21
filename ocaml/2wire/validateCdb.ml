@@ -61,8 +61,8 @@ let get_cdb_list path =
 	if (Mfgcdb.determine_version path) > 3 then
 		{
 			revcdb_path=path ^ "/reverse.cdb";
-			forwardcdb_path=Array.init (Mfgcdb.count_cdbs path) (fun i ->
-				(Printf.sprintf "%s/forward.%d.cdb" path i));
+			forwardcdb_path=Array.init (Mfgcdb.count_cdbs path)
+				(Printf.sprintf "%s/forward.%d.cdb" path);
 		}
 	else
 		{

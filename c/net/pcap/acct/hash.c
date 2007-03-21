@@ -25,7 +25,7 @@
 #define unlock(a) { \
 	pthread_mutex_unlock(&(hash->mutexen[a])); \
 }
-#else
+#else 
 #define lock(a)
 #define unlock(a)
 #endif /* USE_PTHREAD */

@@ -1,6 +1,6 @@
 /*
  * Dustin Sallings
- *
+ * 
  * This program is useless, but at least it works.  The user inputs a login
  * name and a password to test, and the program checks to see if the login
  * name and the password match up.  Pretty easy once you figure out how to
@@ -123,12 +123,12 @@ main(void)
 
   puts("Input your guess at his password.");
   techo(OFF);			/*
-				 * Turn off echo so no one can see what we guess
+				 * Turn off echo so no one can see what we guess 
 				 */
   fgets(pass, 9, stdin);
   pass[strlen(pass) - 1] = 0x00;
   techo(ON);			/*
-				 * Turn it back on.
+				 * Turn it back on. 
 				 */
 
 #ifdef	DEBUG

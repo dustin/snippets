@@ -59,7 +59,7 @@ public class CachePhoto {
 				e.printStackTrace();
 			}
 			stats.stop();
-			System.out.println("Cached " + id
+			System.out.println("Cached " + id 
 				+ " in " + stats.getLastTime() + " - " + stats.getStats());
 		}
 	}

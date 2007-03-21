@@ -9,7 +9,7 @@
 #import <ScreenSaver/ScreenSaver.h>
 
 
-@interface OSXMountainsView : ScreenSaverView
+@interface OSXMountainsView : ScreenSaverView 
 {
 
 	NSRect bounds;

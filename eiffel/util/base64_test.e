@@ -8,17 +8,17 @@ inherit
 insert
 	ARGUMENTS
 
-creation {ANY}
+creation {ANY} 
    make
 
 feature {ANY} -- Constructors
 
-   make is
+   make is 
       -- Initialization
-      local
+      local 
          -- e, d: STRING;
 		 b: BASE64
-      do
+      do  
          !!b
 	     test_cases.do_all(agent test_decode(?,?))
 		 io.put_string("Completed tests.%N")
@@ -26,7 +26,7 @@ feature {ANY} -- Constructors
 
    test_decode(k: STRING; v: STRING) is
    local
-	b: BASE64
+   	b: BASE64
    do
 	!!b
 	if not b.encode(v).is_equal(k)
@@ -40,7 +40,7 @@ feature {ANY} -- Constructors
    end
 
    test_cases: HASHED_DICTIONARY[STRING, STRING]
-	is
+   	is
 	once
 		!!Result.make
 		Result.put("d3d3LnB5dGhvbi5vcmc=", "www.python.org")

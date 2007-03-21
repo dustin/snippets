@@ -1,20 +1,20 @@
 {
     IBClasses = (
-        {CLASS = DumpBox; LANGUAGE = ObjC; SUPERCLASS = NSBox; },
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {CLASS = DumpBox; LANGUAGE = ObjC; SUPERCLASS = NSBox; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {processFiles = id; };
-            CLASS = MainController;
-            LANGUAGE = ObjC;
+            ACTIONS = {processFiles = id; }; 
+            CLASS = MainController; 
+            LANGUAGE = ObjC; 
             OUTLETS = {
-                dragWindow = NSWindow;
-                dumpBox = DumpBox;
-                mainWindow = NSWindow;
-                processingText = NSTextField;
-                progressBar = NSProgressIndicator;
-            };
-            SUPERCLASS = NSObject;
+                dragWindow = NSWindow; 
+                dumpBox = DumpBox; 
+                mainWindow = NSWindow; 
+                processingText = NSTextField; 
+                progressBar = NSProgressIndicator; 
+            }; 
+            SUPERCLASS = NSObject; 
         }
-    );
-    IBVersion = 1;
+    ); 
+    IBVersion = 1; 
 }

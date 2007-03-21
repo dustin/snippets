@@ -1,13 +1,13 @@
 {
     IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {apply = id; cancel = id; ok = id; };
-            CLASS = PreferenceController;
-            LANGUAGE = ObjC;
-            OUTLETS = {frequency = NSTextField; url = NSTextField; };
-            SUPERCLASS = NSWindowController;
+            ACTIONS = {apply = id; cancel = id; ok = id; }; 
+            CLASS = PreferenceController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {frequency = NSTextField; url = NSTextField; }; 
+            SUPERCLASS = NSWindowController; 
         }
-    );
-    IBVersion = 1;
+    ); 
+    IBVersion = 1; 
 }

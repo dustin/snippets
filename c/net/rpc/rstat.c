@@ -16,7 +16,7 @@
 #endif
 
 #ifndef FSCALE
-#define FSHIFT  8
+#define FSHIFT  8               
 #define FSCALE  (1<<FSHIFT)
 #endif
 

@@ -37,7 +37,7 @@ class MatrixSingleton:
     def __initGroup(self, fileType, group):
         conn=getdb.getDBConn()
         pst=conn.prepareStatement(
-            """select * from tbl_FileVersion_map_ref
+            """select * from tbl_FileVersion_map_ref 
                 where FileType_num_fk = ? and Group_idnum_fk = ?""")
         pst.setInt(1, fileType.getTypeId())
         pst.setInt(2, group.getId())

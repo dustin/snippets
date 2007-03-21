@@ -98,7 +98,7 @@ class DependencyOrderer:
     def add(self, df):
         """Add a new object to watch."""
         self.files.append(df)
-
+   
     def __order(self):
         """Perform the actual ordering."""
         output=[]

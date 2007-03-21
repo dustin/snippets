@@ -32,6 +32,6 @@ close(FILE);
 
 $result = $ldap->modify( $dn,
 	changes => [ add => [ sshkey => "$key" ], ]
-);
+);	
 $result->code && warn "failed to add entry: ", $result->error ;
 $ldap->unbind;

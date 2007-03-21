@@ -32,7 +32,7 @@ removefile()
 	assert(r>=0);
 }
 
-void
+void 
 printfunc(void)
 {
 	int             sem;
@@ -69,7 +69,7 @@ printfunc(void)
 
 }
 
-void
+void 
 main(void)
 {
 	printfunc();

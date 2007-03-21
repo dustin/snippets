@@ -27,7 +27,7 @@ let shuffle l =
 (**
  Take a list of lists of equal length and produce a list of lists of the values
  rolled up.
-
+ 
  i.e.
 
   [zip [[1;2;3]; [4;5;6]; [7;8;9]; [10;11;12]] ->

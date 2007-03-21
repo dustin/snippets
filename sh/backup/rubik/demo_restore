@@ -20,4 +20,4 @@ do
 	dropdb $DBNAME
 done
 
-createdb $DBNAME && gzip -dc $DBNAME.dump | psql $DBNAME
+createdb $DBNAME && gzip -dc $DBNAME.dump | psql $DBNAME 

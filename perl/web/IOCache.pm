@@ -10,9 +10,9 @@ IOCache - Object that allows transparent caching of all STDOUT
 =head1 SYNOPSIS
 
   use IOCache;
-
+  
   my $cache=IOCache->new('cache key', [tagged options]);
-
+   
   [...]
 
 =head1 DESCRIPTION
@@ -42,12 +42,12 @@ cache.  For instance, you may want to do something like this for debugging:
 =head1 EXAMPLE
 
   #!/usr/local/bin/perl
-
+  
   use IOCache;
-
+  
   my $cache=IOCache->new("test1", maxage => 5, cachedir => '/tmp/cache2',
                                   cachetag => "!!! WOO !!!\n");
-
+  
   sleep 5;
   print "This will be cached...\n";
 
@@ -109,7 +109,7 @@ use MD5;
 			}
 			exit;
 		}
-
+		
 		open(__IOCACHE_SAVESTDOUT, ">&STDOUT");
 		$self->{'stdout'}=__IOCACHE_SAVESTDOUT;
 		sysopen(STDOUT,

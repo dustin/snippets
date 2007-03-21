@@ -82,7 +82,7 @@ def reportNNTP(vals):
     body=''
     for k,v in vals.items():
         body = body + k + ': ' + fpformat.fix(v, 2) + '\n'
-
+    
     # Construct a MIME message.
     msg=MIMEText(body)
     msg['From'] = 'dustin+temperature@spy.net'
@@ -96,7 +96,7 @@ def reportNNTP(vals):
 
 def report(vals):
     """Report on the name dictionary of thermometers."""
-
+    
     # These are the ranges we care about:
     normal = {
         "newmachineroom": (13, 26),

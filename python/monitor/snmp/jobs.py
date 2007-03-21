@@ -34,7 +34,7 @@ class Job:
 
 	def __init__(self, descriptor, freq):
 		"""Get a job that repeats at the given frequency.
-
+		
 		The descriptor argument provides a unique ID for this job based on
 		what it does.
 		"""
@@ -156,7 +156,7 @@ class RRDJob(Job):
 
 class RRDSNMPJob(RRDJob, SNMPJob):
 	"""A job that collects data from snmp and stores it in an rrd.
-
+	
 	More than one oid may be collected at a time.
 	"""
 
@@ -251,9 +251,9 @@ class JobTooFrequentException(exceptions.Exception):
 
 def createJob(jobtype, args):
 	"""Create a job from an argument list that describes the job.
-
+	
 	Currently, the following job types are supported:
-
+	
 	 * VolatileSNMPJob (host, community, frequency, variable)
 	 * RRDSNMPJob (host, community, frequency, variable(s), rrdfile)
 	"""

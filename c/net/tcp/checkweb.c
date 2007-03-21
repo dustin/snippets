@@ -253,7 +253,7 @@ send_data(struct host_ret conn, struct url u, char *data)
 	}
 }
 
-int
+int 
 recv_data(struct host_ret conn, struct url u, char *buf, size_t len)
 {
 	int     size;

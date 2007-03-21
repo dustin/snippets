@@ -152,7 +152,7 @@ void dosend(char *towhom)
   close(s);
 }
 
-int
+int 
 main(int argc, char *argv[])
 {
 #ifndef DEBUG

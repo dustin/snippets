@@ -5,7 +5,7 @@
 #include "plot.h"
 #include "data.h"
 
-int
+int 
 main(int argc, char *argv[])
 {
   FILE *infile;

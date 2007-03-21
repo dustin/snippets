@@ -38,7 +38,7 @@ class CrashEntry:
     def setPanic(self, to):
         if self.panic is None:
             self.panic=to.strip()
-
+    
     def setBuild(self, to):
         if self.build is None:
             self.build=to.strip()
@@ -67,7 +67,7 @@ class CrashEntry:
             f.writelines(self.lines)
             f.close()
             self.lines = None
-
+    
     def __repr__(self):
         return "<CrashEntry " + `self.__dict__` + ">"
 
@@ -120,7 +120,7 @@ def makeHtml(filename, entries, thissort):
     # Print them out (they'll be in order)
     for i in entries:
         f.write(i.getTableRow())
-
+    
     f.write(""" </table> </body> </html> """)
 
 def parseBuild(l):

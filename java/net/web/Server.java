@@ -40,7 +40,7 @@ public class Server {
 					new InputStreamReader(client.getInputStream()));
 				out = new PrintWriter(
 					new OutputStreamWriter(client.getOutputStream()));
-
+			
 				processRequest(in, out);
 			} catch(Exception e2) {
 				System.err.println("Got exception:  " + e2);

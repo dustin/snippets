@@ -29,7 +29,7 @@ property property_list : {annot_album, annot_artist, annot_author, annot_comment
 -- the list of file types which will be processed
 -- eg: {"PICT", "JPEG", "GIFf", "TIFF"}
 property type_list : {"MooV"}
--- since file types are optional in Mac OS X,
+-- since file types are optional in Mac OS X, 
 -- check the name extension if there is no file type
 -- NOTE: do not use periods (.) with the items in the name extensions list
 -- eg: {"txt", "text", "jpg", "jpeg"}, NOT: {".txt", ".text", ".jpg", ".jpeg"}
@@ -112,10 +112,10 @@ on process_item(this_item)
 		launch -- bypasses promo movie
 		activate
 		my toggle_suppress(true)
-
+		
 		stop every movie
 		close every movie saving no
-
+		
 		try
 			open this_item
 			tell movie 1

@@ -10,7 +10,7 @@
     IBOutlet Plot *plot;
     IBOutlet NSTextField *status;
     IBOutlet NSTextField *srcUrl;
-
+    
     NSUserDefaults *defaults;
     NSTimer *updater;
     Stats *stats;

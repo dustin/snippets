@@ -104,7 +104,7 @@ let operate_on_file_in f fn =
 		raise x
 
 (**
-	Open a file for writing and perform the given operations on it.
+ 	Open a file for writing and perform the given operations on it.
 	The file is guaranteed to be closed when this function completes.
 
 	@param f the function to perform with the output channel
@@ -193,10 +193,10 @@ let isdir p =
  function.
 
  @param lsfunc the name of the function which will return a list of filenames
-	from a given directory
+ 	from a given directory
  @param dir the name of the directory to process
  @param func a function that will receive the directory name, list of filenames
-	and an argument
+ 	and an argument
  @param arg an arbitrary argument that will be passed to the function
  *)
 let dir_iter_via lsfunc dir func arg =
@@ -214,7 +214,7 @@ let dir_iter dir func arg =
 
 (**
  Walk a directory tree (depth first).
-
+ 
  @param lsfunc the function to list files in a directory
  @param dir the directory to search
  @param func function to call (see fold_directory)
@@ -235,7 +235,7 @@ let rec walk_dir_via lsfunc dir func arg =
 
 (**
  Walk a directory tree (depth first).
-
+ 
  @param dir the directory to search
  @param func function to call (see fold_directory)
  @param arg the argument to pass to the function

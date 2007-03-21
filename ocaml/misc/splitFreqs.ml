@@ -37,7 +37,7 @@ let hashed_classified word =
 let main () =
 	let valid_chars = [
 		'a'; 'b'; 'c'; 'd'; 'e'; 'f'; 'g'; 'h'; 'i'; 'j'; 'k'; 'l'; 'm';
-		'n'; 'o'; 'p'; 'q'; 'r'; 's'; 't'; 'u'; 'v'; 'w'; 'x'; 'y'; 'z';
+		'n'; 'o'; 'p'; 'q'; 'r'; 's'; 't'; 'u'; 'v'; 'w'; 'x'; 'y'; 'z'; 
 	] in
 	let char_set = List.fold_left (fun c x -> CharSet.add x c)
 		CharSet.empty valid_chars in
@@ -62,7 +62,7 @@ let main () =
 	let sizesf = open_out "class_sizes.txt" in
 	Hashtbl.iter (fun k v ->
 		Printf.fprintf sizesf "%s %d\n" k (List.length v);
-		Hashtbl.replace hashed (classification_hash k) (v @
+		Hashtbl.replace hashed (classification_hash k) (v @ 
 			try Hashtbl.find hashed (classification_hash k)
 			with Not_found -> []
 			)

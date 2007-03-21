@@ -12,7 +12,7 @@ public class TestUser extends Object {
 	public String password=null;
 	public String email=null;
 	public String realname=null;
-
+	
 	public boolean canAdd(int test_id) {
 		return(true);
 	}

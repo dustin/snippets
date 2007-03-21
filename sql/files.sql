@@ -31,12 +31,12 @@ create unique index files_filename on files (filename);
 vacuum verbose analyze;
 
 -- find duplicates
-select sum, blocks, count(*) into table sumcount
+select sum, blocks, count(*) into table sumcount 
 	from files
 	where blocks>0
 	group by sum, blocks
 	having count(*) > 1
-;
+; 
 
 -- delete from sumcount where count=1;
 

@@ -4,7 +4,7 @@
 #define BORDERWIDTH 2
 #define APP_CLASS "Examples"
 
-Window
+Window 
 OpenWindow(Display * display, Window parent, int x, int y, int
       width, int height, unsigned long bordercolor, unsigned long backcolor,
 	   unsigned long event_mask, Visual * visual)

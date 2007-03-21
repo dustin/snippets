@@ -6,7 +6,7 @@ import java.io.*;
 import java.sql.*;
 
 /**
- *
+ * 
  */
 public class AddBlob extends Object {
 

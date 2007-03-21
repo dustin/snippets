@@ -107,7 +107,7 @@ unsigned int    inlen;		/* length of input block */
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
  */
-void
+void 
 MD5Init (context)
 MD5_CTX        *context;	/* context */
 {
@@ -126,7 +126,7 @@ MD5_CTX        *context;	/* context */
   operation, processing another message block, and updating the
   context.
  */
-void
+void 
 MD5Update (context, input, inputLen)
 MD5_CTX        *context;	/* context */
 unsigned char  *input;		/* input block */
@@ -173,7 +173,7 @@ unsigned int    inputLen;	/* length of input block */
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
   the message digest and zeroizing the context.
  */
-void
+void 
 MD5Final (digest, context)
 unsigned char   digest[16];	/* message digest */
 MD5_CTX        *context;	/* context */
@@ -206,7 +206,7 @@ MD5_CTX        *context;	/* context */
 
 /* MD5 basic transformation. Transforms state based on block.
  */
-static void
+static void 
 MD5Transform (state, block)
 UINT4           state[4];
 unsigned char   block[64];
@@ -305,7 +305,7 @@ unsigned char   block[64];
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is
   a multiple of 4.
  */
-static void
+static void 
 Encode (output, input, len)
 unsigned char  *output;
 UINT4          *input;
@@ -326,7 +326,7 @@ unsigned int    len;
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is
   a multiple of 4.
  */
-static void
+static void 
 Decode (output, input, len)
 UINT4          *output;
 unsigned char  *input;
@@ -343,7 +343,7 @@ unsigned int    len;
 /* Note: Replace "for loop" with standard memcpy if possible.
  */
 
-static void
+static void 
 MD5_memcpy (output, input, len)
 POINTER         output;
 POINTER         input;
@@ -357,7 +357,7 @@ unsigned int    len;
 
 /* Note: Replace "for loop" with standard memset if possible.
  */
-static void
+static void 
 MD5_memset (output, value, len)
 POINTER         output;
 int             value;

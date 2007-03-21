@@ -79,8 +79,8 @@ let determine_version path =
 let open_mfg_db path =
 	if (determine_version path) > 3 then
 		let num_cdbs = count_cdbs path in
-		open_mfg_dbs 4 (Array.init num_cdbs (fun i ->
-			(Printf.sprintf "%s/forward.%d.cdb" path i)))
+		open_mfg_dbs 4 (Array.init num_cdbs
+			(Printf.sprintf "%s/forward.%d.cdb" path))
 	else
 		open_mfg_dbs 3 (Array.make 1 path)
 
@@ -159,7 +159,7 @@ let main() =
 	Printf.printf "sn=%s version=%s auth=%s\n" r.sn r.version r.auth_code;
 
 	print_endline("Iterating:");
-	iter (fun m ->
+	iter (fun m -> 
 		Printf.printf "sn=%s version=%s auth=%s\n" m.sn m.version m.auth_code)
 		db;
 

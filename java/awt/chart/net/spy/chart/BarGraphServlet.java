@@ -22,7 +22,7 @@ import java.awt.image.*;
 import com.mongus.servlet.GifServlet;
 
 // The class
-public class BarGraphServlet extends GifServlet {
+public class BarGraphServlet extends GifServlet { 
 
 	protected Color black=null;
 	protected Color white=null;

@@ -50,7 +50,7 @@ let gotLine display l acct =
 
 let main() =
 	(* Create the display function to avoid the bad dates *)
-	let display = good_display (Fileutils.fold_file_lines
+	let display = good_display (Fileutils.fold_file_lines 
 			StringSet.add StringSet.empty (Sys.argv.(1))) in
 	print_endline("# " ^ input_line stdin); (* header *)
 	print_endline("# " ^ input_line stdin); (* empty *)

@@ -46,7 +46,7 @@ if __name__ == '__main__':
                 except com.twowire.org.NoSuchOrganizationException:
                     print "# No such org:  " + `mo` + " (looking at " + l + ")"
                     mo = None
-
+    
             isp = rs.getInt("V4ISP_num_fk")
             if rs.wasNull():
                 isp = None

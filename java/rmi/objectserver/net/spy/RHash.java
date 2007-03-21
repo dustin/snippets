@@ -3,12 +3,12 @@
 
 package net.spy;
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
 
 import java.util.*;
 
-public class RHash {
+public class RHash { 
 
 	private String rhashserver;
 	private RObject obj;

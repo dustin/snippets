@@ -152,7 +152,7 @@ main(int argc, char *argv[])
 
 	/* now just sendto() our destination! */
 	if (sendto(fd, msg, strlen(msg), 0, (struct sockaddr *) & addr,
-		sizeof(addr)) < 0) {
+	   	sizeof(addr)) < 0) {
 		perror("sendto");
 		exit(1);
 	}

@@ -8,198 +8,198 @@ indexing
 class PG_REPLICATE
 -- The replicator
 
-creation {ANY}
+creation {ANY} 
    make
 
-feature {NONE}
+feature {NONE} 
    -- Make is private
 
-   make(s, d: PG) is
+   make(s, d: PG) is 
       -- Make a PG_REPLICATE object from s to d
-      require
-         s.is_connected;
-         d.is_connected;
-      do
+      require 
+         s.is_connected; 
+         d.is_connected; 
+      do  
          db_from := s;
          db_to := d;
       end -- make
 
 feature {ANY} -- Replication services
 
-   rep_seq(seq: STRING) is
+   rep_seq(seq: STRING) is 
       -- Replicate a sequence
-      require
-         seq /= Void;
-      local
+      require 
+         seq /= Void; 
+      local 
          query: STRING;
          a: ARRAY[STRING];
-      do
+      do  
          query := "select last_value from " + seq;
          db_from.query(query);
-         check
-            db_from.get_row;
+         check 
+            db_from.get_row; 
          end;
          a := db_from.last_row;
          query := "select setval(" + db_from.quote(seq) + ", " + a @ 0 + ")";
-         debug
+         debug 
             io.put_string("Setting " + seq + " to " + a @ 0 + ".%N");
-         end;
+         end; 
          db_to.query(query);
       end -- rep_seq
-
-   rep_table(table: STRING) is
+   
+   rep_table(table: STRING) is 
       -- Replicate a table
-      require
-         table /= Void;
-      local
+      require 
+         table /= Void; 
+      local 
          b: BOOLEAN;
          retry_attempt: INTEGER;
-      do
+      do  
             io.put_string("Replicating ");
             io.put_string(table);
             io.put_string(".%N");
-         debug
+         debug 
             io.put_string("Beginning transaction on the to thing.%N");
-         end;
+         end; 
          db_from.copy_from(table);
          db_to.begin;
          db_to.query("delete from " + table);
          db_to.copy_to(table);
-         from
+         from 
             b := db_from.getline;
-         until
+         until 
             b = false
-         loop
+         loop 
             db_to.putline(db_from.last_line + "%N");
             b := db_from.getline;
-         end;
+         end; 
          db_to.endcopy;
          db_from.endcopy;
          db_to.commit;
-      rescue
-         if retry_attempt < max_retry_attempts then
+      rescue 
+         if retry_attempt < max_retry_attempts then 
             retry_attempt := retry_attempt + 1;
-            debug
+            debug 
                io.put_string("PG_REPLICATE: Retrying...%N");
-            end;
+            end; 
             retry;
-         end;
+         end; 
       end -- rep_table
-
-   full is
+   
+   full is 
       -- Full replication of everything we know about.
-      local
+      local 
          a: ARRAY[STRING];
          i: INTEGER;
-      do
+      do  
          unindex;
          a := db_from.tables;
-         from
+         from 
             i := a.lower;
-         until
+         until 
             i > a.upper
-         loop
+         loop 
             rep_table(a @ i);
             i := i + 1;
-         end;
+         end; 
          a := db_from.sequences;
-         from
+         from 
             i := a.lower;
-         until
+         until 
             i > a.upper
-         loop
+         loop 
             rep_seq(a @ i);
             i := i + 1;
-         end;
+         end; 
          reindex;
       end -- full
 
-feature {NONE}
+feature {NONE} 
    -- Private stuff
 
-   unindex is
-      local
+   unindex is 
+      local 
          a, list: ARRAY[STRING];
          i: INTEGER;
          q: STRING;
          b: BOOLEAN;
-      do
-         debug
+      do  
+         debug 
             io.put_string("Dropping all indices%N");
-         end;
+         end; 
          !!q.copy("select * from pg_indexes where tablename not like 'pg_%%'");
          db_to.query(q);
-         from
+         from 
             b := db_to.get_row;
             !!list.with_capacity(16,16);
             list.clear;
-         until
+         until 
             b = false
-         loop
+         loop 
             a := db_to.last_row;
             list.add_last(a @ 1);
             b := db_to.get_row;
-         end;
-         from
+         end; 
+         from 
             i := list.lower;
-         until
+         until 
             i > list.upper
-         loop
+         loop 
             q := "drop index " + list @ i;
             db_to.query(q);
             i := i + 1;
-         end;
+         end; 
       end -- unindex
-
-   reindex is
-      local
+   
+   reindex is 
+      local 
          a: ARRAY[STRING];
          q: STRING;
          b: BOOLEAN;
-      do
-         debug
+      do  
+         debug 
             io.put_string("Recreating all indices%N");
-         end;
+         end; 
          !!q.copy("select * from pg_indexes where tablename not like 'pg_%%'");
          db_from.query(q);
-         from
+         from 
             b := db_from.get_row;
-         until
+         until 
             b = false
-         loop
+         loop 
             a := db_from.last_row;
             db_to.query(a @ 2);
             b := db_from.get_row;
-         end;
+         end; 
       end -- reindex
-
-   join(with: STRING; a: ARRAY[STRING]): STRING is
+   
+   join(with: STRING; a: ARRAY[STRING]): STRING is 
       -- Join an array of strings with the given string
-      require
-         a /= Void;
-         a.count > 0;
-         with /= Void;
-      local
+      require 
+         a /= Void; 
+         a.count > 0; 
+         with /= Void; 
+      local 
          i: INTEGER;
-      do
+      do  
          !!Result.make(256);
-         from
+         from 
             i := a.lower;
-         until
+         until 
             i >= a.upper
-         loop
+         loop 
             -- Result.append(db_to.quote(a @ i));
             Result.append(a @ i);
             Result.append(with);
             i := i + 1;
-         end;
+         end; 
          Result.append(a @ a.upper);
       end -- join
-
+   
    max_retry_attempts: INTEGER is 3;
-
+   
    db_from: PG;
-
+   
    db_to: PG;
 
 end -- class PG_REPLICATE

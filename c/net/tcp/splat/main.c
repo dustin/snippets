@@ -26,13 +26,13 @@ int     _debug = 3;
 
 #define MAXSEL 1024
 
-static void
+static void 
 resettraps(void)
 {
 	signal(SIGALRM, serv_conn_alrm);
 }
 
-static RETSIGTYPE
+static RETSIGTYPE 
 serv_conn_alrm(int sig)
 {
 	resettraps();
@@ -51,7 +51,7 @@ usage(const char *name)
 	fprintf(stderr, "\t-t Total number of connections to open\n");
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	char   *hostname=0x00;

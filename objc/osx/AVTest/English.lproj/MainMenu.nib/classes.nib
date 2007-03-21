@@ -1,13 +1,13 @@
 {
     IBClasses = (
         {
-            ACTIONS = {quit = id; };
-            CLASS = AVTestController;
-            LANGUAGE = ObjC;
-            OUTLETS = {text = NSTextField; };
-            SUPERCLASS = NSObject;
-        },
+            ACTIONS = {quit = id; }; 
+            CLASS = AVTestController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {text = NSTextField; }; 
+            SUPERCLASS = NSObject; 
+        }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
-    );
-    IBVersion = 1;
+    ); 
+    IBVersion = 1; 
 }

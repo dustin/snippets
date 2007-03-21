@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: log_msg.e,v 1.2 2002/11/25 07:19:15 dustin Exp $

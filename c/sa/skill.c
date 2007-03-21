@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 			/* We're not going to worry about process groups */
 			blah=fprintf(stderr, "Warning: %s is not a valid PID\n", argv[i]);
 		} else {
-
+		
 			syslog(LOG_NOTICE|LOG_AUTH,
 				"superkill: %s (%d) wishes to kill %d, owned by %d\n",
 				getlogin(), getuid(), pid, o);
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 				if( kill(pid, SIGKILL) <0 ) {
 					perror(argv[i]);
 				}
-
+				
 				/* Check to see if it survived the 9 */
 				if(ISRUNNING(pid)) {
 					syslog(LOG_NOTICE|LOG_AUTH,

@@ -7,7 +7,7 @@
 #include "cracker.h"
 
 /*
- * char keychars[] = "  abcdefghijklmnopqrstuvwxyz"
+ * char keychars[] = "  abcdefghijklmnopqrstuvwxyz"    
  * "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
  * "0123456789"
  * "{}[]~!@#$%^&*()_+`-=:;\"'|\\<,>.?/";
@@ -39,7 +39,7 @@ newpasswd(char *in, int *passmap)
 	return (in);
 }
 
-void
+void 
 set_pass(char *p, char *in, int *passmap)
 {
 	int     i, j;

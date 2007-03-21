@@ -9,9 +9,9 @@
     "25/tcp",
 );
 @RedFlag=(
-	110,
+    	110,
 	109,
-	23,
+    	23,
 	22,
 	69,
 	512,513,514,
@@ -105,8 +105,8 @@ sub showentry
     if (isin($dstport,@RedFlag))
     {
 	my($svc,$host);
-	$svc="$dstport/$proto";
-	$svc="$Services{$svc}/$proto" if(defined($Services{$svc}));
+    	$svc="$dstport/$proto";
+    	$svc="$Services{$svc}/$proto" if(defined($Services{$svc}));
 	$alert .= "$date $src attempted $svc to $dst\n";
     }
     lognet($src, $dstport, $proto);
@@ -217,7 +217,7 @@ while(<IN>)
 	{
             showentry($date, $a[3], $a[5], "udp", $a[9], $a[10],
 		      $a[12], $a[13]);
-        }
+        } 
 	else
 	{
 	    $huh .= $_;
@@ -237,7 +237,7 @@ if ($alert) {
 print(bold("The following ports are being ignored") . "\n");
 foreach $svc (@Okports)
 {
-    my ($port,$prot) = split(/\//,$svc,2);
+    my ($port,$prot) = split(/\//,$svc,2);    
     $svc="$Services{$svc}/$prot" if(defined($Services{$svc}));
     print "$svc (" . $Okcount{"$port/$prot"} , " attempts)\n";
 }

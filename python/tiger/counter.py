@@ -10,7 +10,7 @@ import TigerTypes
 class Counter:
     def __init__(self):
         pass
-
+    
     def count(self, fn):
         rv=0
         zf=zipfile.ZipFile(fn)

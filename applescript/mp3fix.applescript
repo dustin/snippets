@@ -47,7 +47,7 @@ on process_item(this_item)
 	-- type: "MPG3"
 	-- creator: "hook"
 	display dialog "Working on " & this_item
-
+	
 	tell application "Finder"
 		set the creator type of this_item to "hook"
 		set the file type of this_item to "MPG3"

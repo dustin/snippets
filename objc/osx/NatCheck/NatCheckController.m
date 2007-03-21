@@ -26,14 +26,14 @@ void perrordie(const char *msg) {
 - (void)performTest:(id)sender
 {
     struct check_result res;
-
+    
 
     [progressBar setUsesThreadedAnimation: true];
     [progressBar startAnimation: self];
     res=performNatCheck(5);
     [progressBar stopAnimation: self];
     [goButton setEnabled: true];
-
+    
     if(res.nat_type == UNKNOWN) {
         [self clearResults];
     } else {

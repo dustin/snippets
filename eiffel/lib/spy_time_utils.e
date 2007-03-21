@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: spy_time_utils.e,v 1.4 2002/12/08 23:42:08 dustin Exp $
@@ -97,15 +97,15 @@ feature {ANY}
 feature{NONE}
 	-- Debug stuff.
 
-	dump_time(t: TIME) is
+ 	dump_time(t: TIME) is
 		-- Dump out the time
-		local
-			tie: TIME_IN_ENGLISH
-		do
-			!!tie
-			tie.set_time(t)
-
-			io.put_string(tie.to_string + "%N")
-		end
+ 		local
+ 			tie: TIME_IN_ENGLISH
+ 		do
+ 			!!tie
+ 			tie.set_time(t)
+ 
+ 			io.put_string(tie.to_string + "%N")
+ 		end
 
 end -- class SPY_TIME_UTILS

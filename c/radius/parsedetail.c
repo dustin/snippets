@@ -138,7 +138,7 @@ void help(char *me)
 {
     char str[32];
     char *p;
-
+    
     /* Pull out version info */
     strcpy(str, "$Revision: 2.7 $");
     for(p=str; *p!=' '; p++);

@@ -56,14 +56,14 @@ foreach (@virtual)
         local($server,$port,$conna,$state,$stick,$pred,$xa,$isc,$osc);
         s/^\s+//;
         ($server,$port,$state,$conn,$stick,$pred) = split(/\s+/,$_);
-
+ 
         next unless $stick =~ /\d/;
 	$isc = "checked" if ($state =~ /IS/);
 	$osc = "checked" if ($state =~ /OOS/);
         $out .= "<tr><th align=left>$server:$port</th>";
 	$out .= "<th>IS<input type=radio name=\"virtual-$server-$port\" value=IS $isc></th><th>OOS<input type=radio name=\"virtual-$server-$port\" value=OOS $osc></th><input type=hidden name=\"old-$server-$port\" value=$state>";
 	$out .= "<td>$conn</td></tr>\n";
-
+ 
 }
 $out .= "</table>";
 $out .= "<hr>";
@@ -101,13 +101,13 @@ foreach (@real)
 	{
 		$out .= "<tr><td colspan=4><hr></td></tr>\n";
 	}
-	$server =~ /([^-]*).*/;  $last = $1;
+	$server =~ /([^-]*).*/;  $last = $1;	
 	$isc = "checked" if ($state =~ /IS/);
 	$osc = "checked" if ($state =~ /OOS/);
 	$out .= "<tr><th align=left>$server:$port</th>";
 	$out .= "<th>IS<input type=radio name=\"real-$server-$port\" value=IS $isc></th><th>OOS<input type=radio name=\"real-$server-$port\" value=OOS $osc></th><input type=hidden name=\"old-$server-$port\" value=$state>";
 	$out .= "<td>$conn</td></tr>\n";
-
+	
 }
 $out .= "<!-- rmax = $rmax rscale = $rscale-->\n";
 $out .= "</table>";
@@ -142,9 +142,9 @@ sub debug {
         $deb == 1 &&    print STDERR "$msg\n";
         return 1;
 }
-
+ 
 sub getprompt {
-  local $temp;
+  local $temp; 
   while(<S>)
   {
         $temp .= $_;
@@ -180,7 +180,7 @@ sub vbyload {
         $xb = $b;
         $xa =~ s/^\s+//;
         $xb =~ s/^\s+//;
-
+ 
           ($server,$port,$state,$conna,$stick,$pred) = split(/\s+/,$xa);
           ($server,$port,$state,$connb,$stick,$pred) = split(/\s+/,$xb);
 	$vmax = $connb if ($connb > $vmax);

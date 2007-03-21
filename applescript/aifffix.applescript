@@ -16,7 +16,7 @@ on open these_items
 		else if (alias of the item_info is false) then
 			process_item(this_item)
 		end if
-
+		
 	end repeat
 end open
 
@@ -40,10 +40,10 @@ on process_item(this_item)
 		set orig_dir to the folder "Originals" of the container of this_item
 		set this_name to the displayed name of this_item
 		set that_item to ((processed_dir as text) & this_name)
-
+		
 	end tell
 	tell application "QuickTime Player"
-
+		
 		activate
 		close every movie saving no
 		open this_item

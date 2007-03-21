@@ -80,7 +80,7 @@ sub mainloop
     $done=0;
     for $key (0..(@cf-1)){
 	if( ($ENV{'SERVER_NAME'}=~/$cf[$key]->[0]/
-	     || $cf[$key]->[0] eq '-defaults-')
+	     || $cf[$key]->[0] eq '-defaults-') 
 	     && ($done==0)) {
 	    for(1..(@{$cf[$key]}-1)) {
 	        if($path=~/$cf[$key]->[$_]->[0]/) {

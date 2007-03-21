@@ -20,7 +20,7 @@
 ; should anyway.
 (define (prime-in-list? x stopat l)
   (if (null? l)
-	#f ; If the list is null, return false
+	#f ; If the list is null, return false 
 	(if (< stopat (car l))
 	  ; We found a prime, add it to the list, and return true
 	  (begin
@@ -129,7 +129,7 @@
 ; Calculate the sum of a list
 (define
   (sum l)
-	(if (null? l)
+  	(if (null? l)
 	  0
 	  (+ (car l) (sum (cdr l)))))
 

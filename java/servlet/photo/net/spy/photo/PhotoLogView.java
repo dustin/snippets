@@ -15,7 +15,7 @@ import net.spy.*;
 
 // The class
 public class PhotoLogView extends PhotoHelper
-{
+{ 
 	PhotoSession photosession;
 
 	public PhotoLogView(PhotoSession p) throws Exception {

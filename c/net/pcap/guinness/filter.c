@@ -150,7 +150,7 @@ void filter_packet(u_char *u, struct pcap_pkthdr *p, u_char *packet)
    /* if a syn was recieved, but a ack was not, log the packet */
    if((tcp->th_flags & TH_SYN) && !(tcp->th_flags & TH_ACK))
       log_syn(ip, tcp);
-}
+}     
 
 static void log_syn(struct ip *ip, struct tcphdr *tcp)
 {
@@ -202,7 +202,7 @@ static char *hostlookup(unsigned int in)
    static char blah[4096];
    struct in_addr i;
    struct hostent *he = NULL;
-
+   
    i.s_addr = in;
    if(he == NULL)
 		strncpy(blah, inet_ntoa(i), 4095);
@@ -213,8 +213,8 @@ static char *hostlookup(unsigned int in)
 
 /* shut down in a controlled way, close log file, close socket, and exit */
 void signal_handler(int s)
-{
+{  
    pcap_close(pcap_socket);
    exit(s);
-}
+}  
 

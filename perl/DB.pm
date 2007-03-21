@@ -119,7 +119,7 @@ new
 
 Create a new instance of a Bynd::DB object.  You can pass tagged options in,
 too, including the following:
-
+ 
  * dbserver - Name of the server to connect to
  * dbuser - Username to connect to the database as
  * dbpass - password for dbuser
@@ -266,7 +266,7 @@ Do a query and return a hash of arrays of the results.
 This does so via I<doQuery> below, so all the same rules apply.
 
 The following options are supported:
-
+ 
  cachetime - Amount of time (in seconds) this query is valid.
 
 =cut
@@ -342,7 +342,7 @@ Do a query and return an array of arrays of the results.
 This does so via I<doQuery> below, so all the same rules apply.
 
 The following options are supported:
-
+ 
  cachetime - Amount of time (in seconds) this query is valid.
 
 =cut

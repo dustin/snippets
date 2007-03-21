@@ -135,7 +135,7 @@ class TestMachine(StateMachine):
                 2: StateRv(3, RV),
                 3: StateRv(StateMachine.STATE_DONE, RV)}
         self.stateMap=stateMap
-
+    
     def runMachine(self, context, state, input):
         if input != IN:
             raise UnexpectedInputException(input)

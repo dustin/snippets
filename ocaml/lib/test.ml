@@ -41,7 +41,7 @@ let run_tests setup teardown tests printfunc =
 		match l with
 			  [] -> rv
 			| t :: [] -> (
-				match t with
+			  	match t with
 					  TestCase (name, f) -> (run name f) :: rv
 					| TestList (l2) -> (loop l2 rv))
 			| t :: tl -> (
@@ -73,7 +73,7 @@ let run_simple_and_exit tests printfunc =
 let print_result_verbose result =
 	match result with
 		  TestSuccess (name) ->
-			Printf.eprintf "success: %s\n" name
+		  	Printf.eprintf "success: %s\n" name
 		| TestFailure (name, reason) ->
 			Printf.eprintf "\nFAIL:  %s - %s\n" name reason
 

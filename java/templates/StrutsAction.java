@@ -10,7 +10,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 /**
- *
+ * 
  */
 public class CLASSNAME extends TWAction {
 
@@ -21,7 +21,7 @@ public class CLASSNAME extends TWAction {
 		super();
 	}
 
-	/**
+	/** 
 	 * Perform this action.
 	 */
 	public ActionForward twExecute(ActionMapping mapping, ActionForm form,

@@ -19,9 +19,9 @@ let main() =
 			^ "kNERUZHSElKS0xNTk9QUVJTVFVWV1hZWjAxMjM0\r\n"
 			^ "NTY3ODkhQCMwXiYqKCk7Ojw+LC4gW117fQ==",
 		 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-			^ "0123456789!@#0^&*();:<>,. []{}")
+		 	^ "0123456789!@#0^&*();:<>,. []{}")
 		] in
-	Test.run_simple_and_exit (Test.TestList
+	Test.run_simple_and_exit (Test.TestList 
 		((List.map test_encode cases) @ (List.map test_decode cases)))
 		Test.print_result
 ;;

@@ -10,110 +10,110 @@ class CGI
    -- data, doesn't handle multipart form/data (yet, I need it to), and
    -- doesn't handle multiple values per key (not directly anyway).
 
-creation {ANY}
+creation {ANY} 
    make, test
 
-feature {ANY}
-
-   make is
-      do
+feature {ANY} 
+   
+   make is 
+      do  
          get_cgi_data;
          parse;
       end -- make
-
-   test(s: STRING) is
-      do
+   
+   test(s: STRING) is 
+      do  
          cgi_input := s;
          parse;
       end -- test
-
-   display is
+   
+   display is 
       -- Display our data.
-      require
-         have_cgi_data;
-      local
+      require 
+         have_cgi_data; 
+      local 
          i: INTEGER;
-      do
-         from
+      do  
+         from 
             i := 1;
-         until
+         until 
             i > cgi_data.count
-         loop
+         loop 
             io.put_string(cgi_data.key(i));
             io.put_string(" -> ");
             io.put_string(cgi_data.item(i));
             io.put_string("<br>%N");
             i := i + 1;
-         end;
+         end; 
       end -- display
-
-   has(key: STRING): BOOLEAN is
-      require
-         have_cgi_data;
-      do
+   
+   has(key: STRING): BOOLEAN is 
+      require 
+         have_cgi_data; 
+      do  
          Result := cgi_data.has(key);
       end -- has
-
-   lookup(key: STRING): STRING is
+   
+   lookup(key: STRING): STRING is 
       -- Get the value for a key
-      require
-         have_cgi_data;
-         cgi_data.has(key);
-      do
+      require 
+         have_cgi_data; 
+         cgi_data.has(key); 
+      do  
          Result := cgi_data.at(key);
-      ensure
-         Result /= Void;
+      ensure 
+         Result /= Void; 
       end -- lookup
-
-   find(key: STRING): STRING is
+   
+   find(key: STRING): STRING is 
       -- Get the value for a key; void otherwise
-      do
-         if have_cgi_data and then has(key) then
+      do  
+         if have_cgi_data and then has(key) then 
             Result := lookup(key);
-         end;
+         end; 
       end -- find
-
-   have_cgi_data: BOOLEAN is
+   
+   have_cgi_data: BOOLEAN is 
       -- Verify we have parsed the CGI data.
-      do
+      do  
          Result := cgi_data /= Void;
       end -- have_cgi_data
 
 feature {ANY} -- Misc features, probably should be in a utility class
 
-   decode_string(in: STRING): STRING is
+   decode_string(in: STRING): STRING is 
       -- Decode an HTTP encoded string.
-      local
+      local 
          i: INTEGER;
-      do
+      do  
          !!Result.make(1);
-         from
+         from 
             i := 1;
-         until
+         until 
             i > in.count
-         loop
-            if in.item(i) = '+' then
+         loop 
+            if in.item(i) = '+' then 
                Result.add_last(' ');
-            elseif in.item(i) = '%%' then
+            elseif in.item(i) = '%%' then 
                i := i + 1;
                Result.add_last(from_hex(in.substring(i,i + 2)));
                i := i + 1;
-            else
+            else 
                Result.add_last(in.item(i));
-            end;
+            end; 
             i := i + 1;
-         end;
+         end; 
       end -- decode_string
-
-   from_hex(in: STRING): CHARACTER is
+   
+   from_hex(in: STRING): CHARACTER is 
       -- Take a two digit hex string, and convert it to a hex character.
-      require
-         in.item(1).is_hexadecimal_digit;
-         in.item(2).is_hexadecimal_digit;
-      local
+      require 
+         in.item(1).is_hexadecimal_digit; 
+         in.item(2).is_hexadecimal_digit; 
+      local 
          a, b: INTEGER;
          map, tmp: STRING;
-      do
+      do  
          !!tmp.copy(in);
          tmp.to_upper;
          map := "0123456789ABCDEF";
@@ -125,131 +125,131 @@ feature {ANY} -- Misc features, probably should be in a utility class
 
 feature {ANY} -- Features that really belong in a string class.
 
-   split_on(s: STRING; on: CHARACTER): ARRAY[STRING] is
+   split_on(s: STRING; on: CHARACTER): ARRAY[STRING] is 
       -- split a string on a given character.
-      local
+      local 
          split_buffer: ARRAY[STRING];
-      do
+      do  
          !!split_buffer.with_capacity(4,1);
-         if s.count > 0 then
+         if s.count > 0 then 
             split_buffer.clear_count;
             split_on_in(s,split_buffer,on);
-            if not split_buffer.is_empty then
+            if not split_buffer.is_empty then 
                Result := split_buffer.twin;
-            end;
-         end;
+            end; 
+         end; 
       end -- split_on
-
-   split_on_in(s: STRING; words: COLLECTION[STRING]; on: CHARACTER) is
+   
+   split_on_in(s: STRING; words: COLLECTION[STRING]; on: CHARACTER) is 
       -- A version of split_in that doesn't assume it knows how
       -- you want to split.
-      require
-         words /= Void;
-      local
+      require 
+         words /= Void; 
+      local 
          state, i: INTEGER;
          c: CHARACTER;
          tmp_string: STRING;
-      do
-         if s.count > 0 then
+      do  
+         if s.count > 0 then 
             !!tmp_string.make(256);
-            from
+            from 
                i := 1;
-            until
+            until 
                i > s.count
-            loop
+            loop 
                c := s.item(i);
-               if state = 0 then
-                  if not (c = on) then
+               if state = 0 then 
+                  if not (c = on) then 
                      tmp_string.clear_count;
                      tmp_string.extend(c);
                      state := 1;
-                  end;
-               else
+                  end; 
+               else 
                   -- state is not 0, looking for the end
-                  if c = on then
+                  if c = on then 
                      words.add_last(tmp_string.twin);
                      state := 0;
-                  else
+                  else 
                      -- this is the one for which we are searching
                      tmp_string.extend(c);
-                  end;
-               end;
+                  end; 
+               end; 
                i := i + 1;
-            end;
-            if state = 1 then
+            end; 
+            if state = 1 then 
                words.add_last(tmp_string.twin);
-            end;
-         end;
+            end; 
+         end; 
       end -- split_on_in
-
+   
    cgi_data: HASHED_DICTIONARY[STRING,STRING];
       -- The parsed input
-
+   
 feature {CGI} -- The parsed data.
 
    cgi_input: STRING;
-
-   parse is
+   
+   parse is 
       -- Parse the CGI data, only done once.
-      local
+      local 
          a, b: ARRAY[STRING];
          s, val: STRING;
          i: INTEGER;
-      once
+      once 
          a := split_on(cgi_input,'&');
          !!cgi_data.make;
-         from
+         from 
             i := 1;
-         until
+         until 
             a = Void or else i > a.count
-         loop
+         loop 
             s := a @ i;
             b := split_on(s,'=');
-            inspect
+            inspect 
                b.count
-            when 1 then
+            when 1 then 
                   cgi_data.put("",decode_string(b.item(1)))
-            when 2 then
+            when 2 then 
                   val := decode_string(b.item(2));
                   val.left_adjust;
                   val.right_adjust;
                      -- Remove leading and trailing blanks
                   cgi_data.put(val,decode_string(b.item(1)))
-            end;
+            end; 
             i := i + 1;
-         end;
+         end; 
       end -- parse
-
-   get_cgi_data is
+   
+   get_cgi_data is 
       -- Find the CGI form data and return it.
-      local
+      local 
          tmp: STRING;
          i, top: INTEGER;
 		 sys: SYSTEM;
-      once
+      once 
          tmp := sys.get_environment_variable("REQUEST_METHOD");
-         if tmp /= Void then
-            if tmp.is_equal("GET") then
+         if tmp /= Void then 
+            if tmp.is_equal("GET") then 
                cgi_input := sys.get_environment_variable("QUERY_STRING");
-            elseif tmp.is_equal("POST") then
+            elseif tmp.is_equal("POST") then 
                tmp := sys.get_environment_variable("CONTENT_LENGTH");
-               if tmp /= Void then
-                  from
+               if tmp /= Void then 
+                  from 
                      top := tmp.to_integer;
                      i := 1;
                      !!cgi_input.make(1);
-                  until
+                  until 
                      i > top
-                  loop
+                  loop 
                      std_input.read_character;
                      cgi_input.add_last(std_input.last_character);
                      i := i + 1;
-                  end;
-               end;
-            end;
-         end;
-      ensure
-         cgi_input /= Void;
+                  end; 
+               end; 
+            end; 
+         end; 
+      ensure 
+         cgi_input /= Void; 
       end -- get_cgi_data
 
 end -- class CGI

@@ -13,7 +13,7 @@
   (gdemo
     (lambda ()
       (do ((i 0 (+ 1 i)))
-	((> i 255) #n)
+	((> i 255) #n) 
 	(colorbox i)))))
 
 ; a line drawn horizontally at the color

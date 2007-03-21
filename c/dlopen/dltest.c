@@ -11,7 +11,7 @@ void main(void)
 {
     void *libtest;
     void (*func)(void);
-
+    
     libtest=dlopen("./libtest.so", DL_LAZY);
     if(libtest==NULL) {
         puts(dlerror());

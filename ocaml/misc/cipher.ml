@@ -15,7 +15,7 @@ let datadir =
 
 let single_letters = [
 	'e'; 't'; 'o'; 'a'; 'n'; 'i'; 'r'; 's'; 'h'; 'd'; 'l'; 'c'; 'w';
-	'u'; 'm'; 'f'; 'y'; 'g'; 'p'; 'b'; 'v'; 'k'; 'x'; 'q'; 'j'; 'z';
+	'u'; 'm'; 'f'; 'y'; 'g'; 'p'; 'b'; 'v'; 'k'; 'x'; 'q'; 'j'; 'z'; 
 ]
 
 module CharSet = Set.Make(Char)
@@ -24,7 +24,7 @@ type char_freq = { letter: char; freq: int; }
 
 module Letter_freq = struct
 	type t = char_freq
-	let compare a b =
+	let compare a b = 
 		if (a.freq = b.freq) then (
 			compare a.letter b.letter
 		) else (
@@ -219,7 +219,7 @@ let create_mapping s d m =
 
 (*
  This function takes two words:  a word from our cipher, and a possible word
- match.
+ match.  
  If the pattern can apply, a CharMap is returned mapping the input characters
  to the output characters that will convert strings of that input to the
  correct output.  If the pattern cannot apply, Not_found will be raised.

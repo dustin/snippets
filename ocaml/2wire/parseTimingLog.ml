@@ -46,14 +46,14 @@ type global_state_t = {
 let log_types = ["HB"; "BOOT"; "KICK"; "XMLRPC"; "PKGSTAT"; "PKGSETSTAT";]
 
 (* Log times with time/count/start/end appended *)
-let extended_log_types =
+let extended_log_types = 
 	List.concat (List.map (fun x ->
 		(List.map (fun y -> x ^ y) ["time";"count";"start";"end"]))
 		log_types)
 
 (* Stringify a log entry *)
 let string_of_log_entry le =
-	(string_of_float le.le_time) ^ ":" ^ le.le_serial ^ " " ^ le.le_ttype
+	(string_of_float le.le_time) ^ ":" ^ le.le_serial ^ " " ^ le.le_ttype 
 		^ " " ^ le.le_state
 
 (* Get the block that contains the counts for the given log entry.

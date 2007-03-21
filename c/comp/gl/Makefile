@@ -9,7 +9,7 @@
 # Setup variables for the locations of important files and libraries
 #
 
-XLIB = -lXmu -lXext -lX11
+XLIB = -lXmu -lXext -lX11 
 
 DEP_LIBRARIES = /usr/people/sallings/lib/libglut.a
 
@@ -41,7 +41,7 @@ bezmesh:   bezmesh.c
 # General purpose "functions" that are sometimes useful
 #
 
-all:
+all: 
 	touch *.c *.h
 	make
 

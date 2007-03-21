@@ -49,7 +49,7 @@ public class eBayWatch implements Runnable {
 
 	protected synchronized void setStatus(String to) {
 		int size = 0;
-
+		
 		if(queue!=null) {
 			size = queue.size();
 		}
@@ -110,7 +110,7 @@ public class eBayWatch implements Runnable {
 				System.exit(0);
 			}
 		} );
-
+			
 		bottom.add(send);
 		bottom.add(quit);
 		return(bottom);
@@ -143,7 +143,7 @@ public class eBayWatch implements Runnable {
 	}
 
     public static void main(String args[]) throws Exception {
-	eBayWatch app = new eBayWatch();
+       	eBayWatch app = new eBayWatch();
 		app.realmain(args);
 	}
 
@@ -174,7 +174,7 @@ public class eBayWatch implements Runnable {
         JFrame frame = new JFrame("eBayWatch");
         frame.setVisible(true);
 		base=frame;
-	Component pane_1 = level1();
+       	Component pane_1 = level1();
 		Component status = status();
 		Component bottom = bottom();
 		Container c = frame.getContentPane();

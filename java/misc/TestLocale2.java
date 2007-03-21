@@ -5,7 +5,7 @@ public class TestLocale2 extends Object {
 	public static void main(String args[]) {
 
 		Locale ls[]=NumberFormat.getAvailableLocales();
-
+		
 		for(int i=0; i<ls.length; i++) {
 			Locale l=ls[i];
 			NumberFormat f1=NumberFormat.getInstance(l);

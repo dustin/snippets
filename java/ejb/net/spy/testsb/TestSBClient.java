@@ -9,7 +9,7 @@ import javax.transaction.UserTransaction;
 
 public class TestSBClient {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) { 
 
 	// Set environment properties
 	Properties env = System.getProperties();
@@ -90,7 +90,7 @@ public class TestSBClient {
 	    System.out.println("Request outside any transaction");
 	    val = t1.read();
 	} catch (Exception e) {
-	    System.err.println("Cannot read value on t1 : "+e);
+	    System.err.println("Cannot read value on t1 : "+e);  
 	    System.exit(2);
 	}
 	if (val != 10+20) {
@@ -105,9 +105,9 @@ public class TestSBClient {
 	    System.out.println("Exception on buy: "+e);
 	    System.exit(2);
 	}
-
+	
 	System.out.println("TestSBClient OK. Exiting.");
     }
 }
 
-
+    

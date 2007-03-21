@@ -51,7 +51,7 @@ action="%SELF_URI%">
    </tr>
 
    <tr>
-		<td>Background Color:</td>
+   		<td>Background Color:</td>
 		<td>
 			<select name="bgcolor">
 			<option>white

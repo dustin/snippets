@@ -4,13 +4,13 @@
 #include <aux.h>
 
 GLfloat ctrlpoints[4][4][3] = {
-    {{-1.5, -1.5, 4.0}, {-0.5, -1.5, 2.0},
-	{0.5, -1.5, -1.0}, {1.5, -1.5, 2.0}},
-    {{-1.5, -0.5, 1.0}, {-0.5, -0.5, 3.0},
-	{0.5, -0.5, 0.0}, {1.5, -0.5, -1.0}},
-    {{-1.5, 0.5, 4.0}, {-0.5, 0.5, 0.0},
-	{0.5, 0.5, 3.0}, {1.5, 0.5, 4.0}},
-    {{-1.5, 1.5, -2.0}, {-0.5, 1.5, -2.0},
+    {{-1.5, -1.5, 4.0}, {-0.5, -1.5, 2.0}, 
+	{0.5, -1.5, -1.0}, {1.5, -1.5, 2.0}}, 
+    {{-1.5, -0.5, 1.0}, {-0.5, -0.5, 3.0}, 
+	{0.5, -0.5, 0.0}, {1.5, -0.5, -1.0}}, 
+    {{-1.5, 0.5, 4.0}, {-0.5, 0.5, 0.0}, 
+	{0.5, 0.5, 3.0}, {1.5, 0.5, 4.0}}, 
+    {{-1.5, 1.5, -2.0}, {-0.5, 1.5, -2.0}, 
 	{0.5, 1.5, 0.0}, {1.5, 1.5, -1.0}}
 };
 
@@ -21,13 +21,13 @@ void initlights(void)
     GLfloat mat_diffuse[] = { 0.6, 0.6, 0.6, 1.0 };
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 50.0 };
-
+    
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
-
+    
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
@@ -63,10 +63,10 @@ void myReshape(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     if (w <= h)
-	glOrtho(-4.0, 4.0, -4.0*(GLfloat)h/(GLfloat)w,
+	glOrtho(-4.0, 4.0, -4.0*(GLfloat)h/(GLfloat)w, 
 	    4.0*(GLfloat)h/(GLfloat)w, -4.0, 4.0);
     else
-	glOrtho(-4.0*(GLfloat)w/(GLfloat)h,
+	glOrtho(-4.0*(GLfloat)w/(GLfloat)h, 
 	    4.0*(GLfloat)w/(GLfloat)h, -4.0, 4.0, -4.0, 4.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

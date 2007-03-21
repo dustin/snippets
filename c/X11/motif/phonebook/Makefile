@@ -12,7 +12,7 @@ LDFLAGS=-L/usr/local/pgsql/lib $(LIBS)
 CC=cc
 RANLIB=:
 
-CFLAGS=$(CDEBUGFLAGS)
+CFLAGS=$(CDEBUGFLAGS) 
 PBKOBJS=phonebook.o callbacks.o widgets.o fields.o find.o database.o
 SRC=phonebook.c callbacks.c widgets.c find.c database.c
 EXES=phonebook

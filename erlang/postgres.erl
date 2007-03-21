@@ -49,7 +49,7 @@ makeString(String) ->
 
 assert(V, Msg) ->
 	case V of
-		true ->
+		true -> 
 			true;
 		_ ->
 			exit(Msg)
@@ -95,7 +95,7 @@ getAllData(Len, Rest, Info) ->
 				true ->
 					lists:split(Len, Rest)
 			end;
-		true ->
+		true -> 
 			io:format("Need to read ~p more bytes~n", [Remaining]),
 			{ok, Pkt} = gen_tcp:recv(Info#pginfo.socket, Remaining),
 			io:format("Read ~p~n", [Pkt]),
@@ -213,7 +213,7 @@ handle_packet($R, Length, Data, connected, Info) ->
 
 % Errors
 handle_packet($E, Length, Data, State, Info) ->
-	error_logger:error_msg("Got an error in state ``~p'':  ~p~n",
+	error_logger:error_msg("Got an error in state ``~p'':  ~p~n", 
 		[State, lists:flatten(
 			lists:map(fun(P) -> case P of 0 -> " - "; _ -> P end end, Data))]),
 	{next_state, State, Info};

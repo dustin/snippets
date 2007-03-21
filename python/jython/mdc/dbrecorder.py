@@ -61,7 +61,7 @@ class DBRecorder(com.twowire.app.mdcscrape.AbstractMDCRecorder):
     def __init__(self, conf):
         self.conf=conf
         gl=com.twowire.app.mdcscrape.MDCLookup.getInstance()
-        self.le=gl.getLookupEntries(conf, "data_list", "data_key")
+        self.le=gl.getLookupEntries(conf, "data_list", "data_key") 
         self.gpk=net.spy.db.GetPK.getInstance()
         self.tp=com.twowire.database.TransactionPipeline.getInstance()
         self.tp.setBlockSize(200)

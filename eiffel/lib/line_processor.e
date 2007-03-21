@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: line_processor.e,v 1.1 2002/12/08 10:06:37 dustin Exp $

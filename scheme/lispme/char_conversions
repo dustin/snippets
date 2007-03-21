@@ -44,7 +44,7 @@
   (list->vector (map (lambda (n)
     (delay (list->vector (map
       (curry rotn-char n)
-	(map integer->char
+  	(map integer->char
 		(make-range 0 255))))))
     (make-range 0 25)))))
 

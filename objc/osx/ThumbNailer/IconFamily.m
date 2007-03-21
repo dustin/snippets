@@ -89,7 +89,7 @@
 {
     FSSpec fsSpec;
     OSErr result;
-
+    
     self = [self init];
     if (self) {
         if (hIconFamily) {
@@ -226,12 +226,12 @@
     NSBitmapImageRep* iconBitmap32x32;
     NSBitmapImageRep* iconBitmap16x16;
     NSImage* bitmappedIconImage128x128;
-
+    
     // Start with a new, empty IconFamily.
     self = [self init];
     if (self == nil)
         return nil;
-
+    
     // Resample the given image to create a 128x128 pixel, 32-bit RGBA
     // version, and use that as our "thumbnail" (128x128) icon and mask.
     //
@@ -255,7 +255,7 @@
     // the difference is minor and should not be objectionable...)
     bitmappedIconImage128x128 = [[NSImage alloc] initWithSize:NSMakeSize(128,128)];
     [bitmappedIconImage128x128 addRepresentation:iconBitmap128x128];
-
+   
     // Resample the 128x128 image to create a 32x32 pixel, 32-bit RGBA version,
     // and use that as our "large" (32x32) icon and 8-bit mask.
     iconImage32x32 = [IconFamily resampleImage:bitmappedIconImage128x128 toIconWidth:32 usingImageInterpolation:imageInterpolation];
@@ -319,19 +319,19 @@
 		maskElementType = kThumbnail8BitMask;
 		pixelsWide = 128;
 	    break;
-
+	    
 	// 'il32' 32x32 32-bit RGB image
 	case kLarge32BitData:
 		maskElementType = kLarge8BitMask;
 		pixelsWide = 32;
 	    break;
-
+            
 	// 'is32' 16x16 32-bit RGB image
 	case kSmall32BitData:
 		maskElementType = kSmall8BitMask;
 		pixelsWide = 16;
 	    break;
-
+	    
 	default:
 	    return nil;
     }
@@ -343,7 +343,7 @@
         DisposeHandle( hRawBitmapData );
         return nil;
     }
-
+        
     // Get the corresponding raw, uncompressed 8-bit mask data.
     hRawMaskData = NewHandle( pixelsWide * pixelsWide );
     result = GetIconFamilyData( hIconFamily, maskElementType, hRawMaskData );
@@ -351,7 +351,7 @@
         DisposeHandle( hRawMaskData );
         hRawMaskData = NULL;
     }
-
+    
     // The retrieved raw bitmap data is stored at 32 bits per pixel: 3 bytes
     // for the RGB color of each pixel, plus an extra unused byte.  We can
     // therefore fold the mask data into the color data in-place (though
@@ -369,7 +369,7 @@
         while (pRawBitmapData < pRawBitmapDataEnd)
             *pRawBitmapData++ = (*pRawBitmapData << 8) | 0xff;
     }
-
+    
     // Create a new NSBitmapImageRep with the given bitmap data.  Note that
     // when creating the NSBitmapImageRep we pass in NULL for the "planes"
     // parameter.  This causes the new NSBitmapImageRep to allocate its own
@@ -398,7 +398,7 @@
                 pixelsWide * pixelsWide * 4 );
     }
     HUnlock( hRawBitmapData );
-
+                      
     // Free the retrieved raw data.
     DisposeHandle( hRawBitmapData );
     if (hRawMaskData)
@@ -432,27 +432,27 @@
 	case kThumbnail32BitData:
 	    hRawData = [IconFamily get32BitDataFromBitmapImageRep:bitmapImageRep requiredPixelSize:128];
 	    break;
-
+	    
 	// 't8mk' 128x128 8-bit alpha mask
 	case kThumbnail8BitMask:
 	    hRawData = [IconFamily get8BitMaskFromBitmapImageRep:bitmapImageRep requiredPixelSize:128];
 	    break;
-
+	    
 	// 'il32' 32x32 32-bit RGB image
 	case kLarge32BitData:
 	    hRawData = [IconFamily get32BitDataFromBitmapImageRep:bitmapImageRep requiredPixelSize:32];
 	    break;
-
+	    
 	// 'l8mk' 32x32 8-bit alpha mask
 	case kLarge8BitMask:
 	    hRawData = [IconFamily get8BitMaskFromBitmapImageRep:bitmapImageRep requiredPixelSize:32];
 	    break;
-
+	    
 	// 'ICN#' 32x32 1-bit alpha mask
 	case kLarge1BitMask:
 	    hRawData = [IconFamily get1BitMaskFromBitmapImageRep:bitmapImageRep requiredPixelSize:32];
 	    break;
-
+            
 	// 'icl8' 32x32 8-bit indexed image data
 	case kLarge8BitData:
 		hRawData = [IconFamily get8BitDataFromBitmapImageRep:bitmapImageRep requiredPixelSize:32];
@@ -462,12 +462,12 @@
 	case kSmall32BitData:
 		hRawData = [IconFamily get32BitDataFromBitmapImageRep:bitmapImageRep requiredPixelSize:16];
 		break;
-
+	    
 	// 's8mk' 16x16 8-bit alpha mask
 	case kSmall8BitMask:
 	    hRawData = [IconFamily get8BitMaskFromBitmapImageRep:bitmapImageRep requiredPixelSize:16];
 	    break;
-
+	    
 	// 'ics#' 16x16 1-bit alpha mask
 	case kSmall1BitMask:
 	    hRawData = [IconFamily get1BitMaskFromBitmapImageRep:bitmapImageRep requiredPixelSize:16];
@@ -477,28 +477,28 @@
 	case kSmall8BitData:
 		hRawData = [IconFamily get8BitDataFromBitmapImageRep:bitmapImageRep requiredPixelSize:16];
 		break;
-
+            
 	default:
 	    return NO;
     }
-
+	
 	// NSLog(@"setIconFamilyElement:%@ fromBitmapImageRep:%@ generated handle %p of size %d", NSFileTypeForHFSTypeCode(elementType), bitmapImageRep, hRawData, GetHandleSize(hRawData));
-
+	
     if (hRawData == NULL)
 	{
 		NSLog(@"Null data returned to setIconFamilyElement:fromBitmapImageRep:");
 		return NO;
 	}
-
+	
     result = SetIconFamilyData( hIconFamily, elementType, hRawData );
     DisposeHandle( hRawData );
-
+	
     if (result != noErr)
 	{
 		NSLog(@"SetIconFamilyData() returned error %d", result);
 		return NO;
 	}
-
+	
     return YES;
 }
 
@@ -519,14 +519,14 @@
     Handle hIconFamilyCopy;
 	NSDictionary *fileAttributes;
 	OSType existingType = '????', existingCreator = '????';
-
+        
     // Get an FSRef and an FSSpec for the target file, and an FSRef for its parent directory that we can use in the FNNotify() call below.
     if (![path getFSRef:&targetFileFSRef createFileIfNecessary:NO])
 		return NO;
     result = FSGetCatalogInfo( &targetFileFSRef, kFSCatInfoNone, NULL, NULL, &targetFileFSSpec, &parentDirectoryFSRef );
     if (result != noErr)
         return NO;
-
+	
     // Get the file's type and creator codes.
 	fileAttributes = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
 	if (fileAttributes)
@@ -534,7 +534,7 @@
 		existingType = [fileAttributes fileHFSTypeCode];
 		existingCreator = [fileAttributes fileHFSCreatorCode];
     }
-
+	
     // Make sure the file has a resource fork that we can open.  (Although
     // this sounds like it would clobber an existing resource fork, the Carbon
     // Resource Manager docs for this function say that's not the case.  If
@@ -545,12 +545,12 @@
     result = ResError();
     if (!(result == noErr || result == dupFNErr))
 		return NO;
-
+    
     // Open the file's resource fork.
     file = FSpOpenResFile( &targetFileFSSpec, fsRdWrPerm );
     if (file == -1)
 		return NO;
-
+        
     // Make a copy of the icon family data to pass to AddResource().
     // (AddResource() takes ownership of the handle we pass in; after the
     // CloseResFile() call its master pointer will be set to 0xffffffff.
@@ -562,13 +562,13 @@
         CloseResFile( file );
         return NO;
     }
-
+    
     // Remove the file's existing kCustomIconResource of type kIconFamilyType
     // (if any).
     hExistingCustomIcon = GetResource( kIconFamilyType, kCustomIconResource );
     if( hExistingCustomIcon )
         RemoveResource( hExistingCustomIcon );
-
+    
     // Now add our icon family as the file's new custom icon.
     AddResource( (Handle)hIconFamilyCopy, kIconFamilyType,
                  kCustomIconResource, "\p");
@@ -576,7 +576,7 @@
         CloseResFile( file );
         return NO;
     }
-
+    
     if( compat )
     {
         [self addResourceType:kLarge8BitData asResID:kCustomIconResource];
@@ -584,37 +584,37 @@
         [self addResourceType:kSmall8BitData asResID:kCustomIconResource];
         [self addResourceType:kSmall1BitMask asResID:kCustomIconResource];
     }
-
+	
     // Close the file's resource fork, flushing the resource map and new icon
     // data out to disk.
     CloseResFile( file );
     if (ResError() != noErr)
 		return NO;
-
+	
     // Now we need to set the file's Finder info so the Finder will know that
     // it has a custom icon.  Start by getting the file's current finder info:
     result = FSpGetFInfo( &targetFileFSSpec, &finderInfo );
     if (result != noErr)
 		return NO;
-
+    
     // Set the kHasCustomIcon flag, and clear the kHasBeenInited flag.
     //
-    // From Apple's "CustomIcon" code sample:
+    // From Apple's "CustomIcon" code sample:    
     //     "set bit 10 (has custom icon) and unset the inited flag
     //      kHasBeenInited is 0x0100 so the mask will be 0xFEFF:"
     //    finderInfo.fdFlags = 0xFEFF & (finderInfo.fdFlags | kHasCustomIcon ) ;
     finderInfo.fdFlags = (finderInfo.fdFlags | kHasCustomIcon ) & ~kHasBeenInited;
-
+	
     // Now write the Finder info back.
     result = FSpSetFInfo( &targetFileFSSpec, &finderInfo );
     if (result != noErr)
 		return NO;
-
+        
     // Notify the system that the directory containing the file has changed, to give Finder the chance to find out about the file's new custom icon.
     result = FNNotify( &parentDirectoryFSRef, kFNDirectoryModifiedMessage, kNilOptions );
     if (result != noErr)
         return NO;
-
+	
     return YES;
 }
 
@@ -634,7 +634,7 @@
     result = FSGetCatalogInfo( &targetFileFSRef, kFSCatInfoNone, NULL, NULL, &targetFileFSSpec, &parentDirectoryFSRef );
     if (result != noErr)
         return NO;
-
+	
     // Open the file's resource fork, if it has one.
     file = FSpOpenResFile( &targetFileFSSpec, fsRdWrPerm );
     if (file == -1)
@@ -669,7 +669,7 @@
     result = FNNotify( &parentDirectoryFSRef, kFNDirectoryModifiedMessage, kNilOptions );
     if (result != noErr)
         return NO;
-
+	
     return YES;
 }
 
@@ -794,7 +794,7 @@
     result = FNNotify( &targetFolderFSRef, kFNDirectoryModifiedMessage, kNilOptions );
     if (result != noErr)
         return NO;
-
+	
     return YES;
 }
 
@@ -802,13 +802,13 @@
 {
     FSSpec fsSpec;
     OSErr result;
-
+    
     if (![path getFSSpec:&fsSpec createFileIfNecessary:YES])
 	return NO;
     result = WriteIconFile( hIconFamily, &fsSpec );
     if (result != noErr)
 	return NO;
-
+	
     return YES;
 } This method has a problem with files not representable as an FSSpec.*/
 
@@ -817,7 +817,7 @@
     NSData* iconData = NULL;
 
     HLock((Handle)hIconFamily);
-
+    
     iconData = [NSData dataWithBytes:*hIconFamily length:GetHandleSize((Handle)hIconFamily)];
     [iconData writeToFile:path atomically:NO];
 
@@ -892,7 +892,7 @@
     previousImageInterpolation = [graphicsContext imageInterpolation];
     [graphicsContext setShouldAntialias:YES];
     [graphicsContext setImageInterpolation:imageInterpolation];
-
+    
     // Composite the working image into the icon bitmap, centered.
     targetRect.origin.x = ((float)iconWidth - newSize.width ) / 2.0;
     targetRect.origin.y = ((float)iconWidth - newSize.height) / 2.0;
@@ -905,13 +905,13 @@
     [graphicsContext setImageInterpolation:previousImageInterpolation];
 
     [newImage unlockFocus];
-
+	
     [workingImage release];
 
 #else   // This was an attempt at explicitly giving the NSImage an NSBitmapImageRep
         // and drawing to that NSBitmapImageRep.  It doesn't work.  (See comments
         // in -initWithThumbnailsOfImage:)
-
+        
 //    // Create a new 32-bit RGBA bitmap that is width x width pixels.
     originalImageRep = [image bestRepresentationForDevice:nil];
     newImage = [[NSImage alloc] initWithSize:NSMakeSize(iconWidth,iconWidth)];
@@ -945,7 +945,7 @@
 //    NSRectFill( iconRect );
     [workingImage compositeToPoint:NSZeroPoint operation:NSCompositeSourceOver];
     [newImage unlockFocus];
-
+    
     [workingImage release];
 #endif
 
@@ -963,7 +963,7 @@
     int x, y;
     unsigned char alphaByte;
     float oneOverAlpha;
-
+    
     // Get information about the bitmapImageRep.
     int pixelsWide      = [bitmapImageRep pixelsWide];
     int pixelsHigh      = [bitmapImageRep pixelsHigh];
@@ -980,7 +980,7 @@
     // Make sure bitmap has the required dimensions.
     if (pixelsWide != requiredPixelSize || pixelsHigh != requiredPixelSize)
 	return NULL;
-
+	
     // So far, this code only handles non-planar 32-bit RGBA and 24-bit RGB source bitmaps.
     // This could be made more flexible with some additional programming to accommodate other possible
     // formats...
@@ -1002,10 +1002,10 @@
 		if (hRawData == NULL)
 			return NULL;
 		pRawData = *hRawData;
-
+	
 		pSrc = bitmapData;
 		pDest = pRawData;
-
+		
 		if (bitsPerPixel == 32) {
 			for (y = 0; y < pixelsHigh; y++) {
 				pSrc = bitmapData + y * bytesPerRow;
@@ -1058,7 +1058,7 @@
     unsigned char* pSrc;
     unsigned char* pDest;
     int x, y;
-
+	
     // Get information about the bitmapImageRep.
     int pixelsWide      = [bitmapImageRep pixelsWide];
     int pixelsHigh      = [bitmapImageRep pixelsHigh];
@@ -1068,11 +1068,11 @@
     BOOL isPlanar       = [bitmapImageRep isPlanar];
     int bytesPerRow     = [bitmapImageRep bytesPerRow];
     unsigned char* bitmapData = [bitmapImageRep bitmapData];
-
+    
     // Make sure bitmap has the required dimensions.
     if (pixelsWide != requiredPixelSize || pixelsHigh != requiredPixelSize)
         return NULL;
-
+	
     // So far, this code only handles non-planar 32-bit RGBA and 24-bit RGB source bitmaps.
     // This could be made more flexible with some additional programming...
     if (isPlanar)
@@ -1085,7 +1085,7 @@
 		NSLog(@"get8BitDataFromBitmapImageRep:requiredPixelSize: returning NULL due to bitsPerSample == %d", bitsPerSample);
 		return NULL;
 	}
-
+	
 	if (((samplesPerPixel == 3) && (bitsPerPixel == 24)) || ((samplesPerPixel == 4) && (bitsPerPixel == 32)))
 	{
 		CGDirectPaletteRef cgPal;
@@ -1096,9 +1096,9 @@
 		if (hRawData == NULL)
 			return NULL;
 		pRawData = *hRawData;
-
+		
 		cgPal = CGPaletteCreateDefaultColorPalette();
-
+		
 		pSrc = bitmapData;
 		pDest = pRawData;
 		if (bitsPerPixel == 32) {
@@ -1108,9 +1108,9 @@
 					cgCol.red = ((float)*(pSrc)) / 255;
 					cgCol.green = ((float)*(pSrc+1)) / 255;
 					cgCol.blue = ((float)*(pSrc+2)) / 255;
-
+	
 					*pDest++ = CGPaletteGetIndexForColor(cgPal, cgCol);
-
+	
 					pSrc+=4;
 				}
 			}
@@ -1121,14 +1121,14 @@
 					cgCol.red = ((float)*(pSrc)) / 255;
 					cgCol.green = ((float)*(pSrc+1)) / 255;
 					cgCol.blue = ((float)*(pSrc+2)) / 255;
-
+	
 					*pDest++ = CGPaletteGetIndexForColor(cgPal, cgCol);
-
+	
 					pSrc+=3;
 				}
 			}
 		}
-
+		
 		CGPaletteRelease(cgPal);
 	}
 	else
@@ -1136,7 +1136,7 @@
 		NSLog(@"get8BitDataFromBitmapImageRep:requiredPixelSize: returning NULL due to samplesPerPixel == %d, bitsPerPixel == %", samplesPerPixel, bitsPerPixel);
 		return NULL;
 	}
-
+	
     return hRawData;
 }
 
@@ -1148,7 +1148,7 @@
     unsigned char* pSrc;
     unsigned char* pDest;
     int x, y;
-
+    
     // Get information about the bitmapImageRep.
     int pixelsWide      = [bitmapImageRep pixelsWide];
     int pixelsHigh      = [bitmapImageRep pixelsHigh];
@@ -1165,7 +1165,7 @@
     // Make sure bitmap has the required dimensions.
     if (pixelsWide != requiredPixelSize || pixelsHigh != requiredPixelSize)
 		return NULL;
-
+	
     // So far, this code only handles non-planar 32-bit RGBA, 24-bit RGB and 8-bit grayscale source bitmaps.
     // This could be made more flexible with some additional programming...
     if (isPlanar)
@@ -1178,7 +1178,7 @@
 		NSLog(@"get8BitMaskFromBitmapImageRep:requiredPixelSize: returning NULL due to bitsPerSample == %d", bitsPerSample);
 		return NULL;
 	}
-
+	
 	if (((samplesPerPixel == 1) && (bitsPerPixel == 8)) || ((samplesPerPixel == 3) && (bitsPerPixel == 24)) || ((samplesPerPixel == 4) && (bitsPerPixel == 32)))
 	{
 		rawDataSize = pixelsWide * pixelsHigh;
@@ -1186,10 +1186,10 @@
 		if (hRawData == NULL)
 			return NULL;
 		pRawData = *hRawData;
-
+	
 		pSrc = bitmapData;
 		pDest = pRawData;
-
+		
 		if (bitsPerPixel == 32) {
 			for (y = 0; y < pixelsHigh; y++) {
 				pSrc = bitmapData + y * bytesPerRow;
@@ -1229,7 +1229,7 @@
     unsigned char* pDest;
     int x, y;
     unsigned char maskByte;
-
+    
     // Get information about the bitmapImageRep.
     int pixelsWide      = [bitmapImageRep pixelsWide];
     int pixelsHigh      = [bitmapImageRep pixelsHigh];
@@ -1242,11 +1242,11 @@
     int bytesPerRow     = [bitmapImageRep bytesPerRow];
 //    int bytesPerPlane   = [bitmapImageRep bytesPerPlane];
     unsigned char* bitmapData = [bitmapImageRep bitmapData];
-
+	
     // Make sure bitmap has the required dimensions.
     if (pixelsWide != requiredPixelSize || pixelsHigh != requiredPixelSize)
 		return NULL;
-
+	
     // So far, this code only handles non-planar 32-bit RGBA, 24-bit RGB, 8-bit grayscale, and 1-bit source bitmaps.
     // This could be made more flexible with some additional programming...
     if (isPlanar)
@@ -1254,7 +1254,7 @@
 		NSLog(@"get1BitMaskFromBitmapImageRep:requiredPixelSize: returning NULL due to isPlanar == YES");
 		return NULL;
 	}
-
+	
 	if (((bitsPerPixel == 1) && (samplesPerPixel == 1) && (bitsPerSample == 1)) || ((bitsPerPixel == 8) && (samplesPerPixel == 1) && (bitsPerSample == 8)) ||
 		((bitsPerPixel == 24) && (samplesPerPixel == 3) && (bitsPerSample == 8)) || ((bitsPerPixel == 32) && (samplesPerPixel == 4) && (bitsPerSample == 8)))
 	{
@@ -1263,10 +1263,10 @@
 		if (hRawData == NULL)
 			return NULL;
 		pRawData = *hRawData;
-
+	
 		pSrc = bitmapData;
 		pDest = pRawData;
-
+		
 		if (bitsPerPixel == 32) {
 			for (y = 0; y < pixelsHigh; y++) {
 				pSrc = bitmapData + y * bytesPerRow;
@@ -1311,7 +1311,7 @@
 				pSrc += bytesPerRow;
 			}
 		}
-
+		
 		memcpy( pRawData+(pixelsWide*pixelsHigh)/8, pRawData, (pixelsWide*pixelsHigh)/8 );
 	}
 	else
@@ -1319,11 +1319,11 @@
 		NSLog(@"get1BitMaskFromBitmapImageRep:requiredPixelSize: returning NULL due to bitsPerPixel == %d, samplesPerPixel== %d, bitsPerSample == %d", bitsPerPixel, samplesPerPixel, bitsPerSample);
 		return NULL;
 	}
-
+	
     return hRawData;
 }
 
-- (BOOL) addResourceType:(OSType)type asResID:(int)resID
+- (BOOL) addResourceType:(OSType)type asResID:(int)resID 
 {
     Handle hIconRes = NewHandle(0);
     OSErr err;

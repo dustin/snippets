@@ -6,14 +6,14 @@
 (module amb (main main))
 
 ; Error handler
-(define amb-fail '*)
-
+(define amb-fail '*) 
+ 
 (define initialize-amb-fail
   (lambda ()
 	(set! amb-fail
 	  (lambda ()
-		(error "amb-fail" "amb tree exhausted" "")))))
-
+		(error "amb-fail" "amb tree exhausted" ""))))) 
+ 
 (initialize-amb-fail)
 
 (define-macro
@@ -30,7 +30,7 @@
 									(+fk 'fail)))
 								(+sk ,alt))))
 						 alts...)
-				  (+prev-amb-fail))))))
+				  (+prev-amb-fail)))))) 
 (define (main args)
 	)
 

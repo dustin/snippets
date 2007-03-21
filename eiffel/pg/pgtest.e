@@ -7,18 +7,18 @@ indexing
 --
 class PGTEST
 
-creation {ANY}
+creation {ANY} 
    make
 
-feature {ANY}
-
-   make is
-      local
+feature {ANY} 
+   
+   make is 
+      local 
          a: ARRAY[STRING];
          i: INTEGER;
          b: BOOLEAN;
          db: PG;
-      do
+      do  
          !!db.make;
          db.set_dbname("dustin");
          db.set_username("dustin");
@@ -27,46 +27,46 @@ feature {ANY}
          db.connect;
          a := db.tables;
          io.put_string("Tables:%N");
-         from
+         from 
             i := a.lower;
-         until
+         until 
             i > a.upper
-         loop
+         loop 
             io.put_string("%T" + a @ i + "%N");
             i := i + 1;
-         end;
+         end; 
          a := db.sequences;
          io.put_string("Sequences:%N");
-         from
+         from 
             i := a.lower;
-         until
+         until 
             i > a.upper
-         loop
+         loop 
             io.put_string("%T" + a @ i + "%N");
             i := i + 1;
-         end;
+         end; 
          io.put_string("Query:%N> ");
          io.read_line;
          io.put_string(io.last_string);
          io.put_string("%N");
          db.query(io.last_string);
-         from
+         from 
             b := db.get_row;
-         until
+         until 
             b = false
-         loop
+         loop 
             a := db.last_row;
-            from
+            from 
                i := a.lower;
-            until
+            until 
                i > a.upper
-            loop
+            loop 
                io.put_string(a @ i + "%T");
                i := i + 1;
-            end;
+            end; 
             io.put_string("%N");
             b := db.get_row;
-         end;
+         end; 
       end -- make
 
 end -- class PGTEST

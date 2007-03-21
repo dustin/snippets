@@ -63,7 +63,7 @@ SSL_CTX *ctx;
  * Open and return a tcp socket to host:port, -1 if it fails.
  */
 
-int
+int 
 openhost(char *host, int port)
 {
 	struct hostent *hp;
@@ -113,7 +113,7 @@ openhost(char *host, int port)
 	return (s);
 }
 
-void
+void 
 doit(char *file)
 {
 	char    buf[1024];
@@ -142,7 +142,7 @@ doit(char *file)
 	return;
 }
 
-void
+void 
 main(int argc, char **argv)
 {
 	if (argc < 2) {

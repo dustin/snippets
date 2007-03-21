@@ -40,7 +40,7 @@ while(<HSTS>)
         close(PING);
         $pack =~ s/ packets transmitted//;
         $pack =~ s/ packets received//;
-        $pack =~ s/% packet loss//;
+        $pack =~ s/% packet loss//;            
         ($sent,$rec,$lost) = split(/,/,$pack);
 
         @stuff=($comment);

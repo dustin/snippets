@@ -21,7 +21,7 @@ import net.spy.*;
 
 // The class
 public class TestSession extends Object
-{
+{ 
 	// This kinda stuff is only persistent for a single connection.
 	HttpServletRequest request=null;
 	HttpServletResponse response=null;

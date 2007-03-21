@@ -49,27 +49,27 @@ clean:
 	$(MKLIB) $< `echo $< | sed s/.mli/.ml/`
 
 # Deps created by ocamldep
-base64.cmo: base64.cmi
-base64.cmx: base64.cmi
-cdb.cmo: extoption.cmi cdb.cmi
-cdb.cmx: extoption.cmx cdb.cmi
-extlist.cmo: extlist.cmi
-extlist.cmx: extlist.cmi
-extoption.cmo: extoption.cmi
-extoption.cmx: extoption.cmi
-extstream.cmo: extstream.cmi
-extstream.cmx: extstream.cmi
-extstring.cmo: extstring.cmi
-extstring.cmx: extstring.cmi
-fileutils.cmo: fileutils.cmi
-fileutils.cmx: fileutils.cmi
-linkedlist.cmo: linkedlist.cmi
-linkedlist.cmx: linkedlist.cmi
-lru.cmo: linkedlist.cmi lru.cmi
-lru.cmx: linkedlist.cmx lru.cmi
-math.cmo: math.cmi
-math.cmx: math.cmi
-netstring.cmo: extstring.cmi netstring.cmi
-netstring.cmx: extstring.cmx netstring.cmi
+base64.cmo: base64.cmi 
+base64.cmx: base64.cmi 
+cdb.cmo: extoption.cmi cdb.cmi 
+cdb.cmx: extoption.cmx cdb.cmi 
+extlist.cmo: extlist.cmi 
+extlist.cmx: extlist.cmi 
+extoption.cmo: extoption.cmi 
+extoption.cmx: extoption.cmi 
+extstream.cmo: extstream.cmi 
+extstream.cmx: extstream.cmi 
+extstring.cmo: extstring.cmi 
+extstring.cmx: extstring.cmi 
+fileutils.cmo: fileutils.cmi 
+fileutils.cmx: fileutils.cmi 
+linkedlist.cmo: linkedlist.cmi 
+linkedlist.cmx: linkedlist.cmi 
+lru.cmo: linkedlist.cmi lru.cmi 
+lru.cmx: linkedlist.cmx lru.cmi 
+math.cmo: math.cmi 
+math.cmx: math.cmi 
+netstring.cmo: extstring.cmi netstring.cmi 
+netstring.cmx: extstring.cmx netstring.cmi 
 test.cmo: test.cmi
 test.cmx: test.cmi

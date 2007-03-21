@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: logger_constants.e,v 1.1 2002/11/14 08:37:24 dustin Exp $

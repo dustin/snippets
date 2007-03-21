@@ -17,7 +17,7 @@ end if
 on open these_items
 	-- Grab the image from the property list
 	set image4x3 to the first item of property_list
-
+	
 	repeat with i from 1 to the count of these_items
 		set this_item to item i of these_items
 		set the item_info to info for this_item
@@ -26,7 +26,7 @@ on open these_items
 		else if (alias of the item_info is false) then
 			process_item(this_item)
 		end if
-
+		
 	end repeat
 end open
 
@@ -46,7 +46,7 @@ end process_folder
 -- this sub-routine processes files
 on process_item(this_item)
 	tell application "QuickTime Player"
-
+		
 		activate
 		close every movie saving no
 		open image4x3
@@ -59,7 +59,7 @@ on process_item(this_item)
 		select all movie 1
 		copy movie 1
 		close movie 1
-
+		
 		open this_item
 		stop movie 1
 		select window 1
@@ -93,12 +93,12 @@ on process_item(this_item)
 					-- set new_height to height
 					-- set new_width to (width * ratio)
 					-- set trans to {((width - new_width) / 2), 0}
-
+					
 					set ratio to width / 640
 					set new_width to width
 					set new_height to (height * ratio)
 					set trans to {0, ((height - new_height) / 2)}
-
+					
 				end if
 				set dimensions of tt to {new_width, new_height}
 				translate tt by trans

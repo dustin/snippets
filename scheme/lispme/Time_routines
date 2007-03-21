@@ -103,7 +103,7 @@
 ; String up a timestamp
 (define (string-up-ts t)
   ((lambda (s)
-	(substring s 4
+	(substring s 4 
 	  (- (string-length s) 1)))
       (object->string t)))
 

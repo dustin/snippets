@@ -27,7 +27,7 @@ getfilename(char *infilename)
   return (newname);
 }
 
-int
+int 
 main(int argc, char *argv[])
 {
   char *infilename, line[81];

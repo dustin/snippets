@@ -19,7 +19,7 @@ Detailed instructions:
 	   http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/
 
 	3) This is where things can get a bit tricky if you're not paying
-	   attention.
+	   attention.  
 
 	   If you have a single database server and want to look at it with a
 	   single username and password, it's pretty easy, just set them

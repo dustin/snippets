@@ -227,12 +227,12 @@ struct check_result performNatCheck(int ntries)
 	}
 
 	if (my1.sin_addr.s_addr == INADDR_ANY) {
-		fprintf(stderr, "Could not contact server 1 (%s at %s)\n",
+		fprintf(stderr, "Could not contact server 1 (%s at %s)\n", 
 				SERV1, inet_ntoa(sin1.sin_addr));
 		exit(1);
 	}
 	if (my2.sin_addr.s_addr == INADDR_ANY) {
-		fprintf(stderr, "Could not contact server 2 (%s at %s)\n",
+		fprintf(stderr, "Could not contact server 2 (%s at %s)\n", 
 				SERV2, inet_ntoa(sin1.sin_addr));
 		exit(1);
 	}
@@ -268,7 +268,7 @@ struct check_result performNatCheck(int ntries)
 int main(int argc, char **argv)
 {
 	struct check_result res;
-
+	
 	res=performNatCheck(NTRIES);
 
 	printf("\nRESULTS:\n");

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-sub quote
+sub quote 
 {
 	my($t)=@_;
 

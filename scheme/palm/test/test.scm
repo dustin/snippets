@@ -148,7 +148,7 @@
       (case event
         ((menu) (frm-return (list test-data answers)))
         ; When we open the form, populate it with the nth record from the DB
-        ((frm-open)
+        ((frm-open) 
 			(set-select-button (vector-ref answers current-item))
             (populate-fields data))
         ; Buttons
@@ -157,7 +157,7 @@
           (cond
             ; Do this if it's the ``next'' button
             ((eqv? (car args) next-btn)
-             (set! current-item (next-item current-item #t))
+             (set! current-item (next-item current-item #t)) 
              (set! data (list-ref test-data current-item))
 			 (set-select-button (vector-ref answers current-item))
              (populate-fields data))

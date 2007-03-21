@@ -77,7 +77,7 @@ public class ConsultantBean implements EntityBean {
 	public String firstName() {
 		return(fn);
 	}
-
+	
 	public void setFirstName(String to) {
 		fn=to;
 	}

@@ -40,7 +40,7 @@ plane {
 }
 
 object {
-	char_I
+	char_I 
 	translate <-5, -2, 0>
 	pigment {
 		image_map {
@@ -70,7 +70,7 @@ object {
 }
 
 object {
-	char_A
+	char_A 
 	translate <5, -2, 0>
 	pigment {
 		image_map {

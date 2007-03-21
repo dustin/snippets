@@ -12,7 +12,7 @@ let index_one fn =
 			let a = Extstring.split l '\t' 2 in
 			try
 				Cdb.add cdb (List.hd a) l
-			with
+			with 
 				| Failure("hd") ->
 					print_endline("Format problem:  " ^ l))
 		(fn ^ ".txt");

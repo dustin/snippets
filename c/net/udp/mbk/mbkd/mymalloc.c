@@ -29,13 +29,13 @@ static int *_mem_stats = NULL;
 
 void    _mdebug_dump(void);
 
-static int
+static int 
 _getmemindex(void *p)
 {
 	return ((int) p % NUM_MEMBUCKETS);
 }
 
-static void
+static void 
 _register_mem(void *p, size_t size, char *file, int line)
 {
 	struct memories *m, *c;
@@ -81,7 +81,7 @@ _lookup_mem(void *p)
 	return (c);
 }
 
-static void
+static void 
 _unregister_mem(void *p)
 {
 	struct memories *c, *tmp;
@@ -108,7 +108,7 @@ _unregister_mem(void *p)
 	}
 }
 
-void
+void 
 _mdebug_dump(void)
 {
 	struct memories *c;
@@ -149,7 +149,7 @@ _mdebug_dump(void)
 	    NUM_MEMBUCKETS, max, min, avg / NUM_MEMBUCKETS, empty);
 }
 
-void
+void 
 _mdebug_long_stats(void)
 {
 	int     i;
@@ -200,7 +200,7 @@ _my_realloc(void *p, size_t size, char *file, int line)
 	return (ret);
 }
 
-void
+void 
 _my_free(void *p, char *file, int line)
 {
 	void   *tmp;

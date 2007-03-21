@@ -22,7 +22,7 @@ usage(const char *name)
 	fprintf(stderr, "Usage:\n  %s hostname service|port\n", name);
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	char   *hostname=0x00;

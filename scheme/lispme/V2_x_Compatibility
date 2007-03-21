@@ -15,12 +15,12 @@
   (let* ((ts (current-ts))
 		(d (ts->date ts))
 		(t (ts->time ts)))
-      (list (date-year d)
+      (list (date-year d) 
 	(date-month d) (date-day d)
 	(time-hour t) (time-minute t)
 	(ts-second ts))))
 
 (define (set-resdb name)
-  (set! *resdb*
+  (set! *resdb* 
 	(dm-open-db name 1)))
 

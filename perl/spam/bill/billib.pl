@@ -41,7 +41,7 @@ sub getInvInfo
     ($tmp)=split(/\s/, $h{'inv_ts'});
     @r=split(/-/, $tmp);
     $h{'billdate'}="$r[1]-$r[2]-$r[0]";
-
+    
     $query="select * from bill_info where spam_id=$h{'spam_id'}";
     $s=doQuery($dbh, $query);
     ($tmp, $h{'name'}, $h{'addr1'}, $h{'addr2'}, $h{'city'}, $h{'state'},

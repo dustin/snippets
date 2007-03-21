@@ -33,7 +33,7 @@ class JobQueue:
         """Add a new job to the queue."""
         if not isinstance(job, Job):
             raise ValueError("Job must be of class Job, not " + str(type(job)))
-
+        
         try:
             self.mutex.acquire()
             self.queue.append(job)
@@ -106,7 +106,7 @@ class RunThread(threading.Thread):
         print "RunThread " + str(self.thread_id) + " going online."
 
         self.setName("RunThread#" + str(self.thread_id))
-
+        
         self.start()
 
     def runJob(self, job):
@@ -205,7 +205,7 @@ def main():
         for i in range(100):
             dumpThreads()
             tp.addTask(SampleTask())
-
+    
         dumpThreads()
         for i in range(100):
             tp.waitForTaskCount(50)

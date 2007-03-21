@@ -48,7 +48,7 @@ public class RadiusReport {
 		drop(st, "table tmp1");
 		st.executeUpdate("select distinct username into table tmp1 "
 			+ "from radiustmp");
-
+		
 		st.executeUpdate("alter table tmp1 add column times int");
 		st.executeUpdate("alter table tmp1 add column totaltime timespan");
 		st.executeUpdate("alter table tmp1 add column avgtime timespan");

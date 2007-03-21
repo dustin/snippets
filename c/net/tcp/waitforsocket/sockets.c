@@ -58,7 +58,7 @@ static int waitForConnect(int s)
 	} else {
 		rv=ERR_TIMEOUT;
 	}
-
+	
 	/* True if there was at least one thing that hinted as being available */
 	return(rv);
 }
@@ -116,7 +116,7 @@ attemptConnection(char *host, char *svc)
 			} else {
 				cause="connect";
 			}
-		} else {
+		} else { 
 			rv = RV_SUCCESS;
 			break;
 		}

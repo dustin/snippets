@@ -250,7 +250,7 @@ proc about { } {
 # Show the response
 proc show_response { response } {
 	tk_messageBox -icon info -type ok \
-		-title "SNPP Response" -parent . -message $response
+		-title "SNPP Response" -parent . -message $response 
 }
 
 # Preferences store

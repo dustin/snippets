@@ -14,7 +14,7 @@ import net.spy.*;
 
 // The class
 public class PhotoUtil
-{
+{ 
 	// Split that shit
 	public static String[] split(String on, String input) {
 		return(SpyUtil.split(on, input));
@@ -39,7 +39,7 @@ public class PhotoUtil
 		vars.put("LAST_MODIFIED", "recently");
 		vars.put("STYLESHEET", "<link rel=\"stylesheet\"href=\""
 			+ p.self_uri + "?func=getstylesheet\">");
-
+		
 		ret = t.tokenize(conf.get("includes") + file, vars);
 		return(ret);
 	}

@@ -40,7 +40,7 @@ tardir() {
 		d=`dirname "$cc"`
 		srcdir=`dirname "$d"`
 		bn=`basename "$d"`
-		process "$srcdir" "$bn"
+		process "$srcdir" "$bn" 
 	done
 }
 

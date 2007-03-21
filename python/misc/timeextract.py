@@ -33,27 +33,27 @@ if __name__ == '__main__':
 
     INF="%Y-%m-%d %H:%M:%S"
     OUTF=":%M:%S"
-
+    
     start=0
     last=0
-
+    
     for line in fileinput.input():
         line=line.strip()
         ts, label=line.split("\t")
         parts=ts.split(",")
         tt=time.strptime(parts[0], INF)
         t=time.mktime(tt) + (float(parts[1])/1000)
-
+    
         if start == 0:
             start = t
-
+    
         diff = 0
         adiff = 0
         if last != 0:
             diff = t-last
             adiff = t - start
-
+    
         print "%s %s.%s (+%.3f) (@+%.3f)" \
             % (label, time.strftime(OUTF, tt), parts[1], diff, adiff)
-
+    
         last=t

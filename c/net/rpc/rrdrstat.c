@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
+#include <time.h> 
 #include <assert.h>
 
 #include <rpc/rpc.h>
@@ -99,7 +99,7 @@ int
 main(int argc, char **argv)
 {
 	int i=0;
-
+	
 	for(;;) {
 		for(i=1; i<argc; i++) {
 			processHost(argv[i]);

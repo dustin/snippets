@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    syslog(LOG_NOTICE|LOG_AUTH, "S TOOL:  %s ran %s",
+    syslog(LOG_NOTICE|LOG_AUTH, "S TOOL:  %s ran %s", 
 	    getlogin(), PATH);
 
     setuid(0);

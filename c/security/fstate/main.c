@@ -106,10 +106,10 @@ static void dowork(const char *path)
 					}
 					dowork(buf);
 				} else {
-				printf("ERROR!!!  Filename too long for buffer: %s/%s\n",
-			path, d->d_name);
+		    		printf("ERROR!!!  Filename too long for buffer: %s/%s\n",
+                       	path, d->d_name);
 				}
-			}
+			} 
 		}
 		closedir(dir);
 	} else {

@@ -46,7 +46,7 @@ class Stats:
             rv+="Avg=%.2fs, Remaining: %d, est %.2fs (%s)" % \
                 (avgproctime, self.left, estimate, \
                     time.ctime( time.time() + estimate ))
-        except ZeroDivisionError:
+        except ZeroDivisionError:   
             rv="No results yet, but " + str(self.left) + " to finish."
         return(rv)
 

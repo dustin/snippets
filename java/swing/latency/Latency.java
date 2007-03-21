@@ -40,7 +40,7 @@ public class Latency implements Runnable {
 
     public static void main(String args[]) throws Exception {
 
-	Latency app = new Latency();
+       	Latency app = new Latency();
 		app.realmain(args);
 	 }
 
@@ -61,8 +61,8 @@ public class Latency implements Runnable {
         //Create the top-level container and add contents to it.
         JFrame frame = new JFrame("SwingTherm");
 		base=frame;
-	Component contents = createComponents();
-	frame.getContentPane().add(contents, BorderLayout.CENTER);
+       	Component contents = createComponents();
+       	frame.getContentPane().add(contents, BorderLayout.CENTER);
 
         frame.pack();
         frame.setVisible(true);

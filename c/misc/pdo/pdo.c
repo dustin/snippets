@@ -13,7 +13,7 @@
 #include <assert.h>
 
 /* spawn a child to do the work */
-void
+void 
 dowork(char *job)
 {
 	int     pid, ret;
@@ -44,7 +44,7 @@ kw(char *in)
 	return (in);
 }
 
-void
+void 
 usage(char *progname)
 {
 	printf("Parallel Do\n"
@@ -52,7 +52,7 @@ usage(char *progname)
 	    "Usage:  %s [-j n_jobs] jobfile\n", progname);
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	extern char *optarg;

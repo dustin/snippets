@@ -48,7 +48,7 @@ struct checkspec {
 
 	char *table;
 	char *ts;
-
+	
 	char *query;
 } checkspec;
 

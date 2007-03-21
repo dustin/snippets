@@ -19,7 +19,7 @@
 	(if (divisiblep n (car l))
 	    'nil
 	  (prime-by-listp n s (cdr l))))))
-
+      
 (defun primep (n) "Is n prime?"
   (if (member n primelist)
       n

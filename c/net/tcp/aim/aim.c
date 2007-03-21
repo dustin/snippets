@@ -74,7 +74,7 @@ static void _aol_destroy(AIM *aol)
 }
 
 static int _aol_connect(AIM *aol)
-{
+{   
 	assert(aol);
 
 	_ndebug(3, ("Connecting to %s:%d\n", aol->hostname, aol->port));

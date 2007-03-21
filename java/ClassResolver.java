@@ -22,7 +22,7 @@ public class ClassResolver extends ClassLoader {
 
 	private Collection loaded=null;
 
-	/**
+	/** 
 	 * Get an instance of ClassResolver with the system classloader as a
 	 * parent.
 	 */
@@ -38,14 +38,14 @@ public class ClassResolver extends ClassLoader {
 		loaded=new ArrayList();
 	}
 
-	/**
+	/** 
 	 * Get the collection of loaded class names.
 	 */
 	public Collection getLoaded() {
 		return(loaded);
 	}
 
-	/**
+	/** 
 	 * Find the named class.
 	 */
 	public Class findClass(String name) {
@@ -91,7 +91,7 @@ public class ClassResolver extends ClassLoader {
 		return(rv);
 	} // loadFromStream
 
-	/**
+	/** 
 	 * Load all of the classes given as arguments and print what classes got
 	 * loaded after all of them.  This is a pretty much minimal demonstration.
 	 * To be more useful, you'd want to *do* something with these classes to

@@ -142,15 +142,15 @@ hash_delete(struct hashtable *hash, char *key)
 static void freeptrlist(char **list)
 {
     int     i;
-
+   
     if (list == NULL)
-        return;
+        return;  
 
     for (i = 0; list[i]; i++) {
         free(list[i]);
     }
-    free(list);
-}
+    free(list); 
+}  
 
 /* Destroy a hash */
 void

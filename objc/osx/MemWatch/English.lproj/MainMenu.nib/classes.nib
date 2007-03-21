@@ -1,14 +1,14 @@
 {
     IBClasses = (
         {
-            ACTIONS = {clear = id; launchPreferences = id; update = id; };
-            CLASS = Controller;
-            LANGUAGE = ObjC;
-            OUTLETS = {plot = Plot; srcUrl = NSTextField; status = NSTextField; };
-            SUPERCLASS = NSWindowController;
-        },
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; },
+            ACTIONS = {clear = id; launchPreferences = id; update = id; }; 
+            CLASS = Controller; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {plot = Plot; srcUrl = NSTextField; status = NSTextField; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {CLASS = Plot; LANGUAGE = ObjC; SUPERCLASS = NSView; }
-    );
-    IBVersion = 1;
+    ); 
+    IBVersion = 1; 
 }

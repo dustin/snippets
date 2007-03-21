@@ -63,7 +63,7 @@
 ; Verify a hashtbl is a hashtbl
 (define (hashtbl-assert-ht ht whence)
   (if (not (hashtbl? ht))
-	(error whence "That's not a hashtbl" ht)))
+  	(error whence "That's not a hashtbl" ht)))
 
 (define (hashtbl-put! ht k v)
   (hashtbl-assert-ht ht "hashtbl-put!")

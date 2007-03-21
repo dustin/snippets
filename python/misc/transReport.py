@@ -23,12 +23,12 @@ class MuxProtocol:
         """Returns a dict of settings"""
         self.__logOut("getSettings(" + `a` + ")")
         self.__logIn("getSettings response")
-
+    
     def setSettings(self, h):
         """Takes a dict of settings"""
         self.__logOut("setSettings(" + `h` + ")")
         self.__logIn("setSettings response")
-
+    
     def authenticate(self):
         """Authenticate the gateway"""
         self.__logOut("authenticate request");
@@ -99,7 +99,7 @@ class Transaction:
 
 class Heartbeat(Transaction):
     pass
-
+    
 class HeartbeatPeriodic(Heartbeat):
 
     def __init__(self, count=0):

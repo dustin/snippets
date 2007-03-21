@@ -24,7 +24,7 @@ public class MTTest extends TestCase {
 	}
 
 	/**
-	 * Run the given task
+	 * Run the given task 
 	 *
 	 * @param fac MTTaskFactory that will be providing instances of MTTask
 	 * @param nRuns The number of MTTasks to instantiate and run

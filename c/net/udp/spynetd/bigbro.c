@@ -186,7 +186,7 @@ time_t now;
 		    {
 			puts(query);
 			perror(msqlErrMsg);
-
+		
 		    }
 	}
 	if(dbh>=0)
@@ -195,7 +195,7 @@ time_t now;
 	}
 }
 
-int
+int 
 main(int argc, char *argv[])
 {
   char hostname[64];

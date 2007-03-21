@@ -16,7 +16,7 @@ action="%SELF_URI%">
        <td>Category:</td>
        <td>
 	   <select name="category" size="5">
-		%CAT_LIST%
+	   	%CAT_LIST%
 	   </select>
        </td>
    </tr>

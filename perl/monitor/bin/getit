@@ -36,11 +36,11 @@ if { $pt>-1 } {
         set uptime [lindex [lindex [$s get "sysUpTime.0"] 0] 2]
 
         set infs [lindex [lindex [$s get "ifNumber.0"] 0] 2]
-        if $code {
+        if $code {        
             puts stderr $msg
             exit 1
         }
-
+    
         for {set count 1} {$count <= $infs} {incr count 1} {
 
             puts -nonewline "$host;[getclock]"
@@ -53,6 +53,6 @@ if { $pt>-1 } {
 
 	    puts ""
         }
-
+    
         $s destroy;
 }

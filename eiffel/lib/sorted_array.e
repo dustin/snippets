@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: sorted_array.e,v 1.1 2002/11/14 07:49:29 dustin Exp $
@@ -27,7 +27,7 @@ feature{NONE}
 feature{ANY}
 	-- Add override
 
-	add_last(ob: G) is
+	add_last(ob: G) is 
 		do
 			sorter.add(Current, ob)
 		end

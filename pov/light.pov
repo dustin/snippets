@@ -10,6 +10,6 @@ camera { location <0,0,-5> look_at <0,0,0> }
 
 object {
 	light_bulb1
-	// Lightbulb
+	// Lightbulb 
 	pigment { White }
 }

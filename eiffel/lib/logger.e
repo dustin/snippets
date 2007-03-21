@@ -5,7 +5,7 @@ indexing
 	copyright: "2002";
 	license: "See forum.txt.";
 
---
+-- 
 -- Copyright (c) 2002  Dustin Sallings
 --
 -- $Id: logger.e,v 1.2 2002/11/25 07:11:00 dustin Exp $
@@ -64,7 +64,7 @@ feature {NONE}
 			stream.put_string(msg_ob.get_string)
 		end -- log_msg
 
-feature {ANY}
+feature {ANY} 
 	-- Logging strings.
 
 	debug_msg(msg: STRING) is

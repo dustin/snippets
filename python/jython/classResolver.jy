@@ -43,7 +43,7 @@ class Loader(java.lang.ClassLoader):
 if __name__ == '__main__':
     l=Loader(None)
     c=l.loadClass(sys.argv[1])
-
+    
     print "Loaded classes:"
     for cn in l.loaded:
         print "\t" + str(cn)

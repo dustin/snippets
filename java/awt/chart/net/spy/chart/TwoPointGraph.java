@@ -39,7 +39,7 @@ public abstract class TwoPointGraph extends Canvas {
 
 	private double max=0;
 	private double min=0;
-
+	
 	private boolean bgset=false;
 
 	/**
@@ -129,7 +129,7 @@ public abstract class TwoPointGraph extends Canvas {
 	protected int labelPos(String label, Graphics g, int x, double bwidth) {
 		FontMetrics fm=g.getFontMetrics();
 		int width=fm.stringWidth(label);
-
+		
 		// X has to take into account the item width
 		x+=(int)(bwidth*2);
 		// Make sure the string starts at the right place

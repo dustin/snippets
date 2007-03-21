@@ -23,7 +23,7 @@ public class Pager implements Runnable {
 
 	protected synchronized void setStatus(String to) {
 		int size = 0;
-
+		
 		if(queue!=null) {
 			size = queue.size();
 		}
@@ -77,7 +77,7 @@ public class Pager implements Runnable {
 				System.exit(0);
 			}
 		} );
-
+			
 		bottom.add(send);
 		bottom.add(quit);
 		return(bottom);
@@ -116,7 +116,7 @@ public class Pager implements Runnable {
 
     public static void main(String args[]) throws Exception {
 
-	Pager app = new Pager();
+       	Pager app = new Pager();
 		app.realmain(args);
 	}
 
@@ -130,7 +130,7 @@ public class Pager implements Runnable {
         JFrame frame = new JFrame("Pager");
         frame.setVisible(true);
 		base=frame;
-	Component pane_1 = level1();
+       	Component pane_1 = level1();
 		Component status = status();
 		Component bottom = bottom();
 		Container c = frame.getContentPane();

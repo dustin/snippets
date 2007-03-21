@@ -19,4 +19,4 @@ void main(void)
       fclose(fifo);
       sleep(1);
     }
-}
+}             

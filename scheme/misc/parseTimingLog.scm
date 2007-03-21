@@ -19,7 +19,7 @@
 
 ; Complete timing info
 (define-struct log-timing
-			   start nearest-ts stop type serial)
+			   start nearest-ts stop type serial) 
 
 ; This maintains the stats per time block
 (define-struct per-block

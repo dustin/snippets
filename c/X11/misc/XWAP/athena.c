@@ -9,7 +9,7 @@ quit_callback(Widget widget, caddr_t client_data, caddr_t call_data)
   exit(0);
 }
 
-int
+int 
 main(int argc, char *argv[])
 {
   Widget parent;

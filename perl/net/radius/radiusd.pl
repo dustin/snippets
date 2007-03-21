@@ -27,7 +27,7 @@ use vars qw(%ip_pools);
 $opt_x = 0;			# Debugging off by default.
 $opt_a = '/var/log/radacct';	# Accounting directory.
 $opt_d = '/etc/raddb';		# dbase files.
-$opt_l = '';	# Logging file. STDERR by default.
+$opt_l = '';	# Logging file. STDERR by default. 
 $opt_c = '';			# Local code...
 $opt_p = 1645;			# Default port.
 $opt_w = undef;			# Port logging ...
@@ -43,11 +43,11 @@ getopts('xsa:d:l:c:p:w:z:');	# Check for arguments.
 
 $rad_timeout = 3;		# 3 second time for querying other
 				# radius servers.
-$rad_retries = 3;		# Try the server up to 3 times.
+$rad_retries = 3;		# Try the server up to 3 times. 
 
 
 if (length($opt_l)) {
-    open(STDERR, ">>$opt_l") or
+    open(STDERR, ">>$opt_l") or 
 	warn("Unable to open log file: $opt_l: $!");
 }
 
@@ -118,7 +118,7 @@ while (1) {
 				# got a signal.
     next if ($nfound <= 0);
 
-
+    
 				# Check for a packet on the accounting
 				# socket.
     $whence = $a->recv($rec, 1550);
@@ -126,7 +126,7 @@ while (1) {
 
 		# Check for a packet on the
 		# authentication socket.
-	$whence = $s->recv($rec, 1550);
+    	$whence = $s->recv($rec, 1550);
 		next if ! length($rec);	# if no packet, wait for another one.
     }
 
@@ -138,7 +138,7 @@ while (1) {
     mlog("Packet in from $from, len ". length($rec).".\n") if $opt_x;
 
 				# Get the IP address of the packet
-				# source.
+				# source. 
     my $client = (split(/:/,  $from ))[0];
 				# Is it a source we recognise?
     if (! defined $secrets{$client}) {
@@ -158,7 +158,7 @@ while (1) {
     }
 
 				# If it's an authentication
-				# request...
+				# request... 
     if ($p->code eq 'Access-Request') {
 	my $pid;
 				# If we're not single-threaded, fork
@@ -175,8 +175,8 @@ while (1) {
 				# out. Murder ourselves if we take
 				# longer.
 	}
-
-				# Build a return packet.
+	    
+				# Build a return packet. 
 	my $rp = handle_authentication($p, $client, $secrets{$client});
 
 	# $s->sendto(auth_resp($rp->pack, $secrets{$client}) , $whence);
@@ -190,10 +190,10 @@ while (1) {
 
 
 				# Else if it's an accounting
-				# request...
+				# request... 
     } elsif ($p->code eq 'Accounting-Request') {
 				# Make the directory in case it
-				# doesn't exist.
+				# doesn't exist. 
 	mkdir("$opt_a/$client", 0755);
 				# Write the data out to the file. No
 				# checking performed, mostly cos I've
@@ -207,20 +207,20 @@ while (1) {
 	print A "\tTimestamp = ".(0+time())."\n";
 	print A "\n";
 	close A;
-
+	
 				# Send an acknowledgement back to the
 				# client.
 	my $rp = new RADIUS::Packet $dict;
 	$rp->set_code('Accounting-Response');
 				# Carry over the indentifierers from
-				# the request.
+				# the request.	       
 	$rp->set_identifier($p->identifier);
 	$rp->set_authenticator($p->authenticator);
-
+	
 	$s->sendto(auth_resp($rp->pack, $secrets{$client}), $whence);
 
 	my $port = $p->attr('NAS-Port'); # This is dictionary specific
-				# apparently.
+				# apparently. 
 
 	$port %= 65536;		# Get rid of the extended port in
 				# as5x00's..
@@ -315,7 +315,7 @@ sub run_logout {
     }
 
 				# Clear the entry from the user list
-				# pool file.
+				# pool file. 
     if ($opt_z) {
 	my $tag = "$client.$port";
 	delete $user_list{$tag};
@@ -557,12 +557,12 @@ sub run_config {
 				# but it does.
 
 				# For each entry in the config file..
-
+    
 	# Get our response packet
 	(ref $rp) or ($rp = new RADIUS::Packet $dict);
 
 	# Carry over the indentifierers from
-	# the request.
+	# the request.	       
 	$rp->set_identifier($p->identifier);
 	$rp->set_authenticator($p->authenticator);
 
@@ -582,15 +582,15 @@ sub run_config {
 		my %a = %{$ret};
 
 		map {
-		$rp->set_attr($_, $a{$_});
+	    	$rp->set_attr($_, $a{$_});
 		} keys %a;
 		$rp->set_code('Access-Accept'); # '
 	} else {
 		mlog("User $name not matched on $attrs->{'Called-Station-Id'} with "
 			. "\"$pass\" calling from $attrs->{'Calling-Station-Id'}\n"); # '
 		$rp->set_code('Access-Reject'); # '
-	$rp->set_identifier($p->identifier);
-	$rp->set_authenticator($p->authenticator);
+    	$rp->set_identifier($p->identifier);
+    	$rp->set_authenticator($p->authenticator);
 	}
 
 	return($rp);
@@ -616,7 +616,7 @@ sub handle_authentication {
 
 
 #
-# Read the config file.
+# Read the config file. 
 #
 sub read_config {
     my($file) = @_;
@@ -637,7 +637,7 @@ sub read_config {
 	fetch_dictionary();
 	# Parse the RADIUS dictionary file
 	$dict = new RADIUS::Dictionary "dictionary"
-	or die "Couldn't read dictionary: $!";
+    	or die "Couldn't read dictionary: $!";
 	fetch_clients();
 }
 
@@ -674,12 +674,12 @@ sub radius_is_valid {
     my $nfound;
     for (my $i = 0; $i < $rad_retries; ++$i) {
 	$s->send($rp->pack);
-
+    
 	$nfound = $s->select(1, 0, 1, $rad_timeout);
-
+	
 	last if $nfound > 0;
     }
-
+    
     mlog("Timed out querying server $server"), return undef
 	if $nfound <= 0;	# timeout
 
@@ -707,7 +707,7 @@ sub mlog {
 }
 
 #
-# Return true if the username matches the password.
+# Return true if the username matches the password. 
 #
 
 sub system_is_valid {
@@ -747,7 +747,7 @@ sub get_ip {
 
 sub put_ip {
         my($pool, $ip, $data) = @_;
-
+ 
         open IPPOOL, "+<$pool" or return undef;
         flock(IPPOOL, 2);               # get an exclusive lock on the file.
         (read(IPPOOL, $data, 80) == 80) or return undef;

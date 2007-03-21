@@ -85,7 +85,7 @@ class GPG(object):
 
         self.gpg=gpg_location
 
-    def execute(self, op, instream, outstream):
+    def __execute(self, op, instream, outstream):
         """Execute the given set of operations reading data from the given
         input stream and writing to the given output stream.
         Returns the string containing all warnings."""
@@ -128,21 +128,8 @@ class GPG(object):
         ops=CompositeCommand(keyringOps + [AsciiArmor(), Encrypt(recips)])
 
         sbuf=cStringIO.StringIO()
-        warnings=self.execute(ops, cStringIO.StringIO(msg), sbuf)
+        warnings=self.__execute(ops, cStringIO.StringIO(msg), sbuf)
         return sbuf.getvalue(), warnings
-
-    def encryptFile(self, recips, fin, fout, pubring=None):
-        """Convenience method for encrypting a message.
-           Returns (encryptedString, warningMessages) as strings"""
-
-        keyringOps=[]
-        if pubring is not None:
-            keyringOps=[NoDefaultKeyrings(), Keyring(pubring) ]
-
-        ops=CompositeCommand(keyringOps + [AsciiArmor(), Encrypt(recips)])
-
-        warnings=self.execute(ops, fin, fout)
-        return warnings
 
 def findGPG(gpgName='gpg'):
     """Find the location of GPG on your system."""

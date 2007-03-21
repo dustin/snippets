@@ -6,7 +6,7 @@
 	(cond
 	    ( (< x 16383 )
 		(eqv? 0 (modulo x y)))
-	    ( else
+	    ( else 
 		(let ((d (/ x y)))
 		(= d (round d)))))))
 

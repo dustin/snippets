@@ -43,7 +43,7 @@ public class PhotoStorerThread extends Thread {
 		Connection db = null;
 		Statement st = null;
 		Vector v = p.getImage();
-		System.err.println("Storer: Got image for " + image_id + " "
+		System.err.println("Storer: Got image for " + image_id + " " 
 			+ v.size() + " lines of data to store.");
 		try {
 			int i=0, n=0;

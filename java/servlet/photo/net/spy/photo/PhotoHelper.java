@@ -14,7 +14,7 @@ import net.spy.*;
 
 // The class
 public class PhotoHelper
-{
+{ 
 	SpyLog logger;
 	PhotoConfig conf;
 

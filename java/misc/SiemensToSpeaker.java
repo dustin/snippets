@@ -97,7 +97,7 @@ public class SiemensToSpeaker extends Object {
 	public String toString() {
 		return(mot_data);
 	}
-
+	
 	public static void main(String args[]) throws Exception {
 		String fromfile=SpyUtil.getFileData(args[0]);
 		SiemensToSpeaker sts=new SiemensToSpeaker(fromfile);

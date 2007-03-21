@@ -83,7 +83,7 @@ factor_bounds(long x, long y, float factor)
   float diff;
 
   /*
-   * first,  move the viewport a little.
+   * first,  move the viewport a little. 
    */
 
   temp = ((float) x / (float) max_x);
@@ -101,11 +101,11 @@ factor_bounds(long x, long y, float factor)
   min_lng -= diff;
 
   /*
-   * don't scale yet.
+   * don't scale yet. 
    */
 
   /*
-   * now scale the viewport
+   * now scale the viewport 
    */
   diff = max_lat - min_lat;
   diff /= 2;
@@ -174,7 +174,7 @@ main(int argc, char *argv[])
       switch (event.type)
 	{
 	  /*
-	   * For an expose event, I just replot the whole thing.
+	   * For an expose event, I just replot the whole thing.  
 	   */
 	case MappingNotify:
 	  XRefreshKeyboardMapping(&event.xmapping);
@@ -210,14 +210,14 @@ main(int argc, char *argv[])
 	  break;
 
 	case 152:		/*
-				 * up
+				 * up 
 				 */
 
 	  if (y > 0)
 	    y -= 30;
 	  break;
 	case 160:		/*
-				 * down
+				 * down 
 				 */
 
 	  if (y < max_y - 1)
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 155:		/*
-				 * left
+				 * left 
 				 */
 
 	  if (x > 0)
@@ -233,7 +233,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 157:		/*
-				 * right
+				 * right 
 				 */
 
 	  if (x < max_x - 1)
@@ -241,7 +241,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 'H':		/*
-				 * up
+				 * up 
 				 */
 	case 'A':
 
@@ -249,7 +249,7 @@ main(int argc, char *argv[])
 	    y -= 3;
 	  break;
 	case 'P':		/*
-				 * down
+				 * down 
 				 */
 	case 'B':
 
@@ -258,7 +258,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 'K':		/*
-				 * left
+				 * left 
 				 */
 	case 'D':
 
@@ -267,7 +267,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 'M':		/*
-				 * right
+				 * right 
 				 */
 	case 'C':
 
@@ -276,7 +276,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 'o':		/*
-				 * zoom out
+				 * zoom out 
 				 */
 	  factor_bounds(x, y, 2.0);
 	  vga_plot();
@@ -285,7 +285,7 @@ main(int argc, char *argv[])
 	  break;
 
 	case 'z':		/*
-				 * zoom in
+				 * zoom in 
 				 */
 	  factor_bounds(x, y, 0.5);
 	  vga_plot();
@@ -295,7 +295,7 @@ main(int argc, char *argv[])
 
 	case 10:
 	case 13:		/*
-				 * move
+				 * move 
 				 */
 	  factor_bounds(x, y, 1.0);
 	  vga_plot();

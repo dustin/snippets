@@ -73,7 +73,7 @@ class BloomFilter(object):
                 return reduce(lambda i, v: i ^ v, integers, h)
             else:
                 return (hash(key) ^ h)
-
+ 
         return [lambda key: doHash(h, key) for h in hashes]
 
     def __repr__(self):

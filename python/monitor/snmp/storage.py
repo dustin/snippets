@@ -159,7 +159,7 @@ class RRDStorage(NonThreadSafeStorage):
 
 		if isinstance(data, dict):
 			k=data.keys()
-			# Get the template
+			# Get the template 
 			t=':'.join(k)
 			# Get the values for the template
 			v=':'.join(map(lambda x: str(data[x]), data.keys()))

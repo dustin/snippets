@@ -9,7 +9,7 @@ on open these_items
 		else if (alias of the item_info is false) then
 			process_item(this_item)
 		end if
-
+		
 	end repeat
 end open
 
@@ -29,7 +29,7 @@ end process_folder
 -- this sub-routine processes files
 on process_item(this_item)
 	tell application "QuickTime Player"
-
+		
 		activate
 		close every movie saving no
 		open this_item

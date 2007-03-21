@@ -93,16 +93,16 @@ char *ckw(char *in)
     /* bounds checking */
     if(strlen(in)==0)
         return(in);
-
+ 
     while(isspace(in[strlen(in)-1]))
     {
         /* bounds checking */
         if(strlen(in)==0)
             return(in);
-
+ 
         in[strlen(in)-1]=0x00;
     }
-
+ 
     return(in);
 }
 

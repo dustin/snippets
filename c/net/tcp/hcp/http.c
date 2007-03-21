@@ -32,7 +32,7 @@
  * More that likely, it'll overrun buffers, because they
  * probably don't have vsnprintf either.
  */
-int
+int 
 snprintf(char *s, size_t n, const char *format,...)
 {
 	int     i;

@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 1997 SPY Internetworking
  *
  * $Id: cracker.c,v 1.5 2000/02/24 00:48:43 dustin Exp $
@@ -20,7 +20,7 @@
 
 struct global *glob;
 
-void
+void 
 docommand(struct command com, int s)
 {
   switch (ntohl(com.command))
@@ -40,7 +40,7 @@ docommand(struct command com, int s)
     }
 }
 
-void
+void 
 main(int argc, char **argv)
 {
   struct sockaddr_in fsin;

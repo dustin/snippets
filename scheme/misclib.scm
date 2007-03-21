@@ -86,13 +86,13 @@
 				#unspecified)))
 
 ; Perform the given operation on all of the numbers between from and to
-; (inclusive) where (fproc n) is true
+; (inclusive) where (fproc n) is true 
 (define (do-filtered-range proc from to fproc)
   (let loop ((i from))
 			 (if (<= i to)
 				(begin
 				  (if (fproc i)
-					(proc i))
+				  	(proc i))
 				  (loop (+ 1 i)))
 				#unspecified)))
 

@@ -42,7 +42,7 @@ sub scoremsg
         }
     }
     close(IN);
-
+    
     $i=-1;
     for(0..$#scores)
     {

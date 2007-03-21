@@ -100,7 +100,7 @@ public class ImageServerImpl extends UnicastRemoteObject
 		return(v);
 	}
 
-	// Fetch a thumbnail of an image
+	// Fetch a thumbnail of an image 
 	protected ImageData fetchThumbnail(int image_id) throws Exception {
 		Vector v=null;
 		String key="photo_tn_" + image_id;
@@ -197,20 +197,20 @@ public class ImageServerImpl extends UnicastRemoteObject
 		}
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) { 
 
-		// Create and install a security manager
-		if (System.getSecurityManager() == null) {
-			System.setSecurityManager(new RMISecurityManager());
-		}
-		try {
-			ImageServerImpl obj = new ImageServerImpl();
-			// Bind this object instance to the name "RobjectServer"
-			Naming.rebind("ImageServer", obj);
-			System.out.println("ImageServer bound in registry");
-		} catch (Exception e) {
-			System.out.println("ImageServer err: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
+		// Create and install a security manager 
+		if (System.getSecurityManager() == null) { 
+			System.setSecurityManager(new RMISecurityManager()); 
+		} 
+		try { 
+			ImageServerImpl obj = new ImageServerImpl(); 
+			// Bind this object instance to the name "RobjectServer" 
+			Naming.rebind("ImageServer", obj); 
+			System.out.println("ImageServer bound in registry"); 
+		} catch (Exception e) { 
+			System.out.println("ImageServer err: " + e.getMessage()); 
+			e.printStackTrace(); 
+		} 
+	} 
 }

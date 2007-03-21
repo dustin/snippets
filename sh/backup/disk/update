@@ -99,7 +99,7 @@ doArch() {
 	# Bring in the latest arch stuff
 	# $HOME/bin/tla archive-mirror -s dustin@spy.net--projects
 	$HOME/bin/tla archive-mirror -s dustin@spy.net--projects-2004
-
+	
 	# Tar the archive
 	echo "Tarring the arch repository"
 	cd /data/dustin/

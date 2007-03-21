@@ -15,7 +15,7 @@ on open these_items
 		else if (alias of the item_info is false) then
 			process_item(this_item)
 		end if
-
+		
 	end repeat
 end open
 

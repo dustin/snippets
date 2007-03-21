@@ -15,7 +15,7 @@ let try_connect h p =
 	set_nonblock s;
 	try connect s (ADDR_INET (lookup h, p)); s
 	with x ->
-		match x
+		match x 
 		with Unix_error (e,fn,p) ->
 			if(e != EINPROGRESS) then
 				raise x;

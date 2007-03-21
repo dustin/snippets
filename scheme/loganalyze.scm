@@ -12,7 +12,7 @@
 (define
 	avg
 	(lambda (l)
-		(/ (sum l) (length l))))
+		(/ (sum l) (length l)))) 
 
 ; Make a number array out of the elements in a string
 (define
@@ -52,12 +52,12 @@
 					( (i 0 (+ i 1)))
 
 					((or
-						(eof-object? current-char)
-						(char=? current-char #\newline)) line)
+					  	(eof-object? current-char)
+					  	(char=? current-char #\newline)) line)
 
 					(set! current-char (read-char file))
 					(cond
-						((eof-object? current-char) #f)
+					 	((eof-object? current-char) #f)
 						((not (char=? current-char #\newline))
 							(set! line
 								(string-append-char line current-char))))))))
@@ -71,7 +71,7 @@
 
 ; Show the results from the analysis
 (define
-	showResults
+  	showResults
 		(lambda (aq)
 				(avg aq)))
 

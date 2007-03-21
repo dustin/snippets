@@ -26,7 +26,7 @@
   (letrec ((loop (lambda (rv n)
 	(if (<= n 2) rv
 	  (loop (* rv n) (pred n))))))
-    (if (< x 2) 1
+    (if (< x 2) 1 
       (loop 2 x))))
 
 ; combinations (n things, k at a time)

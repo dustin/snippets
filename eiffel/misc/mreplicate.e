@@ -3,16 +3,16 @@ indexing
 version: "$Revision: 1.7 $";
 class MREPLICATE
 
-creation {ANY}
+creation {ANY} 
    make
 
-feature {ANY}
-
-   make is
-      local
+feature {ANY} 
+   
+   make is 
+      local 
          s, d: PG;
          rep: PG_REPLICATE;
-      do
+      do  
          !!s.make;
          s.set_dbname("events");
          s.connect;

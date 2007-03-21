@@ -25,13 +25,13 @@ proc doping { hosts } {
 			incr dead
 			incr ldead
 			puts "$host is dead!"
-	} else {
-		# puts "$host seq=$sent ${pt}ms"
+    	} else {
+        	# puts "$host seq=$sent ${pt}ms"
 			incr returned
 			incr lreturned
 			incr sum $pt
 			incr lsum $pt
-	}
+    	}
 	}
 
 	set avg [expr $lsum / $lsent.0]
@@ -50,7 +50,7 @@ proc showstats { } {
 }
 
 while { 1 } {
-
+	
 	doping $argv
 
 	incr count

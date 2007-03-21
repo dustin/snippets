@@ -54,7 +54,7 @@
 (define (dates-seconds-for-month year month)
   (+ (dates-seconds-for-year year)
      (* dates-seconds-per-day
-		(list-ref
+	 	(list-ref
 			(if (dates-leap-year-p year)
 				dates-monthday-ly
 				dates-monthday)
@@ -90,7 +90,7 @@
 ; Get the position of the largest number in the given list where the element
 ; at the position is less than or equal to n.
 (define (dates-lte-n l n)
-	(do ((x 0 (+ x 1)))
+  	(do ((x 0 (+ x 1)))
 		 ((or (> (list-ref l x) n) (> x (length l)))
 		  (- x 1))))
 

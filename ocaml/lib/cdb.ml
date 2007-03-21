@@ -56,7 +56,7 @@ let write_le32 cdc i =
 (**
 	Open a cdb creator for writing.
 
-	@param fn the file to write
+ 	@param fn the file to write
  *)
 let open_out fn =
 	let s = {	table_count=Array.make 256 0;
@@ -70,7 +70,7 @@ let open_out fn =
 (**
 	Convert out_channel to cdb_creator.
 
-	@param out_channel the out_channel to convert
+ 	@param out_channel the out_channel to convert
  *)
 let cdb_creator_of_out_channel out_channel =
 	let s = {	table_count=Array.make 256 0;
@@ -137,7 +137,7 @@ let process_table cdc table_start slot_table slot_pointers i tc =
 	(* Write this hash table *)
 	Array.iter (fun hpp ->
 			let h,t = match hpp with
-				None -> Int32.zero,Int32.zero
+		  		None -> Int32.zero,Int32.zero
 				| Some(h,t) -> h,t;
 			in
 			write_le32 cdc h; write_le32 cdc t

@@ -21,7 +21,7 @@
 
         id nailer=[[ThumbNailer alloc] init];
         [nailer processFiles: images withProgressBar:progressBar];
-
+        
         [mainWindow orderOut: self];
     }
 }

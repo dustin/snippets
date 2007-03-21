@@ -15,7 +15,7 @@
 
 #include "cracker.h"
 
-int
+int 
 openhost(char *host)
 {
   struct hostent *hp;
@@ -47,7 +47,7 @@ openhost(char *host)
   return (s);
 }
 
-void
+void 
 showconn(struct dllist thing, int curtime)
 {
   time_t t;
@@ -65,7 +65,7 @@ showconn(struct dllist thing, int curtime)
   puts(" ----------");
 }
 
-void
+void 
 main(int argc, char **argv)
 {
   int s, i;

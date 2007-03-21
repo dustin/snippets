@@ -73,13 +73,13 @@ foreach (@virtual)
         local($server,$port,$conna,$state,$stick,$pred,$xa);
         s/^\s+//;
         ($server,$port,$state,$conn,$stick,$pred) = split(/\s+/,$_);
-
+ 
         next unless $stick =~ /\d/;
         $out .= "<tr><th align=left>$server:$port</th>";
         $out .= "<th>$state</th><td>$conn</td><td align=left>";
         $out .= "<img src=\"/images/bluedot.gif\"";
         $out.= "height=12 width=" . $conn*$vscale . "></td><td align=right>$pred</td></tr>\n";
-
+ 
 }
 $out .= "</table>";
 $constat =~ s/show conn/<h3>Connection Stats<\/h3><pre>/;
@@ -123,12 +123,12 @@ foreach (@real)
 	{
 		$out .= "<tr><td colspan=4><hr></td></tr>\n";
 	}
-	$server =~ /([^-]*).*/;  $last = $1;
+	$server =~ /([^-]*).*/;  $last = $1;	
 	$out .= "<tr><td align=left>$server:$port</td>";
 	$out .= "<td align=center>$state</td><td>$conn</td><td align=left>";
         $out .= "<img src=\"/images/bluedot.gif\"";
         $out .= " height=8 width=" . $conn*$rscale . "></td></tr>\n";
-
+	
 }
 $out .= "<!-- rmax = $rmax rscale = $rscale-->\n";
 $out .= "</table>";
@@ -214,9 +214,9 @@ sub debug {
         $deb == 1 &&    print STDERR "$msg\n";
         return 1;
 }
-
+ 
 sub getprompt {
-  local $temp;
+  local $temp; 
   while(<S>)
   {
         $temp .= $_;
@@ -256,7 +256,7 @@ sub vbyload {
         $xb = $b;
         $xa =~ s/^\s+//;
         $xb =~ s/^\s+//;
-
+ 
         ($server,$port,$state,$conna,$stick,$pred)
           = split(/\s+/,$xa);
         ($server,$port,$state,$connb,$stick,$pred)

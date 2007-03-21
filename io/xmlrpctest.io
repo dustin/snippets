@@ -16,7 +16,7 @@ XmlRpcSerializerTest = XmlRpcTest clone
 
 XmlRpcSerializerTest main = method(
 	xs = XmlRpcSerializer clone
-
+	
 	write("String ", xs serialize("Testing..."), "\n")
 	write("Int ", xs serialize(3), "\n")
 	write("Double ", xs serialize(3.141592653589793262), "\n")
@@ -31,7 +31,7 @@ XmlRpcSerializerTest main = method(
 	m atPut("dkey", Date clone now)
 	m atPut("lkey", list(5, 6, 7))
 	write("Map ", xs serialize(m), "\n")
-
+	
 	write("\n")
 )
 

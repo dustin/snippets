@@ -2,7 +2,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-GC
+GC 
 CreateGC(Display * display, Drawable drawable, unsigned long
 	 forecolor, unsigned long backcolor)
 {

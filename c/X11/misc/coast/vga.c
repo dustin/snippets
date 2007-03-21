@@ -23,11 +23,11 @@ setrange(int start, int end, int startred, int startgreen,
 {
   int i;			/*
 
-				 *
-				 * *
-				 * * *
-				 * * * *
-				 * * * * * set colors from start to end
+				 * 
+				 * * 
+				 * * * 
+				 * * * * 
+				 * * * * * set colors from start to end 
 				 */
   float ri, gi, bi;
   int range = end - start + 2;
@@ -63,7 +63,7 @@ setup_palette()
 
 void
 circle(int xc, int yc, int r)	/*
-				 * x, y, and radius
+				 * x, y, and radius 
 				 */
 {
   register int x, y, p;
@@ -101,7 +101,7 @@ circle(int xc, int yc, int r)	/*
 
 void
 rotate_palette(int howfar)	/*
-				 * this will work in any 256-color app
+				 * this will work in any 256-color app 
 				 */
 {
   static char palvec[6120];
@@ -110,12 +110,12 @@ rotate_palette(int howfar)	/*
   howfar %= 255;
 
   /*
-   * get the current palette
+   * get the current palette 
    */
   vga_getpalvec(1, 255, (int *) palvec);
 
   /*
-   * 3060 is the magic number
+   * 3060 is the magic number 
    */
   memcpy(palvec + 3060, palvec, 3060);
 
@@ -125,7 +125,7 @@ rotate_palette(int howfar)	/*
     p = palvec + 3060 + (12 * howfar);
 
   /*
-   * set the new rotated palette
+   * set the new rotated palette 
    */
   vga_setpalvec(1, 255, (int *) p);
 }
@@ -167,7 +167,7 @@ init_vga()
   Head header;
   FILE *infile;
   vga_init();			/*
-				 * init vgalib graphics
+				 * init vgalib graphics  
 				 */
   vga_setmode(VGAMODE);
   setup_palette();
@@ -332,7 +332,7 @@ vga_plot()
       y = (long) ((float) MAX_Y * (temp / lng_diff));
 
 /*
- * _setpixel(x, y);
+ * _setpixel(x, y); 
  */
 
       if (!island)

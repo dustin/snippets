@@ -128,7 +128,7 @@ sub gettree {
 
 	$result = $ldap->search ( 'base' => $base, 'scope' => 'base',
 		'filter' => '(objectclass=*)',
-	);
+	);	
 
 	$result->code && die $result->error;
 

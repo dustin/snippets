@@ -1,6 +1,6 @@
-/* The following program does not have any syntax error. When running,
+/* The following program does not have any syntax error. When running, 
 howver, records entered are not printed out in alphabetical order according
-to name field. You are going to  debug this program. The new program should
+to name field. You are going to  debug this program. The new program should 
 do:
 1. The output format should look like:
 Name                    ID              Age

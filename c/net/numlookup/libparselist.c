@@ -19,7 +19,7 @@
 #include "parselist.h"
 
 /* Initialize a config structure */
-static struct config_t
+static struct config_t 
 initConfig(void)
 {
 	struct config_t config;
@@ -40,7 +40,7 @@ initConfig(void)
 }
 
 /* This code is kinda duplicated from below, but we can deal with that */
-static int
+static int 
 parseIP(const char *ip)
 {
 	int     a[4], n;
@@ -81,7 +81,7 @@ getCleanLine(char *data, int size, FILE * infile)
 }
 
 /* Read the config */
-static struct config_t
+static struct config_t 
 readconfig(char *config_file)
 {
 	char    line[LINELEN];
@@ -135,7 +135,7 @@ readconfig(char *config_file)
 	return (config);
 }
 
-static void
+static void 
 destroyConfig(struct config_t config)
 {
 	int     i;
@@ -176,7 +176,7 @@ search(struct config_t config, unsigned int ip)
 	return (DEFAULT_OUTPUT);
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	struct config_t config;

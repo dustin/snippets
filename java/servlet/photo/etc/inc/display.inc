@@ -7,7 +7,7 @@
 function openWindow(URL,name) {
 
 	popupWin = window.open(URL, name, 'resizable=yes,scrollbars=yes');
-
+        
 	if ( (navigator.appName != "Microsoft Internet Explorer")
 	      && (navigator.appVersion.substring(0,1) == "3") )
         popupWin.focus();

@@ -45,7 +45,7 @@ public class PhotoLogImageEntry extends SpyLogEntry {
 
 		r="insert into photo_log(photo_id, wwwuser_id, remote_addr, "
 			+ "server_host, user_agent, cached, ts) values("
-			+ photo_id + ", " + wwwuser_id + ", '" + remote_addr
+			+ photo_id + ", " + wwwuser_id + ", '" + remote_addr 
 			+ "', '" + server_host
 			+ "', get_agent('" + PhotoUtil.dbquote_str(user_agent) + "'), '"
 			+ cached + "', '" + f.format(timestamp) + " "

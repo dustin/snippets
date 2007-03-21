@@ -1,11 +1,11 @@
 ; Graphic utilities
 
-(define (move x y)
+(define (move x y) 
 	(set-car! (car *gstate*)  x)
 	(set-cdr! (car *gstate*)  y) #n)
 
 ; some fill patterns
-(define grey
+(define grey 
 "#55#aa#55#aa#55#aa#55#aa"
 )
 

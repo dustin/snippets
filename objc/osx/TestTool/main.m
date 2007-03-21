@@ -50,7 +50,7 @@ int main (int argc, const char * argv[]) {
 
     NSLog(@"Beginning run loop.\n");
     [[NSRunLoop currentRunLoop] run];
-
+    
     [pool release];
     [ro release];
     return 0;

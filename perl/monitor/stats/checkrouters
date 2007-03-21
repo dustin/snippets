@@ -49,13 +49,13 @@ while {[gets $input line] != -1} {
             if {[string compare $ans "up"] == 0} {
                 set what "ifOperStatus.$i"
                 set code [catch {set ans [lindex [lindex [$s get $what] 0] 2]}]
-
+    
                 set what "ifOperStatus.$i"
                 set code [catch {set reason [lindex [lindex [$s get $what] 0] 2]}]
                 if $code {
                     set reason "unknown"
                 }
-
+    
                 if {[string compare $ans "down"] == 0} {
                     puts "$host:$desc:$reason:0"
                 }

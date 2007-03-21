@@ -37,7 +37,7 @@ getfunc(void *lib)
 /*
  * Get the last modification date of a file.
  */
-static time_t
+static time_t 
 lastmod(char *file)
 {
 	struct stat st;
@@ -65,7 +65,7 @@ static void emergency(void)
 	}
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	void   *lib = 0;

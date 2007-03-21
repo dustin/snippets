@@ -19,7 +19,7 @@ import net.spy.*;
 
 // The class
 public class PhotoServlet extends HttpServlet
-{
+{ 
 	// Only *really* persistent data can go here.
 	public String self_uri=null;
 	public RHash rhash=null;

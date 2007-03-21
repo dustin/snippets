@@ -59,7 +59,7 @@ foreach machine $machines {
 }
 
 for { set i 0 } { $i<60 } { incr i 1 } {
-
+    
     foreach machine $machines {
         set list1($machine) $list2($machine)
     }

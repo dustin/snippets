@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 1997 SPY Internetworking
  *
  * $Id: functions.c,v 1.4 2000/02/24 00:48:46 dustin Exp $

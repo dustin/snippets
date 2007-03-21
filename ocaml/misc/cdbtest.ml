@@ -25,8 +25,8 @@ let main() =
 		Cdb.iter (fun k v ->
 					match countStream (Cdb.get_matches cdb k) 0 with
 						  0 ->
-							Printf.eprintf "No match at %s\n" k;
-							notfound := succ !notfound
+						  	Printf.eprintf "No match at %s\n" k;
+						  	notfound := succ !notfound
 						| 1 -> found := succ !found
 						| _ ->	found := succ !found;
 								different := succ !different

@@ -174,7 +174,7 @@ sub spit
 	print "Filename is $file\n";
 	$file=~s/^\/(.*)/$1/;
 #	$file=~s/\//_/g;
-
+	
 	if($file eq "")
 	{
 		$file="index.html";

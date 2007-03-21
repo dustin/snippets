@@ -79,7 +79,7 @@ getMatches(const char *letters, int nletters)
 
 	for(i=0; i<DICTIONARY_SIZE; i++) {
 		struct match matchval;
-
+		
 		matchval=wordMatches(letters, dictionary[i]);
 		if(matchval.nmissing <= nletters) {
 			RAPPEND(rv, current, size, matchval);

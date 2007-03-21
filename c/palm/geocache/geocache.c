@@ -121,12 +121,12 @@ DWord
 PilotMain (Word cmd, Ptr cmdPBP, Word launchFlags)
 {
   switch(cmd) {
-	case sysAppLaunchCmdNormalLaunch:
+  	case sysAppLaunchCmdNormalLaunch:
 		FrmGotoForm(formID_MainForm);
 		EventLoop();
 		StopApplication();
 		break;
-	default:
+  	default:
 		break;
   }
 

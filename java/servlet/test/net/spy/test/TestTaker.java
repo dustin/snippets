@@ -19,7 +19,7 @@ import net.spy.*;
 
 // The class
 public class TestTaker extends HttpServlet
-{
+{ 
 	// The once only init thingy.
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);

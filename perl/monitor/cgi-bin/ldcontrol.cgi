@@ -15,8 +15,8 @@ foreach $k (keys %DATA)
 	($t,$n) = split(/-/,$k,2);
 	if ($t =~ /old/) {
 		$old{"$n"} = $DATA{$k};
-	}
-
+	} 
+		
 }
 foreach $k (keys %DATA)
 {
@@ -85,9 +85,9 @@ sub debug {
         $deb == 1 &&    print STDERR "$msg\n";
         return 1;
 }
-
+ 
 sub getprompt {
-  local $temp;
+  local $temp; 
   while(<S>)
   {
         $temp .= $_;
@@ -123,7 +123,7 @@ sub vbyload {
         $xb = $b;
         $xa =~ s/^\s+//;
         $xb =~ s/^\s+//;
-
+ 
           ($server,$port,$state,$conna,$stick,$pred) = split(/\s+/,$xa);
           ($server,$port,$state,$connb,$stick,$pred) = split(/\s+/,$xb);
 	$vmax = $connb if ($connb > $vmax);

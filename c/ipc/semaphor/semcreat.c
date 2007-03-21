@@ -5,7 +5,7 @@
 #include <sys/sem.h>
 #include <assert.h>
 
-void
+void 
 createSem(void)
 {
 	int             sem;
@@ -40,7 +40,7 @@ createSem(void)
 	}
 }
 
-int
+int 
 main(int argc, char **argv)
 {
 	createSem();

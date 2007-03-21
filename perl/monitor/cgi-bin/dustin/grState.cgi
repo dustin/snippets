@@ -11,7 +11,7 @@ require 'statlib.pl';
 	load1 load5 load15
         cp_user cp_nice cp_system cp_idle
         gcp_user gcp_nice gcp_system gcp_idle
-        pack_in pack_out gpack_in gpack_out
+        pack_in pack_out gpack_in gpack_out 
 	swap_in swap_out gswap_in gswap_out
 	page_in page_out gpage_in gpage_out
 	ping total

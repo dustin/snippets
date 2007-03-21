@@ -22,7 +22,7 @@ import net.spy.util.*;
 
 // The class
 public class PhotoSession extends Object
-{
+{ 
 	// This kinda stuff is only persistent for a single connection.
 	protected Integer remote_uid=null;
 	protected String remote_user=null, self_uri=null;
@@ -407,9 +407,9 @@ public class PhotoSession extends Object
 			Statement st=photo.createStatement();
 
 			query = "select * from cat where id in\n"
-				+ "(select cat from wwwacl where\n"
-				+ "    userid=" + remote_uid + ")\n"
-				+ "order by name\n";
+			  	+ "(select cat from wwwacl where\n"
+			  	+ "    userid=" + remote_uid + ")\n"
+			  	+ "order by name\n";
 
 			ResultSet rs = st.executeQuery(query);
 			while(rs.next()) {
@@ -591,9 +591,9 @@ public class PhotoSession extends Object
 				}
 
 				catstuff += "<li>" + rs.getString(1) + ":  <a href=\""+self_uri
-					+ "?func=search&searchtype=advanced&cat="
-					+ rs.getString(2) + "&maxret=5\">"
-					+ rs.getString(3) + t + "</a></li>\n";
+				   	+ "?func=search&searchtype=advanced&cat="
+				   	+ rs.getString(2) + "&maxret=5\">"
+				   	+ rs.getString(3) + t + "</a></li>\n";
 			}
 		} catch(Exception e) {
 		}
@@ -831,7 +831,7 @@ public class PhotoSession extends Object
 		h.put("SEARCH", (String)session.getValue("encoded_search"));
 		String output = tokenize("find_top.inc", h);
 		output += middle;
-		h.put("LINKTOMORE", linkToMore(results));
+		h.put("LINKTOMORE", linkToMore(results)); 
 		output += tokenize("find_bottom.inc", h);
 		send_response(response, output);
 	}

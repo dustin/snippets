@@ -23,7 +23,7 @@ import java.awt.image.*;
 import net.spy.png.*;
 
 // The class
-public class HouseServlet extends PngServlet {
+public class HouseServlet extends PngServlet { 
 
 	// Colors we'll be using
 	private Color white=null;

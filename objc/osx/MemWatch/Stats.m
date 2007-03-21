@@ -42,7 +42,7 @@
     mem_free = [[memarray objectAtIndex:3] intValue];
     [memlist release];
     [src release];
-
+    
     NSLog(@"Got %d/%d/%d", mem_max, mem_total, mem_free);
 }
 

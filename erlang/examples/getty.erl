@@ -58,7 +58,7 @@ l(S, {UMod, UFun}) ->
     end,
 
     gen_tcp:send(S, "\nWelcome to Erlang!\n\n"), % could implement login here
-
+    
     U = spawn_link(UMod, UFun, [self()]),	% start user process
     ll(S, U).
 
@@ -70,24 +70,24 @@ ll(S, U) ->
 	{tcp, S, Bytes} ->
 	    U ! {self(), {data, Bytes}},
 	    ll(S, U);
-
+	
 	{tcp_closed, S} ->
 	    io:format("getty:ll(~p, ~p) socket closed~n", [S, U]),
 	    exit(closed);
-
+	
 	{tcp_error, S, Reason} ->
 	    io:format("getty:ll(~p, ~p) socket error ~p~n", [S, U, Reason]),
 	    exit(Reason);
-
+	
 	{U, {command, Bytes}} ->
 	    gen_tcp:send(S, Bytes),
 	    ll(S, U);
-
+	
 	{'EXIT', U, Why} ->
 	    io:format("getty:ll(~p, ~p) user died ~p~n", [S, U, Why]),
 	    gen_tcp:close(S),
 	    exit(Why);
-
+	
 	Other ->
 	    io:format("getty:ll(~p, ~p) got msg ~p~n", [S, U, Other]),
 	    ll(S, U)

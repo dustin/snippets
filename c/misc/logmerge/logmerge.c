@@ -445,7 +445,7 @@ struct linked_list *addToList(struct linked_list *list, struct logfile *r)
 			/* Regular case where it goes somewhere in the list. */
 			struct linked_list *p;
 			int placed=0;
-
+			
 			rv=list;
 			p=list;
 			while(placed==0 && p->next != NULL) {

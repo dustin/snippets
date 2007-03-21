@@ -11,7 +11,7 @@ begin transaction;
 
 CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
         '/usr/local/pgsql/lib/plpgsql.so' LANGUAGE 'C';
-
+        
 CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
         HANDLER plpgsql_call_handler
         LANCOMPILER 'PL/pgSQL';
@@ -208,7 +208,7 @@ create view log_user_ip_agent as
 	select wwwusers.username, photo_log.remote_addr, user_agent.user_agent
 		from wwwusers, photo_log, user_agent
 	  where wwwusers.id = photo_log.wwwuser_id and
-		user_agent.user_agent_id = photo_log.user_agent
+	  	user_agent.user_agent_id = photo_log.user_agent
 ;
 
 grant all on log_user_ip_agent to nobody;

@@ -5,7 +5,7 @@ SessionDescriptor {
 	EnterpriseBeanClassName		= net.spy.testsb.TestSBBean;
 	HomeInterfaceClassName		= net.spy.testsb.TestSBHome;
 	RemoteInterfaceClassName	= net.spy.testsb.TestSB;
-
+	
 	ControlDescriptors = {
 		{
 			TransactionAttribute	= TX_REQUIRED;

@@ -7,39 +7,39 @@ indexing
 --
 class PHOTO_GET
 
-creation {ANY}
+creation {ANY} 
    make
 
-feature {ANY}
-
-   make is
-      local
+feature {ANY} 
+   
+   make is 
+      local 
          b: BOOLEAN;
          a: ARRAY[STRING];
          db: PG;
 		 decoded: STRING;
 		 base64: BASE64;
-      do
+      do  
          !!db.make;
 		 !!base64.make;
 		 db.set_dbname("photo");
 		 db.set_host("bleu");
-         if not db.connect then
+         if not db.connect then 
             io.put_string("NOT Connected%N");
-         end;
+         end; 
          if db.query("select * from image_store where id=501 order by line")
-		 then
-            from
+		 then 
+            from 
                b := db.get_row;
-            until
+            until 
                b = false
-            loop
+            loop 
                a := db.last_row;
 			   decoded:=base64.decode(a.item(2));
 			   io.put_string(decoded);
                b := db.get_row;
-            end;
-         end;
+            end; 
+         end; 
       end -- make
 
 end

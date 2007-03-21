@@ -19,7 +19,7 @@ char *message;
 
 int verbose = 0, alarmlength = ALARMLENGTHDEFAULT;
 
-void
+void 
 detach(void)
 {
   int pid;
@@ -85,7 +85,7 @@ xloop()
     }
 }
 
-int
+int 
 main(int argc, char *argv[])
 {
 

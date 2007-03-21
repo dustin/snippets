@@ -45,7 +45,7 @@ class Format2:
         self.addr=data[1].strip()
         csz=data[2].strip()
         self.city=csz[0:csz.index(',')]
-        rest=csz[csz.index(',')+1:]
+        rest=csz[csz.index(',')+1:] 
         self.state, self.zip=rest.split()
         self.country=data[3].strip()
 

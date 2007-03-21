@@ -16,7 +16,7 @@ fstate: $(OBJS)
 clean:
 	$(RM) fstate $(OBJS)
 
-depend:
+depend: 
 	${MAKEDEPEND} $(CPPFLAGS) $(DEFS) $(CFLAGS) *.c 1>makedepend.log 2>&1
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

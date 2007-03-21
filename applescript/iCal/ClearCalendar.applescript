@@ -10,7 +10,7 @@ end if
 -- Process a calendar by name
 on process_calendar_name(this_calendar_name)
 	tell application "iCal" to set this_calendar to the first calendar whose title is this_calendar_name as string
-
+	
 	if this_calendar is not false then
 		process_calendar(this_calendar)
 	end if

@@ -13,7 +13,7 @@
     int mem_max;
     int mem_total;
     int mem_free;
-
+    
     NSUserDefaults *defaults;
 }
 

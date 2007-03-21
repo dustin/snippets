@@ -2,7 +2,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-unsigned long
+unsigned long 
 AllocNamedColor(Display * display, Colormap colormap, char
 		colorname[], unsigned long default_color)
 {

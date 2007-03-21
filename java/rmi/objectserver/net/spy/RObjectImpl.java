@@ -74,20 +74,20 @@ public class RObjectImpl extends UnicastRemoteObject implements RObject {
 		return(null);
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) { 
 
-		// Create and install a security manager
-		if (System.getSecurityManager() == null) {
-			System.setSecurityManager(new RMISecurityManager());
-		}
-		try {
-			RObjectImpl obj = new RObjectImpl();
-			// Bind this object instance to the name "RobjectServer"
-			Naming.rebind("RObjectServer", obj);
-			System.out.println("RObjectServer bound in registry");
-		} catch (Exception e) {
-			System.out.println("RObjectServer err: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
+		// Create and install a security manager 
+		if (System.getSecurityManager() == null) { 
+			System.setSecurityManager(new RMISecurityManager()); 
+		} 
+		try { 
+			RObjectImpl obj = new RObjectImpl(); 
+			// Bind this object instance to the name "RobjectServer" 
+			Naming.rebind("RObjectServer", obj); 
+			System.out.println("RObjectServer bound in registry"); 
+		} catch (Exception e) { 
+			System.out.println("RObjectServer err: " + e.getMessage()); 
+			e.printStackTrace(); 
+		} 
+	} 
 }

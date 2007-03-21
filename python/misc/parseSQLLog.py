@@ -47,7 +47,7 @@ class LogEntry:
         return (self.__calltime / self.__calls)
 
 if __name__ == '__main__':
-
+    
     # lf=open(sys.argv[1])
 
     lastTime=0
