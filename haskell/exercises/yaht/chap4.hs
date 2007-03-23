@@ -77,3 +77,25 @@ treeFold p i (Branch l e r) =
 
 elements2 l =
 	treeFold (\i e -> e:i) [] l
+
+
+-- cfold (used by 4.11)
+cfold' f z [] = z
+cfold' f z (x:xs) = f x z (\y -> cfold' f y xs)
+
+cfold f z l = cfold' (\x t g -> f x (g t)) z l
+
+-- 4.11
+-- It seems to do both, depending on the continuation function.
+
+-- 4.12 (1) continuation passing map
+
+-- Common coninuator function
+continuator' f [] = []
+continuator' f (x:xs) = f x (\y -> continuator' f xs)
+
+cmap f l = continuator' (\x g -> (f x):g ()) l
+
+-- 4.12 (2) continuation passing filter
+
+cfilter f l = continuator' (\x g -> if (f x) then x:g () else g ()) l
