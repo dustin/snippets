@@ -21,10 +21,9 @@
     of files.
 """
 
-# XXX:  http://en.wikipedia.org/wiki/Topological_sorting
-
 import sys
 import copy
+import sets
 import string
 import exceptions
 
@@ -36,7 +35,7 @@ class DepFile:
         self.filename=filename
 
         self.provides=None
-        self.requires=[]
+        self.requires=sets.Set()
 
         self.__fileInit()
 
@@ -54,7 +53,7 @@ class DepFile:
             elif rpos >= 0:
                 # Requires
                 a=string.split(string.strip(line[rpos:]))
-                self.requires.append(a[1])
+                self.requires.add(a[1])
         f.close()
 
     def __repr__(self):
@@ -104,48 +103,53 @@ class DependencyOrderer:
     def __order(self):
         """Perform the actual ordering."""
         output=[]
-        notplaced=copy.copy(self.files)
+        g=copy.copy(self.files)
         # Provide a stable ordering
-        notplaced.sort(lambda a, b: cmp(a.filename, b.filename))
+        g.sort(lambda a, b: cmp(a.filename, b.filename))
 
-        runs = 0
-        while len(notplaced)>0:
-            if runs > len(self.files):
-                raise NotPlaced(notplaced)
-            runs = runs + 1
+        # Slight variation on a toplogical sorting algorithm.  This variation
+        # uses a set to track all met requirements instead of directly checking
+        # graph linkage.
+        # See <http://en.wikipedia.org/wiki/Topological_sorting>
 
-            # Track the ones that were just added to preserve order
-            justadded=[]
+        met=sets.Set()
+        q=[]
+        # Iterating the original because I'm mutating the graph
+        for e in self.files:
+            if len(e.getRequirements()) == 0:
+                q.append(e)
+                if e.getProvides() is not None:
+                    met.add(e.getProvides())
+                g.remove(e)
+        # Now keep looking around until stuff is done
+        while len(q) > 0:
+            n=q.pop(0)
+            output.append(n)
+            # Add everything whose requirements are met to q
+            for e in [x for x in g if x.getRequirements().issubset(met)]:
+                g.remove(e)
+                met.add(e.getProvides())
+                q.append(e)
 
-            for d in notplaced:
-                missing=0
-                for r in d.getRequirements():
-                    found = 0
-                    for o in output:
-                        if o.getProvides() == r:
-                            if not o in justadded:
-                                found = 1
-                    if found == 0:
-                        missing = missing + 1
-                if missing == 0:
-                    notplaced.remove(d)
-                    output.append(d)
-                    justadded.append(d)
+        if len(g) > 0:
+            raise NotPlaced(g)
         self.files=output
 
     def __checkDepend(self):
-         """Verify the dependencies are all met."""
-         saw={}
-         for thing in self.files:
-            for k in thing.getRequirements():
-                assert saw.has_key(k), \
-                    "Dependency not met:  " + k + " for " + `thing`
-            saw[thing.getProvides()]=1
+        """Verify the dependencies are all met."""
+        rv=True
+        saw=sets.Set()
+        for f in self.files:
+            for k in f.getRequirements():
+                if not k in saw:
+                    rv=False
+            saw.add(f.getProvides())
+        return rv
 
     def getFiles(self):
         """Get the files in the correct order."""
         self.__order()
-        self.__checkDepend()
+        assert self.__checkDepend()
         return(self.files)
 
 if __name__ == '__main__':
