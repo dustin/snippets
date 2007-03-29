@@ -42,10 +42,12 @@ class DepTestCase(unittest.TestCase):
 
     def testAllFailure(self):
         """Test all files (including broken)."""
-        for f in ['somefile', 'anotherfile', 'dependent', 'basefile']:
+        for f in ['nonresolvable', 'somefile', 'anotherfile', 'dependent',
+            'basefile']:
             self.__addFile(f)
         try:
-            self.do.getFiles()
+            f=self.do.getFiles()
+            self.fail("Expected not placed, got " + `f`)
         except deporder.NotPlaced, e:
             self.assertEquals(["brokenness"], e.deps)
 
