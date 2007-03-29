@@ -58,7 +58,8 @@ class DepFile:
         f.close()
 
     def __repr__(self):
-        return "<DepFile provides=" + self.provides + ">"
+        return "<DepFile f=%s, provides=%s, requires=%s>" % \
+            (self.filename, `self.provides`, self.requires)
 
     def getRequirements(self):
         """Get a list of the named requirements for this DepFile."""
@@ -80,12 +81,11 @@ class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
 
     def __init__(self, items):
-        self.deps=[]
-        for i in items:
-            self.deps.extend(i.getRequirements())
+        self.deps=[i.getRequirements() for i in items]
+        self.files=[i.filename for i in items]
 
     def __repr__(self):
-        return "<NotPlaced, deps=" + `self.deps` + ">"
+        return "<NotPlaced, files=%s, deps=%s>" % (self.files, self.deps)
 
     __str__ = __repr__
 
