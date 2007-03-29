@@ -81,7 +81,9 @@ class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
 
     def __init__(self, items):
-        self.deps=[i.getRequirements() for i in items]
+        self.deps=[]
+        for i in items:
+            self.deps.extend(i.getRequirements())
         self.files=[i.filename for i in items]
 
     def __repr__(self):
@@ -136,8 +138,8 @@ class DependencyOrderer:
          saw={}
          for thing in self.files:
             for k in thing.getRequirements():
-                if not saw.has_key(k):
-                    raise "Dependency not met:  " + k + " for " + `thing`
+                assert saw.has_key(k), \
+                    "Dependency not met:  " + k + " for " + `thing`
             saw[thing.getProvides()]=1
 
     def getFiles(self):
