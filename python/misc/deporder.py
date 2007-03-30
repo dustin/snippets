@@ -27,16 +27,17 @@ import sets
 import string
 import exceptions
 
-class DepFile:
+class DepFile(object):
     """A file containing dependencies."""
+
+    filename=None
+    provides=None
+    requires=None
 
     def __init__(self, filename):
         """Construct with a filename."""
         self.filename=filename
-
-        self.provides=None
         self.requires=sets.Set()
-
         self.__fileInit()
 
     def __fileInit(self):
@@ -60,21 +61,13 @@ class DepFile:
         return "<DepFile f=%s, provides=%s, requires=%s>" % \
             (self.filename, `self.provides`, self.requires)
 
-    def getRequirements(self):
-        """Get a list of the named requirements for this DepFile."""
-        return self.requires
-
     def requiresName(self, other):
         """Return true if this DepFile requires that DepFile."""
         rv = 0
         for n in self.requires:
-            if other.getProvides() == n:
+            if other.provides == n:
                 rv = 1
         return rv
-
-    def getProvides(self):
-        """Get the name of the thing this DepFile provides."""
-        return self.provides
 
 class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
@@ -82,7 +75,7 @@ class NotPlaced(exceptions.Exception):
     def __init__(self, items):
         self.deps=[]
         for i in items:
-            self.deps.extend(i.getRequirements())
+            self.deps.extend(i.requires)
         self.files=[i.filename for i in items]
 
     def __repr__(self):
@@ -90,7 +83,7 @@ class NotPlaced(exceptions.Exception):
 
     __str__ = __repr__
 
-class DependencyOrderer:
+class DependencyOrderer(object):
     """Deal with dependency ordering of DepFiles."""
 
     def __init__(self):
@@ -116,19 +109,19 @@ class DependencyOrderer:
         q=[]
         # Iterating the original because I'm mutating the graph
         for e in self.files:
-            if len(e.getRequirements()) == 0:
+            if len(e.requires) == 0:
                 q.append(e)
-                if e.getProvides() is not None:
-                    met.add(e.getProvides())
+                if e.provides is not None:
+                    met.add(e.provides)
                 g.remove(e)
         # Now keep looking around until stuff is done
         while len(q) > 0:
             n=q.pop(0)
             output.append(n)
             # Add everything whose requirements are met to q
-            for e in [x for x in g if x.getRequirements().issubset(met)]:
+            for e in [x for x in g if x.requires.issubset(met)]:
                 g.remove(e)
-                met.add(e.getProvides())
+                met.add(e.provides)
                 q.append(e)
 
         if len(g) > 0:
@@ -140,10 +133,10 @@ class DependencyOrderer:
         rv=True
         saw=sets.Set()
         for f in self.files:
-            for k in f.getRequirements():
+            for k in f.requires:
                 if not k in saw:
                     rv=False
-            saw.add(f.getProvides())
+            saw.add(f.provides)
         return rv
 
     def getFiles(self):
