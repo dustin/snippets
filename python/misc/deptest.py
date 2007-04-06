@@ -33,6 +33,14 @@ class DepTestCase(unittest.TestCase):
         except deporder.NotPlaced, e:
             self.assertEquals(["brokenness"], e.deps)
 
+    def testInjectedNode(self):
+        """Test just the nonresolvable file."""
+        self.__addFile("nonresolvable")
+
+        self.do.add(deporder.Node('brokenness'))
+        self.assertEquals(['brokenness', 'nothing'],
+            [n.provides for n in self.do.getFiles()])
+
     def testSequence(self):
         """Test a bunch of files."""
         for f in ['somefile', 'anotherfile', 'dependent', 'basefile']:

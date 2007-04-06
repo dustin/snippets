@@ -27,17 +27,49 @@ import sets
 import string
 import exceptions
 
-class DepFile(object):
-    """A file containing dependencies."""
+class Node(object):
+    """A node that may provide something, or require some things."""
 
-    filename=None
     provides=None
     requires=None
 
+    def __init__(self, provides=None, requires=[]):
+        """Construct a node."""
+        self.provides=provides
+        self.requires=sets.Set(requires)
+
+    def requiresName(self, other):
+        """Return true if this DepFile requires that DepFile."""
+        rv = 0
+        for n in self.requires:
+            if other.provides == n:
+                rv = 1
+        return rv
+
+    def __cmp__(self, other):
+        assert isinstance(other, Node)
+        rv=-1
+        if self.provides is None:
+            if other.provides is None:
+                rv=cmp(id(self), id(other))
+            else:
+                rv=-1
+        else:
+            if other.provides is None:
+                rv=1
+            else:
+                rv=cmp(self.provides, other.provides)
+        return rv
+
+class DepFile(Node):
+    """A file containing dependencies."""
+
+    filename=None
+
     def __init__(self, filename):
         """Construct with a filename."""
+        super(DepFile, self).__init__()
         self.filename=filename
-        self.requires=sets.Set()
         self.__fileInit()
 
     def __fileInit(self):
@@ -57,17 +89,17 @@ class DepFile(object):
                 self.requires.add(a[1])
         f.close()
 
+    def __cmp__(self, other):
+        rv=-1
+        if isinstance(other, DepFile):
+            rv=cmp(self.filename, other.filename)
+        else:
+            rv=super(DepFile, __cmp__(self, other))
+        return rv
+
     def __repr__(self):
         return "<DepFile f=%s, provides=%s, requires=%s>" % \
             (self.filename, `self.provides`, self.requires)
-
-    def requiresName(self, other):
-        """Return true if this DepFile requires that DepFile."""
-        rv = 0
-        for n in self.requires:
-            if other.provides == n:
-                rv = 1
-        return rv
 
 class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
@@ -84,7 +116,7 @@ class NotPlaced(exceptions.Exception):
     __str__ = __repr__
 
 class DependencyOrderer(object):
-    """Deal with dependency ordering of DepFiles."""
+    """Deal with dependency ordering of Nodes."""
 
     def __init__(self):
         self.files=[]
@@ -98,7 +130,7 @@ class DependencyOrderer(object):
         output=[]
         g=copy.copy(self.files)
         # Provide a stable ordering
-        g.sort(lambda a, b: cmp(a.filename, b.filename))
+        g.sort()
 
         # Slight variation on a toplogical sorting algorithm.  This variation
         # uses a set to track all met requirements instead of directly checking
