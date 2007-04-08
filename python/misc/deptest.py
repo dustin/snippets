@@ -18,7 +18,7 @@ class DepTestCase(unittest.TestCase):
 
     def assertFilenames(self, fn):
         self.assertEquals(["test/dep/" + f for f in fn],
-            [f.filename for f in self.do.getFiles()])
+            [f.filename for f in self.do.getNodes()])
 
     def testOne(self):
         """Test just the base file."""
@@ -29,7 +29,7 @@ class DepTestCase(unittest.TestCase):
         """Test just the nonresolvable file."""
         self.__addFile("nonresolvable")
         try:
-            self.do.getFiles()
+            self.do.getNodes()
         except deporder.NotPlaced, e:
             self.assertEquals(["brokenness"], e.deps)
 
@@ -39,7 +39,7 @@ class DepTestCase(unittest.TestCase):
 
         self.do.add(deporder.Node(['brokenness']))
         self.assertEquals(['brokenness', 'nothing'],
-            [iter(n.provides).next() for n in self.do.getFiles()])
+            [iter(n.provides).next() for n in self.do.getNodes()])
 
     def testSequence(self):
         """Test a bunch of files."""
@@ -60,7 +60,7 @@ class DepTestCase(unittest.TestCase):
             'basefile']:
             self.__addFile(f)
         try:
-            f=self.do.getFiles()
+            f=self.do.getNodes()
             self.fail("Expected not placed, got " + `f`)
         except deporder.NotPlaced, e:
             self.assertEquals(["brokenness"], e.deps)

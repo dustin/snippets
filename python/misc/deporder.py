@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # arch-tag: A3010F49-F919-4169-8D17-8CED7CD275E2
 """
-    Order a list of files by dependency.
+    Order a list of nodes by dependency.
 
-    This script takes a list of files and expects to find lines describing
-    a dependency relationship between other files.
+    As a commandline tool, this script takes a list of files and expects to
+    find lines describing a dependency relationship between other files.
 
     A file may express what it provides by having a line similar to the
     following:
@@ -114,16 +114,16 @@ class DependencyOrderer(object):
     """Deal with dependency ordering of Nodes."""
 
     def __init__(self):
-        self.files=[]
+        self.nodes=[]
 
     def add(self, df):
         """Add a new object to watch."""
-        self.files.append(df)
+        self.nodes.append(df)
    
     def __order(self):
         """Perform the actual ordering."""
         output=[]
-        g=copy.copy(self.files)
+        g=copy.copy(self.nodes)
         # Provide a stable ordering
         g.sort()
 
@@ -135,7 +135,7 @@ class DependencyOrderer(object):
         met=sets.Set()
         q=[]
         # Iterating the original because I'm mutating the graph
-        for e in self.files:
+        for e in self.nodes:
             if len(e.requires) == 0:
                 q.append(e)
                 met.union_update(e.provides)
@@ -152,24 +152,24 @@ class DependencyOrderer(object):
 
         if len(g) > 0:
             raise NotPlaced(g)
-        self.files=output
+        self.nodes=output
 
     def __checkDepend(self):
         """Verify the dependencies are all met."""
         rv=True
         saw=sets.Set()
-        for f in self.files:
+        for f in self.nodes:
             for k in f.requires:
                 if not k in saw:
                     rv=False
             saw.union_update(f.provides)
         return rv
 
-    def getFiles(self):
-        """Get the files in the correct order."""
+    def getNodes(self):
+        """Get the Nodes in the correct order."""
         self.__order()
         assert self.__checkDepend()
-        return(self.files)
+        return(self.nodes)
 
 if __name__ == '__main__':
     do=DependencyOrderer()
@@ -177,5 +177,5 @@ if __name__ == '__main__':
         df=DepFile(f)
         do.add(df)
 
-    for f in do.getFiles():
+    for f in do.getNodes():
         print f.filename
