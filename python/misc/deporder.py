@@ -34,17 +34,10 @@ class Node(object):
     requires=None
 
     def __init__(self, provides=[], requires=[]):
-        """Construct a node."""
+        """Construct a node with an iterable object describing what it
+        provides and another describing what it requires."""
         self.provides=sets.Set(provides)
         self.requires=sets.Set(requires)
-
-    def requiresName(self, other):
-        """Return true if this DepFile requires that DepFile."""
-        rv = 0
-        for n in self.requires:
-            if n in other.provides:
-                rv = 1
-        return rv
 
     def __repr__(self):
         return "<Node provides=%s, requires=%s>" \
