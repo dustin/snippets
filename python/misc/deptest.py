@@ -37,9 +37,9 @@ class DepTestCase(unittest.TestCase):
         """Test just the nonresolvable file."""
         self.__addFile("nonresolvable")
 
-        self.do.add(deporder.Node('brokenness'))
+        self.do.add(deporder.Node(['brokenness']))
         self.assertEquals(['brokenness', 'nothing'],
-            [n.provides for n in self.do.getFiles()])
+            [iter(n.provides).next() for n in self.do.getFiles()])
 
     def testSequence(self):
         """Test a bunch of files."""
@@ -47,6 +47,12 @@ class DepTestCase(unittest.TestCase):
             self.__addFile(f)
         self.assertFilenames(["basefile", 'anotherfile', 'somefile',
             'dependent'])
+
+    def testMultiProvides(self):
+        """Test files that provide multiple things."""
+        for f in ('multiprovreq', 'multiprov'):
+            self.__addFile(f)
+        self.assertFilenames(['multiprov', 'multiprovreq'])
 
     def testAllFailure(self):
         """Test all files (including broken)."""

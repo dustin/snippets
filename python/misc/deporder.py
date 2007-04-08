@@ -33,33 +33,30 @@ class Node(object):
     provides=None
     requires=None
 
-    def __init__(self, provides=None, requires=[]):
+    def __init__(self, provides=[], requires=[]):
         """Construct a node."""
-        self.provides=provides
+        self.provides=sets.Set(provides)
         self.requires=sets.Set(requires)
 
     def requiresName(self, other):
         """Return true if this DepFile requires that DepFile."""
         rv = 0
         for n in self.requires:
-            if other.provides == n:
+            if n in other.provides:
                 rv = 1
         return rv
 
+    def __repr__(self):
+        return "<Node provides=%s, requires=%s>" \
+            % (self.provides, self.requires)
+
     def __cmp__(self, other):
         assert isinstance(other, Node)
-        rv=-1
-        if self.provides is None:
-            if other.provides is None:
-                rv=cmp(id(self), id(other))
-            else:
-                rv=-1
-        else:
-            if other.provides is None:
-                rv=1
-            else:
-                rv=cmp(self.provides, other.provides)
-        return rv
+        p=list(self.provides)
+        p.sort()
+        op=list(other.provides)
+        op.sort()
+        return cmp(p, op)
 
 class DepFile(Node):
     """A file containing dependencies."""
@@ -80,9 +77,7 @@ class DepFile(Node):
             if ppos >= 0:
                 # Provides
                 a=string.split(string.strip(line[ppos:]))
-                if self.provides is not None:
-                    raise "Already defined provides for " + self.filename
-                self.provides = a[1]
+                self.provides.add(a[1])
             elif rpos >= 0:
                 # Requires
                 a=string.split(string.strip(line[rpos:]))
@@ -94,7 +89,7 @@ class DepFile(Node):
         if isinstance(other, DepFile):
             rv=cmp(self.filename, other.filename)
         else:
-            rv=super(DepFile, __cmp__(self, other))
+            rv=super(DepFile, self).__cmp__(other)
         return rv
 
     def __repr__(self):
@@ -143,8 +138,7 @@ class DependencyOrderer(object):
         for e in self.files:
             if len(e.requires) == 0:
                 q.append(e)
-                if e.provides is not None:
-                    met.add(e.provides)
+                met.union_update(e.provides)
                 g.remove(e)
         # Now keep looking around until stuff is done
         while len(q) > 0:
@@ -153,7 +147,7 @@ class DependencyOrderer(object):
             # Add everything whose requirements are met to q
             for e in [x for x in g if x.requires.issubset(met)]:
                 g.remove(e)
-                met.add(e.provides)
+                met.union_update(e.provides)
                 q.append(e)
 
         if len(g) > 0:
@@ -168,7 +162,7 @@ class DependencyOrderer(object):
             for k in f.requires:
                 if not k in saw:
                     rv=False
-            saw.add(f.provides)
+            saw.union_update(f.provides)
         return rv
 
     def getFiles(self):
