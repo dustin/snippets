@@ -115,11 +115,21 @@ class DependencyOrderer(object):
 
     def __init__(self):
         self.nodes=[]
+        self.allprovides=sets.Set()
 
-    def add(self, df):
-        """Add a new object to watch."""
-        self.nodes.append(df)
-   
+    def add(self, node):
+        """Add a new node to the dependency orderer."""
+        self._checkNewNode(node)
+        self.nodes.append(node)
+        self.allprovides.union_update(node.provides)
+
+    def _checkNewNode(self, node):
+        """Check the validity of a new node before adding it."""
+        dups=node.provides.intersection(self.allprovides)
+        if len(dups) > 0:
+            raise ValueError, "New node duplicates existing provides: %s" \
+                % (str(dups),)
+
     def __order(self):
         """Perform the actual ordering."""
         output=[]

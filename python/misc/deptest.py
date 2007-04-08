@@ -5,6 +5,7 @@ Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
 # arch-tag: 0FC88FCC-E29E-4995-B026-32D806F0538F
 
+import sets
 import unittest
 import deporder
 
@@ -53,6 +54,25 @@ class DepTestCase(unittest.TestCase):
         for f in ('multiprovreq', 'multiprov'):
             self.__addFile(f)
         self.assertFilenames(['multiprov', 'multiprovreq'])
+
+    def testDuplicateProvides(self):
+        self.do.add(deporder.Node("abc"))
+        try:
+            self.do.add(deporder.Node("bcd"))
+            self.fail("Expected value error adding duplicate provides")
+        except ValueError:
+            pass
+
+    def testDuplicateProvidesOverride(self):
+        class D(deporder.DependencyOrderer):
+            def _checkNewNode(self, node):
+                pass
+
+        do=D()
+        do.add(deporder.Node("abc", "d"))
+        do.add(deporder.Node("bcd"))
+        self.assertEquals([sets.Set('bcd'), sets.Set('abc')],
+            [n.provides for n in do.getNodes()])
 
     def testAllFailure(self):
         """Test all files (including broken)."""
