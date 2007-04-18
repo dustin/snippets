@@ -45,11 +45,7 @@ class Node(object):
 
     def __cmp__(self, other):
         assert isinstance(other, Node)
-        p=list(self.provides)
-        p.sort()
-        op=list(other.provides)
-        op.sort()
-        return cmp(p, op)
+        return cmp(sorted(self.provides), sorted(other.provides))
 
 class DepFile(Node):
     """A file containing dependencies."""
@@ -126,9 +122,7 @@ class DependencyOrderer(object):
     def __order(self):
         """Perform the actual ordering."""
         output=[]
-        g=copy.copy(self.nodes)
-        # Provide a stable ordering
-        g.sort()
+        g=sorted(copy.copy(self.nodes))
 
         # Slight variation on a toplogical sorting algorithm.  This variation
         # uses a set to track all met requirements instead of directly checking
@@ -139,12 +133,12 @@ class DependencyOrderer(object):
         q=[]
         # Iterating the original because I'm mutating the graph
         for e in self.nodes:
-            if len(e.requires) == 0:
+            if not e.requires:
                 q.append(e)
                 met.union_update(e.provides)
                 g.remove(e)
         # Now keep looking around until stuff is done
-        while len(q) > 0:
+        while q:
             n=q.pop(0)
             output.append(n)
             # Add everything whose requirements are met to q
@@ -153,7 +147,7 @@ class DependencyOrderer(object):
                 met.union_update(e.provides)
                 q.append(e)
 
-        if len(g) > 0:
+        if g:
             raise NotPlaced(g)
         self.nodes=output
 
