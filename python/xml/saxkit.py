@@ -79,7 +79,6 @@ class SimpleValueParser(ElementHandler):
 
     def startElementNS(self, name, qname, attrs):
         self.attrs=dict([(k, attrs[k]) for k in attrs.getNames()])
-        self.attrs=attrs
 
     def __getitem__(self, k):
         return self.attrs[k]
