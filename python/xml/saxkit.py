@@ -37,12 +37,12 @@ class RootHandler(ElementHandler):
 class StackedHandler(xml.sax.handler.ContentHandler):
     """SAX event handler that will delegate results to sub handlers."""
 
-    def __init__(self, rootType, rootHandler):
+    def __init__(self, rootType, rootHandler, documentHandler=RootHandler):
         """root type and handler expected."""
 
         xml.sax.handler.ContentHandler.__init__(self)
         self.stack=[]
-        self.root=RootHandler(rootType, rootHandler)
+        self.root=documentHandler(rootType, rootHandler)
         self.stack.append(self.root)
 
     def startElementNS(self, name, qname, attrs):
