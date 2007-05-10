@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Weird, my patch command has perforce support.  This disables it, but I might
+# actually be able to take advantage of it at some point.
+PATCH_GET=0
+export PATCH_GET
+
 HGDIR=/Users/dustin/teneros/noc/dev
 P4DIR=/Users/dustin/teneros/p4-nocdev
 
