@@ -107,12 +107,30 @@ int %(fn)s(const char *input) {
 
     print "\treturn rv;\n}"
 
+TYPES={'cs': genCaseSensitiveMatch, 'ci': genCaseInsensitiveMatch}
+
+def usage():
+    sys.stderr.write("Usage:  %s functionName matchType [fanoutSize]\n" % 
+        sys.argv[0])
+    sys.stderr.write("""Available match types:
+    cs  generate a case sensitive match.
+    ci  generate a case insensitive match.\n""")
+    sys.exit(1)
+
 if __name__ == '__main__':
 
+    if len(sys.argv) < 3:
+        usage()
+
+    fName, searchType = sys.argv[1:3]
+
+    if searchType not in TYPES:
+        usage()
+
     fanout_below=4
-    if len(sys.argv) > 2:
-        fanout_below=int(sys.argv[2])
+    if len(sys.argv) > 3:
+        fanout_below=int(sys.argv[3])
 
     stuff=[l.strip().split() for l in sys.stdin.readlines()]
 
-    genCaseSensitiveMatch(sys.argv[1], stuff, fanout_below)
+    TYPES[searchType](sys.argv[1], stuff, fanout_below)
