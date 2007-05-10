@@ -11,7 +11,7 @@ Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 import sys
 import sets
 
-def buildIt(depth, prefix, stuff, fanout_below):
+def buildIt(depth, prefix, stuff, fanout_below, caseSensitive):
     # Find all of the stuff that matches this prefix exactly.
     tab=(1+depth*2) * "\t"
     matches=[(n[len(prefix):],c) for (n,c) in stuff if n.startswith(prefix)]
@@ -20,14 +20,15 @@ def buildIt(depth, prefix, stuff, fanout_below):
         print tab + "/* " + str(len(matches)) + ' match(es) for "' \
             + prefix + '" */'
         for m in matches:
-            w=(prefix + m[0]).upper()
+            w=prefix + m[0]
+            if not caseSensitive:
+                w=w.upper()
             l=len(w)
             p=" else "
             if first:
                 p = tab
                 first=False
-            assert w.isupper()
-            print p + 'if(memcmp(uppercased, "' + w + '\\0", ' \
+            print p + 'if(memcmp(p, "' + w + '\\0", ' \
                 + str(l+1) + ') == 0) {'
             print tab + '\trv=' + m[1] + ';'
             sys.stdout.write(tab + '}')
@@ -36,21 +37,14 @@ def buildIt(depth, prefix, stuff, fanout_below):
         prefixes=sets.Set([n[0][0] for (n,c) in matches])
         print tab + "/* " + str(len(matches)) + ' matches for "' \
             + prefix + '" */'
-        print tab + 'switch(uppercased[' + str(depth) + ']) {'
+        print tab + 'switch(p[' + str(depth) + ']) {'
         for p in prefixes:
             print tab + "\tcase '" + p + "':"
-            buildIt(depth+1, prefix + p, stuff, fanout_below)
+            buildIt(depth+1, prefix + p, stuff, fanout_below, caseSensitive)
             print tab + "\tbreak;"
         print tab + '}'
 
-if __name__ == '__main__':
-
-    fanout_below=4
-    if len(sys.argv) > 2:
-        fanout_below=int(sys.argv[2])
-
-    stuff=[l.strip().split() for l in sys.stdin.readlines()]
-
+def genCaseInsensitiveMatch(fName, stuff, fanout_below):
     minlen=min([len(a) for (a,b) in stuff])
     maxlen=max([len(a) for (a,b) in stuff])
 
@@ -76,10 +70,49 @@ int %(fn)s(const char *input) {
     }
     uppercased[i]=0x00;
 
+    /* Walk over the uppercased version for a case-insensitive search. */
+    p=uppercased;
+
     /* Collapsing anything with fewer than %(fanout)d paths */""" \
-    % {'fn': sys.argv[1], 'fanout': fanout_below, 'maxlen': maxlen,
+    % {'fn': fName, 'fanout': fanout_below, 'maxlen': maxlen,
         'minlen': minlen}
 
-    buildIt(0, "", stuff, fanout_below)
+    buildIt(0, "", stuff, fanout_below, False)
 
     print "\treturn rv;\n}"
+
+def genCaseSensitiveMatch(fName, stuff, fanout_below):
+    minlen=min([len(a) for (a,b) in stuff])
+    maxlen=max([len(a) for (a,b) in stuff])
+
+    print """#include <string.h>
+#include <ctype.h>
+#include <assert.h>
+
+int %(fn)s(const char *input) {
+    int rv=-1;
+    const char *p=input;
+    int len=strlen(input);
+
+    /* Short cut when the length falls outside of expected ranges */
+    if(len < %(minlen)d || len > %(maxlen)d) {
+        return rv;
+    }
+
+    /* Collapsing anything with fewer than %(fanout)d paths */""" \
+    % {'fn': fName, 'fanout': fanout_below, 'maxlen': maxlen,
+        'minlen': minlen}
+
+    buildIt(0, "", stuff, fanout_below, True)
+
+    print "\treturn rv;\n}"
+
+if __name__ == '__main__':
+
+    fanout_below=4
+    if len(sys.argv) > 2:
+        fanout_below=int(sys.argv[2])
+
+    stuff=[l.strip().split() for l in sys.stdin.readlines()]
+
+    genCaseSensitiveMatch(sys.argv[1], stuff, fanout_below)
