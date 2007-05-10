@@ -1,0 +1,26 @@
+#!/bin/sh
+
+HGDIR=/Users/dustin/teneros/noc/dev
+P4DIR=/Users/dustin/teneros/p4-nocdev
+
+TMPPATCH=/tmp/patch.$$
+
+die() {
+	rm -f $TMPPATCH
+	echo "$1"
+	exit 1
+}
+
+p4 sync || die "Couldn't sync from p4"
+p4 resolve -am || die "Resolve failed"
+cd $HGDIR || die "No $HGDIR"
+hg export `hg qtop` > $TMPPATCH || die "Patch export failed"
+cd $P4DIR || die "No $P4DIR"
+chmod -R g+rX,o+rX . || die "chmod failed"
+patch -p1 < $TMPPATCH || die "Patch application failed"
+p4 diff -sd ... | p4 -x - delete || die "Open for delete failed"
+p4 diff -se ... | p4 -x - edit || die "Open for edit failed"
+find . -type f -print | p4 -x - add || die "Open for add failed"
+p4 revert -a || die "Revert unchanged failed"
+
+rm -f $TMPPATCH
