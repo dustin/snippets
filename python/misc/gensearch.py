@@ -20,7 +20,7 @@ def buildIt(depth, prefix, stuff, fanout_below):
         print tab + "/* " + str(len(matches)) + ' match(es) for "' \
             + prefix + '" */'
         for m in matches:
-            w=prefix + m[0]
+            w=(prefix + m[0]).upper()
             l=len(w)
             p=" else "
             if first:
