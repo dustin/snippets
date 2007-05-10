@@ -2,11 +2,19 @@
 """
 Generate a C function to match strings.
 
+Args: functionName funcType [fanoutSize]
 Input: a tab separated list of k->v pairs.
+
+  The following function types are available:
+ 
+  * cs  generate a case sensitive match.
+  * ci  generate a case insensitive match.
+
+  fanoutSize indicates the number of branches at a given level before
+  converting if/else branches to a switch. 
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 380AB186-BD0D-4302-837B-A45CD42B699E
 
 import sys
 import sets
