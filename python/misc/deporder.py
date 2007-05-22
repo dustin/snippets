@@ -89,6 +89,7 @@ class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
 
     def __init__(self, items):
+        exceptions.Exception.__init__(self)
         self.deps=[]
         for i in items:
             self.deps.extend(i.requires)
