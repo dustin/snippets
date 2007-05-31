@@ -50,8 +50,8 @@ class TestGeocoding(unittest.TestCase):
         g=ymap.Geocoding("x")
         try:
             r=g._parseResponse(self.getFileData("data/testError.xml"))
-            fail("Expected a LimitExceeded exception.")
-        except ymap.LimitExceeded, e:
+            self.fail("Expected a LimitExceeded exception, got: " + `r`)
+        except ymap.LimitExceeded:
             pass
 
     def testUnknownErrorParsing(self):
@@ -59,10 +59,10 @@ class TestGeocoding(unittest.TestCase):
         g=ymap.Geocoding("x")
         try:
             r=g._parseResponse(self.getFileData("data/testError2.xml"))
-            fail("Expected an UnknownError exception.")
+            self.fail("Expected an UnknownError exception, got: " + `r`)
         except ymap.UnknownError, e:
             # Make sure we got the message
-            self.assertEquals(e[0], "spanish inquisition")
+            self.assertTrue(e[0].startswith("spanish inquisition"))
 
 if __name__ == '__main__':
     unittest.main()

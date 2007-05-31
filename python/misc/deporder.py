@@ -24,7 +24,6 @@
 import sys
 import copy
 import sets
-import string
 import exceptions
 
 class Node(object):
@@ -61,15 +60,15 @@ class DepFile(Node):
     def __fileInit(self):
         f=open(self.filename)
         for line in f:
-            ppos=string.find(line, '@PROVIDES')
-            rpos=string.find(line, '@REQUIRES')
+            ppos=line.find('@PROVIDES')
+            rpos=line.find('@REQUIRES')
             if ppos >= 0:
                 # Provides
-                a=string.split(string.strip(line[ppos:]))
+                a=line[ppos:].strip().split()
                 self.provides.add(a[1])
             elif rpos >= 0:
                 # Requires
-                a=string.split(string.strip(line[rpos:]))
+                a=line[rpos:].strip().split()
                 self.requires.add(a[1])
         f.close()
 
@@ -89,6 +88,7 @@ class NotPlaced(exceptions.Exception):
     """Exception raised when items were not placed."""
 
     def __init__(self, items):
+        exceptions.Exception.__init__(self)
         self.deps=[]
         for i in items:
             self.deps.extend(i.requires)
