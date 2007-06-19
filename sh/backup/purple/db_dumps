@@ -28,7 +28,8 @@ dumpDB() {
 	db="$1"
 	echo "Dumping $db..."
 
-	$HOME/local.bin/tablelister '' dustin '' $db | ( while read l
+	$HOME/local.bin/tablelister '' dustin '' $db | grep -v image_store \
+		| ( while read l
 	do
 		schema=`echo $l | awk '{print $1}'`
 		table=`echo $l | awk '{print $2}'`

@@ -30,6 +30,7 @@ fi
 
 mkdir -p $today/$dbname
 $HOME/local.bin/blockDigest - \
-	$HOME/local.bin/encryptBlock $place/../md5s $today/$dbname $blocksize
+	$HOME/local.bin/encryptBlock $place/../external/db/md5s \
+	$today/$dbname $blocksize
 
 du -sk $today/$dbname
