@@ -16,8 +16,8 @@ from xml.dom.ext import PrettyPrint
 import fetch
 import feedparser
 
-HGLIST='http://rubik.west.spy.net/~dustin/hglist.txt'
-HGPATTERN='http://rubik.west.spy.net/hg/%s/rss-log'
+HGLIST='http://rubikweb.west.spy.net/~dustin/hglist.txt'
+HGPATTERN='http://rubikweb.west.spy.net/hg/%s/rss-log'
 
 TMPDIR='/tmp/combiner'
 
