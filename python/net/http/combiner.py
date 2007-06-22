@@ -16,8 +16,8 @@ from xml.dom.ext import PrettyPrint
 import fetch
 import feedparser
 
-HGLIST='http://rubikweb.west.spy.net/~dustin/hglist.txt'
-HGPATTERN='http://rubikweb.west.spy.net/hg/%s/rss-log'
+HGLIST='http://hg.west.spy.net/~dustin/hglist.txt'
+HGPATTERN='http://hg.west.spy.net/hg/%s/rss-log'
 
 TMPDIR='/tmp/combiner'
 
@@ -104,7 +104,7 @@ def __loadFeeds(picklefile='/tmp/feeds_pickled'):
 if __name__ == '__main__':
     feeds=combineFeeds(getFeeds(getList()))
     # feeds=combineFeeds(__loadFeeds())
-    doc=generateRss('Project feeds', 'http://rubik.west.spy.net/hg/',
+    doc=generateRss('Project feeds', 'http://hg.west.spy.net/hg/',
         'Recent changes for spy.net projects', feeds)
 
     tmpfile=sys.argv[1] + '.tmp'
