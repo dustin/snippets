@@ -14,13 +14,13 @@ def dumpThreads():
     for t in threading.enumerate():
         print "  * " + str(t)
 
-class Job:
+class Job(object):
     """Superclass for all jobs."""
     def run():
         """This method will be called when the job is ready to be executed."""
         raise exceptions.NotImplementedError
 
-class JobQueue:
+class JobQueue(object):
     """This is a basic thread-safe stack."""
 
     def __init__(self):
@@ -148,7 +148,7 @@ class RunThread(threading.Thread):
         """Shutdown this thread."""
         self.going=None
 
-class ThreadPool:
+class ThreadPool(object):
     """A pool of threads that are eagerly awaiting work."""
 
     def __init__(self, name="AThreadPool", num=5):
