@@ -101,11 +101,12 @@ def decode_wins(teams, wins):
 
     rv=[]
 
-    current_teams = teams
+    winners = teams
 
     pos=0
     indent=0
-    while current_teams:
+    while len(winners) > 1:
+        current_teams = combine_teams(winners)
         current=[]
         current_wins=splice(wins, pos, len(current_teams))
         winners=[]
@@ -119,14 +120,11 @@ def decode_wins(teams, wins):
         rv.append(current)
         pos += size
         indent += 4
-        if len(winners) > 1:
-            current_teams = combine_teams(winners)
-        else:
-            current_teams = []
 
     return rv
 
 def print_wins(teams, wins, fd=sys.stdout):
+    """Print out the tournaments and winners in a somewhat readable fashion."""
     indentAmt=0
     decoded=decode_wins(teams, wins)
     for series in decoded:

@@ -115,7 +115,7 @@ class ScoringTest(unittest.TestCase):
     def testPrintingAllLeft(self):
         """Test the printing function all left."""
         s=StringIO.StringIO()
-        tournament.print_wins(tournament.combine_teams('abcdefgh'), 0, s)
+        tournament.print_wins('abcdefgh', 0, s)
         s.seek(0)
         l=s.readlines()
         self.assertEquals("Final winner:  a\n", l[-1])
@@ -123,7 +123,7 @@ class ScoringTest(unittest.TestCase):
     def testPrintingAllRight(self):
         """Test the printing function all right"""
         s=StringIO.StringIO()
-        tournament.print_wins(tournament.combine_teams('abcdefgh'), ~0, s)
+        tournament.print_wins('abcdefgh', ~0, s)
         s.seek(0)
         l=s.readlines()
         self.assertEquals("Final winner:  h\n", l[-1])
@@ -136,16 +136,13 @@ class ScoringTest(unittest.TestCase):
 
     def testDecodingWinnings(self):
         """Test decoding winnings from a number."""
-        decoded=tournament.decode_wins(
-            tournament.combine_teams(self.ALL_TEAMS),
-            self.ENCODED)
+        decoded=tournament.decode_wins(self.ALL_TEAMS, self.ENCODED)
         self.assertEquals(self.SEQS, decoded)
 
     def testPrintingWinner(self):
         """Test printing a real winner calculation."""
         s=StringIO.StringIO()
-        tournament.print_wins(tournament.combine_teams(self.ALL_TEAMS),
-            self.ENCODED, s)
+        tournament.print_wins(self.ALL_TEAMS, self.ENCODED, s)
         s.seek(0)
         l=s.readlines()
         self.assertEquals("Final winner:  udob\n", l[-1])
