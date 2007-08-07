@@ -14,24 +14,13 @@ import sets
 import string
 import random
 
-NUM_TEAMS=64
-# I generated a list of teams with random names.  Real teams would probably
-# be a bit easier to deal with.
-ALL_TEAMS=sets.ImmutableSet(['ehqk', 'bsmv', 'svhl', 'huyr', 'aevo', 'mknq',
-    'nksx', 'ymxw', 'xebf', 'axci', 'unet', 'glqw', 'umav', 'nezy', 'unoj',
-    'crkq', 'ksrt', 'csny', 'djkp', 'fpmd', 'ared', 'lgou', 'rxzp', 'jtmu',
-    'topc', 'bdmo', 'ohcg', 'mzlx', 'dnur', 'zgty', 'pzxe', 'ucbp', 'wfyl',
-    'ekji', 'slup', 'pmor', 'sklm', 'fpgd', 'xrob', 'xzgp', 'woxm', 'neha',
-    'svew', 'umse', 'icrz', 'zvky', 'wyls', 'muhf', 'msdp', 'vzkr', 'anye',
-    'cyuo', 'zgkq', 'sqdv', 'tdrm', 'nktw', 'kevf', 'iksc', 'lnzy', 'rbon',
-    'xatw', 'fbva', 'glch', 'udob'])
-assert len(ALL_TEAMS) == NUM_TEAMS, "Failed to build distinct teams"
+DEFAULT_NUM_SIZE=64
 
 def bit(num, pos):
     """True if the bit at position pos in the number num is 1."""
     return (num & ( 1 << pos ) != 0)
 
-def splice(num, pos, size, numsize=NUM_TEAMS):
+def splice(num, pos, size, numsize=DEFAULT_NUM_SIZE):
     """Get size bits of a number at position pos."""
     mask = 1
     for i in range(size-1):

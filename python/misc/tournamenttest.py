@@ -37,6 +37,17 @@ class BitStuffTestCase(unittest.TestCase):
 
 class ScoringTest(unittest.TestCase):
 
+    # I generated a list of teams with random names.  Real teams would probably
+    # be a bit easier to deal with.
+    ALL_TEAMS=sets.ImmutableSet(['ehqk', 'bsmv', 'svhl', 'huyr', 'aevo', 'mknq',
+        'nksx', 'ymxw', 'xebf', 'axci', 'unet', 'glqw', 'umav', 'nezy', 'unoj',
+        'crkq', 'ksrt', 'csny', 'djkp', 'fpmd', 'ared', 'lgou', 'rxzp', 'jtmu',
+        'topc', 'bdmo', 'ohcg', 'mzlx', 'dnur', 'zgty', 'pzxe', 'ucbp', 'wfyl',
+        'ekji', 'slup', 'pmor', 'sklm', 'fpgd', 'xrob', 'xzgp', 'woxm', 'neha',
+        'svew', 'umse', 'icrz', 'zvky', 'wyls', 'muhf', 'msdp', 'vzkr', 'anye',
+        'cyuo', 'zgkq', 'sqdv', 'tdrm', 'nktw', 'kevf', 'iksc', 'lnzy', 'rbon',
+        'xatw', 'fbva', 'glch', 'udob'])
+
     # An example randomly generated sequence.
     SEQS=[[(('aevo', 'nksx'), 'aevo'), (('anye', 'nktw'), 'anye'), # 0, 0   64
         (('ared', 'ohcg'), 'ared'), (('axci', 'pmor'), 'pmor'),    # 0, 1
@@ -126,14 +137,14 @@ class ScoringTest(unittest.TestCase):
     def testDecodingWinnings(self):
         """Test decoding winnings from a number."""
         decoded=tournament.decode_wins(
-            tournament.combine_teams(tournament.ALL_TEAMS),
+            tournament.combine_teams(self.ALL_TEAMS),
             self.ENCODED)
         self.assertEquals(self.SEQS, decoded)
 
     def testPrintingWinner(self):
         """Test printing a real winner calculation."""
         s=StringIO.StringIO()
-        tournament.print_wins(tournament.combine_teams(tournament.ALL_TEAMS),
+        tournament.print_wins(tournament.combine_teams(self.ALL_TEAMS),
             self.ENCODED, s)
         s.seek(0)
         l=s.readlines()
