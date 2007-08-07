@@ -104,22 +104,21 @@ def decode_wins(teams, wins):
     winners = teams
 
     pos=0
-    indent=0
+    # When len(winners) == 1, we have a winner.
     while len(winners) > 1:
         current_teams = combine_teams(winners)
         current=[]
         current_wins=splice(wins, pos, len(current_teams))
-        winners=[]
         size=len(current_teams)
         for i in range(len(current_teams)):
             winner=current_teams[i][0]
             if bit(current_wins, size-1-i):
                 winner=current_teams[i][1]
             current.append( (current_teams[i], winner) )
-            winners.append(winner)
+        # Find the current set of winners.
+        winners=[a[1] for a in current]
         rv.append(current)
         pos += size
-        indent += 4
 
     return rv
 
