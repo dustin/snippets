@@ -78,7 +78,6 @@ def combine_teams(teams):
     # Convert to a list so we can do subsequences
     tl=sorted(list(teams))
     pairs=zip(tl[:len(tl)/2], tl[len(tl)/2:])
-    assert len(pairs) == 1 or len(pairs[0]) == len(pairs[1])
     return tuple(pairs)
 
 def encode_winnings(winnings):
@@ -94,6 +93,9 @@ def encode_winnings(winnings):
     for series in winnings:
         for w in series:
             rv = (rv << 1) | (idx(w[0], w[1]))
+    # This is the result of 63 games across 64 teams and the results are read
+    # left to right in the bit array.  The shift on return pads left justifies
+    # the bitmask.
     return rv << 1
 
 def decode_wins(teams, wins):
