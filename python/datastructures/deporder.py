@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: A3010F49-F919-4169-8D17-8CED7CD275E2
 """
     Order a list of nodes by dependency.
 

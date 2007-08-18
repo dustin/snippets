@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: C57998D6-32B3-11D9-93E7-000393CFE6B8
 
 import random
 import unittest

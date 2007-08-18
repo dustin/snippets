@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 0FC88FCC-E29E-4995-B026-32D806F0538F
 
 import sets
 import unittest

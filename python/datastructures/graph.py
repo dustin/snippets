@@ -4,7 +4,6 @@ Find the shortest path between two nodes.
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 8F22471D-322B-11D9-AF2D-00039359E8C6
 
 import weakref
 
