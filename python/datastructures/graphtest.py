@@ -57,9 +57,9 @@ class ShortestPathTestCase(unittest.TestCase):
             self.failIf(nextHop is None,
                 msg="Expected a link from " + `a` + " to " + `b`
                     + " via " + `expected`)
-            self.failUnless(nextHop.getTo() is expected,
+            self.failUnless(nextHop.to is expected,
                 "Expected link from " + `a` + " to " + `b` + " via "
-                    + `expected` + ", but got " + `nextHop.getTo()`)
+                    + `expected` + ", but got " + `nextHop.to`)
             self.assertEquals(cost, nextHop.cost,
                 "Incorrect cost for " + `a` + " -> " + `b`
                 + "(" + `cost` + " != " + `nextHop.cost` + ")")

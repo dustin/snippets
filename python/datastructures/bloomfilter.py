@@ -13,7 +13,7 @@ import random
 import struct
 
 class BitArray(object):
-    """A bit field"""
+    """A bit field."""
 
     # Had to make this 31 due to the stupid signed in problem.
     STORAGE_SIZE=31
@@ -24,17 +24,23 @@ class BitArray(object):
         for i in range(int(math.ceil(float(size)/float(self.STORAGE_SIZE)))):
             self.storage.append(0)
 
-    def isSet(self, which):
+    def __contains__(self, k):
+        return self[k]
+
+    def __getitem__(self, which):
         """Return True if a given bit is set."""
         return ((self.storage[which/self.STORAGE_SIZE] & \
             (1 << (which % self.STORAGE_SIZE))) != 0)
 
-    def set(self, which):
-        """Set a bit"""
-        self.storage[which/self.STORAGE_SIZE] |= \
-            (1 << (which % self.STORAGE_SIZE))
+    def __setitem__(self, which, val):
+        """Set or clear a bit"""
+        if val:
+            self.storage[which/self.STORAGE_SIZE] |= \
+                (1 << (which % self.STORAGE_SIZE))
+        else:
+            del self[which]
 
-    def clear(self, which):
+    def __delitem__(self, which):
         """Clear a bit"""
         self.storage[which/self.STORAGE_SIZE] &= \
             (~ (1 << (which % self.STORAGE_SIZE)))
@@ -99,14 +105,14 @@ class BloomFilter(object):
     def contains(self, el):
         """True if this bloom filter probably contains the given value."""
         return reduce(lambda i, v: i and v,
-            [self.array.isSet(x) for x in self.__getHashedVals(el)], True)
+            [x in self.array for x in self.__getHashedVals(el)], True)
 
     __contains__ = contains
 
     def add(self, el):
         """Add the given value to the bloom filter."""
         for h in self.__getHashedVals(el):
-            self.array.set(h)
+            self.array[h] = True
 
 if __name__ == '__main__':
     unittest.main()

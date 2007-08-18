@@ -6,18 +6,20 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
 
 import weakref
+import exceptions
 
-class Vertex:
+class Vertex(object):
     """A vertex (edge) between two nodes."""
 
     DEFAULT_COST=10
 
     def __init__(self, to, cost=DEFAULT_COST):
-        self.to=weakref.ref(to)
+        self._to=weakref.ref(to)
         self.cost=cost
 
-    def getTo(self):
-        return self.to()
+    @property
+    def to(self):
+        return self._to()
 
     def __repr__(self):
         return "<Vertex cost=" + `self.cost` + ", to=" + `self.to` + ">"
@@ -32,7 +34,7 @@ class Vertex:
             rv=cmp(self.to, other.to)
         return rv
 
-class Node:
+class Node(object):
     """A node with connections."""
     def __init__(self):
         self.nextHops={}
@@ -53,7 +55,7 @@ class Node:
            given cost."""
         self.connections.append(Vertex(n, cost))
 
-class NoPathException:
+class NoPathException(exceptions.Exception):
     """Exception thrown when attempting to find the shortest path between two
        nodes when there is no matching path."""
 
@@ -81,14 +83,14 @@ def __recordLink(node, cost, nextHop, other, s):
 
         for vertex in other.connections:
             nextCost = cost + vertex.cost
-            thisNode=vertex.getTo()
+            thisNode=vertex.to
             __recordLink(node, nextCost, nextHop, thisNode, s)
 
 def __calculatePathForNode(node):
     """Calculate the paths for the given node."""
     node.nextHops={}
     for v in node.connections:
-        __recordLink(node, v.cost, v.getTo(), v.getTo(), {})
+        __recordLink(node, v.cost, v.to, v.to, {})
 
 def calculatePaths(nodes):
     """Calculate all the paths for the given collection of nodes."""
@@ -102,12 +104,12 @@ def getShortestPath(nodeFrom, nodeTo):
     if v is None:
         raise NoPathException(nodeFrom, nodeTo)
 
-    current = v.getTo()
+    current = v.to
     while current is not nodeTo:
         rv.append(current)
 
         v=current.getNextHop(nodeTo)
-        current = v.getTo()
+        current = v.to
 
     rv.append(current)
 

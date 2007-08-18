@@ -16,18 +16,20 @@ class BitArrayTest(unittest.TestCase):
 
     def testPotentiallyNegative(self):
         """Test a number that works out to be negative."""
-        assert not self.bf.isSet(31)
-        self.bf.set(31)
-        assert self.bf.isSet(31)
+        assert not 31 in self.bf
+        assert not self.bf[31]
+        self.bf[31] = True
+        assert 31 in self.bf
+        assert self.bf[31]
 
     def testARange(self):
         """Test all of the bit operations from 0 to 128"""
         for i in range(128):
-            assert not self.bf.isSet(i)
-            self.bf.set(i)
-            assert self.bf.isSet(i)
-            self.bf.clear(i)
-            assert not self.bf.isSet(i)
+            assert not i in self.bf
+            self.bf[i] = True
+            assert i in self.bf
+            del self.bf[i]
+            assert not i in self.bf
 
 class BloomFilterTest(unittest.TestCase):
     """Bloom filter operation tests"""
