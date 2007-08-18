@@ -7,11 +7,11 @@ Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 
 import random
 import unittest
-import shortestpath
+import graph
 
-class StringNode(shortestpath.Node):
+class StringNode(graph.Node):
     def __init__(self, s):
-        shortestpath.Node.__init__(self)
+        graph.Node.__init__(self)
         self.s=s
 
     def __repr__(self):
@@ -47,7 +47,7 @@ class ShortestPathTestCase(unittest.TestCase):
         self.f.linkTo(self.g, 10)
         self.f.linkTo(self.b, 200)
 
-        shortestpath.calculatePaths(self.nodes.values())
+        graph.calculatePaths(self.nodes.values())
 
     def assertLinkMatch(self, a, b, expected, cost):
         nextHop=a.getNextHop(b)
@@ -124,13 +124,13 @@ class ShortestPathTestCase(unittest.TestCase):
         self.assertLinkMatch(self.g, self.g, None, 0)
 
     def testShortestPath(self):
-        gp=shortestpath.getShortestPath
+        gp=graph.getShortestPath
         sp=gp(self.a, self.b)
         self.assertEquals(1, len(sp), "Shortest path from A -> B")
         try:
             sp=gp(self.a, self.a)
             self.fail("Expected to not find a path from A -> A, found " + `sp`)
-        except shortestpath.NoPathException:
+        except graph.NoPathException:
             pass
         sp=gp(self.a, self.c)
         self.assertEquals(1, len(sp), "ShortestPath from A -> C:  " + `sp`)
@@ -158,7 +158,7 @@ class ShortestPathTestCase(unittest.TestCase):
             for j in r.sample(range(100), 50):
                 node.linkTo(nodes[j])
 
-        shortestpath.calculatePaths(nodes)
+        graph.calculatePaths(nodes)
 
 if __name__ == '__main__':
     unittest.main()
