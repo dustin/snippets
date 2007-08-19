@@ -20,13 +20,12 @@ class Node(object):
     def balance_factor(self):
         l=r=0
         def rec(node):
-            rv = 1
             lh=rh=0
             if node.left:
                 lh=rec(node.left)
             if node.right:
                 rh=rec(node.right)
-            return rv + max(lh, rh)
+            return 1 + max(lh, rh)
 
         if self.left:
             l=rec(self.left)
