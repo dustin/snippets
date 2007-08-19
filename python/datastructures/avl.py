@@ -44,6 +44,9 @@ class Node(object):
             return rv
         return rec(self)
 
+    def __nonzero__(self):
+        return True
+
     def __str__(self):
         return "<Node val=%s balance=%d>" \
             % (str(self.value), self.balance_factor)
@@ -168,7 +171,7 @@ class AVLTree(object):
 
 if __name__ == '__main__':
     t=AVLTree()
-    for i in range(1025):
+    for i in range(128):
         t.add(i)
         sys.stderr.write("**** writing out %d\n" % i)
         f=open("/tmp/test-%02d.dot" % i, "w")
