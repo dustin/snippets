@@ -129,6 +129,20 @@ class AVLTree(object):
 
     __reversed__ = postorder
 
+    def __contains__(self, v):
+        def rec(node):
+            rv=False
+            if node:
+                if node.value == v:
+                    rv=True
+                elif v > node.value:
+                    rv=rec(node.right)
+                else:
+                    rv=rec(node.left)
+            return rv
+
+        return rec(self.root)
+
     def __checkRotation(self, node):
         rv=node
         if node.balance_factor > 1:

@@ -74,5 +74,12 @@ class AVLTreeTest(unittest.TestCase):
 
         self.assertEquals(3, n.compute_height())
 
+    def testContains(self):
+        """Test contains."""
+        for i in range(10):
+            self.assertTrue(i in self.t)
+        self.assertFalse(-1 in self.t)
+        self.assertFalse(10 in self.t)
+
 if __name__ == '__main__':
     unittest.main()
