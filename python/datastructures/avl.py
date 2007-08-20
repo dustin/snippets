@@ -34,14 +34,12 @@ class Node(object):
         return r-l
 
     def __len__(self):
-        def rec(node):
-            rv=1
-            if node.left:
-                rv += rec(node.left)
-            if node.right:
-                rv += rec(node.right)
-            return rv
-        return rec(self)
+        l=r=0
+        if self.left:
+            l=len(self.left)
+        if self.right:
+            r=len(self.right)
+        return l + r + 1
 
     def __nonzero__(self):
         return True
