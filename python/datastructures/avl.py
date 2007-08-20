@@ -71,6 +71,16 @@ class AVLTree(object):
             self.root=Node(value)
             rv=True
 
+    def __iter__(self):
+        def rec(node):
+            if node:
+                for n in rec(node.left):
+                    yield n
+                yield node.value
+                for n in rec(node.right):
+                    yield n
+        return rec(self.root)
+
     def _check_balance(self, node):
         if node:
             assert abs(node.balance_factor) < 2
