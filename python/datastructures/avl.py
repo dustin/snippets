@@ -56,8 +56,10 @@ class AVLTree(object):
     _LEFT=-1
     _RIGHT=1
 
-    def __init__(self):
+    def __init__(self, vals=[]):
         self.root=None
+        for v in vals:
+            self.add(v)
 
     def add(self, value):
         """Add a value to the node.
@@ -71,7 +73,8 @@ class AVLTree(object):
             self.root=Node(value)
             rv=True
 
-    def __iter__(self):
+    def inorder(self):
+        """Visit every node in the tree in order (default iterator)."""
         def rec(node):
             if node:
                 for n in rec(node.left):
@@ -81,11 +84,31 @@ class AVLTree(object):
                     yield n
         return rec(self.root)
 
-    def _check_balance(self, node):
-        if node:
-            assert abs(node.balance_factor) < 2
-            self._check_balance(node.left)
-            self._check_balance(node.right)
+    def postorder(self):
+        """Visit every node in the tree in reverse order (reversed iterator)."""
+        def rec(node):
+            if node:
+                for n in rec(node.right):
+                    yield n
+                yield node.value
+                for n in rec(node.left):
+                    yield n
+        return rec(self.root)
+
+    def preorder(self):
+        """Visit every node in the tree in tree  order."""
+        def rec(node):
+            if node:
+                yield node.value
+                for n in rec(node.left):
+                    yield n
+                for n in rec(node.right):
+                    yield n
+        return rec(self.root)
+
+    __iter__ = inorder
+
+    __reversed__ = postorder
 
     def __add_at_node(self, node, value):
         offset=0
@@ -132,6 +155,7 @@ class AVLTree(object):
         return rv
 
     def __rotate(self, node, direction):
+        assert direction == self._LEFT or direction == self._RIGHT
         if direction == self._LEFT:
             a, b, c = node, node.right, node.right.right
             a.right = b.left
@@ -140,8 +164,6 @@ class AVLTree(object):
             c, b, a = node, node.left, node.left.left
             c.left=b.right
             b.right=c
-        else:
-            assert False, "Rotating neither left nor right?"
         return b
 
     def __len__(self):
@@ -175,8 +197,6 @@ if __name__ == '__main__':
     t=AVLTree()
     for i in range(128):
         t.add(i)
-    t._check_balance(t.root)
-
 
     sys.stderr.write("root=%s\n" % str(t.root))
 
