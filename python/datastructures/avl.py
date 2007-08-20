@@ -53,6 +53,9 @@ class Node(object):
 class AVLTree(object):
     """An AVL tree."""
 
+    _LEFT=-1
+    _RIGHT=1
+
     def __init__(self):
         self.root=None
 
@@ -68,13 +71,11 @@ class AVLTree(object):
             self.root=Node(value)
             rv=True
 
-        # self.__check_balance(self.root)
-
-    def __check_balance(self, node):
+    def _check_balance(self, node):
         if node:
             assert abs(node.balance_factor) < 2
-            self.__check_balance(node.left)
-            self.__check_balance(node.right)
+            self._check_balance(node.left)
+            self._check_balance(node.right)
 
     def __add_at_node(self, node, value):
         offset=0
@@ -103,43 +104,35 @@ class AVLTree(object):
     def __checkRotation(self, node):
         rv=node
         if node.balance_factor > 1:
-            sys.stderr.write("%s is right heavy\n" % str(node))
             if node.right and node.right.balance_factor < 0:
                 # Rotate double left
-                node.right = self.__rotate_right(node.right)
-                rv = self.__rotate_left(node)
+                node.right = self.__rotate(node.right, self._RIGHT)
+                rv = self.__rotate(node, self._LEFT)
             else:
                 # single left
-                rv=self.__rotate_left(node)
+                rv=self.__rotate(node, self._LEFT)
         elif node.balance_factor < -1:
-            sys.stderr.write("%s is left heavy\n" % str(node))
             if node.left and node.left.balance_factor > 0:
                 # double right
-                node.left = self.__rotate_left(node.left)
-                rv = self.__rotate_right(node)
+                node.left = self.__rotate(node.left, self._LEFT)
+                rv = self.__rotate(node, self._RIGHT)
             else:
                 # single right
-                rv=self.__rotate_right(node)
+                rv=self.__rotate(node, self._RIGHT)
         return rv
 
-    def __rotate_left(self, node):
-        sys.stderr.write("  rotating left at %s\n" % str(node))
-        a, b, c = node, node.right, node.right.right
-        rv=b
-        a.right = b.left
-        b.left=a
-        sys.stderr.write("  L [%s %s %s]\n     -> [%s %s %s]\n"
-            % tuple([str(x) for x in (a, b, c, rv, rv.left, rv.right)]))
-        return rv
-
-    def __rotate_right(self, node):
-        c, b, a = node, node.left, node.left.left
-        rv=b
-        c.left=b.right
-        b.right=c
-        sys.stderr.write("  R [%s %s %s]\n     -> [%s %s %s]\n"
-            % tuple([str(x) for x in (c, b, a, rv, rv.left, rv.right)]))
-        return rv
+    def __rotate(self, node, direction):
+        if direction == self._LEFT:
+            a, b, c = node, node.right, node.right.right
+            a.right = b.left
+            b.left=a
+        elif direction == self._RIGHT:
+            c, b, a = node, node.left, node.left.left
+            c.left=b.right
+            b.right=c
+        else:
+            assert False, "Rotating neither left nor right?"
+        return b
 
     def __len__(self):
         rv=0
@@ -172,11 +165,8 @@ if __name__ == '__main__':
     t=AVLTree()
     for i in range(128):
         t.add(i)
-        sys.stderr.write("**** writing out %d\n" % i)
-        f=open("/tmp/test-%02d.dot" % i, "w")
-        t.to_dot(f)
-        f.close()
-        assert abs(t.root.balance_factor) < 2
+    t._check_balance(t.root)
+
 
     sys.stderr.write("root=%s\n" % str(t.root))
 
