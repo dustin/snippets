@@ -71,6 +71,30 @@ class AVLTree(object):
             self.root=Node(value)
             rv=True
 
+    def __add_at_node(self, node, value):
+        offset=0
+        # Add a node recursively
+        if value == node.value:
+            # Already there
+            pass
+        else:
+            if value < node.value:
+                offset=-1
+                if node.left:
+                    self.__add_at_node(node.left, value)
+                else:
+                    node.left=Node(value)
+            else:
+                offset=1
+                if node.right:
+                    self.__add_at_node(node.right, value)
+                else:
+                    node.right=Node(value)
+        if node.left:
+            node.left=self.__checkRotation(node.left)
+        if node.right:
+            node.right=self.__checkRotation(node.right)
+
     def inorder(self):
         """Visit every node in the tree in order (default iterator)."""
         def rec(node):
@@ -107,30 +131,6 @@ class AVLTree(object):
     __iter__ = inorder
 
     __reversed__ = postorder
-
-    def __add_at_node(self, node, value):
-        offset=0
-        # Add a node recursively
-        if value == node.value:
-            # Already there
-            pass
-        else:
-            if value < node.value:
-                offset=-1
-                if node.left:
-                    self.__add_at_node(node.left, value)
-                else:
-                    node.left=Node(value)
-            else:
-                offset=1
-                if node.right:
-                    self.__add_at_node(node.right, value)
-                else:
-                    node.right=Node(value)
-        if node.left:
-            node.left=self.__checkRotation(node.left)
-        if node.right:
-            node.right=self.__checkRotation(node.right)
 
     def __checkRotation(self, node):
         rv=node
