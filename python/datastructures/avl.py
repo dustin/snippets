@@ -19,19 +19,19 @@ class Node(object):
     @property
     def balance_factor(self):
         l=r=0
-        def rec(node):
-            lh=rh=0
-            if node.left:
-                lh=rec(node.left)
-            if node.right:
-                rh=rec(node.right)
-            return 1 + max(lh, rh)
-
         if self.left:
-            l=rec(self.left)
+            l=self.left.compute_height()
         if self.right:
-            r=rec(self.right)
+            r=self.right.compute_height()
         return r-l
+
+    def compute_height(self):
+        l=r=0
+        if self.left:
+            l=self.left.compute_height()
+        if self.right:
+            r=self.right.compute_height()
+        return 1 + max(l, r)
 
     def __len__(self):
         l=r=0

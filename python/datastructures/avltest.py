@@ -44,5 +44,35 @@ class AVLTreeTest(unittest.TestCase):
         self.assertEquals([3, 1, 0, 2, 7, 5, 4, 6, 8, 9],
             list(self.t.preorder()))
 
+    def testNodeHeight(self):
+        """Test node height calculation - balanced."""
+        self.assertEquals(4, self.t.root.compute_height())
+
+        n=avl.Node(3)
+        n.left=avl.Node(2)
+        n.right=avl.Node(4)
+        n.left.left=avl.Node(1)
+        n.right.right=avl.Node(5)
+
+        self.assertEquals(3, n.compute_height())
+
+    def testNodeHeightLeftHeavy(self):
+        """Test node height calculation - left heavy."""
+        n=avl.Node(3)
+        n.left=avl.Node(2)
+        n.right=avl.Node(4)
+        n.left.left=avl.Node(1)
+
+        self.assertEquals(3, n.compute_height())
+
+    def testNodeHeightRightHeavy(self):
+        """Test node height calculation - right heavy."""
+        n=avl.Node(3)
+        n.right=avl.Node(4)
+        n.left=avl.Node(1)
+        n.right.right=avl.Node(5)
+
+        self.assertEquals(3, n.compute_height())
+
 if __name__ == '__main__':
     unittest.main()
