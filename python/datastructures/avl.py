@@ -92,33 +92,33 @@ class AVLTree(object):
         if node.right:
             node.right=self.__checkRotation(node.right)
 
-    def inorder(self):
+    def inorder(self, f=lambda x: x.value):
         """Visit every node in the tree in order (default iterator)."""
         def rec(node):
             if node:
                 for n in rec(node.left):
                     yield n
-                yield node.value
+                yield f(node)
                 for n in rec(node.right):
                     yield n
         return rec(self.root)
 
-    def postorder(self):
+    def postorder(self, f=lambda x: x.value):
         """Visit every node in the tree in reverse order (reversed iterator)."""
         def rec(node):
             if node:
                 for n in rec(node.right):
                     yield n
-                yield node.value
+                yield f(node)
                 for n in rec(node.left):
                     yield n
         return rec(self.root)
 
-    def preorder(self):
+    def preorder(self, f=lambda x: x.value):
         """Visit every node in the tree in tree  order."""
         def rec(node):
             if node:
-                yield node.value
+                yield f(node)
                 for n in rec(node.left):
                     yield n
                 for n in rec(node.right):
@@ -186,19 +186,14 @@ class AVLTree(object):
 
         f.write("digraph avl {\n")
 
-        def printNodeCons(node):
-            if node:
-                f.write("\t// %s\n" % str(node))
-                if node.left:
-                    f.write('\t%s -> %s [label = "l"];\n'
-                        % (node.value, node.left.value))
-                    printNodeCons(node.left)
-                if node.right:
-                    f.write('\t%s -> %s [label = "r"];\n'
-                        % (node.value, node.right.value))
-                    printNodeCons(node.right)
-
-        printNodeCons(self.root)
+        for node in self.preorder(lambda n: n):
+            f.write("\t// %s\n" % str(node))
+            if node.left:
+                f.write('\t%s -> %s [label = "l"];\n'
+                    % (node.value, node.left.value))
+            if node.right:
+                f.write('\t%s -> %s [label = "r"];\n'
+                    % (node.value, node.right.value))
 
         f.write("}\n")
 
