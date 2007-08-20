@@ -72,20 +72,17 @@ class AVLTree(object):
             rv=True
 
     def __add_at_node(self, node, value):
-        offset=0
         # Add a node recursively
         if value == node.value:
             # Already there
             pass
         else:
             if value < node.value:
-                offset=-1
                 if node.left:
                     self.__add_at_node(node.left, value)
                 else:
                     node.left=Node(value)
             else:
-                offset=1
                 if node.right:
                     self.__add_at_node(node.right, value)
                 else:
