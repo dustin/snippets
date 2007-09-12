@@ -24,7 +24,7 @@ TMPDIR='/tmp/combiner'
 def getList(url=HGLIST, pattern=HGPATTERN):
     f=urllib.urlopen(url)
     try:
-        return [pattern % i.strip() for i in f]
+        return [pattern % i.strip() for i in f if not i.startswith("private/")]
     finally:
         f.close()
 
