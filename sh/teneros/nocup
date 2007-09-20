@@ -1,0 +1,54 @@
+#!/bin/sh
+
+fn=/tmp/nocup.$$
+bundle=/tmp/nocup.bundle.$$
+
+die() {
+	echo "$@"
+	if [ -f $fn ]
+	then
+		cat $fn
+		rm -f $fn
+	fi
+	exit 1
+}
+
+statusindent() {
+	sed 's/^/    /'
+}
+
+runCmd() {
+	echo "--- $1"
+	shift
+	"$@" > /tmp/nocup.$$ 2>&1 || die "Error in $1"
+	cat /tmp/nocup.$$ | statusindent
+	rm -f $fn
+}
+
+cd $HOME/teneros/noc/dev
+runCmd "Listing upcoming changes" hg incoming --bundle $bundle
+
+needsQueueManagement=0
+
+hg qtop > /dev/null
+if [ $? -eq 0 ]
+then
+	needsQueueManagement=1
+fi
+
+if [ $needsQueueManagement -eq 1 ]
+then
+	echo ""
+	runCmd "Popping all patches" hg qpop -a
+fi
+
+echo ""
+runCmd "Pulling new changes" hg pull -u $bundle
+
+rm -f $bundle
+
+if [ $needsQueueManagement -eq 1 ]
+then
+	echo ""
+	runCmd "Re-pushing changes" hg qpush -a
+fi
