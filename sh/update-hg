@@ -5,7 +5,7 @@ export PATH
 
 hgdir=$PWD
 
-everything=`wget -q -O - http://rubik.west.spy.net/~dustin/hglist.txt`
+everything=`wget -q -O - http://hg.west.spy.net/~dustin/hglist.txt`
 
 for s in $everything
 do
@@ -19,7 +19,7 @@ do
 			echo "Creating $d"
 			mkdir -p $d
 		fi
-		hg clone -U http://rubik.west.spy.net/hg/$s $s
+		hg clone -U http://hg.west.spy.net/hg/$s $s
 	fi
 done
 
@@ -28,6 +28,5 @@ do
 	d=`dirname $f`
 	echo "Doing $d"
 	cd $d
-	hg incoming
-	hg pull
+	hg incoming --bundle /tmp/$$.hg && hg pull /tmp/$$.hg && rm -f /tmp/$$.hg
 done
