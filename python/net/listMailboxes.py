@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: 7D9D50F4-A5D3-4A9B-B2A9-62B1903489A0
 
 import imaplib
 import md5

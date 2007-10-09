@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: C464DAC8-491E-4719-B1AD-E78227CF9115
 
 import sys
 import csv

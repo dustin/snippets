@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 965553-138-4071-80-1766087
  *)
 
 let nameMapping =

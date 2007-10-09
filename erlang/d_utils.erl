@@ -1,7 +1,3 @@
-%%
-%% arch-tag: 8026944F-931F-11D8-9FE9-000393CFE6B8
-%%
-
 -module(d_utils).
 -export([ps/1, ps/0, show_process/1]).
 

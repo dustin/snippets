@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 2376C49D-2C20-11D8-B09D-000393CFE6B8
  *)
 
 (** Netstring implementation.

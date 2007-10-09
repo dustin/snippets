@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: D28A85E0-156E-11D8-A844-000393CFE6B8
  *)
 
 exception SubprocessError of string

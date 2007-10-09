@@ -1,6 +1,4 @@
 #!/usr/bin/env python2
-#
-# arch-tag: 7DF64EEC-BFDC-11D8-9CAF-000393CFE6B8
 
 import re
 import md5

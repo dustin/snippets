@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: DB690F81-4491-44D0-A3D1-8EB8CB127E62
 """Extract all of the sources containing the given set of
 serial numbers.
 

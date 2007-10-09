@@ -2,9 +2,6 @@
 %% getty.erl
 %%
 %% Author: Sebastian Strollo <seb@erix.ericsson.se>
-%%
-%% arch-tag: F617E498-9047-11D8-90FD-000A957659CC
-%%
 -module(getty).
 
 -export([start/0, start/1, start/2]).

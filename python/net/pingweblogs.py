@@ -3,7 +3,6 @@
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: DA2D06A8-BC30-4694-91DA-B93C39E8EE3C
 
 import traceback
 import xmlrpclib

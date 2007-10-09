@@ -4,7 +4,6 @@ Data storage classes for collectors.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: storage.py,v 1.3 2002/05/01 20:33:45 dustin Exp $
-arch-tag: A5E9D526-DAF1-44E5-8FBA-70F3E714F800
 """
 
 # Time

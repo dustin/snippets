@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 18FC57FE-9982-4A13-883E-FC5C15C11523
  *)
 
 type test =

@@ -1,5 +1,4 @@
 #!/usr/bin/env jython
-# arch-tag: EDB0BED9-A6D4-11D9-B143-000393CFE6B8
 
 import time
 import java

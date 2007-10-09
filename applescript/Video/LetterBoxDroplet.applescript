@@ -1,4 +1,3 @@
--- arch-tag: CB32C214-4737-11D8-AA8B-000A957659CC
 property image4x3 : alias "dustinti:Users:dustin:Documents:4x3.png"
 property property_list : {image4x3}
 

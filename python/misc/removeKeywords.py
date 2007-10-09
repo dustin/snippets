@@ -3,7 +3,6 @@
 Remove RCS keywords from files.
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
-arch-tag: D7C803A6-1957-11D9-8437-000393CFE6B8
 """
 
 import sys

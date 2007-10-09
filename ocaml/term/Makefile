@@ -1,4 +1,3 @@
-# arch-tag: 5CA84C7A-0F5E-11D8-9BC5-000393CFE6B8
 MKLIB=ocamlmklib
 OCAMLOPT=ocamlopt
 OCAMLC=ocamlc

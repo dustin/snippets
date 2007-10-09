@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 653777-35-4115-9419-5333
  *)
 
 (* Column type *)

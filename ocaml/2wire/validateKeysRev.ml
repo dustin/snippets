@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: C9054487-FC06-42A0-B8DE-1B677B82C510
  *)
 
 open Mfgcdb

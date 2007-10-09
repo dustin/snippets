@@ -1,7 +1,3 @@
-%%
-%% arch-tag: BB8FE92A-9817-11D8-AD77-000A957659CC
-%%
-
 -module(mrecv).
 -export([start/0, start_linked/0, start_forsup/0, getdict/0, getval/1]).
 -export([init/0]).

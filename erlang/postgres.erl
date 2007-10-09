@@ -1,8 +1,4 @@
 %%
-%% arch-tag: 9081D292-9A71-11D8-B144-000A957659CC
-%%
-
-%%
 %% Postgres client
 %%
 

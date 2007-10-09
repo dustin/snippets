@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: d264779f-6b46-41f5-9c5e-b7d1c82194a5
  *)
 
 (* for every line of stdin, index by the first element (serial number) *)

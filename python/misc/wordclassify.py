@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: D703AEB0-588C-428B-84DD-C973FCD5560D
 
 import sets
 

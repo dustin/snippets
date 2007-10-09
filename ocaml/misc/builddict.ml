@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 3FE02BAF-343C-11D8-B914-000393CB0F1E
  *)
 
 (* Build a dictionary cdb from a word list.  Keys will be the words

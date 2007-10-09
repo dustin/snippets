@@ -31,7 +31,3 @@ val walk_dir_via :
 
 val dir_iter : string -> (string -> string list -> 'a -> unit) -> 'a -> unit
 val walk_dir : string -> (string -> string list -> 'a -> unit) -> 'a -> unit
-
-(*
- * arch-tag: 55F6A340-2B50-11D8-B865-000393CFE6B8
- *)

@@ -23,7 +23,6 @@ Response :29:50.519 (+1.431) (@+2.923)
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 93C76BA1-96E6-43C7-8237-E38FEA38856D
 
 import sys
 import time

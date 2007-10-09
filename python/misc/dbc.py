@@ -4,7 +4,6 @@ A simple Design by Contract system for python using decorators.
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 1EF1DAA0-001A-4841-B21E-1B15E29E59AF
 
 import exceptions
 

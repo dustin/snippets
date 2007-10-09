@@ -1,4 +1,3 @@
-
 (** CDB Implementation.
  {{:http://cr.yp.to/cdb/cdb.txt} http://cr.yp.to/cdb/cdb.txt}
  *)
@@ -34,7 +33,3 @@ val close_cdb_in : cdb_file -> unit
 
 val get_matches : cdb_file -> string -> string Stream.t
 val find : cdb_file -> string -> string
-
-(*
- * arch-tag: 55F4CBF0-2B50-11D8-BEDC-000393CFE6B8
- *)

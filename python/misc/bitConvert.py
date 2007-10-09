@@ -4,7 +4,6 @@ Convert hex encoded sha 1 hashes for torrents to Azureus magnet URLs.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: E8911DE2-EADE-4B75-AE2A-3825422CB7C0
 
 import sys
 import sha

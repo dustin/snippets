@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 794EA259-97E8-4B59-9F93-601A98F16F53
  *)
 
 (** This is a simple unit test framework based somewhat on oUnit. *)

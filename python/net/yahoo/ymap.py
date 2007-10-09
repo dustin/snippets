@@ -4,7 +4,6 @@ Yahoo maps interface.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 593463EA-F71B-4B3D-85E6-C6A4A587D307
 
 import sys
 import urllib

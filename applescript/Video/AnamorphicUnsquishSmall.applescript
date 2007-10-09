@@ -1,4 +1,3 @@
--- arch-tag: C64956E2-4737-11D8-95EF-000A957659CC
 -- This droplet processes files dropped onto the applet
 on open these_items
 	repeat with i from 1 to the count of these_items

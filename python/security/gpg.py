@@ -4,7 +4,6 @@ My GPG module.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 52E1C7DC-0810-4EB6-B254-6368D46068C0
 
 import os
 import stat

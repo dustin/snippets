@@ -1,8 +1,6 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
  *
- * arch-tag: 3F48C8FC-2775-11D8-A202-000393CFE6B8
- *
  * Pivot a spreadsheet around a value.
  *
  * For this exercise, the first column is the uniqueness, the second is the

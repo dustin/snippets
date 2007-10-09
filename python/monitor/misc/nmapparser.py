@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #
 # $Id: nmapparser.py,v 1.1 2002/03/20 08:15:24 dustin Exp $
-# arch-tag: 5D4A22FC-C946-458F-B5E3-D5C1FC194975
 
 from sys import argv
 

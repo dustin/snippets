@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 441FF6C1-A374-11D8-ABA9-000393CFE6B8
  *)
 
 module StringSet = Set.Make(String)

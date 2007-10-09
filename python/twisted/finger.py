@@ -4,7 +4,6 @@ Twisted finger server example.
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: CCCFB6FE-51FD-11D9-95D5-000A957659CC
 
 from twisted.internet import protocol, reactor, defer, utils
 from twisted.protocols import basic

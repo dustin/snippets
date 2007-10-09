@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 77D66570-2C78-11D8-BCEB-000393CB0F1E
  *)
 
 (** Extra stream utilities. *)

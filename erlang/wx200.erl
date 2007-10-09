@@ -1,7 +1,3 @@
-%%
-%% arch-tag: E2F5BB8F-A557-11D8-B164-000A957659CC
-%%
-
 -module(wx200).
 
 % API

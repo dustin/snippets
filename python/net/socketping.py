@@ -4,7 +4,6 @@ Test for any one of a bunch of sockets to work.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 6E8F62BD-EA65-4235-A316-1C5C73F865BE
 
 import os
 import sys

@@ -2,7 +2,6 @@
 #
 # Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 # $Id: snmplib.py,v 1.2 2002/03/28 20:56:20 dustin Exp $
-# arch-tag: CACF32D0-228A-4CB7-985F-68C6122E1F95
 
 from __future__ import generators
 import sys

@@ -5,7 +5,6 @@ CMS application servers.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: A38BDEF9-4981-4E1C-B194-47E5D895AC05
 
 import os
 import sys

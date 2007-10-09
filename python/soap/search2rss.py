@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
-# arch-tag: E34FBB2B-44F4-4E91-AA7F-57CC763139CB
 """
 
 import os

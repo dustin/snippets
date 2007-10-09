@@ -1,5 +1,0 @@
-# arch-tag: 4701497D-97A3-4CBB-9AE4-A7B5FC931214
-
-precious ^(tags|target|velocity.log)$
-
-source ^(.classpath|.project)$

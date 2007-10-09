@@ -4,7 +4,6 @@ Roll gateway_log tables and views and all that.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 081E7F9F-D5EE-4738-8AE3-630F81852873
 
 import sys
 import time

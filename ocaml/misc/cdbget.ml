@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: DBE4BA87-A5E1-11D8-A0DF-000393CFE6B8
  *)
 
 let usage () =

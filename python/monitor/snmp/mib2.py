@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: 0000DB3D-F505-455D-B1AC-274827C19F66
 
 class OidResolve:
 	"""A simple OID map."""

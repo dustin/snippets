@@ -4,7 +4,6 @@ A pipe interface to rrdtool.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: rrdpipe.py,v 1.5 2002/03/28 23:12:17 dustin Exp $
-arch-tag: C2333B6A-CD17-47DA-8ABF-0D0A74EE98AA
 """
 
 import os

@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 1E3B7401-2AE1-11D8-A379-000393CB0F1E
  *)
 
 (** CDB Implementation.

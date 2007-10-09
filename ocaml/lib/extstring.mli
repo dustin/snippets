@@ -17,7 +17,3 @@ val remove_end : char list -> string -> string
 val strip_end : string -> string
 
 val strip : string -> string
-
-(*
- * arch-tag: 55FCB2C6-2B50-11D8-B4D4-000393CFE6B8
- *)

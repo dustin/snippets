@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: 1E010EDC-AF92-44F4-9221-06B53057071D
 """
 Reformat a field-separated-value file by rearranging the
 fields from the given format to the desired format.

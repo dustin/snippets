@@ -1,5 +1,4 @@
 #!/usr/bin/env jython
-# arch-tag: 22000-0221-4654-08-45340486
 #
 # Try to load classes listed on the commandline and report what all peripheral
 # classes got loaded.

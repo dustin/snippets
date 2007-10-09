@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 16771F7A-3781-11D8-88E8-000393CB0F1E
  *)
 
 (** Produce a hardlink copy of a tree. *)

@@ -1,8 +1,6 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
  *
- * arch-tag: 238E5114-E446-11D8-A2D2-00039359E8C6
- *
  * Look for lines in a file that match prefixes given in the limitfile.
  *)
 

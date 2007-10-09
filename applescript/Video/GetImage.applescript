@@ -1,4 +1,3 @@
--- arch-tag: C9B3C0E0-4737-11D8-BB1F-000A957659CC
 tell application "QuickTime Player"
 	
 	activate

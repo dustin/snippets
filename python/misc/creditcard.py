@@ -7,7 +7,6 @@ are, and the discovery rules conflict with Amex and each other.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 16092-0259-11-8-0030187026
 
 import sys
 import string

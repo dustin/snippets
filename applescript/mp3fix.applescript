@@ -1,5 +1,4 @@
 -- the list of file types which will be processed
--- arch-tag: 7F5FC98F-4736-11D8-938B-000A957659CC
 
 -- eg: {"PICT", "JPEG", "TIFF", "GIFf"}
 property type_list : {}

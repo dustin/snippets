@@ -4,7 +4,6 @@ Trivial DHT.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 5FCA73BF-DD93-4E9E-BAF1-992F04CFEB4E
 
 import sys
 import xmlrpclib

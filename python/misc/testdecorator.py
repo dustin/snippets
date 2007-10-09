@@ -4,7 +4,6 @@ Example decorators and usage.
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 8D68FCF6-D5A0-48B5-9105-438B87D4D9D5
 
 import os
 import sys

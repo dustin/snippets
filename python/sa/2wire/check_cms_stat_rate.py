@@ -4,7 +4,6 @@ Check that the value of a particular stat is within an acceptable range.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 8D1FC56D-DEC7-49FA-9525-C9A1FA2B455F
 
 import cmsstat
 import checkstat

@@ -1,7 +1,3 @@
-%%
-%% arch-tag: FF49E62C-9047-11D8-ACD0-000A957659CC
-%%
-
 -module(multiprocess).
 -export([loop/0, echo/0]).
 

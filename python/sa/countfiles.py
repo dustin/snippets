@@ -3,7 +3,6 @@
 
 Copyright (c) 2007  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 2404B2FA-AAAD-4ABC-BF05-48CFD680FC03
 
 import os
 import sys

@@ -1,7 +1,3 @@
-%%
-%% arch-tag: 8DD7AF50-A062-11D8-9B0A-000393CFE6B8
-%%
-
 -module(test_sup).
 -export([start_link/0, init/1]).
 

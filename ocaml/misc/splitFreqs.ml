@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 22E693A8-345E-11D8-B741-000393CB0F1E
  *)
 
 (** Split a word frequency file. *)

@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: C15A67EC-9CC0-11D8-B65C-000A957659CC
  *)
 
 let lookup ht s =

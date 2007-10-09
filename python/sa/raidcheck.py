@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
-arch-tag: 68933-20-119-136-0030187026
 
 Check the raid status on purple.
 """

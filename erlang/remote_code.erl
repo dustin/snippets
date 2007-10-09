@@ -1,6 +1,3 @@
-%%
-%% arch-tag: 0AEAC98A-258B-11D9-8975-000A957659CC
-%%
 %% My attempt at a remote code server...I'm not certain it's any better than
 %% just using code, but I'm kind of hoping for something.
 %%

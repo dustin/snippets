@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 73793D7A-55B9-40F8-9C27-9C5B5510F19F
 
 import re
 import sys

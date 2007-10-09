@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 01D5001A-2173-11D8-907F-00039359E8C6
  *)
 
 exception Validation_failure of string

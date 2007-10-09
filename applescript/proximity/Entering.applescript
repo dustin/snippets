@@ -1,5 +1,3 @@
--- arch-tag: DC77D792-D39C-4DE3-AFA7-4B298CAA3CF2
-
 -- Disable the screen Saver Password
 do shell script "defaults -currentHost write com.apple.screensaver askForPassword -int 0"
 do shell script "~/local.bin/notif"

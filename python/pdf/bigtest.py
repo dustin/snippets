@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 2C52C31B-ACE2-4EFE-8F8E-BF00AD0CE464
 
 import re
 import time

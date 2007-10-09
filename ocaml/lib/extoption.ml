@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 1A5344F4-2C77-11D8-B2DA-000393CB0F1E
  *)
 
 exception Empty_option;;

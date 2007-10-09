@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 11D98AEC-28B7-11D9-A9AE-000A957659CC
 
 import sys
 import math

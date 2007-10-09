@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 6089A459-9C02-11D8-8568-000A957659CC
  *)
 
 (* hex digest of a string *)

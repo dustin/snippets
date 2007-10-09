@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 565F9316-295B-11D8-8F80-000393CB0F1E
  *)
 
 let test_encode (encoded, decoded) =

@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: A20F8936-3AC2-11D9-A224-000A957659CC
 
 import os
 import sys

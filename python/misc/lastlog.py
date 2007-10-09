@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
-arch-tag: 8ADEBE34-0CCA-11D9-94FB-000393CFE6B8
 """
 
 import re

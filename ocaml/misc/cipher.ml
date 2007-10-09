@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 66BD8522-343A-11D8-ABAC-000393CB0F1E
  *)
 
 (* Simple cipher solver.  This should work for puzzles where there is a simple

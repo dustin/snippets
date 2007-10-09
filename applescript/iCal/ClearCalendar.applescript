@@ -1,4 +1,3 @@
--- arch-tag: CC63B0E4-4737-11D8-B42A-000A957659CC
 tell application "iCal" to set cal_names to the title of every calendar whose writable is true
 
 set chosen_calendar to choose from list cal_names with prompt "Select a calendar to clear"

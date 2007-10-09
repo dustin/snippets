@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: DFB2FDBB-8C55-42E1-B5CB-157A9B81335D
 
 import sys
 import BaseHTTPServer

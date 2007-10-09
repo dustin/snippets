@@ -1,4 +1,3 @@
-; arch-tag: 378C1FBE-1DAD-11D9-97FD-000A957659CC
 (load "utils.scm")
 
 (define (vec2-set! v i j to)

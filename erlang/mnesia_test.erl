@@ -1,7 +1,3 @@
-%%
-%% arch-tag: 7696E7D8-93FA-11D8-8A77-000A957659CC
-%%
-
 -module(mnesia_test).
 -export([create/0, create/1, add_thing/2, get_thing/1]).
 

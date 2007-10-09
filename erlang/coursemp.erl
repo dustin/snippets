@@ -1,7 +1,3 @@
-%%
-%% arch-tag: A439761A-9117-11D8-99CD-000A957659CC
-%%
-
 -module(coursemp).
 -export([twoprocess/1, echo/0, nprocess/2]).
 -export([ringProcess/1, nprocessStar/2]).

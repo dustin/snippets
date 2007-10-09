@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 4310B523-2C79-11D8-B89E-000393CB0F1E
  *)
 
 open Cdb

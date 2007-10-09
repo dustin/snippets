@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 632AAFEA-22FA-4104-8F42-36472EB0D38B
  *)
 
 let sc = Extstream.stream_convert Stream.of_string

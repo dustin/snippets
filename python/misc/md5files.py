@@ -3,7 +3,6 @@
 md5 a file into a new md5 file. (i.e. blah.file > blah.file.md5)
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
-arch-tag: F0CDF6D7-D9BB-43A9-966E-636B04347BD3
 """
 
 import sys

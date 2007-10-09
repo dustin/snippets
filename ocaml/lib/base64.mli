@@ -20,7 +20,3 @@ val decode_chunk : char list -> string
 val decode : char Stream.t -> string Stream.t
 val decode_to_string : char Stream.t -> string
 val decode_string : string -> string
-
-(*
- * arch-tag: 55F2EB4A-2B50-11D8-AA6C-000393CFE6B8
- *)

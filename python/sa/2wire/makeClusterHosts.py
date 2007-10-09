@@ -4,7 +4,6 @@ Make a cluster hosts file from a resin URL.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 55C357EF-9308-4D5D-8F9B-38CE97C2BA85
 
 import re
 import sys

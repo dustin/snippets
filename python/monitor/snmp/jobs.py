@@ -4,7 +4,6 @@ Collect SNMP data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: jobs.py,v 1.7 2002/05/07 20:55:33 dustin Exp $
-arch-tag: 31F5701B-BDED-4027-A2B4-3C1F3DFF36E4
 """
 
 # time is important

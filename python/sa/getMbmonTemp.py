@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
-arch-tag: F5D13F18-1A3E-11D9-8DEA-000A957659CC
 
 Check the temperatures on purple.
 """

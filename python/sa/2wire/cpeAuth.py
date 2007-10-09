@@ -4,7 +4,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 038FDD60-71C8-4408-91C8-E0D98C3F48C0
 
 import sys
 import base64

@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: F9C916AF-2519-4B60-82F9-18EDCD4F4EE9
  *)
 
 let test_endswith () =

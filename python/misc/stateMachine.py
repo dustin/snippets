@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 70057323-43E7-11D9-9979-000393CFE6B8
 
 import exceptions
 import unittest

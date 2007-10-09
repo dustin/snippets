@@ -1,5 +1,3 @@
 #!/bin/sh
-#
-# arch-tag: 0141472E-9048-11D8-BDD9-000A957659CC
 
 erl -noshell -s hello hello -s init stop

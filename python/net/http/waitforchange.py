@@ -3,7 +3,6 @@
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 934D2C45-1DDC-461F-B3E0-06C491AF142A
 
 import sys
 import time

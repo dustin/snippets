@@ -1,7 +1,3 @@
-%%
-%% arch-tag: E278E1FA-9115-11D8-BF08-000A957659CC
-%%
-
 -module(tempconv).
 -export([convert/2]).
 

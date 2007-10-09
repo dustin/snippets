@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# arch-tag: F790C1F1-9E89-4CEC-9709-F8A2D661214B
 
 import sched
 import time

@@ -1,4 +1,3 @@
-; arch-tag: 0D1F8723-1DB6-11D9-A167-000A957659CC
 (load "lcs.scm")
 
 (define l1 '(1 0 1 2 3 4 5 98 1 2 3))

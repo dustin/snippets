@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 0D5A7D0A-4177-4050-B24A-F67B77E81E22
 
 import sys
 import ymap

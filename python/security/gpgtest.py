@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 4F5BAC9B-85BE-46C1-AA9C-59E8E9F5AFD1
 
 import os
 import unittest

@@ -1,5 +1,4 @@
 -- Tag items snowboarding
--- arch-tag: 2C8B4B0D-4254-45D7-B323-23FEAFCD0B7B
 
 set f to choose file with prompt "Choose a file to operate on"
 if f is not false then

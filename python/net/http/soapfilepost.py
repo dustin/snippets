@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 0E5E491A-4313-11D9-A1C3-000393CFE6B8
 
 import sys
 import urllib2

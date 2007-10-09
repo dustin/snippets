@@ -1,4 +1,3 @@
--- arch-tag: D133FFA2-4F8F-11D8-8F1F-00039359E8C6
 -- This droplet processes files dropped onto the applet
 
 set f to choose file with prompt "Choose a file to operate on"

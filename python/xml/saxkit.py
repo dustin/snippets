@@ -4,7 +4,6 @@ Tools for building SAX parsers.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 72CFBE7B-B793-4677-9A81-A6BBD00FB960
 
 import sys
 import xml.sax

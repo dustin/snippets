@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 7AEBB098-9EB2-11D8-AC70-000393CFE6B8
  *)
 
 open Statutils

@@ -1,8 +1,6 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
  *
- * arch-tag: 4F4D4DCC-AA2F-11D8-9E24-000A957659CC
- *
  * See http://ipsc.ksp.sk/sample.php?arg_contest=ipsc2004
  *)
 

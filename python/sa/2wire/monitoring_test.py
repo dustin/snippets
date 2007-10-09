@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 82F8C7E5-1799-4FD3-A3D3-0B703DB5EE0C
 
 import unittest
 import StringIO

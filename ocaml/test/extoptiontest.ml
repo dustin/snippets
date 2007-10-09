@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: D48B519C-3BE0-4CB6-B74A-288F991E5385
  *)
 
 let test_is_none1 () =

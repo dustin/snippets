@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #
 # $Id: watchnet.py,v 1.7 2002/05/07 20:55:37 dustin Exp $
-# arch-tag: 01311CDA-1C84-459E-9B7B-98FD2C956E8C
 
 import collector, jobs
 

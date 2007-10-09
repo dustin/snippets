@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 110CE6DA-8A8B-49E6-B988-60E6EDA592A9
 
 import sys
 import getopt

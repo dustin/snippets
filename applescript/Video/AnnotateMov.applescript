@@ -1,4 +1,3 @@
--- arch-tag: C833A235-4737-11D8-AD8C-000A957659CC
 property annotations_list : {"Album", "Artist", "Author", "Comment", "Copyright", "Creation Date", "Description", "Director", "Disclaimer", "Full Name", "Host Computer", "Information", "Make", "Model", "Original Format", "Original Source", "Performers", "Producer", "Product", "Software", "Special Playback Requirements", "Warning", "Writer"}
 property annot_album : "«none»"
 property annot_artist : "«none»"

@@ -16,7 +16,3 @@ val remove : ('a, 'b) t -> 'a -> unit
 val add : ('a, 'b) t -> 'a -> 'b -> unit
 val find : ('a, 'b) t -> 'a -> 'b
 val iter_keys : ('a, 'b) t -> ('a -> 'c) -> unit
-
-(*
- * arch-tag: 55FA408E-2B50-11D8-8EA6-000393CFE6B8
- *)

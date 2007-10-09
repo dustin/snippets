@@ -4,7 +4,6 @@ Restore a backup from my s3 tree.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: A6A85C50-317D-4C6B-98B7-DB01AB335728
 
 import os
 import sys

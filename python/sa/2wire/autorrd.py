@@ -4,7 +4,6 @@ Autogenerate and populate RRDs based on available stats.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: A1D9FCE4-2DA3-4325-A68E-A838E1EBD179
 
 import os
 import re

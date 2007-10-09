@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 9D0DD0F0-A659-11D9-ADE4-000A957659CC
 
 from __future__ import generators
 import unittest

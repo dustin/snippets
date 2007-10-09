@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-arch-tag: EC7AE8F1-1A2C-11D8-89BE-000393CFE6B8
 """
 
 import java

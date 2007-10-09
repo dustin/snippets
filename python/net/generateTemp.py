@@ -2,7 +2,6 @@
 """
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
-arch-tag: 30A85C9B-1AE1-11D9-8753-00039359E8C6
 
 Generate temperature readings for offline LEMP testing.
 """

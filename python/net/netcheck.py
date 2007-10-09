@@ -4,7 +4,6 @@ Run forever making sure some items are reachable.
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 3818E147-2C2B-4F7F-B5F4-25452690130A
 
 import os
 import sys

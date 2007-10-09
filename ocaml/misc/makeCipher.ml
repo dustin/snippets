@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 34827E64-3531-11D8-B324-000393CB0F1E
  *)
 
 (* Generate a translation alphabet for a simple cipher. *)

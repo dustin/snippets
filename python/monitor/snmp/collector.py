@@ -4,7 +4,6 @@ Collect network data regularly.
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: collector.py,v 1.5 2002/05/07 20:55:31 dustin Exp $
-arch-tag: 17AACE9A-45CF-442E-B7F4-68E30CE1BAA8
 """
 
 # Error stuff

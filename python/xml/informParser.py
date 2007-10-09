@@ -3,7 +3,6 @@
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 0189CC85-D42F-4EAE-9C77-EE95AB5E7925
 
 import sys
 import saxkit

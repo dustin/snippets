@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 761268AC-4600-11D8-B27E-000393CFE6B8
  *)
 
 (** Make a large file. *)

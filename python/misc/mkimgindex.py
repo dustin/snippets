@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: FBC95722-4829-11D9-9A8D-000A957659CC
 
 import os
 

@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 1E4EFAC0-498E-11D8-A07A-000A957659CC
  *)
 
 (**

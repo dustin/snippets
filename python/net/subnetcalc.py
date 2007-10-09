@@ -4,7 +4,6 @@ Simple network calculator functions.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 59449A1D-8745-4901-A52A-7C11591D0DFF
 
 import sys
 import socket

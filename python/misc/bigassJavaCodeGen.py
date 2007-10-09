@@ -3,7 +3,6 @@
 
 Copyright (c) 2006  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 105E44C8-1C73-403A-8928-B79215337CFD
 
 import sys
 

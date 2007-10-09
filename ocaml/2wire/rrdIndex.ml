@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 90CC9C89-194B-11D8-8F8B-000393CFE6B8
  *)
 
 let index_one fn =

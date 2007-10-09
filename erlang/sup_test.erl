@@ -1,7 +1,3 @@
-%%
-%% arch-tag: BA1719BD-98D8-11D8-9DF7-000A957659CC
-%%
-
 -module(sup_test).
 -behavior(supervisor).
 

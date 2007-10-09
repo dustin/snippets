@@ -3,7 +3,6 @@
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 1E9D9578-38E6-11D9-86E3-000393CFE6B8
 
 import time
 import unittest

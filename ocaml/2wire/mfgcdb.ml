@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 64a55096-d5ff-4ca3-a2e8-818c6f8027c8
  *)
 
 (** Interface to manufacturing data *)

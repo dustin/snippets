@@ -3,7 +3,6 @@
 
 Copyright (c) 2002  Dustin Sallings <dustin@spy.net>
 $Id: xmlservices.py,v 1.8 2002/05/07 20:55:39 dustin Exp $
-arch-tag: E68A8591-1724-430F-B152-0E9232911A97
 """
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer

@@ -1,8 +1,4 @@
 %%
-%% arch-tag: 1474638B-9AE5-11D8-B81D-000393CFE6B8
-%%
-
-%%
 %% Data converisons
 %%
 

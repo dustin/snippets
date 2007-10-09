@@ -14,7 +14,3 @@ val to_list : 'a t -> 'a list
 val remove : 'a t -> 'a node -> unit
 val pop_last : 'a t -> 'a
 val pop_first : 'a t -> 'a
-
-(*
- * arch-tag: 55F86976-2B50-11D8-AFDE-000393CFE6B8
- *)

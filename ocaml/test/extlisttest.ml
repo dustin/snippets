@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: 42FBC786-EAA9-4021-92B1-A724766B8C5F
  *)
 
 let test_iteri name =

@@ -4,7 +4,6 @@ Trying to get a DNS server working in twisted.
 
 Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: EA78EE8D-5272-11D9-B53F-000A957659CC
 
 from twisted.application import internet, service
 from twisted.internet import protocol, reactor, defer, utils

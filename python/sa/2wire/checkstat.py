@@ -4,7 +4,6 @@ Library for commandline stat checking utilities.
 
 Copyright (c) 2005  Dustin Sallings <dustin@spy.net>
 """
-# arch-tag: 868F43BB-06BD-41D1-8535-D61F2910ADE0
 
 import sys
 import getopt

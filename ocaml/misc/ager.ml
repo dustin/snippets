@@ -1,7 +1,5 @@
 (*
  * Copyright (c) 2004  Dustin Sallings <dustin@spy.net>
- *
- * arch-tag: C084E75E-426F-11D8-BC16-000A957659CC
  *)
 
 open Unix
