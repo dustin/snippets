@@ -1,0 +1,39 @@
+#!/bin/sh
+
+umask 22
+
+hglist=/data/web/purple-virts/rubik/~dustin/hglist.txt
+hgxml=/data/web/purple-virts/rubik/~dustin/hglist.xml
+
+cat /dev/null > $hglist
+echo '<?xml version="1.0"?>' > $hgxml
+echo '<projects>' >> $hgxml
+
+cd ..
+
+for d in `find * -name .hg -maxdepth 2`
+do
+	dn=`dirname $d`
+	bn=`basename $dn`
+	echo "Installing for $bn in $d"
+	DESCR="unknown"
+	if [ -f "bin/$bn.descr" ]
+	then
+		DESCR=`cat bin/$bn.descr`
+	fi
+	proto=bin/hgrc-proto
+	if [ -f "bin/$bn.hgrc" ]
+	then
+		proto="bin/$bn.hgrc"
+	fi
+	sed "s/@DESCR@/$DESCR/" "$proto" > $d/hgrc
+
+	if [ ! -f "bin/$bn.do-not-replicate" ]
+	then
+		echo `dirname $d` >> $hglist
+		sed -e "s/@DESCR@/$DESCR/" -e "s,@NAME@,$dn," bin/project-snippet.xml \
+			>> $hgxml
+	fi
+done
+
+echo '</projects>' >> $hgxml
