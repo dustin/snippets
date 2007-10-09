@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: dustin_20040404T145141_28221
 
 . $HOME/lib/shelllock.sh
 

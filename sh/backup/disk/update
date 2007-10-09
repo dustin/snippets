@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: dustin_20040404T145145_28224
 
 BACKUP_TOP=/data/dustin/bak
 

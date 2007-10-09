@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: 21AFD523-5359-11D8-BB2C-000393CFE6B8
 
 for i in "$@"
 do

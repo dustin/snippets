@@ -1,6 +1,4 @@
 #!/bin/sh
-#
-# arch-tag: 27CE4FFC-9283-11D8-A34D-003065ABF26A
 
 PATH=$PATH:$HOME/local/pgsql/bin
 export PATH

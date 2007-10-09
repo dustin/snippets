@@ -1,6 +1,5 @@
 #!/bin/sh
 # Copyright (c) 2001  Dustin Sallings <dustin@spy.net>
-# arch-tag: 0F360470-4D87-11D8-8C9C-000A957659CC
 
 # Search for START to find the beginning of the script (after functions)
 

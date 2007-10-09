@@ -1,6 +1,4 @@
 #!/bin/sh
-#
-# arch-tag: 2FC22C32-516A-11D8-B218-000A957659CC
 
 bak=/data/dustin/bak
 tars=$bak/tars

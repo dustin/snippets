@@ -1,6 +1,4 @@
 #!/bin/sh
-#
-# arch-tag: 6D8ED866-4162-11D8-AB42-000393CFE6B8
 
 if [ $# -lt 1 ]
 then

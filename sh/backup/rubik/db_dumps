@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: 00C2C6A5-4A64-11D8-AD0A-003065ABF26A
 
 DEST=$1
 

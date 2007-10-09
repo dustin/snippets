@@ -1,8 +1,6 @@
 #!/bin/sh
 #
 # Copyright (c) 2003  Dustin Sallings <dustin@spy.net>
-#
-# arch-tag: D47F9964-4162-11D8-9D9F-000393CFE6B8
 
 $@
 while [ $? -ne 0 ]

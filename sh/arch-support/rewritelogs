@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# arch-tag: 7281EB00-4162-11D8-A7E4-000393CFE6B8
-#
 # Rewrite the logs in each patch.  Ugly, but I'm going to add it here in case I
 # need to do it again.
 

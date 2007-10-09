@@ -1,6 +1,4 @@
 #!/bin/sh
-#
-# arch-tag: DB517CB1-9CD6-11D8-8C7E-000393CFE6B8
 
 FILE=$1
 dir=`dirname $FILE`

@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# arch-tag: D03E70D6-4162-11D8-85EE-000393CFE6B8
-#
 # Primitive shell script locking
 
 # Lock with a pid file

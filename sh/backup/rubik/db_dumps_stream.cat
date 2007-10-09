@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: 0AFED078-4A64-11D8-B1DD-003065ABF26A
 
 place=$1
 dbname=$2

@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: dustin_20040404T145135_28205
 
 # Get rid of photo demo cache
 rm -rf /var/tmp/photodemocache/*

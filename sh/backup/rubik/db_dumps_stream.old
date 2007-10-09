@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: 1BEB8ED6-4A64-11D8-81D8-003065ABF26A
 
 GPG=$HOME/local.bin/gpg
 

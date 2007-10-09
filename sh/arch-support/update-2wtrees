@@ -1,5 +1,4 @@
 #!/bin/sh
-# arch-tag: FBDA7425-461F-11D8-A7A2-000393CFE6B8
 #
 # Update the 2wire p4 -> arch mirror on noc13.
 

@@ -1,6 +1,4 @@
 #!/bin/ksh
-#
-# arch-tag: B4C9BC6D-6384-11D8-A556-000A957659CC
 
 # transceiver_inuse             (read only)
 # link_status                   (read only)
