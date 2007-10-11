@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>net.spy.onvolume</string>
+	<key>LowPriorityIO</key>
+	<true/>
+	<key>Nice</key>
+	<integer>1</integer>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/dustin/local.bin/onvolume</string>
+	</array>
+	<key>WatchPaths</key>
+	<array>
+		<string>/Volumes/</string>
+	</array>
+	<key>StandardOutPath</key>
+	<string>/tmp/onvolume.out</string>
+	<key>StandardErrorPath</key>
+	<string>/tmp/onvolume.err</string>
+</dict>
+</plist>
