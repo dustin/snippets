@@ -58,6 +58,11 @@ for p in patchhash.get('RENAME', []):
 # Apply the patch
 runCmd("patch -p1 < %s" % TMPFILENAME)
 
+toadd=patchhash.get('ADD',[])
+if toadd:
+    cmd=' '.join(['p4 add'] + ["'%s'" % p.path for p in toadd])
+    runCmd(cmd)
+
 todelete=["'%s'" % p.path for p in patchhash.get('DELETE', [])] + \
     ["'%s'" % p.oldpath for p in patchhash.get('RENAME', [])]
 
