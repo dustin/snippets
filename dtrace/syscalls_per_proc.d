@@ -1,0 +1,4 @@
+syscall:::entry
+{
+	@[execname] = count();
+}
