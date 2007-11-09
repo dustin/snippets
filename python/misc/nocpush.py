@@ -10,10 +10,11 @@ import os
 import atexit
 import mercurial.patch
 
-HGDIR='/Users/dustin/teneros/noc/dev'
-P4DIR='/Users/dustin/teneros/p4-nocdev'
+HGDIR=os.environ['NOC_HGDIR']
+P4DIR=os.environ['NOC_P4DIR']
 TMPFILENAME="/tmp/patch." + str(os.getpid())
 
+# The Mac OS X patch will actually try to talk to perforce.  We don't want that
 os.environ['PATCH_GET']='0'
 
 def runCmd(cmd):
