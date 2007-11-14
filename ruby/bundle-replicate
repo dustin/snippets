@@ -2,7 +2,7 @@
 
 def get_stored_state(topdir)
 	d=Dir.open(topdir)
-	latest=(d.sort {|x,y| y <=> x})[0]
+	latest=(d.grep(/.hg$/).sort {|x,y| y <=> x})[0]
 	d.close
 	File.basename(latest, '.hg').split /-/
 end
