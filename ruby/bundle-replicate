@@ -34,7 +34,7 @@ puts "Latest is #{latest_ver} (we've got #{max})"
 if max != latest_ver then
 	nextid=Kernel.sprintf "%04d", ver.to_i+1
 	puts "Need to update to #{nextid} for #{latest_ver}"
-	outfile=File.join topdir, "#{nextid}-#{max}-#{latest_ver}"
+	outfile=File.join topdir, "#{nextid}-#{max}-#{latest_ver}.hg"
 	unless system('hg', 'bundle', '-r', latest_ver, '--base', max, outfile)
 		raise "Crap.  Bundle failed."
 	end
