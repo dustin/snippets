@@ -17,5 +17,7 @@
 	<string>/Users/dustin/caring/incoming</string>
 	<key>StartInterval</key>
 	<integer>120</integer>
+	<key>StandardOutPath</key>
+	<string>/dev/null</string>
 </dict>
 </plist>

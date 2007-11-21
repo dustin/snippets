@@ -16,9 +16,5 @@
 	<array>
 		<string>/Volumes/</string>
 	</array>
-	<key>StandardOutPath</key>
-	<string>/tmp/onvolume.out</string>
-	<key>StandardErrorPath</key>
-	<string>/tmp/onvolume.err</string>
 </dict>
 </plist>
