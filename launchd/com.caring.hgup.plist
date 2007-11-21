@@ -11,7 +11,8 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/opt/local/bin/hg</string>
-		<string>pull -u</string>
+		<string>pull</string>
+		<string>-u</string>
 	</array>
 	<key>WorkingDirectory</key>
 	<string>/Users/dustin/caring/incoming</string>
