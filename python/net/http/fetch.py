@@ -62,4 +62,8 @@ if __name__ == '__main__':
     signal.alarm(30)
 
     wantedfile=sys.argv[2]
-    doUpdate(sys.argv[1], wantedfile)
+    try:
+        doUpdate(sys.argv[1], wantedfile)
+    except:
+        sys.stderr.write("Error processing %s\n" % sys.argv[1])
+        raise
