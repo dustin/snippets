@@ -11,13 +11,19 @@ import xml.sax
 class ElementHandler(xml.sax.handler.ContentHandler):
     """Interface for element parsing."""
 
-    def __init__(self):
+    def __init__(self, default=None):
         xml.sax.handler.ContentHandler.__init__(self)
+        self.default=default
         self.parsers={}
 
     def getParser(self, name):
         """Get the child parser for the given name"""
-        return self.parsers[name]
+        rv=self.parsers.get(name, self.default)
+        if not rv:
+            raise KeyError, name
+        elif callable(rv):
+            rv=rv()
+        return rv
 
     def addChild(self, name, child):
         """Add a parsed child object."""

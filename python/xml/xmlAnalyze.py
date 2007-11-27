@@ -51,6 +51,8 @@ if __name__ == '__main__':
     for f in args:
         print f
         handler=CountingHandler(showAttributes, maxDepth)
+        if f == '-':
+            f=sys.stdin
         xml.sax.parse(f, handler)
 
         keys=handler.objects.keys()
