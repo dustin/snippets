@@ -11,8 +11,8 @@ ROLLUP=['RRA:MIN:0.5:1:4032', 'RRA:AVERAGE:0.5:1:4032', 'RRA:MAX:0.5:1:4032',
   'RRA:MIN:0.5:12:1152', 'RRA:AVERAGE:0.5:12:1152', 'RRA:MAX:0.5:12:1152',
   'RRA:MIN:0.5:288:1825', 'RRA:AVERAGE:0.5:288:1825', 'RRA:MAX:0.5:288:1825']
 
-GAUGE='DS:#{fieldname}:GAUGE:1800:U:U'
-COUNTER='DS:#{fieldname}:COUNTER:1800:U:U'
+GAUGE='DS:#{fieldname}:GAUGE:1800:0:U'
+COUNTER='DS:#{fieldname}:COUNTER:1800:0:1000000'
 
 # Set up the types by item type.  Default is counter, but there are some
 # specific gauges.
@@ -48,7 +48,7 @@ class MemCacheRRD
   end
 
   def rrd_create
-    stat_stuff(&:rrd_create_one)
+    stat_stuff {|f,s,st| rrd_create_one f, s, st}
   end
 
   private
