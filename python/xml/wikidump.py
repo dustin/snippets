@@ -13,7 +13,7 @@ import saxkit
 ROOT_NS="http://www.mediawiki.org/xml/export-0.3/"
 ROOT_EL="mediawiki"
 
-REGEX=re.compile(r"^\s+(Latitude|Longitude)\s+=\s+(.*)\s+\|\s*$")
+REGEX=re.compile(r"^\s+(Latitude|Longitude)\s+=\s+(.*)\s+\|\s*$", re.M)
 
 class OptInHandler(saxkit.ElementHandler):
 
@@ -28,11 +28,10 @@ class RevisionHandler(OptInHandler):
 
     def addChild(self, name, val):
         if isinstance(val, saxkit.SimpleValueParser):
-            for l in val.getValue().split("\n"):
-                v=REGEX.match(l)
-                if v:
-                    g=v.groups()
-                    setattr(self.sup, g[0].lower(), g[1])
+            v=REGEX.search(val.getValue())
+            if v:
+                g=v.groups()
+                setattr(self.sup, g[0].lower(), g[1])
 
 class PageHandler(OptInHandler):
     def __init__(self):
