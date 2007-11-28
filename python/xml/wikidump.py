@@ -16,7 +16,7 @@ ROOT_EL="mediawiki"
 def rc(s):
     return re.compile(s, re.M)
 
-RANGE_REGEX=rc(r"^\s+(Latitude|Longitude)\s+=\s+(.*)\s+\|\s*$")
+POINT_REGEX=rc(r"^\|Latitude.*Longitude.*$^|(\d+\S+\s+[NS]).*(\d+\S+\s+[EW])$")
 
 class OptInHandler(saxkit.ElementHandler):
 
@@ -32,10 +32,11 @@ class RevisionHandler(OptInHandler):
     def addChild(self, name, val):
         if isinstance(val, saxkit.SimpleValueParser):
             s=val.getValue()
-            v=RANGE_REGEX.search(s)
+            v = POINT_REGEX.search(s)
             if v:
                 g=v.groups()
-                setattr(self.sup, g[0].lower(), g[1])
+                self.sup.latitude=g[0]
+                self.sup.longitude=g[1]
 
 class PageHandler(OptInHandler):
     def __init__(self):
