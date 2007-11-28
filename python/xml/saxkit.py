@@ -74,13 +74,13 @@ class SimpleValueParser(ElementHandler):
     def __init__(self):
         ElementHandler.__init__(self)
         self.attrs={}
-        self.value=""
+        self.values=[]
 
     def characters(self, content):
-        self.value+=content
+        self.values.append(content)
 
     def getValue(self):
-        return self.value
+        return ''.join(self.values)
 
     def startElementNS(self, name, qname, attrs):
         self.attrs=dict([(k, attrs[k]) for k in attrs.getNames()])
