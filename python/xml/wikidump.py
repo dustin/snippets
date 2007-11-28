@@ -13,7 +13,10 @@ import saxkit
 ROOT_NS="http://www.mediawiki.org/xml/export-0.3/"
 ROOT_EL="mediawiki"
 
-REGEX=re.compile(r"^\s+(Latitude|Longitude)\s+=\s+(.*)\s+\|\s*$", re.M)
+def rc(s):
+    return re.compile(s, re.M)
+
+RANGE_REGEX=rc(r"^\s+(Latitude|Longitude)\s+=\s+(.*)\s+\|\s*$")
 
 class OptInHandler(saxkit.ElementHandler):
 
@@ -28,7 +31,8 @@ class RevisionHandler(OptInHandler):
 
     def addChild(self, name, val):
         if isinstance(val, saxkit.SimpleValueParser):
-            v=REGEX.search(val.getValue())
+            s=val.getValue()
+            v=RANGE_REGEX.search(s)
             if v:
                 g=v.groups()
                 setattr(self.sup, g[0].lower(), g[1])
