@@ -11,7 +11,7 @@ class LinuxHostInfo
   end
 
   def vmstat
-    process_lines("/proc/stat") { |s| s[0].to_i }
+    process_lines("/proc/vmstat") { |s| s[0].to_i }
   end
 
   def meminfo
