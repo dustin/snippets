@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 
-SERVERS=%w(mem01.stag.caring.com mem02.stag.caring.com)
+require 'yaml'
+require 'net/http'
 
+# A list of distinct colors.
 COLORS=%w(007700 770000 000077 770077 777777 000000)
 
 class RrdGrapher
@@ -88,16 +90,100 @@ class MemcacheGrapher < RrdGrapher
     args += ["AREA:items#000000:Items"]
     system(*args)
   end
+
+  def draw_all(suffix, range)
+    do_hit_misses "hitsmisses_#{suffix}.png", range
+    do_hit_misses_per_server "hitsmisses_s_#{suffix}.png", range
+    do_miss_rate "missrate_#{suffix}.png", range
+    do_bytes "bytes_#{suffix}.png", range
+    do_items "items_#{suffix}.png", range
+  end
+
+end
+
+class LinuxGrapher < RrdGrapher
+  # Do graphy stuff
+
+  def do_cpu(fn, range)
+    args = common_args fn, 'CPU Utilization', range
+    args += mk_var 'user', 'cpu_user', :max
+    args += mk_var 'nice', 'cpu_nice', :max
+    args += mk_var 'sys', 'cpu_sys', :max
+    # THis doesn't quite give the right results.
+    # args += mk_var 'idle', 'cpu_idle', :max
+    args << "CDEF:idle=100,user,nice,sys,-,-,-"
+    args << "AREA:user#000077:User"
+    args << "STACK:nice#0000ff:Nice"
+    args << "STACK:sys#770000:System"
+    args << "STACK:idle#00ee00:Idle"
+    system(*args)
+  end
+
+  def do_paging(fn, range)
+    args = common_args fn, 'Paging Activity', range
+    args += mk_var 'pgpgin', 'pgpgin', :max
+    args += mk_var 'pgpgout', 'pgpgout', :max
+    args << "CDEF:out=pgpgout,-1,*"
+    args << "AREA:pgpgin#000077:Paging In"
+    args << "AREA:out#770000:Paging Out"
+    system(*args)
+  end
+
+  def do_swapping(fn, range)
+    args = common_args fn, 'Swapping Activity', range
+    args += mk_var 'pswpin', 'pswpin', :max
+    args += mk_var 'pswpout', 'pswpout', :max
+    args << "CDEF:out=pswpout,-1,*"
+    args << "AREA:pswpin#000077:Swapping In"
+    args << "AREA:out#770000:Swapping Out"
+    system(*args)
+  end
+
+  def do_ctx(fn, range)
+    args = common_args fn, 'Context Switches', range
+    args += mk_var 'ctxt', 'ctxt', :max
+    args << "AREA:ctxt#770000:Context Switches"
+    system(*args)
+  end
+
+  def do_load(fn, range)
+    args = common_args fn, 'Load Average', range
+    args += %W(-X 0)
+    args += mk_var 'load5', 'load5', :max
+    args << "CDEF:l5=load5,100,/"
+    args << "AREA:l5#770000:Load Average"
+    system(*args)
+  end
+
+  def draw_all(suffix, range)
+    do_cpu "cpu_#{suffix}.png", range
+    do_paging "paging_#{suffix}.png", range
+    do_swapping "swapping_#{suffix}.png", range
+    do_ctx "ctx_#{suffix}.png", range
+    do_load "load_#{suffix}.png", range
+  end
+
 end
 
 if $0 == __FILE__
 
-  servers=$*.empty? ? SERVERS.map {|x| x + ".rrd"} : $*
+  def mk_imgs(graphers)
+    graphers.each {|g| g.draw_all 'day', 'now - 24 hours' }
+  end
 
-  g=MemcacheGrapher.new(servers, 400, 200)
-  g.do_hit_misses 'hitsmisses.png', 'now - 24 hours'
-  g.do_hit_misses_per_server 'hitsmisses_s.png', 'now - 24 hours'
-  g.do_miss_rate 'missrate.png', 'now - 24 hours'
-  g.do_bytes 'bytes.png', 'now - 24 hours'
-  g.do_items 'items.png', 'now - 24 hours'
+  conf=YAML.load_file($*[0])
+
+  graphers = []
+
+  mcg=MemcacheGrapher.new(conf['memcached'].map {|x| x + ".rrd"}, 400, 200)
+  graphers << mcg
+
+  if conf['linux']
+    hostfiles=conf['linux'].map{|h| URI.parse(h['url']).host + ".rrd"}
+    lg=LinuxGrapher.new(hostfiles, 400, 200)
+
+    graphers << lg
+  end
+
+  mk_imgs graphers
 end
