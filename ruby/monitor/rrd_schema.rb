@@ -10,14 +10,18 @@ module RRDSchema
   GAUGE='DS:#{fieldname}:GAUGE:1800:0:U'
   COUNTER='DS:#{fieldname}:COUNTER:1800:0:1000000'
 
-  def create_rrd(fields, filename, types, poll=300)
+  def create_rrd(fields, filename, types, poll=60)
     if not File.exists? filename
       rrd_fields=fields.map do |fieldname|
         eval('"' + types[fieldname] + '"')
       end
       recipe=rrd_fields + ROLLUP
-      puts "create #{filename} -s #{poll} #{recipe.join(' ')}"
+      send_rrd_cmd "create #{filename} -s #{poll} #{recipe.join(' ')}"
     end
+  end
+
+  def send_rrd_cmd(s)
+    puts s
   end
 
 end

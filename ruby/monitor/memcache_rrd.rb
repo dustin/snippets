@@ -39,7 +39,7 @@ class MemCacheRRD
       fn=fname server
       # Optionally create one
       create_rrd fields, fname(server), TYPES
-      puts "update #{fn} -t #{fields.join(':')} N:#{stats.join(':')}"
+      send_rrd_cmd "update #{fn} -t #{fields.join(':')} N:#{stats.join(':')}"
     end
   end
 

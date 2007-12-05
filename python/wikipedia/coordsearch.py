@@ -17,7 +17,7 @@ PAGES_Q="""select title, article_text from interesting_pages
     where latitude is null or longitude is null
 """
 
-UPDATE_Q="""update interesting_pages set latitude = ?, longitude = ?
+UPDATE_Q="""update interesting_pages set latitude = ?, longitude = ?, type = ?
     where title = ?"""
 
 GEO_RE=re.compile("{{(Geolink[^\|]*|coord)\|([^}]*)}}", re.M)
@@ -94,7 +94,7 @@ def process(title, text, cur):
         pv=parse(groups[1])
         if pv:
             # print "Updating", title
-            cur.execute(UPDATE_Q, (pv[0], pv[1], title))
+            cur.execute(UPDATE_Q, (pv[0], pv[1], groups[0], title))
         else:
             print "Failed to parse", groups[1]
     else:
