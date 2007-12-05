@@ -199,7 +199,8 @@ if $0 == __FILE__
 
     conf['linux'].each do |h|
       hn = URI.parse(h['url']).host
-      graphers << LinuxGrapher.new([hn + ".rrd"], width, height, hn + "_")
+      graphers << LinuxGrapher.new([hn + ".rrd"], width, height,
+        "hosts/" + hn + "_")
     end
   end
 
