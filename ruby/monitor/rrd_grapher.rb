@@ -67,7 +67,9 @@ end
 
 if $0 == __FILE__
 
-  g=MemcacheGrapher.new(SERVERS.map {|x| x + ".rrd"}, 800, 400)
+  servers=$*.empty? ? SERVERS.map {|x| x + ".rrd"} : $*
+
+  g=MemcacheGrapher.new(servers, 400, 200)
   g.do_hit_misses 'hitsmisses.png', 'now - 24 hours'
   g.do_miss_rate 'missrate.png', 'now - 24 hours'
   g.do_bytes 'bytes.png', 'now - 24 hours'
