@@ -30,7 +30,7 @@ end
 
 class MemcacheGrapher < RrdGrapher
   def do_hit_misses(fn, range)
-    args = common_args fn, 'Cache Usage/s', range
+    args = common_args fn, 'Cache Requests/m', range
     args += mk_var 'hit', 'get_hits', :max, ',60,*'
     args += mk_var 'miss', 'get_misses', :max, ',60,*'
     args += ["AREA:hit#00ee00:Hits", "AREA:miss#ee0000:Misses"]
