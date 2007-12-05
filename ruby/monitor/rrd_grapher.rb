@@ -2,6 +2,8 @@
 
 SERVERS=%w(mem01.stag.caring.com mem02.stag.caring.com)
 
+COLORS=%w(007700 770000 000077 770077 777777 000000)
+
 class RrdGrapher
   def initialize(files, width=640, height=400)
     @files=files
@@ -26,6 +28,11 @@ class RrdGrapher
     args += %W(-w #{@width} -h #{@height} -a PNG -t) + [title]
   end
 
+  # XXX:  Make a better color algorithm
+  def mk_color(offset)
+    COLORS[offset]
+  end
+
 end
 
 class MemcacheGrapher < RrdGrapher
@@ -35,6 +42,23 @@ class MemcacheGrapher < RrdGrapher
     args += mk_var 'miss', 'get_misses', :max, ',-60,*'
     args += ["AREA:hit#00ee00:Hits", "AREA:miss#ee0000:Misses"]
     args += ['HRULE:0#000000']
+    system(*args)
+  end
+
+  def do_hit_misses_per_server(fn, range)
+    args = common_args fn, 'Cache Requests/m', range
+    f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
+    @files.each do |f|
+      h=f_hash[f]
+      c=mk_color h
+      sn=File.basename(f, ".rrd")
+      args += %W(DEF:getraw#{h}=#{f}:cmd_get:MAX
+                DEF:setraw#{h}=#{f}:cmd_set:MAX
+                CDEF:get#{h}=getraw#{h},60,*
+                CDEF:set#{h}=setraw#{h},-60,*
+                LINE:get#{h}##{c}:#{sn}\ Hits
+                LINE:set#{h}##{c}:#{sn}\ Misses\\n)
+    end
     system(*args)
   end
 
@@ -72,6 +96,7 @@ if $0 == __FILE__
 
   g=MemcacheGrapher.new(servers, 400, 200)
   g.do_hit_misses 'hitsmisses.png', 'now - 24 hours'
+  g.do_hit_misses_per_server 'hitsmisses_s.png', 'now - 24 hours'
   g.do_miss_rate 'missrate.png', 'now - 24 hours'
   g.do_bytes 'bytes.png', 'now - 24 hours'
   g.do_items 'items.png', 'now - 24 hours'
