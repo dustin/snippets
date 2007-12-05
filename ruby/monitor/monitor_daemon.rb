@@ -23,8 +23,10 @@ class MonitorDaemon
   def add_task(freq)
     # I'm going to punt and just make threads that loop and stuff.
     @threads << Thread.new do
+      # Allow some kind of delay up to the frequency before the first poll
+      sleep(rand * freq / 2)
       while true
-        yield QUEUE
+        yield
         sleep freq
       end
     end
@@ -39,12 +41,12 @@ class MonitorDaemon
   def add_proc_task(freq, url, user, pass)
     lh=LinuxHostInfo.new(url, user, pass)
     h=LinuxHostRRD.new(lh)
-    add_task(freq) { |q| h.rrd_inserts }
+    add_task(freq) { h.rrd_inserts }
   end
 
   def add_memcached_task(freq, servers)
     m=MemCacheRRD.new(servers)
-    add_task(freq) { |q| m.rrd_inserts }
+    add_task(freq) { m.rrd_inserts }
   end
 
 end
