@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby -w
 
 require 'thread'
+require 'yaml'
+
 require 'rrd_schema'
 require 'sysinfo_rrd'
 require 'memcache_rrd'
@@ -52,10 +54,16 @@ class MonitorDaemon
 end
 
 if $0 == __FILE__
+  raise "Need config file" if $*.empty?
+  conf=YAML.load_file($*[0])
+
   md=MonitorDaemon.new
 
-  md.add_proc_task 60, 'http://repo.dev.caring.com:8182/', 'rrd', 'rrdt00l'
-  md.add_memcached_task 60, %w(mem01.stag.caring.com mem02.stag.caring.com)
+  conf['linux'].each do |h|
+    md.add_proc_task 60, h['url'], h['user'], h['pass']
+  end
+
+  md.add_memcached_task 60, conf['memcached']
 
   md.for_responses do |response|
     puts response
