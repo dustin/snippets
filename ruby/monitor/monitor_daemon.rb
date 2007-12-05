@@ -59,8 +59,10 @@ if $0 == __FILE__
 
   md=MonitorDaemon.new
 
-  conf['linux'].each do |h|
-    md.add_proc_task 60, h['url'], h['user'], h['pass']
+  if conf['linux']
+    conf['linux'].each do |h|
+      md.add_proc_task 60, h['url'], h['user'], h['pass']
+    end
   end
 
   md.add_memcached_task 60, conf['memcached']

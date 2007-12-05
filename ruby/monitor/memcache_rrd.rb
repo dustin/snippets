@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby -w
 
 require 'rubygems'
-require 'MemCache'
+require 'memcache'
 
 require 'rrd_schema'
 
