@@ -102,7 +102,11 @@ class MemcacheGrapher < RrdGrapher
 end
 
 class LinuxGrapher < RrdGrapher
-  # Do graphy stuff
+
+  def initialize(files, width=640, height=400, prefix=nil)
+    super(files, width, height)
+    @prefix=prefix
+  end
 
   def do_cpu(fn, range)
     args = common_args fn, 'CPU Utilization', range
@@ -156,11 +160,17 @@ class LinuxGrapher < RrdGrapher
   end
 
   def draw_all(suffix, range)
-    do_cpu "cpu_#{suffix}.png", range
-    do_paging "paging_#{suffix}.png", range
-    do_swapping "swapping_#{suffix}.png", range
-    do_ctx "ctx_#{suffix}.png", range
-    do_load "load_#{suffix}.png", range
+    do_cpu prefix("cpu_#{suffix}.png"), range
+    do_paging prefix("paging_#{suffix}.png"), range
+    do_swapping prefix("swapping_#{suffix}.png"), range
+    do_ctx prefix("ctx_#{suffix}.png"), range
+    do_load prefix("load_#{suffix}.png"), range
+  end
+
+  private
+
+  def prefix(s)
+    @prefix == nil ? s : @prefix + s
   end
 
 end
@@ -173,16 +183,24 @@ if $0 == __FILE__
 
   conf=YAML.load_file($*[0])
 
+  width=400
+  height=200
+
   graphers = []
 
-  mcg=MemcacheGrapher.new(conf['memcached'].map {|x| x + ".rrd"}, 400, 200)
+  mcg=MemcacheGrapher.new(conf['memcached'].map {|x| x + ".rrd"}, width, height)
   graphers << mcg
 
   if conf['linux']
     hostfiles=conf['linux'].map{|h| URI.parse(h['url']).host + ".rrd"}
-    lg=LinuxGrapher.new(hostfiles, 400, 200)
+    lg=LinuxGrapher.new(hostfiles, width, height)
 
     graphers << lg
+
+    conf['linux'].each do |h|
+      hn = URI.parse(h['url']).host
+      graphers << LinuxGrapher.new([hn + ".rrd"], width, height, hn + "_")
+    end
   end
 
   mk_imgs graphers
