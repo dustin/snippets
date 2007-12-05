@@ -177,10 +177,6 @@ end
 
 if $0 == __FILE__
 
-  def mk_imgs(graphers)
-    graphers.each {|g| g.draw_all 'day', 'now - 24 hours' }
-  end
-
   conf=YAML.load_file($*[0])
 
   width=400
@@ -204,5 +200,7 @@ if $0 == __FILE__
     end
   end
 
-  mk_imgs graphers
+
+  # Draw all the graphs.
+  graphers.each {|g| g.draw_all 'day', 'now - 24 hours' }
 end
