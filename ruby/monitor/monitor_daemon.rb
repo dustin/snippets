@@ -29,12 +29,12 @@ class MonitorDaemon
       # Allow some kind of delay up to the frequency before the first poll
       sleep([15, rand * freq].min)
       while true
-        yield
         begin
-          sleep freq
+          yield
         rescue => e
           $stderr.puts "Error processing stuff:  #{e}"
         end
+        sleep freq
       end
     end
   end
