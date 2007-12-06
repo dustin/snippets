@@ -4,9 +4,7 @@ require 'thread'
 require 'yaml'
 
 require 'rrd_schema'
-require 'sysinfo_rrd'
 require 'memcache_rrd'
-require 'rails_log'
 
 QUEUE=Queue.new
 
@@ -75,6 +73,7 @@ if $0 == __FILE__
   md=MonitorDaemon.new
 
   if conf['linux']
+    require 'sysinfo_rrd'
     conf['linux'].each do |h|
       md.add_proc_task 60, h['url'], h['user'], h['pass']
     end
@@ -83,6 +82,7 @@ if $0 == __FILE__
   md.add_memcached_task 60, conf['memcached']
 
   if conf['db']
+    require 'rails_log'
     md.add_rails_poll 300, conf['db']
   end
 
