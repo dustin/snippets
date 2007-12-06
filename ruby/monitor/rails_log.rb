@@ -41,7 +41,7 @@ class RailsLogRRD
     @rl.get_times.each_pair do |fn,v|
       create_rrd(FIELDS, fn + ".rrd", Hash.new(RRDSchema::COUNTER), 300)
       vals=[v[0]] + v[1..-1].map {|x| (x * 1000).to_i}
-      send_rrd_cmd "update #{fn} -t #{FIELDS.join(':')} N:#{vals.join(':')}"
+      send_rrd_cmd "update #{fn}.rrd -t #{FIELDS.join(':')} N:#{vals.join(':')}"
     end
   end
 end
