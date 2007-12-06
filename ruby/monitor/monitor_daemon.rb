@@ -30,7 +30,11 @@ class MonitorDaemon
       sleep([15, rand * freq].min)
       while true
         yield
-        sleep freq
+        begin
+          sleep freq
+        rescue => e
+          $stderr.puts "Error processing stuff:  #{e}"
+        end
       end
     end
   end
