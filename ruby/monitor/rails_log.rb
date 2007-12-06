@@ -16,10 +16,10 @@ class RailsLog
   def get_times
     rows=@connection.query <<QUERY
       select
-          host, pid, count(*),
+          host, engine_id, count(*),
           sum(request_time), sum(render_time), sum(db_time)
         from logs
-        group by host, pid
+        group by host, engine_id
 QUERY
     rv={}
     rows.each do |r|

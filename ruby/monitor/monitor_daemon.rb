@@ -6,6 +6,7 @@ require 'yaml'
 require 'rrd_schema'
 require 'sysinfo_rrd'
 require 'memcache_rrd'
+require 'rails_log'
 
 QUEUE=Queue.new
 
@@ -26,7 +27,7 @@ class MonitorDaemon
     # I'm going to punt and just make threads that loop and stuff.
     @threads << Thread.new do
       # Allow some kind of delay up to the frequency before the first poll
-      sleep(rand * freq / 2)
+      sleep([15, rand * freq].min)
       while true
         yield
         sleep freq
@@ -51,6 +52,16 @@ class MonitorDaemon
     add_task(freq) { m.rrd_inserts }
   end
 
+  def add_rails_poll(freq, c)
+    add_task(freq) do
+      h=c['host']
+      u=c['user']
+      p=c['pass'] || ''
+      d=c['database']
+      RailsLogRRD.new(RailsLog.new(h, u, p, d)).rrd_inserts
+    end
+  end
+
 end
 
 if $0 == __FILE__
@@ -66,6 +77,10 @@ if $0 == __FILE__
   end
 
   md.add_memcached_task 60, conf['memcached']
+
+  if conf['db']
+    md.add_rails_poll 300, conf['db']
+  end
 
   md.for_responses do |response|
     puts response
