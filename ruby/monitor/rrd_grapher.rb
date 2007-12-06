@@ -7,10 +7,12 @@ require 'net/http'
 COLORS=%w(007700 770000 000077 770077 777777 000000)
 
 class RrdGrapher
-  def initialize(files, width=640, height=400)
+
+  def initialize(files, width=640, height=400, prefix=nil)
     @files=files
     @width=width
     @height=height
+    @prefix=prefix
   end
 
   # Make a variable by adding up all of values for the given rname accross the
@@ -33,6 +35,12 @@ class RrdGrapher
   # XXX:  Make a better color algorithm
   def mk_color(offset)
     COLORS[offset]
+  end
+
+  protected
+
+  def prefix(s)
+    @prefix == nil ? s : @prefix + s
   end
 
 end
@@ -103,11 +111,6 @@ end
 
 class LinuxGrapher < RrdGrapher
 
-  def initialize(files, width=640, height=400, prefix=nil)
-    super(files, width, height)
-    @prefix=prefix
-  end
-
   def do_cpu(fn, range)
     args = common_args fn, 'CPU Utilization', range
     args += mk_var 'user', 'cpu_user', :max
@@ -167,10 +170,36 @@ class LinuxGrapher < RrdGrapher
     do_load prefix("load_#{suffix}.png"), range
   end
 
-  private
+end
 
-  def prefix(s)
-    @prefix == nil ? s : @prefix + s
+class RailsLogGrapher < RrdGrapher
+
+  def do_count(fn, range)
+    args = common_args fn, 'Number of Requests/m', range
+    args += mk_var 'count', 'count', :max
+    args << "CDEF:count_m=count,60,*"
+    args << "AREA:count_m#000000:Request\ Count"
+    system(*args)
+  end
+
+  def do_times(fn, range)
+    args = common_args fn, 'Request Timing (ms)', range
+    args += mk_var 'req_raw', 'req', :max
+    args += mk_var 'ren_raw', 'ren', :max
+    args += mk_var 'db_raw', 'db', :max
+    args += mk_var 'count', 'count', :max
+    args << "CDEF:req=req_raw,count,/"
+    args << "CDEF:ren=ren_raw,count,/"
+    args << "CDEF:db=db_raw,count,/"
+    args << "AREA:db#770000:DB"
+    args << "STACK:ren#007700:Render"
+    args << "LINE:req#000000:Request"
+    system(*args)
+  end
+
+  def draw_all(suffix, range)
+    do_count prefix("rl_count_#{suffix}.png"), range
+    do_times prefix("rl_time_#{suffix}.png"), range
   end
 
 end
@@ -200,6 +229,9 @@ if $0 == __FILE__
     end
   end
 
+  if conf['db']
+    graphers << RailsLogGrapher.new(Dir.glob("rldb_*.rrd"), width, height)
+  end
 
   # Draw all the graphs.
   graphers.each {|g| g.draw_all 'day', 'now - 24 hours' }
