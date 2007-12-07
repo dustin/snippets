@@ -100,11 +100,11 @@ class MemcacheGrapher < RrdGrapher
   end
 
   def draw_all(suffix, range)
-    do_hit_misses "hitsmisses_#{suffix}.png", range
-    do_hit_misses_per_server "hitsmisses_s_#{suffix}.png", range
-    do_miss_rate "missrate_#{suffix}.png", range
-    do_bytes "bytes_#{suffix}.png", range
-    do_items "items_#{suffix}.png", range
+    do_hit_misses "mc_hitsmisses_#{suffix}.png", range
+    do_hit_misses_per_server "mc_hitsmisses-s_#{suffix}.png", range
+    do_miss_rate "mc_missrate_#{suffix}.png", range
+    do_bytes "mc_bytes_#{suffix}.png", range
+    do_items "mc_items_#{suffix}.png", range
   end
 
 end
@@ -163,11 +163,11 @@ class LinuxGrapher < RrdGrapher
   end
 
   def draw_all(suffix, range)
-    do_cpu "cpu_#{suffix}.png", range
-    do_paging "paging_#{suffix}.png", range
-    do_swapping "swapping_#{suffix}.png", range
-    do_ctx "ctx_#{suffix}.png", range
-    do_load "load_#{suffix}.png", range
+    do_cpu "sys_cpu_#{suffix}.png", range
+    do_paging "sys_paging_#{suffix}.png", range
+    do_swapping "sys_swapping_#{suffix}.png", range
+    do_ctx "sys_ctx_#{suffix}.png", range
+    do_load "sys_load_#{suffix}.png", range
   end
 
 end
@@ -239,7 +239,7 @@ if $0 == __FILE__
       # Take the prefix and suffix off
       hn=f[5..-5]
       graphers << RailsLogGrapher.new([f], width, height,
-        "#{img_path}hosts/rldb_#{hn}_")
+        "#{img_path}hosts/rl_#{hn}_")
     end
   end
 
