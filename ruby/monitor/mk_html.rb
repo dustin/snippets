@@ -164,33 +164,6 @@ class SomeTypeHost < HtmlFile
   end
 end
 
-class Memcached < HtmlFile
-  def do_body
-    @imgstuff['types']['mc'].map do |t|
-      img_link("mc_#{t}_all.html", "mc_#{t}")
-    end
-  end
-end
-
-class MemcachedAll < HtmlFile
-  def initialize(title, imgstuff, subtype)
-    super "#{title} for #{subtype}", imgstuff
-    @type='mc'
-    @subtype=subtype
-  end
-  def do_body
-    rv = ["<p>"]
-    %w(day week month).each do |t|
-      rv << "<h2>#{t}</h2>\n"
-      rv << %Q{<img alt="#{t}" src="imgs/#{@type}_#{@subtype}_#{t}.png"/>}
-    end
-    rv << "</p>"
-
-    # Host nav
-    rv << %Q{<p><a href="#{@type}.html">All</a></p>}
-  end
-end
-
 def write_file(outdir, filename, fileob)
   open(File.join(outdir, filename), "w") do |f|
     f.puts fileob.to_html
@@ -223,10 +196,10 @@ def mk_html(imgstuff, outdir)
   mk_html_with_types(imgstuff, outdir, "System Stuff", 'sys')
 
   # Memcached
-  write_file outdir, "mc.html", Memcached.new("Memcached Stuff", imgstuff)
+  write_file outdir, "mc.html", SomeType.new("Memcached Stuff", imgstuff, 'mc')
   imgstuff['types']['mc'].each do |subtype|
     write_file(outdir, "mc_#{subtype}_all.html",
-      MemcachedAll.new("Memcached Stuff", imgstuff, subtype))
+      SomeTypeAll.new("Memcached Stuff", imgstuff, 'mc', subtype))
   end
 
   # Handle Mongrels
