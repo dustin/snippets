@@ -146,26 +146,25 @@ def write_file(outdir, filename, fileob)
   end
 end
 
+def mk_html_with_types(imgstuff, outdir, title, type)
+  write_file outdir, "#{type}.html", SomeType.new(title, imgstuff, type)
+  imgstuff['hosts'][type].each do |host|
+    write_file(outdir, "#{type}_#{host}.html",
+      SomeTypeHost.new("#{title} for #{host}", imgstuff, host, type))
+  end
+end
+
 def mk_html(imgstuff, outdir)
-  p imgstuff
   write_file outdir, "index.html", Index.new("Monitoring Stuff", imgstuff)
 
   # Handle systems
-  write_file outdir, "sys.html", SomeType.new("System Stuff", imgstuff, 'sys')
-  imgstuff['hosts']['sys'].each do |host|
-    write_file(outdir, "sys_#{host}.html",
-      SomeTypeHost.new("System stuff for #{host}", imgstuff, host, 'sys'))
-  end
+  mk_html_with_types(imgstuff, outdir, "System Stuff", 'sys')
 
   # Memcached
   write_file outdir, "mc.html", Memcached.new("Memcached Stuff", imgstuff)
 
   # Handle Mongrels
-  write_file outdir, "rl.html", SomeType.new("Rails Stuff", imgstuff, 'rl')
-  imgstuff['hosts']['rl'].each do |host|
-    write_file(outdir, "rl_#{host}.html",
-      SomeTypeHost.new("System stuff for #{host}", imgstuff, host, 'rl'))
-  end
+  mk_html_with_types(imgstuff, outdir, "Rails Stuff", 'rl')
 end
 
 if $0 == __FILE__
