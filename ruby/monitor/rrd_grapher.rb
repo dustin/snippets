@@ -28,7 +28,7 @@ class RrdGrapher
   end
 
   def common_args(fn, title, range)
-    args=['rrdtool', 'graph', fn, "-v", title, '-s', range]
+    args=['rrdtool', 'graph', prefix(fn), "-v", title, '-s', range]
     args += %W(-w #{@width} -h #{@height} -a PNG -t) + [title]
   end
 
@@ -163,11 +163,11 @@ class LinuxGrapher < RrdGrapher
   end
 
   def draw_all(suffix, range)
-    do_cpu prefix("cpu_#{suffix}.png"), range
-    do_paging prefix("paging_#{suffix}.png"), range
-    do_swapping prefix("swapping_#{suffix}.png"), range
-    do_ctx prefix("ctx_#{suffix}.png"), range
-    do_load prefix("load_#{suffix}.png"), range
+    do_cpu "cpu_#{suffix}.png", range
+    do_paging "paging_#{suffix}.png", range
+    do_swapping "swapping_#{suffix}.png", range
+    do_ctx "ctx_#{suffix}.png", range
+    do_load "load_#{suffix}.png", range
   end
 
 end
@@ -198,8 +198,8 @@ class RailsLogGrapher < RrdGrapher
   end
 
   def draw_all(suffix, range)
-    do_count prefix("rl_count_#{suffix}.png"), range
-    do_times prefix("rl_time_#{suffix}.png"), range
+    do_count "rl_count_#{suffix}.png", range
+    do_times "rl_time_#{suffix}.png", range
   end
 
 end
@@ -211,31 +211,35 @@ if $0 == __FILE__
   width=400
   height=200
 
+  img_path="imgs/"
+
   graphers = []
 
-  mcg=MemcacheGrapher.new(conf['memcached'].map {|x| x + ".rrd"}, width, height)
-  graphers << mcg
+  graphers << MemcacheGrapher.new(conf['memcached'].map {|x| x + ".rrd"},
+    width, height, img_path)
 
   if conf['linux']
     hostfiles=conf['linux'].map{|h| URI.parse(h['url']).host + ".rrd"}
-    lg=LinuxGrapher.new(hostfiles, width, height)
+    lg=LinuxGrapher.new(hostfiles, width, height, img_path)
 
     graphers << lg
 
     conf['linux'].each do |h|
       hn = URI.parse(h['url']).host
       graphers << LinuxGrapher.new([hn + ".rrd"], width, height,
-        "hosts/" + hn + "_")
+        "#{img_path}hosts/" + hn + "_")
     end
   end
 
   if conf['db']
-    graphers << RailsLogGrapher.new(Dir.glob("rldb_*.rrd"), width, height)
+    graphers << RailsLogGrapher.new(Dir.glob("rldb_*.rrd"), width, height,
+      img_path)
 
     Dir.glob("rldb_*.rrd").each do |f|
       # Take the prefix and suffix off
       hn=f[5..-5]
-      graphers << RailsLogGrapher.new([f], width, height, "hosts/#{hn}_")
+      graphers << RailsLogGrapher.new([f], width, height,
+        "#{img_path}hosts/#{hn}_")
     end
   end
 
