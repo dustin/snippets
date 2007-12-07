@@ -28,7 +28,7 @@ class RrdGrapher
   end
 
   def common_args(fn, title, range)
-    args=['rrdtool', 'graph', prefix(fn), "-v", title, '-s', range]
+    args=['rrdtool', 'graph', '-z', prefix(fn), "-v", title, '-s', range]
     args += %W(-w #{@width} -h #{@height} -a PNG -t) + [title]
   end
 
@@ -227,7 +227,7 @@ if $0 == __FILE__
     conf['linux'].each do |h|
       hn = URI.parse(h['url']).host
       graphers << LinuxGrapher.new([hn + ".rrd"], width, height,
-        "#{img_path}hosts/" + hn + "_")
+        "#{img_path}hosts/sys_" + hn + "_")
     end
   end
 
@@ -239,10 +239,12 @@ if $0 == __FILE__
       # Take the prefix and suffix off
       hn=f[5..-5]
       graphers << RailsLogGrapher.new([f], width, height,
-        "#{img_path}hosts/#{hn}_")
+        "#{img_path}hosts/rldb_#{hn}_")
     end
   end
 
   # Draw all the graphs.
   graphers.each {|g| g.draw_all 'day', 'now - 24 hours' }
+  graphers.each {|g| g.draw_all 'week', 'now - 7 days' }
+  graphers.each {|g| g.draw_all 'month', 'now - 1 month' }
 end
