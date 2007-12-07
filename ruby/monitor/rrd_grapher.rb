@@ -231,6 +231,12 @@ if $0 == __FILE__
 
   if conf['db']
     graphers << RailsLogGrapher.new(Dir.glob("rldb_*.rrd"), width, height)
+
+    Dir.glob("rldb_*.rrd").each do |f|
+      # Take the prefix and suffix off
+      hn=f[5..-5]
+      graphers << RailsLogGrapher.new([f], width, height, "hosts/#{hn}_")
+    end
   end
 
   # Draw all the graphs.
