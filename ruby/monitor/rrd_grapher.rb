@@ -211,7 +211,7 @@ if $0 == __FILE__
   width=400
   height=200
 
-  img_path="imgs/"
+  img_path=conf['img_path'] || "imgs/"
 
   graphers = []
 
