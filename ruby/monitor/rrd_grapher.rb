@@ -113,9 +113,14 @@ class LinuxGrapher < RrdGrapher
 
   def do_cpu(fn, range)
     args = common_args fn, 'CPU Utilization', range
-    args += mk_var 'user', 'cpu_user', :max
-    args += mk_var 'nice', 'cpu_nice', :max
-    args += mk_var 'sys', 'cpu_sys', :max
+    args += mk_var 'user_raw', 'cpu_user', :max
+    args += mk_var 'nice_raw', 'cpu_nice', :max
+    args += mk_var 'sys_raw', 'cpu_sys', :max
+    args += mk_var 'idle_raw', 'cpu_idle', :max
+    args << "CDEF:total=user_raw,nice_raw,sys_raw,idle_raw,+,+,+"
+    args << "CDEF:user=user_raw,total,/,100,*"
+    args << "CDEF:nice=nice_raw,total,/,100,*"
+    args << "CDEF:sys=sys_raw,total,/,100,*"
     # THis doesn't quite give the right results.
     # args += mk_var 'idle', 'cpu_idle', :max
     args << "CDEF:idle=100,user,nice,sys,-,-,-"
