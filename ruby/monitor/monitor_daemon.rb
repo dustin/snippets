@@ -21,7 +21,7 @@ class MonitorDaemon
     @threads = []
   end
 
-  def add_task(freq)
+  def add_task(freq, name)
     # I'm going to punt and just make threads that loop and stuff.
     @threads << Thread.new do
       # Allow some kind of delay up to the frequency before the first poll
@@ -30,7 +30,7 @@ class MonitorDaemon
         begin
           yield
         rescue => e
-          $stderr.puts "Error processing stuff:  #{e}"
+          $stderr.puts "Error processing #{name}:  #{e}"
         end
         sleep freq
       end
@@ -46,16 +46,16 @@ class MonitorDaemon
   def add_proc_task(freq, url, user, pass)
     lh=LinuxHostInfo.new(url, user, pass)
     h=LinuxHostRRD.new(lh)
-    add_task(freq) { h.rrd_inserts }
+    add_task(freq, "proc #{url}") { h.rrd_inserts }
   end
 
   def add_memcached_task(freq, servers)
     m=MemCacheRRD.new(servers)
-    add_task(freq) { m.rrd_inserts }
+    add_task(freq, "memcached") { m.rrd_inserts }
   end
 
   def add_rails_poll(freq, c)
-    add_task(freq) do
+    add_task(freq, "rails poll") do
       h=c['host']
       u=c['user']
       p=c['pass'] || ''
