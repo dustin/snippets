@@ -6,40 +6,52 @@ require 'yaml'
 require 'rrd_schema'
 require 'memcache_rrd'
 
-QUEUE=Queue.new
+class Job
 
-module RRDSchema
-  alias send_rrd_cmd_stupid send_rrd_cmd
-  def send_rrd_cmd(s)
-    QUEUE << s
+  attr_reader :name, :freq, :next
+
+  def initialize(freq, name, block)
+    @name=name
+    @freq=freq
+    @block=block
+
+    initial_delay=[freq, 15].min / 2
+    @next=Time.now.to_i + initial_delay
   end
+
+  def run
+    @next=Time.now.to_i + @freq
+    @block.call
+  end
+
 end
 
 class MonitorDaemon
 
   def initialize
-    @threads = []
+    @jobs = []
   end
 
-  def add_task(freq, name)
-    # I'm going to punt and just make threads that loop and stuff.
-    @threads << Thread.new do
-      # Allow some kind of delay up to the frequency before the first poll
-      sleep([15, rand * freq].min)
-      while true
-        begin
-          yield
-        rescue => e
-          $stderr.puts "Error processing #{name}:  #{e}"
-        end
-        sleep freq
-      end
-    end
+  def add_task(freq, name, &block)
+    @jobs << Job.new(freq, name, block)
   end
 
-  def for_responses
+  def run_all
     while true
-      yield QUEUE.pop
+      now = Time.now.to_i
+      @jobs.select {|j| j.next <= now}.each do |j|
+        begin
+          j.run
+          $stdout.flush
+        rescue => e
+          $stderr.puts "Problem running #{j.name}:  #{e}"
+        end
+      end
+
+      nextup=@jobs.min {|a,b| a.next <=> b.next}
+      now = Time.now.to_i
+      delay = nextup.next - now
+      sleep delay if delay > 0
     end
   end
 
@@ -51,7 +63,7 @@ class MonitorDaemon
 
   def add_memcached_task(freq, servers)
     m=MemCacheRRD.new(servers)
-    add_task(freq, "memcached") { m.rrd_inserts }
+    add_task(freq, "memcached [#{servers.join(', ')}]") { m.rrd_inserts }
   end
 
   def add_rails_poll(freq, c)
@@ -79,15 +91,14 @@ if $0 == __FILE__
     end
   end
 
-  md.add_memcached_task 60, conf['memcached']
+  conf['memcached'].each do |server|
+    md.add_memcached_task 60, [server]
+  end
 
   if conf['db']
     require 'rails_log'
     md.add_rails_poll 300, conf['db']
   end
 
-  md.for_responses do |response|
-    puts response
-    $stdout.flush
-  end
+  md.run_all
 end
