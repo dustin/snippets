@@ -10,9 +10,7 @@
 	<integer>1</integer>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/opt/local/bin/hg</string>
-		<string>pull</string>
-		<string>-u</string>
+		<string>/Users/dustin/local.bin/caring-update</string>
 	</array>
 	<key>WorkingDirectory</key>
 	<string>/Users/dustin/caring/incoming</string>
