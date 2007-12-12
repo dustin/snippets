@@ -1,11 +1,12 @@
 #!/usr/bin/env ruby -w
 
+require 'set'
 require 'rubygems'
 require 'memcache'
 
 require 'rrd_schema'
 
-IGNORED_STATS=%w(pid time version)
+IGNORED_STATS=%w(pid time version threads)
 DECIMAL_STAT=%w(rusage_system rusage_user)
 
 # Set up the types by item type.  Default is counter, but there are some
@@ -51,7 +52,11 @@ class MemCacheRRD
 
   def stat_keys(all_stats)
     # all_stats is a hash of {server_name => {stat_key => stat_value}}
-    all_stats.to_a[0][1].keys
+    rv=Set.new
+    all_stats.to_a.each do |k,v|
+      rv.merge v.keys
+    end
+    rv
   end
 
   def fname(server)
