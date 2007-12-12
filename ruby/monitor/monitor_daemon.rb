@@ -15,12 +15,17 @@ class Job
     @freq=freq
     @block=block
 
-    initial_delay=[freq, 15].min / 2
+    initial_delay=rand [freq, 30].min
     @next=Time.now.to_i + initial_delay
   end
 
   def run
-    @next=Time.now.to_i + @freq
+    # Compute the next time in such a way that doesn't drift
+    now = Time.now.to_i
+    while @next <= now
+      @next=now + @freq
+    end
+    # And invoke the job
     @block.call
   end
 
@@ -39,6 +44,7 @@ class MonitorDaemon
   def run_all
     while true
       now = Time.now.to_i
+      # O(n) selection of current jobs to run
       @jobs.select {|j| j.next <= now}.each do |j|
         begin
           j.run
@@ -48,9 +54,8 @@ class MonitorDaemon
         end
       end
 
-      nextup=@jobs.min {|a,b| a.next <=> b.next}
-      now = Time.now.to_i
-      delay = nextup.next - now
+      # And an O(n) computation of the next job to run
+      delay = @jobs.min {|a,b| a.next <=> b.next}.next - Time.now.to_i
       sleep delay if delay > 0
     end
   end
