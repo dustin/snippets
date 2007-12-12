@@ -56,7 +56,7 @@ class MemcacheGrapher < RrdGrapher
   end
 
   def do_hit_misses_per_server(fn, range)
-    args = common_args fn, 'Cache Requests/m', range
+    args = common_args fn, 'Cache Requests/m per Server', range
     f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
     @files.each do |f|
       h=f_hash[f]
@@ -87,15 +87,31 @@ class MemcacheGrapher < RrdGrapher
 
   def do_bytes(fn, range)
     args = common_args fn, 'Bytes in Cache', range
-    args += mk_var 'bytes', 'bytes', :max
-    args += ["AREA:bytes#000000:Bytes"]
+    f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
+    type="AREA"
+    @files.each do |f|
+      h=f_hash[f]
+      c=mk_color h
+      sn=File.basename(f, ".rrd")
+      args += %W(DEF:bytes#{h}=#{f}:bytes:MAX
+                #{type}:bytes#{h}##{c}:#{sn}\ Bytes\\n)
+      type="STACK"
+    end
     system(*args)
   end
 
   def do_items(fn, range)
     args = common_args fn, 'Items in Cache', range
-    args += mk_var 'items', 'curr_items', :max
-    args += ["AREA:items#000000:Items"]
+    f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
+    type="AREA"
+    @files.each do |f|
+      h=f_hash[f]
+      c=mk_color h
+      sn=File.basename(f, ".rrd")
+      args += %W(DEF:curr_items#{h}=#{f}:curr_items:MAX
+                #{type}:curr_items#{h}##{c}:#{sn}\ Items\\n)
+      type="STACK"
+    end
     system(*args)
   end
 
@@ -121,9 +137,7 @@ class LinuxGrapher < RrdGrapher
     args << "CDEF:user=user_raw,total,/,100,*"
     args << "CDEF:nice=nice_raw,total,/,100,*"
     args << "CDEF:sys=sys_raw,total,/,100,*"
-    # THis doesn't quite give the right results.
-    # args += mk_var 'idle', 'cpu_idle', :max
-    args << "CDEF:idle=100,user,nice,sys,-,-,-"
+    args << "CDEF:idle=idle_raw,total,/,100,*"
     args << "AREA:user#000077:User"
     args << "STACK:nice#0000ff:Nice"
     args << "STACK:sys#770000:System"
