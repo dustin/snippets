@@ -87,6 +87,7 @@ class MemcacheGrapher < RrdGrapher
 
   def do_bytes(fn, range)
     args = common_args fn, 'Bytes in Cache', range
+    args += %w(-l 0)
     f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
     type="AREA"
     @files.each do |f|
@@ -94,7 +95,10 @@ class MemcacheGrapher < RrdGrapher
       c=mk_color h
       sn=File.basename(f, ".rrd")
       args += %W(DEF:bytes#{h}=#{f}:bytes:MAX
-                #{type}:bytes#{h}##{c}:#{sn}\ Bytes\\n)
+                VDEF:vbytes#{h}=bytes#{h},LAST
+                #{type}:bytes#{h}##{c}:#{sn}
+                GPRINT:vbytes#{h}:%.2lf%s\\n
+                )
       type="STACK"
     end
     system(*args)
@@ -102,6 +106,7 @@ class MemcacheGrapher < RrdGrapher
 
   def do_items(fn, range)
     args = common_args fn, 'Items in Cache', range
+    args += %w(-l 0)
     f_hash=Hash[*@files.zip((1..@files.length).to_a).flatten]
     type="AREA"
     @files.each do |f|
@@ -109,7 +114,10 @@ class MemcacheGrapher < RrdGrapher
       c=mk_color h
       sn=File.basename(f, ".rrd")
       args += %W(DEF:curr_items#{h}=#{f}:curr_items:MAX
-                #{type}:curr_items#{h}##{c}:#{sn}\ Items\\n)
+                VDEF:vitems#{h}=curr_items#{h},LAST
+                #{type}:curr_items#{h}##{c}:#{sn}
+                GPRINT:vitems#{h}:%.2lf%s\\n
+                )
       type="STACK"
     end
     system(*args)
