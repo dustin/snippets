@@ -1,0 +1,140 @@
+#!/usr/bin/env ruby
+# vim: ts=2 et
+
+require 'etc'
+require 'yaml'
+
+module Initr
+
+  class BaseCommand
+
+    attr_accessor :pid, :file
+
+    def initialize(data)
+      @data=data
+    end
+
+    def run
+      start_process
+    end
+
+    def restart?
+      true
+    end
+
+    def runas
+      @data['runas']
+    end
+
+    def cmd
+      @data['cmd']
+    end
+
+    def args
+      @data['args'] || []
+    end
+
+    protected
+
+    def start_process
+      pid = fork
+      if pid.nil?
+        setuid
+        fullcmd=[cmd] + args
+        exec *fullcmd
+      end
+      pid
+    end
+
+    def setuid
+      s=Etc.getpwnam runas
+      if s.uid != Process.uid
+        Process.uid=s.uid
+        Process.euid=s.uid
+      end
+    end
+
+  end
+
+  class OnceCommand < BaseCommand
+
+    def restart?
+      false
+    end
+
+  end
+
+  class ForeverCommand < BaseCommand
+
+  end
+
+  class Initr
+
+    def initialize
+      @sources=[]
+      @commands={}
+      @processes={}
+    end
+
+    def add_source(dir)
+      @sources << dir
+    end
+
+    def go
+      read_specs
+      @commands.values.each { |cmd| start_command cmd }
+      wait_and_restart
+    end
+
+    private
+
+    def wait_and_restart
+      loop do
+        Process.wait
+        estat=$?
+        cmd=@processes[estat.pid]
+        puts "Process #{cmd.inspect} exited with status #{estat.exitstatus}"
+        if cmd.restart?
+          puts "Restarting #{cmd.inspect}"
+          start_command cmd
+        end
+      end
+    end
+
+    def read_specs
+      @sources.each do |dir|
+        Dir.glob("#{dir}/*.yml") do |filename|
+          cmdspec=YAML::load_file filename
+          cmd=nil
+          case cmdspec['type']
+            when 'once'
+              cmd=OnceCommand.new(cmdspec)
+            when 'forever'
+              cmd=ForeverCommand.new(cmdspec)
+            else
+              raise "Unhandled type:  #{cmdspec['type']}"
+          end
+          raise "Couldn't initialize cmd from #{cmdspec.inspect}" if cmd.nil?
+          cmd.file=filename
+          @commands[filename]=cmd
+        end
+      end
+    end
+
+    def start_command(cmd)
+      cmd.pid=cmd.run
+      unless cmd.pid.nil?
+        @processes[cmd.pid]=cmd
+        puts "Started as #{cmd.pid}"
+      end
+    end
+
+  end # Initr class
+
+end # Initr module
+
+if $0 == __FILE__
+  initr=Initr::Initr.new
+  initr.add_source 'testscripts'
+  initr.go
+end

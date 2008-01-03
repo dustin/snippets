@@ -1,0 +1,8 @@
+---
+type: once
+runas: dustin
+cmd: /bin/echo
+args:
+ - arg1
+ - arg2
+ - arg3

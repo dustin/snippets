@@ -1,0 +1,25 @@
+(no particular order)
+
+- Syslog
+- Handle stdin, stdout, stderr, and all other file descriptors
+- Command domain socket
+  - Load/unload a process definition.
+  - Temporarily suspend a process (stop for a while, then restart)
+  - Ask for status on running processes.
+- A proper shutdown sequence
+- setsid
+- Cleanup after a process dies (child processes by group)
+- YAML properties (and appropriate functionality)
+  - Location of PID file
+  - Start dir
+  - chroot
+  - group id
+  - rlimits
+  - niceness
+  - name
+  - active flag
+  - provides
+  - requires
+  - environment
+  - umask
+  - throttle interval
