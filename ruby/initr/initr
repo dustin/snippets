@@ -72,7 +72,9 @@ module Initr
 
     def initialize
       @sources=[]
+      # Initialized commands
       @commands={}
+      # Active processes.
       @processes={}
     end
 
@@ -93,6 +95,7 @@ module Initr
         Process.wait
         estat=$?
         cmd=@processes[estat.pid]
+        @processes.delete estat.pid
         puts "Process #{cmd.inspect} exited with status #{estat.exitstatus}"
         if cmd.restart?
           puts "Restarting #{cmd.inspect}"
