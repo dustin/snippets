@@ -41,7 +41,8 @@ class RevisionHandler(OptInHandler):
         if isinstance(val, saxkit.SimpleValueParser):
             s=val.getValue()
             self.sup.text=s
-            if s.find("{{coord|") > 0 or s.find("{{Geolinks") > 0:
+            if s.find("{{coor ") > 0 or s.find("{{coord|") > 0 \
+                or s.find("{{Geolinks") > 0:
                 self.sup.interesting=True
 
 class PageHandler(OptInHandler):
