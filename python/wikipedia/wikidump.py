@@ -6,7 +6,6 @@ Copyright (c) 2007  Dustin Sallings <dustin@spy.net>
 """
 
 import sys
-import sets
 from sqlite3 import dbapi2 as sqlite
 import xml.sax
 import saxkit
@@ -24,7 +23,7 @@ INTERESTING_QUERY="""
     insert into interesting_pages(title, article_text) values(?, ?)
 """
 
-SEEN_TITLES=sets.Set()
+SEEN_TITLES=set()
 
 class OptInHandler(saxkit.ElementHandler):
 
@@ -60,6 +59,8 @@ class PageHandler(OptInHandler):
     def has_seen(self, title):
         assert title
         self.was_seen = title in SEEN_TITLES
+        if self.was_seen:
+            SEEN_TITLES.remove(title)
         return self.was_seen
 
     def getParser(self, name):
@@ -81,10 +82,14 @@ class RootHandler(OptInHandler):
     def addChild(self, name, val):
         if isinstance(val, PageHandler):
             if not val.was_seen:
-                SEEN_TITLES.add(val.title)
+                # SEEN_TITLES.add(val.title)
                 CUR.execute(SEEN_QUERY, (val.title,))
             if val.interesting:
-                print unicode(val)
+                try:
+                    print unicode(val)
+                except UnicodeEncodeError:
+                    print "(Found one, but couldn't print it...)"
+                    pass
                 CUR.execute(INTERESTING_QUERY, (val.title, val.text))
                 DB.commit()
 
