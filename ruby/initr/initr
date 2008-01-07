@@ -76,6 +76,11 @@ module Initr
       @commands={}
       # Active processes.
       @processes={}
+
+      Signal.trap("CHLD") do
+        restart_next_cmd
+      end
+
     end
 
     def add_source(dir)
@@ -90,17 +95,22 @@ module Initr
 
     private
 
+    def restart_next_cmd
+      Process.wait
+      estat=$?
+      cmd=@processes[estat.pid]
+      @processes.delete estat.pid
+      puts "Process #{cmd.inspect} exited with status #{estat.exitstatus}"
+      if cmd.restart?
+        puts "Restarting #{cmd.inspect}"
+        start_command cmd
+      end
+    end
+
     def wait_and_restart
       loop do
-        Process.wait
-        estat=$?
-        cmd=@processes[estat.pid]
-        @processes.delete estat.pid
-        puts "Process #{cmd.inspect} exited with status #{estat.exitstatus}"
-        if cmd.restart?
-          puts "Restarting #{cmd.inspect}"
-          start_command cmd
-        end
+        puts "Sleeping..."
+        sleep 60
       end
     end
 
