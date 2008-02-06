@@ -20,7 +20,7 @@ PAGES_Q="""select title, article_text from interesting_pages
 UPDATE_Q="""update interesting_pages set latitude = ?, longitude = ?, type = ?
     where title = ?"""
 
-GEO_RE=re.compile("{{(Geolink[^\|]*|coord)\|([^}]*)}}", re.M)
+GEO_RE=re.compile("{{(Geolink[^\|]*|coord|coor [^|]+)\|([^}]*)}}", re.M)
 NUM=re.compile(r'([-\d\.]+)')
 
 SIGNS={'N': 1, 'S': -1, 'E': 1, 'W': -1}
