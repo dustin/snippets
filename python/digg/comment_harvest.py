@@ -27,8 +27,10 @@ create table comments (
     level integer not null,
     replyto integer,
     root integer,
-    comment text not null
+    comment text not null,
+    processed boolean default 'f'
 );
+create unique index idx_comment_id on comments(id);
 """
 
 DB=sqlite.connect("digg.sqlite3")
