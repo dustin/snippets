@@ -45,9 +45,9 @@ def date_seq(date):
     stop = start + 86400
     return range(start, stop, 3600)
 
-def yesterday_seq():
+def time_ago_seq(ndays=1):
     """Get the sequence for yesterday"""
-    return date_seq(datetime.date.today() - datetime.timedelta(1))
+    return date_seq(datetime.date.today() - datetime.timedelta(ndays))
 
 def store_comment(comment):
     """Store a comment."""
@@ -82,4 +82,7 @@ def do_comments(range):
             DB.commit()
 
 if __name__ == '__main__':
-    do_comments(yesterday_seq())
+    n=0
+    if len(sys.argv) > 1:
+        n=int(sys.argv[1])
+    do_comments(time_ago_seq(n))
