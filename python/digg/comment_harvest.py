@@ -84,7 +84,7 @@ def do_comments(range):
             DB.commit()
 
 if __name__ == '__main__':
-    n=0
+    n=1
     if len(sys.argv) > 1:
         n=int(sys.argv[1])
     do_comments(time_ago_seq(n))
