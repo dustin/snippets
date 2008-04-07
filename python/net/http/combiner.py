@@ -18,15 +18,19 @@ import feedparser
 
 HGLIST='http://hg.west.spy.net/~dustin/hglist.txt'
 HGPATTERN='http://hg.west.spy.net/hg/%s/rss-log'
+GITHUB='http://github.com/dustin.atom'
 
 TMPDIR='/tmp/combiner'
 
-def getList(url=HGLIST, pattern=HGPATTERN):
+def getHgList(url=HGLIST, pattern=HGPATTERN):
     f=urllib.urlopen(url)
     try:
         return [pattern % i.strip() for i in f if not i.startswith("private/")]
     finally:
         f.close()
+
+def getList():
+    return getHgList() + [GITHUB]
 
 def __makeFilename(url):
     return os.path.join(TMPDIR, md5.new(url).hexdigest() + ".xml")
@@ -85,7 +89,11 @@ def generateRss(title, url, descr, items):
             it = doc.createElement("item")
             itemCopy(it, i, 'link')
             itemCopy(it, i, 'title')
-            appendText(it, 'description', i['summary'])
+            if i.has_key('summary'):
+                summary = i['summary']
+            else:
+                summary = i['subtitle']
+            appendText(it, 'description', summary)
             appendText(it, 'pubDate', i['updated'])
             channel.appendChild(it)
         except KeyError, e:
