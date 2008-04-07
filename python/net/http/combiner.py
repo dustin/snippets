@@ -48,11 +48,14 @@ def getFeeds(urls):
 def combineFeeds(feeds, maxRv=20):
     rv=[]
     for f in feeds:
-        t=f.feed.title.replace(' Changelog', '')
-        for e in f.entries:
-            d=dict(e)
-            d['title']=t + ': ' + e.title
-            rv.append(d)
+        if hasattr(f.feed, 'title'):
+            t=f.feed.title.replace(' Changelog', '')
+            for e in f.entries:
+                d=dict(e)
+                d['title']=t + ': ' + e.title
+                rv.append(d)
+        else:
+            print "No title in %s", repr(f)
     return sorted(rv, key=lambda x:x['updated_parsed'], reverse=True)[:maxRv]
 
 def formatTimestamp(ts):
