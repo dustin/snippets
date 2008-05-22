@@ -1,0 +1,11 @@
+.*
+!.git*
+.pyc
+.DS_Store
+*.a
+*.o
+*.cma
+*.cmxa
+*.cmi
+*.cmo
+*.cmx
