@@ -4,7 +4,7 @@ require 'rubygems'
 require 'beanstalk-client'
 
 def delta(ov, nv)
-  sym = nv > ov ? "+" : "-"
+  sym = nv > ov ? "+" : ""
   fmt = nil
   if ov.is_a?(Fixnum)
     fmt = "(%s%d)"
@@ -39,5 +39,5 @@ oldstats = {}
 
 loop do
   oldstats = show_stats(oldstats, bp)
-  sleep 5
+  sleep 10
 end
