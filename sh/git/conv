@@ -1,0 +1,20 @@
+#!/bin/sh
+# Script I used to convert some old tla trees to git via hg.  I also had to
+# rename the stuff on the way in.
+
+arch=$1
+shortname=$2
+
+/tmp/tla-to-hg-hist.py dustin@spy.net--snippets/$arch hg || exit 1
+mkdir git && cd git && git init
+env PYTHON=/opt/local/bin/python2.5 \
+	~/prog/eprojects/fast-export/hg-fast-export.sh -r ../hg || exit 1
+
+git checkout
+git filter-branch --tree-filter "/tmp/mymv $shortname" || exit 1
+
+cd ..
+rm -rf hg
+mv git/.git . || exit 1
+mv git/$shortname . || exit 1
+rmdir git || exit 1
