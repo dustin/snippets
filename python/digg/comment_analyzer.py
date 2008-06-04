@@ -30,7 +30,7 @@ INS="""insert into word_groups (comment_id, num_words, word_seq, count)
     values (?, ?, ?, ?)"""
 MARK="update comments set processed = 't' where id = ?"
 FETCH="""select id, comment from comments
-    where processed = 'f' and (up - down) > -3
+    where processed = 'f' and (up - down) > 5
     limit 800"""
 
 def process(id, comment):
@@ -50,13 +50,11 @@ def process(id, comment):
     CUR.execute(MARK, [id])
 
 if __name__ == '__main__':
-    total = 0
     select_cur = DB.cursor()
 
     select_cur.execute(FETCH)
     rows=select_cur.fetchall()
     while rows:
-        total += len(rows)
         print "Starting chunk of %d" % len(rows)
         for r in rows:
             process(r[0], str(r[1]))
@@ -64,5 +62,3 @@ if __name__ == '__main__':
         DB.commit()
         select_cur.execute(FETCH)
         rows = select_cur.fetchall()
-
-    print "Processed %d comments" % total
