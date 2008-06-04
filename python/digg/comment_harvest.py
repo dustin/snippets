@@ -72,8 +72,18 @@ def do_comments(range):
         done = False
         while not done:
             print "\tfetching (%d/%d)..." % (offset, total)
-            comments = d.getComments(min_date=min_date, count=size,
-                sort='', offset=offset)
+            successful=False
+            while not successful:
+                try:
+                    comments = d.getComments(min_date=min_date, count=size,
+                        sort='', offset=offset)
+                    successful = True
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    print "**** retrying ****"
+                    time.sleep(5)
+                    pass
             assert len(comments) == int(comments.count)
             print "\tgot %d items" % len(comments)
             offset = int(comments.offset) + size
