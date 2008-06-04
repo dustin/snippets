@@ -5,6 +5,8 @@ Copyright (c) 2007  Dustin Sallings <dustin@spy.net>
 """
 
 import sys
+import sets
+import string
 import datetime
 from sqlite3 import dbapi2 as sqlite
 
@@ -18,6 +20,8 @@ create table word_groups (
     count integer
 );
 """
+
+letters=sets.ImmutableSet(string.letters)
 
 DB=sqlite.connect("digg-tmp.sqlite3")
 CUR=DB.cursor()
@@ -39,7 +43,8 @@ def process(id, comment):
                 w=' '.join(wg)
                 groups[w] = groups.get(w, 0) + 1
         for (w, c) in groups.iteritems():
-            CUR.execute(INS, [id, size, w, c])
+            if letters.intersection(sets.Set(w)):
+                CUR.execute(INS, [id, size, w, c])
     sys.stdout.write(".")
     sys.stdout.flush()
     CUR.execute(MARK, [id])
