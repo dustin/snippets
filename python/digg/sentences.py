@@ -12,7 +12,8 @@ import string
 SENTENCE=re.compile("[\.\?\!]\s*")
 WORD=re.compile("[,;]?\s*")
 HTML=re.compile(r"<[^>]*>")
-TR=string.maketrans("\n\t", '  ')
+badchars="""\n\t#|{}()"'"""
+TR=string.maketrans(badchars, ' ' * len(badchars))
 
 def split_sentences(text):
     """Split a chunk of text into sentences."""
