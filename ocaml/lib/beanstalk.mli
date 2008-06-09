@@ -2,34 +2,63 @@
  * Copyright (c) 2008  Dustin Sallings <dustin@spy.net>
  *)
 
+(**
+  A beanstalk client for ocaml.
+
+  {{:http://xph.us/software/beanstalkd/} http://xph.us/software/beanstalkd/}
+*)
+
+(**
+  Exception raised for any unexpected response.
+
+  This is also raised for several that are expected, but undesired.
+*)
 exception UnexpectedResponse of string
 
+(**
+  Exception raised when a reserve_with_timeout times out.
+*)
 exception Timeout
 
+(** A connection to beanstalkd. *)
 type beanstalk_conn = {
     reader : in_channel;
 	writer : out_channel;
 }
 
+(** An indiviual job returned from beanstalkd. *)
 type beanstalk_job = {
 	job_id : int;
 	job_data : string;
 }
 
+(**
+ Connect to a beanstalk server.
+
+ @param hostname the server's hostname
+ @param port the port number on the server
+*)
 val connect : string -> int -> beanstalk_conn
+
+(** Shut down a beanstalk connection *)
 val shutdown : beanstalk_conn -> unit
 
+(** Select the tube for new jobs *)
 val use : beanstalk_conn -> string -> unit
+
+(** Start watching a tube. *)
 val watch : beanstalk_conn -> string -> int
+
+(** Stop watching a tube. *)
 val ignore : beanstalk_conn -> string -> int
 
 (**
   Insert a new job
 
-  @param priority the new priority of the job
+  @param pri the new priority of the job
   @param delay how long before the job is eligible for execution again
   @param ttr how long the job should be allowed to run once reserved
-  @param bytes the actual job data
+  @param data the actual job data
 *)
 val put : beanstalk_conn -> int -> int -> int -> string -> int
 
