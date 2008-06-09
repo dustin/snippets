@@ -7,7 +7,7 @@ PROFILE=
 
 PROGS=mailCompress hlgrep missingNumbers magicSquare waitForSocket wx200 \
 	builddict cipher splitFreqs lncp resolver ager blockDigest blockDigest.cmi \
-	digestline cdbcat cdbpick cdbget cdbtest ipsc_dep base64decode
+	digestline cdbcat cdbpick cdbget cdbtest ipsc_dep base64decode rails_queue
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -110,6 +110,10 @@ blockDigest: blockDigest.ml
 lncp: lncp.ml
 	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
 		unix.cmxa spy.cmxa lncp.ml
+
+rails_queue: rails_queue.ml
+	$(OCAMLOPT) $(PROFILE) -o $@ -I ../lib \
+		unix.cmxa spy.cmxa rails_queue.ml
 
 clean:
 	rm -f *.a *.cma *.cmxa *.cmx *.mli *.cmi *.cmo *.o
