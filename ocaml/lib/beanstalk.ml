@@ -80,9 +80,12 @@ let get_job_response bs =
 		| "TIMED_OUT"::_Tl -> raise Timeout
 		| _ -> raise (UnexpectedResponse res)
 
+let sendcmd bs cmd =
+	output_string bs.writer (cmd ^ "\r\n");
+	flush bs.writer
+
 let reserve bs =
-	output_string bs.writer "reserve\r\n";
-	flush bs.writer;
+	sendcmd bs "reserve";
 	get_job_response bs
 
 let reserve_with_timeout bs timeout =
