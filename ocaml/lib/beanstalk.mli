@@ -61,6 +61,13 @@ val release : beanstalk_conn -> int -> int -> int -> unit
 val bury : beanstalk_conn -> int -> int -> unit
 
 (**
+  Kick jobs out of the buried state.  Returns the number of jobs kicked.
+
+  @param bound the maximum number of jobs to kick
+*)
+val kick : beanstalk_conn -> int -> int
+
+(**
   Reserve a job (with timeout)
 *)
 val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job

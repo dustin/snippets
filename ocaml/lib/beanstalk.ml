@@ -132,3 +132,10 @@ let used_tube bs =
 let bury bs id pri =
 	Printf.fprintf bs.writer "bury %d %d\r\n%!" id pri;
 	check_input_line bs "BURIED"
+
+let kick bs bound =
+	Printf.fprintf bs.writer "kick %d\r\n%!" bound;
+	let res = Extstring.strip_end (input_line bs.reader) in
+	match (Extstring.split res ' ' 2) with
+		  "KICKED"::[count_s] -> int_of_string count_s
+		| _ -> raise (UnexpectedResponse res)

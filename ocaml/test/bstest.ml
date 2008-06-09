@@ -46,17 +46,17 @@ let main () =
 	Beanstalk.bury bs job3.job_id 100;
 	Printf.printf "Buried %d\n%!" job3.job_id;
 
-	(*
-	Beanstalk.delete bs job3.job_id;
-	Printf.printf "Deleted job %d\n%!" job3.job_id;
-	*)
-
 	try
 		Pervasives.ignore(Beanstalk.reserve_with_timeout bs 0);
 		Printf.printf "Crap, expected a timeout\n%!"
 	with Beanstalk.Timeout -> (
 		Printf.printf "Got a timeout on a reserve\n%!"
 	);
+
+	Printf.printf "Kicked %d\n%!" (Beanstalk.kick bs 100);
+
+	let job4 = Beanstalk.reserve_with_timeout bs 0 in
+	Printf.printf "Got job %d:  %s\n%!" job4.job_id job4.job_data;
 
 	Beanstalk.shutdown bs
 ;;
