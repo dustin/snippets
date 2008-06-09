@@ -62,3 +62,6 @@ val list_tubes : beanstalk_conn -> string list
 
 (** List all of the tubes you're currently watching. *)
 val list_tubes_watched : beanstalk_conn -> string list
+
+(** Get the name of the used tube (where puts go) *)
+val used_tube : beanstalk_conn -> string

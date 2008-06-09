@@ -121,3 +121,10 @@ let list_tubes bs =
 let list_tubes_watched bs =
 	sendcmd bs "list-tubes-watched";
 	parse_tube_list bs
+
+let used_tube bs =
+	sendcmd bs "list-tube-used";
+	let res = Extstring.strip_end (input_line bs.reader) in
+	match (Extstring.split res ' ' 2) with
+		  "USING"::[name] -> name
+		| _ -> raise (UnexpectedResponse res)
