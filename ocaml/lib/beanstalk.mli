@@ -80,3 +80,8 @@ val list_tubes_watched : beanstalk_conn -> string list
 
 (** Get the name of the used tube (where puts go) *)
 val used_tube : beanstalk_conn -> string
+
+(**
+  Grab a job by ID (does not reserve).
+*)
+val peek : beanstalk_conn -> int -> beanstalk_job

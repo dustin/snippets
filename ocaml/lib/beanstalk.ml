@@ -77,7 +77,11 @@ let get_job_response bs =
 		  ["RESERVED"; id; size_str] ->
 			let size = int_of_string size_str in
 			{job_id = int_of_string id; job_data = read_bytes bs size}
+		| ["FOUND"; id; size_str] ->
+			let size = int_of_string size_str in
+			{job_id = int_of_string id; job_data = read_bytes bs size}
 		| "TIMED_OUT"::_Tl -> raise Timeout
+		| "NOT_FOUND"::_Tl -> raise Not_found
 		| _ -> raise (UnexpectedResponse res)
 
 let sendcmd bs cmd =
@@ -139,3 +143,7 @@ let kick bs bound =
 	match (Extstring.split res ' ' 2) with
 		  "KICKED"::[count_s] -> int_of_string count_s
 		| _ -> raise (UnexpectedResponse res)
+
+let peek bs id =
+	Printf.fprintf bs.writer "peek %d\r\n%!" id;
+	get_job_response bs
