@@ -22,8 +22,8 @@ let lookup h =
 	let he = gethostbyname h in
 	he.h_addr_list.(0)
 
-let connect h p =
-	let addr = ADDR_INET (lookup h, p) in
+let connect hostname port =
+	let addr = ADDR_INET (lookup hostname, port) in
 	let stuff = open_connection addr in
 	{ reader = fst stuff; writer = snd stuff }
 
