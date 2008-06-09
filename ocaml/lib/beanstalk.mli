@@ -8,6 +8,10 @@
   {{:http://xph.us/software/beanstalkd/} http://xph.us/software/beanstalkd/}
 *)
 
+(** {1 Data Types} *)
+
+(** {2 Exceptions} *)
+
 (**
   Exception raised for any unexpected response.
 
@@ -19,6 +23,8 @@ exception UnexpectedResponse of string
   Exception raised when a reserve_with_timeout times out.
 *)
 exception Timeout
+
+(** {2 Types} *)
 
 (** A connection to beanstalkd. *)
 type beanstalk_conn = {
@@ -32,6 +38,10 @@ type beanstalk_job = {
 	job_data : string;
 }
 
+(** {1 Functions} *)
+
+(** {2 Connection Management} *)
+
 (**
  Connect to a beanstalk server.
 
@@ -43,6 +53,8 @@ val connect : string -> int -> beanstalk_conn
 (** Shut down a beanstalk connection *)
 val shutdown : beanstalk_conn -> unit
 
+(** {2 Tube Management} *)
+
 (** Select the tube for new jobs *)
 val use : beanstalk_conn -> string -> unit
 
@@ -51,6 +63,17 @@ val watch : beanstalk_conn -> string -> int
 
 (** Stop watching a tube. *)
 val ignore : beanstalk_conn -> string -> int
+
+(** List all known tubes *)
+val list_tubes : beanstalk_conn -> string list
+
+(** List all of the tubes you're currently watching. *)
+val list_tubes_watched : beanstalk_conn -> string list
+
+(** Get the name of the used tube (where puts go) *)
+val used_tube : beanstalk_conn -> string
+
+(** {2 Job Management} *)
 
 (**
   Insert a new job
@@ -100,15 +123,6 @@ val bury : beanstalk_conn -> int -> int -> unit
   @param bound the maximum number of jobs to kick
 *)
 val kick : beanstalk_conn -> int -> int
-
-(** List all known tubes *)
-val list_tubes : beanstalk_conn -> string list
-
-(** List all of the tubes you're currently watching. *)
-val list_tubes_watched : beanstalk_conn -> string list
-
-(** Get the name of the used tube (where puts go) *)
-val used_tube : beanstalk_conn -> string
 
 (**
   Grab a job by ID (does not reserve).
