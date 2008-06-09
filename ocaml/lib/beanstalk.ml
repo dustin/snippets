@@ -99,3 +99,18 @@ let delete bs id =
 let release bs id priority delay =
 	Printf.fprintf bs.writer "release %d %d %d\r\n%!" id priority delay;
 	check_input_line bs "RELEASED"
+
+let list_tubes bs =
+	sendcmd bs "list-tubes";
+	let res = Extstring.strip_end (input_line bs.reader) in
+	match (Extstring.split res ' ' 2) with
+		  "OK"::[size_str] ->
+			let size = int_of_string size_str in
+			let lines = Extstring.split_chars
+				(read_bytes bs size) ['\r'; '\n'] size in
+			List.fold_left (fun rv line ->
+				match line with
+					  "---" -> rv
+					| str -> (Extstring.remove_front ['-'; ' '] str)::rv
+				) [] lines
+		| _ -> raise (UnexpectedResponse res)

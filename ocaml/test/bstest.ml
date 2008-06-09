@@ -12,6 +12,9 @@ let main () =
 	Printf.printf "Now watching %d%!\n" (Beanstalk.watch bs "ocamltest");
 	Printf.printf "Now watching %d%!\n" (Beanstalk.ignore bs "default");
 
+	Printf.printf "Current tubes:\n%!";
+	List.iter (Printf.printf " ``%s''\n%!") (Beanstalk.list_tubes bs);
+
 	Printf.printf "Inserted %d\n%!" (
 		Beanstalk.put bs 100 0 120 "test1 from ocaml");
 	Printf.printf "Inserted %d\n%!" (

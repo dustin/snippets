@@ -56,3 +56,6 @@ val release : beanstalk_conn -> int -> int -> int -> unit
   Reserve a job (with timeout)
 *)
 val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job
+
+(** List all known tubes *)
+val list_tubes : beanstalk_conn -> string list
