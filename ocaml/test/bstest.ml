@@ -42,8 +42,14 @@ let main () =
 
 	Beanstalk.delete bs job2.job_id;
 	Printf.printf "Deleted job %d\n%!" job2.job_id;
+
+	Beanstalk.bury bs job3.job_id 100;
+	Printf.printf "Buried %d\n%!" job3.job_id;
+
+	(*
 	Beanstalk.delete bs job3.job_id;
 	Printf.printf "Deleted job %d\n%!" job3.job_id;
+	*)
 
 	try
 		Pervasives.ignore(Beanstalk.reserve_with_timeout bs 0);

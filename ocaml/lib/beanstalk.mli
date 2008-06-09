@@ -53,6 +53,14 @@ val delete : beanstalk_conn -> int -> unit
 val release : beanstalk_conn -> int -> int -> int -> unit
 
 (**
+  Bury a job.
+
+  @param id the job ID
+  @param pri the job's new priority
+*)
+val bury : beanstalk_conn -> int -> int -> unit
+
+(**
   Reserve a job (with timeout)
 *)
 val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job

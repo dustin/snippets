@@ -128,3 +128,7 @@ let used_tube bs =
 	match (Extstring.split res ' ' 2) with
 		  "USING"::[name] -> name
 		| _ -> raise (UnexpectedResponse res)
+
+let bury bs id pri =
+	Printf.fprintf bs.writer "bury %d %d\r\n%!" id pri;
+	check_input_line bs "BURIED"
