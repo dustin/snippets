@@ -4,7 +4,8 @@ OCAMLOPT=ocamlopt
 OCAMLC=ocamlc
 
 PARTS=extstring.cmx fileutils.cmx lru.cmx linkedlist.cmx base64.cmx cdb.cmx \
-	netstring.cmx extlist.cmx extoption.cmx extstream.cmx math.cmx test.cmx
+	netstring.cmx extlist.cmx extoption.cmx extstream.cmx math.cmx test.cmx \
+	beanstalk.cmx
 
 .SUFFIXES: .ml .mli .cmi .cmx
 
@@ -16,16 +17,16 @@ testtop: $(PARTS)
 	$(OCAMLMKTOP) -o testtop unix.cma \
 		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
 		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
-		cdb.cmo netstring.cmo test.cmo
+		cdb.cmo netstring.cmo test.cmo beanstalk.cmo
 
 libspy: $(PARTS)
 	$(MKLIB) -o spy \
 		fileutils.cmo extstring.cmo extlist.cmo extoption.cmo \
 		extstream.cmo linkedlist.cmo lru.cmo base64.cmo \
-		cdb.cmo netstring.cmo math.cmo \
+		cdb.cmo netstring.cmo math.cmo beanstalk.cmo \
 		fileutils.cmx extstring.cmx extlist.cmx extoption.cmx \
 		extstream.cmx linkedlist.cmx lru.cmx base64.cmx \
-		cdb.cmx netstring.cmx math.cmx test.cmx
+		cdb.cmx netstring.cmx math.cmx test.cmx beanstalk.cmx
 	rm -f libspy.a
 	ln spy.a libspy.a
 
@@ -50,6 +51,8 @@ clean:
 # Deps created by ocamldep
 base64.cmo: base64.cmi 
 base64.cmx: base64.cmi 
+beanstalk.cmo: beanstalk.cmi
+beanstalk.cmx: beanstalk.cmi
 cdb.cmo: extoption.cmi cdb.cmi 
 cdb.cmx: extoption.cmx cdb.cmi 
 extlist.cmo: extlist.cmi 
