@@ -39,6 +39,11 @@ val put : beanstalk_conn -> int -> int -> int -> string -> int
 val reserve : beanstalk_conn -> beanstalk_job
 
 (**
+  Reserve a job (with timeout)
+*)
+val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job
+
+(**
   Delete a reserved job
 *)
 val delete : beanstalk_conn -> int -> unit
@@ -66,11 +71,6 @@ val bury : beanstalk_conn -> int -> int -> unit
   @param bound the maximum number of jobs to kick
 *)
 val kick : beanstalk_conn -> int -> int
-
-(**
-  Reserve a job (with timeout)
-*)
-val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job
 
 (** List all known tubes *)
 val list_tubes : beanstalk_conn -> string list
