@@ -100,8 +100,7 @@ let release bs id priority delay =
 	Printf.fprintf bs.writer "release %d %d %d\r\n%!" id priority delay;
 	check_input_line bs "RELEASED"
 
-let list_tubes bs =
-	sendcmd bs "list-tubes";
+let parse_tube_list bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "OK"::[size_str] ->
@@ -114,3 +113,11 @@ let list_tubes bs =
 					| str -> (Extstring.remove_front ['-'; ' '] str)::rv
 				) [] lines
 		| _ -> raise (UnexpectedResponse res)
+
+let list_tubes bs =
+	sendcmd bs "list-tubes";
+	parse_tube_list bs
+
+let list_tubes_watched bs =
+	sendcmd bs "list-tubes-watched";
+	parse_tube_list bs

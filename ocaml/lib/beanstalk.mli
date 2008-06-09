@@ -59,3 +59,6 @@ val reserve_with_timeout : beanstalk_conn -> int -> beanstalk_job
 
 (** List all known tubes *)
 val list_tubes : beanstalk_conn -> string list
+
+(** List all of the tubes you're currently watching. *)
+val list_tubes_watched : beanstalk_conn -> string list
