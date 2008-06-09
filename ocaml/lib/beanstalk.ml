@@ -64,16 +64,19 @@ let put bs pri delay ttr data =
 		  "INSERTED"::[n] -> int_of_string n
 		| _ -> raise (UnexpectedResponse res)
 
+let read_bytes bs size =
+	let buffer = String.create size in
+	really_input bs.reader buffer 0 size;
+	(* kill crlf *)
+	really_input bs.reader (String.create 2) 0 2;
+	buffer
+
 let get_job_response bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 3) with
 		  ["RESERVED"; id; size_str] ->
 			let size = int_of_string size_str in
-			let buffer = String.create size in
-			really_input bs.reader buffer 0 size;
-			(* kill crlf *)
-			really_input bs.reader (String.create 2) 0 2;
-			{job_id = int_of_string id; job_data = buffer}
+			{job_id = int_of_string id; job_data = read_bytes bs size}
 		| "TIMED_OUT"::_Tl -> raise Timeout
 		| _ -> raise (UnexpectedResponse res)
 
