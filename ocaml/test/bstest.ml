@@ -6,7 +6,10 @@ open Beanstalk
 
 let main () =
 	Printf.printf "Testing beanstalk client.\n%!";
-	let bs = Beanstalk.connect "purple" 11300 in
+	let bs = Beanstalk.connect (
+		try Sys.argv.(1)
+		with Invalid_argument("index out of bounds") -> "localhost"
+		) 11300 in
 
 	Beanstalk.use bs "ocamltest";
 	Printf.printf "Now watching %d%!\n" (Beanstalk.watch bs "ocamltest");
