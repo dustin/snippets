@@ -4,6 +4,10 @@
 
 open Beanstalk
 
+let s_hash_print = Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
+
+let l_hash_print = Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!")
+
 let main () =
 	Printf.printf "Testing beanstalk client.\n%!";
 	let bs = Beanstalk.connect (
@@ -79,12 +83,10 @@ let main () =
 		peekedd.job_id peekedd.job_data;
 
 	Printf.printf "Job stats for %d:\n%!" peekedd.job_id;
-	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
-		(Beanstalk.stats_job bs peekedd.job_id);
+	s_hash_print (Beanstalk.stats_job bs peekedd.job_id);
 
 	Printf.printf "Int job stats for %d:\n%!" peekedd.job_id;
-	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!")
-		(Beanstalk.int_stats_job bs peekedd.job_id);
+	l_hash_print (Beanstalk.int_stats_job bs peekedd.job_id);
 
 	let job5 = Beanstalk.reserve_with_timeout bs 3 in
 	Printf.printf "Got job %d:  %s\n%!" job5.job_id job5.job_data;
@@ -98,17 +100,15 @@ let main () =
 	with Not_found -> Printf.printf "Couldn't find %d again.\n%!" job3.job_id;
 
 	Printf.printf "Stats:\n%!";
-	Hashtbl.iter (Printf.printf "  %s -> %s\n%!") (Beanstalk.stats bs);
+	s_hash_print (Beanstalk.stats bs);
 	Printf.printf "Int stats:\n%!";
-	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!") (Beanstalk.int_stats bs);
+	l_hash_print (Beanstalk.int_stats bs);
 
 	Printf.printf "Tube stats:\n%!";
-	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
-		(Beanstalk.stats_tube bs "ocamltest");
+	s_hash_print (Beanstalk.stats_tube bs "ocamltest");
 
 	Printf.printf "Tube int stats:\n%!";
-	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!")
-		(Beanstalk.int_stats_tube bs "ocamltest");
+	l_hash_print (Beanstalk.int_stats_tube bs "ocamltest");
 
 	Beanstalk.shutdown bs
 ;;
