@@ -188,3 +188,7 @@ let peek_ready bs =
 let peek_buried bs =
 	sendcmd bs "peek-buried";
 	get_job_response bs
+
+let peek_delayed bs =
+	sendcmd bs "peek-delayed";
+	get_job_response bs
