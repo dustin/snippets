@@ -67,14 +67,16 @@ let raise_exception res =
 		| "BURIED"::[] -> raise (Buried 0)
 		| _ -> raise (UnexpectedResponse res)
 
-let check_input_line bs expected =
-	let res = Extstring.strip_end (input_line bs.reader) in
-	if (res = expected) then () else raise_exception res
+let sendcmd bs cmd =
+	output_string bs.writer (cmd ^ "\r\n");
+	flush bs.writer
 
-let use bs name =
-	Printf.fprintf bs.writer "use %s\r\n%!" name;
-	let expected = Printf.sprintf "USING %s" name in
-	check_input_line bs expected
+let simple_cmd bs s exp =
+	sendcmd bs s;
+	let res = Extstring.strip_end (input_line bs.reader) in
+	if (res = exp) then () else raise_exception res
+
+let use bs name = simple_cmd bs ("use " ^ name) ("USING " ^ name)
 
 let match_watching bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
@@ -106,10 +108,6 @@ let read_bytes bs size =
 	really_input bs.reader (String.create 2) 0 2;
 	buffer
 
-let sendcmd bs cmd =
-	output_string bs.writer (cmd ^ "\r\n");
-	flush bs.writer
-
 let job_cmd cmd bs =
 	sendcmd bs cmd;
 	let res = Extstring.strip_end (input_line bs.reader) in
@@ -124,24 +122,23 @@ let job_cmd cmd bs =
 
 let reserve = job_cmd "reserve"
 
+let peek bs id = job_cmd ("peek " ^ (string_of_int id)) bs
+
+let peek_ready = job_cmd "peek-ready"
+
+let peek_buried = job_cmd "peek-buried"
+
+let peek_delayed = job_cmd "peek-delayed"
+
 let reserve_with_timeout bs timeout =
 	job_cmd ("reserve-with-timeout " ^ (string_of_int timeout)) bs
 
-let peek bs id = job_cmd ("peek " ^ (string_of_int id)) bs
-
-let peek_ready bs = job_cmd "peek-ready" bs
-
-let peek_buried bs = job_cmd "peek-buried" bs
-
-let peek_delayed bs = job_cmd "peek-delayed" bs
-
 let delete bs id =
-	Printf.fprintf bs.writer "delete %d\r\n%!" id;
-	check_input_line bs "DELETED"
+	simple_cmd bs ("delete " ^ (string_of_int id)) "DELETED"
 
 let release bs id priority delay =
-	Printf.fprintf bs.writer "release %d %d %d\r\n%!" id priority delay;
-	check_input_line bs "RELEASED"
+	simple_cmd bs (Printf.sprintf "release %d %d %d" id priority delay)
+		"RELEASED"
 
 let parse_tube_list bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
@@ -173,8 +170,7 @@ let used_tube bs =
 		| _ -> raise_exception res
 
 let bury bs id pri =
-	Printf.fprintf bs.writer "bury %d %d\r\n%!" id pri;
-	check_input_line bs "BURIED"
+	simple_cmd bs (Printf.sprintf "bury %d %d" id pri) "BURIED"
 
 let kick bs bound =
 	Printf.fprintf bs.writer "kick %d\r\n%!" bound;
