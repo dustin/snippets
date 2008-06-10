@@ -121,13 +121,22 @@ let sendcmd bs cmd =
 	output_string bs.writer (cmd ^ "\r\n");
 	flush bs.writer
 
-let reserve bs =
-	sendcmd bs "reserve";
+let job_cmd cmd bs =
+	sendcmd bs cmd;
 	get_job_response bs
 
+let reserve = job_cmd "reserve"
+
 let reserve_with_timeout bs timeout =
-	Printf.fprintf bs.writer "reserve-with-timeout %d\r\n%!" timeout;
-	get_job_response bs
+	job_cmd ("reserve-with-timeout " ^ (string_of_int timeout)) bs
+
+let peek bs id = job_cmd ("peek " ^ (string_of_int id)) bs
+
+let peek_ready bs = job_cmd "peek-ready" bs
+
+let peek_buried bs = job_cmd "peek-buried" bs
+
+let peek_delayed bs = job_cmd "peek-delayed" bs
 
 let delete bs id =
 	Printf.fprintf bs.writer "delete %d\r\n%!" id;
@@ -177,18 +186,3 @@ let kick bs bound =
 		  "KICKED"::[count_s] -> int_of_string count_s
 		| _ -> raise_exception res
 
-let peek bs id =
-	Printf.fprintf bs.writer "peek %d\r\n%!" id;
-	get_job_response bs
-
-let peek_ready bs =
-	sendcmd bs "peek-ready";
-	get_job_response bs
-
-let peek_buried bs =
-	sendcmd bs "peek-buried";
-	get_job_response bs
-
-let peek_delayed bs =
-	sendcmd bs "peek-delayed";
-	get_job_response bs
