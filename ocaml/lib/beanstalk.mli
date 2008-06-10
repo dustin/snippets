@@ -180,3 +180,5 @@ val peek_delayed : beanstalk_conn -> beanstalk_job
 val stats : beanstalk_conn -> (string, string) Hashtbl.t
 
 val stats_job : beanstalk_conn -> int -> (string, string) Hashtbl.t
+
+val stats_tube : beanstalk_conn -> string -> (string, string) Hashtbl.t

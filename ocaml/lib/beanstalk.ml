@@ -175,3 +175,5 @@ let stats_cmd cmd bs =
 let stats = stats_cmd "stats"
 
 let stats_job bs id = stats_cmd ("stats-job " ^ (string_of_int id)) bs
+
+let stats_tube bs tube = stats_cmd ("stats-tube " ^ tube) bs

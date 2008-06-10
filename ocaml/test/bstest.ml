@@ -96,6 +96,10 @@ let main () =
 	Printf.printf "Stats:\n%!";
 	Hashtbl.iter (Printf.printf "  %s -> %s\n%!") (Beanstalk.stats bs);
 
+	Printf.printf "Tube stats:\n%!";
+	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
+		(Beanstalk.stats_tube bs "ocamltest");
+
 	Beanstalk.shutdown bs
 ;;
 
