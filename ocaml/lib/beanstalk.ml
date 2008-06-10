@@ -67,19 +67,16 @@ let simple_cmd bs s exp =
 
 let use bs name = simple_cmd bs ("use " ^ name) ("USING " ^ name)
 
-let match_watching bs =
+let watching_cmd bs s =
+	sendcmd bs s;
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "WATCHING"::[n] -> int_of_string n
 		| _ -> raise_exception res
 
-let watch bs name =
-	Printf.fprintf bs.writer "watch %s\r\n%!" name;
-	match_watching bs
+let watch bs name = watching_cmd bs ("watch " ^ name)
 
-let ignore bs name =
-	Printf.fprintf bs.writer "ignore %s\r\n%!" name;
-	match_watching bs
+let ignore bs name = watching_cmd bs ("ignore " ^ name)
 
 let put bs pri delay ttr data =
 	let data_len = String.length data in
@@ -161,7 +158,7 @@ let bury bs id pri =
 	simple_cmd bs (Printf.sprintf "bury %d %d" id pri) "BURIED"
 
 let kick bs bound =
-	Printf.fprintf bs.writer "kick %d\r\n%!" bound;
+	sendcmd bs ("kick " ^ (string_of_int bound));
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "KICKED"::[count_s] -> int_of_string count_s
