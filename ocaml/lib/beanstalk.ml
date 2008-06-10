@@ -5,27 +5,16 @@
 open Unix
 
 exception UnexpectedResponse of string
-
 exception Timeout
-
 exception OutOfMemory
-
 exception InternalError
-
 exception Draining
-
 exception BadFormat
-
 exception UnknownCommand
-
 exception Buried of int
-
 exception ExpectedCRLF
-
 exception JobTooBig
-
 exception DeadlineSoon
-
 exception NotIgnored
 
 type beanstalk_conn = {
