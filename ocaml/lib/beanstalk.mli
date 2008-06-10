@@ -168,3 +168,6 @@ val peek : beanstalk_conn -> int -> beanstalk_job
 
 (** Get (but do not reserve) the next ready job *)
 val peek_ready : beanstalk_conn -> beanstalk_job
+
+(** Get (but do not reserve) the next buried job *)
+val peek_buried : beanstalk_conn -> beanstalk_job

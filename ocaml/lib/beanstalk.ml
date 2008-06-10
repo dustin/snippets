@@ -184,3 +184,7 @@ let peek bs id =
 let peek_ready bs =
 	sendcmd bs "peek-ready";
 	get_job_response bs
+
+let peek_buried bs =
+	sendcmd bs "peek-buried";
+	get_job_response bs

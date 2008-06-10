@@ -48,6 +48,10 @@ let main () =
 	Beanstalk.bury bs job3.job_id 100;
 	Printf.printf "Buried %d\n%!" job3.job_id;
 
+	let peekedb = Beanstalk.peek_buried bs in
+	Printf.printf "Peeked (buried) job %d:  %s\n%!"
+		peekedb.job_id peekedb.job_data;
+
 	try
 		let tmp = Beanstalk.reserve_with_timeout bs 0 in
 		Printf.printf "Crap, expected a timeout, got job %d\n%!" tmp.job_id
