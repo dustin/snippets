@@ -180,11 +180,22 @@ val peek_delayed : beanstalk_conn -> beanstalk_job
 (** Overall server stats *)
 val stats : beanstalk_conn -> (string, string) Hashtbl.t
 
+(** Overall server stats with int64 values *)
+val int_stats : beanstalk_conn -> (string, int64) Hashtbl.t
+
 (** Stats for a particular job *)
 val stats_job : beanstalk_conn -> int -> (string, string) Hashtbl.t
+
+(** Stats for a particular job with int64 values *)
+val int_stats_job : beanstalk_conn -> int -> (string, int64) Hashtbl.t
 
 (** Stats for a tube *)
 val stats_tube : beanstalk_conn -> string -> (string, string) Hashtbl.t
 
-(** Pull out all of the numeric stats (convenience function) *)
+(** Stats for a tube with int64 values *)
+val int_stats_tube : beanstalk_conn -> string -> (string, int64) Hashtbl.t
+
+(** Convenience function for converting (string, string)
+	Hashtbls to (string, int64)
+*)
 val intify_stats : (string, string) Hashtbl.t -> (string, int64) Hashtbl.t

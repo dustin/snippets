@@ -82,6 +82,10 @@ let main () =
 	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
 		(Beanstalk.stats_job bs peekedd.job_id);
 
+	Printf.printf "Int job stats for %d:\n%!" peekedd.job_id;
+	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!")
+		(Beanstalk.int_stats_job bs peekedd.job_id);
+
 	let job5 = Beanstalk.reserve_with_timeout bs 3 in
 	Printf.printf "Got job %d:  %s\n%!" job5.job_id job5.job_data;
 
@@ -95,6 +99,8 @@ let main () =
 
 	Printf.printf "Stats:\n%!";
 	Hashtbl.iter (Printf.printf "  %s -> %s\n%!") (Beanstalk.stats bs);
+	Printf.printf "Int stats:\n%!";
+	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!") (Beanstalk.int_stats bs);
 
 	Printf.printf "Tube stats:\n%!";
 	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
@@ -102,7 +108,7 @@ let main () =
 
 	Printf.printf "Tube int stats:\n%!";
 	Hashtbl.iter (Printf.printf "  %s -> %Ld\n%!")
-		(Beanstalk.intify_stats (Beanstalk.stats_tube bs "ocamltest"));
+		(Beanstalk.int_stats_tube bs "ocamltest");
 
 	Beanstalk.shutdown bs
 ;;

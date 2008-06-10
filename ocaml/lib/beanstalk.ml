@@ -184,3 +184,9 @@ let intify_stats h =
 			try Hashtbl.replace acc ks (Int64.of_string vs)
 			with Failure("int_of_string") -> () (* Ignore the unparsable *)
 		)) h (Hashtbl.create 1)
+
+let int_stats bs = intify_stats (stats bs)
+
+let int_stats_job bs id = intify_stats (stats_job bs id)
+
+let int_stats_tube bs tube = intify_stats (stats_tube bs tube)
