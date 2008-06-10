@@ -161,8 +161,8 @@ let parse_yaml_dict h str =
 			  stat::[value] -> Hashtbl.replace h stat value
 			| _ -> ())
 
-let stats bs =
-	sendcmd bs "stats";
+let stats_cmd cmd bs =
+	sendcmd bs cmd;
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "OK"::[size_str] ->
@@ -171,3 +171,7 @@ let stats bs =
 				(read_bytes bs size) ['\r'; '\n'] size in
 			List.fold_left parse_yaml_dict (Hashtbl.create 1) lines
 		| _ -> raise_exception res
+
+let stats = stats_cmd "stats"
+
+let stats_job bs id = stats_cmd ("stats-job " ^ (string_of_int id)) bs

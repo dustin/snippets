@@ -78,6 +78,10 @@ let main () =
 	Printf.printf "Peeked (delayed) job %d:  %s\n%!"
 		peekedd.job_id peekedd.job_data;
 
+	Printf.printf "Job stats for %d:\n%!" peekedd.job_id;
+	Hashtbl.iter (Printf.printf "  %s -> %s\n%!")
+		(Beanstalk.stats_job bs peekedd.job_id);
+
 	let job5 = Beanstalk.reserve_with_timeout bs 3 in
 	Printf.printf "Got job %d:  %s\n%!" job5.job_id job5.job_data;
 
