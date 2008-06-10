@@ -147,3 +147,7 @@ let kick bs bound =
 let peek bs id =
 	Printf.fprintf bs.writer "peek %d\r\n%!" id;
 	get_job_response bs
+
+let peek_ready bs =
+	sendcmd bs "peek-ready";
+	get_job_response bs

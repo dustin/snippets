@@ -58,6 +58,10 @@ let main () =
 
 	Printf.printf "Kicked %d\n%!" (Beanstalk.kick bs 100);
 
+	let peekedr = Beanstalk.peek_ready bs in
+	Printf.printf "Peeked (ready) job %d:  %s\n%!"
+		peekedr.job_id peekedr.job_data;
+
 	let job4 = Beanstalk.reserve_with_timeout bs 0 in
 	Printf.printf "Got job %d:  %s\n%!" job4.job_id job4.job_data;
 
