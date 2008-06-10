@@ -125,7 +125,8 @@ let release bs id priority delay =
 	simple_cmd bs (Printf.sprintf "release %d %d %d" id priority delay)
 		"RELEASED"
 
-let parse_tube_list bs =
+let get_tube_list bs s =
+	sendcmd bs s;
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "OK"::[size_str] ->
@@ -139,13 +140,9 @@ let parse_tube_list bs =
 				) [] lines
 		| _ -> raise_exception res
 
-let list_tubes bs =
-	sendcmd bs "list-tubes";
-	parse_tube_list bs
+let list_tubes bs = get_tube_list bs "list-tubes"
 
-let list_tubes_watched bs =
-	sendcmd bs "list-tubes-watched";
-	parse_tube_list bs
+let list_tubes_watched bs = get_tube_list bs "list-tubes-watched"
 
 let used_tube bs =
 	sendcmd bs "list-tube-used";
