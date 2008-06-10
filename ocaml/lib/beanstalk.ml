@@ -30,11 +30,15 @@ let connect hostname port =
 let shutdown bs =
 	shutdown_connection bs.reader
 
+let raise_exception res =
+	match (Extstring.split res ' ' 2) with
+		  "NOT_FOUND"::_Tl -> raise Not_found
+		| "TIMED_OUT"::_Tl -> raise Timeout
+		| _ -> raise (UnexpectedResponse res)
+
 let check_input_line bs expected =
 	let res = Extstring.strip_end (input_line bs.reader) in
-	if (res <> expected) then (
-		raise (UnexpectedResponse res)
-	)
+	if (res = expected) then () else raise_exception res
 
 let use bs name =
 	Printf.fprintf bs.writer "use %s\r\n%!" name;
@@ -45,7 +49,7 @@ let match_watching bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "WATCHING"::[n] -> int_of_string n
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let watch bs name =
 	Printf.fprintf bs.writer "watch %s\r\n%!" name;
@@ -62,7 +66,7 @@ let put bs pri delay ttr data =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "INSERTED"::[n] -> int_of_string n
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let read_bytes bs size =
 	let buffer = String.create size in
@@ -80,9 +84,7 @@ let get_job_response bs =
 		| ["FOUND"; id; size_str] ->
 			let size = int_of_string size_str in
 			{job_id = int_of_string id; job_data = read_bytes bs size}
-		| "TIMED_OUT"::_Tl -> raise Timeout
-		| "NOT_FOUND"::_Tl -> raise Not_found
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let sendcmd bs cmd =
 	output_string bs.writer (cmd ^ "\r\n");
@@ -116,7 +118,7 @@ let parse_tube_list bs =
 					  "---" -> rv
 					| str -> (Extstring.remove_front ['-'; ' '] str)::rv
 				) [] lines
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let list_tubes bs =
 	sendcmd bs "list-tubes";
@@ -131,7 +133,7 @@ let used_tube bs =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "USING"::[name] -> name
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let bury bs id pri =
 	Printf.fprintf bs.writer "bury %d %d\r\n%!" id pri;
@@ -142,7 +144,7 @@ let kick bs bound =
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 2) with
 		  "KICKED"::[count_s] -> int_of_string count_s
-		| _ -> raise (UnexpectedResponse res)
+		| _ -> raise_exception res
 
 let peek bs id =
 	Printf.fprintf bs.writer "peek %d\r\n%!" id;
