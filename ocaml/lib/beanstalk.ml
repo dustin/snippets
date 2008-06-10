@@ -82,12 +82,13 @@ let put bs pri delay ttr data =
 		  "INSERTED"::[n] -> int_of_string n
 		| _ -> raise_exception res
 
+let k i f = (f i); i
+
 let read_bytes bs size =
-	let buffer = String.create size in
-	really_input bs.reader buffer 0 size;
-	(* kill crlf *)
-	really_input bs.reader (String.create 2) 0 2;
-	buffer
+	k (String.create size) (fun buffer ->
+		really_input bs.reader buffer 0 size;
+		(* kill crlf *)
+		really_input bs.reader (String.create 2) 0 2)
 
 let job_cmd cmd bs =
 	sendcmd bs cmd;
