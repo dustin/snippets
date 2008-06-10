@@ -111,13 +111,12 @@ let read_bytes bs size =
 let job_cmd cmd bs =
 	sendcmd bs cmd;
 	let res = Extstring.strip_end (input_line bs.reader) in
+	let mkjob = fun id size_str ->
+		let size = int_of_string size_str in
+		{job_id = int_of_string id; job_data = read_bytes bs size} in
 	match (Extstring.split res ' ' 3) with
-		  ["RESERVED"; id; size_str] ->
-			let size = int_of_string size_str in
-			{job_id = int_of_string id; job_data = read_bytes bs size}
-		| ["FOUND"; id; size_str] ->
-			let size = int_of_string size_str in
-			{job_id = int_of_string id; job_data = read_bytes bs size}
+		  ["RESERVED"; id; size_str] -> mkjob id size_str
+		| ["FOUND"; id; size_str] -> mkjob id size_str
 		| _ -> raise_exception res
 
 let reserve = job_cmd "reserve"
