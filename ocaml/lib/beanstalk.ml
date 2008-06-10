@@ -106,7 +106,12 @@ let read_bytes bs size =
 	really_input bs.reader (String.create 2) 0 2;
 	buffer
 
-let get_job_response bs =
+let sendcmd bs cmd =
+	output_string bs.writer (cmd ^ "\r\n");
+	flush bs.writer
+
+let job_cmd cmd bs =
+	sendcmd bs cmd;
 	let res = Extstring.strip_end (input_line bs.reader) in
 	match (Extstring.split res ' ' 3) with
 		  ["RESERVED"; id; size_str] ->
@@ -116,14 +121,6 @@ let get_job_response bs =
 			let size = int_of_string size_str in
 			{job_id = int_of_string id; job_data = read_bytes bs size}
 		| _ -> raise_exception res
-
-let sendcmd bs cmd =
-	output_string bs.writer (cmd ^ "\r\n");
-	flush bs.writer
-
-let job_cmd cmd bs =
-	sendcmd bs cmd;
-	get_job_response bs
 
 let reserve = job_cmd "reserve"
 
