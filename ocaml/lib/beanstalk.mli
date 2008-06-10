@@ -185,3 +185,6 @@ val stats_job : beanstalk_conn -> int -> (string, string) Hashtbl.t
 
 (** Stats for a tube *)
 val stats_tube : beanstalk_conn -> string -> (string, string) Hashtbl.t
+
+(** Pull out all of the numeric stats (convenience function) *)
+val int_stats : (string, string) Hashtbl.t -> (string, int64) Hashtbl.t

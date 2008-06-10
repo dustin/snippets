@@ -177,3 +177,10 @@ let stats = stats_cmd "stats"
 let stats_job bs id = stats_cmd ("stats-job " ^ (string_of_int id)) bs
 
 let stats_tube bs tube = stats_cmd ("stats-tube " ^ tube) bs
+
+let int_stats h =
+	Hashtbl.fold (fun ks vs acc ->
+		k acc (fun _ ->
+			try Hashtbl.replace acc ks (Int64.of_string vs)
+			with Failure("int_of_string") -> () (* Ignore the unparsable *)
+		)) h (Hashtbl.create 1)
