@@ -27,17 +27,12 @@ type beanstalk_job = {
 	job_data : string;
 }
 
-let lookup h =
-	let he = gethostbyname h in
-	he.h_addr_list.(0)
-
 let connect hostname port =
-	let addr = ADDR_INET (lookup hostname, port) in
+	let addr = ADDR_INET ((gethostbyname hostname).h_addr_list.(0), port) in
 	let stuff = open_connection addr in
 	{ reader = fst stuff; writer = snd stuff }
 
-let shutdown bs =
-	shutdown_connection bs.reader
+let shutdown bs = shutdown_connection bs.reader
 
 let raise_exception res =
 	match (Extstring.split res ' ' 2) with
@@ -118,8 +113,7 @@ let peek_delayed = job_cmd "peek-delayed"
 let reserve_with_timeout bs timeout =
 	job_cmd ("reserve-with-timeout " ^ (string_of_int timeout)) bs
 
-let delete bs id =
-	simple_cmd bs ("delete " ^ (string_of_int id)) "DELETED"
+let delete bs id = simple_cmd bs ("delete " ^ (string_of_int id)) "DELETED"
 
 let release bs id priority delay =
 	simple_cmd bs (Printf.sprintf "release %d %d %d" id priority delay)
@@ -151,8 +145,7 @@ let used_tube bs =
 		  "USING"::[name] -> name
 		| _ -> raise_exception res
 
-let bury bs id pri =
-	simple_cmd bs (Printf.sprintf "bury %d %d" id pri) "BURIED"
+let bury bs id pri = simple_cmd bs (Printf.sprintf "bury %d %d" id pri) "BURIED"
 
 let kick bs bound =
 	sendcmd bs ("kick " ^ (string_of_int bound));
