@@ -155,3 +155,19 @@ let kick bs bound =
 		  "KICKED"::[count_s] -> int_of_string count_s
 		| _ -> raise_exception res
 
+let parse_yaml_dict h str =
+	k h (fun _ ->
+		match (Extstring.split_chars str [':'; ' '] 2) with
+			  stat::[value] -> Hashtbl.replace h stat value
+			| _ -> ())
+
+let stats bs =
+	sendcmd bs "stats";
+	let res = Extstring.strip_end (input_line bs.reader) in
+	match (Extstring.split res ' ' 2) with
+		  "OK"::[size_str] ->
+			let size = int_of_string size_str in
+			let lines = Extstring.split_chars
+				(read_bytes bs size) ['\r'; '\n'] size in
+			List.fold_left parse_yaml_dict (Hashtbl.create 1) lines
+		| _ -> raise_exception res

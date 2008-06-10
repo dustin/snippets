@@ -89,6 +89,9 @@ let main () =
 		Printf.printf "Crap, expected Not_found, got job %d\n%!" peeked2.job_id
 	with Not_found -> Printf.printf "Couldn't find %d again.\n%!" job3.job_id;
 
+	Printf.printf "Stats:\n%!";
+	Hashtbl.iter (Printf.printf "  %s -> %s\n%!") (Beanstalk.stats bs);
+
 	Beanstalk.shutdown bs
 ;;
 

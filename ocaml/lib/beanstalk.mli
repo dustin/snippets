@@ -174,3 +174,7 @@ val peek_buried : beanstalk_conn -> beanstalk_job
 
 (** Get (but do not reserve) the next delayed job *)
 val peek_delayed : beanstalk_conn -> beanstalk_job
+
+(** {2 Stats} *)
+
+val stats : beanstalk_conn -> (string, string) Hashtbl.t
