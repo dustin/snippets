@@ -14,15 +14,52 @@
 
 (**
   Exception raised for any unexpected response.
-
-  This is also raised for several that are expected, but undesired.
 *)
 exception UnexpectedResponse of string
+
+(** Exception raised when the server has run out of memory. *)
+exception OutOfMemory
+
+(** Exception raised if you somehow find a bug in the server. *)
+exception InternalError
+
+(**
+  Exception raised indicating the server is in drain mode and no longer
+  accepting jobs.
+*)
+exception Draining
+
+(**
+  Exception raised when the client sends a command the server understands, but
+  with bad arguments or something.
+*)
+exception BadFormat
+
+(**
+  Exception raised when the client sends a command the server does not
+  understand
+*)
+exception UnknownCommand
 
 (**
   Exception raised when a reserve_with_timeout times out.
 *)
 exception Timeout
+
+(** Exception raised when a queue insertion failed. *)
+exception Buried of int
+
+(** Exception raised when a put was not terminated properly. *)
+exception ExpectedCRLF
+
+(** Exception raised when a job is too big to fit in the queue. *)
+exception JobTooBig
+
+(** Exception raised when a reserved job is going to expire too soon *)
+exception DeadlineSoon
+
+(** Excepton raised when the client attempts to ignore its last ube *)
+exception NotIgnored
 
 (** {2 Types} *)
 

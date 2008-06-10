@@ -14,6 +14,8 @@ let main () =
 	Beanstalk.use bs "ocamltest";
 	Printf.printf "Now watching %d%!\n" (Beanstalk.watch bs "ocamltest");
 	Printf.printf "Now watching %d%!\n" (Beanstalk.ignore bs "default");
+	try Pervasives.ignore(Beanstalk.ignore bs "ocamltest")
+	with NotIgnored -> ();
 
 	Printf.printf "Current tubes:\n%!";
 	List.iter (Printf.printf " ``%s''\n%!") (Beanstalk.list_tubes bs);

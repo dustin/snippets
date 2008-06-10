@@ -8,6 +8,26 @@ exception UnexpectedResponse of string
 
 exception Timeout
 
+exception OutOfMemory
+
+exception InternalError
+
+exception Draining
+
+exception BadFormat
+
+exception UnknownCommand
+
+exception Buried of int
+
+exception ExpectedCRLF
+
+exception JobTooBig
+
+exception DeadlineSoon
+
+exception NotIgnored
+
 type beanstalk_conn = {
 	reader : in_channel;
 	writer : out_channel;
@@ -34,6 +54,17 @@ let raise_exception res =
 	match (Extstring.split res ' ' 2) with
 		  "NOT_FOUND"::_Tl -> raise Not_found
 		| "TIMED_OUT"::_Tl -> raise Timeout
+		| "OUT_OF_MEMORY"::_Tl -> raise OutOfMemory
+		| "INTERNAL_ERROR"::_Tl -> raise InternalError
+		| "DRAINING"::_Tl -> raise Draining
+		| "BAD_FORMAT"::_Tl -> raise BadFormat
+		| "UNKNOWN_COMMAND"::_Tl -> raise UnknownCommand
+		| "EXPECTED_CRLF"::_Tl -> raise ExpectedCRLF
+		| "JOB_TOO_BIG"::_Tl -> raise JobTooBig
+		| "DEADLINE_SOON"::_Tl -> raise DeadlineSoon
+		| "NOT_IGNORED"::_Tl -> raise NotIgnored
+		| "BURIED"::[id_s] -> raise (Buried (int_of_string id_s))
+		| "BURIED"::[] -> raise (Buried 0)
 		| _ -> raise (UnexpectedResponse res)
 
 let check_input_line bs expected =
