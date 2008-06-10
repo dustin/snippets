@@ -177,8 +177,11 @@ val peek_delayed : beanstalk_conn -> beanstalk_job
 
 (** {2 Stats} *)
 
+(** Overall server stats *)
 val stats : beanstalk_conn -> (string, string) Hashtbl.t
 
+(** Stats for a particular job *)
 val stats_job : beanstalk_conn -> int -> (string, string) Hashtbl.t
 
+(** Stats for a tube *)
 val stats_tube : beanstalk_conn -> string -> (string, string) Hashtbl.t
