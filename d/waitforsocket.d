@@ -6,8 +6,7 @@ import std.c.time;
 
 import std.socket;
 
-bool waitForConn(Socket s, InternetAddress a) {
-	bool rv=false;
+void waitForConn(Socket s, InternetAddress a) {
 	s.blocking(false);
 	s.connect(a);
 
@@ -25,22 +24,18 @@ bool waitForConn(Socket s, InternetAddress a) {
 	if(selected > 0) {
 		if(rset.isSet(s)) {
 			byte[] buf=new byte[1];
-			if(s.receive(buf) == 1) {
-				rv=true;
-			} else {
+			if(s.receive(buf) != 1) {
 				// XXX:  Need to get the actual error here.
 				throw new Exception("Error reading");
 			}
 		} else if(wset.isSet(s)) {
-			rv=true;
+			// Writable means OK
 		} else {
 			throw new Exception("Not Sure");
 		}
 	} else {
 		throw new Exception("timed out");
 	}
-
-	return rv;
 }
 
 void log(char[] msg) {
@@ -53,7 +48,8 @@ bool tryHost(char[] h, int p) {
 	try {
 		InternetAddress a=new InternetAddress(h, p);
 		s=new Socket(a.addressFamily(), SocketType.STREAM);
-		rv=waitForConn(s, a);
+		waitForConn(s, a);
+		rv=true;
 	} catch(Exception e) {
 		log(e.toString());
 	} finally {
