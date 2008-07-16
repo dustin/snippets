@@ -11,15 +11,15 @@ tell application "GrowlHelperApp"
 	notify with name Â
 		"start" title Â
 		"Starting" description Â
-		"Starting backup of FISH" application name appName
+		"Starting backup of Fish" application name appName
 end tell
 
-do shell script "rsync -rat --delete /Volumes/FISH/ /Users/dustin/bak/FISH/"
+do shell script "rsync -rat --delete /Volumes/Fish/ /Users/dustin/bak/Fish/"
 
 tell application "GrowlHelperApp"
 	notify with name Â
 		"end" title Â
 		"Completed" description Â
-		"Completed backup of FISH" application name appName
+		"Completed backup of Fish" application name appName
 	
 end tell
