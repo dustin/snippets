@@ -1,0 +1,10 @@
+#!/bin/sh
+
+top=`pwd`
+
+for i in "$@"
+do
+	cd $i
+	echo "$i: `git count-objects`"
+	cd $top
+done
