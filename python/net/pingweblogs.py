@@ -9,8 +9,8 @@ import xmlrpclib
 
 sites=[
     ('Rockstar Programmer', 'http://www.rockstarprogrammer.org/rss/full/'),
-    ('My Twisted Life', 'http://blog.west.spy.net/feed/full/noelani/'),
-    ('Too Much Information', 'http://blog.west.spy.net/feed/full/dustin/'),
+    # ('My Twisted Life', 'http://blog.west.spy.net/feed/full/noelani/'),
+    # ('Too Much Information', 'http://blog.west.spy.net/feed/full/dustin/'),
 ]
 
 locations=(
