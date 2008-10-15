@@ -53,4 +53,9 @@ def parse_sitemap(url):
         parse_sitemap(u)
 
 if __name__ == '__main__':
-    parse_sitemap(sys.argv[1])
+    try:
+        url = parse_sitemap(sys.argv[1])
+    except IndexError:
+        sys.stderr.write("Hey.  I need a sitemap URL to start with.\n")
+        sys.exit(64)
+    parse_sitemap(url)
