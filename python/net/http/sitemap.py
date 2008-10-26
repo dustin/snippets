@@ -16,7 +16,10 @@ SITEMAPNS="http://www.sitemaps.org/schemas/sitemap/0.9"
 PREFIX={'ns': SITEMAPNS}
 
 R=random.Random()
-SAMPLE_SIZE=5
+DEFAULT_SAMPLE_SIZE=5
+
+def sample_size_for(url):
+    return DEFAULT_SAMPLE_SIZE
 
 def timefetch(url, label, transform):
     f=rv=None
@@ -44,8 +47,9 @@ def parse_sitemap(url):
     maps=[u.text for u in t.findall(".//{%(ns)s}sitemap/{%(ns)s}loc" % PREFIX)]
     print ". found %d pages and %d maps" % (len(pages), len(maps))
     tofetch=pages
-    if len(tofetch) > SAMPLE_SIZE:
-        tofetch=R.sample(tofetch, SAMPLE_SIZE)
+    sample_size = sample_size_for(url)
+    if len(tofetch) > sample_size:
+        tofetch=R.sample(tofetch, sample_size)
     for u in tofetch:
         timefetch(u, "- 1", lambda f: None)
         timefetch(u, "- 2", lambda f: None)
