@@ -50,6 +50,7 @@ def parse_sitemap(url):
     sample_size = sample_size_for(url)
     if len(tofetch) > sample_size:
         tofetch=R.sample(tofetch, sample_size)
+    print ". Fetching %d/%d from %s" % (len(tofetch), len(pages), url)
     for u in tofetch:
         timefetch(u, "- 1", lambda f: None)
         timefetch(u, "- 2", lambda f: None)
