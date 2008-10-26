@@ -115,7 +115,7 @@ def fetch_page(url, count=1):
             url, cf.written, time.time() - start)
         if count < PAGE_REQUEST_COUNT:
             return fetch_page(url, count+1)
-    client.downloadPage(url, cf).addCallbacks(
+    return client.downloadPage(url, cf).addCallbacks(
         callback=onSuccess,
         errback=report_error)
 
