@@ -7,6 +7,7 @@ Copyright (c) 2008  Dustin Sallings <dustin@spy.net>
 
 import sys
 import time
+import getopt
 import random
 
 from twisted.web import client, microdom
@@ -87,8 +88,15 @@ def fetch_sitemap(url):
         errback=report_error(url))
 
 if __name__ == '__main__':
+    opts, args = getopt.getopt(sys.argv[1:], 'c:m:')
+    for o,v in opts:
+        if o == '-c':
+            semaphore = defer.DeferredSemaphore(tokens=int(v))
+        if o == '-m':
+            map_semaphore = defer.DeferredSemaphore(tokens=int(v))
+
     try:
-        url = sys.argv[1]
+        url = args[0]
     except IndexError:
         sys.stderr.write("Hey.  I need a sitemap URL to start with.\n")
         sys.exit(64)
