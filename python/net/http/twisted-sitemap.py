@@ -11,7 +11,7 @@ import getopt
 import random
 
 from twisted.web import client, sux
-from twisted.internet import reactor, protocol, defer, task, error
+from twisted.internet import reactor, defer, error
 
 R=random.Random()
 DEFAULT_SAMPLE_SIZE=5
