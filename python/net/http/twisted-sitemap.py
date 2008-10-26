@@ -9,13 +9,8 @@ import sys
 import time
 import random
 
-from twisted.web import client
+from twisted.web import client, microdom
 from twisted.internet import reactor, protocol, defer, task
-
-from elementtree.ElementTree import XML
-
-SITEMAPNS="http://www.sitemaps.org/schemas/sitemap/0.9"
-PREFIX={'ns': SITEMAPNS}
 
 R=random.Random()
 DEFAULT_SAMPLE_SIZE=5
@@ -41,27 +36,29 @@ class CountingFile(object):
 def sample_size_for(url):
     return DEFAULT_SAMPLE_SIZE
 
+def get_list(el, name):
+    rv=[]
+    for outer in el.getElementsByTagName(name):
+        rv.append(outer.getElementsByTagName("loc")[0].firstChild().data)
+    return rv
+
 def process_sitemap(url):
     start=time.time()
     def f(v):
         print "+ %s ok %.3fs" % (url, time.time() - start)
-        t=XML(v)
-        rv=None
-        if t:
-            pages=[u.text for u in t.findall(".//{%(ns)s}url/{%(ns)s}loc"
-                % PREFIX)]
-            maps=[u.text for u in t.findall(".//{%(ns)s}sitemap/{%(ns)s}loc"
-                % PREFIX)]
-            print ". found %d pages and %d maps" % (len(pages), len(maps))
-            l=[map_semaphore.run(fetch_sitemap, m) for m in maps]
-            tofetch=pages
-            sample_size = sample_size_for(url)
-            if len(tofetch) > sample_size:
-                tofetch=R.sample(tofetch, sample_size)
-            print ". Fetching %d/%d from %s" % (len(tofetch), len(pages), url)
-            for u in tofetch:
-                l.append(semaphore.run(fetch_page, u))
-            rv = defer.DeferredList(l)
+        doc=microdom.parseXMLString(v)
+        pages=get_list(doc, 'url')
+        maps=get_list(doc, 'sitemap')
+        print ". found %d pages and %d maps" % (len(pages), len(maps))
+        l=[map_semaphore.run(fetch_sitemap, m) for m in maps]
+        tofetch=pages
+        sample_size = sample_size_for(url)
+        if len(tofetch) > sample_size:
+            tofetch=R.sample(tofetch, sample_size)
+        print ". Fetching %d/%d from %s" % (len(tofetch), len(pages), url)
+        for u in tofetch:
+            l.append(semaphore.run(fetch_page, u))
+        rv = defer.DeferredList(l)
         return rv
     return f
 
