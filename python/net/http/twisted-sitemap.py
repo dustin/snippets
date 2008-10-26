@@ -10,8 +10,8 @@ import time
 import getopt
 import random
 
-from twisted.web import client, microdom
-from twisted.internet import reactor, protocol, defer, task
+from twisted.web import client, sux
+from twisted.internet import reactor, protocol, defer, task, error
 
 R=random.Random()
 DEFAULT_SAMPLE_SIZE=5
@@ -34,6 +34,44 @@ class CountingFile(object):
     def read(self):
         return None
 
+class SitemapFile(sux.XMLParser):
+    """A file-like thingy that parses sitemap results with SUX."""
+    def __init__(self):
+        self.maps=[]
+        self.pages=[]
+        self.connectionMade()
+        self.inLoc=False
+        self.current=None
+        self.data=None
+    def write(self, b):
+        self.dataReceived(b)
+    def close(self):
+        self.connectionLost(error.ConnectionDone())
+    def open(self):
+        pass
+    def read(self):
+        return None
+
+    # XML Callbacks
+    def gotTagStart(self, name, attrs):
+        if name == 'loc':
+            self.data=[]
+            self.inLoc=True
+        elif name == 'sitemapindex':
+            self.current=self.maps
+        elif name == 'urlset':
+            self.current=self.pages
+
+    def gotTagEnd(self, name):
+        self.inLoc=False
+        if name == 'loc':
+            self.current.append(''.join(self.data))
+            self.data=None
+
+    def gotText(self, data):
+        if self.inLoc:
+            self.data.append(data)
+
 def sample_size_for(url):
     return DEFAULT_SAMPLE_SIZE
 
@@ -43,13 +81,12 @@ def get_list(el, name):
         rv.append(outer.getElementsByTagName("loc")[0].firstChild().data)
     return rv
 
-def process_sitemap(url):
+def process_sitemap(url, x):
     start=time.time()
     def f(v):
         print "+ %s ok %.3fs" % (url, time.time() - start)
-        doc=microdom.parseXMLString(v)
-        pages=get_list(doc, 'url')
-        maps=get_list(doc, 'sitemap')
+        pages=x.pages
+        maps=x.maps
         print ". found %d pages and %d maps" % (len(pages), len(maps))
         l=[map_semaphore.run(fetch_sitemap, m) for m in maps]
         tofetch=pages
@@ -83,8 +120,9 @@ def fetch_page(url, count=1):
         errback=report_error)
 
 def fetch_sitemap(url):
-    return client.getPage(url, CountingFile()).addCallbacks(
-        callback=process_sitemap(url),
+    x=SitemapFile()
+    return client.downloadPage(url, x).addCallbacks(
+        callback=process_sitemap(url, x),
         errback=report_error(url))
 
 if __name__ == '__main__':
