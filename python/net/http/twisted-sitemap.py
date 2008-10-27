@@ -75,12 +75,6 @@ class SitemapFile(sux.XMLParser):
 def sample_size_for(url):
     return DEFAULT_SAMPLE_SIZE
 
-def get_list(el, name):
-    rv=[]
-    for outer in el.getElementsByTagName(name):
-        rv.append(outer.getElementsByTagName("loc")[0].firstChild().data)
-    return rv
-
 def process_sitemap(url, x):
     start=time.time()
     def f(v):
