@@ -14,7 +14,7 @@ from twisted.web import client, sux
 from twisted.internet import reactor, defer, error
 
 R=random.Random()
-DEFAULT_SAMPLE_SIZE=5
+default_sample_size=5
 CONCURRENCY=5
 page_request_count=2
 
@@ -73,7 +73,7 @@ class SitemapFile(sux.XMLParser):
             self.data.append(data)
 
 def sample_size_for(url):
-    return DEFAULT_SAMPLE_SIZE
+    return default_sample_size
 
 def process_sitemap(url, x):
     start=time.time()
@@ -120,7 +120,7 @@ def fetch_sitemap(url):
         errback=report_error(url))
 
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'c:m:n:')
+    opts, args = getopt.getopt(sys.argv[1:], 'c:m:n:r:')
     for o,v in opts:
         if o == '-c':
             semaphore = defer.DeferredSemaphore(tokens=int(v))
@@ -128,6 +128,8 @@ if __name__ == '__main__':
             map_semaphore = defer.DeferredSemaphore(tokens=int(v))
         if o == '-n':
             page_request_count = int(v)
+        if o == '-r':
+            default_sample_size = int(v)
 
     try:
         url = args[0]
