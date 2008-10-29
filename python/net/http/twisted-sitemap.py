@@ -119,8 +119,22 @@ def fetch_sitemap(url):
         callback=process_sitemap(url, x),
         errback=report_error(url))
 
+def usage():
+    sys.stderr.write("""Usage %s [-c n] [-m n] [-n n] [-r n] url
+
+Options:
+  -c n   - (page concurrency) Allow at most n concurrent page requests.
+  -m n   - (map concurrency) Allow at most n concurrent map requests.
+  -n n   - Ask for each page n times.
+  -r n   - Take a random sample of n pages.
+""" % sys.argv[0])
+    sys.exit(64)
+
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'c:m:n:r:')
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'c:m:n:r:')
+    except getopt.GetoptError:
+        usage()
     for o,v in opts:
         if o == '-c':
             semaphore = defer.DeferredSemaphore(tokens=int(v))
@@ -134,7 +148,6 @@ if __name__ == '__main__':
     try:
         url = args[0]
     except IndexError:
-        sys.stderr.write("Hey.  I need a sitemap URL to start with.\n")
-        sys.exit(64)
+        usage()
     fetch_sitemap(url).addBoth(lambda x: reactor.stop())
     reactor.run()
