@@ -16,7 +16,7 @@ from twisted.internet import reactor, defer, error
 R=random.Random()
 DEFAULT_SAMPLE_SIZE=5
 CONCURRENCY=5
-PAGE_REQUEST_COUNT=2
+page_request_count=2
 
 map_semaphore = defer.DeferredSemaphore(tokens=1)
 semaphore = defer.DeferredSemaphore(tokens=CONCURRENCY)
@@ -107,7 +107,7 @@ def fetch_page(url, count=1):
     def onSuccess(value):
         print "- %d %s ok %d bytes in %.3f" % (count,
             url, cf.written, time.time() - start)
-        if count < PAGE_REQUEST_COUNT:
+        if count < page_request_count:
             return fetch_page(url, count+1)
     return client.downloadPage(url, cf).addCallbacks(
         callback=onSuccess,
@@ -120,12 +120,14 @@ def fetch_sitemap(url):
         errback=report_error(url))
 
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'c:m:')
+    opts, args = getopt.getopt(sys.argv[1:], 'c:m:n:')
     for o,v in opts:
         if o == '-c':
             semaphore = defer.DeferredSemaphore(tokens=int(v))
         if o == '-m':
             map_semaphore = defer.DeferredSemaphore(tokens=int(v))
+        if o == '-n':
+            page_request_count = int(v)
 
     try:
         url = args[0]
