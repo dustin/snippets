@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """
 
+git log -g --pretty=format:'%h %p'
+
 Copyright (c) 2007  Dustin Sallings <dustin@spy.net>
 """
 
