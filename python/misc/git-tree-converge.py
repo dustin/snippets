@@ -59,6 +59,16 @@ def htmlify_col_list(col):
     else:
         return "&nbsp;"
 
+def mk_row(cls, l, r):
+    return ("<tr class='%s'><td class='left'>%s</td><td class='right'>%s</td></tr>" % (cls, l, r))
+
+def emit_differing_lists(op, left_col, right_col):
+    print mk_row(op, htmlify_col_list(left_col), htmlify_col_list(right_col))
+
+def emit_identical_lists(op, left_col, right_col):
+    for l,r in zip(left_col, right_col):
+        print mk_row(op, commit_info(l), commit_info(r))
+
 if __name__ == '__main__':
     branch_a, branch_b = sys.argv[1:]
 
@@ -112,8 +122,9 @@ if __name__ == '__main__':
         left_col=[commit_map[branch_a][tree].pop() for tree in left]
         right_col=[commit_map[branch_b][tree].pop() for tree in right]
 
-        print ("<tr class='%s'><td class='left'>%s</td><td class='right'>%s</td></tr>"
-            % (op, htmlify_col_list(left_col),
-                htmlify_col_list(right_col)))
+        if op == 'equal':
+            emit_identical_lists(op, left_col, right_col)
+        else:
+            emit_differing_lists(op, left_col, right_col)
 
     print "</tbody></table></body></html>"
