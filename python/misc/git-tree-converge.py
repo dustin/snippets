@@ -70,6 +70,9 @@ if __name__ == '__main__':
         <head>
             <title>Tree Comparison from %(branch_a)s to %(branch_b)s</title>
             <style type="text/css">
+                html {
+                    font-family: verdana;
+                }
                 table tr, table td {
 			border: solid 1px;
 			vertical-align: top
