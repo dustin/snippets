@@ -43,6 +43,22 @@ def load_commits():
         hash, an, ae, cn, ce, desc=l.strip().split("\0")
         commits[hash] = (an, ae, cn, ce, desc)
 
+def commit_info(h):
+    branch_a, ae, cn, ce, desc = commits[h]
+    if branch_a == cn:
+        ai = branch_a
+    else:
+        ai = "%s (committed by %s)" % (branch_a, cn)
+    cl = ('<a href="http://github.com/dustin/memcached/commit/%s">%s</a>'
+        % (h, h))
+    return "<div>%s: %s<br/>%s</div>" % (cl, ai, desc)
+
+def htmlify_col_list(col):
+    if col:
+        return "\n".join((commit_info(c) for c in col))
+    else:
+        return "&nbsp;"
+
 if __name__ == '__main__':
     branch_a, branch_b = sys.argv[1:]
 
@@ -71,7 +87,7 @@ if __name__ == '__main__':
 			padding: 0;
 			margin: 0;
                 }
-            </styles>
+            </style>
         </head>
         <body>
         <table>
@@ -90,33 +106,11 @@ if __name__ == '__main__':
         left=a[i1:i2]
         right=b[j1:j2]
 
-        left_col = []
-        right_col = []
-
-        for tree in left:
-            commit = commit_map[branch_a][tree].pop()
-            left_col.append(commit)
-        for tree in right:
-            commit = commit_map[branch_b][tree].pop()
-            right_col.append(commit)
-
-        def commit_info(h):
-            branch_a, ae, cn, ce, desc = commits[h]
-            if branch_a == cn:
-                ai = branch_a
-            else:
-                ai = "%s (committed by %s)" % (branch_a, cn)
-            cl = ('<a href="http://github.com/dustin/memcached/commit/%s">%s</a>'
-                % (h, h))
-            return "<div>%s: %s<br/>%s</div>" % (cl, ai, desc)
-
-        def _html(col):
-            if col:
-                return "\n".join((commit_info(c) for c in col))
-            else:
-                return "&nbsp;"
+        left_col=[commit_map[branch_a][tree].pop() for tree in left]
+        right_col=[commit_map[branch_b][tree].pop() for tree in right]
 
         print ("<tr class='%s'><td class='left'>%s</td><td class='right'>%s</td></tr>"
-            % (op, _html(left_col), _html(right_col)))
+            % (op, htmlify_col_list(left_col),
+                htmlify_col_list(right_col)))
 
     print "</tbody></table></body></html>"
