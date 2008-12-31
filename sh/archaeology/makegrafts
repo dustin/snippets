@@ -1,0 +1,10 @@
+#!/bin/sh
+
+empty=6c417dd379ccdb46de57e7a3860379633c270c9e
+
+for b in "$@"
+do
+	oldest=`git rev-list --reverse $b | head -1`
+	echo "Grafting $b"
+	echo "$oldest $empty" >> .git/info/grafts
+done

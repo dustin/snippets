@@ -1,0 +1,10 @@
+#!/bin/sh
+
+for t in "$@"
+do
+	git remote add -f $t /tmp/snippets/$t
+	git merge -s ours --no-commit $t/master
+	git read-tree --prefix=$t $t/master
+	git commit -m "Merged $t"
+	git pull -s subtree $t master
+done

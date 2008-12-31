@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for i in "$@"
+do
+	git remote add `basename $i` $i
+	git alternate $i
+done
+git remote update

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for i in "$@"
+do
+	echo "Doing $i"
+	rm -rf .git/refs/original
+	git filter-branch $i
+done
