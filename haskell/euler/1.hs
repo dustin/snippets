@@ -5,9 +5,6 @@
 
 multiple_of_3_or_15 :: Integer -> Bool
 
-multiple_of_3_or_15 x
-                    | mod x 3 == 0 = True
-                    | mod x 5 == 0 = True
-                    | otherwise = False
+multiple_of_3_or_15 x = x `mod` 3 == 0 || x `mod` 5 == 0
 
 euler1 n = sum [ x | x <- [0..n], multiple_of_3_or_15 x]
