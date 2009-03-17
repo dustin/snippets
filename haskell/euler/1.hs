@@ -9,7 +9,7 @@ multiple_of_3_or_15 x = x `mod` 3 == 0 || x `mod` 5 == 0
 
 multiple_of_any :: Integer -> [Integer] -> Bool
 
-multiple_of_any x l = product [ x `mod` n | n <- l ] == 0
+multiple_of_any x = any (\ n -> x `mod` n == 0)
 
 euler1 n = sum [ x | x <- [0..n], multiple_of_3_or_15 x]
 
