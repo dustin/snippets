@@ -90,12 +90,12 @@ let to_list l =
 	None -> []
 	| Some el ->
 		let rec rec_to_list lcur rv =
-			if lcur.next != el then
-				lcur.data :: (rec_to_list lcur.next rv)
+			if lcur != el then
+				lcur.data :: (rec_to_list lcur.prev rv)
 			else
-				[lcur.data]
+				[]
 			in
-		rec_to_list el []
+		rec_to_list el.prev []
 
 (** Delete this item from the list it contains. *)
 let remove l it =
@@ -105,7 +105,7 @@ let remove l it =
 	match l.l with
 	None -> ()
 	| Some el ->
-		if el = it then l.l <- Some el.next;
+		if el == it then l.l <- Some el.next;
 		l.cnt <- l.cnt - 1;
 		()
 
