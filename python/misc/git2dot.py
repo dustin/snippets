@@ -20,10 +20,37 @@ def get_changes(*args):
 
     return changes
 
+def store_ref(refs, h, t, name):
+    if h in refs:
+        if refs[h].index('/') == -1:
+            pass
+        elif name.index('/') == -1 or name.startswith('origin/'):
+            refs[h] = name
+    else:
+        refs[h] = name
+
+def get_refs():
+    args = ['git', 'show-ref', '--abbrev']
+    sub=subprocess.Popen(args, stdout=subprocess.PIPE, close_fds=True)
+
+    refs = {}
+    for line in sub.stdout:
+        h, stuff = line.strip().split()
+        try:
+            junk, t, name = stuff.split('/', 2)
+            store_ref(refs, h, t, name)
+        except ValueError:
+            pass
+
+    return refs
+
+refs = get_refs()
+changes = get_changes(*sys.argv[1:])
+
 print """digraph "g" {"""
 
-for k,v in get_changes().iteritems():
+for k,v in changes.iteritems():
     for p in v:
-        print '\t"%s" -> "%s";' % (p, k)
+        print '\t"%s" -> "%s";' % (refs.get(p, p), refs.get(k, k))
 
 print "}"
