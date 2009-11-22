@@ -1,11 +1,14 @@
 #include <Servo.h>
 
+#define NREADINGS 7
+#define DEBUG 0
+
 int servoId = 3;
 int potId = 0;
 int thermistorId = 1;
 int theLight = 13;
 
-#define DEBUG 0
+int readings[NREADINGS];
 
 Servo s;
 
@@ -13,23 +16,48 @@ void setup() {
 #if DEBUG
     Serial.begin(9600);
 #endif /* DEBUG */
+    for(int i = 0; i < NREADINGS; i++) {
+        readings[i] = -1;
+    }
     s.attach(servoId);
+}
+
+int computeSmoothedReading() {
+    int cnt = 0;
+    int sum = 0;
+
+    for(int i = 0; i < NREADINGS; i++) {
+        if(readings[i] >= 0) {
+            cnt++;
+            sum += readings[i];
+        }
+    }
+
+    return sum / cnt;
 }
 
 int angle() {
     // The reading is scaled beyond the range of the servo so it's
     // more sensitive.
-    int reading = map(analogRead(thermistorId), 0, 1023, 360, 0);
+    for(int i = 0; i< NREADINGS - 1; i++) {
+        readings[i] = readings[i+1];
+    }
+    int reading = map(analogRead(thermistorId), 0, 1023, 720, 0);
+    readings[NREADINGS-1] = reading;
+
+    int smoothedReading = computeSmoothedReading();
 
     // The potentiometer is used for calibrating the reading
-    int range = map(analogRead(potId), 0, 1023, -360, 360);
+    int range = map(analogRead(potId), 0, 1023, -720, 720);
 
     // Combining the reading and the range, we get the current position
-    int rv = constrain(reading + range, 0, 180);
+    int rv = constrain(smoothedReading + range, 0, 180);
 
 #if DEBUG
     Serial.print(reading, DEC);
-    Serial.print("/");
+    Serial.print("(");
+    Serial.print(smoothedReading, DEC);
+    Serial.print(")/");
     Serial.print(range, DEC);
     Serial.print(" -> ");
     Serial.print(rv, DEC);
