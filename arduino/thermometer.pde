@@ -9,6 +9,7 @@ int thermistorId = 1;
 int theLight = 13;
 
 int readings[NREADINGS];
+int previousReading = 0;
 
 Servo s;
 
@@ -33,7 +34,12 @@ int computeSmoothedReading() {
         }
     }
 
-    return sum / cnt;
+    int avg = sum / cnt;
+    if (abs(avg - previousReading) > 1) {
+        previousReading = avg;
+    }
+
+    return previousReading;
 }
 
 int angle() {
