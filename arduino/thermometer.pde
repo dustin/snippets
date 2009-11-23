@@ -10,6 +10,10 @@
 
 int decayAvg = -1;
 
+#if DEBUG
+int prevValue = -1;
+#endif /* DEBUG */
+
 Servo s;
 
 void setup() {
@@ -42,12 +46,15 @@ int angle() {
     int rv = computeSmoothedReading(constrain(reading + range, 0, 180));
 
 #if DEBUG
-    Serial.print(reading, DEC);
-    Serial.print("/");
-    Serial.print(range, DEC);
-    Serial.print(" -> ");
-    Serial.print(rv, DEC);
-    Serial.println("");
+    if (rv != prevValue) {
+        Serial.print(reading, DEC);
+        Serial.print("/");
+        Serial.print(range, DEC);
+        Serial.print(" -> ");
+        Serial.print(rv, DEC);
+        Serial.println("");
+        prevValue = rv;
+    }
 #endif /* DEBUG */
 
     // We use the light to indicate whether we're within a reasonable
