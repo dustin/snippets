@@ -1,6 +1,7 @@
 #include <Servo.h>
 
-#define DECAY_FACTOR 3
+#define DECAY_FACTOR 5
+#define MIN_POT_DISTANCE 90
 #define DEBUG 0
 
 #define SERVO_ID 3
@@ -10,6 +11,8 @@
 #define VAR_LIGHT 11
 
 int decayAvg = -1;
+int prevRange = 0;
+unsigned long lightUntil = 0;
 
 #if DEBUG
 int prevValue = -1;
@@ -42,6 +45,10 @@ int angle() {
 
     // The potentiometer is used for calibrating the reading
     int range = map(analogRead(POT_ID), 0, 1023, -720, 720);
+    if (abs(range - prevRange) > MIN_POT_DISTANCE) {
+        prevRange = range;
+        lightUntil = millis() + 5000;
+    }
 
     // Combining the reading and the range, we get the current position
     int rv = computeSmoothedReading(constrain(reading + range, 0, 180));
@@ -72,9 +79,13 @@ int angle() {
 }
 
 void setVarLight(int a) {
-    int rel = constrain(abs(90 - a), 0, 20);
-    int lightVal = map(rel, 0, 20, 128, 0);
-    analogWrite(VAR_LIGHT, lightVal);
+    if (millis() < lightUntil) {
+        int rel = constrain(abs(90 - a), 0, 20);
+        int lightVal = map(rel, 0, 20, 128, 0);
+        analogWrite(VAR_LIGHT, lightVal);
+    } else {
+        analogWrite(VAR_LIGHT, 0);
+    }
 }
 
 void loop() {
