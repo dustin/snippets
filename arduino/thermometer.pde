@@ -65,16 +65,6 @@ int angle() {
     }
 #endif /* DEBUG */
 
-    // We use the light to indicate whether we're within a reasonable
-    // calibrated range for the analog display.  You could also just like,
-    // Aim for 90°, but that'd be too easy.
-    if (rv > 45 && rv < 135) {
-        digitalWrite(THE_LIGHT, LOW);
-    }
-    else {
-        digitalWrite(THE_LIGHT, HIGH);
-    }
-
     return rv;
 }
 
@@ -88,10 +78,19 @@ void setVarLight(int a) {
     }
 }
 
+void setAlertLight(int a) {
+    // We use the light to indicate whether we're outside of a reasonable
+    // calibrated range for the analog display.  You could also just like,
+    // Aim for 90°, but that'd be too easy.
+    digitalWrite(THE_LIGHT, abs(a - 90) < 45 ? LOW : HIGH);
+}
+
 void loop() {
     int a = angle();
     // Move the servo to the computed angle.
     s.write(a);
+    // Set the out-of-range alert light.
+    setAlertLight(a);
     // Adjust the other light to the distance from 90
     setVarLight(a);
 }
