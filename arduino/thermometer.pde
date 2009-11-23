@@ -7,6 +7,7 @@
 #define POT_ID 0
 #define THERMISTOR_ID 1
 #define THE_LIGHT 13
+#define VAR_LIGHT 11
 
 int decayAvg = -1;
 
@@ -70,7 +71,16 @@ int angle() {
     return rv;
 }
 
+void setVarLight(int a) {
+    int rel = constrain(abs(90 - a), 0, 20);
+    int lightVal = map(rel, 0, 20, 128, 0);
+    analogWrite(VAR_LIGHT, lightVal);
+}
+
 void loop() {
+    int a = angle();
     // Move the servo to the computed angle.
-    s.write(angle());
+    s.write(a);
+    // Adjust the other light to the distance from 90
+    setVarLight(a);
 }
