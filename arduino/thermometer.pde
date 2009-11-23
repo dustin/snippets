@@ -3,10 +3,10 @@
 #define DECAY_FACTOR 3
 #define DEBUG 0
 
-int servoId = 3;
-int potId = 0;
-int thermistorId = 1;
-int theLight = 13;
+#define SERVO_ID 3
+#define POT_ID 0
+#define THERMISTOR_ID 1
+#define THE_LIGHT 13
 
 int decayAvg = -1;
 
@@ -16,7 +16,7 @@ void setup() {
 #if DEBUG
     Serial.begin(9600);
 #endif /* DEBUG */
-    s.attach(servoId);
+    s.attach(SERVO_ID);
 }
 
 int computeSmoothedReading(int newReading) {
@@ -33,10 +33,10 @@ int computeSmoothedReading(int newReading) {
 int angle() {
     // The reading is scaled beyond the range of the servo so it's
     // more sensitive.
-    int reading = map(analogRead(thermistorId), 0, 1023, 720, 0);
+    int reading = map(analogRead(THERMISTOR_ID), 0, 1023, 720, 0);
 
     // The potentiometer is used for calibrating the reading
-    int range = map(analogRead(potId), 0, 1023, -720, 720);
+    int range = map(analogRead(POT_ID), 0, 1023, -720, 720);
 
     // Combining the reading and the range, we get the current position
     int rv = computeSmoothedReading(constrain(reading + range, 0, 180));
@@ -54,10 +54,10 @@ int angle() {
     // calibrated range for the analog display.  You could also just like,
     // Aim for 90°, but that'd be too easy.
     if (rv > 45 && rv < 135) {
-        digitalWrite(theLight, HIGH);
+        digitalWrite(THE_LIGHT, HIGH);
     }
     else {
-        digitalWrite(theLight, LOW);
+        digitalWrite(THE_LIGHT, LOW);
     }
 
     return rv;
