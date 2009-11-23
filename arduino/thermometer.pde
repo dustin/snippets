@@ -69,10 +69,10 @@ int angle() {
     // calibrated range for the analog display.  You could also just like,
     // Aim for 90°, but that'd be too easy.
     if (rv > 45 && rv < 135) {
-        digitalWrite(THE_LIGHT, HIGH);
+        digitalWrite(THE_LIGHT, LOW);
     }
     else {
-        digitalWrite(THE_LIGHT, LOW);
+        digitalWrite(THE_LIGHT, HIGH);
     }
 
     return rv;
