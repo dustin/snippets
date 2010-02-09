@@ -23,32 +23,56 @@ on timestamp(t)
 	return zeroPrefix(h) & ":" & zeroPrefix(m)
 end timestamp
 
+on shortDay(d)
+	items 1 through 3 of (weekday of d as text)
+end shortDay
+
+on plainDate(dateOb)
+	set {year:y, month:m, day:d} to dateOb
+		set m to m as integer
+	return y & "-" & zeroPrefix(m) & "-" & zeroPrefix(d) & " " & shortDay(dateOb)
+end
+
 on formatDate(startDate, endDate)
 	set startTime to time of startDate
 	set endTime to time of endDate
 	
-	set {year:y, month:m, day:d} to startDate
-	set m to m as integer
-	return "<" & y & "-" & zeroPrefix(m) & "-" & zeroPrefix(d) & " " & timestamp(startTime) & " - " & timestamp(endTime) & ">"
+	return "<" & plainDate(startDate) & " " & timestamp(startTime) & " - " & timestamp(endTime) & ">"
 end formatDate
+
+on formatMultiDay(startDate, endDate)
+		set wd1 to " " & shortDay(startDate)
+	set wd2 to " " & shortDay(endDate)
+
+	return "<" & plainDate(startDate) & ">--<" & plainDate(endDate) & ">"
+end formatMultiDay
+
+on isMultiDay(startDate, endDate)
+	set {year:y1, month:m1, day:d1} to startDate
+	set {year:y2, month:m2, day:d2} to endDate
+	return not (y1 = y2 and m1 = m2 and d1 = d2)
+end isMultiDay
 
 on formatAllDay(theDate)
 	set {year:y, month:m, day:d} to theDate
 	set m to m as integer
-	return "<" & y & "-" & zeroPrefix(m) & "-" & zeroPrefix(d) & ">"
+	return "<" & plainDate(theDate) & ">"
 end formatAllDay
 
 on isAllDay(startDate, endDate)
-	set startTime to time of startDate
-	set endTime to time of endDate
-	return startDate ­ endDate and startTime = endTime
+	set {year:y1, month:m1, day:d1} to startDate
+	set {year:y2, month:m2, day:d2} to endDate
+	return isMultiDay(startDate, endDate) and (endDate - startDate) = 86400
 end isAllDay
 
 on recordAnEvent(startDate, endDate, theSummary, calFile)
 	set my seenEvents to my seenEvents & {theSummary, startDate}
 	set s to "* " & theSummary & " "
+
 	if isAllDay(startDate, endDate) of me then
 		set s to s & formatAllDay(startDate) of me
+	else if isMultiDay(startDate, endDate) of me then
+		set s to s & formatMultiDay(startDate, endDate)
 	else
 		set s to s & formatDate(startDate, endDate) of me
 	end if
@@ -64,13 +88,13 @@ on doCalendar(aCalendar, calFile)
 	
 	tell application "iCal"
 		tell aCalendar
-			repeat with anEvent in (every event whose start date > oldest and start date < newest)
-				set {start date:startDate, end date:endDate, summary:theSummary} to anEvent
+			set releventEvents to every event whose start date > oldest and start date < newest
+			repeat with anEvent in releventEvents
+				set {start date:startDate, end date:endDate, summary:theSummary} to (properties of anEvent)
 				if {theSummary, startDate} is not in my seenEvents then
 					recordAnEvent(startDate, endDate, theSummary, calFile) of me
 				end if
 			end repeat
-			summary of every event
 		end tell
 	end tell
 end doCalendar
