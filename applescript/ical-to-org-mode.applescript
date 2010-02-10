@@ -29,9 +29,9 @@ end shortDay
 
 on plainDate(dateOb)
 	set {year:y, month:m, day:d} to dateOb
-		set m to m as integer
+	set m to m as integer
 	return y & "-" & zeroPrefix(m) & "-" & zeroPrefix(d) & " " & shortDay(dateOb)
-end
+end plainDate
 
 on formatDate(startDate, endDate)
 	set startTime to time of startDate
@@ -41,7 +41,7 @@ on formatDate(startDate, endDate)
 end formatDate
 
 on formatMultiDay(startDate, endDate)
-		set wd1 to " " & shortDay(startDate)
+	set wd1 to " " & shortDay(startDate)
 	set wd2 to " " & shortDay(endDate)
 
 	return "<" & plainDate(startDate) & ">--<" & plainDate(endDate) & ">"
