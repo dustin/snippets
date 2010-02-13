@@ -1,3 +1,5 @@
+tell application "System Events" to set wasRunning to ((name of processes) contains "iCal")
+
 set calFileName to (POSIX file "/Users/dustin/stuff/calendar.org") as text
 
 try
@@ -103,6 +105,10 @@ tell application "iCal"
 	reload calendars
 	doCalendar(calendar "Calendar", calFile) of me
 	doCalendar(calendar "Google", calFile) of me
+
+	if wasRunning = false then
+		quit
+	end if
 end tell
 
 close access file calFileName
