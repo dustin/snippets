@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef MYMALLOC
-#include <mymalloc.h>
-#endif /* MYMALLOC */
-
 #include "dict.h"
 
 #ifndef BOOTSTRAP

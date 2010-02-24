@@ -1,10 +1,9 @@
 # Generated automatically from Makefile.in by configure.
 # PROFILE=-pg
-MYMALLOC=-DMYMALLOC
 CC=gcc
 CFLAGS=-g -O2  -DDICTIONARY=\"/usr/share/dict/words\" -DSTDC_HEADERS=1 -DHAVE_STRDUP=1  $(PROFILE)
 LDFLAGS=
-BOOTSTRAPOBJ=scoring_bootstrap.o dict_bootstrap.o 
+BOOTSTRAPOBJ=scoring_bootstrap.o dict_bootstrap.o
 OBJ=dictionary.o scores.o scoring.o dict.o search.o
 LIB=-L. -lscrabble
 RANLIB=ranlib
@@ -61,9 +60,6 @@ buildit: buildit.o libbscrabble.a
 
 buildit.o:
 	$(CC) $(CFLAGS) $(PROFILE) -DBOOTSTRAP -c -o $@ buildit.c
-
-mymalloc/mymalloc.o: mymalloc/mymalloc.c mymalloc/mymalloc.h
-	cd mymalloc && $(CC) $(MYMALLOC) -o mymalloc.o -c mymalloc.c
 
 clean:
 	rm -f libscrabble.a dict_main.o search_main.o scoring_main.o \
