@@ -7,7 +7,6 @@ Copyright (c) 2007  Dustin Sallings <dustin@spy.net>
 
 import re
 import sys
-import sets
 import copy
 from sqlite3 import dbapi2 as sqlite
 
