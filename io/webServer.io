@@ -21,47 +21,47 @@ WebUrlTimeHandler := WebUrlHandler clone
 // Web request
 //
 
-WebRequest headers := Nil
-WebRequest reqMethod := Nil
-WebRequest path := Nil
-WebRequest queryString := Nil
-WebRequest httpVersion := Nil
+WebRequest headers := nil
+WebRequest reqMethod := nil
+WebRequest path := nil
+WebRequest queryString := nil
+WebRequest httpVersion := nil
 
 // This not only parses the request, but modifies the buffer to remove all
 // of the non-header information
 WebRequest parseRequest := method(buf,
 	// Copy the buffer and remove everything after the end of the headers
-	btmp := buf fromTo(0, buf find("\r\n\r\n") - 1)
-	bextra := buf fromTo(buf find("\r\n\r\n") + 4, buf length - 1)
+	btmp := buf exSlice(0, buf findSeq("\r\n\r\n") - 1)
+	bextra := buf exSlice(buf findSeq("\r\n\r\n") + 4, buf size - 1)
 	buf empty
 	buf .. bextra
 	lines := btmp asString split("\r\n")
 	// The first line is the query
 	self path := lines at(0)
-	self reqMethod := path substring(0, path find(" ") - 1)
-	self httpVersion := path substring(path reverseFind(" ") + 1)
-	self path := path substring(path find(" ") + 1,
-		path reverseFind(" ") - 1)
+	self reqMethod := path exSlice(0, path findSeq(" ") - 1)
+	self httpVersion := path exSlice(path reverseFindSeq(" ") + 1)
+	self path := path exSlice(path findSeq(" ") + 1,
+		path reverseFindSeq(" ") - 1)
 	// Check for a query string
-	if(self path find("?"),
-		self queryString := path substring(path find("?") + 1)
-		self path := path substring(0, path find("?") - 1),
+	if(self path findSeq("?"),
+		self queryString := path exSlice(path findSeq("?") + 1)
+		self path := path exSlice(0, path findSeq("?") - 1),
 		self queryString := ""
 	)
 
 	lines removeAt(0)
 	// Parse the headers
 	self headers := Map clone
-	lines doBlock(block(s,
-		idx := s find(": ", 0)
-		if(idx == Nil,
+	lines foreach(s,
+		idx := s findSeq(": ", 0)
+		if(idx == nil,
 			write("No colon in " .. s .. "\n")
 			lines print
 			headers print)
-		k := s substring(0, idx-1)
-		v := s substring(idx + 2)
+		k := s exSlice(0, idx-1)
+		v := s exSlice(idx + 2)
 		self headers atPut(k, v)
-		))
+		)
 	self
 )
 
@@ -72,14 +72,14 @@ WebRequest parseRequest := method(buf,
 //
 
 WebResponse bytesWritten := 0
-WebResponse socket := Nil
+WebResponse socket := nil
 
 // Additional headers
-WebResponse headers := Nil
+WebResponse headers := nil
 // Response status
-WebResponse status := Nil
+WebResponse status := nil
 // protocol version
-WebResponse httpVersion := Nil
+WebResponse httpVersion := nil
 WebResponse beginning := 1
 
 WebResponse init := method(
@@ -121,7 +121,7 @@ WebResponse writeHeaders := method(
 WebResponse write := method(
 	if(beginning,
 		writeHeaders
-		self beginning := Nil
+		self beginning := nil
 	)
 	internalWriteList(thisMessage argsEvaluatedIn(sender))
 	self
@@ -153,7 +153,7 @@ WebResponse readBuffer := method(socket readBuffer)
 //
 
 
-WebServer handlers := Nil
+WebServer handlers := nil
 
 WebServer responseStatusCodes := Map clone
 // Begin status codes
@@ -224,19 +224,21 @@ WebServer getHandlerFor := method(path,
 )
 
 WebServer hasRequest := method(buf,
-	buf find("\r\n\r\n")
+	buf containsSeq("\r\n\r\n")
 )
 
 // Main loop that processes request
 WebServer processRequest := method(aSocket, aServer,
 	request := WebRequest clone parseRequest(aSocket readBuffer)
 	handler := getHandlerFor(request path)
-	if(handler == Nil, handler := self defaultHandler)
+	if(handler == nil, handler := self defaultHandler)
 
-	catchException("WebServer.ProtocolError",
-		handler handleRequest(request, aSocket),
+	e := try(handler handleRequest(request, aSocket))
+	e catch("WebServer.ProtocolError",
 		errorHandler handleError(request, aSocket,
-			exceptionName, exceptionDescription))
+			exceptionName, exceptionDescription)
+	)
+
 	ds := Date clone now asString("[%d/%b/%Y:%X %Z]")
 	write(aSocket host, " - - ", ds, " \"", request reqMethod, " ",
 		request path, " ", request httpVersion, "\" ", aSocket status, " ",
@@ -331,7 +333,7 @@ WebUrlStdHandler parsePost := method(req, socket,
 )
 
 WebUrlStdHandler getParameters := method(req, socket,
-	rv := Nil
+	rv := nil
 	m := req reqMethod
 	if(m == "GET", rv = parseGet(req, socket))
 	if(m == "POST", rv = parsePost(req, socket))

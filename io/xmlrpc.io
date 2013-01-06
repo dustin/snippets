@@ -34,7 +34,7 @@ XmlRpcSerializer serializeDouble := method(v,
 )
 
 XmlRpcSerializer serializeNumber := method(v,
-	rv := Nil
+	rv := nil
 	if(v == v floor,
 		rv = serializeInt(v),
 		rv = serializeDouble(v))
@@ -52,35 +52,35 @@ XmlRpcSerializer serializeDate := method(v,
 )
 
 XmlRpcSerializer serializeList := method(l,
-	b := Buffer clone
-	b append("<array><data>")
-	l doBlock(block(v,
-		b append("<value>")
-		b append(serialize(v))
-		b append("</value>")))
-	b append("</data></array>")
+	b := Sequence clone
+	b appendSeq("<array><data>")
+	l foreach(v,
+		b appendSeq("<value>")
+		b appendSeq(serialize(v))
+		b appendSeq("</value>"))
+	b appendSeq("</data></array>")
 	b asString
 )
 
 XmlRpcSerializer serializeMap := method(l,
-	b := Buffer clone
-	b append("<struct>")
-	l doBlock(block(k, v,
-		b append("<member>")
-		b append("<name>")
-		b append(normalize(k))
-		b append("</name>")
-		b append("<value>")
-		b append(serialize(v))
-		b append("</value>")))
-	b append("</struct>")
+	b := Sequence clone
+	b appendSeq("<struct>")
+	l foreach(k, v,
+		b appendSeq("<member>")
+		b appendSeq("<name>")
+		b appendSeq(normalize(k))
+		b appendSeq("</name>")
+		b appendSeq("<value>")
+		b appendSeq(serialize(v))
+		b appendSeq("</value>"))
+	b appendSeq("</struct>")
 	b asString
 )
 
 XmlRpcSerializer serialize := method(o,
 	sn := "serialize" ..(o type)
 	// Validate there's an encoder for this thing
-	if(XmlRpcSerializer hasSlot(sn) == Nil,
+	if(XmlRpcSerializer hasSlot(sn) == nil,
 		raiseException("XmlRpc.UnhandledObject", o type))
 	// get the encoder
 	m := XmlRpcSerializer getSlot(sn)
@@ -99,7 +99,7 @@ XmlRpcDeserializer deserializeXML := method(x,
 	// write("Deserializing ", x type, ": ", x, "\n")
 	rv := x
 	if(x type != "String",
-		m = handlers at(x name)
+		m := handlers at(x name)
 		rv = m(x))
 	rv
 )
@@ -111,19 +111,19 @@ XmlRpcDeserializer deserialize := method(x,
 	deserializeXML(x)
 )
 
-XmlRpcDeserializer nopDeserializer:=method(v,
+XmlRpcDeserializer nopDeserializer := method(v,
 	deserializeXML(v subitems at(0))
 )
 
-XmlRpcDeserializer numberDeserializer:=method(v,
-	v subitems at(0) asNumber
+XmlRpcDeserializer numberDeserializer := method(v,
+	v subitems at(0) asString asNumber
 )
 
-XmlRpcDeserializer boolDeserializer:=method(v,
+XmlRpcDeserializer boolDeserializer := method(v,
 	v subitems at(0) asNumber != 0
 )
 
-XmlRpcDeserializer stringDeserializer:=method(v,
+XmlRpcDeserializer stringDeserializer := method(v,
 	v subitems at(0)
 )
 
@@ -134,7 +134,7 @@ XmlRpcDeserializer dateDeserializer := method(v,
 	Date clone fromString(s, XmlRpcSerializer DATEFORMAT)
 )
 
-XmlRpcDeserializer arrayDeserializer:=method(v,
+XmlRpcDeserializer arrayDeserializer := method(v,
 	data := v subitems at(0)
 	// Validation
 	if(data name != "data",
@@ -145,7 +145,7 @@ XmlRpcDeserializer arrayDeserializer:=method(v,
 	rv
 )
 
-XmlRpcDeserializer structDeserializer:=method(v,
+XmlRpcDeserializer structDeserializer := method(v,
 	rv := Map clone
 	v subitems doBlock(block(i,
 		if(i name != "member",
@@ -203,12 +203,13 @@ XmlRpcResponseDecoder processFault := method(f,
 )
 
 XmlRpcResponseDecoder decode := method(xml,
+	SGML
+	xml println
 	x := xml asXML
-	while(x name lower != "methodresponse",
-		x = x subitems at(0))
+	x := x elementsWithName("methodresponse") at(0)
 	// Figure out if this is a fault or a real response
 	f := x subitems at(0)
-	if(f name lower == "fault",
+	if(f name asLowercase == "fault",
 		processFault(f))
 	rv := XmlRpcDeserializer deserializeXML(f)
 )
@@ -279,7 +280,7 @@ XmlRpcProxy invoke := method(mn, params,
 XmlRpcProxy forward := method(
 	methodName := thisMessage name
 	args := thisMessage argsEvaluatedIn(sender)
-	if(args count == 0, args = Nil)
+	if(args count == 0, args = nil)
 	invoke(methodName, args)
 )
 
@@ -287,7 +288,7 @@ XmlRpcProxy forward := method(
 // XMLRPC server implementation
 // ----------------------------------------------------------------------
 
-XmlRpcServer handlers := Nil
+XmlRpcServer handlers := nil
 
 XmlRpcServer init := method(
 	self handlers := Map clone
@@ -299,13 +300,13 @@ XmlRpcServer addHandler := method(m, h,
 )
 
 XmlRpcServer findItem := method(x, v,
-	rv := Nil
+	rv := nil
 	if(x type == "SGMLTag",
 		if(x name lower == v,
 			rv = x,
 			x subitems foreach(i,
 				rv = findItem(i, v)
-				if(rv != Nil, return rv))))
+				if(rv != nil, return rv))))
 	rv
 )
 
@@ -320,7 +321,7 @@ XmlRpcServer rawInvoke := method(xml,
 			tmp atPut(i name lower, i))
 	)
 	methodName := tmp at("methodname") subitems at(0)
-	if(methodName == Nil,
+	if(methodName == nil,
 		raiseException("XmlRpc.ParseException", "no method name"))
 	params := list()
 	if(tmp at("params"),
@@ -331,7 +332,7 @@ XmlRpcServer rawInvoke := method(xml,
 	methodName := mparts at(1) substring(1)
 
 	h := handlers at(moduleName)
-	if(h == Nil,
+	if(h == nil,
 		raiseException("XmlRpc.NoSuchMethod", "no handler for " .. moduleName))
 
 	XmlRpcSerializer serialize(h performWithArgList(methodName, params))
