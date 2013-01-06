@@ -5,17 +5,17 @@ doFile("xmlrpc.io")
 
 // Testing
 
-XmlRpcTest = Object clone
+XmlRpcTest := Object clone
 
-XmlRpcTest printResult = method(rv,
+XmlRpcTest printResult := method(rv,
 	write("rv is ", rv type, ":  ", rv, "\n")
 	if(rv type == "Map", rv foreach(k, v, write("\t", k, " = ", v, "\n")))
 )
 
-XmlRpcSerializerTest = XmlRpcTest clone
+XmlRpcSerializerTest := XmlRpcTest clone
 
-XmlRpcSerializerTest main = method(
-	xs = XmlRpcSerializer clone
+XmlRpcSerializerTest main := method(
+	xs := XmlRpcSerializer clone
 	
 	write("String ", xs serialize("Testing..."), "\n")
 	write("Int ", xs serialize(3), "\n")
@@ -24,7 +24,7 @@ XmlRpcSerializerTest main = method(
 	write("Boolean (false) ", xs serialize(0), "\n")
 	write("Date ", xs serialize(Date clone now), "\n")
 	write("List ", xs serialize(list(1, 2, 3)), "\n")
-	m = Map clone
+	m := Map clone
 	m atPut("skey", "val1")
 	m atPut("ikey", 2)
 	m atPut("fkey", 1.71)
@@ -35,10 +35,10 @@ XmlRpcSerializerTest main = method(
 	write("\n")
 )
 
-XmlRpcDeserializerTest = XmlRpcTest clone
+XmlRpcDeserializerTest := XmlRpcTest clone
 
-XmlRpcDeserializerTest main = method(
-	s = """<?xml version="1.0" encoding="ISO-8859-1"?><methodResponse><params><param><value><double>20.02</double></value></param></params></methodResponse>"""
+XmlRpcDeserializerTest main := method(
+	s := """<?xml version="1.0" encoding="ISO-8859-1"?><methodResponse><params><param><value><double>20.02</double></value></param></params></methodResponse>"""
 	/*
 	// List
 	s = """<?xml version="1.0" encoding="ISO-8859-1"?><array><data><value><string>19980717T14:08:55</string></value><value><i4>3</i4></value></data></array>>"""
@@ -48,17 +48,17 @@ XmlRpcDeserializerTest main = method(
 	s = """<struct><member><name>an int</name><value><i4>34</i4></value></member><member><name>a string</name><value>wooo</value></member></struct>>"""
 	*/
 	// rv = XmlRpcDeserializer deserialize(s)
-	rv = XmlRpcResponseDecoder decode(s)
+	rv := XmlRpcResponseDecoder decode(s)
 	printResult(rv)
 )
 
-XmlRpcTest = XmlRpcTest clone
+XmlRpcTest := XmlRpcTest clone
 
-XmlRpcTest main = method(
-	DNSResolver addServerAddress("192.168.1.40")
+XmlRpcTest main := method(
+	DNSResolver addDNSServerIp("192.168.1.40")
 
-	u = URL clone setURL("http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC")
-	xp = XmlRpcProxy clone
+	u := URL clone setURL("http://bleu.west.spy.net/servlet/net.spy.rpc.XMLRPC")
+	xp := XmlRpcProxy clone
 	xp setURL(u)
 
 	// xp zipcodes.lookupZip(95051)
@@ -70,7 +70,7 @@ XmlRpcTest main = method(
 	printResult(rv)
 )
 
-// XmlRpcSerializerTest main
-// XmlRpcDeserializerTest main
+# XmlRpcSerializerTest main
+# XmlRpcDeserializerTest main
 
 XmlRpcTest main
