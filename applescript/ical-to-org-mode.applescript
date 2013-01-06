@@ -88,7 +88,7 @@ on doCalendar(aCalendar, calFile)
 	set oldest to (current date) - (2 * weeks)
 	set newest to (current date) + (6 * weeks)
 	
-	tell application "iCal"
+	tell application "Calendar"
 		tell aCalendar
 			set releventEvents to every event whose start date > oldest and start date < newest
 			repeat with anEvent in releventEvents
@@ -101,10 +101,10 @@ on doCalendar(aCalendar, calFile)
 	end tell
 end doCalendar
 
-tell application "iCal"
+tell application "Calendar"
 	reload calendars
-	doCalendar(calendar "Calendar", calFile) of me
-	doCalendar(calendar "Google", calFile) of me
+	-- doCalendar(calendar "Calendar", calFile) of me
+	doCalendar(calendar "Google (sallings.org)", calFile) of me
 
 	if wasRunning = false then
 		quit
