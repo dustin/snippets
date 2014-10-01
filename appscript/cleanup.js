@@ -26,10 +26,10 @@ function cleanTmp() {
   var tmpdir = DriveApp.getFolderById('TMP_DIR_ID');
   var threshold = new Date(new Date() - 86400 * 7 * 1000);
   Logger.log('Cleaning anything older than %s', threshold);
-  
+
   var cleaned = cleanIter(threshold, tmpdir.getFiles());
   cleaned += cleanIter(threshold, tmpdir.getFolders());
-  
+
   if (cleaned > 0) {
     MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your tmp', Logger.getLog());
   }
@@ -39,7 +39,11 @@ function yougivelove(n) {
   return n === '.DS_Store' || /~$/.test(n);
 }
 
+// Clean up files that have bad names.
+//
+// Give me your .DS_Store, your backup~ files, etc...
 function cleanBadNames() {
+  var cleaned = 0;
   var iter = DriveApp.getFiles();
   while (iter.hasNext()) {
     var f = iter.next();
@@ -47,6 +51,10 @@ function cleanBadNames() {
     if (yougivelove(n)) {
       Logger.log('%s has a bad name', n);
       f.setTrashed(true);
+      cleaned++;
     }
+  }
+  if (cleaned > 0) {
+    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned files with bad names', Logger.getLog());
   }
 }
