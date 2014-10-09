@@ -8,13 +8,13 @@
  * that might have OS X or emacs garbage left behind.
  */
 function cleanIter(threshold, it) {
-  var cleaned = 0;
+  var cleaned = [];
   while (it.hasNext()) {
     var f = it.next();
     if (f.getLastUpdated() < threshold) {
-      Logger.log('Deleting %s', f.getName());
+      Logger.log('--- Deleting %s, last updated %s', f.getName(), f.getLastUpdated());
       f.setTrashed(true);
-      cleaned++;
+      cleaned.push(f.getName());
     } else {
       Logger.log('Keeping %s, last updated %s', f.getName(), f.getLastUpdated());
     }
@@ -28,10 +28,11 @@ function cleanTmp() {
   Logger.log('Cleaning anything older than %s', threshold);
 
   var cleaned = cleanIter(threshold, tmpdir.getFiles());
-  cleaned += cleanIter(threshold, tmpdir.getFolders());
+  cleaned = cleaned.concat(cleanIter(threshold, tmpdir.getFolders()));
 
-  if (cleaned > 0) {
-    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your tmp', Logger.getLog());
+  if (cleaned.length > 0) {
+    var msg = "Cleaned the following items:\n\n * " + cleaned.join("\n * ") + "\n\nLog:\n" + Logger.getLog();
+    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your tmp', msg);
   }
 }
 
