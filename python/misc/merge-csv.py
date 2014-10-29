@@ -20,6 +20,12 @@ def load(fn, keepers, prefix=[]):
 
     return rv
 
+def maybeint(x):
+    try:
+        return int(x)
+    except ValueError:
+        return x
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Pull common fields from CSVs.')
     parser.add_argument('--cols', metavar='col,names', default='', help='output column names')
@@ -30,12 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('files', metavar='file', type=str, nargs='+')
     args = parser.parse_args()
 
-    keepers = []
-    for a in args.keep.split(','):
-        try:
-            keepers.append(int(a))
-        except ValueError:
-            keepers.append(a)
+    keepers = [maybeint(a) for a in args.keep.split(',')]
 
     w = csv.writer(sys.stdout)
     w.writerow(args.cols.split(',') if args.cols else keepers)
