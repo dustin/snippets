@@ -1,3 +1,11 @@
+/*
+ * This is a super simple servo tester I used when building my QAV400.
+ * It covers the range from 0-180 changing approximately every 3
+ * seconds and blinking n/10 times when at n degrees.
+ *
+ * Output:  PWM pin 9
+ */
+
 #include <Servo.h>
 
 Servo myservo;
