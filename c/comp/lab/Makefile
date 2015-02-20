@@ -1,2 +1,0 @@
-CFLAGS=-O2 -w3 -DDEBUG
-
