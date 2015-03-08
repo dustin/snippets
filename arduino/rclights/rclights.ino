@@ -36,7 +36,7 @@ void loadEEProm(sensor *led, int pos) {
 }
 
 void writeEEProm(sensor *led, int pos) {
-  if (led->dirty) {
+  if (!led->dirty) {
     return;
   }
 
