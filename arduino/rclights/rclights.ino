@@ -2,7 +2,7 @@
 
 #include "rclights.h"
 
-const int deadBand = 5;
+const int deadBand = 2;
 const int closeEnough = 20;
 const int eepromTooLow = 500;
 const int eepromTooHigh = 3000;
@@ -27,10 +27,10 @@ void setupLed(sensor *led) {
 void loadEEProm(sensor *led, int pos) {
   led->minValue = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
   led->maxValue = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
-  if (led->minValue < eepromTooLow) {
+  if (led->minValue < eepromTooLow || led->minValue > eepromTooHigh) {
     led->minValue = 6000;
   }
-  if (led->maxValue > eepromTooHigh) {
+  if (led->maxValue > eepromTooHigh || led->maxValue < eepromTooLow) {
     led->maxValue = 0;
   }
 }
