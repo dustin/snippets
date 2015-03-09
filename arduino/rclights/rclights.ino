@@ -58,6 +58,13 @@ void rangeCheck(sensor *led, unsigned long val) {
 
 void updateLed(sensor* led) {
   unsigned long val = pulseIn(led->in, HIGH);
+  while (val == 0) { // failsafe
+    analogWrite(led->out, 255);
+    delay(200);
+    analogWrite(led->out, 0);
+    val = pulseIn(led->in, HIGH);
+  }
+
   rangeCheck(led, val);
   if (abs(val - led->lastValue) > deadBand) {
     if (val < led->minValue + closeEnough) {
