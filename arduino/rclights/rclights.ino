@@ -4,8 +4,8 @@
 
 const int deadBand = 2;
 const int closeEnough = 20;
-const int eepromTooLow = 500;
-const int eepromTooHigh = 3000;
+const int valueTooLow = 500;
+const int valueTooHigh = 3000;
 
 unsigned long nextWrite = 0;
 
@@ -27,10 +27,10 @@ void setupLed(sensor *led) {
 void loadEEProm(sensor *led, int pos) {
   led->minValue = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
   led->maxValue = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
-  if (led->minValue < eepromTooLow || led->minValue > eepromTooHigh) {
+  if (led->minValue < valueTooLow || led->minValue > valueTooHigh) {
     led->minValue = 6000;
   }
-  if (led->maxValue > eepromTooHigh || led->maxValue < eepromTooLow) {
+  if (led->maxValue > valueTooHigh || led->maxValue < valueTooLow) {
     led->maxValue = 0;
   }
 }
@@ -58,7 +58,7 @@ void rangeCheck(sensor *led, unsigned long val) {
 
 void updateLed(sensor* led) {
   unsigned long val = pulseIn(led->in, HIGH);
-  while (val == 0) { // failsafe
+  while (val < valueTooLow) { // failsafe
     analogWrite(led->out, 255);
     delay(200);
     analogWrite(led->out, 0);
