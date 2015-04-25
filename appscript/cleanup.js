@@ -36,20 +36,21 @@ function cleanTmp() {
   }
 }
 
-function yougivelove(n) {
-  return n === '.DS_Store' || /~$/.test(n);
-}
-
 // Clean up files that have bad names.
 //
 // Give me your .DS_Store, your backup~ files, etc...
 function cleanBadNames() {
+
+  var badNameFunc = function(n) {
+    return n === '.DS_Store' || /~$/.test(n);
+  }
+
   var cleaned = 0;
   var iter = DriveApp.getFiles();
   while (iter.hasNext()) {
     var f = iter.next();
     var n = f.getName();
-    if (yougivelove(n)) {
+    if (badNameFunc(n)) {
       Logger.log('%s has a bad name', n);
       f.setTrashed(true);
       cleaned++;
