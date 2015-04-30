@@ -1,0 +1,50 @@
+var dropFolder = '0B-XXXXXXXXXXXXXXXXXXXXXXXXX';
+var destFolder = '0B-XXXXXXXXXXXXXXXXXXXXXXXXX';
+
+function moveDroppedFiles() {
+
+  function mv(file, src, dest) {
+    Logger.log(" -- Adding %s to %s", file.getName(), dest.getName());
+    dest.addFile(file);
+    Logger.log(" -- Removing %s from %s", file.getName(), src.getName());
+    src.removeFile(file);
+  }
+
+  function findOrCreate(parent, name) {
+    var children = parent.getFoldersByName(name);
+    if (children.hasNext()) {
+      Logger.log(" # Found subfolder %s in %s", name, parent.getName());
+      return children.next();
+    }
+    Logger.log(" ! Creating %s under %s", name, parent.getName());
+    return parent.createFolder(name);
+  }
+
+  function subProcess(src, dest) {
+    var done = 0;
+
+    var files = src.getFiles();
+    while (files.hasNext()) {
+      mv(files.next(), src, dest);
+      done++;
+    }
+
+    var subs = src.getFolders();
+    while (subs.hasNext()) {
+      var sub = subs.next();
+      Logger.log(" * Found subfolder: %s", sub.getName());
+      done += subProcess(sub, findOrCreate(dest, sub.getName()));
+    }
+
+    return done;
+  }
+
+  var done = subProcess(DriveApp.getFolderById(dropFolder),
+                        DriveApp.getFolderById(destFolder));
+  Logger.log(' # Total moved: %0.0f', done);
+
+  if (done > 0) {
+    MailApp.sendEmail(Session.getActiveUser().getEmail(),
+                      'Moved Drop Files', Logger.getLog());
+  }
+}
