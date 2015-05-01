@@ -41,7 +41,7 @@ function moveDroppedFiles() {
 
   var done = subProcess(DriveApp.getFolderById(dropFolder),
                         DriveApp.getFolderById(destFolder));
-  Logger.log(' # Total moved: %0.0f', done);
+  Logger.log(' # Total moved: %s', done);
 
   if (done > 0) {
     MailApp.sendEmail(Session.getActiveUser().getEmail(),
