@@ -2,13 +2,11 @@ var flightFolder = '0B-xxxxxxxxxxxxxxxx';
 
 function renameFlightMedia() {
   function fixupLocationDir(sub) {
-    var renameDirs = sub.getFolders();
-    while (renameDirs.hasNext()) {
+    for (var renameDirs = sub.getFolders(); renameDirs.hasNext(); ) {
       var rdir = renameDirs.next();
       Logger.log("Found rename dir in %s: %s", sub.getName(), rdir.getName());
 
-      var rfiles = rdir.getFiles();
-      while (rfiles.hasNext()) {
+      for (var rfiles = rdir.getFiles(); rfiles.hasNext(); ) {
         var rfile = rfiles.next();
         var newname = rdir.getName() + "-" + rfile.getName();
         // newname = newname.replace("20141012-2014012-", "");
@@ -22,24 +20,19 @@ function renameFlightMedia() {
     }
   }
 
-  var folder = DriveApp.getFolderById(flightFolder);
-  var subs = folder.getFolders();
-  while (subs.hasNext()) {
+  for (var subs = DriveApp.getFolderById(flightFolder).getFolders(); subs.hasNext(); ) {
     fixupLocationDir(subs.next())
   }
 }
 
 function removeEmptyDirs() {
   function removeEmptyDirsIn(sub) {
-    var renameDirs = sub.getFolders();
-    while (renameDirs.hasNext()) {
+    for (var renameDirs = sub.getFolders(); renameDirs.hasNext(); ) {
       var rdir = renameDirs.next();
       Logger.log("Found rename dir in %s: %s", sub.getName(), rdir.getName());
-      var rfiles = rdir.getFiles();
       var nFiles = 0;
-      while (rfiles.hasNext()) {
+      for (var rfiles = rdir.getFiles(); rfiles.hasNext(); rfiles.next()) {
         nFiles++;
-        var rfile = rfiles.next();
       }
       if (nFiles > 0) {
         Logger.log("Keeping %s", rdir.getName());
@@ -51,9 +44,7 @@ function removeEmptyDirs() {
   }
 
 
-  var folder = DriveApp.getFolderById(flightFolder);
-  var subs = folder.getFolders();
-  while (subs.hasNext()) {
+  for (var subs = DriveApp.getFolderById(flightFolder).getFolders(); subs.hasNext(); ) {
     removeEmptyDirsIn(subs.next())
   }
 }
