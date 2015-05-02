@@ -23,14 +23,12 @@ function moveDroppedFiles() {
   function subProcess(src, dest) {
     var done = 0;
 
-    var files = src.getFiles();
-    while (files.hasNext()) {
+    for (var files = src.getFiles(); files.hasNext(); ) {
       mv(files.next(), src, dest);
       done++;
     }
 
-    var subs = src.getFolders();
-    while (subs.hasNext()) {
+    for (var subs = src.getFolders(); subs.hasNext(); ) {
       var sub = subs.next();
       Logger.log(" * Found subfolder: %s", sub.getName());
       done += subProcess(sub, findOrCreate(dest, sub.getName()));
