@@ -46,8 +46,7 @@ function cleanBadNames() {
   }
 
   var cleaned = 0;
-  var iter = DriveApp.getFiles();
-  while (iter.hasNext()) {
+  for (var iter = DriveApp.getFiles(); iter.hasNext(); ) {
     var f = iter.next();
     var n = f.getName();
     if (badNameFunc(n)) {
