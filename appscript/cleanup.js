@@ -31,8 +31,10 @@ function cleanTmp() {
   cleaned = cleaned.concat(cleanIter(threshold, tmpdir.getFolders()));
 
   if (cleaned.length > 0) {
-    var msg = "Cleaned the following items:\n\n * " + cleaned.join("\n * ") + "\n\nLog:\n" + Logger.getLog();
-    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your tmp', msg);
+    var msg = "Cleaned the following items:\n\n * " +
+      cleaned.join("\n * ") + "\n\nLog:\n" + Logger.getLog();
+    MailApp.sendEmail(Session.getActiveUser().getEmail(),
+                      'Cleaned your tmp', msg);
   }
 }
 
@@ -56,6 +58,7 @@ function cleanBadNames() {
     }
   }
   if (cleaned > 0) {
-    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned files with bad names', Logger.getLog());
+    MailApp.sendEmail(Session.getActiveUser().getEmail(),
+                      'Cleaned files with bad names', Logger.getLog());
   }
 }
