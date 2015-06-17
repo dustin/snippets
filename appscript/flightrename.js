@@ -1,6 +1,7 @@
 var flightFolder = '0B-xxxxxxxxxxxxxxxx';
 
 function renameFlightMedia() {
+  var moved = 0;
   function fixupLocationDir(sub) {
     for (var renameDirs = sub.getFolders(); renameDirs.hasNext(); ) {
       var rdir = renameDirs.next();
@@ -16,6 +17,7 @@ function renameFlightMedia() {
         sub.addFile(rfile);
         Logger.log(" -- Removing %s from %s", newname, rdir.getName());
         rdir.removeFile(rfile);
+        moved++;
       }
     }
   }
@@ -23,9 +25,13 @@ function renameFlightMedia() {
   for (var subs = DriveApp.getFolderById(flightFolder).getFolders(); subs.hasNext(); ) {
     fixupLocationDir(subs.next())
   }
+
+  Logger.log("Moved %s files", moved);
+  return moved;
 }
 
 function removeEmptyDirs() {
+  var removed = 0;
   function removeEmptyDirsIn(sub) {
     for (var renameDirs = sub.getFolders(); renameDirs.hasNext(); ) {
       var rdir = renameDirs.next();
@@ -39,6 +45,7 @@ function removeEmptyDirs() {
       } else {
         Logger.log("Removing %s", rdir.getName());
         sub.removeFolder(rdir);
+        removed++;
       }
     }
   }
@@ -46,5 +53,16 @@ function removeEmptyDirs() {
 
   for (var subs = DriveApp.getFolderById(flightFolder).getFolders(); subs.hasNext(); ) {
     removeEmptyDirsIn(subs.next())
+  }
+
+  Logger.log("Removed %s files", removed);
+}
+
+function moveAndRemove() {
+  var moved = renameFlightMedia();
+  var removed = removeEmptyDirs();
+
+  if (moved + removed > 0) {
+    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Moved Flight Media', Logger.getLog());
   }
 }
