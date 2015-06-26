@@ -105,7 +105,7 @@ void loop() {
     switch (oldState) {
       case STATE_IDLE:
         if (softSerial.available()) {
-          n = 0;
+          n = softSerial.read();
           newState = STATE_RECEIVE_R;
         }
         break;
