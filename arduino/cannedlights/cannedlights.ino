@@ -7,9 +7,9 @@
 WS2812 LED(LEDCount);
 
 const int deadband = 5;
-unsigned long prevVal(1500);
+unsigned long prevVal(0);
 
-void (*mode)();
+void (*mode)()(emergency);
 
 struct {
     unsigned long minVal;
@@ -23,8 +23,6 @@ struct {
 void setup() {
     pinMode(pwmPin, INPUT);
     LED.setOutput(outputPin);
-
-    mode = pulse;
 }
 
 byte pulseIntensity(0);
