@@ -94,7 +94,7 @@ void emergency() {
 }
 
 void loop() {
-    unsigned long val = pulseIn(pwmPin, HIGH, 5000);
+    unsigned long val = pulseIn(pwmPin, HIGH, 50000);
 
     if (abs(val - prevVal) > deadband) {
         int i = 0;
