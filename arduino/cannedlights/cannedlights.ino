@@ -11,6 +11,15 @@ unsigned long prevVal(1500);
 
 void (*mode)();
 
+struct {
+    unsigned long minVal;
+    void (*mode)();
+} modes[] = {
+    {1500, flash},
+    {900, pulse},
+    {0, emergency},
+};
+
 void setup() {
     pinMode(pwmPin, INPUT);
     LED.setOutput(outputPin);
@@ -96,13 +105,9 @@ void loop() {
     unsigned long val = pulseIn(pwmPin, HIGH, 5000);
 
     if (abs(val - prevVal) > deadband) {
-        if (val == 0) {
-            mode = emergency;
-        } else if (val < 1500) {
-            mode = pulse;
-        } else {
-            mode = flash;
-        }
+        int i = 0;
+        for (; val < modes[i].minVal; i++) {}
+        mode = modes[i].mode;
     }
 
     mode();
