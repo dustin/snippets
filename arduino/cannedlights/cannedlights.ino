@@ -45,21 +45,15 @@ void pulse() {
     }
 
     for (int i = 0; i < LEDCount; i++) {
-        cRGB value;
+        cRGB value{0, 0, 0};
         if ((i % 3) == 0) { 
-            value.b = 0;
-            value.g = 0;
             value.r = pulseIntensity;
             LED.set_crgb_at(i, value);
         } else if ((i % 3) == 1) {
-            value.b = 0;
             value.g = pulseIntensity;
-            value.r = 0;
             LED.set_crgb_at(i, value);
         } else  {
             value.b = pulseIntensity;
-            value.g = 0;
-            value.r = 0;
             LED.set_crgb_at(i, value);
         }
     }
