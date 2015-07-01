@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.2.0">
+<eagle version="7.3.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1476,9 +1476,12 @@ Please make sure your boards conform to these design rules.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="R1" library="resistor" package="R0603" value="500" x="16.51" y="2.54" rot="R90"/>
+<element name="R1" library="resistor" package="R0603" value="470" x="16.51" y="2.54" rot="R90">
+<attribute name="DIGIKEY" value="MCT0603-470-CFCT-ND" x="16.51" y="2.54" size="1.778" layer="27" rot="R90" display="off"/>
+</element>
 <element name="U1" library="SparkFun-DigitalIC" package="SO08-EIAJ" value="Tiny85-20-SMT" x="10.16" y="3.81" rot="R270">
 <attribute name="PROD_ID" value="IC-09092" x="10.16" y="3.81" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="DIGIKEY" value="ATTINY85-20SHRCT-ND" x="10.16" y="3.81" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="PRST" library="wirepad" package="SMD1,27-2,54" value="" x="6.35" y="8.89"/>
 <element name="PSCK" library="wirepad" package="SMD1,27-2,54" value="" x="10.16" y="8.89"/>

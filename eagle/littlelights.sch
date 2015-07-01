@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.2.0">
+<eagle version="7.3.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -3754,8 +3754,12 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </class>
 </classes>
 <parts>
-<part name="U1" library="SparkFun-DigitalIC" deviceset="ATTINY45" device="TINY85-20-SMT" value="Tiny85-20-SMT"/>
-<part name="R1" library="resistor" deviceset="R-US_" device="R0603" value="500"/>
+<part name="U1" library="SparkFun-DigitalIC" deviceset="ATTINY45" device="TINY85-20-SMT" value="Tiny85-20-SMT">
+<attribute name="DIGIKEY" value="ATTINY85-20SHRCT-ND"/>
+</part>
+<part name="R1" library="resistor" deviceset="R-US_" device="R0603" value="470">
+<attribute name="DIGIKEY" value="MCT0603-470-CFCT-ND"/>
+</part>
 <part name="PRST" library="wirepad" deviceset="SMD2" device=""/>
 <part name="PSCK" library="wirepad" deviceset="SMD2" device=""/>
 <part name="PMOS" library="wirepad" deviceset="SMD2" device=""/>
@@ -3772,8 +3776,12 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <plain>
 </plain>
 <instances>
-<instance part="U1" gate="G$1" x="58.42" y="53.34"/>
-<instance part="R1" gate="G$1" x="86.36" y="60.96"/>
+<instance part="U1" gate="G$1" x="58.42" y="53.34">
+<attribute name="DIGIKEY" x="58.42" y="53.34" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="R1" gate="G$1" x="86.36" y="60.96">
+<attribute name="DIGIKEY" x="86.36" y="60.96" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="PRST" gate="1" x="35.56" y="25.4" rot="R270"/>
 <instance part="PSCK" gate="1" x="43.18" y="25.4" rot="R270"/>
 <instance part="PMOS" gate="1" x="50.8" y="25.4" rot="R270"/>
