@@ -1,6 +1,7 @@
 #define PPM_PIN A3
 #define OUT_PIN A1
 #define BUTTON_PIN 0
+#define SHUTDOWN_PIN A2
 
 // microseconds
 #define INPUT_TIMEOUT 1000 * 1000
@@ -15,8 +16,10 @@ void (*mode)() = enabled;
 
 void setup() {
     pinMode(OUT_PIN, OUTPUT);
+    pinMode(SHUTDOWN_PIN, OUTPUT);
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     digitalWrite(OUT_PIN, LOW);
+    digitalWrite(SHUTDOWN_PIN, LOW);
 }
 
 void loop() {
@@ -25,6 +28,7 @@ void loop() {
 
 void disabled() {
     digitalWrite(OUT_PIN, LOW);
+    digitalWrite(SHUTDOWN_PIN, HIGH);
 }
 
 void enabled() {
