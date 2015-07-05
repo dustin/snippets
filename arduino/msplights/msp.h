@@ -81,7 +81,7 @@ public:
     void (*statusCallback)(MSPStatus *status);
 
     void notInteresting(uint8_t c) {
-        interesting &= ~(1 << (c - 99));
+        interesting &= ~cmdmask(c);
     }
 
     void clearInteresting() {
@@ -89,7 +89,7 @@ public:
     }
 
     void setInteresting(uint8_t c) {
-        interesting |= (1 << (c - 99));
+        interesting |= cmdmask(c);
     }
 
  private:
@@ -103,8 +103,13 @@ public:
     _msp_state stateChecksum(uint8_t b);
     _msp_state stateDiscard(uint8_t b);
 
-    bool commandInteresting(uint8_t cmdId) {
-        return (1 << (cmdId - 99)) & interesting;
+    uint32_t cmdmask(uint8_t c) {
+        uint32_t c32 = 1;
+        return c32 << (c - 99);
+    }
+
+    bool commandInteresting(uint8_t c) {
+        return (cmdmask(c) & interesting) != 0;
     }
 
     void setupBoxIDs();
