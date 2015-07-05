@@ -75,8 +75,8 @@ public:
     bool isArmed() { return status.flags & boxes.armed; }
 
     void (*genericCallback)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf);
-    void (*rcCallback)(uint16_t rc_chans[8]);
-    void (*statusCallback)(MSPStatus status);
+    void (*rcCallback)(uint16_t *rc_chans);
+    void (*statusCallback)(MSPStatus *status);
 
  private:
 

@@ -172,7 +172,7 @@ void MSP::readStatus() {
     status.flags = (buf[9] << 24) | (buf[8] << 16) | (buf[7] << 8) | buf[6];
 
     if (statusCallback) {
-        statusCallback(status);
+        statusCallback(&status);
     }
 }
 
