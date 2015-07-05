@@ -94,14 +94,14 @@ public:
 
  private:
 
-    _msp_state stateIdle(uint8_t b);
-    _msp_state stateHeaderStart(uint8_t b);
-    _msp_state stateM(uint8_t b);
-    _msp_state stateSize(uint8_t b);
-    _msp_state stateCmd(uint8_t b);
-    _msp_state stateFillBuf(uint8_t b);
-    _msp_state stateChecksum(uint8_t b);
-    _msp_state stateDiscard(uint8_t b);
+    inline _msp_state stateIdle(uint8_t b);
+    inline _msp_state stateHeaderStart(uint8_t b);
+    inline _msp_state stateM(uint8_t b);
+    inline _msp_state stateSize(uint8_t b);
+    inline _msp_state stateCmd(uint8_t b);
+    inline _msp_state stateFillBuf(uint8_t b);
+    inline _msp_state stateChecksum(uint8_t b);
+    inline _msp_state stateDiscard(uint8_t b);
 
     uint32_t cmdmask(uint8_t c) {
         uint32_t c32 = 1;
