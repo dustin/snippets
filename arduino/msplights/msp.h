@@ -4,6 +4,7 @@
 #define MAX_MSP_CMD_LEN 16
 #endif
 
+// Magic numbers copied from mwosd
 #define  MSP_IDENT      100 // multitype + multiwii version + protocol version + capability variable
 #define  MSP_STATUS     101 // cycletime & errors_count & sensor present & box activation & current setting number
 #define  MSP_RAW_IMU    102 // 9 DOF

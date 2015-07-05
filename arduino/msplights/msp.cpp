@@ -144,6 +144,8 @@ _msp_state MSP::stateDiscard(uint8_t b) {
     return cmdI++ >= cmdSize ? MSP_IDLE : MSP_DISCARD;
 }
 
+// This bit was copied from mwosd because of all the magic numbers and
+// stuff.
 void MSP::setupBoxIDs() {
     memset(&boxes, sizeof(boxes), 0);
 
@@ -175,7 +177,7 @@ void MSP::setupBoxIDs() {
         boxes.gpshold |= bit;
         break;
       case 12:
-        boxes.passthru  |= bit;
+        boxes.passthru |= bit;
         break;
       case 16:
         boxes.llights |= bit;
