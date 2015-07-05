@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
     msp.statusCallback = stCb;
 
     msp.clearInteresting();
+    msp.setInteresting(MSP_BOXIDS);
     msp.setInteresting(MSP_RC);
     msp.setInteresting(MSP_STATUS);
 
