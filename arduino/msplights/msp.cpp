@@ -1,8 +1,7 @@
 #include <string.h>
 #include "msp.h"
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#else
+#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error "This code only works on little endians"
 #endif
 
