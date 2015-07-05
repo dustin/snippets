@@ -48,7 +48,7 @@ typedef struct {
 class MSP {
 public:
  MSP() : genericCallback(NULL), rcCallback(NULL), statusCallback(NULL),
-        unexpectedByteCallback(NULL), crcFailCallback(NULL), state(MSP_IDLE),
+        unexpectedByteCallback(NULL), checksumFailedCallback(NULL), state(MSP_IDLE),
         interesting(0xffffffff) { }
     ~MSP() { }
 
@@ -81,7 +81,7 @@ public:
     void (*rcCallback)(uint16_t *rc_chans);
     void (*statusCallback)(MSPStatus *status);
     void (*unexpectedByteCallback)(_msp_state st, uint8_t b);
-    void (*crcFailCallback)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf, uint8_t checksum);
+    void (*checksumFailedCallback)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf, uint8_t checksum);
 
     void notInteresting(uint8_t c) {
         interesting &= ~cmdmask(c);

@@ -48,6 +48,10 @@ static void rcCb(uint16_t *rc_chans) {
            rc_chans[CHAN_AUX4]);
 }
 
+static void csCb(uint8_t cmdId, uint8_t cmdSize, uint8_t *buf, uint8_t cs) {
+    printf("CHECKSUM FAILED on %d command\n", cmdId);
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Source file is required\n");
@@ -62,6 +66,7 @@ int main(int argc, char **argv) {
     msp.genericCallback = genCb;
     msp.rcCallback = rcCb;
     msp.statusCallback = stCb;
+    msp.checksumFailedCallback = csCb;
 
     msp.clearInteresting();
     msp.setInteresting(MSP_BOXIDS);

@@ -101,8 +101,8 @@ _msp_state MSP::stateFillBuf(uint8_t b) {
 _msp_state MSP::stateChecksum(uint8_t b) {
     if ((checksum ^ b) != 0) {
         // Checksum failed.  Drop it
-        if (crcFailCallback) {
-            crcFailCallback(cmdId, cmdSize, buf, b);
+        if (checksumFailedCallback) {
+            checksumFailedCallback(cmdId, cmdSize, buf, b);
         }
         return MSP_IDLE;
     }
