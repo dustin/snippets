@@ -67,6 +67,9 @@ void setup() {
 
   msp.rcCallback = rcCb;
   msp.statusCallback = stCb;
+  msp.clearInteresting();
+  msp.setInteresting(MSP_BOXIDS);
+  msp.setInteresting(MSP_STATUS);
 
   redLight.r = 127;
   blinkLight.b = 127;
@@ -80,6 +83,11 @@ static void stCb(MSPStatus *status) {
         mode = msp.isArmed() ? mode_idle : mode_disarmed;
     }
     armed = msp.isArmed();
+    if (armed) {
+        msp.setInteresting(MSP_RC);
+    } else {
+        msp.notInteresting(MSP_RC);
+    }
 }
 
 int speed(0);
