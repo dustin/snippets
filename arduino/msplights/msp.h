@@ -43,7 +43,7 @@ typedef struct {
     uint16_t sensors;
     uint32_t flags;
     uint8_t setting;
-} MSPStatus;
+} __attribute__((packed)) MSPStatus;
 
 class MSP {
 public:
@@ -126,6 +126,7 @@ public:
     uint8_t cmdId;
     uint8_t cmdI;
     uint8_t checksum;
+    uint8_t *bufptr;
     uint8_t buf[MAX_MSP_CMD_LEN];
 };
 

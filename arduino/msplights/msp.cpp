@@ -1,6 +1,10 @@
 #include <string.h>
 #include "msp.h"
 
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#else
+#error "This code only works on little endians"
+#endif
 
 /*
 <preamble>,<direction>,<size>,<command>,,<crc>
@@ -89,11 +93,23 @@ _msp_state MSP::stateCmd(uint8_t b) {
     cmdI = 0;
     cmdId = b;
     checksum ^= cmdId;
+    switch (cmdId) {
+    case MSP_RC:
+        bufptr = (uint8_t*)rc_chans;
+        break;
+    case MSP_STATUS:
+        bufptr = (uint8_t*)&status;
+        break;
+    default:
+        bufptr = buf;
+    }
     return commandInteresting(cmdId) ? MSP_FILLBUF : MSP_DISCARD;
 }
 
 _msp_state MSP::stateFillBuf(uint8_t b) {
-    buf[cmdI++] = b;
+    *bufptr = b;
+    bufptr++;
+    cmdI++;
     checksum ^= b;
     return cmdI == cmdSize ? MSP_CHECKSUM : MSP_FILLBUF;
 }
@@ -180,19 +196,12 @@ void MSP::setupBoxIDs() {
 }
 
 void MSP::readStatus() {
-    status.cycleTime = (buf[1] << 8) | buf[0];
-    status.i2cErrors = (buf[3] << 8) | buf[2];
-    status.sensors = (buf[5] << 8) | buf[4];
-    status.flags = (buf[9] << 24) | (buf[8] << 16) | (buf[7] << 8) | buf[6];
-
     if (statusCallback) {
         statusCallback(&status);
     }
 }
 
 void MSP::readRC() {
-    memcpy(&rc_chans, buf, sizeof(rc_chans));
-
     if (rcCallback) {
         rcCallback(rc_chans);
     }
