@@ -34,6 +34,7 @@ enum _msp_state {
     MSP_HEADER_CMD,
     MSP_FILLBUF,
     MSP_CHECKSUM,
+    MSP_DISCARD,
 };
 
 typedef struct {
@@ -46,7 +47,8 @@ typedef struct {
 
 class MSP {
 public:
- MSP() : genericCallback(NULL), rcCallback(NULL), statusCallback(NULL), state(MSP_IDLE) { }
+ MSP() : genericCallback(NULL), rcCallback(NULL), statusCallback(NULL), state(MSP_IDLE),
+        interesting(0xffffffff) { }
     ~MSP() { }
 
     void feed(uint8_t b);
@@ -78,6 +80,18 @@ public:
     void (*rcCallback)(uint16_t *rc_chans);
     void (*statusCallback)(MSPStatus *status);
 
+    void notInteresting(uint8_t c) {
+        interesting &= ~(1 << (c - 99));
+    }
+
+    void clearInteresting() {
+        interesting = 0;
+    }
+
+    void setInteresting(uint8_t c) {
+        interesting |= (1 << (c - 99));
+    }
+
  private:
 
     _msp_state stateIdle(uint8_t b);
@@ -87,12 +101,19 @@ public:
     _msp_state stateCmd(uint8_t b);
     _msp_state stateFillBuf(uint8_t b);
     _msp_state stateChecksum(uint8_t b);
+    _msp_state stateDiscard(uint8_t b);
+
+    bool commandInteresting(uint8_t cmdId) {
+        return (1 << (cmdId - 99)) & interesting;
+    }
 
     void setupBoxIDs();
     void readStatus();
     void readRC();
 
     _msp_state state;
+    uint32_t interesting;
+
     uint8_t cmdSize;
     uint8_t cmdId;
     uint8_t cmdI;

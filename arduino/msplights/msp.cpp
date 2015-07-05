@@ -43,6 +43,9 @@ void MSP::feed(uint8_t b) {
     case MSP_CHECKSUM:
         state = stateChecksum(b);
         break;
+    case MSP_DISCARD:
+        state = stateDiscard(b);
+        break;
     }
 }
 
@@ -79,7 +82,7 @@ _msp_state MSP::stateSize(uint8_t b) {
 _msp_state MSP::stateCmd(uint8_t b) {
     cmdI = 0;
     cmdId = b;
-    return MSP_FILLBUF;
+    return commandInteresting(cmdId) ? MSP_FILLBUF : MSP_DISCARD;
 }
 
 _msp_state MSP::stateFillBuf(uint8_t b) {
@@ -113,6 +116,10 @@ _msp_state MSP::stateChecksum(uint8_t b) {
          }
     }
     return MSP_IDLE;
+}
+
+_msp_state MSP::stateDiscard(uint8_t b) {
+    return cmdI++ >= cmdSize ? MSP_IDLE : MSP_DISCARD;
 }
 
 void MSP::setupBoxIDs() {

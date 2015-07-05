@@ -6,4 +6,4 @@ msptest: msp.o msptest.o
 msp.o: ../msp.h ../msp.cpp Makefile
 	$(CXX) -o $@ -c ../msp.cpp
 
-msptest.o: msptest.cpp  Makefile
+msptest.o: ../msp.h msptest.cpp  Makefile
