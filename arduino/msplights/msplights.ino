@@ -90,7 +90,11 @@ static void rcCb(uint16_t *rc_chans) {
         return;
     }
 
-    if (rc_chans[CHAN_ROLL] < 1300 || rc_chans[CHAN_YAW] < 1300) {
+    if (rc_chans[CHAN_THROTTLE] < 1100) {
+        // Don't go into blinker mode when arming or disarming
+        mode = mode_speed;
+        speed = 0;
+    } else if (rc_chans[CHAN_ROLL] < 1300 || rc_chans[CHAN_YAW] < 1300) {
         if (mode != mode_left_blinker) {
             blackout();
         }
