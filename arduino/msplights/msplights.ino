@@ -44,7 +44,7 @@
 /* Serial definition */
 #define RXPIN 3
 #define TXPIN 4
-#define BAUDRATE 19200
+#define BAUDRATE 38400
 SoftwareSerial ser(RXPIN, TXPIN);
 
 #define LEDPIN 0
@@ -60,6 +60,8 @@ void (*mode)()(mode_disarmed);
 cRGB redLight{0, 0, 0};
 cRGB lightOff{0, 0, 0};
 cRGB blinkLight{0, 0, 0};
+cRGB failLight{0, 0, 0};
+cRGB speedLight{0, 0, 0};
 
 void setup() {
   ser.begin(BAUDRATE);
@@ -73,12 +75,19 @@ void setup() {
 
   redLight.r = 127;
   blinkLight.b = 127;
+  failLight.r = 127;
 
   blackout();
   LED.sync();
 }
 
 static void stCb(MSPStatus *status) {
+    // Angle mode is only used for failsafe here.
+    if (msp.status.flags & msp.boxes.stable) {
+        armed = false;
+        mode = mode_failsafe;
+        return;
+    }
     if (armed != msp.isArmed()) {
         mode = msp.isArmed() ? mode_idle : mode_disarmed;
     }
@@ -90,7 +99,6 @@ static void stCb(MSPStatus *status) {
     }
 }
 
-int speed(0);
 int blinkRate(0);
 
 static void rcCb(uint16_t *rc_chans) {
@@ -101,22 +109,19 @@ static void rcCb(uint16_t *rc_chans) {
     if (rc_chans[CHAN_THROTTLE] < 1100) {
         // Don't go into blinker mode when arming or disarming
         mode = mode_speed;
-        speed = 0;
+        speedLight.r = 0;
+        speedLight.g = 127;
     } else if (rc_chans[CHAN_ROLL] < 1300 || rc_chans[CHAN_YAW] < 1300) {
-        if (mode != mode_left_blinker) {
-            blackout();
-        }
         blinkRate = map(min(rc_chans[CHAN_ROLL], rc_chans[CHAN_YAW]), 1300, 1000, 500, 150);
         mode = mode_left_blinker;
     } else if (rc_chans[CHAN_ROLL] > 1700 || rc_chans[CHAN_YAW] > 1700) {
-        if (mode != mode_right_blinker) {
-            blackout();
-        }
         mode = mode_right_blinker;
         blinkRate = map(max(rc_chans[CHAN_ROLL], rc_chans[CHAN_YAW]), 1700, 2000, 500, 150);
     } else {
         mode = mode_speed;
-        speed = map(constrain(rc_chans[CHAN_THROTTLE], 1000, 2000), 1000, 2000, 0, 100);
+        int speed constrain(rc_chans[CHAN_THROTTLE], 1000, 2000);
+        speedLight.r = map(speed, 1000, 2000, 0, 127);
+        speedLight.g = map(speed, 1000, 2000, 127, 0);
     }
 }
 
@@ -168,24 +173,37 @@ void perform_blinker(int blink) {
 
     blinkNext = now + blinkRate;
 
-    LED.set_crgb_at(blink, blinkI%2 == 0 ? blinkLight : lightOff);
+    LED.set_crgb_at(blink, blinkI%2 == 0 ? blinkLight : speedLight);
     blinkI++;
 }
 
 void mode_left_blinker() {
+    LED.set_crgb_at(0, speedLight);
     perform_blinker(1);
 }
 
 void mode_right_blinker() {
     perform_blinker(0);
+    LED.set_crgb_at(1, speedLight);
 }
 
 void mode_speed() {
     cRGB value{0, 0, 0};
-    value.r = map(speed, 0, 100, 0, 127);
-    value.g = map(speed, 0, 100, 127, 0);
 
     for (int i = 0; i < LEDMAX; i++) {
-        LED.set_crgb_at(i, value);
+        LED.set_crgb_at(i, speedLight);
     }
+}
+
+void mode_failsafe() {
+    unsigned long now = millis();
+    if (blinkNext > now) {
+        return;
+    }
+
+    blinkNext = now + 750;
+
+    LED.set_crgb_at(0, blinkI%2 == 0 ? failLight : lightOff);
+    LED.set_crgb_at(1, blinkI%2 == 0 ? failLight : lightOff);
+    blinkI++;
 }
