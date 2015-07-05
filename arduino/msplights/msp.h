@@ -125,6 +125,7 @@ public:
     uint8_t cmdSize;
     uint8_t cmdId;
     uint8_t cmdI;
+    uint8_t checksum;
     uint8_t buf[MAX_MSP_CMD_LEN];
 };
 

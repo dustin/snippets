@@ -81,26 +81,25 @@ _msp_state MSP::stateSize(uint8_t b) {
         return MSP_IDLE;
     }
     cmdSize = b;
+    checksum = b;
     return MSP_HEADER_CMD;
 }
 
 _msp_state MSP::stateCmd(uint8_t b) {
     cmdI = 0;
     cmdId = b;
+    checksum ^= cmdId;
     return commandInteresting(cmdId) ? MSP_FILLBUF : MSP_DISCARD;
 }
 
 _msp_state MSP::stateFillBuf(uint8_t b) {
     buf[cmdI++] = b;
+    checksum ^= b;
     return cmdI == cmdSize ? MSP_CHECKSUM : MSP_FILLBUF;
 }
 
 _msp_state MSP::stateChecksum(uint8_t b) {
-    int x = cmdSize ^ cmdId;
-    for (int i = 0; i < cmdSize; i++) {
-        x ^= buf[i];
-    }
-    if ((x ^ b) != 0) {
+    if ((checksum ^ b) != 0) {
         // Checksum failed.  Drop it
         if (crcFailCallback) {
             crcFailCallback(cmdId, cmdSize, buf, b);
