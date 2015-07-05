@@ -49,10 +49,13 @@ void MSP::feed(uint8_t b) {
     }
 }
 
+#define BADBYTE if (unexpectedByteCallback) { unexpectedByteCallback(state, b); }
+
 _msp_state MSP::stateIdle(uint8_t b) {
     if (b == '$') {
         return MSP_HEADER_START;
     }
+    BADBYTE
     return MSP_IDLE;
 }
 
@@ -60,6 +63,7 @@ _msp_state MSP::stateHeaderStart(uint8_t b) {
     if (b == 'M') {
         return MSP_HEADER_M;
     }
+    BADBYTE
     return MSP_IDLE;
 }
 
@@ -67,6 +71,7 @@ _msp_state MSP::stateM(uint8_t b) {
     if (b == '>') {
         return MSP_HEADER_SIZE;
     }
+    BADBYTE
     return MSP_IDLE;
 }
 
@@ -97,6 +102,9 @@ _msp_state MSP::stateChecksum(uint8_t b) {
     }
     if ((x ^ b) != 0) {
         // Checksum failed.  Drop it
+        if (crcFailCallback) {
+            crcFailCallback(cmdId, cmdSize, buf, b);
+        }
         return MSP_IDLE;
     }
 
