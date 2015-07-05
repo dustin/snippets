@@ -116,8 +116,8 @@ public:
     }
 
     void setupBoxIDs();
-    void readStatus();
-    void readRC();
+    inline void readStatus();
+    inline void readRC();
 
     _msp_state state;
     uint32_t interesting;
