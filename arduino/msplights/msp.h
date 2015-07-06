@@ -129,6 +129,10 @@ public:
     uint8_t checksum;
     uint8_t *bufptr;
     uint8_t buf[MAX_MSP_CMD_LEN];
+
+    // disallow copy and assign
+    MSP(const MSP&);
+    void operator=(const MSP&);
 };
 
 #define CHAN_ROLL 0
