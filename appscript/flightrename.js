@@ -56,6 +56,7 @@ function removeEmptyDirs() {
   }
 
   Logger.log("Removed %s files", removed);
+  return removed;
 }
 
 function moveAndRemove() {
