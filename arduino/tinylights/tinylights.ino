@@ -36,7 +36,6 @@
 
 #include <SoftwareSerial.h>
 #include <Adafruit_NeoPixel.h>
-#include "msp.h"
 
 /* global definition */
 #define TIMEMAX 3
