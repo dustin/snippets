@@ -43,6 +43,23 @@ static unsigned long offAfter(0);
 static MilliTimer lastHeardTimer;
 static MilliTimer lightBlinkTimer;
 
+typedef float(decoder)(int);
+
+float decodeTemp(int reading) {
+    return ((reading * (3300.0 / 1024.0)) - 500.0) / 10.0;
+}
+
+typedef struct {
+    int host;
+    int port;
+    decoder *dec;
+} hpdecoder;
+
+hpdecoder decoders[] = {
+    {9, 0, decodeTemp},
+    {0, 0, NULL},
+};
+
 ISR(WDT_vect) { Sleepy::watchdogEvent(); }
 
 void setup () {
@@ -57,6 +74,15 @@ void setup () {
     lastHeardTimer.set(MIN_REPORT_FREQ);
 }
 
+float decode(int host, int port, int reading) {
+    for (int i = 0; decoders[i].dec != NULL; i++) {
+        if (decoders[i].host == host && decoders[i].port == port) {
+            return decoders[i].dec(reading);
+        }
+    }
+    return (float)reading;
+}
+
 void loop () {
     data_t data;
 
@@ -68,17 +94,21 @@ void loop () {
         delay(250);
         digitalWrite(LED_PORT, JEE_LED_OFF);
 
+        int sender = rf12_hdr & 0xf;
+
         Serial.print("< ");
+        Serial.print(sender);
+        Serial.print(" ");
         Serial.print(data.port);
         Serial.print(" ");
         Serial.flush();
-        Serial.print(data.reading);
+        Serial.print(decode(sender, data.port, data.reading));
         Serial.print(" ");
         Serial.flush();
-        Serial.print(data.low);
+        Serial.print(decode(sender, data.port, data.low));
         Serial.print("-");
         Serial.flush();
-        Serial.print(data.high);
+        Serial.print(decode(sender, data.port, data.high));
         Serial.print(" ");
         Serial.flush();
         Serial.println(data.seq);
