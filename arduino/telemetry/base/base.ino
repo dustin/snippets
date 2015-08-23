@@ -3,16 +3,14 @@
 
 const int THIS_ID(1);
 const int LED_PORT(9);
-const int MIN_REPORT_FREQ(60000);
-const int LIGHT_BLINK_FREQ_ON(250);
-const int LIGHT_BLINK_FREQ_OFF(750);
+const int MIN_REPORT_FREQ(900000);
 
 /*
  Output:
 
  - Normal readings:
 
-     < PORT READING LOW HIGH SEQ
+     < NODE PORT READING LOW-HIGH SEQ
 
  - Info messages
 
