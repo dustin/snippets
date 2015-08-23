@@ -18,7 +18,7 @@
 const int THIS_ID(9);
 const int POLL_FREQ(10000);
 const int XMIT_FREQ(60000);
-const int NUM_PORTS(1);
+const int NUM_PORTS(2);
 
 static MilliTimer pollTimer, xmitTimer;
 static unsigned long lastAck(0);
@@ -110,9 +110,10 @@ void loop () {
         dprint("Read: ");
         for (int i = 0; i < NUM_PORTS; ++i) {
             int r = analogRead(i);
-            dprint(' ');
-            dprint(r);
 
+            dprint(r);
+            dprint(" ");
+            dflush();
             if (r != data[i].reading) {
                 data[i].reading = r;
                 data[i].high = max(data[i].high, r);
@@ -173,4 +174,3 @@ void loop () {
         rf12_sleep(RF12_WAKEUP);
     }
 }
-
