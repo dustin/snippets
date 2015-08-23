@@ -16,11 +16,12 @@
 #endif
 
 const int THIS_ID(9);
-const int POLL_FREQ(10000);
-const int XMIT_FREQ(60000);
+const int ACK_TIMEOUT(5000);
+const int POLL_FREQ(60000);
+const int XMIT_FREQ(300000);
 const int NUM_PORTS(2);
 
-static MilliTimer pollTimer, xmitTimer;
+static MilliTimer pollTimer, xmitTimer, ackTimer;
 static unsigned long lastAck(0);
 
 typedef struct {
@@ -46,12 +47,14 @@ static byte next_seq() {
 }
 
 void setup () {
-    pollTimer.set(POLL_FREQ);
+    pollTimer.set(1);
+    ackTimer.set(1);
     xmitTimer.set(XMIT_FREQ);
 
     // Port initialization
     for (int i = 0; i < NUM_PORTS; ++i) {
         data[i].reading = 0;
+        data[i].low = 0xffff;
         data[i].high = 0;
         data[i].port = i;
         data[i].seq = next_seq();
@@ -78,18 +81,22 @@ static bool shouldSendAny() {
     return rv;
 }
 
-static bool awaitingACKs() {
-    bool rv(false);
-    for (int i = 0; i < NUM_PORTS; ++i) {
-      rv |= !acked[i];
-    }
-    return rv;
-}
-
 void loop () {
+    int naptime = min(pollTimer.remaining(), xmitTimer.remaining());
+    if (naptime > 0 && ackTimer.remaining() <= 0) {
+        dprint("napping for ");
+        dprintln(naptime);
+        dflush();
+        rf12_sleep(RF12_SLEEP);
+        Sleepy::loseSomeTime(naptime);
+        rf12_sleep(RF12_WAKEUP);
+    }
+
     if (rf12_recvDone() && rf12_crc == 0) {
         if (rf12_len == sizeof(byte)) {
             byte recv_seq(*rf12_data);
+            dprint("got ack with seq ");
+            dprintln(recv_seq);
 
             for (int i = 0; i < NUM_PORTS; ++i) {
                 if (data[i].seq == recv_seq) {
@@ -97,6 +104,9 @@ void loop () {
                     data[i].low = data[i].reading;
                     data[i].high = data[i].reading;
                     acked[i] = true;
+                    dprint("acked ");
+                    dprintln(i);
+                    dflush();
                 }
             }
         } else {
@@ -134,6 +144,8 @@ void loop () {
         for (int i = 0; i < NUM_PORTS; ++i) {
             shouldSend[i] = true;
         }
+
+        xmitTimer.set(XMIT_FREQ);
     }
 
     if (shouldSendAny()) {
@@ -158,19 +170,12 @@ void loop () {
 
                 shouldSend[i] = false;
                 acked[i] = false;
+                ackTimer.set(ACK_TIMEOUT);
             }
         }
         if (saidIt) {
             dprintln("");
             dflush();
         }
-
-        xmitTimer.set(XMIT_FREQ);
-    }
-
-    if (!awaitingACKs()) {
-        rf12_sleep(RF12_SLEEP);
-        Sleepy::loseSomeTime(POLL_FREQ);
-        rf12_sleep(RF12_WAKEUP);
     }
 }
