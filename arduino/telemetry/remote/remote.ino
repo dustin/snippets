@@ -16,9 +16,9 @@
 #endif
 
 const int THIS_ID(9);
-const int ACK_TIMEOUT(5000);
-const int POLL_FREQ(60000);
-const int XMIT_FREQ(300000);
+const int ACK_TIMEOUT(1000);
+const int POLL_FREQ(300000);
+const int XMIT_FREQ(900000);
 const int NUM_PORTS(2);
 
 static MilliTimer pollTimer, xmitTimer, ackTimer;
