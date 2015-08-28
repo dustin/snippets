@@ -3,7 +3,7 @@
 
 #include "longtime.h"
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 # define dprintln Serial.println
@@ -56,7 +56,7 @@ void setup () {
     // Port initialization
     for (int i = 0; i < NUM_PORTS; ++i) {
         data[i].reading = 0;
-        data[i].low = 0xffff;
+        data[i].low = 0x1fff;
         data[i].high = 0;
         data[i].port = i;
         data[i].seq = next_seq();
