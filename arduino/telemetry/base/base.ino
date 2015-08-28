@@ -1,16 +1,18 @@
 #include <JeeLib.h>
 #include <avr/sleep.h>
+#include "longtime.h"
 
 const int THIS_ID(1);
 const int LED_PORT(9);
-const int MIN_REPORT_FREQ(900000);
+
+const long MIN_REPORT_FREQ(900000);
 
 /*
  Output:
 
  - Normal readings:
 
-     < NODE PORT READING LOW-HIGH SEQ
+     < NODE PORT READING LOW-HIGH SEQ TIME_SINCE_PREV
 
  - Info messages
 
@@ -38,8 +40,7 @@ static bool shouldSend(false);
 static unsigned long lastHeard(0);
 static unsigned long offAfter(0);
 
-static MilliTimer lastHeardTimer;
-static MilliTimer lightBlinkTimer;
+static LongTimer lastHeardTimer;
 
 typedef float(decoder)(int);
 
@@ -130,7 +131,7 @@ void loop () {
         sleep_mode();
     }
 
-    if (lastHeardTimer.poll()) {
+    if (lastHeardTimer.ready()) {
         lastHeardTimer.set(MIN_REPORT_FREQ);
         Serial.print("* ");
         Serial.flush();
