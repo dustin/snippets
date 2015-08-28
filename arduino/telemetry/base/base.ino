@@ -86,6 +86,7 @@ void loop () {
     data_t data;
 
     if (rf12_recvDone() && rf12_crc == 0 && rf12_len == sizeof(data)) {
+        long now = millis();
 
         data = *((data_t*)rf12_data);
 
@@ -110,11 +111,13 @@ void loop () {
         Serial.print(decode(sender, data.port, data.high));
         Serial.print(" ");
         Serial.flush();
-        Serial.println(data.seq);
+        Serial.print(data.seq);
+        Serial.print(" ");
+        Serial.println(now - lastHeard);
         Serial.flush();
 
         lastHeardTimer.set(MIN_REPORT_FREQ);
-        lastHeard = millis();
+        lastHeard = now;
 
         if (RF12_WANTS_ACK) {
             rf12_sendStart(RF12_ACK_REPLY, &data.seq, sizeof(data.seq));
