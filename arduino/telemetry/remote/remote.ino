@@ -1,7 +1,9 @@
 #include <JeeLib.h>
 #include <avr/sleep.h>
 
-// #define DEBUG
+#include "longtime.h"
+
+#define DEBUG
 
 #ifdef DEBUG
 # define dprintln Serial.println
@@ -16,12 +18,12 @@
 #endif
 
 const int THIS_ID(9);
-const int ACK_TIMEOUT(1000);
-const int POLL_FREQ(300000);
-const int XMIT_FREQ(900000);
 const int NUM_PORTS(2);
+const long ACK_TIMEOUT(1000);
+const long POLL_FREQ(300000);
+const long XMIT_FREQ(900000);
 
-static MilliTimer pollTimer, xmitTimer, ackTimer;
+static LongTimer pollTimer, xmitTimer, ackTimer;
 static unsigned long lastAck(0);
 
 typedef struct {
@@ -81,14 +83,24 @@ static bool shouldSendAny() {
     return rv;
 }
 
+const long maxSleepTime(65535);
+
+static void nap(long t) {
+    while (t > maxSleepTime) {
+        Sleepy::loseSomeTime(maxSleepTime);
+        t -= maxSleepTime;
+    }
+    Sleepy::loseSomeTime(t);
+}
+
 void loop () {
-    int naptime = min(pollTimer.remaining(), xmitTimer.remaining());
+    long naptime = min(pollTimer.remaining(), xmitTimer.remaining());
     if (naptime > 0 && ackTimer.remaining() <= 0) {
         dprint("napping for ");
         dprintln(naptime);
         dflush();
         rf12_sleep(RF12_SLEEP);
-        Sleepy::loseSomeTime(naptime);
+        nap(naptime);
         rf12_sleep(RF12_WAKEUP);
     }
 
@@ -116,7 +128,7 @@ void loop () {
         lastAck = millis();
     }
 
-    if (pollTimer.poll()) {
+    if (pollTimer.ready()) {
         dprint("Read: ");
         for (int i = 0; i < NUM_PORTS; ++i) {
             int r = analogRead(i);
@@ -140,7 +152,7 @@ void loop () {
         pollTimer.set(POLL_FREQ);
     }
 
-    if (xmitTimer.poll()) {
+    if (xmitTimer.ready()) {
         for (int i = 0; i < NUM_PORTS; ++i) {
             shouldSend[i] = true;
         }
