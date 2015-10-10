@@ -2,6 +2,7 @@
 #define MSP_H 1
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef MAX_MSP_CMD_LEN
 #define MAX_MSP_CMD_LEN 16
@@ -92,6 +93,11 @@ MSP *new_msp();
 void destroy_msp(MSP*);
 
 void msp_feed(MSP*, uint8_t);
+bool msp_is_armed(MSP *);
+bool msp_cmd_interesting(MSP *, uint8_t);
+void msp_set_not_interesting(MSP *m, uint8_t c);
+void msp_clear_interesting(MSP *m);
+void msp_set_interesting(MSP *m, uint8_t c);
 
 #define CHAN_ROLL 0
 #define CHAN_PITCH 1

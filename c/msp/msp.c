@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include "msp.h"
 
@@ -19,42 +18,46 @@ void destroy_msp(MSP *m) {
     free(m);
 }
 
+bool msp_is_armed(MSP *m) {
+    return m->status.flags & m->boxes.armed;
+}
+
 #define BADBYTE if (m->unexpectedByteCallback) { m->unexpectedByteCallback(m->_state, b); }
 
-void readStatus(MSP *m) {
+static void readStatus(MSP *m) {
     if (m->statusCallback) {
         m->statusCallback(&m->status);
     }
 }
 
-void readRC(MSP *m) {
+static void readRC(MSP *m) {
     if (m->rcCallback) {
         m->rcCallback(m->rc_chans);
     }
 }
 
-uint32_t cmdmask(uint8_t c) {
+static uint32_t cmdmask(uint8_t c) {
     uint32_t c32 = 1;
     return c32 << (c - 99);
 }
 
-bool commandInteresting(MSP *m, uint8_t c) {
+bool msp_cmd_interesting(MSP *m, uint8_t c) {
     return (cmdmask(c) & m->_interesting) != 0;
 }
 
-void notInteresting(MSP *m, uint8_t c) {
+void msp_set_not_interesting(MSP *m, uint8_t c) {
     m->_interesting &= ~cmdmask(c);
 }
 
-void clearInteresting(MSP *m) {
+void msp_clear_interesting(MSP *m) {
     m->_interesting = 0;
 }
 
-void setInteresting(MSP *m, uint8_t c) {
+void msp_set_interesting(MSP *m, uint8_t c) {
     m->_interesting |= cmdmask(c);
 }
 
-_msp_state stateIdle(MSP *m, uint8_t b) {
+static _msp_state stateIdle(MSP *m, uint8_t b) {
     if (b == '$') {
         return MSP_HEADER_START;
     }
@@ -62,7 +65,7 @@ _msp_state stateIdle(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-_msp_state stateHeaderStart(MSP *m, uint8_t b) {
+static _msp_state stateHeaderStart(MSP *m, uint8_t b) {
     if (b == 'M') {
         return MSP_HEADER_M;
     }
@@ -70,7 +73,7 @@ _msp_state stateHeaderStart(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-_msp_state stateM(MSP *m, uint8_t b) {
+static _msp_state stateM(MSP *m, uint8_t b) {
     if (b == '>') {
         return MSP_HEADER_SIZE;
     }
@@ -78,7 +81,7 @@ _msp_state stateM(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-_msp_state stateSize(MSP *m, uint8_t b) {
+static _msp_state stateSize(MSP *m, uint8_t b) {
     if (b > MAX_MSP_CMD_LEN) {
         // Too large a body, just go into idle and resync
         return MSP_IDLE;
@@ -88,7 +91,7 @@ _msp_state stateSize(MSP *m, uint8_t b) {
     return MSP_HEADER_CMD;
 }
 
-_msp_state stateCmd(MSP *m, uint8_t b) {
+static _msp_state stateCmd(MSP *m, uint8_t b) {
     m->_cmdI = 0;
     m->_cmdId = b;
     m->_checksum ^= m->_cmdId;
@@ -102,10 +105,10 @@ _msp_state stateCmd(MSP *m, uint8_t b) {
     default:
         m->_bufptr = m->_buf;
     }
-    return commandInteresting(m, m->_cmdId) ? MSP_FILLBUF : MSP_DISCARD;
+    return msp_cmd_interesting(m, m->_cmdId) ? MSP_FILLBUF : MSP_DISCARD;
 }
 
-_msp_state stateFillBuf(MSP *m, uint8_t b) {
+static _msp_state stateFillBuf(MSP *m, uint8_t b) {
     *m->_bufptr = b;
     m->_bufptr++;
     m->_cmdI++;
@@ -115,7 +118,7 @@ _msp_state stateFillBuf(MSP *m, uint8_t b) {
 
 // This bit was copied from mwosd because of all the magic numbers and
 // stuff.
-void setupBoxIDs(MSP *m) {
+static void msp_setup_boxes(MSP *m) {
     memset(&m->boxes, sizeof(m->boxes), 0);
 
     uint32_t bit = 1;
@@ -165,7 +168,7 @@ void setupBoxIDs(MSP *m) {
     }
 }
 
-_msp_state stateChecksum(MSP *m, uint8_t b) {
+static _msp_state stateChecksum(MSP *m, uint8_t b) {
     if ((m->_checksum ^ b) != 0) {
         // Checksum failed.  Drop it
         if (m->checksumFailedCallback) {
@@ -179,7 +182,7 @@ _msp_state stateChecksum(MSP *m, uint8_t b) {
         readStatus(m);
         break;
     case MSP_BOXIDS:
-        setupBoxIDs(m);
+        msp_setup_boxes(m);
         break;
     case MSP_RC:
         readRC(m);
@@ -192,7 +195,7 @@ _msp_state stateChecksum(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-_msp_state stateDiscard(MSP *m, uint8_t b) {
+static _msp_state stateDiscard(MSP *m, uint8_t b) {
     return m->_cmdI++ >= m->_cmdSize ? MSP_IDLE : MSP_DISCARD;
 }
 
