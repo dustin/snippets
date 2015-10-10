@@ -65,10 +65,10 @@ int main(int argc, char **argv) {
     }
 
     msp = new_msp();
-    msp->genericCallback = genCb;
-    msp->rcCallback = rcCb;
-    msp->statusCallback = stCb;
-    msp->checksumFailedCallback = csCb;
+    msp->generic_cb = genCb;
+    msp->rc_cb = rcCb;
+    msp->status_cb = stCb;
+    msp->checksum_failed_cb = csCb;
 
     msp_clear_interesting(msp);
     msp_set_interesting(msp, MSP_BOXIDS);

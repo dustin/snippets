@@ -22,31 +22,31 @@ bool msp_is_armed(MSP *m) {
     return m->status.flags & m->boxes.armed;
 }
 
-#define BADBYTE if (m->unexpectedByteCallback) { m->unexpectedByteCallback(m->_state, b); }
+#define BADBYTE if (m->unexpected_byte_cb) { m->unexpected_byte_cb(m->_state, b); }
 
-static void readStatus(MSP *m) {
-    if (m->statusCallback) {
-        m->statusCallback(&m->status);
+static void _msp_read_status(MSP *m) {
+    if (m->status_cb) {
+        m->status_cb(&m->status);
     }
 }
 
-static void readRC(MSP *m) {
-    if (m->rcCallback) {
-        m->rcCallback(m->rc_chans);
+static void _msp_read_rc(MSP *m) {
+    if (m->rc_cb) {
+        m->rc_cb(m->rc_chans);
     }
 }
 
-static uint32_t cmdmask(uint8_t c) {
+static uint32_t _msp_cmdmask(uint8_t c) {
     uint32_t c32 = 1;
     return c32 << (c - 99);
 }
 
 bool msp_cmd_interesting(MSP *m, uint8_t c) {
-    return (cmdmask(c) & m->_interesting) != 0;
+    return (_msp_cmdmask(c) & m->_interesting) != 0;
 }
 
 void msp_set_not_interesting(MSP *m, uint8_t c) {
-    m->_interesting &= ~cmdmask(c);
+    m->_interesting &= ~_msp_cmdmask(c);
 }
 
 void msp_clear_interesting(MSP *m) {
@@ -54,10 +54,10 @@ void msp_clear_interesting(MSP *m) {
 }
 
 void msp_set_interesting(MSP *m, uint8_t c) {
-    m->_interesting |= cmdmask(c);
+    m->_interesting |= _msp_cmdmask(c);
 }
 
-static _msp_state stateIdle(MSP *m, uint8_t b) {
+static _msp_state _msp_state_idle(MSP *m, uint8_t b) {
     if (b == '$') {
         return MSP_HEADER_START;
     }
@@ -65,7 +65,7 @@ static _msp_state stateIdle(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-static _msp_state stateHeaderStart(MSP *m, uint8_t b) {
+static _msp_state _msp_state_hdr_start(MSP *m, uint8_t b) {
     if (b == 'M') {
         return MSP_HEADER_M;
     }
@@ -73,7 +73,7 @@ static _msp_state stateHeaderStart(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-static _msp_state stateM(MSP *m, uint8_t b) {
+static _msp_state _msp_state_m(MSP *m, uint8_t b) {
     if (b == '>') {
         return MSP_HEADER_SIZE;
     }
@@ -81,7 +81,7 @@ static _msp_state stateM(MSP *m, uint8_t b) {
     return MSP_IDLE;
 }
 
-static _msp_state stateSize(MSP *m, uint8_t b) {
+static _msp_state _msp_state_size(MSP *m, uint8_t b) {
     if (b > MAX_MSP_CMD_LEN) {
         // Too large a body, just go into idle and resync
         return MSP_IDLE;
@@ -91,7 +91,7 @@ static _msp_state stateSize(MSP *m, uint8_t b) {
     return MSP_HEADER_CMD;
 }
 
-static _msp_state stateCmd(MSP *m, uint8_t b) {
+static _msp_state _msp_state_cmd(MSP *m, uint8_t b) {
     m->_cmdI = 0;
     m->_cmdId = b;
     m->_checksum ^= m->_cmdId;
@@ -108,7 +108,7 @@ static _msp_state stateCmd(MSP *m, uint8_t b) {
     return msp_cmd_interesting(m, m->_cmdId) ? MSP_FILLBUF : MSP_DISCARD;
 }
 
-static _msp_state stateFillBuf(MSP *m, uint8_t b) {
+static _msp_state _msp_state_fill_buf(MSP *m, uint8_t b) {
     *m->_bufptr = b;
     m->_bufptr++;
     m->_cmdI++;
@@ -168,34 +168,34 @@ static void msp_setup_boxes(MSP *m) {
     }
 }
 
-static _msp_state stateChecksum(MSP *m, uint8_t b) {
+static _msp_state _msp_state_checksum(MSP *m, uint8_t b) {
     if ((m->_checksum ^ b) != 0) {
         // Checksum failed.  Drop it
-        if (m->checksumFailedCallback) {
-            m->checksumFailedCallback(m->_cmdId, m->_cmdSize, m->_buf, b);
+        if (m->checksum_failed_cb) {
+            m->checksum_failed_cb(m->_cmdId, m->_cmdSize, m->_buf, b);
         }
         return MSP_IDLE;
     }
 
     switch (m->_cmdId) {
     case MSP_STATUS:
-        readStatus(m);
+        _msp_read_status(m);
         break;
     case MSP_BOXIDS:
         msp_setup_boxes(m);
         break;
     case MSP_RC:
-        readRC(m);
+        _msp_read_rc(m);
         break;
      default:
-         if (m->genericCallback) {
-             m->genericCallback(m->_cmdId, m->_cmdSize, m->_buf);
+         if (m->generic_cb) {
+             m->generic_cb(m->_cmdId, m->_cmdSize, m->_buf);
          }
     }
     return MSP_IDLE;
 }
 
-static _msp_state stateDiscard(MSP *m, uint8_t b) {
+static _msp_state _msp_state_discard(MSP *m, uint8_t b) {
     return m->_cmdI++ >= m->_cmdSize ? MSP_IDLE : MSP_DISCARD;
 }
 
@@ -220,28 +220,28 @@ crc = XOR of <size>, <command> and each data byte into a zero'ed sum
 void msp_feed(MSP *m, uint8_t b) {
     switch (m->_state) {
     case MSP_IDLE:
-        m->_state = stateIdle(m, b);
+        m->_state = _msp_state_idle(m, b);
         break;
     case MSP_HEADER_START:
-        m->_state = stateHeaderStart(m, b);
+        m->_state = _msp_state_hdr_start(m, b);
         break;
     case MSP_HEADER_M:
-        m->_state = stateM(m, b);
+        m->_state = _msp_state_m(m, b);
         break;
     case MSP_HEADER_SIZE:
-        m->_state = stateSize(m, b);
+        m->_state = _msp_state_size(m, b);
         break;
     case MSP_HEADER_CMD:
-        m->_state = stateCmd(m, b);
+        m->_state = _msp_state_cmd(m, b);
         break;
     case MSP_FILLBUF:
-        m->_state = stateFillBuf(m, b);
+        m->_state = _msp_state_fill_buf(m, b);
         break;
     case MSP_CHECKSUM:
-        m->_state = stateChecksum(m, b);
+        m->_state = _msp_state_checksum(m, b);
         break;
     case MSP_DISCARD:
-        m->_state = stateDiscard(m, b);
+        m->_state = _msp_state_discard(m, b);
         break;
     }
 }

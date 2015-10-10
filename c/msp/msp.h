@@ -72,11 +72,11 @@ typedef struct {
     // AERT1234
     uint16_t rc_chans[8];
 
-    void (*genericCallback)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf);
-    void (*rcCallback)(uint16_t *rc_chans);
-    void (*statusCallback)(MSPStatus *status);
-    void (*unexpectedByteCallback)(_msp_state st, uint8_t b);
-    void (*checksumFailedCallback)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf, uint8_t checksum);
+    void (*generic_cb)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf);
+    void (*rc_cb)(uint16_t *rc_chans);
+    void (*status_cb)(MSPStatus *status);
+    void (*unexpected_byte_cb)(_msp_state st, uint8_t b);
+    void (*checksum_failed_cb)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf, uint8_t checksum);
 
     _msp_state _state;
     uint32_t   _interesting;
