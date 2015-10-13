@@ -64,6 +64,8 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    printf("MSP size is %d\n", (int)sizeof(MSP));
+
     msp = new_msp();
     msp->generic_cb = genCb;
     msp->rc_cb = rcCb;
