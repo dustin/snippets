@@ -81,6 +81,7 @@ typedef struct {
     _msp_state _state;
     uint32_t   _interesting;
 
+    uint8_t  _cmdDir;
     uint8_t  _cmdSize;
     uint8_t  _cmdId;
     uint8_t  _cmdI;

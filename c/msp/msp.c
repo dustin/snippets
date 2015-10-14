@@ -1,5 +1,7 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "msp.h"
 
@@ -74,7 +76,8 @@ static _msp_state _msp_state_hdr_start(MSP *m, uint8_t b) {
 }
 
 static _msp_state _msp_state_m(MSP *m, uint8_t b) {
-    if (b == '>') {
+    if (b == '>' || b == '<') {
+        m->_cmdDir = b;
         return MSP_HEADER_SIZE;
     }
     BADBYTE
@@ -105,7 +108,7 @@ static _msp_state _msp_state_cmd(MSP *m, uint8_t b) {
     default:
         m->_bufptr = m->_buf;
     }
-    return msp_cmd_interesting(m, m->_cmdId) ? MSP_FILLBUF : MSP_DISCARD;
+    return msp_cmd_interesting(m, m->_cmdId) ? (m->_cmdSize == 0 ? MSP_CHECKSUM : MSP_FILLBUF) : MSP_DISCARD;
 }
 
 static _msp_state _msp_state_fill_buf(MSP *m, uint8_t b) {
