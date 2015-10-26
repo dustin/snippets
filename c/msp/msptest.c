@@ -11,6 +11,7 @@
 static MSP *msp;
 
 static void genCb(uint8_t cmdId, uint8_t bufLen, uint8_t *buf) {
+    /*
     switch (cmdId) {
     case MSP_IDENT:
     case MSP_RAW_GPS:
@@ -19,6 +20,7 @@ static void genCb(uint8_t cmdId, uint8_t bufLen, uint8_t *buf) {
     case MSP_ALTITUDE:
         return;
     }
+    */
 
     printf("  Read %d bytes for cmd %d:\t", bufLen, cmdId);
     for (int i = 0; i < bufLen; i++) {
@@ -50,7 +52,12 @@ static void rcCb(uint16_t *rc_chans) {
 }
 
 static void csCb(uint8_t cmdId, uint8_t cmdSize, uint8_t *buf, uint8_t cs) {
-    printf("CHECKSUM FAILED on %d command\n", cmdId);
+    uint8_t exp = cmdSize;
+    exp ^= cmdId;
+    for (int i = 0; i < cmdSize; i++) {
+        exp ^= buf[i];
+    }
+    printf("CHECKSUM FAILED on %d command (got %x, expected %x)\n", cmdId, cs, exp);
 }
 
 int main(int argc, char **argv) {
@@ -72,10 +79,12 @@ int main(int argc, char **argv) {
     msp->status_cb = stCb;
     msp->checksum_failed_cb = csCb;
 
+    /*
     msp_clear_interesting(msp);
     msp_set_interesting(msp, MSP_BOXIDS);
     msp_set_interesting(msp, MSP_RC);
     msp_set_interesting(msp, MSP_STATUS);
+    */
 
     for (;;) {
         uint8_t x;
