@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef MAX_MSP_CMD_LEN
-#define MAX_MSP_CMD_LEN 16
-#endif
-
 // Magic numbers copied from mwosd
 #define  MSP_IDENT      100 // multitype + multiwii version + protocol version + capability variable
 #define  MSP_STATUS     101 // cycletime & errors_count & sensor present & box activation & current setting number
@@ -67,10 +63,14 @@ typedef struct {
         uint32_t gpsland;
     } boxes;
 
-   MSPStatus status;
+    union {
+        uint8_t buf[0];
 
-    // AERT1234
-    uint16_t rc_chans[8];
+        MSPStatus status;
+
+        // AERT1234
+        uint16_t rc_chans[8];
+    } _cmd_data;
 
     void (*generic_cb)(uint8_t cmdId, uint8_t bufLen, uint8_t *buf);
     void (*rc_cb)(uint16_t *rc_chans);
@@ -86,8 +86,8 @@ typedef struct {
     uint8_t  _cmdId;
     uint8_t  _cmdI;
     uint8_t  _checksum;
-    uint8_t *_bufptr;
-    uint8_t  _buf[MAX_MSP_CMD_LEN];
+
+    bool armed;
 } MSP;
 
 MSP *new_msp();

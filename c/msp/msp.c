@@ -21,20 +21,20 @@ void destroy_msp(MSP *m) {
 }
 
 bool msp_is_armed(MSP *m) {
-    return m->status.flags & m->boxes.armed;
+    return m->_cmd_data.status.flags & m->boxes.armed;
 }
 
 #define BADBYTE if (m->unexpected_byte_cb) { m->unexpected_byte_cb(m->_state, b); }
 
 static void _msp_read_status(MSP *m) {
     if (m->status_cb) {
-        m->status_cb(&m->status);
+        m->status_cb(&m->_cmd_data.status);
     }
 }
 
 static void _msp_read_rc(MSP *m) {
     if (m->rc_cb) {
-        m->rc_cb(m->rc_chans);
+        m->rc_cb(m->_cmd_data.rc_chans);
     }
 }
 
@@ -85,10 +85,6 @@ static _msp_state _msp_state_m(MSP *m, uint8_t b) {
 }
 
 static _msp_state _msp_state_size(MSP *m, uint8_t b) {
-    if (b > MAX_MSP_CMD_LEN) {
-        // Too large a body, just go into idle and resync
-        return MSP_IDLE;
-    }
     m->_cmdSize = b;
     m->_checksum = b;
     return MSP_HEADER_CMD;
@@ -98,24 +94,18 @@ static _msp_state _msp_state_cmd(MSP *m, uint8_t b) {
     m->_cmdI = 0;
     m->_cmdId = b;
     m->_checksum ^= m->_cmdId;
-    switch (m->_cmdId) {
-    case MSP_RC:
-        m->_bufptr = (uint8_t*)m->rc_chans;
-        break;
-    case MSP_STATUS:
-        m->_bufptr = (uint8_t*)&m->status;
-        break;
-    default:
-        m->_bufptr = m->_buf;
+    if (m->_cmdSize > sizeof(m->_cmd_data)) {
+        // Too large a body, just go into idle and resync
+        printf("Discarding %d > %d\n", b, (int)sizeof(m->_cmd_data));
+        return MSP_DISCARD;
     }
+
     return msp_cmd_interesting(m, m->_cmdId) ? (m->_cmdSize == 0 ? MSP_CHECKSUM : MSP_FILLBUF) : MSP_DISCARD;
 }
 
 static _msp_state _msp_state_fill_buf(MSP *m, uint8_t b) {
-    *m->_bufptr = b;
-    m->_bufptr++;
-    m->_cmdI++;
     m->_checksum ^= b;
+    m->_cmd_data.buf[m->_cmdI++] = b;
     return m->_cmdI == m->_cmdSize ? MSP_CHECKSUM : MSP_FILLBUF;
 }
 
@@ -126,7 +116,7 @@ static void msp_setup_boxes(MSP *m) {
 
     uint32_t bit = 1;
     for (int i = 0; i < m->_cmdSize; i++) {
-      switch(m->_buf[i]) {
+      switch(m->_cmd_data.buf[i]) {
       case 0:
         m->boxes.armed |= bit;
         break;
@@ -175,13 +165,14 @@ static _msp_state _msp_state_checksum(MSP *m, uint8_t b) {
     if ((m->_checksum ^ b) != 0) {
         // Checksum failed.  Drop it
         if (m->checksum_failed_cb) {
-            m->checksum_failed_cb(m->_cmdId, m->_cmdSize, m->_buf, b);
+            m->checksum_failed_cb(m->_cmdId, m->_cmdSize, m->_cmd_data.buf, b);
         }
         return MSP_IDLE;
     }
 
     switch (m->_cmdId) {
     case MSP_STATUS:
+        m->armed = m->_cmd_data.status.flags & m->boxes.armed;
         _msp_read_status(m);
         break;
     case MSP_BOXIDS:
@@ -192,7 +183,7 @@ static _msp_state _msp_state_checksum(MSP *m, uint8_t b) {
         break;
      default:
          if (m->generic_cb) {
-             m->generic_cb(m->_cmdId, m->_cmdSize, m->_buf);
+             m->generic_cb(m->_cmdId, m->_cmdSize, m->_cmd_data.buf);
          }
     }
     return MSP_IDLE;
