@@ -1,5 +1,4 @@
 var dropFolder = '0B-XXXXXXXXXXXXXXXXXXXXXXXXX';
-var destFolder = '0B-XXXXXXXXXXXXXXXXXXXXXXXXX';
 
 function moveDroppedFiles() {
 
@@ -38,7 +37,7 @@ function moveDroppedFiles() {
   }
 
   var done = subProcess(DriveApp.getFolderById(dropFolder),
-                        DriveApp.getFolderById(destFolder));
+                        DriveApp.getRootFolder());
   Logger.log(' # Total moved: %s', done);
 
   if (done > 0) {
