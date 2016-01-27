@@ -145,6 +145,11 @@
 <wire x1="9.965" y1="18.77" x2="0" y2="18.77" width="0" layer="20"/>
 <wire x1="0" y1="18.77" x2="0" y2="-0.135" width="0" layer="20"/>
 <text x="9.5" y="1" size="1.5" layer="22" font="vector" rot="MR0">fujotime</text>
+<text x="0.5" y="0.5" size="1.778" layer="21">+</text>
+<text x="8" y="0.5" size="1.778" layer="21">-</text>
+<text x="1" y="12" size="1" layer="21">r2</text>
+<text x="6" y="9" size="1" layer="21">r1</text>
+<text x="0.5" y="17.5" size="1" layer="21">-</text>
 </plain>
 <libraries>
 <library name="led">
