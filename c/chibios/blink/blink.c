@@ -6,8 +6,10 @@
  */
 static THD_WORKING_AREA(onThreadWorkingArea, 128);
 static THD_WORKING_AREA(offThreadWorkingArea, 128);
+static THD_WORKING_AREA(signalerTheadWorkingArea, 128);
 
-static mutex_t mu;
+static MUTEX_DECL(mu);
+static CONDVAR_DECL(cond);
 
 #define LED PAL_LINE(GPIOB, 1)
 
@@ -17,8 +19,8 @@ static mutex_t mu;
 static THD_FUNCTION(onThread, arg) {
     while (true) {
         chMtxLock(&mu);
+        chCondWait(&cond);
         palSetLine(LED);
-        chThdSleepMilliseconds(500);
         chMtxUnlock(&mu);
     }
 }
@@ -29,8 +31,17 @@ static THD_FUNCTION(onThread, arg) {
 static THD_FUNCTION(offThread, arg) {
     while (true) {
         chMtxLock(&mu);
+        chCondWait(&cond);
         palClearLine(LED);
+        chMtxUnlock(&mu);
+    }
+}
+
+static THD_FUNCTION(signalerThread, arg) {
+    while (true) {
+        chMtxLock(&mu);
         chThdSleepMilliseconds(500);
+        chCondSignal(&cond);
         chMtxUnlock(&mu);
     }
 }
@@ -43,15 +54,13 @@ int main(void) {
     palSetLineMode(LED, PAL_MODE_OUTPUT_PUSHPULL);
     palClearLine(LED);
 
-    chMtxObjectInit(&mu);
-
-    chThdSleepMilliseconds(2000);
     /* Starting the flashing LEDs thread.*/
     (void)chThdCreateStatic(onThreadWorkingArea, sizeof(onThreadWorkingArea),
                             NORMALPRIO, onThread, NULL);
     (void)chThdCreateStatic(offThreadWorkingArea, sizeof(offThreadWorkingArea),
                             NORMALPRIO, offThread, NULL);
-
+    (void)chThdCreateStatic(signalerTheadWorkingArea, sizeof(signalerTheadWorkingArea),
+                            NORMALPRIO, signalerThread, NULL);
     for (;;) {
         chThdSleepMilliseconds(10000);
     }
