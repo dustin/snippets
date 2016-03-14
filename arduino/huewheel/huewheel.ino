@@ -1,11 +1,11 @@
 /* pinout used on ATtiny85
- * pin 1 -
- * pin 2 RX comes from host
- * pin 3 TX (not used at yet)
+ * pin 1 NC
+ * pin 2 PWM Input
+ * pin 3 NC
  * pin 4 GND
  * pin 5 DOUT goes to LED stripe
- * pin 6 -
- * pin 7 -
+ * pin 6 NC
+ * pin 7 NC
  * pin 8 VCC
  */
 
