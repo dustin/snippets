@@ -39,96 +39,96 @@ unsigned long highest = defaultHigh;
 unsigned long nextWrite = 0;
 
 void setup() {
-  pinMode(pwmPin, INPUT);
-  loadEEProm();
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
+    pinMode(pwmPin, INPUT);
+    loadEEProm();
+    strip.begin();
+    strip.show(); // Initialize all pixels to 'off'
 }
 
 void loadEEProm() {
-  const int pos = 0;
-  lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
-  highest = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
-  if (lowest < valueTooLow || highest > valueTooHigh) {
-    lowest = defaultLow;
-  }
-  if (lowest > valueTooHigh || highest < valueTooLow) {
-    highest = defaultHigh;
-  }
+    const int pos = 0;
+    lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
+    highest = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
+    if (lowest < valueTooLow || highest > valueTooHigh) {
+        lowest = defaultLow;
+    }
+    if (lowest > valueTooHigh || highest < valueTooLow) {
+        highest = defaultHigh;
+    }
 }
 
 void writeEEProm() {
-  if (!dirty) {
-    return;
-  }
+    if (!dirty) {
+        return;
+    }
 
-  int pos = 0;
-  EEPROM.write(pos++, lowest >> 8);
-  EEPROM.write(pos++, lowest & 0xff);
-  EEPROM.write(pos++, highest >> 8);
-  EEPROM.write(pos++, highest & 0xff);
+    int pos = 0;
+    EEPROM.write(pos++, lowest >> 8);
+    EEPROM.write(pos++, lowest & 0xff);
+    EEPROM.write(pos++, highest >> 8);
+    EEPROM.write(pos++, highest & 0xff);
 
-  dirty = false;
+    dirty = false;
 }
 
 void rangeCheck(unsigned long val) {
-  if (val < valueTooLow || val > valueTooHigh) {
-    if (val == 0) {
-      lowest = defaultLow;
-      highest = defaultHigh;
+    if (val < valueTooLow || val > valueTooHigh) {
+        if (val == 0) {
+            lowest = defaultLow;
+            highest = defaultHigh;
+        }
+        return;
     }
-    return;
-  }
-  if (val < lowest || val > highest) {
-    lowest = min(val, lowest);
-    highest = max(val, highest);
-    dirty = true;
-  }
+    if (val < lowest || val > highest) {
+        lowest = min(val, lowest);
+        highest = max(val, highest);
+        dirty = true;
+    }
 }
 
 void hsvToRgb(double h, double s, double v, byte rgb[]) {
-  double r, g, b;
+    double r, g, b;
 
-  int i = int(h * 6);
-  double f = h * 6 - i;
-  double p = v * (1 - s);
-  double q = v * (1 - f * s);
-  double t = v * (1 - (1 - f) * s);
+    int i = int(h * 6);
+    double f = h * 6 - i;
+    double p = v * (1 - s);
+    double q = v * (1 - f * s);
+    double t = v * (1 - (1 - f) * s);
 
-  switch (i % 6) {
+    switch (i % 6) {
     case 0: r = v, g = t, b = p; break;
     case 1: r = q, g = v, b = p; break;
     case 2: r = p, g = v, b = t; break;
     case 3: r = p, g = q, b = v; break;
     case 4: r = t, g = p, b = v; break;
     case 5: r = v, g = p, b = q; break;
-  }
+    }
 
-  rgb[0] = r * 255;
-  rgb[1] = g * 255;
-  rgb[2] = b * 255;
+    rgb[0] = r * 255;
+    rgb[1] = g * 255;
+    rgb[2] = b * 255;
 }
 
 
 
 void loop() {
-  byte rgb[] = {0, 0, 0};
+    byte rgb[] = {0, 0, 0};
 
-  unsigned long val = pulseIn(pwmPin, HIGH, 3000000);
-  rangeCheck(val);
-  if (abs(val - prevVal) > deadband) {
-    prevVal = val;
-    double hue = (double)map(val, lowest, highest, 0, 1000);
-    hsvToRgb(hue / 1000, 1, 1, rgb);
-    for (int i = 0; i < LEDMAX; i++) {
-      strip.setPixelColor(i, rgb[0], rgb[1], rgb[2]);
+    unsigned long val = pulseIn(pwmPin, HIGH, 3000000);
+    rangeCheck(val);
+    if (abs(val - prevVal) > deadband) {
+        prevVal = val;
+        double hue = (double)map(val, lowest, highest, 0, 1000);
+        hsvToRgb(hue / 1000, 1, 1, rgb);
+        for (int i = 0; i < LEDMAX; i++) {
+            strip.setPixelColor(i, rgb[0], rgb[1], rgb[2]);
+        }
+        strip.show();
     }
-    strip.show();
-  }
-  delay(10);
+    delay(10);
 
-  if (dirty && millis() > nextWrite) {
-    writeEEProm();
-    nextWrite = millis() + 10000;
-  }
+    if (dirty && millis() > nextWrite) {
+        writeEEProm();
+        nextWrite = millis() + 10000;
+    }
 }
