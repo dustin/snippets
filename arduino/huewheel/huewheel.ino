@@ -28,12 +28,14 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LEDMAX, LEDPIN, NEO_GRB + NEO_KHZ800
 
 bool dirty = false;
 const int deadband = 7;
-const int valueTooLow = 500;
+const int valueTooLow = 800;
+const int defaultLow = 1000;
+const int defaultHigh = 1800;
 const int valueTooHigh = 3000;
 unsigned long prevVal(1500);
 
-unsigned long lowest = 1000;
-unsigned long highest = 1800;
+unsigned long lowest = defaultLow;
+unsigned long highest = defaultHigh;
 unsigned long nextWrite = 0;
 
 void setup() {
@@ -48,10 +50,10 @@ void loadEEProm() {
   lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
   highest = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
   if (lowest < valueTooLow || highest > valueTooHigh) {
-    lowest = 6000;
+    lowest = defaultLow;
   }
   if (lowest > valueTooHigh || highest < valueTooLow) {
-    highest = 0;
+    highest = defaultHigh;
   }
 }
 
@@ -71,6 +73,10 @@ void writeEEProm() {
 
 void rangeCheck(unsigned long val) {
   if (val < valueTooLow || val > valueTooHigh) {
+    if (val == 0) {
+      lowest = defaultLow;
+      highest = defaultHigh;
+    }
     return;
   }
   if (val < lowest || val > highest) {
@@ -108,7 +114,7 @@ void hsvToRgb(double h, double s, double v, byte rgb[]) {
 void loop() {
   byte rgb[] = {0, 0, 0};
 
-  unsigned long val = pulseIn(pwmPin, HIGH, 50000);
+  unsigned long val = pulseIn(pwmPin, HIGH, 3000000);
   rangeCheck(val);
   if (abs(val - prevVal) > deadband) {
     prevVal = val;
