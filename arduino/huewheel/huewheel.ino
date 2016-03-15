@@ -17,18 +17,18 @@
 
 #define pwmPin A3
 
-bool dirty = false;
-const int deadband = 7;
-const long valueTooLow = 800;
-const long defaultLow = 1000;
-const long defaultHigh = 1800;
-const long valueTooHigh = 3000;
+bool dirty(false);
+const int deadband(7);
+const long valueTooLow(800);
+const long defaultLow(1000);
+const long defaultHigh(1800);
+const long valueTooHigh(3000);
 unsigned long prevVal(1500);
 
-unsigned long blackVal = 1010;
-unsigned long lowest = defaultLow;
-unsigned long highest = defaultHigh;
-unsigned long nextWrite = 0;
+unsigned long blackVal(1010);
+unsigned long lowest(defaultLow);
+unsigned long highest(defaultHigh);
+unsigned long nextWrite(0);
 
 CRGB leds[LEDMAX];
 
