@@ -28,10 +28,10 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LEDMAX, LEDPIN, NEO_GRB + NEO_KHZ800
 
 bool dirty = false;
 const int deadband = 7;
-const int valueTooLow = 800;
-const int defaultLow = 1000;
-const int defaultHigh = 1800;
-const int valueTooHigh = 3000;
+const long valueTooLow = 800;
+const long defaultLow = 1000;
+const long defaultHigh = 1800;
+const long valueTooHigh = 3000;
 unsigned long prevVal(1500);
 
 unsigned long lowest = defaultLow;
@@ -49,10 +49,10 @@ void loadEEProm() {
     const int pos = 0;
     lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
     highest = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
-    if (lowest < valueTooLow || highest > valueTooHigh) {
+    if (lowest < valueTooLow || lowest > valueTooHigh) {
         lowest = defaultLow;
     }
-    if (lowest > valueTooHigh || highest < valueTooLow) {
+    if (highest > valueTooHigh || highest < valueTooLow) {
         highest = defaultHigh;
     }
 }
@@ -108,8 +108,6 @@ void hsvToRgb(double h, double s, double v, byte rgb[]) {
     rgb[1] = g * 255;
     rgb[2] = b * 255;
 }
-
-
 
 void loop() {
     byte rgb[] = {0, 0, 0};
