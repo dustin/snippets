@@ -21,6 +21,7 @@ bool dirty = false;
 const int deadband = 7;
 const long valueTooLow = 800;
 const long defaultLow = 1000;
+const long blackVal = 1030;
 const long defaultHigh = 1800;
 const long valueTooHigh = 3000;
 unsigned long prevVal(1500);
@@ -79,6 +80,8 @@ void rangeCheck(unsigned long val) {
     }
 }
 
+const CHSV black(0, 0, 0);
+
 void loop() {
     byte rgb[] = {0, 0, 0};
 
@@ -86,9 +89,9 @@ void loop() {
     rangeCheck(val);
     if (abs(val - prevVal) > deadband) {
         prevVal = val;
-        CHSV value(map(val, lowest, highest, 0, 255), 255, 255);
+        CRGB color(val > blackVal ? CHSV(map(val, blackVal, highest, 0, 255), 255, 255) : black);
         for (int i = 0; i < LEDMAX; i++) {
-            leds[i] = value;
+            leds[i] = color;
         }
         FastLED.show();
     }
