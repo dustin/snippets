@@ -21,11 +21,11 @@ bool dirty = false;
 const int deadband = 7;
 const long valueTooLow = 800;
 const long defaultLow = 1000;
-const long blackVal = 1030;
 const long defaultHigh = 1800;
 const long valueTooHigh = 3000;
 unsigned long prevVal(1500);
 
+unsigned long blackVal = 1010;
 unsigned long lowest = defaultLow;
 unsigned long highest = defaultHigh;
 unsigned long nextWrite = 0;
@@ -39,6 +39,10 @@ void setup() {
     loadEEProm();
 }
 
+void computeBlackVal() {
+    blackVal = lowest + (0.02 * (highest - lowest));
+}
+
 void loadEEProm() {
     const int pos = 0;
     lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
@@ -49,6 +53,7 @@ void loadEEProm() {
     if (highest > valueTooHigh || highest < valueTooLow) {
         highest = defaultHigh;
     }
+    computeBlackVal();
 }
 
 void writeEEProm() {
@@ -76,6 +81,7 @@ void rangeCheck(unsigned long val) {
     if (val < lowest || val > highest) {
         lowest = min(val, lowest);
         highest = max(val, highest);
+        computeBlackVal();
         dirty = true;
     }
 }
