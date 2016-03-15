@@ -30,10 +30,8 @@ unsigned long lowest(defaultLow);
 unsigned long highest(defaultHigh);
 unsigned long nextWrite(0);
 
-CRGB leds[LEDMAX];
-
 void setup() {
-    FastLED.addLeds<NEOPIXEL, LEDPIN>(leds, LEDMAX);
+    FastLED.addLeds<NEOPIXEL, LEDPIN>(NULL, LEDMAX);
 
     pinMode(pwmPin, INPUT);
     loadEEProm();
