@@ -86,20 +86,19 @@ void rangeCheck(unsigned long val) {
     }
 }
 
+CRGB color;
+
 void loop() {
     unsigned long val = pulseIn(pwmPin, HIGH, 3000000);
     rangeCheck(val);
     if (abs(val - prevVal) > deadband) {
         prevVal = val;
         if (val > blackVal) {
-            leds[0].setHue(map(val, blackVal, highest, 0, 255));
+            color.setHue(map(val, blackVal, highest, 0, 255));
         } else {
-            leds[0] = CRGB::Black;
+            color = CRGB::Black;
         }
-        for (int i = 1; i < LEDMAX; i++) {
-            leds[i] = leds[0];
-        }
-        FastLED.show();
+        FastLED.showColor(color);
     }
     delay(10);
 
