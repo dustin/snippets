@@ -10,19 +10,10 @@
  */
 
 #include <EEPROM.h>
-#include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 
-/* LED definition */
-// Parameter 1 = number of pixels in strip
-// Parameter 2 = Arduino pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 #define LEDPIN 0
 #define LEDMAX 100
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(LEDMAX, LEDPIN, NEO_GRB + NEO_KHZ800);
 
 #define pwmPin A3
 
@@ -38,11 +29,13 @@ unsigned long lowest = defaultLow;
 unsigned long highest = defaultHigh;
 unsigned long nextWrite = 0;
 
+CRGB leds[LEDMAX];
+
 void setup() {
+    FastLED.addLeds<NEOPIXEL, LEDPIN>(leds, LEDMAX);
+
     pinMode(pwmPin, INPUT);
     loadEEProm();
-    strip.begin();
-    strip.show(); // Initialize all pixels to 'off'
 }
 
 void loadEEProm() {
@@ -86,29 +79,6 @@ void rangeCheck(unsigned long val) {
     }
 }
 
-void hsvToRgb(double h, double s, double v, byte rgb[]) {
-    double r, g, b;
-
-    int i = int(h * 6);
-    double f = h * 6 - i;
-    double p = v * (1 - s);
-    double q = v * (1 - f * s);
-    double t = v * (1 - (1 - f) * s);
-
-    switch (i % 6) {
-    case 0: r = v, g = t, b = p; break;
-    case 1: r = q, g = v, b = p; break;
-    case 2: r = p, g = v, b = t; break;
-    case 3: r = p, g = q, b = v; break;
-    case 4: r = t, g = p, b = v; break;
-    case 5: r = v, g = p, b = q; break;
-    }
-
-    rgb[0] = r * 255;
-    rgb[1] = g * 255;
-    rgb[2] = b * 255;
-}
-
 void loop() {
     byte rgb[] = {0, 0, 0};
 
@@ -116,12 +86,11 @@ void loop() {
     rangeCheck(val);
     if (abs(val - prevVal) > deadband) {
         prevVal = val;
-        double hue = (double)map(val, lowest, highest, 0, 1000);
-        hsvToRgb(hue / 1000, 1, 1, rgb);
+        CHSV value(map(val, lowest, highest, 0, 255), 255, 255);
         for (int i = 0; i < LEDMAX; i++) {
-            strip.setPixelColor(i, rgb[0], rgb[1], rgb[2]);
+            leds[i] = value;
         }
-        strip.show();
+        FastLED.show();
     }
     delay(10);
 
