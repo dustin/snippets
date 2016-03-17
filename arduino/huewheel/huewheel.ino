@@ -43,7 +43,7 @@ void setup() {
 }
 
 void computeBlackVal() {
-    blackVal = lowest + (0.02 * (highest - lowest));
+    blackVal = lowest + (0.03 * (highest - lowest));
 }
 
 void loadEEProm() {
