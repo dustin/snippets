@@ -9,7 +9,12 @@
  * pin 8 VCC
  */
 
-#include <EEPROM.h>
+#undef PERSIST
+
+#ifdef PERSIST
+#  include <EEPROM.h>
+#endif
+
 #include <FastLED.h>
 
 #define LEDPIN 0
@@ -42,6 +47,7 @@ void computeBlackVal() {
 }
 
 void loadEEProm() {
+#ifdef PERSIST
     const int pos = 0;
     lowest = (EEPROM.read(pos) << 8) | EEPROM.read(pos + 1);
     highest = (EEPROM.read(pos + 2) << 8) | EEPROM.read(pos + 3);
@@ -52,9 +58,11 @@ void loadEEProm() {
         highest = defaultHigh;
     }
     computeBlackVal();
+#endif
 }
 
 void writeEEProm() {
+#ifdef PERSIST
     if (!dirty) {
         return;
     }
@@ -66,6 +74,7 @@ void writeEEProm() {
     EEPROM.write(pos++, highest & 0xff);
 
     dirty = false;
+#endif
 }
 
 void rangeCheck(unsigned long val) {
