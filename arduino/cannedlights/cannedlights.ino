@@ -9,6 +9,10 @@ WS2812 LED(LEDCount);
 const int deadband = 5;
 unsigned long prevVal(1500);
 
+void pulse();
+void flash();
+void emergency();
+
 void (*mode)()(pulse);
 
 struct {
