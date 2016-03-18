@@ -1,10 +1,10 @@
-#include <WS2812.h>
+#include <FastLED.h>
 
 #define outputPin 0
 #define pwmPin A3
 #define LEDCount 2
 
-WS2812 LED(LEDCount);
+CRGB leds[LEDCount];
 
 const int deadband = 5;
 unsigned long prevVal(1500);
@@ -25,8 +25,8 @@ struct {
 };
 
 void setup() {
+    FastLED.addLeds<NEOPIXEL, outputPin>(leds, LEDCount);
     pinMode(pwmPin, INPUT);
-    LED.setOutput(outputPin);
 }
 
 byte pulseIntensity(0);
@@ -47,53 +47,43 @@ void pulse() {
     }
 
     for (int i = 0; i < LEDCount; i++) {
-        cRGB value{0, 0, 0};
-        if ((i % 3) == 0) { 
-            value.r = pulseIntensity;
-            LED.set_crgb_at(i, value);
+        leds[i].red = 0;
+        leds[i].green = 0;
+        leds[i].blue = 0;
+        if ((i % 3) == 0) {
+            leds[i].red = pulseIntensity;
         } else if ((i % 3) == 1) {
-            value.g = pulseIntensity;
-            LED.set_crgb_at(i, value);
+            leds[i].green = pulseIntensity;
         } else  {
-            value.b = pulseIntensity;
-            LED.set_crgb_at(i, value);
+            leds[i].blue = pulseIntensity;
         }
     }
 
-    LED.sync();
-    delay(10);
+    FastLED.show();
+    delay(30);
 }
 
 unsigned int flashI = 0;
 
 void flash() {
     for (int i = 0; i < LEDCount; i++) {
-        cRGB value{0, 0, 0};
         if ((i+flashI) % 2) {
-            value.r = 127;
+            leds[i].red = 127;
+            leds[i].blue = 0;
         } else {
-            value.b = 127;
+            leds[i].blue = 127;
+            leds[i].red = 0;
         }
-        LED.set_crgb_at(i, value);
     }
     flashI++;
-    LED.sync();
+    FastLED.show();
     delay(500);
 }
 
 void emergency() {
-    cRGB value{0, 0, 0};
-    value.r = 127;
-    for (int i = 0; i < LEDCount; i++) {
-        LED.set_crgb_at(i, value);
-    }
-    LED.sync();
+    FastLED.showColor(CRGB::Red);
     delay(250);
-    value.r = 0;
-    for (int i = 0; i < LEDCount; i++) {
-        LED.set_crgb_at(i, value);
-    }
-    LED.sync();
+    FastLED.showColor(CRGB::Black);
     delay(500);
 }
 
