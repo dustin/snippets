@@ -81,5 +81,5 @@ void loop() {
     }
     populateChans();
     transmit();
-    delay(1000);
+    delay(10);
 }
