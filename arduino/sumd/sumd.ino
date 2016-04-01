@@ -6,9 +6,11 @@
 
 volatile uint16_t channels[NCHAN];
 
+static uint16_t headercrc = 0;
+
 struct {
     byte magic;
-    byte hdr1;
+    byte hdr;
     byte nchan;
     byte channels[NCHAN*2];
     byte crc[2];
@@ -23,6 +25,16 @@ void setup() {
     for (int i = 0; i < NCHAN; i++) {
         channels[i] = 1500;
     }
+
+    setHeader(SUMD_VALID);
+}
+
+void setHeader(byte b) {
+    packet.hdr = b;
+
+    headercrc = CRC16(0, packet.magic);
+    headercrc = CRC16(headercrc, packet.hdr);
+    headercrc = CRC16(headercrc, packet.nchan);
 }
 
 uint16_t CRC16(uint16_t crc, uint8_t value) {
@@ -38,11 +50,7 @@ uint16_t CRC16(uint16_t crc, uint8_t value) {
 }
 
 void populateChans() {
-    packet.hdr1 = SUMD_VALID;
-
-    uint16_t crc = CRC16(0, packet.magic);
-    crc = CRC16(crc, packet.hdr1);
-    crc = CRC16(crc, packet.nchan);
+    uint16_t crc = headercrc;
 
     int j = 0;
     for (int i = 0; i < NCHAN; i++) {
