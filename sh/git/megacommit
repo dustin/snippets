@@ -1,0 +1,43 @@
+#!/bin/sh
+
+megacommit() {
+    parents=""
+
+    for b in `git branch -a | grep remotes/$1`
+    do
+        parents="$parents -p `git show-ref --hash $b`"
+    done
+
+    tree=`git log --pretty=%T -1 $2`
+
+    commit=`git commit-tree $parents -m "$1 Megacommit" $tree`
+
+    git update-ref refs/heads/$1-mega $commit
+}
+
+tagcommit() {
+    parents=""
+
+    for t in `git tag`
+    do
+        parents="$parents -p `git log -1 --pretty=%H $t`"
+    done
+
+    tree=`git log --pretty=%T -1`
+
+    commit=`git commit-tree $parents -m "Tag Megacommit" $tree`
+
+    git update-ref refs/heads/tag-mega $commit
+}
+
+megacommit tl tl/next
+git push -f dronin tl-mega:refs/junk/tl-mega
+git branch -D tl-mega
+
+megacommit brain brain/brain
+git push -f dronin brain-mega:refs/junk/brain-mega
+git branch -D brain-mega
+
+tagcommit
+git push -f dronin tag-mega:refs/junk/tag-mega
+git branch -D tag-mega
