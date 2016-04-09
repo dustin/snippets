@@ -1,14 +1,16 @@
-/* pinout used on ATtiny85
+/*
+ * pinout used on ATtiny85
  * pin 1 NC
  * pin 2 PWM Input
  * pin 3 NC
  * pin 4 GND
- * pin 5 DOUT goes to LED stripe
+ * pin 5 DOUT goes to LED strip
  * pin 6 NC
  * pin 7 NC
  * pin 8 VCC
  */
 
+// Persistence doesn't fit with a micronucleus bootloader
 #undef PERSIST
 
 #ifdef PERSIST
