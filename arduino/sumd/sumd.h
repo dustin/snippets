@@ -1,3 +1,7 @@
+/**
+ * SUMD implementation as specified in
+ * http://deviationtx.com/media/kunena/attachments/98/HoTT-SUMD-Spec-REV01-12062012-pdf.pdf
+ */
 #define SUMD_VALID 0x01
 #define SUMD_FAILSAFE 0x81
 #define CRC_POLYNOME 0x1021
@@ -5,6 +9,7 @@
 class SUMD {
 public:
 
+    // Construct a SUMD object managing the given number of channels.
     SUMD(const uint8_t nchans) {
         // [magic], [hdr], [nchan], [2 bytes * channels], [2 byte crc]
         data = new byte[(nchans*2)+5];
@@ -18,6 +23,7 @@ public:
         setHeader(SUMD_VALID);
     }
 
+    // Set the value of the specified channel.
     void setChannel(const int ch, const int val) {
         uint16_t cval = 8*val;
         uint8_t off = chanOffset(ch);
@@ -25,11 +31,13 @@ public:
         data[off+1] = cval & 0xff;
     }
 
+    // Get the value of a specified channel.
     uint16_t channel(const int ch) {
         uint8_t off = chanOffset(ch);
         return ((data[off] << 8) | data[off+1]) / 8;
     }
 
+    // Set the header to either SUMD_VALID or SUMD_FAILSAFE.
     void setHeader(const byte b) {
         data[1] = b;
 
@@ -38,17 +46,20 @@ public:
         headercrc = CRC16(headercrc, data[2]);
     }
 
+    // The number of channels being managed.
     const uint8_t nchan() {
         return data[2];
     }
 
-    const uint8_t size() {
-        return (nchan() * 2) + 5;
-    }
-
+    // The address of the buffer to transmit as a SUMD packet.
     const byte* bytes() {
         computeCRC();
         return data;
+    }
+
+    // The size of the buffer to transmit.
+    const uint8_t size() {
+        return (nchan() * 2) + 5;
     }
 
 private:
