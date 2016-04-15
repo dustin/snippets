@@ -1,17 +1,28 @@
 #include <avr/io.h>
-#include <util/delay.h>
+#include <avr/sleep.h>
+#include <avr/wdt.h>
+#include <avr/interrupt.h>
 
-#define LED_on (PORTB |= (1<<PB0)|(1<<PB1))
-#define LED_off (PORTB &= ~((1<<PB0)|(1<<PB1)))
+#define LEDS _BV(PB0)|_BV(PB1)
+
+ISR(WDT_vect) {
+    wdt_reset();
+    PORTB ^= LEDS;
+}
 
 int main(void) {
     // Set PB0 and PB1 to output
-    DDRB |= (1<<PB0)|(1<<PB1);
+    DDRB |= LEDS;
 
+    cli();
+    wdt_reset();
+    WDTCR = _BV(WDCE) | _BV(WDE);
+    // Enable WDT Interrupt, and Set Timeout to ~1 second
+    WDTCR = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
+    sei();
+
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     while (1) {
-        LED_on;
-        _delay_ms(1000);
-        LED_off;
-        _delay_ms(1000);
+        sleep_mode();
     }
 }
