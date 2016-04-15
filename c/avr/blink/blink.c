@@ -6,7 +6,12 @@
 #define LEDS _BV(PB0)|_BV(PB1)
 
 ISR(WDT_vect) {
+    static uint8_t count = 0;
     wdt_reset();
+    // Clear WDT masks
+    _WD_CONTROL_REG &= ~(_BV(WDP0)|_BV(WDP1)|_BV(WDP2)|_BV(WDP3));
+    count = (count+1)%10;
+    _WD_CONTROL_REG |= (count&7) | (count > 7 ? _BV(WDP3) : 0);
     PORTB ^= LEDS;
 }
 
