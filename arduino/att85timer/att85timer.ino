@@ -1,7 +1,9 @@
 #include <avr/interrupt.h>
 
+#define LEDS (_BV(PB0) | _BV(PB1));
+
 void setup() {
-    pinMode(1, OUTPUT);
+    DDRB |= LEDS;
     cli();
     TCCR0A = 0;
     TCCR0B = 0;
@@ -14,11 +16,11 @@ void setup() {
 
 ISR(TIMER0_COMPA_vect) {
     OCR0A--;
-    digitalWrite(1, HIGH);
+    PORTB |= LEDS;
 }
 
 ISR(TIMER0_OVF_vect) {
-    digitalWrite(1, LOW);
+    PORTB |= ~LEDS;
 }
 
 void loop() {
