@@ -12,6 +12,8 @@
 bool failed = false;
 int misses = 0;
 
+void enabled();
+void disabled();
 void (*mode)() = enabled;
 
 void setup() {
