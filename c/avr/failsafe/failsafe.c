@@ -13,13 +13,11 @@
 // a bit under a second
 #define BUTTON_OVERFLOWS 30
 
-volatile bool disabling = false;
 volatile uint8_t prevb = 0xFF;
 volatile int overflows = 0;
 volatile bool watching_button = false;
 
-
-void isr_svc_button() {
+static inline void isr_svc_button() {
     if (watching_button) {
         watching_button = false;
         TIMSK &= ~_BV(TOIE0); // disable timer overflow
@@ -53,22 +51,19 @@ ISR(WDT_vect) {
 
 ISR(TIM0_OVF_vect) {
     if (++overflows >= BUTTON_OVERFLOWS) {
-        disabling = true;
+        // We're done.  Disable the inputs so we can stop doing things.
+        PCMSK &= ~(_BV(PCINT0) | _BV(PCINT2));
+
+        // Indicator (maybe add a beep or something?)
+        PORTB |= _BV(SHUTDOWN_PIN);
+
+        // No more watchdog
+        _WD_CONTROL_REG = 0;
+
+        // Stop the timer.
         TIMSK &= ~_BV(TOIE0);
         watching_button = false;
     }
-}
-
-void disable() {
-    // Maybe like, a beep or something?
-    PORTB |= _BV(SHUTDOWN_PIN);
-
-    cli();
-    // No more watchdog
-    _WD_CONTROL_REG = 0;
-    // Stop watching inputs
-    PCMSK &= ~(_BV(PCINT0) | _BV(PCINT2));
-    sei();
 }
 
 int main() {
@@ -94,10 +89,5 @@ int main() {
     for (;;) {
         // just process interrupts
         sleep_mode();
-
-        if (disabling) {
-            disable();
-            disabling = false;
-        }
     }
 }
