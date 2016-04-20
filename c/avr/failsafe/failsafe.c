@@ -27,12 +27,16 @@ static inline void isr_svc_button() {
     }
 }
 
+// This is invoked for pin changes in either the case where signal is heard
+// from the input, or the button is pressed or released.
 ISR(PCINT0_vect) {
     wdt_reset();
 
+    // Detect which pins are different.
     uint8_t pinb = PINB;
     uint8_t vals = pinb ^ prevb;
     prevb = pinb;
+
     if (vals & _BV(PPM_PIN)) {
         PORTB &= ~_BV(OUT_PIN);
     }
@@ -42,11 +46,16 @@ ISR(PCINT0_vect) {
     }
 }
 
+// Watchdog is invoked when we've not seen pin changes in about a second.
 ISR(WDT_vect) {
     wdt_reset();
     PORTB |= _BV(OUT_PIN);
 }
 
+// The timer starts running when the button is pressed.  Since we've only got
+// 8-bit timers on an attiny85, we just count how many times this overflows
+// (which is about every 32ms at 8MHz).  The timer will stop if the button is
+// released (and reset if it's pressed again).
 ISR(TIM0_OVF_vect) {
     if (++overflows >= BUTTON_OVERFLOWS) {
         // We're done.  Disable the inputs so we can stop doing things.
@@ -64,15 +73,19 @@ ISR(TIM0_OVF_vect) {
 }
 
 int main() {
+    // Setup outputs
     DDRB = _BV(OUT_PIN) | _BV(SHUTDOWN_PIN);
+    // Pull-up button input with the button completing the circuit to ground.
     PORTB |= _BV(BUTTON_PIN);
 
     cli();
+    // Prepare the pin change interrupts.
     GIMSK |= _BV(PCIE);
     PCMSK |= _BV(PCINT0);
 
-    // I use the timer later.  Set up 1024 prescaler.
-    TCCR0B |= _BV(CS02) | _BV(CS00);  // 1024 prescaler
+    // I will use the timer later if someone presses a button.
+    // Set up 1024 prescaler.
+    TCCR0B |= _BV(CS02) | _BV(CS00);
 
     // The watchdog timer is used for detecting failsafe state.
     wdt_reset();
