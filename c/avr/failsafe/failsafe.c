@@ -88,7 +88,7 @@ int main() {
     GIMSK |= _BV(PCIE);
     PCMSK |= _BV(PCINT0);
 
-        // I use the timer later.  Set up 1024 prescaler.
+    // I use the timer later.  Set up 1024 prescaler.
     TCCR0B |= _BV(CS02) | _BV(CS00);  // 1024 prescaler
 
     // The watchdog timer is used for detecting failsafe state.
