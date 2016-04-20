@@ -14,7 +14,6 @@
 #define BUTTON_OVERFLOWS 30
 
 volatile bool disabling = false;
-volatile bool failed = false;
 volatile uint8_t prevb = 0xFF;
 volatile int overflows = 0;
 volatile bool watching_button = false;
@@ -39,7 +38,7 @@ ISR(PCINT0_vect) {
     uint8_t vals = pinb ^ prevb;
     prevb = pinb;
     if (vals & _BV(PPM_PIN)) {
-        failed = false;
+        PORTB &= ~_BV(OUT_PIN);
     }
 
     if (vals & _BV(BUTTON_PIN)) {
@@ -49,7 +48,7 @@ ISR(PCINT0_vect) {
 
 ISR(WDT_vect) {
     wdt_reset();
-    failed = true;
+    PORTB |= _BV(OUT_PIN);
 }
 
 ISR(TIM0_OVF_vect) {
@@ -57,14 +56,6 @@ ISR(TIM0_OVF_vect) {
         disabling = true;
         TIMSK &= ~_BV(TOIE0);
         watching_button = false;
-    }
-}
-
-void writeOut(bool failed) {
-    if (failed) {
-        PORTB |= _BV(OUT_PIN);
-    } else {
-        PORTB &= ~_BV(OUT_PIN);
     }
 }
 
@@ -108,6 +99,5 @@ int main() {
             disable();
             disabling = false;
         }
-        writeOut(failed);
     }
 }
