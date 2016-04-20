@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <avr/sleep.h>
 #include <util/delay.h>
 #include <stdbool.h>
 
@@ -34,7 +35,9 @@ void isr_svc_button() {
 ISR(PCINT0_vect) {
     wdt_reset();
 
-    uint8_t vals = PINB ^ prevb;
+    uint8_t pinb = PINB;
+    uint8_t vals = pinb ^ prevb;
+    prevb = pinb;
     if (vals & _BV(PPM_PIN)) {
         failed = false;
     }
@@ -59,20 +62,16 @@ ISR(TIM0_OVF_vect) {
 
 void writeOut(bool failed) {
     if (failed) {
-        DDRB |= _BV(OUT_PIN);
+        PORTB |= _BV(OUT_PIN);
     } else {
-        DDRB &= ~_BV(OUT_PIN);
+        PORTB &= ~_BV(OUT_PIN);
     }
 }
 
 void disable() {
     // Maybe like, a beep or something?
-    PORTB |= _BV(OUT_PIN);
-    _delay_ms(250);
-    PORTB &= ~_BV(OUT_PIN);
+    PORTB |= _BV(SHUTDOWN_PIN);
 
-    DDRB |= _BV(SHUTDOWN_PIN);
-    DDRB &= ~_BV(OUT_PIN);
     cli();
     // No more watchdog
     _WD_CONTROL_REG = 0;
@@ -99,12 +98,16 @@ int main() {
 	_WD_CONTROL_REG = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
     sei();
 
+    set_sleep_mode(SLEEP_MODE_PWR_SAVE);
+
     for (;;) {
         // just process interrupts
-        asm("sleep");
+        sleep_mode();
+
         if (disabling) {
             disable();
             disabling = false;
         }
+        writeOut(failed);
     }
 }
