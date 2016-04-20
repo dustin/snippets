@@ -15,4 +15,4 @@ clean:
 	rm failsafe.{elf,hex,o}
 
 install: failsafe.hex
-	$(MICRONUCLEUS) --run failsafe.hex
+	avrdude -c usbtiny -p t85 -U flash:w:failsafe.hex:i
