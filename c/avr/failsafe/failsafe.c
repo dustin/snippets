@@ -81,7 +81,7 @@ int main() {
     cli();
     // Prepare the pin change interrupts.
     GIMSK |= _BV(PCIE);
-    PCMSK |= _BV(PCINT0);
+    PCMSK |= _BV(PCINT0) | _BV(PCINT2);
 
     // I will use the timer later if someone presses a button.
     // Set up 1024 prescaler.
