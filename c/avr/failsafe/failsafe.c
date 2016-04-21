@@ -89,7 +89,7 @@ int main() {
     wdt_reset();
     _WD_CONTROL_REG = _BV(_WD_CHANGE_BIT) | _BV(WDE);
     // Enable WDT Interrupt, and Set Timeout to ~1 seconds,
-	_WD_CONTROL_REG = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
+    _WD_CONTROL_REG = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
     sei();
 
     set_sleep_mode(SLEEP_MODE_PWR_SAVE);
