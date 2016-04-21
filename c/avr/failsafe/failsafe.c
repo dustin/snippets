@@ -47,9 +47,10 @@ ISR(PCINT0_vect) {
 }
 
 // Watchdog is invoked when we've not seen pin changes in about a second.
-ISR(WDT_vect) {
+ISR(WDT_vect, ISR_NAKED) {
     wdt_reset();
     PORTB |= _BV(OUT_PIN);
+    reti();
 }
 
 // The timer starts running when the button is pressed.  Since we've only got
