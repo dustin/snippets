@@ -11,8 +11,11 @@ failsafe.hex: failsafe.elf
 failsafe.elf: failsafe.o
 	${CC} $(LDFLAGS) -o failsafe.elf failsafe.o
 
+failsafe.S: failsafe.c
+	avr-gcc -Wa,-gstabs $(CFLAGS) -S -o failsafe.S failsafe.c
+
 clean:
-	rm failsafe.{elf,hex,o}
+	rm failsafe.{elf,hex,o,S}
 
 install: failsafe.hex
 	avrdude -c usbtiny -p t85 -U flash:w:failsafe.hex:i
