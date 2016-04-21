@@ -58,7 +58,7 @@ ISR(WDT_vect, ISR_NAKED) {
 ISR(TIM0_OVF_vect) {
     if (++overflows >= BUTTON_OVERFLOWS) {
         // We're done.  Disable the inputs so we can stop doing things.
-        PCMSK &= ~(_BV(PCINT0) | _BV(PCINT2));
+        PCMSK = 0;
 
         // Indicator (maybe add a beep or something?)
         PORTB |= _BV(SHUTDOWN_PIN);
@@ -67,7 +67,7 @@ ISR(TIM0_OVF_vect) {
         _WD_CONTROL_REG = 0;
 
         // Stop the timer.
-        TIMSK &= ~_BV(TOIE0);
+        TIMSK = 0;
     }
 }
 
