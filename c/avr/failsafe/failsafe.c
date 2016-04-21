@@ -13,7 +13,7 @@
 #define BUTTON_OVERFLOWS 30
 
 volatile uint8_t prevb = 0xFF;
-volatile int overflows = 0;
+volatile uint8_t overflows = 0;
 
 // This part of the ISR(PCINT0_vect) runs when the button pin changes.
 static inline void isr_svc_button() {
