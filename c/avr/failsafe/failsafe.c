@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <avr/sleep.h>
+#include <util/atomic.h>
 
 #define PPM_PIN      PB0
 #define OUT_PIN      PB1
@@ -76,21 +77,21 @@ int main() {
     // Pull-up button input with the button completing the circuit to ground.
     PORTB |= _BV(BUTTON_PIN);
 
-    cli();
-    // Prepare the pin change interrupts.
-    GIMSK |= _BV(PCIE);
-    PCMSK |= _BV(PCINT0) | _BV(PCINT2);
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+        // Prepare the pin change interrupts.
+        GIMSK |= _BV(PCIE);
+        PCMSK |= _BV(PCINT0) | _BV(PCINT2);
 
-    // I will use the timer later if someone presses a button.
-    // Set up 1024 prescaler.
-    TCCR0B |= _BV(CS02) | _BV(CS00);
+        // I will use the timer later if someone presses a button.
+        // Set up 1024 prescaler.
+        TCCR0B |= _BV(CS02) | _BV(CS00);
 
-    // The watchdog timer is used for detecting failsafe state.
-    wdt_reset();
-    _WD_CONTROL_REG = _BV(_WD_CHANGE_BIT) | _BV(WDE);
-    // Enable WDT Interrupt, and Set Timeout to ~1 seconds,
-    _WD_CONTROL_REG = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
-    sei();
+        // The watchdog timer is used for detecting failsafe state.
+        wdt_reset();
+        _WD_CONTROL_REG = _BV(_WD_CHANGE_BIT) | _BV(WDE);
+        // Enable WDT Interrupt, and Set Timeout to ~1 seconds,
+        _WD_CONTROL_REG = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);
+    }
 
     set_sleep_mode(SLEEP_MODE_PWR_SAVE);
 

@@ -1,7 +1,7 @@
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 MICRONUCLEUS=/Users/dsal/Library/Arduino15/packages/digistump/tools/micronucleus/2.0a4/micronucleus
-CFLAGS=-Wall -Os -DF_CPU=16000000L -mmcu=attiny85
+CFLAGS=--std=c99 -Wall -Os -DF_CPU=16000000L -mmcu=attiny85
 LDFLAGS=-mmcu=attiny85
 
 failsafe.hex: failsafe.elf
