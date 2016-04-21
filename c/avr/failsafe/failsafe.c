@@ -18,7 +18,7 @@ volatile int overflows = 0;
 
 // This part of the ISR(PCINT0_vect) runs when the button pin changes.
 static inline void isr_svc_button() {
-    if (PINB & BUTTON_PIN) {
+    if (PINB & _BV(BUTTON_PIN)) {
         TIMSK &= ~_BV(TOIE0); // button is up, disable timer overflow
     } else {
         TIMSK |= _BV(TOIE0);  // button is pressed, enable overflow interupt
