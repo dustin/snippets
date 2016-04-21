@@ -2,8 +2,6 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <avr/sleep.h>
-#include <util/delay.h>
-#include <stdbool.h>
 
 #define PPM_PIN      PB0
 #define OUT_PIN      PB1
