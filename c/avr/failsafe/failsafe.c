@@ -20,7 +20,6 @@ static inline void isr_svc_button() {
         TIMSK &= ~_BV(TOIE0); // button is up, disable timer overflow
     } else {
         TIMSK |= _BV(TOIE0);  // button is pressed, enable overflow interupt
-        TCNT0 = 0;
         overflows = 0;
     }
 }
