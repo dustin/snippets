@@ -64,6 +64,8 @@ ISR(TIM0_OVF_vect) {
         PORTB |= _BV(SHUTDOWN_PIN);
 
         // No more watchdog
+        MCUSR = 0;
+        _WD_CONTROL_REG |= (1<<WDCE) | (1<<WDE);
         _WD_CONTROL_REG = 0;
 
         // Stop the timer.
