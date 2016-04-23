@@ -12,6 +12,8 @@ MCUCR = 0x35
 __zero_reg__ = 1
 prevb = 17
 overflows = 18
+tmp1 = 24
+tmp2 = 25
 
 .text
 
@@ -21,15 +23,15 @@ overflows = 18
 __vector_2:
 	wdr
 
-	in r25,PINB
-    mov r24,prevb
-    mov prevb,r25
-	eor r25,r24
+	in tmp2,PINB
+    mov tmp1,prevb
+    mov prevb,tmp2
+	eor tmp2,tmp1
 
-	sbrc r24,0  // Skip next instruction if signal has changed
-	cbi PORTB,1 // signal changed
+	sbrc tmp1,0  // Skip next instruction if signal has changed
+	cbi PORTB,1  // signal changed
 
-	sbrs r24,2 // Skip next instruction if button is not changed
+	sbrs tmp1,2 // Skip next instruction if button is not changed
 	rjmp pinChangeDone
 
 buttonChanged:
@@ -37,16 +39,16 @@ buttonChanged:
 	rjmp buttonDown
 
 buttonUp:
-	in r24,TIMSK
-	andi r24,lo8(-3)
-	out TIMSK,r24
+	in tmp1,TIMSK
+	andi tmp1,lo8(-3)
+	out TIMSK,tmp1
 	rjmp pinChangeDone
 
 buttonDown:
-	in r24,TIMSK
-	ori r24,lo8(2)
-	out TIMSK,r24
-	clr overflows
+	in tmp1,TIMSK
+	ori tmp1,lo8(2)
+	out TIMSK,tmp1
+	ldi overflows,lo8(30)
 
 pinChangeDone:
 	reti
@@ -63,58 +65,57 @@ __vector_12:
 .global	__vector_5
 	.type	__vector_5, @function
 __vector_5:
-	clr __zero_reg__
-	subi overflows,lo8(-(1))
-	cpi overflows,lo8(30)
-	brlo timerDone
+    dec overflows
+    brne timerDone
 
     // Tear it down
+	clr __zero_reg__
 	out PCMSK,__zero_reg__
 	sbi PORTB,3
 	out MCUSR,__zero_reg__
-	in r24,WDTCR
-	ori r24,lo8(24)
-	out WDTCR,r24
+	in tmp1,WDTCR
+	ori tmp1,lo8(24)
+	out WDTCR,tmp1
 	out WDTCR,__zero_reg__
 	out TIMSK,__zero_reg__
 
 timerDone:
 	reti
-	.section	.text.startup,"ax",@progbits
 
+.section	.text.startup,"ax",@progbits
 
 // Main
 .global	main
 	.type	main, @function
 main:
-	ldi r24,lo8(10)
-	out DDRB,r24
+	ldi tmp1,lo8(10)
+	out DDRB,tmp1
 	sbi PORTB,2
 
 	cli
     // Pin changes for input and button
-	in r24,GIMSK
-	ori r24,lo8(32)
-	out GIMSK,r24
-	in r24,PCMSK
-	ori r24,lo8(5)
-	out PCMSK,r24
+	in tmp1,GIMSK
+	ori tmp1,lo8(32)
+	out GIMSK,tmp1
+	in tmp1,PCMSK
+	ori tmp1,lo8(5)
+	out PCMSK,tmp1
 
     // Prescaler at clk/1024
-	in r24,TCCR0B
-	ori r24,lo8(5)
-	out TCCR0B,r24
+	in tmp1,TCCR0B
+	ori tmp1,lo8(5)
+	out TCCR0B,tmp1
 
     // And watchdog interrupts at ~1S
 	wdr
-	ldi r24,lo8(94)
-	out WDTCR,r24
+	ldi tmp1,lo8(94)
+	out WDTCR,tmp1
 	sei
 
     // Setup sleep mode
-	in r24,MCUCR
-	ori r24,lo8(24)
-    out MCUCR,r24
+	in tmp1,MCUCR
+	ori tmp1,lo8(24)
+    out MCUCR,tmp1
 
 mainLoop:
     sleep ; Put MCU in sleep mode
