@@ -93,33 +93,37 @@ main:
 	ldi r24,lo8(10)
 	out DDRB,r24
 	sbi PORTB,2
+
 	cli
+    // Pin changes for input and button
 	in r24,GIMSK
 	ori r24,lo8(32)
 	out GIMSK,r24
 	in r24,PCMSK
 	ori r24,lo8(5)
 	out PCMSK,r24
+
+    // Prescaler at clk/1024
 	in r24,TCCR0B
 	ori r24,lo8(5)
 	out TCCR0B,r24
+
+    // And watchdog interrupts at ~1S
 	wdr
 	ldi r24,lo8(94)
 	out WDTCR,r24
 	sei
+
+    // Setup sleep mode
 	in r24,MCUCR
 	ori r24,lo8(24)
+    out MCUCR,r24
 
 mainLoop:
-	out MCUCR,r24
-	in r24,MCUCR
-	ori r24,lo8(32)
-	out MCUCR,r24
-	sleep
-	in r24,MCUCR
-	andi r24,lo8(-33)
+    sleep ; Put MCU in sleep mode
 	rjmp mainLoop
-	.size	main, .-main
+
+.size	main, .-main
 
 
 .global __do_copy_data
