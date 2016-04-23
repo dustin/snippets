@@ -9,11 +9,11 @@ MCUSR = 0x34
 WDTCR = 0x21
 PCMSK = 0x15
 MCUCR = 0x35
+__zero_reg__ = 1
 prevb = 17
 overflows = 18
-__tmp_reg__ = 0
-__zero_reg__ = 1
-	.text
+
+.text
 
 // Pin change ISR
 .global	__vector_2
@@ -50,7 +50,6 @@ buttonDown:
 
 pinChangeDone:
 	reti
-	.size	__vector_2, .-__vector_2
 
 // Watchdog ISR
 .global	__vector_12
@@ -59,7 +58,6 @@ __vector_12:
 	wdr
 	sbi PORTB,1
 	reti
-	.size	__vector_12, .-__vector_12
 
 // Timer overflow ISR.
 .global	__vector_5
@@ -82,7 +80,6 @@ __vector_5:
 
 timerDone:
 	reti
-	.size	__vector_5, .-__vector_5
 	.section	.text.startup,"ax",@progbits
 
 
@@ -122,9 +119,3 @@ main:
 mainLoop:
     sleep ; Put MCU in sleep mode
 	rjmp mainLoop
-
-.size	main, .-main
-
-
-.global __do_copy_data
-.global __do_clear_bss
