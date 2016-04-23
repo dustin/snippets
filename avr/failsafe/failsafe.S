@@ -9,8 +9,8 @@ MCUSR = 0x34
 WDTCR = 0x21
 PCMSK = 0x15
 MCUCR = 0x35
-// prevb = 17
-// overflows = 18
+prevb = 17
+overflows = 18
 __tmp_reg__ = 0
 __zero_reg__ = 1
 	.text
@@ -22,17 +22,17 @@ __vector_2:
 	wdr
 
 	in r25,PINB
-	lds r24,prevb
-	eor r24,r25
-	sts prevb,r25
+    mov r24,prevb
+    mov prevb,r25
+	eor r25,r24
 
-	sbrc r24,0 // Skip next instruction if signal has changed
-	cbi PORTB,1
+	sbrc r24,0  // Skip next instruction if signal has changed
+	cbi PORTB,1 // signal changed
 
 	sbrs r24,2 // Skip next instruction if button is not changed
 	rjmp pinChangeDone
 
-    // Button changed
+buttonChanged:
 	sbis PINB,2  // Skip next instruction if button is up
 	rjmp buttonDown
 
@@ -46,7 +46,7 @@ buttonDown:
 	in r24,TIMSK
 	ori r24,lo8(2)
 	out TIMSK,r24
-	sts overflows,__zero_reg__
+	clr overflows
 
 pinChangeDone:
 	reti
@@ -66,10 +66,8 @@ __vector_12:
 	.type	__vector_5, @function
 __vector_5:
 	clr __zero_reg__
-	lds r24,overflows
-	subi r24,lo8(-(1))
-	sts overflows,r24
-	cpi r24,lo8(30)
+	subi overflows,lo8(-(1))
+	cpi overflows,lo8(30)
 	brlo timerDone
 
     // Tear it down
@@ -124,18 +122,5 @@ mainLoop:
 	.size	main, .-main
 
 
-.global	overflows
-	.section .bss
-	.type	overflows, @object
-	.size	overflows, 1
-overflows:
-	.zero	1
-.global	prevb
-	.data
-	.type	prevb, @object
-	.size	prevb, 1
-prevb:
-	.byte	-1
-	.ident	"GCC: (GNU) 4.8.1"
 .global __do_copy_data
 .global __do_clear_bss
