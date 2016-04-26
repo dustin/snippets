@@ -78,30 +78,26 @@ main:
 
     cli
     // Set up pin change interrupt
-    in tmp1,GIMSK
-    ori tmp1,lo8(32)
-    out GIMSK,r24
+    ldi tmp1,lo8(32)
+    out GIMSK,tmp1
     sbi PCMSK,0 // for pcint0
 
     // /256 prescaler
-    in tmp1,TCCR0B
-    ori tmp1,lo8(4)
+    ldi tmp1,lo8(4)
     out TCCR0B,tmp1
 
     ldi tmp1,lo8(80) // about 2.7ms
     out OCR0A,tmp1
 
     // Enable compare interrupt (a)
-    in tmp1,TIMSK
-    ori tmp1,lo8(16)
+    ldi tmp1,lo8(16)
     out TIMSK,tmp1
 
     out TCNT0,__zero_reg__
     sei
 
-    // Setup sleep mode
-    in tmp1,MCUCR
-    ori tmp1,lo8(24)
+    // Setup sleep mode (SE, idle)
+    ldi tmp1,lo8(0b100000)
     out MCUCR,tmp1
 
 mainLoop:
