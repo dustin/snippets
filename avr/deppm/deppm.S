@@ -36,9 +36,8 @@ __vector_2:
     brlo proceed
 
 earlyExit:
-    out TCNT0,__zero_reg__
     clr skip
-    rjmp donePin
+    rjmp clearTimer
 
 proceed:
     tst up
