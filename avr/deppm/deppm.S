@@ -32,7 +32,7 @@ skip = 20
 __vector_2:
     tst skip
     brne earlyExit
-    cpi current,lo8(PINMAX)
+    cpi current,lo8(0b10000)
     brlo proceed
 
 earlyExit:
@@ -47,17 +47,11 @@ proceed:
     // we're up
     dec up
     out PORTB,__zero_reg__
-    inc current
+    lsl current
     rjmp clearTimer
 
 isdown:
-    mov tmp1,__one_reg__
-    mov tmp2,current
-shifty:
-    lsl tmp1
-    dec tmp2
-    brne shifty
-    out PORTB,tmp1
+    out PORTB,current
     inc up
 
 clearTimer:
@@ -71,7 +65,7 @@ donePin:
 // Timer ISR
 __vector_10:
     out PORTB,__zero_reg__
-    mov current,__one_reg__
+    ldi current,lo8(2) // start with the second bit (PB1)
     clr up
     inc skip
     reti
