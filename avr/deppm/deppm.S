@@ -30,29 +30,28 @@ up = 19
 __vector_2:
     mov tmp1,current
     andi tmp1,lo8(0b11110)
-    breq proceed
+    breq interestingChan
 
-earlyExit:
+ignoredPin:
     lsl current
-    rjmp clearTimer
+    rjmp donePin
 
-proceed:
+interestingChan:
     tst up
     breq isdown
 
-    // we're up
+// we're up
     dec up
     out PORTB,__zero_reg__
     lsl current
-    rjmp clearTimer
+    rjmp donePin
 
 isdown:
     out PORTB,current
     inc up
 
-clearTimer:
-    out TCNT0,__zero_reg__
 donePin:
+    out TCNT0,__zero_reg__
     reti
 
 .global __vector_10
