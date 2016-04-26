@@ -96,10 +96,5 @@ main:
     out TCNT0,__zero_reg__
     sei
 
-    // Setup sleep mode (SE, idle)
-    ldi tmp1,lo8(0b100000)
-    out MCUCR,tmp1
-
 mainLoop:
-    sleep
     rjmp mainLoop
