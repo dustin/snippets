@@ -19,10 +19,8 @@ PINMAX = 5
 tmp1 = 24
 tmp2 = 25
 __zero_reg__ = 1
-__one_reg__ = 2
 current = 18
 up = 19
-skip = 20
 
     .text
 
@@ -30,13 +28,12 @@ skip = 20
 .global __vector_2
     .type   __vector_2, @function
 __vector_2:
-    tst skip
-    brne earlyExit
-    cpi current,lo8(0b10000)
-    brlo proceed
+    mov tmp1,current
+    andi tmp1,lo8(0b11110)
+    breq proceed
 
 earlyExit:
-    clr skip
+    lsl current
     rjmp clearTimer
 
 proceed:
@@ -64,9 +61,8 @@ donePin:
 // Timer ISR
 __vector_10:
     out PORTB,__zero_reg__
-    ldi current,lo8(2) // start with the second bit (PB1)
+    ldi current,lo8(1)
     clr up
-    inc skip
     reti
 
     .size   __vector_10, .-__vector_10
@@ -77,8 +73,6 @@ __vector_10:
 
 main:
     clr __zero_reg__
-    clr __one_reg__
-    inc __one_reg__
 
     ldi tmp1,lo8(0b00111110) // not the ppm pin
     out DDRB,tmp1
