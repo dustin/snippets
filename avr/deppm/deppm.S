@@ -19,49 +19,21 @@ PINMAX = 5
 tmp1 = 24
 tmp2 = 25
 __zero_reg__ = 1
+__one_reg__ = 2
+pinb = 16
+prev = 17
 current = 18
-up = 19
+out = 19
 
     .text
 
-// Pin change ISR
-.global __vector_2
-    .type   __vector_2, @function
-__vector_2:
-    mov tmp1,current
-    andi tmp1,lo8(0b11110)
-    brne interestingChan
-
-ignoredPin:
-    lsl current
-    rjmp donePin
-
-interestingChan:
-    tst up
-    breq isdown
-
-// we're up
-    dec up
-    out PORTB,__zero_reg__
-    lsl current
-    rjmp donePin
-
-isdown:
-    out PORTB,current
-    inc up
-
-donePin:
-    out TCNT0,__zero_reg__
-    reti
 
 .global __vector_10
     .type   __vector_10, @function
 
 // Timer ISR
 __vector_10:
-    out PORTB,__zero_reg__
     ldi current,lo8(1)
-    clr up
     reti
 
     .size   __vector_10, .-__vector_10
@@ -72,16 +44,13 @@ __vector_10:
 
 main:
     clr __zero_reg__
+    clr __one_reg__
+    inc __one_reg__
 
     ldi tmp1,lo8(0b00111110) // not the ppm pin
     out DDRB,tmp1
 
     cli
-    // Set up pin change interrupt
-    ldi tmp1,lo8(32)
-    out GIMSK,tmp1
-    sbi PCMSK,0 // for pcint0
-
     // /256 prescaler
     ldi tmp1,lo8(4)
     out TCCR0B,tmp1
@@ -96,5 +65,27 @@ main:
     out TCNT0,__zero_reg__
     sei
 
+    ldi current,lo8(1)
+    clr prev
+
 mainLoop:
+    in pinb,PINB
+    andi pinb,lo8(1)
+    cp prev,pinb
+    breq mainLoop
+
+changed:
+    clr out
+    cpse pinb,__zero_reg__
+    mov out, current
+
+output:
+    out PORTB,out
+
+    out TCNT0,__zero_reg__
+    mov prev,pinb
+    cpse pinb,__one_reg__
+    lsl current
+    andi current,lo8(0b11110)
+
     rjmp mainLoop
