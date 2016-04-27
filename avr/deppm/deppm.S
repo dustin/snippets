@@ -30,7 +30,7 @@ up = 19
 __vector_2:
     mov tmp1,current
     andi tmp1,lo8(0b11110)
-    breq interestingChan
+    brne interestingChan
 
 ignoredPin:
     lsl current
