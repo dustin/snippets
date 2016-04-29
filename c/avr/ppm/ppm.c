@@ -65,7 +65,7 @@ int main() {
     }
 
     for (;;) {
-        _delay_ms(10);
+        _delay_ms(3);
         emit();
     }
 }
