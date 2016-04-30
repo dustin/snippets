@@ -9,48 +9,49 @@
 #define NCHAN 8
 #define CHANSLATE(n) (n * 16)
 
-#define MINUS_0_3_MS (65536-4800)
+#define T_0_3_MS (4800)
+#define MINUS_0_3_MS (65536-T_0_3_MS)
 
 volatile uint16_t channels[] = {
     CHANSLATE(1000),
+    CHANSLATE(1100),
     CHANSLATE(1200),
+    CHANSLATE(1300),
+    CHANSLATE(1400),
     CHANSLATE(1500),
+    CHANSLATE(1600),
     CHANSLATE(1700),
-
-    CHANSLATE(2000),
-    CHANSLATE(1700),
-    CHANSLATE(1500),
-    CHANSLATE(1200),
 };
 volatile uint8_t chan = 0;
 volatile bool sending = false;
 
-ISR(TIMER1_OVF_vect) {
+// B hits first and raises the signal.
+ISR(TIMER1_COMPB_vect) {
     PORTB |= _BV(PPM_PIN);
-    if (chan > NCHAN) {
-        TIMSK1 &= ~(_BV(OCIE1A) | _BV(TOIE1));
-        PORTB |= _BV(PPM_PIN);
+    if (++chan > NCHAN) {
+        TCCR1B = 0;
         sending = false;
-    } else {
-        TIMSK1 |= _BV(OCIE1A);
     }
 }
 
+// Then A fires and lowers the signal and resets (via CTC) for the next run.
 ISR(TIMER1_COMPA_vect) {
     PORTB &= ~_BV(PPM_PIN);
-    TCNT1 = MINUS_0_3_MS;
-    OCR1A = channels[chan++];
-    TIMSK0 &= ~_BV(OCIE1A);
+    OCR1B = T_0_3_MS;
+    OCR1A = T_0_3_MS + channels[chan];
 }
 
 void emit() {
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
-        chan = 0;
-        TIMSK1 |= _BV(TOIE1);
-        OCR1A = channels[chan];
-        TCNT1 = MINUS_0_3_MS;
-        PORTB &= ~_BV(PPM_PIN);
+        // Turn up timer with /1 prescaler and CTC
+        TCCR1B = _BV(WGM02) | _BV(CS10);
         sending = true;
+        chan = 0;
+        TCNT1 = 0;
+
+        PORTB &= ~_BV(PPM_PIN);
+        OCR1B = T_0_3_MS;
+        OCR1A = T_0_3_MS + channels[chan];
     }
     while (sending) {}
 }
@@ -60,8 +61,7 @@ int main() {
     DDRB |= _BV(PPM_PIN);
 
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
-        // Set up /1 prescaler.
-        TCCR1B |= _BV(CS10);
+        TIMSK1 |= _BV(OCIE1A) | _BV(OCIE1B);
     }
 
     for (;;) {
