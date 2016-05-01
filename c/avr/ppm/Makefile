@@ -1,11 +1,12 @@
+MCU=atmega328p
 CC=avr-gcc
 OBJCOPY=avr-objcopy
-CFLAGS=--std=c99 -Wall -Os -DF_CPU=16000000L -mmcu=atmega328p
-LDFLAGS=-mmcu=atmega328p
+CFLAGS=--std=c99 -Wall -Os -DF_CPU=16000000L -mmcu=$(MCU)
+LDFLAGS=-mmcu=$(MCU)
 
 ppm.hex: ppm.elf
 	avr-objcopy -j .text -j .data -O ihex ppm.elf ppm.hex
-	avr-size --format=avr --mcu=attiny85 ppm.elf
+	avr-size --format=avr --mcu=$(MCU) ppm.elf
 
 ppm.elf: ppm.o
 	${CC} $(LDFLAGS) -o ppm.elf ppm.o
@@ -18,4 +19,4 @@ clean:
 
 install: ppm.hex
 	# avrdude -c usbtiny -p t85 -U flash:w:ppm.hex:i
-	avrdude -v -p atmega328p -c arduino -P /dev/tty.SLAB_USBtoUART -b 57600 -D -U flash:w:ppm.hex:i
+	avrdude -v -p $MCU -c arduino -P /dev/tty.SLAB_USBtoUART -b 57600 -D -U flash:w:ppm.hex:i
