@@ -9,8 +9,8 @@
 #define NCHAN 8
 #define CHANSLATE(n) (n * 16)
 
-#define T_0_3_MS (4800)
-#define MINUS_0_3_MS (65536-T_0_3_MS)
+#define T_0_3_MS (F_CPU * 0.0003)
+#define MINUS_0_3_MS (0xffff-T_0_3_MS)
 
 volatile uint16_t channels[] = {
     CHANSLATE(1000),
@@ -29,16 +29,20 @@ volatile bool sending = false;
 ISR(TIMER1_COMPB_vect) {
     PORTB |= _BV(PPM_PIN);
     if (++chan > NCHAN) {
-        TCCR1B = 0;
+        TCCR1B = 0; // disable timer
         sending = false;
     }
 }
 
-// Then A fires and lowers the signal and resets (via CTC) for the next run.
-ISR(TIMER1_COMPA_vect) {
+static void inline prepChannel() {
     PORTB &= ~_BV(PPM_PIN);
     OCR1B = T_0_3_MS;
     OCR1A = T_0_3_MS + channels[chan];
+}
+
+// Then A fires and lowers the signal and resets (via CTC) for the next run.
+ISR(TIMER1_COMPA_vect) {
+    prepChannel();
 }
 
 void emit() {
@@ -49,9 +53,7 @@ void emit() {
         chan = 0;
         TCNT1 = 0;
 
-        PORTB &= ~_BV(PPM_PIN);
-        OCR1B = T_0_3_MS;
-        OCR1A = T_0_3_MS + channels[chan];
+        prepChannel();
     }
     while (sending) {}
 }
