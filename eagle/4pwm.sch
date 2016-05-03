@@ -794,8 +794,8 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <part name="VCC" library="wirepad" deviceset="SMD2" device="" value="5V"/>
 <part name="PPM" library="wirepad" deviceset="SMD2" device=""/>
 <part name="CH1" library="wirepad" deviceset="SMD2" device=""/>
-<part name="CH2" library="wirepad" deviceset="SMD2" device=""/>
 <part name="CH3" library="wirepad" deviceset="SMD2" device=""/>
+<part name="CH2" library="wirepad" deviceset="SMD2" device=""/>
 <part name="CH4" library="wirepad" deviceset="SMD2" device=""/>
 <part name="VCC1" library="wirepad" deviceset="SMD2" device=""/>
 <part name="VCC2" library="wirepad" deviceset="SMD2" device=""/>
@@ -825,11 +825,11 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <attribute name="NAME" x="79.883" y="59.1058" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="74.803" y="61.722" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="CH2" gate="1" x="73.66" y="53.34" smashed="yes" rot="R180">
+<instance part="CH3" gate="1" x="73.66" y="53.34" smashed="yes" rot="R180">
 <attribute name="NAME" x="79.883" y="54.0258" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="74.803" y="56.642" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="CH3" gate="1" x="73.66" y="55.88" smashed="yes" rot="R180">
+<instance part="CH2" gate="1" x="73.66" y="55.88" smashed="yes" rot="R180">
 <attribute name="NAME" x="79.883" y="56.5658" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="74.803" y="59.182" size="1.778" layer="96" rot="R180"/>
 </instance>
@@ -936,14 +936,14 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <net name="N$5" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="PB2(SCK/ADC1)"/>
-<pinref part="CH3" gate="1" pin="P"/>
+<pinref part="CH2" gate="1" pin="P"/>
 <wire x1="63.5" y1="55.88" x2="71.12" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$6" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="PB3(ADC3)"/>
-<pinref part="CH2" gate="1" pin="P"/>
+<pinref part="CH3" gate="1" pin="P"/>
 <wire x1="63.5" y1="53.34" x2="71.12" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
