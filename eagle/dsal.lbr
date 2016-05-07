@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -111,6 +111,9 @@
 </symbols>
 <devicesets>
 <deviceset name="CC2500-NOANT">
+<description>Radio module from AliExpress.
+
+http://www.aliexpress.com/item/CC2500-SPI-2-4GHz-Wireless-Transceiver-Module/32610339676.html</description>
 <gates>
 <gate name="G$1" symbol="CC2500-NOANT" x="0" y="0"/>
 </gates>
