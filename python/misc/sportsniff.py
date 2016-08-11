@@ -81,16 +81,16 @@ def cksum(a):
     return val
 
 def dump(a):
-    ' '.join("0x%02x" % x for x in a)
+    return ' '.join("0x%02x" % x for x in a)
 
-def decodeValue(a):
+def decodeValue(t, a):
     # 0x10 (8bit data frame header)
     # value_type (16 bit, e.g. voltage / speed)
     # value (32 bit, may be signed or unsigned depending on value type)
     # checksum (8 bit)
 
     if a[0] != 0x10:
-        return "unknown msg: %s" % dump(a)
+        return "unknown msg: %s at %s" % (dump(a), t)
 
     s = ''.join(chr(x) for x in a)
     vtype, val = struct.unpack("<hl", s[1:7])
@@ -116,7 +116,7 @@ while True:
             if cksum(datas) != 0xff:
                 print "Checksum failure: %s" % dump(datas)
             else:
-                print "> %s" % decodeValue(datas)
+                print "> %s" % decodeValue(t, datas)
         datas = []
 
     prev = t
