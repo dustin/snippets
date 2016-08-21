@@ -11,7 +11,6 @@ import (
 	"path"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -33,7 +32,7 @@ func getWriter(p string) (*csv.Writer, error) {
 	if ok {
 		return cw, nil
 	}
-	w, err := os.OpenFile(path.Join(*logdir, fn), os.O_APPEND|syscall.O_CREAT, 0666)
+	w, err := os.OpenFile(path.Join(*logdir, fn), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
 	}
