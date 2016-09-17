@@ -2,7 +2,7 @@
 
 #define outputPin 0
 #define pwmPin A3
-#define LEDCount 100
+#define LEDCount 60
 
 #define FRAMES_PER_SECOND 120
 #define BRIGHTNESS        96
