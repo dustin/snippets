@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+eventid=$1
+fn=$2
+
+mkdir -p /tmp/motion/processed
+
+bn=`basename $fn .avi`
+
+nice avconv -v error -i $fn -o $bn.mp4
+mv $fn /tmp/motion/processed
+
+echo "Saved vid $bn.mp4" | logger -t motion
+
+

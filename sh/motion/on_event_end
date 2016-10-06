@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "Completed event $1" | logger -t motion

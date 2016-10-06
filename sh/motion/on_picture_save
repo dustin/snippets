@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "Saved pic $2 in event $1" | logger -t motion

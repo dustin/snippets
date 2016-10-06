@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo Motion detected $1 - $2 | logger -t motion
