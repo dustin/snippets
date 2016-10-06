@@ -5,11 +5,11 @@ fn=$2
 
 mkdir -p /tmp/motion/processed
 
+dn=`dirname $fn`
 bn=`basename $fn .avi`
+nn="$dn/$bn.mp4"
 
-nice avconv -v error -i $fn -o $bn.mp4
+avconv -v error -i $fn $nn
 mv $fn /tmp/motion/processed
 
-echo "Saved vid $bn.mp4" | logger -t motion
-
-
+echo "Saved vid $nn" | logger -t motion
