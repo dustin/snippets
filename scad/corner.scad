@@ -15,8 +15,8 @@ module poly(x1, x2, x3, y1, y2, z1, z2) {
 }
 
 module vase(w, h, d, t) {
-    ih = (d - (2*t)) / tan(atan(d/h));
-    iw = (d - (2*t)) / tan(atan(d / (w/2)));
+    ih = (d - (2*t)) / (d/h);
+    iw = (d - (2*t)) / (d / (w/2));
     difference() {
         poly(0, w/2, -w/2, 0, d, 0, h);
         poly(0, iw-t, -iw+t, t, d-(2*t), h-ih, h);
