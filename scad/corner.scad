@@ -40,12 +40,11 @@ module vase(w, h, d, t) {
     }
 }
 
-difference() {
-    w=40;
-    h=50;
-    d=25;
-    t=1.5;
-
-    vase(w, h, d, t);
-    translate([0, t-.20001, h*.75]) nailmount(t-.2);
+module vase_with_nailmount(w, h, d, t) {
+    difference() {
+        vase(w, h, d, t);
+        translate([0, t-.20001, h*.75]) nailmount(t-.2);
+    }
 }
+
+vase_with_nailmount(40, h=50, d=25, t=1.5);
