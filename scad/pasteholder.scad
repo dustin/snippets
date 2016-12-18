@@ -1,5 +1,18 @@
 $fn=30;
 
+module countersunk(h) {
+    translate([-0.01, 0, 0])
+    rotate([0, 90, 0])
+        cylinder(d1=2, d2=4, h=h+.1);
+}
+
+module support(t) {
+    difference() {
+        cube([t, 2, t]);
+        rotate([0, 45, 0]) translate([0, -.1, 0]) cube([t*2, 2.2, t*2]);
+    }
+}
+
 module holder(d, h, t) {
     translate([d/2+2*PI+h/2, 0, 0])
         difference() {
@@ -10,7 +23,16 @@ module holder(d, h, t) {
             cylinder(d=d, h=h+1, center=true);
         }
  
-    translate([0, -(d+t)/2, -25]) cube([h, d+t, 25]);
+    translate([0, -(d+t)/2, -25])
+            difference() {
+                cube([h, d+t, 25]);
+                translate([0, t, 18]) countersunk(h);
+                translate([0, d, 18]) countersunk(h);
+
+            }
+
+    translate([2, -d+t+.5, -t-1]) support(t);
+    translate([2, d-t-2.5, -t-1]) support(t);
 }
 
 holder(19, 2, 6);
