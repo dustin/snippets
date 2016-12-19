@@ -13,7 +13,7 @@ module support(t) {
     }
 }
 
-module holder(d, h, t) {
+module holder(d, h, t, hh=25) {
     translate([d/2+2*PI+h/2, 0, 0])
         difference() {
             hull() {
@@ -23,11 +23,11 @@ module holder(d, h, t) {
             cylinder(d=d, h=h+1, center=true);
         }
  
-    translate([0, -(d+t)/2, -25])
+    translate([0, -(d+t)/2, -hh])
             difference() {
-                cube([h, d+t, 25]);
-                translate([0, t, 18]) countersunk(h);
-                translate([0, d, 18]) countersunk(h);
+                cube([h, d+t, hh]);
+                translate([0, t, hh-7]) countersunk(h);
+                translate([0, d, hh-7]) countersunk(h);
 
             }
 
@@ -35,4 +35,4 @@ module holder(d, h, t) {
     translate([2, d-t-2.5, -t-1]) support(t);
 }
 
-holder(19, 2, 6);
+holder(19, 2, 6, 25);
