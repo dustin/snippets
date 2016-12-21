@@ -1,4 +1,10 @@
-$fn = 50;
+$fn=30 * 1;
+
+width=80;    // [25:200]
+height=70;   // [25:200]
+depth=40;    // [5:200]
+thickness=2; // [0.5:5]
+with_nailmount="yes"; // [yes,no]
 
 module poly(x1, x2, x3, y1, y2, z1, z2) {
     polyhedron(
@@ -47,4 +53,8 @@ module vase_with_nailmount(w, h, d, t) {
     }
 }
 
-vase_with_nailmount(40, h=50, d=25, t=1.5);
+if (with_nailmount == "yes") {
+    vase_with_nailmount(width, h=height, d=depth, t=thickness);
+} else {
+    vase(width, h=height, d=depth, t=thickness);
+}
