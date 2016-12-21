@@ -42,7 +42,7 @@ module vase(w, h, d, t) {
     iw = (d - (2*t)) / (d / (w/2));
     difference() {
         poly(0, w/2, -w/2, 0, d, 0, h);
-        poly(0, iw-t, -iw+t, t, d-(2*t), h-ih, h);
+        poly(0, iw-t, -iw+t, t, d-(2*t), h-ih, h+.1);
     }
 }
 
