@@ -40,9 +40,11 @@ module nailmount(d) {
 module vase(w, h, d, t) {
     ih = (d - (2*t)) / (d/h);
     iw = (d - (2*t)) / (d / (w/2));
-    difference() {
-        poly(0, w/2, -w/2, 0, d, 0, h);
-        poly(0, iw-t, -iw+t, t, d-(2*t), h-ih, h+.1);
+    rotate([90, 0, 0]) {
+        difference() {
+            poly(0, w/2, -w/2, 0, d, 0, h);
+            poly(0, iw-t, -iw+t, t, d-(2*t), h-ih, h+.1);
+        }
     }
 }
 
