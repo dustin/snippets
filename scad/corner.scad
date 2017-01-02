@@ -4,7 +4,7 @@ width=80;    // [25:200]
 height=70;   // [25:200]
 depth=40;    // [5:200]
 thickness=2; // [0.5:5]
-with_nailmount="yes"; // [yes,no]
+with_nailmount="no"; // [yes,no]
 
 module poly(x1, x2, x3, y1, y2, z1, z2) {
     polyhedron(
