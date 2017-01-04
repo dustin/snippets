@@ -1,7 +1,7 @@
 $fn=30;
 
 module diamond(w, w2, h1, h2) {
-    $fn=8;
+    $fn=9;
     cylinder(d1=0, d2=w, h=h1);
     translate([0, 0, h1]) cylinder(d1=w, d2=w2, h=h2);
 }
