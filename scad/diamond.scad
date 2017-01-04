@@ -9,7 +9,7 @@ module diamond(w, w2, h1, h2) {
 module dvase(w, w2, h1, h2) {
     difference() {
             diamond(w, w2, h1, h2);
-            translate([0, 0, 1]) resize([w-2, w-2, h1+h2-1.5]) diamond(w, w2, h1, h2);
+            translate([0, 0, 2]) diamond(w-2, w2-2, h1-2, h2);
             translate([0, 0, h1]) cylinder(d=w2-4, h=h2+.1);
     }
 }
