@@ -1,18 +1,19 @@
 $fn=40;
 
 iwidth=3.7;
-ilen=5.1;
+ilen=5.5;
+iheight=7;
 
 module interior() {
     hull() {
-        translate([ilen, 0, 0]) cylinder(d=iwidth, h=6.5, center=true);
-        cube([iwidth, iwidth, 6.5], center=true);
+        translate([ilen, 0, 0]) cylinder(d=iwidth, h=iheight, center=true);
+        cube([iwidth, iwidth, iheight], center=true);
     }
 }
 
 module xt30() {
     difference() {
-        resize([ilen+iwidth+1, 5, 6.5+.4]) interior();
+        resize([ilen+iwidth+1, 5, iheight+.4]) interior();
         translate([.25, 0, -.25]) interior();
     }
 
