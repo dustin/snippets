@@ -1,20 +1,27 @@
 $fn=40;
 
+iwidth=3.7;
+ilen=5.1;
+
 module interior() {
     hull() {
-        translate([5, 0, 0]) cylinder(d=3.7, h=6.5, center=true);
-        cube([3.7, 3.7, 6.5], center=true);
+        translate([ilen, 0, 0]) cylinder(d=iwidth, h=6.5, center=true);
+        cube([iwidth, iwidth, 6.5], center=true);
     }
 }
 
-difference() {
-    resize([3.7+6, 5, 6.5+.4]) interior();
-    translate([.25, 0, -.25]) interior();
-}
+module xt30() {
+    difference() {
+        resize([ilen+iwidth+1, 5, 6.5+.4]) interior();
+        translate([.25, 0, -.25]) interior();
+    }
 
-translate([0, 0, 3]) {
-    hull() {
-        cube([3.7+1, 3.7+2, 1], center=true);
-        translate([5, 0, 0]) cylinder(d=3.7+2, h=1, center=true);
+    translate([0, 0, 3]) {
+        hull() {
+            cube([iwidth+1, iwidth+2, 1], center=true);
+            translate([ilen+.2, 0, 0]) cylinder(d=iwidth+2, h=1, center=true);
+        }
     }
 }
+
+rotate([0, 180, 0]) xt30();
