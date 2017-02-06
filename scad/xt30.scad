@@ -1,28 +1,28 @@
 $fn=40;
 
-iwidth=3.7;
-ilen=5.5;
-iheight=7;
-
-module interior() {
+module xtbase(l, w, h) {
     hull() {
-        translate([ilen, 0, 0]) cylinder(d=iwidth, h=iheight, center=true);
-        cube([iwidth, iwidth, iheight], center=true);
+        translate([l, 0, 0]) cylinder(d=w, h=h, center=true);
+        cube([w, w, h], center=true);
     }
 }
 
-module xt30() {
+module xt(l, w, h) {
     difference() {
-        resize([ilen+iwidth+1, 5, iheight+.4]) interior();
-        translate([.25, 0, -.25]) interior();
+        resize([l+w+1, 5, h+.4]) xtbase(l, w, h);
+        translate([.25, 0, -.25]) xtbase(l, w, h);
     }
 
     translate([0, 0, 3]) {
         hull() {
-            cube([iwidth+1, iwidth+2, 1], center=true);
-            translate([ilen+.2, 0, 0]) cylinder(d=iwidth+2, h=1, center=true);
+            cube([w+1, w+2, 1], center=true);
+            translate([l+.2, 0, 0]) cylinder(d=w+2, h=1, center=true);
         }
     }
 }
 
-rotate([0, 180, 0]) xt30();
+module xt30() {
+    rotate([0, 180, 0]) xt(5.5, 3.7, 7);
+}
+
+xt30();
