@@ -14,4 +14,4 @@ module dvase(w, w2, h1, h2) {
     }
 }
 
-dvase(50, 32, 35, 10);
+rotate([180, 0, 0]) dvase(50, 32, 35, 10);
