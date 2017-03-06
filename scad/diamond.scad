@@ -1,7 +1,17 @@
-$fn=30;
+// Width of the wider part.
+width1 = 50;
+// Width of the opening.
+width2 = 32;
+// Distance from the point to the widest part.
+height1 = 35;
+// Distance from the widest part to the opening.
+height2 = 10;
+// Number of sides/points.
+sides = 9; // [3:15]
+
 
 module diamond(w, w2, h1, h2) {
-    $fn=9;
+    $fn=sides;
     cylinder(d1=0, d2=w, h=h1);
     translate([0, 0, h1]) cylinder(d1=w, d2=w2, h=h2);
 }
@@ -14,4 +24,4 @@ module dvase(w, w2, h1, h2) {
     }
 }
 
-rotate([180, 0, 0]) dvase(50, 32, 35, 10);
+rotate([180, 0, 0]) dvase(width1, width2, height1, height2);
