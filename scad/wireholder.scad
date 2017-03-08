@@ -1,4 +1,5 @@
-$fn = 120;
+$fa = 2;
+$fs = 0.5;
 smooth = 0;
 
 // Thanks, http://kitwallace.tumblr.com/post/87637876144/list-comprehension-in-openscad
