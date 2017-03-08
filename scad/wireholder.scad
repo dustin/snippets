@@ -22,7 +22,7 @@ module wireholder(width, gap) {
 
 
 if (smooth > 0) {
-    minkowski() wireholder(25, 5); sphere(smooth);
+    minkowski() wireholder(25, 5) sphere(smooth);
 } else {
     wireholder(25, 5);
 }
