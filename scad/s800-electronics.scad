@@ -22,21 +22,18 @@ module fcmount() {
     }
 }
 
-module mirror_over_plate() {
+module mirror_over_plate(pw=plate_width) {
     children();
-    translate([plate_width/2, 0, 0])
-        mirror([1, 0, 0])
-            translate([-plate_width/2, 0, 0])
-                children();
+    translate([pw/2, 0, 0]) mirror([1, 0, 0]) translate([-pw/2, 0, 0]) children();
 }
 
 module pdbmount() {
     difference() {
         cube([50.5, 20.5, .5]);
         translate([0, 5, -.1]) cube([50.5, 11, .7]);
-        for(i = [[0, 0], [0, 1], [1, 1], [1, 0]]) {
-            translate([1.5 + i[0] * 47.5, 1.5 + i[1] * 17.5, -.1])
-                cylinder(d=1.5, h=thickness+.2);
+        mirror_over_plate(50.5) {
+            translate([2, 2, -.1]) cylinder(d=1.5, h=thickness+.2);
+            translate([50.5-2, 20.5-2, -.1]) cylinder(d=1.5, h=thickness+.2);
         }
     }
 }
@@ -89,7 +86,7 @@ module s800mount() {
         // Servo Wires
         mirror_over_plate() {
             translate([7, plate_height-2.2, -.1])
-                roundish_cube(7, 2.4, thickness+.2, 1);
+                roundish_cube(6, 2.4, thickness+.2, 1);
         }
     }
 
