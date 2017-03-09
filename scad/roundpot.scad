@@ -1,4 +1,5 @@
-$fn = 60;
+$fa = 2;
+$fs = 0.5;
 
 module halfcone(d1, d2, h) {
     difference() {
