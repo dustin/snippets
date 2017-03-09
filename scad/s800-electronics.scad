@@ -71,10 +71,19 @@ module roundish_cube(x, y, z, d) {
     }
 }
 
+module roundtop_cube(w, l, d) {
+    r=d;
+    points=[[r, r], [w-r, r], [w-r, l-r], [r, l-r]];
+    hull() difference() {
+        for(i = points) { translate(i) sphere(r=r); }
+        translate([0, 0, -2*r]) cube([w, l, r*2]);
+    }
+}
+
 module s800mount() {
     difference() {
         // Main board
-        cube([plate_width, plate_height, thickness]);
+        roundtop_cube(plate_width, plate_height, thickness);
         // Punch out a hole for the PDB mount
         translate([34.75, 10.75, -.1]) cube([50.5, 20.5, thickness+.2]);
         // Add the space for the honeycomb.
