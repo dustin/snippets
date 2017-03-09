@@ -16,6 +16,7 @@ function fccenter(x, y, z) = [(x/2) - (FCDIST/2), (y/2) - (FCDIST/2), z];
 module fcmount(h) {
     for(i = [[0, 0], [0, 1], [1, 1], [1, 0]]) {
         translate([i[0]*FCDIST, i[1]*FCDIST, 0]) {
+            cylinder(h=2, d1=7.5, d2=5.5);
             difference() {
                 cylinder(h=h, d=5.5);
                 translate([0, 0, 1]) cylinder(h=h-.9, d=3);
