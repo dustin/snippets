@@ -1,3 +1,7 @@
+// Electronics plate for an S800 Sky Shadow.
+//
+// https://github.com/dustin/snippets/blob/master/scad/s800-electronics.scad
+
 include <threads.scad>
 
 $fa=2;
