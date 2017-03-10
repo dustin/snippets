@@ -116,8 +116,8 @@ module s800mount() {
         }
         // Servo Wires
         mirror_over_plate() {
-            translate([7, plate_height-2.4-thickness, -.1])
-                antiround_slab(6, 2.4, thickness+.2);
+            translate([5, plate_height-2.4-thickness, -.1])
+                antiround_slab(7.5, 2.4, thickness+.2);
         }
     }
 
