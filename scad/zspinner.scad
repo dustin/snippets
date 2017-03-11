@@ -5,12 +5,18 @@ thickness = 7;
 armlen = 50;
 r608 = 22;
 
+module fillet(r) { offset(r = -r) { offset(delta = r) { children(); } } }
+
 module z() {
-    for(i = [[[0, 0], [armlen, 0]],
-            [[armlen, 0], [0, -armlen]],
-            [[0,  -armlen], [armlen, -armlen]]]) {
-        hull() for(s = i) {
-            translate([s[0], s[1], 0]) cylinder(d=r608+4, h=thickness);
+    linear_extrude(thickness) {
+        fillet(2) {
+            for(i = [[[0, 0], [armlen, 0]],
+                     [[armlen, 0], [0, -armlen]],
+                     [[0,  -armlen], [armlen, -armlen]]]) {
+                hull() for(s = i) {
+                    translate([s[0], s[1], 0]) circle(d=r608+4, h=thickness);
+                }
+            }
         }
     }
 }
