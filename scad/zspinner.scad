@@ -2,7 +2,7 @@
 $fa=2;
 $fs=.02;
 thickness = 7;
-armlen = 50;
+armlen = 45;
 r608 = 22;
 
 module fillet(r) { offset(r = -r) { offset(delta = r) { children(); } } }
