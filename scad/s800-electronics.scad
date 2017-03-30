@@ -101,7 +101,8 @@ module pdbmount() {
 
 // This is the section I want honeycombed.
 module honeycombable(h) {
-    points = [[2, 2], [15, 11.5], [15, 32], [2, plate_height-2]];
+    points = [[2, 2], [22, 2], [15, 11.5], [15, 32],
+        [22, plate_height-2], [2, plate_height-2]];
     mirror_over_plate() linear_extrude(h) polygon(points);
 }
 
