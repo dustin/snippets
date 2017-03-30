@@ -8,7 +8,7 @@ $fa=2;
 $fs=.05;
 
 FCDIST = 30.5; // Distance between the center of two drill holes in a FC.
-plate_width = 120; // Overall electronics plate width.
+plate_width = 90; // Overall electronics plate width.
 plate_height = 42; // Overall electronics plate height.
 thickness = 1.5;   // Electronics plate thickness.
 
@@ -101,7 +101,7 @@ module pdbmount() {
 
 // This is the section I want honeycombed.
 module honeycombable(h) {
-    points = [[2, 2], [32, 11.5], [32, 32], [2, plate_height-2]];
+    points = [[2, 2], [15, 11.5], [15, 32], [2, plate_height-2]];
     mirror_over_plate() linear_extrude(h) polygon(points);
 }
 
@@ -111,25 +111,20 @@ module s800mount() {
         // Main board
         roundtop_slab(plate_width, plate_height, thickness);
         // Punch out a hole for the PDB mount
-        translate([34.75, 10.75, -.1]) cube([50.5, 20.5, thickness+.2]);
+        translate([19.75, 10.75, -.1]) cube([50.5, 20.5, thickness+.2]);
         // Add the space for the honeycomb.
         translate([0, 0, -.1]) honeycombable(thickness+.2);
         // ESC Wires
         translate([plate_width/2-10, plate_height-thickness-3.5, -.1]) {
             antiround_slab(20, 3.5, thickness+.2);
         }
-        // Servo Wires
-        mirror_over_plate() {
-            translate([5, plate_height-2.4-thickness, -.1])
-                antiround_slab(7.5, 2.4, thickness+.2);
-        }
     }
 
     // add the PDB mount.
-    translate([34.75, 10.75, 0]) pdbmount();
+    translate([19.75, 10.75, 0]) pdbmount();
 
     // Add a place to put the flight controller.
-    translate(fccenter(plate_width, plate_height, thickness)) fcmount(7);
+    translate(fccenter(plate_width, plate_height, thickness)) fcmount(9);
     
     // Shove the honeycomb in.  Render is required for preview.
     render() intersection() {
