@@ -18,6 +18,14 @@ width=50; // [20:200]
 $fa=2 * 1;
 $fs=.02 * 1;
 
+// These aren't exposed in configurator, but make it a lot easier to understand what's going on below.
+thickness = 5 * 1;
+halfthick = thickness / 2;
+doweldiam = 9 * 1;
+dowelout = doweldiam * 1.666666666666666;
+halfdowelout = dowelout/2;
+
+
 module line(points=[], width=1) {
     for(i = [1:len(points)-1]) {
         hull() {
@@ -30,16 +38,16 @@ module line(points=[], width=1) {
 module athing() {
     difference() {
         linear_extrude(10) {
-            line([[depth, 0], [0, 0], [0, height], [15, height]], width=5);
-            translate([15, height]) rotate([0, 0, angle])
-                line([[0, 0], [0, -holder_len], [holder_depth, -holder_len]], width=5);
-            translate([15/2, 15/2-2.5]) circle(d=15);
-            translate([depth-7.5+15/2, 15/2-2.5]) circle(d=15);
-            translate([1+15/2, height-5]) circle(d=15);
+            line([[depth, 0], [0, 0], [0, height], [dowelout, height]], width=thickness);
+            translate([dowelout, height]) rotate([0, 0, angle])
+                line([[0, 0], [0, -holder_len], [holder_depth, -holder_len]], width=thickness);
+            translate([halfdowelout, halfdowelout-halfthick]) circle(d=dowelout);
+            translate([depth, halfdowelout-halfthick]) circle(d=dowelout);
+            translate([1+halfdowelout, height - dowelout*.4]) circle(d=dowelout);
         }
-        translate([15/2, 15/2-2.5, 7]) cylinder(d=9, h=8, center=true);
-        translate([depth-7.5 + 15/2, 15/2-2.5, 7]) cylinder(d=9, h=8, center=true);
-        translate([1 + 15/2, height-12.5 + 15/2, 7]) cylinder(d=9, h=8, center=true);
+        translate([halfdowelout, halfdowelout-halfthick, 7]) cylinder(d=doweldiam, h=8, center=true);
+        translate([depth, halfdowelout-halfthick, 7]) cylinder(d=doweldiam, h=8, center=true);
+        translate([1 + halfdowelout, height-dowelout*.4, 7]) cylinder(d=doweldiam, h=8, center=true);
     }
 }
 
@@ -49,6 +57,6 @@ if (part == "left") {
     athing();
 } else if (part == "dowels") {
     for(i = [0, 15, 30]) {
-        translate([i, 0]) cylinder(d=9, h=width);
+        translate([i, 0]) cylinder(d=doweldiam, h=width);
     }
 }
