@@ -18,37 +18,21 @@ width=50; // [20:200]
 $fa=2 * 1;
 $fs=.02 * 1;
 
-module dupmirror() {
-    children();
-    mirror() children();
+module line(points=[], width=1) {
+    for(i = [1:len(points)-1]) {
+        hull() {
+            translate([points[i-1][0], points[i-1][1]]) circle(d=width);
+            translate([points[i][0], points[i][1]]) circle(d=width);
+        }
+    }
 }
 
 module athing() {
     difference() {
         linear_extrude(10) {
-            hull() {
-                circle(d=5);
-                translate([0, height]) circle(d=5);
-            }
-            hull() {
-                translate([0, height]) circle(d=5);
-                translate([15, height]) circle(d=5);
-            }
-            hull() {
-                circle(d=5);
-                translate([depth, 0]) circle(d=5);
-            }
-            translate([15, height])
-            rotate([0, 0, angle]) {
-                hull() {
-                    circle(d=5);
-                    translate([0, -holder_len, 0]) circle(d=5);
-                }
-                hull() {
-                    translate([holder_depth, -holder_len, 0]) circle(d=5);
-                    translate([0, -holder_len, 0]) circle(d=5);
-                }
-            }
+            line([[depth, 0], [0, 0], [0, height], [15, height]], width=5);
+            translate([15, height]) rotate([0, 0, angle])
+                line([[0, 0], [0, -holder_len], [holder_depth, -holder_len]], width=5);
             translate([15/2, 15/2-2.5]) circle(d=15);
             translate([depth-7.5+15/2, 15/2-2.5]) circle(d=15);
             translate([1+15/2, height-5]) circle(d=15);
