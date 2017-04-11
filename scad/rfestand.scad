@@ -29,5 +29,5 @@ module athing() {
     }
 }
 
-dupmirror() translate([20, 0])
+dupmirror() translate([5, 0])
 athing();
