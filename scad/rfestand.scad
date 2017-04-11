@@ -1,12 +1,23 @@
 include <line2d.scad>;
 include <polyline2d.scad>;
 
-$fa=2;
-$fs=.02;
+$fa=2 * 1;
+$fs=.02 * 1;
+
+angle=20;
+height=100;
+depth=60;
+holder_len=65;
+holder_depth=21;
 
 module dupmirror() {
     children();
     mirror() children();
+}
+
+module rotate_at(angles, pos=[0, 0]) {
+    translate(pos) rotate(angles) translate([-pos[0], -pos[1], -pos[2]])
+        children();
 }
 
 module athing() {
@@ -15,17 +26,20 @@ module athing() {
             union() {
             translate([2, 2])
                 polyline2d(points = [
-                               [65, 0],
-                               [0, 0], [0, 96], [12, 96], [36, 30],
-                               [65, 41]], width = 5);
+                               [depth, 0],
+                               [0, 0], [0, height-4], [12, height-4]], width=5,
+                    startingStyle="CAP_ROUND", endingStyle="CAP_ROUND");
 
-            square([15, 15]);
-            translate([55, 0]) square([15, 15]);
-            polygon([[0, 85], [0, 98], [15, 98], [20, 85]]);
+            translate([15/2, 15/2]) circle(d=15);
+            translate([depth-5+15/2, 15/2-.5]) circle(d=15);
+            translate([1+15/2, height-7]) circle(d=15);
+            rotate_at([0, 0, angle], [14, height-2])
+                polyline2d(points=[[14, height-2], [14, height-holder_len], [14+holder_depth, height-holder_len]], width=5,
+                    startingStyle="CAP_ROUND", endingStyle="CAP_ROUND");
         }
         translate([15/2, 15/2, 7]) cylinder(d=9, h=8, center=true);
-        translate([55 + 15/2, 15/2, 7]) cylinder(d=9, h=8, center=true);
-        translate([1 + 15/2, 86 + 15/2, 7]) cylinder(d=9, h=8, center=true);
+        translate([depth-5 + 15/2, 15/2, 7]) cylinder(d=9, h=8, center=true);
+        translate([1 + 15/2, height-14 + 15/2, 7]) cylinder(d=9, h=8, center=true);
     }
 }
 
