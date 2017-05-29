@@ -29,8 +29,8 @@ module gopro() {
 
 module hook() {
     difference() {
-        cube([4.5, 7, 4.5]);
-        translate([2.25, -.05, -1]) cube([4.5, 7.1, 4.5]);
+        cube([4.5, 6, 4.5]);
+        translate([2.25, -.05, -1]) cube([4.5, 6.1, 4.5]);
     }
 }
 
