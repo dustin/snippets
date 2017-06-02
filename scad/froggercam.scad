@@ -25,7 +25,7 @@ module mainbody() {
             // walls
             intersection() {
                 union() {
-                    dupmirror() translate([length/2, width/2-3/2, height/2]) cube([length, 3, height], center=true);
+                    dupmirror() translate([(length+4.5)/2, width/2-3/2, height/2]) cube([length+4.5, 3, height], center=true);
                     // fillet
                     dupmirror() {
                         difference() {
@@ -38,19 +38,22 @@ module mainbody() {
                 }
                 // Rounding mask
                 union() {
-                    translate([17, 20, 15.5]) rotate([90, 0, 0]) cylinder(d=9, h=40);
-                    translate([0, -20, 0]) cube([17, 40, height]);
-                    translate([-23.3, -20, 17]) rotate([0, 30, 0]) cube([40, 40, 20]);
+                    translate([length, 20, 15.5]) rotate([90, 0, 0]) cylinder(d=9, h=40);
+                    translate([0, -20, 0]) cube([length, 40, height]);
+                    translate([-length, -20, 17]) rotate([0, 30, 0]) cube([40, 40, 20]);
                 }
             }
         }
         // Angle to slice off the back
-        translate([-.2, -20, -23]) rotate([0, 30, 0]) cube(40);
+        translate([-6.2, -20, -17.2]) rotate([0, 45, 0]) cube(40);
         // screw holes for camera
-        translate([17, 20, 15.5]) rotate([90, 0, 0]) cylinder(d=2, h=40);
-        translate([17, 16, 15.5]) rotate([90, 0, 0]) cylinder(d=4.5, h=width-2);
+        translate([length, 20, 15.5]) rotate([90, 0, 0]) cylinder(d=2, h=40);
+        // partial holes for the mount nips
+        translate([length, 15, 15.5]) rotate([90, 0, 0]) cylinder(d=4.5, h=width-4);
         // Standoff holes
         dupmirror() translate([0, -hole_offset, -.1]) linear_extrude(30) circle(d=6.75, $fn=6);
+
+        translate([15, -(width/2)-5, 3]) rotate([90, 0, 180]) scale([.1, .1, .5]) surface("hawk.png");
     }
 }
 
