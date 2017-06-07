@@ -2,15 +2,29 @@
 $fa=2;
 $fs=.02;
 
+// https://www.youtube.com/watch?v=EgOuvOLiwAM
+// circles:  22, 11, 8, 4
+// 7mm thick -- 5 each end
+
 r608 = 22;
 r608id = 8;
 
-ss = 75;
-intersection() {
+translate([24, 0, 0]) difference() {
     union() {
-        cylinder(h=3, d=r608id);
-        translate([0, 0, 2.0]) cylinder(h=.5, d=11);
-        translate([0, 0, 2.5]) cylinder(h=5, d=r608);
+        cylinder(d=r608, h=1);
+        cylinder(d=11, h=2);
+        cylinder(d=8, h=7);
     }
-    translate([0, 0, -ss+4]) sphere(ss, $fa=1, $fs=.02);
+    translate([0, 0, 1]) cylinder(d=4, h=8);
+    translate([0, 0, 6]) cylinder(d=4, d2=5);
 }
+
+difference() {
+    union() {
+        cylinder(d=r608, h=1);
+        cylinder(d=11, h=2);
+    }
+    translate([0, 0, 1]) cylinder(d=8, h=2);
+}
+cylinder(d=3.9, h=7);
+
