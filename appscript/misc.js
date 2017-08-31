@@ -12,7 +12,7 @@
  */
 function copyAppend(sheet, values) {
   var lastr = sheet.getLastRow();
-  var lastc = sheet.getLastColumn();
+  var lastc = Math.min(values.length, sheet.getLastColumn());
   var r = sheet.getRange(lastr, 1, 1, lastc);
   var destr = sheet.getRange(lastr+1, 1, 1, lastc);
   r.copyTo(destr);
@@ -21,4 +21,5 @@ function copyAppend(sheet, values) {
       destr.offset(0, i, 1, 1).setValue(values[i]);
     }
   }
+  return r.getValues()[0];
 }
