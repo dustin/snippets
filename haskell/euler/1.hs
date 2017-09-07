@@ -11,6 +11,6 @@ multiple_of_any :: Integer -> [Integer] -> Bool
 
 multiple_of_any x = any (\ n -> x `mod` n == 0)
 
-euler1 n = sum [ x | x <- [0..n], multiple_of_3_or_15 x]
+euler1 n = sum [ x | x <- [0..pred n], multiple_of_3_or_15 x]
 
-euler1_b n = sum [ x | x <- [0..n], multiple_of_any x [3, 5]]
+euler1_b n = sum [ x | x <- [0..pred n], multiple_of_any x [3, 5]]
