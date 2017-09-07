@@ -22,7 +22,6 @@ First, we're going to need some words to name these things.
 > tens =  ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
 
 
-> numwords 0 = ""
 > numwords n
 >   | n < 10 = ones !! n
 >   | n < 20 = teens !! (n `mod` 10)
