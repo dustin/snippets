@@ -26,10 +26,10 @@ First, we're going to need some words to name these things.
 > numwords n
 >   | n < 10 = ones !! n
 >   | n < 20 = teens !! (n `mod` 10)
->   | n < 100 = let (t,o) = n `divMod` 10 in (tens !! t) ++ " " ++ (ones !! o)
+>   | n < 100 = let (t,o) = n `divMod` 10 in (tens !! t) ++ " " ++ (numwords o)
 >   | n < 1000 = let (h,t) = n `divMod` 100 in
 >                 (ones !! h) ++ if t == 0 then " hundred" else " hundred and " ++ (numwords t)
->   | n == 1000 = "one thousand"
+>   | n < 1000000 = let (t,h) = n `divMod` 1000 in (numwords t) ++ " thousand " ++ (numwords h)
 
 Need a thing to count all the letters in this junk.
 
