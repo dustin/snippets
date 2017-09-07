@@ -21,6 +21,18 @@ First, we're going to need some words to name these things.
 >          "seventeen", "eighteen", "nineteen"]
 > tens =  ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
 
+The numwords implementation isn't perfect -- there's some extraneous
+space and it doesn't handle 0 in particular, but it produces enough
+correct values to solve the euler problem.  It also doesn't hyphenate
+the tens.
+
+The use of "and" is particularly annoying to me.  I suspect it was
+added just to complicate the problem a bit.  I implemented up to
+999,999 using the same logic, so "and" gets added in the hundred
+thousands place as well.  I dont know if this is standard since it's
+hard to find standards.  I don't see it mentioned here:
+http://www.grammarbook.com/numbers/numbers.asp (in fact, that says
+it's not necessary, though British usage was mentioned in particular).
 
 > numwords n
 >   | n < 10 = ones !! n
