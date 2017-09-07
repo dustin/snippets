@@ -10,9 +10,10 @@ bigassString = show bigassInt
 productOfDigits :: String -> Int
 productOfDigits digits = product (map Data.Char.digitToInt digits)
 
-maxProduct :: String -> Int -> Int
-maxProduct "" n = n
-maxProduct s n =
-       maxProduct (tail s) (max n (productOfDigits (take 5 s)))
+maxProduct :: String -> Int -> Int -> Int
+maxProduct "" x n = n
+maxProduct s x n =
+       maxProduct (tail s) x (max n (productOfDigits (take x s)))
 
-euler8 = maxProduct bigassString 0
+euler8 n = maxProduct bigassString n 0
+
