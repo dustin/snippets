@@ -15,4 +15,4 @@ Quick hack fact:
 > digits :: Integer -> [Int]
 > digits n = map (\c -> read [c]) $ show n
 
-> euler21 = sum $ digits $ fact 100
+> euler20 = sum $ digits $ fact 100

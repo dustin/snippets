@@ -36,6 +36,6 @@ This is a bit more complicated than way I have been doing it because I
 wanted to isolate the IO, so euler_23 is an IO () function that allows
 the rest to be pure.
 
-> euler_23 = do
+> euler_22 = do
 >   d <- BL.readFile "p022_names.txt"
 >   print $ score_all $ parse $ "[" ++ (BL.unpack d) ++ "]"

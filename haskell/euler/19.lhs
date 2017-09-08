@@ -64,4 +64,4 @@ We can use a simple list comprehension with a pattern match to find
 the things we're interested in (Sundays on the first of the month for
 years ≥ 1901).
 
-> euler20 = length [x | x@(y,_,d,dow) <- dates_dow, y >= 1901, d == 1, dow == Sunday]
+> euler19 = length [x | x@(y,_,d,dow) <- dates_dow, y >= 1901, d == 1, dow == Sunday]
