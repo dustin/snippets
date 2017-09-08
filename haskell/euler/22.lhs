@@ -1,49 +1,41 @@
-Let d(n) be defined as the sum of proper divisors of n
-(numbers less than n which divide evenly into n).
+Using names.txt (right click and 'Save Link/Target As...'), a 46K text
+file containing over five-thousand first names, begin by sorting it
+into alphabetical order. Then working out the alphabetical value for
+each name, multiply this value by its alphabetical position in the
+list to obtain a name score.
 
-If d(a) = b and d(b) = a, where a ≠ b, then a and b are
-an amicable pair and each of a and b are called amicable numbers.
+For example, when the list is sorted into alphabetical order, COLIN,
+which is worth 3 + 15 + 12 + 9 + 14 = 53, is the 938th name in the
+list. So, COLIN would obtain a score of 938 × 53 = 49714.
 
-For example, the proper divisors of 220 are
-1, 2, 4, 5, 10, 11, 20, 22, 44, 55 and 110;
-therefore d(220) = 284. The proper divisors of 284 are
-1, 2, 4, 71 and 142; so d(284) = 220.
-
-Evaluate the sum of all the amicable numbers under 10000.
-
-
-We'll need the list of divisors.
-
-> divisors 1 = [1]
-> divisors n = [ x | x <- [1..n-1], n `mod` x == 0]
-
-This is pretty much d as defined above.
-
-> d = sum.divisors
-
-And this is amicable as defined above.
-
-> amicable a b = a /= b && d a == b && d b == a
-
-So now we just need a list of all of them.  This is going to be a
-little wasteful, but it's easiest to just ask if a given number in the
-sequence is an amicable number.
-
-> has_amicable :: Integer -> Bool
-> has_amicable n = (d n) /= n && n == (d.d) n
-
-> amicables = [x | x <- [1..10000], has_amicable x]
-
-Spit out the answer:
-
-> euler22 = sum amicables
-
-31626
-[220,284,1184,1210,2620,2924,5020,5564,6232,6368]
-(71.60 secs, 36,015,693,848 bytes)
-(0.01 secs, 91,424 bytes)
+What is the total of all the name scores in the file?
 
 
-This was kind of slow. I suspect it'd be a lot faster if I generated
-the list from the divisors, but now that I have the answer, I kind of
-want to move on.
+> import qualified Data.ByteString.Lazy.Char8 as BL
+> import Data.List (sort)
+
+Score a single name (e.g. COLIN -> 53)
+
+> score_name :: String -> Int
+> score_name = foldr (\l s -> (1 + fromEnum l - fromEnum 'A') + s) 0
+
+Scoring all involves multiplying the score of the name by its position
+in the sorted name list.
+
+> score_all :: [String] -> Int
+> score_all l = foldr (\(n,pos) s -> pos * (score_name n) + s) 0 $ zip (sort l) [1..]
+
+Parse here is just a convenient wrapper for read that declares the
+input and output types to avoid confusion.  It could be inferred, but
+this let me play interactively a bit more.
+
+> parse :: String -> [String]
+> parse = read
+
+This is a bit more complicated than way I have been doing it because I
+wanted to isolate the IO, so euler_23 is an IO () function that allows
+the rest to be pure.
+
+> euler_23 = do
+>   d <- BL.readFile "p022_names.txt"
+>   print $ score_all $ parse $ "[" ++ (BL.unpack d) ++ "]"
