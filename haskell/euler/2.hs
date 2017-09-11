@@ -7,12 +7,8 @@
 -- Find the sum of all the even-valued terms in the sequence which do not
 -- exceed four million.
 
-fib :: Integer -> Integer
+import Euler
 
-fib 0 = 0
-fib 1 = 1
-fib n = fib (n-1) + fib (n-2)
+euler2' n = sum [ x | x <- takeWhile (<= n) fib, even x ]
 
-fibs = [ fib x | x <- [1..]]
-
-euler2 n = sum [ x | x <- takeWhile (<= n) fibs, even x ]
+euler2 = euler2' 4000000
