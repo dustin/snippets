@@ -12,10 +12,7 @@ therefore d(220) = 284. The proper divisors of 284 are
 Evaluate the sum of all the amicable numbers under 10000.
 
 
-We'll need the list of divisors.
-
-> divisors 1 = [1]
-> divisors n = [ x | x <- [1..n-1], n `mod` x == 0]
+> import Euler
 
 This is pretty much d as defined above.
 
@@ -37,6 +34,10 @@ sequence is an amicable number.
 Spit out the answer:
 
 > euler21 = sum amicables
+
+New version with euler lib:
+31626
+(0.89 secs, 497,064,368 bytes)
 
 31626
 [220,284,1184,1210,2620,2924,5020,5564,6232,6368]
