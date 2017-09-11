@@ -5,14 +5,7 @@ and the sum of the digits in the number 10! is 3 + 6 + 2 + 8 + 8 + 0 + 0 = 27.
 
 Find the sum of the digits in the number 100!
 
+> import Euler
 
-Quick hack fact:
-
-> fact x = product [1..x]
-
-...and my digits code from 16
-
-> digits :: Integer -> [Int]
-> digits n = map (\c -> read [c]) $ show n
 
 > euler20 = sum $ digits $ fact 100
