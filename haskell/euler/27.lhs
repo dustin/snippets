@@ -24,18 +24,9 @@ expression that produces the maximum number of primes for consecutive
 values of n, starting with n=0.
 
 > import Data.List (intersect)
+> import Euler
 
 Primes from 10, modified to deal with negative numbers.
-
-> isPrime :: Integer -> Bool
-> isPrime n
->   | n < 2 = False
->   | otherwise = not $ any (\x -> n `mod` x == 0) $ takeWhile (\c -> c^2 <= n) primes
-
-Then a list of all primes:
-
-> primes :: [Integer]
-> primes = 2:[x | x <- [3,5..], isPrime x]
 
 This is kind of lame, but I didn't want to type a lot.  Just generate
 the list of primes for n from 0 to ∞ and then count them.  I can
