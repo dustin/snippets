@@ -5,17 +5,9 @@ factorial of their digits.
 
 Note: as 1! = 1 and 2! = 2 are not sums they are not included.
 
+> import Euler
 
-digits code from 33
-
-> digits :: Integer -> [Integer]
-> digits 0 = [0]
-> digits n = reverse $ go n
->   where go 0 = []
->         go x = let (a,b) = x `divMod` 10 in b : go a
-
-> fact a = product [1..a]
-
+> curious :: Integer -> Bool
 > curious x = x == sum (map fact (digits x))
 
 I estimated the upper bound.  Probably could've come up with a better
