@@ -13,28 +13,7 @@ terms, find the value of the denominator.
 
 
 > import Data.List
-
-Instead of reusing that digits code from 16, 20, etc... I made a
-slightly less hacky one.
-
-> digits :: Integer -> [Integer]
-> digits 0 = [0]
-> digits n = reverse $ go n
->   where go 0 = []
->         go x = let (a,b) = x `divMod` 10 in b : go a
-
-divisors from 12
-
-> isqrt :: Integer -> Integer
-> isqrt x = ceiling $ sqrt $ fromIntegral x
->
-> factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
->              union lower (map (div n) lower)
-
-We need to know if to two numbers have a common digit.  We've filtered
-out the "trivial" values -- those with zeros, so we'll just return
-zero as the common digit in the case where there isn't one.  This
-makes it easier to work with later.
+> import Euler
 
 > common_digit a b
 >   | i == [] = 0

@@ -4,6 +4,7 @@ euler module that contains the stuff I've been copying and pasting.
 
 > module Euler where
 
+> import Data.List (union)
 
 digitsb takes an integer and returns a list of the digits of that
 integer in base b.
@@ -41,3 +42,13 @@ Also end up needing factorial a lot.
 
 > fact :: Integer -> Integer
 > fact a = product [1..a]
+
+And divisors.  There are a couple different uses of this.  Sometimes
+we want the input number, and sometimes we don't.  This one is
+"proper" divisor or whatever.
+
+> isqrt :: Integer -> Integer
+> isqrt x = ceiling $ sqrt $ fromIntegral x
+>
+> factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
+>              union lower (map (div n) lower)
