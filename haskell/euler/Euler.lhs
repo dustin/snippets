@@ -53,6 +53,18 @@ we want the input number, and sometimes we don't.  This one is
 > factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
 >              union lower (map (div n) lower)
 
+We also want a prime factorizing function.  This is a slightly
+different form and much older code (from years ago when I wrote 3.hs).
+It's a good deal faster than the naïve list comprehension or filter
+version.
+
+> factor' :: Integer -> [Integer]
+> factor' n = rfactor n primes
+>   where rfactor n2 (car:cdr)
+>           | car * car > n2  = [n2]
+>           | mod n2 car == 0 = car : rfactor (div n2 car) (car:cdr)
+>           | otherwise       = rfactor n2 cdr
+
 I've also needed the fibonacci sequence a few times.  Let's add one of
 those.  This one starts with 1.  Sometimes I start with zero.  I can
 always stick a 0 in front of it.
