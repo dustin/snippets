@@ -12,11 +12,7 @@ The sum of these numbers is 1634 + 8208 + 9474 = 19316.
 Find the sum of all the numbers that can be written as the sum of
 fifth powers of their digits.
 
-
-digits code from 16/20
-
-> digits :: Integer -> [Integer]
-> digits n = map (\c -> read [c]) $ show n
+> import Euler
 
 > sumpow :: Integer -> Integer -> Integer
 > sumpow n p = sum $ map (^ p) $ digits n
