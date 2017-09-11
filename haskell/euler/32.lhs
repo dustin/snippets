@@ -33,7 +33,7 @@ We need to generate a collection of candidates that could at least
 theoretically be pandigital.
 
 > gen_nums :: [(Int, Int)]
-> gen_nums = dedup $ mc 1 3 ++ mc 1 4 ++ mc 2 3 ++ mc 2 4 ++ mc 3 3
+> gen_nums = dedup $ concatMap (uncurry mc) [(1,3), (1,4), (2,3), (2,4), (3,3)]
 >   where combo a b s = (read $ take a s, read $ (take b . drop a) s)
 >         perms = permutations digits
 >         mc a b = map (combo a b) perms
