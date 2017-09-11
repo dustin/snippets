@@ -7,31 +7,7 @@ How many circular primes are there below one million?
 
 
 > import Data.List
-
-digits code from 33
-
-> digits :: Integer -> [Integer]
-> digits 0 = [0]
-> digits n = reverse $ go n
->   where go 0 = []
->         go x = let (a,b) = x `divMod` 10 in b : go a
-
-primes code from 27
-
-> isPrime :: Integer -> Bool
-> isPrime n
->   | n < 2 = False
->   | otherwise = not $ any (\x -> n `mod` x == 0) $ takeWhile (\c -> c^2 <= n) primes
-
-Then a list of all primes:
-
-> primes :: [Integer]
-> primes = 2:[x | x <- [3,5..], isPrime x]
-
-undigit is basically the oposite of digits.  e.g. [1, 2, 3] -> 123
-
-> undigit :: [Integer] -> Integer
-> undigit = foldl (\b x -> b * 10 + x) 0
+> import Euler
 
 Given a list, return all of the rotations of a list.  Sort of an
 order-preserving permutation code:  e.g.:   "abc" -> ["bca", "cab", "abc"]
@@ -42,7 +18,7 @@ order-preserving permutation code:  e.g.:   "abc" -> ["bca", "cab", "abc"]
 
 List all of the rotations of digits for a number.
 
-> circle a = map undigit $ rotate $ digits a
+> circle a = map undigits $ rotate $ digits a
 
 A number is a circular prime if all rotations of its digits are prime.
 
