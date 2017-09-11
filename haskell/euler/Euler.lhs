@@ -52,3 +52,10 @@ we want the input number, and sometimes we don't.  This one is
 >
 > factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
 >              union lower (map (div n) lower)
+
+I've also needed the fibonacci sequence a few times.  Let's add one of
+those.  This one starts with 1.  Sometimes I start with zero.  I can
+always stick a 0 in front of it.
+
+> fib = 1:1: (zipWith (+) fib $ tail fib)
+

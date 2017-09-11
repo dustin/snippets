@@ -19,11 +19,9 @@ The 12th term, F12, is the first term to contain three digits.
 
 What is the index of the first term in the Fibonacci sequence to contain 1000 digits?
 
+> import Euler
 
-> fib = 1:1: (zipWith (+) fib $ tail fib)
-
-> num_digits :: Show n => n -> Int
-> num_digits n = length $ show n
+> num_digits = length.digits
 
 Here are all the fibonacci numbers who contain fewer than 1000 digits:
 
