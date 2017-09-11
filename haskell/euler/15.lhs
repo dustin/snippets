@@ -5,6 +5,7 @@ to the right and down, there are exactly 6 routes to the bottom right corner.
 How many such routes are there through a 20×20 grid?
 
 > import Data.List
+> import Euler
 
 Function to compute the unique permutations of a given set of things
 
@@ -20,7 +21,6 @@ Find all unique permutations of those:
 
 The above doesn't scale very far, though.  An actual number involves math.
 
-> fact n = product [1..n]
 > combo n r = (fact (r + n - 1)) `div` ((fact r) * (fact (n - 1)))
 
 To be honest, I'm not super great at math, but I found the plain
