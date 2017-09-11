@@ -43,13 +43,21 @@ Also end up needing factorial a lot.
 > fact :: Integer -> Integer
 > fact a = product [1..a]
 
-And divisors.  There are a couple different uses of this.  Sometimes
-we want the input number, and sometimes we don't.  This one is
-"proper" divisor or whatever.
+I've needed the integer square root a bunch -- mostly for computing
+divisors, or finding similar pivot points.
 
 > isqrt :: Integer -> Integer
 > isqrt x = ceiling $ sqrt $ fromIntegral x
->
+
+This is the "proper" divisors -- all of the divisors other than the number itself.
+
+> divisors 1 = [1]
+> divisors 2 = [1]
+> divisors n = let lower = [x | x <- [2..isqrt n], n `mod` x == 0] in
+>                1 : union lower (map (div n) lower)
+
+This is all the factors (including the number).
+
 > factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
 >              union lower (map (div n) lower)
 

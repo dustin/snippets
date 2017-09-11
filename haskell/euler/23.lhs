@@ -18,19 +18,8 @@ limit.
 Find the sum of all the positive integers which cannot be written as
 the sum of two abundant numbers.
 
-
-Grabbing my divisors code from 12:
-
-> import qualified Data.List as L
+> import Euler
 > import qualified Data.Set as Set
-
-> isqrt :: Integral n => n -> n
-> isqrt x = ceiling $ sqrt $ fromIntegral x
-
-> divisors 1 = [1]
-> divisors 2 = [1]
-> divisors n = let lower = [x | x <- [2..isqrt n], n `mod` x == 0] in
->                1 : L.union lower (map (div n) lower)
 
 We don't need perfect numbers here, so let's just consider the abundant ones.
 
