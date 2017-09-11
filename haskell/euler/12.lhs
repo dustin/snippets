@@ -21,22 +21,11 @@ What is the value of the first triangle number to have over five hundred divisor
 ------------------------------------------------------------------------------
 
 > import Data.List
+> import Euler
 
 Let's start with a list of all triangle numbers.
 
 > triangles = [sum [1..x] | x <- [1..]]
-
-And a factorizor, which needs an integer square root to avoid doing entirely too much math.
-
-> isqrt :: Integer -> Integer
-> isqrt x = ceiling $ sqrt $ fromIntegral x
-
-Our factor generator doesn't produce a sorted list like the above
-because it only computes up to the square root to find divisors, and
-then throws away the duplicates as it unions the two bits together.
-
-> factor n = let lower = [x | x <- [1..isqrt n], n `mod` x == 0] in
->              union lower (map (div n) lower)
 
 Here's a function that just spits out numbers that have at least n factors.
 
