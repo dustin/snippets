@@ -2,10 +2,6 @@
 
 What is the sum of the digits of the number 2^1000?
 
-
-This is kind of dumb, but hacky way to turn a number into a sequence of digits.
-
-> digits :: Integer -> [Int]
-> digits n = map (\c -> read [c]) $ show n
+> import Euler
 
 > euler16 = sum $ digits $ 2 ^ 1000
