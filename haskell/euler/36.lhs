@@ -6,15 +6,7 @@ palindromic in base 10 and base 2.
 
 (Please note that the palindromic number, in either base, may not include leading zeros.)
 
-
-
-The digits for a given base.
-
-> digbase :: Integer -> Integer -> [Integer]
-> digbase 0 _ = []
-> digbase n b = reverse $ go n
->   where go 0 = []
->         go x = let (a, r) = x `divMod` b in r : go a
+> import Euler
 
 A palindrome is a list that's equal to itself reversed.
 
@@ -23,6 +15,6 @@ A palindrome is a list that's equal to itself reversed.
 
 A number is a double-palindrome here if it's a palindrome in base 10 and base 2.
 
-> dpalindrome x = (palindrome $ digbase x 10) && (palindrome $ digbase x 2)
+> dpalindrome x = (palindrome $ digitsb 10 x) && (palindrome $ digitsb 2 x)
 
 > euler36 = sum $ [x | x <- [1..1000000], dpalindrome x]
