@@ -13,7 +13,7 @@ integer in base b.
 > digitsb _ 0 = []
 > digitsb b n = reverse $ go n
 >   where go 0 = []
->         go x = let (a, r) = x `divMod` (toEnum b) in r : go a
+>         go x = let (a, r) = x `divMod` (toInteger b) in r : go a
 
 digits is a base 10 version of digitsb.  Several of the euler puzzles
 so far have needed the digits in base 10, so that's a first class
@@ -83,5 +83,5 @@ There are a bunch of questions about pandigital numbers.  Let's try to consolida
 
 > is_pandigital_n n x = sort (digits x) == [1..n]
 
-> is_pandigital x = let d = digits x in sort d == [1..(toEnum . length) d]
+> is_pandigital x = let d = digits x in sort d == [1..(toInteger . length) d]
 
