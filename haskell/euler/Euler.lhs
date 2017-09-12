@@ -83,3 +83,5 @@ There are a bunch of questions about pandigital numbers.  Let's try to consolida
 
 > is_pandigital_n n x = sort (digits x) == [1..n]
 
+> is_pandigital x = let d = digits x in sort d == [1..(toEnum . length) d]
+
