@@ -4,7 +4,7 @@ euler module that contains the stuff I've been copying and pasting.
 
 > module Euler where
 
-> import Data.List (union)
+> import Data.List (union, sort)
 
 digitsb takes an integer and returns a list of the digits of that
 integer in base b.
@@ -78,4 +78,8 @@ those.  This one starts with 1.  Sometimes I start with zero.  I can
 always stick a 0 in front of it.
 
 > fib = 1:1: (zipWith (+) fib $ tail fib)
+
+There are a bunch of questions about pandigital numbers.  Let's try to consolidate this.
+
+> is_pandigital_n n x = sort (digits x) == [1..n]
 

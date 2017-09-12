@@ -21,7 +21,7 @@ where n > 1?
 > import Euler
 > import Data.Maybe
 
-> pandigital x = sort (digits x) == [1, 2, 3, 4, 5, 6, 7, 8, 9]
+> pandigital x = is_pandigital_n 9
 
 This basically is the forward function.  Given a base number and
 sequence of numbers, return the number you get from concatenating the
