@@ -13,6 +13,7 @@ Using words.txt (right click and 'Save Link/Target As...'), a 16K text
 file containing nearly two-thousand common English words, how many are
 triangle words?
 
+> import Data.List.Ordered (member)
 > import qualified Data.ByteString.Lazy.Char8 as BL
 
 > first_ten = [1, 3, 6, 10, 15, 21, 28, 36, 45, 55]
@@ -30,10 +31,10 @@ Add up the letter values in a word.
 > word_value = toInteger . foldr (\l s -> (1 + fromEnum l - fromEnum 'A') + s) 0
 
 A word is a triangle if the value is in my list of triangle numbers.
-Make sure we stop when we get to the end, though.  The triangles go on
-forever.
+This is using member from Data.List.Ordered which has the nice
+property of stopping if you get past the word's value.
 
-> word_is_triangle w = let v = word_value w in elem v (takeWhile (<= v) triangles)
+> word_is_triangle w = let v = word_value w in member v triangles
 
 How many words are triangular?
 
