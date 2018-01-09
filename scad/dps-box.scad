@@ -20,17 +20,22 @@ module box() {
 }
 
 module dps() {
-    cube([71.5, 39, 40]);
+    dw = 72;
+    dh = 39.5;
+    dd = 40;
+    // 13.5,  12, 13.5 maybe 2
+    cube([dw, dh, dd]);
+    translate([-2, 13, 0]) cube([dw + (2*2), 13, dd]);
 }
 
 module banana() {
-    rotate([90, 0, 0]) cylinder(d=6, h=10, $fa=2, $fs=0.05);
+    rotate([90, 0, 0]) cylinder(d=6.2, h=10, $fa=2, $fs=0.05);
 }
 
 module case() {
     difference() {
         box();
-        translate([(b_w - 71.5)/2, 12, 30])
+        translate([(b_w - 72)/2, 12, 30])
             rotate([60, 0, 0]) dps();
         translate([20, 5, 15]) banana();
         translate([35, 5, 15]) banana();
