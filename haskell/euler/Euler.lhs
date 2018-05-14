@@ -47,7 +47,7 @@ I've needed the integer square root a bunch -- mostly for computing
 divisors, or finding similar pivot points.
 
 > isqrt :: Integer -> Integer
-> isqrt x = ceiling $ sqrt $ fromIntegral x
+> isqrt = ceiling . sqrt . fromIntegral
 
 This is the "proper" divisors -- all of the divisors other than the number itself.
 
