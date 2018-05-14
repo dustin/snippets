@@ -19,7 +19,7 @@ module cableroute(length, width, thickness) {
 module wireholder(width, gap) {
     difference() {
         translate([width/2, 0, 0]) sphere(d=width);
-        linear_extrude(width/2 + .1) cableroute(width, 4.7, gap);
+        linear_extrude(width/2 + .1) cableroute(width, 3.5, gap);
         translate([0, -width/2, -width/2-2]) cube([width, width, width/2]);
         translate([0, -width/4, 0]) cube([width, width/2, gap+.5]);
     }
