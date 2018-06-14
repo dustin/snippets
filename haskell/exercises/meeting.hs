@@ -37,11 +37,20 @@ data Department = RD | HR | IT | Marketing | Sales
 data Vacation = August | December | January | June | March
   deriving (Eq, Show, Enum, Bounded)
 
+-- General helpers for constructing seqeunces.
+
 inPos :: Eq a => Int -> a -> [a] -> [[a]]
 inPos n a as = map (\l -> take n l <> [a] <> drop n l) $ (permutations . delete a) as
 
 onOneEnd :: Eq a => a -> [a] -> [[a]]
-onOneEnd a as = map (a:) ((permutations . delete a) as) <> inPos 4 a as
+onOneEnd a as = inBeginning a as <> inPos ((succ.length) as) a as
+
+inBeginning :: Eq a => a -> [a] -> [[a]]
+inBeginning a as = map (a:) $ (permutations . delete a) as
+
+-- I hand-crafted all the sequences rather than using guards because
+-- they all had something interesting about them that would reduce the
+-- search space.
 
 salaries :: [[Int]]
 salaries = onOneEnd 5000 [2000, 3000, 4000, 5000, 6000]
@@ -56,10 +65,29 @@ vacations :: [[Vacation]]
 vacations = inPos 3 August [December ..] `intersect` onOneEnd March [minBound..]
 
 departments :: [[Department]]
-departments = map (RD:) $ permutations [HR ..]
+departments = inBeginning RD [minBound..]
 
 ties :: [[Tie]]
 ties = onOneEnd Yellow [Black ..]
+
+-- General helpers for constructing guards
+
+-- Match two different properties for one position.
+has :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
+has as a bs b = (a,b) `elem` (zip as bs)
+
+-- Match a property of a neighbor position.
+neighbor :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
+neighbor as a bs b = (a,b) `elem` (zip as (tail bs) <> zip (tail as) bs)
+
+-- Match a property of some other property that falls somewhere to the right.
+leftOf :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
+leftOf [] _ [] _ = False
+leftOf (a':as) a (_:bs) b
+  | a' == a = b `elem` bs
+  | otherwise = leftOf as a bs b
+
+-- The specific solution
 
 solutions :: [[(Boss, Tie, Department, Int, Vacation, Int)]]
 solutions = do
@@ -88,12 +116,11 @@ solutions = do
   guard $ m d Marketing a 51
 
   return $ zip6 b t d a v s
+
+  -- A few aliases to make the guards lighter.
   where m :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
-        m as a bs b = (a,b) `elem` (zip as bs)
+        m = has
         n :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
-        n as a bs b = (a,b) `elem` (zip as (tail bs) <> zip (tail as) bs)
+        n = neighbor
         l :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
-        l [] _ [] _ = False
-        l (a':as) a (_:bs) b
-          | a' == a = b `elem` bs
-          | otherwise = l as a bs b
+        l = leftOf
