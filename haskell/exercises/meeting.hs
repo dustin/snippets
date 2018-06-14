@@ -74,7 +74,7 @@ ties = onOneEnd Yellow [Black ..]
 
 -- Match two different properties for one position.
 has :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
-has as a bs b = (a,b) `elem` (zip as bs)
+has as a bs b = (a,b) `elem` zip as bs
 
 -- Match a property of a neighbor position.
 neighbor :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
@@ -115,7 +115,7 @@ solutions = do
   guard $ m a 55 t Blue
   guard $ m d Marketing a 51
 
-  return $ zip6 b t d a v s
+  pure $ zip6 b t d a v s
 
   -- A few aliases to make the guards lighter.
   where m :: (Eq a, Eq b) => [a] -> a -> [b] -> b -> Bool
