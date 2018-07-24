@@ -38,6 +38,52 @@ function cleanTmp() {
   }
 }
 
+// Clean up stuff that's more than 30d old from the trash.
+// I was kind of surprised to find this doesn't happen by default.
+function dumpsterFire() {
+  var threshold = new Date(new Date() - 86400 * 30 * 1000);
+  var start = new Date();
+  var duration = function() {
+    return new Date() - start;
+  };
+  var it = DriveApp.getTrashedFiles();
+  var i = 0;
+  while (it.hasNext()) {
+    if (duration() > 300*1000) {
+      break
+    }
+    var f = it.next();
+    if (f.isTrashed() && f.getLastUpdated() < threshold) {
+      Logger.log('Removing %s, last updated %s', f.getName(), f.getLastUpdated());
+      Drive.Files.remove(f.getId());
+      i++;
+    }
+  }
+
+  if (duration() < 300*1000) {
+    Logger.log("There's a bit of time left, let's clean directories, too");
+    var it = DriveApp.getTrashedFolders();
+    var i = 0;
+    while (it.hasNext()) {
+      if (duration() > 330*1000) {
+        break
+      }
+      var d = it.next();
+      var hasChildren = d.getFolders().hasNext() && d.getFiles().hasNext();
+      if (d.isTrashed() && !hasChildren) {
+        Logger.log('Removing dir %s, last updated %s', d.getName(), d.getLastUpdated());
+        Drive.Files.remove(d.getId());
+        i++;
+      }
+    }
+  }
+
+  if (i > 0) {
+    var msg = "Removed the following from trash:\n\n" + Logger.getLog();
+    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your trash', msg);
+  }
+}
+
 // Clean up files that have bad names.
 //
 // Give me your .DS_Store, your backup~ files, etc...
