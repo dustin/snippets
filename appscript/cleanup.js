@@ -31,10 +31,8 @@ function cleanTmp() {
   cleaned = cleaned.concat(cleanIter(threshold, tmpdir.getFolders()));
 
   if (cleaned.length > 0) {
-    var msg = "Cleaned the following items:\n\n * " +
-      cleaned.join("\n * ") + "\n\nLog:\n" + Logger.getLog();
-    MailApp.sendEmail(Session.getActiveUser().getEmail(),
-                      'Cleaned your tmp', msg);
+    var msg = "Cleaned the following items:\n\n * " + cleaned.join("\n * ") + "\n\nLog:\n" + Logger.getLog();
+    MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your tmp', msg);
   }
 }
 
@@ -54,24 +52,23 @@ function dumpsterFire() {
     }
     var f = it.next();
     if (f.isTrashed() && f.getLastUpdated() < threshold) {
-      Logger.log('Removing %s, last updated %s', f.getName(), f.getLastUpdated());
+      Logger.log(' F %s – %s', f.getName(), f.getLastUpdated());
       Drive.Files.remove(f.getId());
       i++;
     }
   }
 
-  if (duration() < 300*1000) {
+  if (duration() < 330*1000) {
     Logger.log("There's a bit of time left, let's clean directories, too");
     var it = DriveApp.getTrashedFolders();
-    var i = 0;
     while (it.hasNext()) {
-      if (duration() > 330*1000) {
+      if (duration() > 340*1000) {
         break
       }
       var d = it.next();
       var hasChildren = d.getFolders().hasNext() && d.getFiles().hasNext();
       if (d.isTrashed() && !hasChildren) {
-        Logger.log('Removing dir %s, last updated %s', d.getName(), d.getLastUpdated());
+        Logger.log(' D %s – %s', d.getName(), d.getLastUpdated());
         Drive.Files.remove(d.getId());
         i++;
       }
@@ -79,7 +76,7 @@ function dumpsterFire() {
   }
 
   if (i > 0) {
-    var msg = "Removed the following from trash:\n\n" + Logger.getLog();
+    var msg = "Removed the following " + i + " files/dirs from trash:\n\n" + Logger.getLog();
     MailApp.sendEmail(Session.getActiveUser().getEmail(), 'Cleaned your trash', msg);
   }
 }
