@@ -3,8 +3,8 @@
 $fa = 2 * 1;
 $fs = 0.3 * 1;
 
-// Smooth = 1 smooths out all the edges (and takes a lot more time).
-smooth = 1;
+// Smooths out all the edges (and takes a lot more time).
+smooth = 1; // [0:no, 1:yes]
 // How many wires would you like to hold?
 num_holders = 2;
 // How large of a gap would you like between the holders? (negative causes overlap)
