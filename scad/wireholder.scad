@@ -35,7 +35,7 @@ module wireholder(width, gap) {
 }
 
 module smoothedHolder(width, gap) {
-    if (smooth > 0) {
+    if (!$preview && smooth > 0) {
         minkowski() {
             wireholder(width, gap);
             sphere(d=smooth);
