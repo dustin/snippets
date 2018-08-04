@@ -11,6 +11,8 @@ num_holders = 2;
 holder_gap = -5;
 // How large (diameter) of a mounting plate do you want?  (0 disables)
 mount_plate = 8;
+// How large of a hole would you like for the mounting screws?
+mount_hole_size = 1.5;
 
 module line(points=[], width=1) {
     for(i = [1:len(points)-1]) {
@@ -66,10 +68,10 @@ module mountPlate(width, mountPlateSize) {
             }
         }
         translate([width/2, leftPoint, -2.1]) {
-            cylinder(d=1.5, h=3);
+            cylinder(d=mount_hole_size, h=3);
         }
         translate([width/2, rightPoint, -2.1]) {
-            cylinder(d=1.5, h=3);
+            cylinder(d=mount_hole_size, h=3);
         }
     }
 }
