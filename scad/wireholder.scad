@@ -2,6 +2,9 @@
 $fa = 2;
 $fs = 0.3;
 smooth = 1;
+num_holders = 2;
+holder_gap = -5;
+mount_plate = 8;
 
 module line(points=[], width=1) {
     for(i = [1:len(points)-1]) {
@@ -13,7 +16,7 @@ module line(points=[], width=1) {
 }
 
 module cableroute(length, width, thickness) {
-    line([for(i = [0 : 10 : 360]) [i / (360/length), width * sin(i)]], width=thickness);
+    line([for(i = [0 : 20 : 360]) [i / (360/length), width * sin(i)]], width=thickness);
 }
 
 module wireholder(width, gap) {
@@ -25,12 +28,50 @@ module wireholder(width, gap) {
     }
 }
 
-
-if (smooth > 0) {
-    minkowski() {
-        wireholder(25, 5);
-        sphere(d=smooth);
+module smoothedHolder(width, gap) {
+    if (smooth > 0) {
+        minkowski() {
+            wireholder(width, gap);
+            sphere(d=smooth);
+        }
+    } else {
+        wireholder(width, gap);
     }
-} else {
-    wireholder(25, 5);
+}
+
+module multiHolder(width, gap) {
+    for (i = [0:num_holders-1]) {
+        translate([0, (width+holder_gap)*i, 0])
+            smoothedHolder(width, gap);
+    }
+}
+
+module mountPlate(width, mountPlateSize) {
+    w = width + holder_gap;
+    leftPoint = - (width / 2) - (mountPlateSize/2);
+    rightPoint = (w * (num_holders-1)) + (width / 2) + (mountPlateSize / 2);
+    difference() {
+        hull() {
+            translate([width/2, leftPoint, -2]) {
+                cylinder(d=mountPlateSize, h=2);
+            }
+            translate([width/2, rightPoint, -2]) {
+                cylinder(d=mountPlateSize, h=2);
+            }
+        }
+        translate([width/2, leftPoint, -2.1]) {
+            cylinder(d=1.5, h=3);
+        }
+        translate([width/2, rightPoint, -2.1]) {
+            cylinder(d=1.5, h=3);
+        }
+    }
+}
+
+// These aren't parameters.
+width = 25 + 0;
+gap = 5 + 0;
+multiHolder(width, gap);
+if (mount_plate > 0) {
+    mountPlate(width, mount_plate);
 }
