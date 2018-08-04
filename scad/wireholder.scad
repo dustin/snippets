@@ -1,9 +1,15 @@
 // https://gist.github.com/dustin/0b48e7e7b7d318752acccaaaf4f590a5
-$fa = 2;
-$fs = 0.3;
+// https://gist.github.com/dustin/80645ad3078394fbd784d2a226bc386f (multi)
+$fa = 2 * 1;
+$fs = 0.3 * 1;
+
+// Smooth = 1 smooths out all the edges (and takes a lot more time).
 smooth = 1;
+// How many wires would you like to hold?
 num_holders = 2;
+// How large of a gap would you like between the holders? (negative causes overlap)
 holder_gap = -5;
+// How large (diameter) of a mounting plate do you want?  (0 disables)
 mount_plate = 8;
 
 module line(points=[], width=1) {
