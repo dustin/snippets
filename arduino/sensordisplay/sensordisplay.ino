@@ -2,6 +2,7 @@
 
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <time.h>
 
 #include <SPI.h>
 #include <Adafruit_GFX.h>
@@ -45,14 +46,46 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 #define BASE_COLOR ILI9341_GREEN
 
-CircularBuffer<String, 5> errors;
+// How long (in seconds) errors can stay on the screen.
+#define OLDEST_ERROR 900
+
+class TimedError {
+public:
+    TimedError(String m) : msg(m), ts(time(NULL)) {}
+    TimedError() : TimedError("") {}
+
+    String msg;
+    time_t ts;
+};
+
+CircularBuffer<TimedError, 5> errors;
 
 void setup() {
     Serial.begin(115200);
     setupDisplay();
     setupWifi();
+    setupTime();
     setupMQTT();
 }
+
+void statusMessage(String msg) {
+    uint16_t topy = FONT_HEIGHT*3; // one row down at 3x
+    tft.fillRect(0, topy, 320, FONT_HEIGHT*3, ILI9341_BLACK);
+    tft.setCursor(0, topy);
+    tft.print(msg);
+ }
+
+void setupTime() {
+    configTime(0 /* tz */, 0 /* dst */, "pool.ntp.org");
+    Serial.println("Waiting for time sync...");
+    statusMessage("syncing time");
+    while (time(nullptr) < 1535920965) {
+        delay(10);
+    }
+    Serial.print("Initial time: ");
+    Serial.println(time(NULL));
+}
+
 
 void setupDisplay() {
     tft.begin();
@@ -108,6 +141,8 @@ void setupMQTT() {
     client.setCallback(callback);
 }
 
+// TODO: Forget that we've shown stuff if it's been too long since
+// we've seen new stuff.
 bool hasShownStuff(false);
 
 void maybeClear() {
@@ -152,12 +187,22 @@ void appendBytes(String &s, const byte* payload, unsigned int length) {
     }
 }
 
-void displayErr(const byte* payload, unsigned int length) {
-    String s;
-    appendBytes(s, payload, length);
+int pruneErrors() {
+    int pruned(0);
+    // Kill off old errors.
+    time_t cutoff = time(NULL) - OLDEST_ERROR;
+    while (errors.size() > 0 && errors.first().ts < cutoff) {
+        Serial.print("Pruning error: ");
+        Serial.print(errors.first().msg);
+        Serial.print(": ");
+        Serial.print(errors.first().ts);
+        pruned++;
+        errors.shift();
+    }
+    return pruned;
+}
 
-    errors.push(s);
-
+void displayErrs() {
     // font size is 5x8, but *3 and there are about three lines of
     // that.  We want to draw below that, so say, fifth line down...
     uint16_t topy = FONT_HEIGHT*3*5;
@@ -169,12 +214,23 @@ void displayErr(const byte* payload, unsigned int length) {
     tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
     tft.setTextSize(2);
 
+    pruneErrors();
     for (unsigned int i = errors.size(); i > 0; i--) {
-        tft.println(errors[i-1]);
+        tft.println(errors[i-1].msg);
     }
 
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
     tft.setTextSize(3);
+}
+
+void displayErr(const byte* payload, unsigned int length) {
+    String s;
+    appendBytes(s, payload, length);
+
+    TimedError e(s);
+    errors.push(e);
+
+    displayErrs();
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -257,10 +313,7 @@ void showStatusMessage() {
         if (waiting) {
             return;
         }
-        uint16_t topy = FONT_HEIGHT*3; // one row down at 3x
-        tft.fillRect(0, topy, 320, FONT_HEIGHT*3, ILI9341_BLACK);
-        tft.setCursor(0, topy);
-        tft.println("waiting for data");
+        statusMessage("waiting for data");
         waiting = true;
     } else if(!conned) {
         showConnectionState();
@@ -274,4 +327,13 @@ void loop() {
     }
     client.loop();
     showStatusMessage();
+
+    static long lastPrune = 0;
+    long now = millis();
+    if (now - lastPrune > 5000) {
+        if (pruneErrors() > 0) {
+            displayErrs();
+        }
+        lastPrune = now;
+    }
 }
