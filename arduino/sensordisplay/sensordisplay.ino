@@ -51,7 +51,7 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 #define OLDEST_READING (60*20)
 
 #define READING_ROW 2
-#define HUMIDITY_COLUMN 10
+#define HUMIDITY_COLUMN 12
 
 class TimedError {
 public:
@@ -104,8 +104,16 @@ public:
             struct tm tmts;
             localtime_r(&ts, &tmts);
             char buf[10];
-            strftime(buf, sizeof(buf), "%H:%M:%S", &tmts);
+            strftime(buf, sizeof(buf), "%H:%M", &tmts);
             tft.setTextSize(2);
+            tft.print(buf);
+
+            tft.setTextSize(1);
+            tft.setCursor(x + FONT_WIDTH*2*6 + 4, y+FONT_HEIGHT*3 + 8);
+            double age = difftime(now, ts);
+            int mins = age / 60;
+            int secs = (int)age % 60;
+            snprintf(buf, sizeof(buf), "-%d:%02d", mins, secs);
             tft.print(buf);
         }
     }
@@ -154,6 +162,8 @@ SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
 SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
 
 TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
+
+Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, nullptr};
 
 void setup() {
     Serial.begin(115200);
@@ -401,5 +411,8 @@ void loop() {
         tempWidget.prune(nowt);
         humidityWidget.prune(nowt);
     }
-    timeWidget.render(nowt);
+
+    for (int i = 0; widgets[i]; i++) {
+        widgets[i]->render(nowt);
+    }
 }
