@@ -47,7 +47,11 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 #define BASE_COLOR ILI9341_GREEN
 
 // How long (in seconds) errors can stay on the screen.
-#define OLDEST_ERROR 900
+#define OLDEST_ERROR   900
+#define OLDEST_READING 1800
+
+#define READING_ROW 2
+#define HUMIDITY_COLUMN 10
 
 class TimedError {
 public:
@@ -59,6 +63,67 @@ public:
 };
 
 CircularBuffer<TimedError, 5> errors;
+
+class Widget {
+public:
+    Widget(int xpos, int ypos) : x(xpos), y(ypos) {}
+
+    virtual void render() = 0;
+
+    int x, y;
+};
+
+class SensorValue : public Widget {
+public:
+    SensorValue(int xpos, int ypos, float l, float h, char c) : Widget(xpos, ypos),
+                                                                v(NAN),
+                                                                low(l), high(h),
+                                                                sym(c), ts(0) {}
+
+    void render() {
+        tft.setCursor(x, y);
+        if (isnan(v)) {
+            tft.fillRect(x, y, FONT_WIDTH*3*8, FONT_HEIGHT*3, ILI9341_BLACK);
+        } else {
+            if (v < low) {
+                tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
+            } else if (v > high) {
+                tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
+            } else {
+                tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
+            }
+
+            tft.print(v);
+            tft.print(sym);
+        }
+    }
+
+    void update(float f, time_t when) {
+        v = f;
+        ts = when;
+        render();
+    }
+
+    void prune(time_t now) {
+        double age = difftime(now, ts);
+        if (hasValue() && age > OLDEST_READING) {
+            v = NAN;
+            render();
+        }
+    }
+
+    bool hasValue() {
+        return !isnan(v);
+    }
+
+    float v;
+    float low, high;
+    char sym;
+    time_t ts;
+};
+
+SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
+SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
 
 void setup() {
     Serial.begin(115200);
@@ -119,7 +184,6 @@ void setupWifi() {
     tft.setCursor(0, 0);
     tft.println("connecting...");
 
-    uint8_t i = 0;
     while (WiFi.status() != WL_CONNECTED) {
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
@@ -141,45 +205,6 @@ void setupMQTT() {
     client.setCallback(callback);
 }
 
-// TODO: Forget that we've shown stuff if it's been too long since
-// we've seen new stuff.
-bool hasShownStuff(false);
-
-void maybeClear() {
-    if (!hasShownStuff) {
-        Serial.println("clearing screen to show stuff");
-        tft.fillScreen(ILI9341_BLACK);
-        hasShownStuff = true;
-    }
-    tft.setCursor(0, 0);
-    tft.println(WiFi.localIP());
-}
-
-#define READING_ROW 2
-
-void displayTemp(float t) {
-    maybeClear();
-    if (t < tooCold) {
-        tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
-    } else if (t > tooHot) {
-        tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
-    } else {
-        tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
-    }
-    tft.setCursor(0, FONT_HEIGHT*3*READING_ROW);
-    tft.print(t);
-    tft.print("C");
-    tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
-}
-
-void displayHumidity(float h) {
-    maybeClear();
-    tft.setCursor(FONT_WIDTH*3*10, FONT_HEIGHT*3*READING_ROW);
-    tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
-    tft.print(h);
-    tft.print("%");
-}
-
 void appendBytes(String &s, const byte* payload, unsigned int length) {
     s.reserve(length);
     for (int i = 0; i < length; i++) {
@@ -187,11 +212,10 @@ void appendBytes(String &s, const byte* payload, unsigned int length) {
     }
 }
 
-int pruneErrors() {
+int pruneErrors(time_t now) {
     int pruned(0);
     // Kill off old errors.
-    time_t cutoff = time(NULL) - OLDEST_ERROR;
-    while (errors.size() > 0 && errors.first().ts < cutoff) {
+    while (errors.size() > 0 && difftime(now, errors.first().ts) > OLDEST_ERROR) {
         Serial.print("Pruning error: ");
         Serial.print(errors.first().msg);
         Serial.print(": ");
@@ -214,7 +238,6 @@ void displayErrs() {
     tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
     tft.setTextSize(2);
 
-    pruneErrors();
     for (unsigned int i = errors.size(); i > 0; i--) {
         tft.println(errors[i-1].msg);
     }
@@ -242,12 +265,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
 
+    time_t now(time(NULL));
     if (strcmp(topic, workshopTemp) == 0) {
         char *end;
-        displayTemp(strtof((char*)payload, &end));
+        tempWidget.update(strtof((char*)payload, &end), now);
     } else if (strcmp(topic, workshopHumidity) == 0) {
         char *end;
-        displayHumidity(strtof((char*)payload, &end));
+        humidityWidget.update(strtof((char*)payload, &end), now);
     } else if (strcmp(topic, errFeed) == 0) {
         displayErr(payload, length);
     }
@@ -308,8 +332,9 @@ void showStatusMessage() {
     static bool waiting(false);
 
     auto conned = client.connected();
+    bool hasSomeData = tempWidget.hasValue() || humidityWidget.hasValue();
 
-    if (conned && !hasShownStuff) {
+    if (conned && !hasSomeData) {
         if (waiting) {
             return;
         }
@@ -318,6 +343,9 @@ void showStatusMessage() {
     } else if(!conned) {
         showConnectionState();
         waiting = false;
+    } else if (hasSomeData) {
+        statusMessage("");
+        waiting=false;
     }
 }
 
@@ -331,9 +359,13 @@ void loop() {
     static long lastPrune = 0;
     long now = millis();
     if (now - lastPrune > 5000) {
-        if (pruneErrors() > 0) {
+        lastPrune = now;
+
+        time_t nowt(time(NULL));
+        if (pruneErrors(nowt) > 0) {
             displayErrs();
         }
-        lastPrune = now;
+        tempWidget.prune(nowt);
+        humidityWidget.prune(nowt);
     }
 }
