@@ -66,11 +66,16 @@ public:
 
 class Widget {
 public:
-    Widget(int xpos, int ypos) : x(xpos), y(ypos) {}
+    Widget(int xpos, int ypos) : x(xpos), y(ypos), modtime(0) {}
 
     virtual void render(time_t now) = 0;
 
+    double staleness(time_t now) {
+        return difftime(now, modtime);
+    }
+
     int x, y;
+    time_t modtime;
 };
 
 class ErrorWidget : public Widget {
@@ -87,11 +92,11 @@ public:
 
         pruneErrors(now);
 
-        if (!changed) {
+        if (staleness(now) < 1 || !changed) {
             return;
         }
 
-        tft.fillRect(x, y, 320-x, 240-y, ILI9341_BLACK);
+        tft.fillRect(x, y, 320-x, 240-FONT_HEIGHT*2-y, ILI9341_BLACK);
 
         tft.setCursor(0, y+FONT_HEIGHT+2);
         tft.setTextSize(2);
@@ -99,6 +104,7 @@ public:
         for (unsigned int i = errors.size(); i > 0; i--) {
             tft.println(errors[i-1].msg);
         }
+        modtime = now;
         changed = false;
     }
 
@@ -134,7 +140,7 @@ public:
         changed = true;
     }
 
-CircularBuffer<TimedError, 5> errors;
+    CircularBuffer<TimedError, 5> errors;
     bool changed;
 };
 
@@ -144,7 +150,7 @@ void age_str(char *buf, size_t buflen, time_t now, time_t ts) {
     double age = difftime(now, ts);
     int mins = age / 60;
     int secs = (int)age % 60;
-    snprintf(buf, buflen, "-%d:%02d", mins, secs);
+    snprintf(buf, buflen, "-%d:%02d ", mins, secs);
 }
 
 class SensorValue : public Widget {
@@ -156,6 +162,10 @@ public:
 
     void render(time_t now) {
         prune(now);
+
+        if (staleness(now) < 1) {
+            return;
+        }
 
         tft.setCursor(x, y);
         tft.setTextSize(3);
@@ -189,12 +199,13 @@ public:
             age_str(buf, sizeof(buf), now, ts);
             tft.print(buf);
         }
+        modtime = now;
     }
 
     void update(float f, time_t when) {
         v = f;
         ts = when;
-        render(when);
+        modtime = 0;
     }
 
     void prune(time_t now) {
@@ -219,6 +230,10 @@ public:
     TimeWidget(int x, int y) : Widget(x, y) {}
 
     void render(time_t t) {
+        if (staleness(t) < 1) {
+            return;
+        }
+
         tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
         tft.setCursor(x, y);
         struct tm tmts;
@@ -227,6 +242,7 @@ public:
         strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &tmts);
         tft.setTextSize(2);
         tft.print(buf);
+        modtime = t;
     }
 };
 
