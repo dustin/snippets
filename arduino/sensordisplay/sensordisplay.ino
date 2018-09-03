@@ -47,8 +47,8 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 #define BASE_COLOR ILI9341_GREEN
 
 // How long (in seconds) errors can stay on the screen.
-#define OLDEST_ERROR   900
-#define OLDEST_READING 1800
+#define OLDEST_ERROR   (60*30)
+#define OLDEST_READING (60*20)
 
 #define READING_ROW 2
 #define HUMIDITY_COLUMN 10
