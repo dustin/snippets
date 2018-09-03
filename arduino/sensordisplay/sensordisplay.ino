@@ -68,7 +68,7 @@ class Widget {
 public:
     Widget(int xpos, int ypos) : x(xpos), y(ypos) {}
 
-    virtual void render() = 0;
+    virtual void render(time_t now) = 0;
 
     int x, y;
 };
@@ -80,9 +80,11 @@ public:
                                                                 low(l), high(h),
                                                                 sym(c), ts(0) {}
 
-    void render() {
+    void render(time_t now) {
         tft.setCursor(x, y);
+        tft.setTextSize(3);
         if (isnan(v)) {
+            tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
             tft.fillRect(x, y, FONT_WIDTH*3*8, FONT_HEIGHT*3, ILI9341_BLACK);
         } else {
             if (v < low) {
@@ -95,20 +97,30 @@ public:
 
             tft.print(v);
             tft.print(sym);
+
+            // Show a timestamp on the next line.
+            tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
+            tft.setCursor(x, y+FONT_HEIGHT*3 + 2);
+            struct tm tmts;
+            localtime_r(&ts, &tmts);
+            char buf[10];
+            strftime(buf, sizeof(buf), "%H:%M:%S", &tmts);
+            tft.setTextSize(2);
+            tft.print(buf);
         }
     }
 
     void update(float f, time_t when) {
         v = f;
         ts = when;
-        render();
+        render(when);
     }
 
     void prune(time_t now) {
         double age = difftime(now, ts);
         if (hasValue() && age > OLDEST_READING) {
             v = NAN;
-            render();
+            render(now);
         }
     }
 
@@ -122,8 +134,26 @@ public:
     time_t ts;
 };
 
+class TimeWidget : public Widget {
+public:
+    TimeWidget(int x, int y) : Widget(x, y) {}
+
+    void render(time_t t) {
+        tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
+        tft.setCursor(x, y);
+        struct tm tmts;
+        localtime_r(&t, &tmts);
+        char buf[24];
+        strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &tmts);
+        tft.setTextSize(2);
+        tft.print(buf);
+    }
+};
+
 SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
 SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
+
+TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
 
 void setup() {
     Serial.begin(115200);
@@ -147,6 +177,9 @@ void setupTime() {
     while (time(nullptr) < 1535920965) {
         delay(10);
     }
+    setenv("TZ", "PST8PDT7,M3.2.0/02:00:00,M11.1.0/02:00:00", 1);
+    tzset();
+
     Serial.print("Initial time: ");
     Serial.println(time(NULL));
 }
@@ -358,14 +391,15 @@ void loop() {
 
     static long lastPrune = 0;
     long now = millis();
+    time_t nowt(time(NULL));
     if (now - lastPrune > 5000) {
         lastPrune = now;
 
-        time_t nowt(time(NULL));
         if (pruneErrors(nowt) > 0) {
             displayErrs();
         }
         tempWidget.prune(nowt);
         humidityWidget.prune(nowt);
     }
+    timeWidget.render(nowt);
 }
