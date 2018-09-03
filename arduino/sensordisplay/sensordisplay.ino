@@ -53,6 +53,8 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 #define READING_ROW 2
 #define HUMIDITY_COLUMN 12
 
+void age_str(char *buf, size_t buflen, time_t now, time_t ts);
+
 class TimedError {
 public:
     TimedError(String m) : msg(m), ts(time(NULL)) {}
@@ -61,8 +63,6 @@ public:
     String msg;
     time_t ts;
 };
-
-CircularBuffer<TimedError, 5> errors;
 
 class Widget {
 public:
@@ -73,6 +73,80 @@ public:
     int x, y;
 };
 
+class ErrorWidget : public Widget {
+public:
+
+    ErrorWidget(int x, int y) : Widget(x, y), changed(false) {}
+
+    void render(time_t now) {
+        if (errors.size() == 0) {
+            return;
+        }
+
+        renderAge(now);
+
+        pruneErrors(now);
+
+        if (!changed) {
+            return;
+        }
+
+        tft.fillRect(x, y, 320-x, 240-y, ILI9341_BLACK);
+
+        tft.setCursor(0, y+FONT_HEIGHT+2);
+        tft.setTextSize(2);
+
+        for (unsigned int i = errors.size(); i > 0; i--) {
+            tft.println(errors[i-1].msg);
+        }
+        changed = false;
+    }
+
+    void renderAge(time_t now) {
+        tft.setCursor(0, y);
+
+        tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
+        tft.setTextSize(1);
+        char buf[10];
+        age_str(buf, sizeof(buf), now, errors.last().ts);
+        tft.print(buf);
+    }
+
+    void pruneErrors(time_t now) {
+        int pruned(0);
+        // Kill off old errors.
+        while (errors.size() > 0 && difftime(now, errors.first().ts) > OLDEST_ERROR) {
+            Serial.print("Pruning error: ");
+            Serial.print(errors.first().msg);
+            Serial.print(": ");
+            Serial.print(errors.first().ts);
+            pruned++;
+            errors.shift();
+        }
+        if (pruned > 0) {
+            changed = true;
+        }
+    }
+
+    void addError(String s) {
+        TimedError e(s);
+        errors.push(e);
+        changed = true;
+    }
+
+CircularBuffer<TimedError, 5> errors;
+    bool changed;
+};
+
+ErrorWidget errors(0, FONT_HEIGHT*3*5);
+
+void age_str(char *buf, size_t buflen, time_t now, time_t ts) {
+    double age = difftime(now, ts);
+    int mins = age / 60;
+    int secs = (int)age % 60;
+    snprintf(buf, buflen, "-%d:%02d", mins, secs);
+}
+
 class SensorValue : public Widget {
 public:
     SensorValue(int xpos, int ypos, float l, float h, char c) : Widget(xpos, ypos),
@@ -81,11 +155,13 @@ public:
                                                                 sym(c), ts(0) {}
 
     void render(time_t now) {
+        prune(now);
+
         tft.setCursor(x, y);
         tft.setTextSize(3);
         if (isnan(v)) {
             tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
-            tft.fillRect(x, y, FONT_WIDTH*3*8, FONT_HEIGHT*3, ILI9341_BLACK);
+            tft.fillRect(x, y, FONT_WIDTH*3*8, FONT_HEIGHT*3 + FONT_HEIGHT*2, ILI9341_BLACK);
         } else {
             if (v < low) {
                 tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
@@ -110,10 +186,7 @@ public:
 
             tft.setTextSize(1);
             tft.setCursor(x + FONT_WIDTH*2*6 + 4, y+FONT_HEIGHT*3 + 8);
-            double age = difftime(now, ts);
-            int mins = age / 60;
-            int secs = (int)age % 60;
-            snprintf(buf, sizeof(buf), "-%d:%02d", mins, secs);
+            age_str(buf, sizeof(buf), now, ts);
             tft.print(buf);
         }
     }
@@ -128,7 +201,6 @@ public:
         double age = difftime(now, ts);
         if (hasValue() && age > OLDEST_READING) {
             v = NAN;
-            render(now);
         }
     }
 
@@ -163,7 +235,7 @@ SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_R
 
 TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
 
-Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, nullptr};
+Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, nullptr};
 
 void setup() {
     Serial.begin(115200);
@@ -255,48 +327,10 @@ void appendBytes(String &s, const byte* payload, unsigned int length) {
     }
 }
 
-int pruneErrors(time_t now) {
-    int pruned(0);
-    // Kill off old errors.
-    while (errors.size() > 0 && difftime(now, errors.first().ts) > OLDEST_ERROR) {
-        Serial.print("Pruning error: ");
-        Serial.print(errors.first().msg);
-        Serial.print(": ");
-        Serial.print(errors.first().ts);
-        pruned++;
-        errors.shift();
-    }
-    return pruned;
-}
-
-void displayErrs() {
-    // font size is 5x8, but *3 and there are about three lines of
-    // that.  We want to draw below that, so say, fifth line down...
-    uint16_t topy = FONT_HEIGHT*3*5;
-
-    tft.fillRect(0, topy, 320, 240-topy, ILI9341_BLACK);
-
-    tft.setCursor(0, topy);
-
-    tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
-    tft.setTextSize(2);
-
-    for (unsigned int i = errors.size(); i > 0; i--) {
-        tft.println(errors[i-1].msg);
-    }
-
-    tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
-    tft.setTextSize(3);
-}
-
 void displayErr(const byte* payload, unsigned int length) {
     String s;
     appendBytes(s, payload, length);
-
-    TimedError e(s);
-    errors.push(e);
-
-    displayErrs();
+    errors.addError(s);
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -377,6 +411,9 @@ void showStatusMessage() {
     auto conned = client.connected();
     bool hasSomeData = tempWidget.hasValue() || humidityWidget.hasValue();
 
+    tft.setTextSize(3);
+    tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
+
     if (conned && !hasSomeData) {
         if (waiting) {
             return;
@@ -399,20 +436,9 @@ void loop() {
     client.loop();
     showStatusMessage();
 
-    static long lastPrune = 0;
-    long now = millis();
-    time_t nowt(time(NULL));
-    if (now - lastPrune > 5000) {
-        lastPrune = now;
-
-        if (pruneErrors(nowt) > 0) {
-            displayErrs();
-        }
-        tempWidget.prune(nowt);
-        humidityWidget.prune(nowt);
-    }
+    time_t now(time(NULL));
 
     for (int i = 0; widgets[i]; i++) {
-        widgets[i]->render(nowt);
+        widgets[i]->render(now);
     }
 }
