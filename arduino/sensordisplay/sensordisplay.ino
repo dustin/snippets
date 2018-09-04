@@ -1,6 +1,7 @@
 #include <CircularBuffer.h>
 
 #include <WiFi.h>
+#include <WiFiMulti.h>
 #include <PubSubClient.h>
 #include <time.h>
 
@@ -38,6 +39,8 @@ const float tooCold(10), tooHot(28);
 # define STMPE_CS PC7
 # define SD_CS    PC5
 #endif
+
+WiFiMulti wifiMulti;
 
 WiFiClient wiCli;
 PubSubClient client(wiCli);
@@ -308,14 +311,13 @@ void setupWifi() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); // low is on, night is day
 
-    WiFi.mode(WIFI_STA);
-    // WiFi.hostname(myname);
-    WiFi.begin(ssid, password);
+    wifiMulti.addAP("AP1", "PW1");
+    wifiMulti.addAP("AP2", "PW2");
 
     tft.setCursor(0, 0);
     tft.println("connecting...");
 
-    while (WiFi.status() != WL_CONNECTED) {
+    while (wifiMulti.run() != WL_CONNECTED) {
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
         digitalWrite(LED_BUILTIN, HIGH);
