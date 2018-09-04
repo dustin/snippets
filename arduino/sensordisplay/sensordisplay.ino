@@ -249,12 +249,67 @@ public:
     }
 };
 
+class WiFiWidget : public Widget {
+public:
+    WiFiWidget(int x, int y) : Widget(x, y), status(-999) {}
+
+    void render(time_t t) {
+        if (staleness(t) < 1) {
+            return;
+        }
+        modtime = t;
+
+        tft.setCursor(x, y);
+        tft.setTextSize(2);
+        tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
+
+        int st = WiFi.status();
+
+        if (status != st) {
+            tft.fillRect(0, y, 320, FONT_HEIGHT*3, ILI9341_BLACK);
+        }
+
+        status = st;
+
+        if (st != WL_CONNECTED) {
+            showStatus();
+            return;
+        }
+
+        tft.print(WiFi.SSID());
+        tft.print(" ");
+        tft.print(WiFi.RSSI());
+        tft.print("dBm  ");
+    }
+
+    void showStatus() {
+        tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
+        tft.print("wifi: ");
+        tft.setCursor(x + FONT_WIDTH*2 + 13, y+4);
+
+        switch (status) {
+        case WL_CONNECTED: tft.print("connected"); break;
+        case WL_NO_SHIELD: tft.print("no shield"); break;
+        case WL_IDLE_STATUS: tft.print("idle"); break;
+        case WL_NO_SSID_AVAIL: tft.print("no available SSID"); break;
+        case WL_SCAN_COMPLETED: tft.print("scan complete"); break;
+        case WL_CONNECT_FAILED: tft.print("connect failed"); break;
+        case WL_CONNECTION_LOST: tft.print("conn lost"); break;
+        case WL_DISCONNECTED: tft.print("disconnected"); break;
+        }
+    }
+
+    int status;
+};
+
 SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
 SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
 
 TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
 
-Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, nullptr};
+WiFiWidget wifiWidget(0, 0);
+
+Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, &wifiWidget, nullptr};
 
 void setup() {
     Serial.begin(115200);
