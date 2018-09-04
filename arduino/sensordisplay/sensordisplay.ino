@@ -87,7 +87,7 @@ public:
     ErrorWidget(int x, int y) : Widget(x, y), changed(false) {}
 
     void render(time_t now) {
-        if (errors.size() == 0) {
+        if (!changed && errors.size() == 0) {
             return;
         }
 
