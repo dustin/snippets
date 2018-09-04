@@ -276,10 +276,14 @@ public:
             return;
         }
 
-        tft.print(WiFi.SSID());
-        tft.print(" ");
-        tft.print(WiFi.RSSI());
-        tft.print("dBm  ");
+        char buf[(320 / (FONT_WIDTH*2)) + 1];
+        String ssid = WiFi.SSID();
+        #define MAX_SSID_LEN 19
+        if (ssid.length() > MAX_SSID_LEN) {
+            ssid = ssid.substring(ssid.length() - MAX_SSID_LEN);
+        }
+        snprintf(buf, sizeof(buf), "%-19s %ddBm", ssid.c_str(), WiFi.RSSI());
+        tft.print(buf);
     }
 
     void showStatus() {
