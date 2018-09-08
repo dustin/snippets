@@ -395,7 +395,7 @@ void setupDisplay() {
     digitalWrite(BACKLIGHT, HIGH);
 
     tft.begin();
-    tft.setRotation(3);
+    tft.setRotation(1);
     tft.setTextSize(3);
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
 
