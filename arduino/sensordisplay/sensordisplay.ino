@@ -42,6 +42,7 @@ const float tooCold(10), tooHot(28);
 #endif
 
 #define BACKLIGHT 21
+#define BATTERY_PIN A13
 
 WiFiMulti wifiMulti;
 
@@ -313,6 +314,38 @@ public:
     int status;
 };
 
+class BatteryWidget : public Widget {
+public:
+    BatteryWidget(int x, int y) : Widget(x, y) {}
+
+    void render(time_t t) {
+        if (staleness(t) < 5) {
+            return;
+        }
+        modtime = t;
+
+        auto r = analogRead(BATTERY_PIN);
+        Serial.print("Raw reading: ");
+        Serial.println(r);
+        float halfv = 3.30f * float(r) / 4096.0f;
+        // auto halfv = r * (3.0 / 4096.0);
+        auto v = halfv * 2;
+
+        tft.setCursor(x, y);
+        if (v > 3.8) {
+            tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
+        } else if (v > 3.6) {
+            tft.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
+        } else {
+            tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
+        }
+
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%.2fV", v);
+        tft.print(buf);
+    }
+};
+
 SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
 SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
 
@@ -320,7 +353,9 @@ TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
 
 WiFiWidget wifiWidget(0, 0);
 
-Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, &wifiWidget, nullptr};
+BatteryWidget batteryWidget(0, 240-FONT_HEIGHT*2);
+
+Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, &wifiWidget, &batteryWidget, nullptr};
 
 void setup() {
     Serial.begin(115200);
@@ -328,6 +363,8 @@ void setup() {
     setupWifi();
     setupTime();
     setupMQTT();
+
+    pinMode(BATTERY_PIN, INPUT);
 }
 
 void statusMessage(String msg) {
