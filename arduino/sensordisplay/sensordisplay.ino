@@ -133,10 +133,6 @@ public:
         int pruned(0);
         // Kill off old errors.
         while (errors.size() > 0 && difftime(now, errors.first().ts) > OLDEST_ERROR) {
-            Serial.print("Pruning error: ");
-            Serial.print(errors.first().msg);
-            Serial.print(": ");
-            Serial.print(errors.first().ts);
             pruned++;
             errors.shift();
         }
@@ -325,8 +321,6 @@ public:
         modtime = t;
 
         auto r = analogRead(BATTERY_PIN);
-        Serial.print("Raw reading: ");
-        Serial.println(r);
         float halfv = 3.30f * float(r) / 4096.0f;
         // auto halfv = r * (3.0 / 4096.0);
         auto v = halfv * 2;
@@ -376,7 +370,7 @@ void statusMessage(String msg) {
 
 void setupTime() {
     configTime(0 /* tz */, 0 /* dst */, "pool.ntp.org");
-    Serial.println("Waiting for time sync...");
+    Serial.println(F("Waiting for time sync..."));
     statusMessage("syncing time");
     while (time(nullptr) < 1535920965) {
         delay(10);
@@ -385,7 +379,7 @@ void setupTime() {
     tzset();
 
     latestMod = time(NULL);
-    Serial.print("Initial time: ");
+    Serial.print(F("Initial time: "));
     Serial.println(latestMod);
 }
 
@@ -401,15 +395,15 @@ void setupDisplay() {
 
     // read diagnostics (optional but can help debug problems)
     uint8_t x = tft.readcommand8(ILI9341_RDMODE);
-    Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
+    Serial.print(F("Display Power Mode: 0x")); Serial.println(x, HEX);
     x = tft.readcommand8(ILI9341_RDMADCTL);
-    Serial.print("MADCTL Mode: 0x"); Serial.println(x, HEX);
+    Serial.print(F("MADCTL Mode: 0x")); Serial.println(x, HEX);
     x = tft.readcommand8(ILI9341_RDPIXFMT);
-    Serial.print("Pixel Format: 0x"); Serial.println(x, HEX);
+    Serial.print(F("Pixel Format: 0x")); Serial.println(x, HEX);
     x = tft.readcommand8(ILI9341_RDIMGFMT);
-    Serial.print("Image Format: 0x"); Serial.println(x, HEX);
+    Serial.print(F("Image Format: 0x")); Serial.println(x, HEX);
     x = tft.readcommand8(ILI9341_RDSELFDIAG);
-    Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX);
+    Serial.print(F("Self Diagnostic: 0x")); Serial.println(x, HEX);
 
     tft.fillScreen(ILI9341_BLACK);
 
@@ -437,7 +431,7 @@ void setupWifi() {
         delay(500);
     }
 
-    Serial.println("IP address: ");
+    Serial.println(F("IP address: "));
     Serial.println(WiFi.localIP());
     tft.fillScreen(ILI9341_BLACK);
     tft.setCursor(0, 0);
@@ -465,9 +459,9 @@ void displayErr(const byte* payload, unsigned int length) {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-    Serial.print("Message arrived [");
+    Serial.print(F("Message arrived ["));
     Serial.print(topic);
-    Serial.print("] ");
+    Serial.print(F("] "));
     for (int i = 0; i < length; i++) {
         Serial.print((char)payload[i]);
     }
@@ -532,18 +526,18 @@ void reconnect() {
     while (!client.connected()) {
         digitalWrite(BACKLIGHT, HIGH);
         showConnectionState();
-        Serial.print("Attempting MQTT connection...");
+        Serial.print(F("Attempting MQTT connection..."));
         // Attempt to connect
         if (client.connect("workshop-display", mqttUser, mqttAuth)) {
-            Serial.println("connected");
+            Serial.println(F("connected"));
             client.subscribe(inTopic);
             client.subscribe(workshopTemp);
             client.subscribe(workshopHumidity);
             client.subscribe(errFeed);
         } else {
-            Serial.print("failed, rc=");
+            Serial.print(F("failed, rc="));
             Serial.print(client.state());
-            Serial.println(" try again in 5 seconds");
+            Serial.println(F(" try again in 5 seconds"));
             delay(5000);
         }
     }
