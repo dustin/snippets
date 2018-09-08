@@ -8,6 +8,7 @@
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
+#include <Adafruit_STMPE610.h>
 
 const char* ssid = "XXXXXX";
 const char* password = "XXXXXX";
@@ -40,12 +41,18 @@ const float tooCold(10), tooHot(28);
 # define SD_CS    PC5
 #endif
 
+#define BACKLIGHT 21
+
 WiFiMulti wifiMulti;
 
 WiFiClient wiCli;
 PubSubClient client(wiCli);
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+Adafruit_STMPE610 touch = Adafruit_STMPE610(STMPE_CS);
+
+// This is basically used to determine how long the display is lit.
+static time_t latestMod(0);
 
 #define BASE_COLOR ILI9341_GREEN
 
@@ -340,12 +347,16 @@ void setupTime() {
     setenv("TZ", "PST8PDT7,M3.2.0/02:00:00,M11.1.0/02:00:00", 1);
     tzset();
 
+    latestMod = time(NULL);
     Serial.print("Initial time: ");
-    Serial.println(time(NULL));
+    Serial.println(latestMod);
 }
 
 
 void setupDisplay() {
+    pinMode(BACKLIGHT, OUTPUT);
+    digitalWrite(BACKLIGHT, HIGH);
+
     tft.begin();
     tft.setRotation(3);
     tft.setTextSize(3);
@@ -364,14 +375,20 @@ void setupDisplay() {
     Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX);
 
     tft.fillScreen(ILI9341_BLACK);
+
+    if (! touch.begin()) {
+        Serial.println(F("Touch screen not found"));
+    }
 }
 
 void setupWifi() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); // low is on, night is day
 
-    wifiMulti.addAP("AP1", "PW1");
-    wifiMulti.addAP("AP2", "PW2");
+    wifiMulti.addAP("Spy Wireless IX", "monstercable");
+    wifiMulti.addAP("Spy Wireless VIII", "monstercable");
+    wifiMulti.addAP("GoogleGuest", "");
+    wifiMulti.addAP("GoogleGuest-Legacy", "");
 
     tft.setCursor(0, 0);
     tft.println("connecting...");
@@ -420,6 +437,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
 
     time_t now(time(NULL));
+    latestMod = now;
     if (strcmp(topic, workshopTemp) == 0) {
         char *end;
         tempWidget.update(strtof((char*)payload, &end), now);
@@ -460,9 +478,22 @@ void showConnectionState() {
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
 }
 
+void checkTouch() {
+    if (touch.touched()) {
+        uint16_t x, y;
+        uint8_t z;
+        while (! touch.bufferEmpty()) {
+            touch.readData(&x, &y, &z);
+        }
+        touch.writeRegister8(STMPE_INT_STA, 0xFF); // reset all ints
+        latestMod = time(NULL);
+    }
+}
+
 void reconnect() {
     // Loop until we're reconnected
     while (!client.connected()) {
+        digitalWrite(BACKLIGHT, HIGH);
         showConnectionState();
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
@@ -512,10 +543,13 @@ void loop() {
     }
     client.loop();
     showStatusMessage();
+    checkTouch();
 
     time_t now(time(NULL));
 
     for (int i = 0; widgets[i]; i++) {
         widgets[i]->render(now);
     }
+
+    digitalWrite(BACKLIGHT, difftime(now, latestMod) > 15 ? LOW : HIGH);
 }
