@@ -292,8 +292,8 @@ public:
 
     void showStatus() {
         tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
-        tft.print("wifi: ");
         tft.setCursor(x + FONT_WIDTH*2 + 13, y+4);
+        tft.print("wifi: ");
 
         switch (status) {
         case WL_CONNECTED: tft.print("connected"); break;
@@ -521,10 +521,28 @@ void checkTouch() {
     }
 }
 
+void renderWidgets(time_t now) {
+    for (int i = 0; widgets[i]; i++) {
+        widgets[i]->render(now);
+    }
+}
+
 void reconnect() {
-    // Loop until we're reconnected
-    while (!client.connected()) {
+    // Wifi
+    while (WiFi.status() != WL_CONNECTED) {
         digitalWrite(BACKLIGHT, HIGH);
+        wifiMulti.run();
+        delay(1000);
+        Serial.println(F("reconnecting to wifi..."));
+        time_t now(time(NULL));
+        renderWidgets(now);
+    }
+
+    // MQTT
+    while (!client.connected()) {
+        time_t now(time(NULL));
+        digitalWrite(BACKLIGHT, HIGH);
+        renderWidgets(now);
         showConnectionState();
         Serial.print(F("Attempting MQTT connection..."));
         // Attempt to connect
@@ -577,10 +595,7 @@ void loop() {
     checkTouch();
 
     time_t now(time(NULL));
-
-    for (int i = 0; widgets[i]; i++) {
-        widgets[i]->render(now);
-    }
+    renderWidgets(now);
 
     digitalWrite(BACKLIGHT, difftime(now, latestMod) > 15 ? LOW : HIGH);
 }
