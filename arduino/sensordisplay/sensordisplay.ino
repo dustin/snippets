@@ -94,7 +94,7 @@ public:
 class ErrorWidget : public Widget {
 public:
 
-    ErrorWidget(int x, int y) : Widget(x, y), changed(false) {}
+    ErrorWidget(int x, int y, int m) : Widget(x, y), maxHeight(m), changed(false) {}
 
     void render(time_t now) {
         if (!changed && errors.size() == 0) {
@@ -114,7 +114,16 @@ public:
         tft.setCursor(0, y+FONT_HEIGHT+2);
         tft.setTextSize(2);
 
+        int height(0);
         for (unsigned int i = errors.size(); i > 0; i--) {
+            auto e = errors[i-1].msg;
+            int rows = 1 +  e.length() / 27; // room for 26 at font size 3; fair dice roll.
+            height += (3 * FONT_HEIGHT * rows);
+
+            if (height > maxHeight) {
+                break;
+            }
+
             tft.println(errors[i-1].msg);
         }
         modtime = now;
@@ -150,10 +159,11 @@ public:
     }
 
     CircularBuffer<TimedError, 5> errors;
+    int maxHeight;
     bool changed;
 };
 
-ErrorWidget errors(0, FONT_HEIGHT*3*5);
+ErrorWidget errors(0, FONT_HEIGHT*3*5, FONT_HEIGHT*3*5);
 
 void age_str(char *buf, size_t buflen, time_t now, time_t ts) {
     double age = difftime(now, ts);
