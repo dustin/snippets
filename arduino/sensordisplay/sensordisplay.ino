@@ -388,6 +388,7 @@ void setupOTA() {
                      tft.fillScreen(ILI9341_BLACK);
                      statusMessage("Starting update");
                      client.publish(errFeed, "display OTA upgrade beginning");
+                     tft.setTextSize(3);
                      tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
                      digitalWrite(BACKLIGHT, HIGH);
                  })
