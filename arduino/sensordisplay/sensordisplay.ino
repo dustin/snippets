@@ -2,7 +2,8 @@
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
-#include <PubSubClient.h>
+#include <WiFiClientSecure.h>
+#include <MQTT.h>
 #include <time.h>
 
 #include <SPI.h>
@@ -46,8 +47,8 @@ const float tooCold(10), tooHot(28);
 
 WiFiMulti wifiMulti;
 
-WiFiClient wiCli;
-PubSubClient client(wiCli);
+WiFiClientSecure wiCli;
+MQTTClient client;
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 Adafruit_STMPE610 touch = Adafruit_STMPE610(STMPE_CS);
@@ -441,8 +442,8 @@ void setupWifi() {
 }
 
 void setupMQTT() {
-    client.setServer(mqttServer, 1883);
-    client.setCallback(callback);
+    client.begin(mqttServer, 8883, wiCli);
+    client.onMessage(messageReceived);
 }
 
 void appendBytes(String &s, const byte* payload, unsigned int length) {
@@ -452,31 +453,20 @@ void appendBytes(String &s, const byte* payload, unsigned int length) {
     }
 }
 
-void displayErr(const byte* payload, unsigned int length) {
-    String s;
-    appendBytes(s, payload, length);
-    errors.addError(s);
-}
-
-void callback(char* topic, byte* payload, unsigned int length) {
+void messageReceived(String &topic, String &payload) {
     Serial.print(F("Message arrived ["));
     Serial.print(topic);
     Serial.print(F("] "));
-    for (int i = 0; i < length; i++) {
-        Serial.print((char)payload[i]);
-    }
-    Serial.println();
+    Serial.println(payload);
 
     time_t now(time(NULL));
     latestMod = now;
-    if (strcmp(topic, workshopTemp) == 0) {
-        char *end;
-        tempWidget.update(strtof((char*)payload, &end), now);
-    } else if (strcmp(topic, workshopHumidity) == 0) {
-        char *end;
-        humidityWidget.update(strtof((char*)payload, &end), now);
-    } else if (strcmp(topic, errFeed) == 0) {
-        displayErr(payload, length);
+    if (topic == workshopTemp) {
+        tempWidget.update(payload.toFloat(), now);
+    } else if (topic == workshopHumidity) {
+        humidityWidget.update(payload.toFloat(), now);
+    } else if (topic == errFeed) {
+        errors.addError(payload);
     }
 }
 
@@ -489,6 +479,9 @@ void showConnectionState() {
         tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
         tft.print("disco'd: ");
         tft.setTextSize(2);
+        tft.print("reason: ");
+        tft.print(client.lastError());
+        /*
         switch (client.state()) {
         case MQTT_CONNECTION_TIMEOUT: tft.print("timeout"); break;
         case MQTT_CONNECTION_LOST: tft.print("conn lost"); break;
@@ -504,6 +497,7 @@ void showConnectionState() {
             tft.print("unknown reason: ");
             tft.print(client.state());
         }
+        */
     }
     tft.setTextSize(3);
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
@@ -554,7 +548,7 @@ void reconnect() {
             client.subscribe(errFeed);
         } else {
             Serial.print(F("failed, rc="));
-            Serial.print(client.state());
+            Serial.print(client.lastError());
             Serial.println(F(" try again in 5 seconds"));
             delay(5000);
         }
