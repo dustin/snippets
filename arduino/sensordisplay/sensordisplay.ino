@@ -523,24 +523,26 @@ void showConnectionState() {
         tft.print("disco'd: ");
         tft.setTextSize(2);
         tft.print("reason: ");
-        tft.print(client.lastError());
-        /*
-        switch (client.state()) {
-        case MQTT_CONNECTION_TIMEOUT: tft.print("timeout"); break;
-        case MQTT_CONNECTION_LOST: tft.print("conn lost"); break;
-        case MQTT_CONNECT_FAILED: tft.print("conn failed"); break;
-        case MQTT_DISCONNECTED: tft.print("disconnected"); break;
-        case MQTT_CONNECTED: tft.print("connected"); break;
-        case MQTT_CONNECT_BAD_PROTOCOL: tft.print("bad protocol"); break;
-        case MQTT_CONNECT_BAD_CLIENT_ID: tft.print("bad client ID"); break;
-        case MQTT_CONNECT_UNAVAILABLE: tft.print("unavailable"); break;
-        case MQTT_CONNECT_BAD_CREDENTIALS: tft.print("bad creds"); break;
-        case MQTT_CONNECT_UNAUTHORIZED: tft.print("unauthorized"); break;
+
+        switch (client.lastError()) {
+        case LWMQTT_SUCCESS: tft.print("success?"); break;
+        case LWMQTT_BUFFER_TOO_SHORT: tft.print("buffer too short"); break;
+        case LWMQTT_VARNUM_OVERFLOW: tft.print("varnum overflow"); break;
+        case LWMQTT_NETWORK_FAILED_CONNECT: tft.print("failed connect"); break;
+        case LWMQTT_NETWORK_TIMEOUT: tft.print("timeout"); break;
+        case LWMQTT_NETWORK_FAILED_READ: tft.print("failed read"); break;
+        case LWMQTT_NETWORK_FAILED_WRITE: tft.print("failed write"); break;
+        case LWMQTT_REMAINING_LENGTH_OVERFLOW: tft.print("remaining length overflow"); break;
+        case LWMQTT_REMAINING_LENGTH_MISMATCH: tft.print("remaining length mismatch"); break;
+        case LWMQTT_MISSING_OR_WRONG_PACKET: tft.print("missing or wrong packet"); break;
+        case LWMQTT_CONNECTION_DENIED: tft.print("connection denied"); break;
+        case LWMQTT_FAILED_SUBSCRIPTION: tft.print("failed subscription"); break;
+        case LWMQTT_SUBACK_ARRAY_OVERFLOW: tft.print("suback array overflow"); break;
+        case LWMQTT_PONG_TIMEOUT: tft.print("pong timeout"); break;
         default:
             tft.print("unknown reason: ");
-            tft.print(client.state());
+            tft.print(client.lastError());
         }
-        */
     }
     tft.setTextSize(3);
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
