@@ -1,5 +1,6 @@
 #include <CircularBuffer.h>
 
+#include <ArduinoOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
@@ -356,10 +357,52 @@ void setup() {
     Serial.begin(115200);
     setupDisplay();
     setupWifi();
+    setupOTA();
     setupTime();
     setupMQTT();
 
     pinMode(BATTERY_PIN, INPUT);
+}
+
+void setupOTA() {
+    ArduinoOTA.setHostname("sensordisplay");
+
+    ArduinoOTA
+        .onStart([]() {
+                     String type;
+                     if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                     else // U_SPIFFS
+                         type = "filesystem";
+                     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                     tft.fillScreen(ILI9341_BLACK);
+                     statusMessage("Starting update");
+                     client.publish(errFeed, "display OTA upgrade beginning");
+                     tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
+                     digitalWrite(BACKLIGHT, HIGH);
+                 })
+        .onEnd([]() {
+                   statusMessage("OTA Complete");
+               })
+        .onProgress([](unsigned int progress, unsigned int total) {
+                        char buf[80];
+                        float complete = (float)progress / (float)total;
+                        snprintf(buf, sizeof(buf), "Progress: %.0f%%    ", 100.0f*complete);
+                        tft.setCursor(0, FONT_HEIGHT*3);
+                        tft.fillRect(0, 0, (int)(320.0f * complete), 5, ILI9341_BLUE);
+                        tft.print(buf);
+                    })
+        .onError([](ota_error_t error) {
+                     switch (error) {
+                     case OTA_AUTH_ERROR: statusMessage("Error: Auth Failed"); break;
+                     case OTA_BEGIN_ERROR:  statusMessage("Error: Begin Failed"); break;
+                     case OTA_CONNECT_ERROR: statusMessage("Error: Connect Failed"); break;
+                     case OTA_RECEIVE_ERROR: statusMessage("Error: Receive Failed"); break;
+                     case OTA_END_ERROR: statusMessage("Error: End Failed"); break;
+                     default: statusMessage(String("Error #") + error);
+                     }
+                 });
+    ArduinoOTA.begin();
 }
 
 void statusMessage(String msg) {
@@ -581,6 +624,8 @@ void showStatusMessage() {
 }
 
 void loop() {
+    ArduinoOTA.handle();
+
     if (!client.connected()) {
         reconnect();
     }
