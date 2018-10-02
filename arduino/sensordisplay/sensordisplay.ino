@@ -418,6 +418,7 @@ void setupOTA() {
 
 void statusMessage(String msg) {
     uint16_t topy = FONT_HEIGHT*3; // one row down at 3x
+    tft.setTextSize(2);
     tft.fillRect(0, topy, 320, FONT_HEIGHT*3, ILI9341_BLACK);
     tft.setCursor(0, topy);
     tft.print(msg);
@@ -467,6 +468,38 @@ void setupDisplay() {
     }
 }
 
+String wifiEventString(WiFiEvent_t e) {
+    switch(e) {
+    case SYSTEM_EVENT_WIFI_READY: return "WiFi ready";
+    case SYSTEM_EVENT_SCAN_DONE: return "finish scanning AP";
+    case SYSTEM_EVENT_STA_START: return "station start";
+    case SYSTEM_EVENT_STA_STOP: return "station stop";
+    case SYSTEM_EVENT_STA_CONNECTED: return "station connected to AP";
+    case SYSTEM_EVENT_STA_DISCONNECTED: return "station disconnected from AP";
+    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE: return "the auth mode of AP connected by ESP32 station changed";
+    case SYSTEM_EVENT_STA_GOT_IP: return "station got IP from connected AP";
+    case SYSTEM_EVENT_STA_LOST_IP: return "station lost IP and the IP is reset to 0";
+    case SYSTEM_EVENT_STA_WPS_ER_SUCCESS: return "station wps succeeds in enrollee mode";
+    case SYSTEM_EVENT_STA_WPS_ER_FAILED: return "station wps fails in enrollee mode";
+    case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT: return "station wps timeout in enrollee mode";
+    case SYSTEM_EVENT_STA_WPS_ER_PIN: return "station wps pin code in enrollee mode";
+    case SYSTEM_EVENT_AP_START: return "soft-AP start";
+    case SYSTEM_EVENT_AP_STOP: return "soft-AP stop";
+    case SYSTEM_EVENT_AP_STACONNECTED: return "a station connected to ESP32 soft-AP";
+    case SYSTEM_EVENT_AP_STADISCONNECTED: return "a station disconnected from ESP32 soft-AP";
+    case SYSTEM_EVENT_AP_PROBEREQRECVED: return "Receive probe request packet in soft-AP interface";
+    case SYSTEM_EVENT_GOT_IP6: return "station or ap or ethernet interface v6IP addr is preferred";
+    case SYSTEM_EVENT_ETH_START: return "ethernet start";
+    case SYSTEM_EVENT_ETH_STOP: return "ethernet stop";
+    case SYSTEM_EVENT_ETH_CONNECTED: return "ethernet phy link up";
+    case SYSTEM_EVENT_ETH_DISCONNECTED: return "ethernet phy link down";
+    case SYSTEM_EVENT_ETH_GOT_IP: return "ethernet got IP from connected AP";
+    case SYSTEM_EVENT_AP_STAIPASSIGNED: return "IP assigned";
+    case SYSTEM_EVENT_MAX: return "EVENT_MAX is not a real value.";
+    }
+    return "Unknown event";
+}
+
 void setupWifi() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); // low is on, night is day
@@ -478,6 +511,8 @@ void setupWifi() {
 
     tft.setCursor(0, 0);
     tft.println("connecting...");
+
+    WiFi.onEvent([](WiFiEvent_t e) { statusMessage(wifiEventString(e)); });
 
     while (wifiMulti.run() != WL_CONNECTED) {
         digitalWrite(LED_BUILTIN, LOW);
