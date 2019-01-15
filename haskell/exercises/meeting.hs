@@ -39,6 +39,9 @@ data Vacation = August | December | January | June | March
 
 -- General helpers for constructing seqeunces.
 
+allOf :: (Eq a, Enum a, Bounded a) => a -> [a]
+allOf _ = [minBound..]
+
 inPos :: Eq a => Int -> a -> [a] -> [[a]]
 inPos n a as = map (\l -> take n l <> [a] <> drop n l) $ (permutations . delete a) as
 
