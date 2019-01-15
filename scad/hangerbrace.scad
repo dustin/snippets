@@ -26,7 +26,7 @@ difference() {
                 sphere(d=(1.5*inch));
             }
         }
-        
+
         translate([0, 0, -mainwidth/4]) {
             difference() {
                 cylinder(d=thickness, h=topwidth);
@@ -38,7 +38,7 @@ difference() {
     translate([0, 0, -.1]) cylinder(d=inch, h=mainwidth + .2);
     translate([0, 0, 25]) rotate([0, 90, 0]) cylinder(d=inch, h=3 * inch);
     translate([inch, 0, 25]) rotate([0, 90, 0]) cylinder(d=1.25 * inch, h=.5 * inch);
-    
+
     band(.9*inch, 1.5*inch);
     band(inch, inch);
     translate([-40, 0, -40]) cube([400, 400, 400]);
