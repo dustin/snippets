@@ -43,13 +43,13 @@ allOf :: (Eq a, Enum a, Bounded a) => a -> [a]
 allOf _ = [minBound..]
 
 inPos :: Eq a => Int -> a -> [a] -> [[a]]
-inPos n a as = map (\l -> take n l <> [a] <> drop n l) $ (permutations . delete a) as
+inPos n a as = (\l -> take n l <> [a] <> drop n l) <$> (permutations . delete a) as
 
 onOneEnd :: Eq a => a -> [a] -> [[a]]
 onOneEnd a as = inBeginning a as <> inPos ((succ.length) as) a as
 
 inBeginning :: Eq a => a -> [a] -> [[a]]
-inBeginning a as = map (a:) $ (permutations . delete a) as
+inBeginning a as = (a:) <$> (permutations . delete a) as
 
 -- I hand-crafted all the sequences rather than using guards because
 -- they all had something interesting about them that would reduce the
@@ -62,7 +62,7 @@ ages :: [[Int]]
 ages = inPos 4 34 [40, 46, 51, 55]
 
 bosses :: [[Boss]]
-bosses = map (\l -> Michael : l <> [Julian]) $ permutations [Adam ..]
+bosses = (\l -> Michael : l <> [Julian]) <$> permutations [Adam ..]
 
 vacations :: [[Vacation]]
 vacations = inPos 3 August [December ..] `intersect` onOneEnd March [minBound..]
