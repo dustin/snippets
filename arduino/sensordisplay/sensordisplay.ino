@@ -1,8 +1,8 @@
+
 #include <CircularBuffer.h>
 
 #include <ArduinoOTA.h>
 #include <WiFi.h>
-#include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include <MQTT.h>
 #include <time.h>
@@ -12,20 +12,18 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_STMPE610.h>
 
-const char* ssid = "XXXXXX";
-const char* password = "XXXXXX";
+const char* ssid = "Spy Wireless IX";
+const char* password = "monstercable";
 const char* myname = "sensordisplay";
 
-const char* mqttServer = "io.adafruit.com";
-const char* mqttUser = "XXXXXX";
-const char* mqttAuth = "XXXXXX";
+const char* mqttServer = "mqtt";
+const char* mqttUser = "display";
+const char* mqttAuth = "";
 
-const char* workshopTemp = "XXXXXX";
-const char* workshopHumidity = "XXXXXX";
-const char* errFeed = "XXXXXX";
-const char* inTopic = "XXXXXX";
+const char* aqiTopic = "oro/purpleair/aqi";
 
-const float tooCold(10), tooHot(28);
+
+const char* inTopic = "na";
 
 #define FONT_WIDTH 5
 #define FONT_HEIGHT 8
@@ -46,9 +44,7 @@ const float tooCold(10), tooHot(28);
 #define BACKLIGHT 21
 #define BATTERY_PIN A13
 
-WiFiMulti wifiMulti;
-
-WiFiClientSecure wiCli;
+WiFiClient wiCli;
 MQTTClient client;
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
@@ -89,6 +85,23 @@ public:
 
     int x, y;
     time_t modtime;
+};
+
+class TextWidget : public Widget {
+public:
+    TextWidget(int x, int y, uint8_t s, uint16_t c, String m) : Widget(x, y), size(s), color(c), msg(m) {}
+
+    void render(time_t now) {
+        tft.setCursor(x, y);
+        tft.setTextSize(size);
+        tft.setTextColor(color, ILI9341_BLACK);
+        tft.print(msg);
+    }
+
+private:
+    uint8_t size;
+    uint16_t color;
+    String msg;
 };
 
 class ErrorWidget : public Widget {
@@ -172,12 +185,34 @@ void age_str(char *buf, size_t buflen, time_t now, time_t ts) {
     snprintf(buf, buflen, "-%d:%02d ", mins, secs);
 }
 
+/*
+ * Format an unsigned long (32 bits) into a string in the format
+ * "23,854,972".
+ *
+ * The provided buffer must be at least 14 bytes long. The number will
+ * be right-adjusted in the buffer. Returns a pointer to the first
+ * digit.
+ */
+static char *vtoa(int val, char *s)
+{
+    char *p = s + 13;
+    *p = '\0';
+    do {
+        if ((p - s) % 4 == 2)
+            *--p = ',';
+        *--p = '0' + val % 10;
+        val /= 10;
+    } while (val);
+    return p;
+}
+
+template <class T>
 class SensorValue : public Widget {
 public:
-    SensorValue(int xpos, int ypos, float l, float h, char c) : Widget(xpos, ypos),
-                                                                v(NAN),
-                                                                low(l), high(h),
-                                                                sym(c), ts(0) {}
+    SensorValue(int xpos, int ypos, T l, T h, char c) : Widget(xpos, ypos),
+                                                        v(0),
+                                                        low(l), high(h),
+                                                        sym(c), ts(0) {}
 
     void render(time_t now) {
         prune(now);
@@ -187,41 +222,42 @@ public:
         }
 
         tft.setCursor(x, y);
-        tft.setTextSize(3);
-        if (isnan(v)) {
+        tft.setTextSize(5);
+        if (!hasValue()) {
             tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
             tft.fillRect(x, y, FONT_WIDTH*3*8, FONT_HEIGHT*3 + FONT_HEIGHT*2, ILI9341_BLACK);
         } else {
             if (v < low) {
-                tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
+                tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
             } else if (v > high) {
                 tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
             } else {
-                tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
+                tft.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
             }
 
-            tft.print(v);
+            char buf[16];
+            tft.print(vtoa(v, buf));
             tft.print(sym);
 
             // Show a timestamp on the next line.
             tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
-            tft.setCursor(x, y+FONT_HEIGHT*3 + 2);
+            tft.setCursor(x, y+FONT_HEIGHT*5 + 2);
             struct tm tmts;
             localtime_r(&ts, &tmts);
-            char buf[10];
-            strftime(buf, sizeof(buf), "%H:%M", &tmts);
+
+            strftime(buf, sizeof(buf)-1, "%H:%M  ", &tmts);
             tft.setTextSize(2);
             tft.print(buf);
 
             tft.setTextSize(1);
-            tft.setCursor(x + FONT_WIDTH*2*6 + 4, y+FONT_HEIGHT*3 + 8);
+            tft.setCursor(x + FONT_WIDTH*2*6 + 4, y+FONT_HEIGHT*5 + 8);
             age_str(buf, sizeof(buf), now, ts);
             tft.print(buf);
         }
         modtime = now;
     }
 
-    void update(float f, time_t when) {
+    void update(T f, time_t when) {
         v = f;
         ts = when;
         modtime = 0;
@@ -229,17 +265,17 @@ public:
 
     void prune(time_t now) {
         double age = difftime(now, ts);
-        if (hasValue() && age > OLDEST_READING) {
-            v = NAN;
+        if (hasValue() && age > 86400) {
+            v = 0;
         }
     }
 
     bool hasValue() {
-        return !isnan(v);
+        return !(isnan(v) || v == 0);
     }
 
-    float v;
-    float low, high;
+    T  v;
+    T low, high;
     char sym;
     time_t ts;
 };
@@ -335,25 +371,29 @@ public:
         auto r = analogRead(BATTERY_PIN);
         float halfv = 3.30f * float(r) / 4096.0f;
         // auto halfv = r * (3.0 / 4096.0);
-        auto v = halfv * 2;
+        _reading = halfv * 2;
 
         tft.setCursor(x, y);
-        if (v > 3.8) {
+        if (_reading > 3.8) {
             tft.setTextColor(ILI9341_OLIVE, ILI9341_BLACK);
-        } else if (v > 3.6) {
+        } else if (_reading > 3.6) {
             tft.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
         } else {
             tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
         }
 
         char buf[8];
-        snprintf(buf, sizeof(buf), "%.2fV", v);
+        snprintf(buf, sizeof(buf), "%.2fV", _reading);
         tft.print(buf);
     }
+
+    float reading() { return _reading; }
+private:
+    float _reading;
 };
 
-SensorValue tempWidget(0, FONT_HEIGHT*3*READING_ROW, tooCold, tooHot, 'C');
-SensorValue humidityWidget(FONT_WIDTH*3*HUMIDITY_COLUMN, FONT_HEIGHT*3*READING_ROW, 0, 100, '%');
+TextWidget aqiLabelWidget(0, FONT_HEIGHT*3*READING_ROW, 3, ILI9341_OLIVE, "AQI ");
+SensorValue<int> aqiWidget(FONT_WIDTH*3*5, FONT_HEIGHT*3*READING_ROW, 100, 180, ' ');
 
 TimeWidget timeWidget(320-(FONT_WIDTH*2*23), 240-FONT_HEIGHT*2);
 
@@ -361,7 +401,7 @@ WiFiWidget wifiWidget(0, 0);
 
 BatteryWidget batteryWidget(0, 240-FONT_HEIGHT*2);
 
-Widget* widgets[] = {&tempWidget, &humidityWidget, &timeWidget, &errors, &wifiWidget, &batteryWidget, nullptr};
+Widget* widgets[] = {&aqiLabelWidget, &aqiWidget, &timeWidget, &errors, &wifiWidget, &batteryWidget, nullptr};
 
 void setup() {
     Serial.begin(115200);
@@ -387,7 +427,7 @@ void setupOTA() {
                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
                      tft.fillScreen(ILI9341_BLACK);
                      statusMessage("Starting update");
-                     client.publish(errFeed, "display OTA upgrade beginning");
+                     // client.publish(errFeed, "display OTA upgrade beginning");
                      tft.setTextSize(3);
                      tft.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
                      digitalWrite(BACKLIGHT, HIGH);
@@ -504,17 +544,14 @@ void setupWifi() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); // low is on, night is day
 
-    wifiMulti.addAP("Spy Wireless IX", "monstercable");
-    wifiMulti.addAP("Spy Wireless VIII", "monstercable");
-    wifiMulti.addAP("GoogleGuest", "");
-    wifiMulti.addAP("GoogleGuest-Legacy", "");
-
     tft.setCursor(0, 0);
     tft.println("connecting...");
 
+    WiFi.mode(WIFI_STA);
     WiFi.onEvent([](WiFiEvent_t e) { statusMessage(wifiEventString(e)); });
 
-    while (wifiMulti.run() != WL_CONNECTED) {
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
         digitalWrite(LED_BUILTIN, HIGH);
@@ -531,7 +568,7 @@ void setupWifi() {
 }
 
 void setupMQTT() {
-    client.begin(mqttServer, 8883, wiCli);
+    client.begin(mqttServer, 1883, wiCli);
     client.onMessage(messageReceived);
 }
 
@@ -550,12 +587,8 @@ void messageReceived(String &topic, String &payload) {
 
     time_t now(time(NULL));
     latestMod = now;
-    if (topic == workshopTemp) {
-        tempWidget.update(payload.toFloat(), now);
-    } else if (topic == workshopHumidity) {
-        humidityWidget.update(payload.toFloat(), now);
-    } else if (topic == errFeed) {
-        errors.addError(payload);
+    if (topic == aqiTopic) {
+        aqiWidget.update(payload.toInt(), now);
     }
 }
 
@@ -616,7 +649,6 @@ void reconnect() {
     // Wifi
     while (WiFi.status() != WL_CONNECTED) {
         digitalWrite(BACKLIGHT, HIGH);
-        wifiMulti.run();
         delay(1000);
         Serial.println(F("reconnecting to wifi..."));
         time_t now(time(NULL));
@@ -633,10 +665,7 @@ void reconnect() {
         // Attempt to connect
         if (client.connect("workshop-display", mqttUser, mqttAuth)) {
             Serial.println(F("connected"));
-            client.subscribe(inTopic);
-            client.subscribe(workshopTemp);
-            client.subscribe(workshopHumidity);
-            client.subscribe(errFeed);
+            client.subscribe(aqiTopic);
         } else {
             Serial.print(F("failed, rc="));
             Serial.print(client.lastError());
@@ -651,7 +680,7 @@ void showStatusMessage() {
     static bool waiting(false);
 
     auto conned = client.connected();
-    bool hasSomeData = tempWidget.hasValue() || humidityWidget.hasValue();
+    bool hasSomeData = aqiWidget.hasValue();
 
     tft.setTextSize(3);
     tft.setTextColor(BASE_COLOR, ILI9341_BLACK);
@@ -684,5 +713,7 @@ void loop() {
     time_t now(time(NULL));
     renderWidgets(now);
 
-    digitalWrite(BACKLIGHT, difftime(now, latestMod) > 15 ? LOW : HIGH);
+    auto dtime = batteryWidget.reading() > 4 ? (3600*4) : 60;
+
+    digitalWrite(BACKLIGHT, (difftime(now, latestMod) > dtime) ? LOW : HIGH);
 }
