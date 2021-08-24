@@ -20,11 +20,14 @@ MIN_LIGHT=500
 magtag = MagTag()
 
 def cylon(color):
+    magtag.peripherals.neopixels.fill((0, 0, 0))
+    magtag.peripherals.neopixel_disable = False
     for i in [3, 2, 1, 0, 1, 2, 3]:
         magtag.peripherals.neopixels[i] = color
         time.sleep(0.1)
         magtag.peripherals.neopixels[i] = (0, 0, 0)
         magtag.peripherals.neopixels.show()
+    magtag.peripherals.neopixel_disable = True
 
 
 # Before we do anything of interest, check to see if the light's on.
@@ -111,8 +114,9 @@ def main():
 
 try:
     main()
-    magtag.exit_and_deep_sleep(SLEEP_TIME)
 except:
-    cylon((64,0,0))
-    magtag.exit_and_deep_sleep(60)
+    print("oh no: exception")
+    cylon((16,0,0))
+
+magtag.exit_and_deep_sleep(SLEEP_TIME)
 
