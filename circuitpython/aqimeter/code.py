@@ -3,6 +3,9 @@ import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import socketpool
 import time
 import wifi
+from microcontroller import watchdog as w
+from watchdog import WatchDogMode
+import time
 
 try:
     import busio
@@ -25,14 +28,19 @@ PERIOD_TOPIC="oro/magtag/period"
 VOLT_TOPIC="oro/magtag/{mqtt_username}/voltage".format(**secrets)
 BAT_TOPIC="oro/magtag/{mqtt_username}/battery".format(**secrets)
 PM25_TOPIC="oro/magtag/{mqtt_username}/pm2.5".format(**secrets)
+DUR_TOPIC="oro/magtag/{mqtt_username}/duration".format(**secrets)
 MIN_LIGHT=500
 
 sleepTime=900
 
+w.timeout=10.0
+w.mode = WatchDogMode.RAISE
+w.feed()
 
 magtag = MagTag()
 
 def cylon(color):
+    w.feed()
     magtag.peripherals.neopixels.fill((0, 0, 0))
     magtag.peripherals.neopixel_disable = False
     for i in [3, 2, 1, 0, 1, 2, 3]:
@@ -41,6 +49,7 @@ def cylon(color):
         magtag.peripherals.neopixels[i] = (0, 0, 0)
         magtag.peripherals.neopixels.show()
     magtag.peripherals.neopixel_disable = True
+    w.feed()
 
 
 # Before we do anything of interest, check to see if the light's on.
@@ -54,6 +63,9 @@ if magtag.peripherals.light < MIN_LIGHT:
 
 
 def main():
+    w.feed()
+    startTime = time.monotonic()
+
     magtag.add_text(
         text_font="/fonts/Helvetica-Bold-100.bdf",
         text_position=(
@@ -68,10 +80,13 @@ def main():
         text_position=(10, magtag.graphics.display.height - 14),
     )
 
+    w.feed()
     magtag.peripherals.neopixel_disable = False
     magtag.peripherals.neopixels.fill((8, 0, 0))
     wifi.radio.connect(secrets["ssid"], secrets["password"])
     magtag.peripherals.neopixels.fill((6, 3, 16))
+
+    w.feed()
 
     timeAndAQI = ["", -1, 0]
 
@@ -111,12 +126,19 @@ def main():
     mqtt_client.subscribe(TIME_TOPIC)
     mqtt_client.subscribe(PERIOD_TOPIC)
 
+    w.feed()
+
     for i in range (0, 30):
         mqtt_client.loop()
 
         if isReady():
             break
         time.sleep(1)
+
+    w.deinit()
+    finished = time.monotonic()
+    print("time spent: ", finished)
+    mqtt_client.publish(DUR_TOPIC, finished)
 
     if not isReady():
         cylon((6,3,16))
@@ -143,5 +165,6 @@ except:
     print("oh no: exception")
     cylon((16,0,0))
 
+w.deinit()
 print("Sleeping for", sleepTime)
 magtag.exit_and_deep_sleep(sleepTime)
