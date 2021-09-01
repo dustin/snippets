@@ -5,6 +5,15 @@ import time
 import wifi
 
 try:
+    import busio
+    import board
+    from digitalio import DigitalInOut, Direction, Pull
+    from adafruit_pm25.i2c import PM25_I2C
+    pm25 = PM25_I2C(busio.I2C(board.SCL, board.SDA, frequency=100000))
+except:
+    pm25 = None
+
+try:
     from secrets import secrets
 except ImportError:
     print("WiFi secrets are kept in secrets.py, please add them there!")
@@ -15,6 +24,7 @@ TIME_TOPIC="oro/local/time"
 PERIOD_TOPIC="oro/magtag/period"
 VOLT_TOPIC="oro/magtag/{mqtt_username}/voltage".format(**secrets)
 BAT_TOPIC="oro/magtag/{mqtt_username}/battery".format(**secrets)
+PM25_TOPIC="oro/magtag/{mqtt_username}/pm2.5".format(**secrets)
 MIN_LIGHT=500
 
 sleepTime=900
@@ -63,10 +73,10 @@ def main():
     wifi.radio.connect(secrets["ssid"], secrets["password"])
     magtag.peripherals.neopixels.fill((6, 3, 16))
 
-    timeAndAQI = ["", -1]
+    timeAndAQI = ["", -1, 0]
 
     def isReady():
-        return timeAndAQI[0] != "" and timeAndAQI[1] != -1
+        return timeAndAQI[0] != "" and timeAndAQI[1] != -1 and timeAndAQI[2] != 0
 
     def gotAQI(client, topic, message):
         timeAndAQI[1] = float(message)
@@ -77,6 +87,7 @@ def main():
     def gotPeriod(client, topic, message):
         global sleepTime
         sleepTime = int(message)
+        timeAndAQI[2] = sleepTime
 
     pool = socketpool.SocketPool(wifi.radio)
 
@@ -111,6 +122,11 @@ def main():
         cylon((6,3,16))
         return
 
+    if pm25:
+        aqdata = pm25.read()
+        # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
+        mqtt_client.publish(PM25_TOPIC, aqdata["pm25 standard"], retain=True)
+
     magtag.peripherals.neopixels.fill((0, 0, 0))
     magtag.peripherals.neopixel_disable = True
 
@@ -126,7 +142,6 @@ try:
 except:
     print("oh no: exception")
     cylon((16,0,0))
-    raise
 
 print("Sleeping for", sleepTime)
 magtag.exit_and_deep_sleep(sleepTime)
