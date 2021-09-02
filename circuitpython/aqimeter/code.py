@@ -66,18 +66,26 @@ def main():
     w.feed()
     startTime = time.monotonic()
 
+    # The outside AQI
     magtag.add_text(
         text_font="/fonts/Helvetica-Bold-100.bdf",
         text_position=(
             (magtag.graphics.display.width // 2) - 1,
-            (magtag.graphics.display.height // 2) - 22,
+            (magtag.graphics.display.height // 2) - 10,
         ),
         text_anchor_point=(0.5, 0.5),
     )
 
+    # Time and Voltage
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(10, magtag.graphics.display.height - 14),
+    )
+
+    # Indoor AQI and stuff.
+    magtag.add_text(
+        text_font="/fonts/Arial-Bold-12.pcf",
+        text_position=(10, 8),
     )
 
     w.feed()
@@ -148,6 +156,7 @@ def main():
         aqdata = pm25.read()
         # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
         mqtt_client.publish(PM25_TOPIC, aqdata["pm25 standard"], retain=True)
+        magtag.set_text('Inside: {aqi}'.format(aqi=aqdata["pm25 standard"]), 2, False)
 
     magtag.peripherals.neopixels.fill((0, 0, 0))
     magtag.peripherals.neopixel_disable = True
