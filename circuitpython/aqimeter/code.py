@@ -166,7 +166,11 @@ def main():
 
     magtag.refresh()
 
+    w.feed()
     time.sleep(2)
+    if volts > 4.1:
+        global sleepTime
+        sleepTime = sleepTime / 10
 
 try:
     main()
