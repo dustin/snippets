@@ -143,7 +143,7 @@ def main():
             break
         time.sleep(1)
 
-    w.deinit()
+    w.feed()
     finished = time.monotonic()
     print("time spent: ", finished)
     mqtt_client.publish(DUR_TOPIC, finished)
