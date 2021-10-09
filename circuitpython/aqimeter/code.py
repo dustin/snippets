@@ -9,17 +9,26 @@ import time
 
 import busio
 import board
-i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
+
+pm25 = None
+scd = None
+
+try:
+    i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
+except:
+    i2c = None
 
 try:
     from adafruit_pm25.i2c import PM25_I2C
-    pm25 = PM25_I2C(i2c)
+    if i2c:
+        pm25 = PM25_I2C(i2c)
 except:
     pm25 = None
 
 try:
     import adafruit_scd30
-    scd = adafruit_scd30.SCD30(i2c)
+    if i2c:
+        scd = adafruit_scd30.SCD30(i2c)
 except:
     scd = None
 
