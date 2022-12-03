@@ -38,16 +38,16 @@ except ImportError:
     print("WiFi secrets are kept in secrets.py, please add them there!")
     raise
 
-AQI_TOPIC="oro/purpleair/aqi"
-TIME_TOPIC="oro/local/time"
-PERIOD_TOPIC="oro/magtag/period"
-VOLT_TOPIC="oro/magtag/{mqtt_username}/voltage".format(**secrets)
-BAT_TOPIC="oro/magtag/{mqtt_username}/battery".format(**secrets)
-PM25_TOPIC="oro/magtag/{mqtt_username}/pm2.5".format(**secrets)
-CO2_TOPIC="oro/magtag/{mqtt_username}/co2".format(**secrets)
-TEMP_TOPIC="oro/magtag/{mqtt_username}/temperature".format(**secrets)
-HUMIDITY_TOPIC="oro/magtag/{mqtt_username}/humidity".format(**secrets)
-DUR_TOPIC="oro/magtag/{mqtt_username}/duration".format(**secrets)
+AQI_TOPIC="home/purpleair/aqi"
+TIME_TOPIC="home/local/time"
+PERIOD_TOPIC="home/magtag/period"
+VOLT_TOPIC="home/magtag/{mqtt_username}/voltage".format(**secrets)
+BAT_TOPIC="home/magtag/{mqtt_username}/battery".format(**secrets)
+PM25_TOPIC="home/magtag/{mqtt_username}/pm2.5".format(**secrets)
+CO2_TOPIC="home/magtag/{mqtt_username}/co2".format(**secrets)
+TEMP_TOPIC="home/magtag/{mqtt_username}/temperature".format(**secrets)
+HUMIDITY_TOPIC="home/magtag/{mqtt_username}/humidity".format(**secrets)
+DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
 MIN_LIGHT=500
 
 sleepTime=900
@@ -116,8 +116,15 @@ def main():
     )
 
     w.feed()
+    print("Available WiFi networks:")
+    for network in wifi.radio.start_scanning_networks():
+        print("\t%s\t\tRSSI: %d\tChannel: %d" % (str(network.ssid, "utf-8"),
+                network.rssi, network.channel))
+    wifi.radio.stop_scanning_networks()
+    w.feed()
     magtag.peripherals.neopixel_disable = False
     magtag.peripherals.neopixels.fill((8, 0, 0))
+    print("Connecting to ", secrets["ssid"])
     wifi.radio.connect(secrets["ssid"], secrets["password"])
     magtag.peripherals.neopixels.fill((6, 3, 16))
 
@@ -208,6 +215,9 @@ def main():
     if volts > 4.1:
         global sleepTime
         sleepTime = sleepTime / 10
+
+
+main()
 
 try:
     main()
