@@ -92,6 +92,7 @@ class State:
         self.netState = 'ok'
         self.volts = None
         self.display = False
+        self.canRedraw = True
 
         pool = socketpool.SocketPool(wifi.radio)
 
@@ -151,18 +152,25 @@ class State:
     def gotNetState(self, client, topic, t):
         self.netState = t
 
-    def draw(self):
-        if self.dirty and self.display and self.time is not None and self.purpleAQI is not None and self.volts is not None:
-            magtag.set_text('{aqi:.0f}'.format(aqi=self.purpleAQI), 0, False)
-            magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
-            magtag.refresh()
-            self.dirty = False
+    def allowRedraw(self):
+        self.canRedraw = True
 
+    def readyToDraw(self):
+        return self.canRedraw and self.time is not None and self.purpleAQI is not None and self.volts is not None
+
+    def draw(self):
         if self.display:
             colors = {'ok': (0, 8, 0),
-                      'slow': (255, 191, 0),
-                      'loss': (255, 0, 0)}
+                      'slow': (127, 63, 0),
+                      'loss': (127, 0, 0)}
             magtag.peripherals.neopixels.fill(colors[self.netState])
+
+            if self.dirty and self.readyToDraw():
+                magtag.set_text('{aqi:.0f}'.format(aqi=self.purpleAQI), 0, False)
+                magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
+                magtag.refresh()
+                self.dirty = False
+                self.canRedraw = False
 
 state = State()
 
@@ -170,6 +178,7 @@ def init():
     schedule.every(60).seconds.do(state.updatePM25)
     schedule.every(60).seconds.do(state.updateCO2)
     schedule.every(60).seconds.do(state.updateBattery)
+    schedule.every(60).seconds.do(state.allowRedraw)
     # The outside AQI
     magtag.add_text(
         text_font="/fonts/Helvetica-Bold-100.bdf",
@@ -233,8 +242,6 @@ def main():
     init()
     magtag.peripherals.neopixels.fill((0, 0, 0))
     schedule.run_all()
-    schedule.every().day.at("21:30").do(state.enableDisplay)
-    schedule.every().day.at("05:30").do(state.disableDisplay)
 
     while True:
         schedule.run_pending()
