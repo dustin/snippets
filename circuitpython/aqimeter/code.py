@@ -50,6 +50,7 @@ CO2_TOPIC="home/magtag/{mqtt_username}/co2".format(**secrets)
 TEMP_TOPIC="home/magtag/{mqtt_username}/temperature".format(**secrets)
 HUMIDITY_TOPIC="home/magtag/{mqtt_username}/humidity".format(**secrets)
 DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
+DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
 MIN_LIGHT=500
 
 sleepTime=900
@@ -88,8 +89,9 @@ class State:
         self.dirty = False
         self.time = None
         self.purpleAQI = None
-        self.netState = None
+        self.netState = 'ok'
         self.volts = None
+        self.display = False
 
         pool = socketpool.SocketPool(wifi.radio)
 
@@ -100,6 +102,20 @@ class State:
             password=secrets["mqtt_pw"],
             socket_pool=pool,
         )
+
+    def enableDisplay(self):
+        self.display = True
+        self.dirty = True
+
+    def disableDisplay(self):
+        self.display = False
+        magtag.peripherals.neopixels.fill((0,0,0))
+
+    def gotDisplay(self, client, topic, msg):
+        if msg == 'on':
+            self.enableDisplay()
+        else:
+            self.disableDisplay()
 
     def gotTime(self, client, topic, t):
         self.time = t
@@ -113,6 +129,7 @@ class State:
             aqdata = pm25.read()
             # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
             self.mqtt_client.publish(PM25_TOPIC, aqdata["pm25 standard"], retain=True)
+            self.mqtt_client.loop()
             magtag.set_text('Inside: {aqi}'.format(aqi=aqdata["pm25 standard"]), 2, False)
             self.dirty = True
 
@@ -121,6 +138,7 @@ class State:
             self.mqtt_client.publish(CO2_TOPIC, scd.CO2, retain=True)
             self.mqtt_client.publish(TEMP_TOPIC, scd.temperature, retain=True)
             self.mqtt_client.publish(HUMIDITY_TOPIC, scd.relative_humidity, retain=True)
+            self.mqtt_client.loop()
             magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=scd.CO2), 3, False)
             self.dirty = True
 
@@ -128,20 +146,23 @@ class State:
         self.volts = magtag.peripherals.battery
         self.mqtt_client.publish(VOLT_TOPIC, self.volts, retain=True)
         self.mqtt_client.publish(BAT_TOPIC, min(100, self.volts*100 / 4.2), retain=True)
+        self.mqtt_client.loop()
 
     def gotNetState(self, client, topic, t):
         self.netState = t
-        colors = {'ok': (0, 8, 0),
-                  'slow': (255, 191, 0),
-                  'loss': (255, 0, 0)}
-        magtag.peripherals.neopixels.fill(colors[t])
 
     def draw(self):
-        if self.dirty and self.time is not None and self.purpleAQI is not None and self.volts is not None:
+        if self.dirty and self.display and self.time is not None and self.purpleAQI is not None and self.volts is not None:
             magtag.set_text('{aqi:.0f}'.format(aqi=self.purpleAQI), 0, False)
             magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
             magtag.refresh()
             self.dirty = False
+
+        if self.display:
+            colors = {'ok': (0, 8, 0),
+                      'slow': (255, 191, 0),
+                      'loss': (255, 0, 0)}
+            magtag.peripherals.neopixels.fill(colors[self.netState])
 
 state = State()
 
@@ -197,19 +218,23 @@ def init():
     state.mqtt_client.add_topic_callback(AQI_TOPIC, state.gotAQI)
     state.mqtt_client.add_topic_callback(TIME_TOPIC, state.gotTime)
     state.mqtt_client.add_topic_callback(NETSTATE_TOPIC, state.gotNetState)
+    state.mqtt_client.add_topic_callback(DISPLAY_TOPIC, state.gotDisplay)
     state.mqtt_client.connect()
     state.mqtt_client.subscribe(AQI_TOPIC)
     state.mqtt_client.subscribe(TIME_TOPIC)
     state.mqtt_client.subscribe(PERIOD_TOPIC)
-    schedule.every(60).seconds.do(state.mqtt_client.loop)
+    state.mqtt_client.subscribe(NETSTATE_TOPIC)
+    state.mqtt_client.subscribe(DISPLAY_TOPIC)
+    schedule.every(1).seconds.do(state.mqtt_client.loop)
 
 
 def main():
     w.feed()
     init()
-    schedule.run_all()
     magtag.peripherals.neopixels.fill((0, 0, 0))
-    state.mqtt_client.subscribe(NETSTATE_TOPIC)
+    schedule.run_all()
+    schedule.every().day.at("21:30").do(state.enableDisplay)
+    schedule.every().day.at("05:30").do(state.disableDisplay)
 
     while True:
         schedule.run_pending()
