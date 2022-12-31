@@ -51,6 +51,9 @@ TEMP_TOPIC="home/magtag/{mqtt_username}/temperature".format(**secrets)
 HUMIDITY_TOPIC="home/magtag/{mqtt_username}/humidity".format(**secrets)
 DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
 DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
+BUTTON_TOPIC="home/magtag/{mqtt_username}/button/".format(**secrets)
+INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
+
 MIN_LIGHT=500
 
 sleepTime=900
@@ -72,8 +75,6 @@ def cylon(color):
         magtag.peripherals.neopixels.show()
     magtag.peripherals.neopixel_disable = True
     w.feed()
-
-schedule.every(1).seconds.do(w.feed)
 
 # Before we do anything of interest, check to see if the light's on.
 # If it's dark, we shouldn't do anything.
@@ -169,16 +170,23 @@ class State:
                 magtag.set_text('{aqi:.0f}'.format(aqi=self.purpleAQI), 0, False)
                 magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
                 magtag.refresh()
+                self.mqtt_client.publish(INFO_TOPIC, 'drawing')
                 self.dirty = False
                 self.canRedraw = False
 
+    def mqtt_loop(self):
+        if self.mqtt_client:
+            self.mqtt_client.loop()
+
 state = State()
+schedule.every(60).seconds.do(state.updatePM25)
+schedule.every(60).seconds.do(state.updateCO2)
+schedule.every(60).seconds.do(state.updateBattery)
+schedule.every(60).seconds.do(state.allowRedraw)
+schedule.every(1).seconds.do(state.mqtt_loop)
+schedule.every(1).seconds.do(w.feed)
 
 def init():
-    schedule.every(60).seconds.do(state.updatePM25)
-    schedule.every(60).seconds.do(state.updateCO2)
-    schedule.every(60).seconds.do(state.updateBattery)
-    schedule.every(60).seconds.do(state.allowRedraw)
     # The outside AQI
     magtag.add_text(
         text_font="/fonts/Helvetica-Bold-100.bdf",
@@ -234,8 +242,12 @@ def init():
     state.mqtt_client.subscribe(PERIOD_TOPIC)
     state.mqtt_client.subscribe(NETSTATE_TOPIC)
     state.mqtt_client.subscribe(DISPLAY_TOPIC)
-    schedule.every(1).seconds.do(state.mqtt_client.loop)
 
+def handleButtons():
+    for l in ['a', 'b', 'c', 'd']:
+        if getattr(magtag.peripherals, 'button_' + l + '_pressed'):
+            state.mqtt_client.publish(BUTTON_TOPIC + l, 1, qos=1)
+    state.mqtt_client.loop()
 
 def main():
     w.feed()
@@ -244,9 +256,11 @@ def main():
     schedule.run_all()
 
     while True:
+        if magtag.peripherals.any_button_pressed:
+            handleButtons()
         schedule.run_pending()
         state.draw()
-        time.sleep(1) # schedule.idle_seconds())
+        time.sleep(0.1) # schedule.idle_seconds())
 
         if state.volts < 3.5:
             print("doing a deep sleep")
@@ -255,7 +269,7 @@ def main():
             w.deinit()
             magtag.exit_and_deep_sleep(900)
 
-main()
+# main()
 
 while True:
     try:
