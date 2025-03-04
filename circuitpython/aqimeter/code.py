@@ -31,7 +31,10 @@ try:
     import adafruit_scd30
     if i2c:
         scd = adafruit_scd30.SCD30(i2c)
+        scd.measurement_interval = 10
+        scd.self_calibration_enabled = True
 except:
+    print("Failed to initialize SCD-30")
     scd = None
 
 try:
@@ -57,7 +60,7 @@ DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
 BUTTON_TOPIC="home/magtag/{mqtt_username}/button/".format(**secrets)
 INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
 DOORBELL_TOPIC="home/doorbell/ding"
-FAN_STATE_TOPIC="home/officefan/stat/POWER"
+PW_STATE_TOPIC="home/power/batteryState"
 
 MIN_LIGHT=500
 
@@ -96,6 +99,7 @@ class State:
         self.time = None
         self.aqiIn = None
         self.aqiOut = None
+        self.co2 = None
         self.netState = 'ok'
         self.activity = 'bad'
         self.wind = 'unkn'
@@ -152,13 +156,26 @@ class State:
             self.dirty = True
 
     def updateCO2(self):
-        if scd and scd.data_available and scd.CO2 > 0:
-            self.mqtt_client.publish(CO2_TOPIC, scd.CO2, retain=True)
-            self.mqtt_client.publish(TEMP_TOPIC, scd.temperature, retain=True)
-            self.mqtt_client.publish(HUMIDITY_TOPIC, scd.relative_humidity, retain=True)
-            self.mqtt_client.loop()
-            magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=scd.CO2), 3, False)
-            self.dirty = True
+        if not (scd and scd.data_available):
+            print("SCD 30 unavailable")
+            return
+
+        co2 = scd.CO2
+        temp = scd.temperature
+        rh = scd.relative_humidity
+
+        if co2 < 300 or co2 > 10000:
+            print("Invalid co2 reading of", co2)
+            return
+
+        self.co2 = co2
+
+        self.mqtt_client.publish(CO2_TOPIC, co2, retain=True)
+        self.mqtt_client.publish(TEMP_TOPIC, temp, retain=True)
+        self.mqtt_client.publish(HUMIDITY_TOPIC, rh, retain=True)
+        self.mqtt_client.loop()
+        print("read co2", self.co2)
+        self.dirty = True
 
     def updateBattery(self):
         self.volts = magtag.peripherals.battery
@@ -206,6 +223,8 @@ class State:
                 if self.aqiOut is not None:
                     aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
                 magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
+                if self.co2 is not None:
+                    magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
                 magtag.set_text(self.wind, 0, False)
                 magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
                 magtag.refresh()
@@ -232,9 +251,9 @@ class State:
         schedule.every(0.5).seconds.until(timedelta(seconds=duration)).do(blink3)
         schedule.every(duration+1).seconds.until(timedelta(seconds=duration+5)).do(resume3)
 
-    def gotFanState(self, client, topic, t):
-        print("got fan state")
-        self.ledColors[3] = (0, 0, 8) if t == 'ON' else (0, 0, 0)
+    def gotPWState(self, client, topic, t):
+        print("got powerwall state")
+        self.ledColors[3] = (0, 0, 8) if t == 'charged' else (8, 0, 0)
 
     def mqtt_loop(self):
         if self.mqtt_client:
@@ -242,7 +261,7 @@ class State:
 
 state = State()
 schedule.every(60).seconds.do(state.updatePM25)
-schedule.every(60).seconds.do(state.updateCO2)
+schedule.every(10).seconds.do(state.updateCO2)
 schedule.every(60).seconds.do(state.updateBattery)
 schedule.every(60).seconds.do(state.allowRedraw)
 schedule.every(1).seconds.do(state.mqtt_loop)
@@ -304,7 +323,7 @@ def init():
     state.mqtt_client.add_topic_callback(WIND_TOPIC, state.gotWind)
     state.mqtt_client.add_topic_callback(DISPLAY_TOPIC, state.gotDisplay)
     state.mqtt_client.add_topic_callback(DOORBELL_TOPIC, state.gotDoorbell)
-    state.mqtt_client.add_topic_callback(FAN_STATE_TOPIC, state.gotFanState)
+    state.mqtt_client.add_topic_callback(PW_STATE_TOPIC, state.gotPWState)
     print("Connecting to MQTT: ", secrets["broker"])
     state.mqtt_client.connect()
     print("Subscribing to a bunch of junk")
@@ -314,7 +333,7 @@ def init():
     state.mqtt_client.subscribe(NETSTATE_TOPIC)
     state.mqtt_client.subscribe(DISPLAY_TOPIC)
     state.mqtt_client.subscribe(DOORBELL_TOPIC)
-    state.mqtt_client.subscribe(FAN_STATE_TOPIC)
+    state.mqtt_client.subscribe(PW_STATE_TOPIC)
     state.mqtt_client.subscribe(ACTIVITY_TOPIC)
     state.mqtt_client.subscribe(WIND_TOPIC)
 
