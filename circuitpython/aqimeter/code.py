@@ -7,6 +7,7 @@ from microcontroller import watchdog as w
 from watchdog import WatchDogMode
 import time
 import circuitpython_schedule as schedule
+from adafruit_datetime import timedelta
 
 import busio
 import board
@@ -41,6 +42,8 @@ except ImportError:
 
 AQI_TOPIC="home/purpleair/aqi"
 TIME_TOPIC="home/local/time"
+ACTIVITY_TOPIC="weather/kihei/activity"
+WIND_TOPIC="weather/kihei/status"
 NETSTATE_TOPIC="home/ping/8.8.8.8/label"
 PERIOD_TOPIC="home/magtag/period"
 VOLT_TOPIC="home/magtag/{mqtt_username}/voltage".format(**secrets)
@@ -53,6 +56,8 @@ DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
 DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
 BUTTON_TOPIC="home/magtag/{mqtt_username}/button/".format(**secrets)
 INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
+DOORBELL_TOPIC="home/doorbell/ding"
+FAN_STATE_TOPIC="home/officefan/stat/POWER"
 
 MIN_LIGHT=500
 
@@ -89,11 +94,16 @@ class State:
     def __init__(self):
         self.dirty = False
         self.time = None
-        self.purpleAQI = None
+        self.aqiIn = None
+        self.aqiOut = None
         self.netState = 'ok'
+        self.activity = 'bad'
+        self.wind = 'unkn'
         self.volts = None
         self.display = False
         self.canRedraw = True
+        self.ledColors = [(0,0,0),(0,0,0),(0,0,0),(0,0,0)]
+        self.blinkState = [False, False, False, False]
 
         pool = socketpool.SocketPool(wifi.radio)
 
@@ -114,17 +124,23 @@ class State:
         magtag.peripherals.neopixels.fill((0,0,0))
 
     def gotDisplay(self, client, topic, msg):
+        print("got display", msg)
         if msg == 'on':
             self.enableDisplay()
         else:
             self.disableDisplay()
 
     def gotTime(self, client, topic, t):
+        # print("Got time", t)
         self.time = t
 
     def gotAQI(self, client, topic, a):
-        self.purpleAQI = float(a)
-        self.dirty = True
+        print("got AQI", a)
+        try:
+            self.aqiOut = float(a)
+            self.dirty = True
+        except (ValueError, TypeError):
+            print("Invalid AQI value:", a)
 
     def updatePM25(self):
         if pm25:
@@ -132,7 +148,7 @@ class State:
             # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
             self.mqtt_client.publish(PM25_TOPIC, aqdata["pm25 standard"], retain=True)
             self.mqtt_client.loop()
-            magtag.set_text('Inside: {aqi}'.format(aqi=aqdata["pm25 standard"]), 2, False)
+            self.aqiIn = aqdata["pm25 standard"]
             self.dirty = True
 
     def updateCO2(self):
@@ -151,28 +167,74 @@ class State:
         self.mqtt_client.loop()
 
     def gotNetState(self, client, topic, t):
+        print("got net state")
         self.netState = t
+        colors = {'ok': (0, 8, 0),
+                  'slow': (127, 63, 0),
+                  'loss': (127, 0, 0)}
+        self.ledColors[0] = colors[t]
+
+    def gotActivity(self, client, topic, t):
+        print("got activity")
+        self.activity = t  # Fix variable name
+        colors = {'bad': (0, 0, 0),
+                  'paddleboarding': (51, 102, 0),
+                  'winging': (127, 25, 127)}
+        self.ledColors[2] = colors[t]
+
+    def gotWind(self, client, topic, t):
+        if self.wind != t:
+            self.wind = t
+            self.dirty = True
 
     def allowRedraw(self):
         self.canRedraw = True
 
     def readyToDraw(self):
-        return self.canRedraw and self.time is not None and self.purpleAQI is not None and self.volts is not None
+        return self.canRedraw and self.time is not None and self.volts is not None
 
     def draw(self):
         if self.display:
-            colors = {'ok': (0, 8, 0),
-                      'slow': (127, 63, 0),
-                      'loss': (127, 0, 0)}
-            magtag.peripherals.neopixels.fill(colors[self.netState])
+            for i in range(4):
+                magtag.peripherals.neopixels[i] = self.ledColors[i]
+            magtag.peripherals.neopixels.show()
 
             if self.dirty and self.readyToDraw():
-                magtag.set_text('{aqi:.0f}'.format(aqi=self.purpleAQI), 0, False)
+                aqis = []
+                if self.aqiIn is not None:
+                    aqis.append('In: {inside:.0f}'.format(inside=self.aqiIn))
+                if self.aqiOut is not None:
+                    aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
+                magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
+                magtag.set_text(self.wind, 0, False)
                 magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
                 magtag.refresh()
                 self.mqtt_client.publish(INFO_TOPIC, 'drawing')
                 self.dirty = False
                 self.canRedraw = False
+
+    def blink(self, n, color):
+        if self.blinkState[n]:
+            self.ledColors[n] = (0, 0, 0)
+        else:
+            self.ledColors[n] = color
+        self.blinkState[n] = not self.blinkState[n]
+
+    def gotDoorbell(self, client, topic, t):
+        duration = 30
+        if t != 'on': return
+
+        prevColor = self.ledColors[1]
+        def blink3(): self.blink(1, (127, 0, 0))
+        def resume3(): self.ledColors[1] = prevColor
+
+        self.ledColors[1] = (127, 0, 0)
+        schedule.every(0.5).seconds.until(timedelta(seconds=duration)).do(blink3)
+        schedule.every(duration+1).seconds.until(timedelta(seconds=duration+5)).do(resume3)
+
+    def gotFanState(self, client, topic, t):
+        print("got fan state")
+        self.ledColors[3] = (0, 0, 8) if t == 'ON' else (0, 0, 0)
 
     def mqtt_loop(self):
         if self.mqtt_client:
@@ -187,35 +249,38 @@ schedule.every(1).seconds.do(state.mqtt_loop)
 schedule.every(1).seconds.do(w.feed)
 
 def init():
-    # The outside AQI
+    # 0: Big display
     magtag.add_text(
-        text_font="/fonts/Helvetica-Bold-100.bdf",
+        # text_font="/fonts/Helvetica-Bold-100.bdf",
+        text_font="/fonts/Poetsen-60.bdf",
         text_position=(
             (magtag.graphics.display.width // 2) - 1,
-            (magtag.graphics.display.height // 2) - 10,
+            (magtag.graphics.display.height // 2) - 20,
         ),
         text_anchor_point=(0.5, 0.5),
     )
 
-    # Time and Voltage
+    # 1: Time and Voltage
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(6, magtag.graphics.display.height - 14),
     )
 
-    # Indoor AQI and stuff.
+    # 2: AQI
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(6, 2),
         text_anchor_point=(0, 0)
     )
 
-    # CO2
+    # 3: CO2
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(magtag.graphics.display.width - 6, 2),
         text_anchor_point=(1, 0)
     )
+
+    # magtag.set_text('Wind: {wind}'.format(wind=self.wind), 4, False)
 
     w.feed()
     print("Available WiFi networks:")
@@ -235,13 +300,23 @@ def init():
     state.mqtt_client.add_topic_callback(AQI_TOPIC, state.gotAQI)
     state.mqtt_client.add_topic_callback(TIME_TOPIC, state.gotTime)
     state.mqtt_client.add_topic_callback(NETSTATE_TOPIC, state.gotNetState)
+    state.mqtt_client.add_topic_callback(ACTIVITY_TOPIC, state.gotActivity)
+    state.mqtt_client.add_topic_callback(WIND_TOPIC, state.gotWind)
     state.mqtt_client.add_topic_callback(DISPLAY_TOPIC, state.gotDisplay)
+    state.mqtt_client.add_topic_callback(DOORBELL_TOPIC, state.gotDoorbell)
+    state.mqtt_client.add_topic_callback(FAN_STATE_TOPIC, state.gotFanState)
+    print("Connecting to MQTT: ", secrets["broker"])
     state.mqtt_client.connect()
+    print("Subscribing to a bunch of junk")
     state.mqtt_client.subscribe(AQI_TOPIC)
     state.mqtt_client.subscribe(TIME_TOPIC)
     state.mqtt_client.subscribe(PERIOD_TOPIC)
     state.mqtt_client.subscribe(NETSTATE_TOPIC)
     state.mqtt_client.subscribe(DISPLAY_TOPIC)
+    state.mqtt_client.subscribe(DOORBELL_TOPIC)
+    state.mqtt_client.subscribe(FAN_STATE_TOPIC)
+    state.mqtt_client.subscribe(ACTIVITY_TOPIC)
+    state.mqtt_client.subscribe(WIND_TOPIC)
 
 def handleButtons():
     for l in ['a', 'b', 'c', 'd']:
