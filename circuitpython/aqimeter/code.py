@@ -8,9 +8,13 @@ from watchdog import WatchDogMode
 import time
 import circuitpython_schedule as schedule
 from adafruit_datetime import timedelta
+import neopixel
 
 import busio
 import board
+
+pixel_circle_pin = board.D10
+num_circle_pixels = 12
 
 pm25 = None
 scd = None
@@ -47,6 +51,7 @@ AQI_TOPIC="home/purpleair/aqi"
 TIME_TOPIC="home/local/time"
 ACTIVITY_TOPIC="weather/kihei/activity"
 WIND_TOPIC="weather/kihei/status"
+WINDD_TOPIC="weather/kihei/direction"
 NETSTATE_TOPIC="home/ping/8.8.8.8/label"
 PERIOD_TOPIC="home/magtag/period"
 VOLT_TOPIC="home/magtag/{mqtt_username}/voltage".format(**secrets)
@@ -93,6 +98,8 @@ if magtag.peripherals.light < MIN_LIGHT:
     cylon((4,0,0))
     magtag.exit_and_deep_sleep(60)
 
+pixel_circle = neopixel.NeoPixel(pixel_circle_pin, num_circle_pixels, brightness=0.3, auto_write=False)
+
 class State:
     def __init__(self):
         self.dirty = False
@@ -103,6 +110,7 @@ class State:
         self.netState = 'ok'
         self.activity = 'bad'
         self.wind = 'unkn'
+        self.windDir = 0
         self.volts = None
         self.display = False
         self.canRedraw = True
@@ -204,6 +212,21 @@ class State:
             self.wind = t
             self.dirty = True
 
+    def gotWindDir(self, client, topic, t):
+        if self.windDir != int(t):
+            self.windDir = int(t)
+
+            color = (0, 5, 0)
+            try:
+                mag = int(self.wind.split('g')[1])
+                color = (5 * mag, 1 * mag, 5 * mag)
+            except:
+                pass
+
+            pixel_circle.fill((0, 0, 0))
+            pixel_circle[int(min(359, self.windDir) / 30)] = color
+            pixel_circle.show()
+
     def allowRedraw(self):
         self.canRedraw = True
 
@@ -268,6 +291,9 @@ schedule.every(1).seconds.do(state.mqtt_loop)
 schedule.every(1).seconds.do(w.feed)
 
 def init():
+    pixel_circle.fill((0, 0, 0))
+    pixel_circle.show()
+
     # 0: Big display
     magtag.add_text(
         # text_font="/fonts/Helvetica-Bold-100.bdf",
@@ -321,6 +347,7 @@ def init():
     state.mqtt_client.add_topic_callback(NETSTATE_TOPIC, state.gotNetState)
     state.mqtt_client.add_topic_callback(ACTIVITY_TOPIC, state.gotActivity)
     state.mqtt_client.add_topic_callback(WIND_TOPIC, state.gotWind)
+    state.mqtt_client.add_topic_callback(WINDD_TOPIC, state.gotWindDir)
     state.mqtt_client.add_topic_callback(DISPLAY_TOPIC, state.gotDisplay)
     state.mqtt_client.add_topic_callback(DOORBELL_TOPIC, state.gotDoorbell)
     state.mqtt_client.add_topic_callback(PW_STATE_TOPIC, state.gotPWState)
@@ -336,6 +363,7 @@ def init():
     state.mqtt_client.subscribe(PW_STATE_TOPIC)
     state.mqtt_client.subscribe(ACTIVITY_TOPIC)
     state.mqtt_client.subscribe(WIND_TOPIC)
+    state.mqtt_client.subscribe(WINDD_TOPIC)
 
 def handleButtons():
     for l in ['a', 'b', 'c', 'd']:
@@ -346,6 +374,7 @@ def handleButtons():
 def main():
     w.feed()
     init()
+
     magtag.peripherals.neopixels.fill((0, 0, 0))
     schedule.run_all()
 
