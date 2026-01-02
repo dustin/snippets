@@ -224,7 +224,7 @@ class State:
                 pass
 
             pixel_circle.fill((0, 0, 0))
-            pixel_circle[int(min(359, self.windDir) / 30)] = color
+            pixel_circle[(self.windDir % 360) // 30] = color
             pixel_circle.show()
 
     def allowRedraw(self):
@@ -266,13 +266,16 @@ class State:
         duration = 30
         if t != 'on': return
 
-        prevColor = self.ledColors[1]
-        def blink3(): self.blink(1, (127, 0, 0))
-        def resume3(): self.ledColors[1] = prevColor
+        schedule.clear('doorbell')
 
-        self.ledColors[1] = (127, 0, 0)
-        schedule.every(0.5).seconds.until(timedelta(seconds=duration)).do(blink3)
-        schedule.every(duration+1).seconds.until(timedelta(seconds=duration+5)).do(resume3)
+        def blink3(): self.blink(1, (127, 0, 0))
+        def resume3():
+            self.blinkState[1] = False
+            self.ledColors[1] = (0, 0, 0)
+            schedule.clear('doorbell')
+
+        schedule.every(0.5).seconds.until(timedelta(seconds=duration)).do(blink3).tag('doorbell')
+        schedule.once(duration+1).seconds.do(resume3).tag('doorbell')
 
     def gotPWState(self, client, topic, t):
         print("got powerwall state")
