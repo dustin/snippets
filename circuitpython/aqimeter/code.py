@@ -98,7 +98,7 @@ if magtag.peripherals.light < MIN_LIGHT:
     cylon((4,0,0))
     magtag.exit_and_deep_sleep(60)
 
-pixel_circle = neopixel.NeoPixel(pixel_circle_pin, num_circle_pixels, brightness=0.3, auto_write=False)
+pixel_circle = neopixel.NeoPixel(pixel_circle_pin, num_circle_pixels, brightness=0.1, auto_write=False)
 
 class State:
     def __init__(self):
@@ -134,6 +134,8 @@ class State:
     def disableDisplay(self):
         self.display = False
         magtag.peripherals.neopixels.fill((0,0,0))
+        pixel_circle.fill((0, 0, 0))
+        pixel_circle.show()
 
     def gotDisplay(self, client, topic, msg):
         print("got display", msg)
@@ -216,10 +218,19 @@ class State:
         if self.windDir != int(t):
             self.windDir = int(t)
 
+            if not self.display:
+                return
+
             color = (0, 5, 0)
             try:
                 mag = int(self.wind.split('g')[1])
-                color = (5 * mag, 1 * mag, 5 * mag)
+                brightness = min(255, int(pow(mag / 40, 1.5) * 255))
+
+                color = (
+                    min(brightness // 5, 50),
+                    min(brightness // 25, 10),
+                    min(brightness // 5, 50)
+                )
             except:
                 pass
 
