@@ -1,13 +1,14 @@
 from adafruit_magtag.magtag import MagTag
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
+import keypad
+import microcontroller
 import socketpool
 import time
+import traceback
 import wifi
 from microcontroller import watchdog as w
 from watchdog import WatchDogMode
-import time
 import circuitpython_schedule as schedule
-from adafruit_datetime import timedelta
 import neopixel
 
 import busio
@@ -53,14 +54,12 @@ ACTIVITY_TOPIC="weather/kihei/activity"
 WIND_TOPIC="weather/kihei/status"
 WINDD_TOPIC="weather/kihei/direction"
 NETSTATE_TOPIC="home/ping/8.8.8.8/label"
-PERIOD_TOPIC="home/magtag/period"
 VOLT_TOPIC="home/magtag/{mqtt_username}/voltage".format(**secrets)
 BAT_TOPIC="home/magtag/{mqtt_username}/battery".format(**secrets)
 PM25_TOPIC="home/magtag/{mqtt_username}/pm2.5".format(**secrets)
 CO2_TOPIC="home/magtag/{mqtt_username}/co2".format(**secrets)
 TEMP_TOPIC="home/magtag/{mqtt_username}/temperature".format(**secrets)
 HUMIDITY_TOPIC="home/magtag/{mqtt_username}/humidity".format(**secrets)
-DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
 DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
 BUTTON_TOPIC="home/magtag/{mqtt_username}/button/".format(**secrets)
 INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
@@ -68,14 +67,43 @@ DOORBELL_TOPIC="home/doorbell/ding"
 PW_STATE_TOPIC="home/power/batteryState"
 
 MIN_LIGHT=500
+DOORBELL_SECS=30
 
-sleepTime=900
+# EPA PM2.5 AQI breakpoints (2024 revision):
+# (conc low, conc high, index low, index high), concentration in ug/m3.
+PM25_BREAKPOINTS = [
+    (0.0, 9.0, 0, 50),
+    (9.1, 35.4, 51, 100),
+    (35.5, 55.4, 101, 150),
+    (55.5, 125.4, 151, 200),
+    (125.5, 225.4, 201, 300),
+    (225.5, 325.4, 301, 500),
+]
 
-w.timeout=60.0
-w.mode = WatchDogMode.RAISE
+def pm25ToAQI(c):
+    c = int(c * 10) / 10  # EPA truncates to one decimal
+    for clo, chi, ilo, ihi in PM25_BREAKPOINTS:
+        if c <= chi:
+            return round((ihi - ilo) / (chi - clo) * (c - clo) + ilo)
+    return 500
+
+# RESET rather than RAISE: a raised WatchDogTimeout can land anywhere
+# (including the middle of an e-ink refresh) and leave things wedged.
+w.timeout=30.0
+w.mode = WatchDogMode.RESET
 w.feed()
 
 magtag = MagTag()
+
+# Scan the buttons in the background so presses aren't missed while we're
+# blocked in MQTT, and so each press is reported once rather than for as
+# long as it's held.  The MagTag library already owns the pins.
+BUTTON_NAMES = ['a', 'b', 'c', 'd']
+for b in magtag.peripherals.buttons:
+    b.deinit()
+buttons = keypad.Keys(
+    (board.BUTTON_A, board.BUTTON_B, board.BUTTON_C, board.BUTTON_D),
+    value_when_pressed=False, pull=True)
 
 def cylon(color):
     w.feed()
@@ -110,12 +138,13 @@ class State:
         self.netState = 'ok'
         self.activity = 'bad'
         self.wind = 'unkn'
-        self.windDir = 0
+        self.windDir = None
         self.volts = None
         self.display = False
         self.canRedraw = True
         self.ledColors = [(0,0,0),(0,0,0),(0,0,0),(0,0,0)]
         self.blinkState = [False, False, False, False]
+        self.doorbellJob = None
 
         pool = socketpool.SocketPool(wifi.radio)
 
@@ -130,6 +159,7 @@ class State:
     def enableDisplay(self):
         self.display = True
         self.dirty = True
+        self.drawRing()
 
     def disableDisplay(self):
         self.display = False
@@ -145,39 +175,55 @@ class State:
             self.disableDisplay()
 
     def gotTime(self, client, topic, t):
-        # print("Got time", t)
         self.time = t
 
     def gotAQI(self, client, topic, a):
         print("got AQI", a)
         try:
-            self.aqiOut = float(a)
-            self.dirty = True
+            v = float(a)
         except (ValueError, TypeError):
             print("Invalid AQI value:", a)
+            return
+        if self.aqiOut is None or round(v) != round(self.aqiOut):
+            self.dirty = True
+        self.aqiOut = v
 
     def updatePM25(self):
-        if pm25:
+        if not pm25:
+            return
+        try:
             aqdata = pm25.read()
-            # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
-            self.mqtt_client.publish(PM25_TOPIC, aqdata["pm25 standard"], retain=True)
-            self.mqtt_client.loop()
-            self.aqiIn = aqdata["pm25 standard"]
+        except RuntimeError as e:
+            print("PM2.5 read failed:", e)
+            return
+        # See also "pm10 standard", "pm100 standard", "pm10 env", "pm25 env", "pm100 env"
+        pm = aqdata["pm25 standard"]
+        self.mqtt_client.publish(PM25_TOPIC, pm, retain=True)
+        self.mqtt_client.loop()
+        aqi = pm25ToAQI(pm)
+        if aqi != self.aqiIn:
+            self.aqiIn = aqi
             self.dirty = True
 
     def updateCO2(self):
-        if not (scd and scd.data_available):
-            print("SCD 30 unavailable")
+        if not scd:
             return
-
-        co2 = scd.CO2
-        temp = scd.temperature
-        rh = scd.relative_humidity
+        try:
+            if not scd.data_available:
+                return
+            co2 = scd.CO2
+            temp = scd.temperature
+            rh = scd.relative_humidity
+        except (OSError, RuntimeError) as e:
+            print("SCD-30 read failed:", e)
+            return
 
         if co2 < 300 or co2 > 10000:
             print("Invalid co2 reading of", co2)
             return
 
+        if self.co2 is None or round(co2) != round(self.co2):
+            self.dirty = True
         self.co2 = co2
 
         self.mqtt_client.publish(CO2_TOPIC, co2, retain=True)
@@ -185,7 +231,6 @@ class State:
         self.mqtt_client.publish(HUMIDITY_TOPIC, rh, retain=True)
         self.mqtt_client.loop()
         print("read co2", self.co2)
-        self.dirty = True
 
     def updateBattery(self):
         self.volts = magtag.peripherals.battery
@@ -194,49 +239,57 @@ class State:
         self.mqtt_client.loop()
 
     def gotNetState(self, client, topic, t):
-        print("got net state")
+        print("got net state", t)
         self.netState = t
         colors = {'ok': (0, 8, 0),
                   'slow': (127, 63, 0),
                   'loss': (127, 0, 0)}
-        self.ledColors[0] = colors[t]
+        self.ledColors[0] = colors.get(t, (0, 0, 0))
 
     def gotActivity(self, client, topic, t):
-        print("got activity")
-        self.activity = t  # Fix variable name
+        print("got activity", t)
+        self.activity = t
         colors = {'bad': (0, 0, 0),
                   'paddleboarding': (51, 102, 0),
                   'winging': (127, 25, 127)}
-        self.ledColors[2] = colors[t]
+        self.ledColors[2] = colors.get(t, (0, 0, 0))
 
     def gotWind(self, client, topic, t):
         if self.wind != t:
             self.wind = t
             self.dirty = True
+            self.drawRing()
 
     def gotWindDir(self, client, topic, t):
-        if self.windDir != int(t):
-            self.windDir = int(t)
+        try:
+            d = int(float(t))
+        except (ValueError, TypeError):
+            print("Invalid wind direction:", t)
+            return
+        if self.windDir != d:
+            self.windDir = d
+            self.drawRing()
 
-            if not self.display:
-                return
+    def drawRing(self):
+        if not self.display or self.windDir is None:
+            return
 
-            color = (0, 5, 0)
-            try:
-                mag = int(self.wind.split('g')[1])
-                brightness = min(255, int(pow(mag / 40, 1.5) * 255))
+        color = (0, 5, 0)
+        try:
+            mag = int(self.wind.split('g')[1])
+            brightness = min(255, int(pow(mag / 40, 1.5) * 255))
 
-                color = (
-                    min(brightness // 5, 50),
-                    min(brightness // 25, 10),
-                    min(brightness // 5, 50)
-                )
-            except:
-                pass
+            color = (
+                min(brightness // 5, 50),
+                min(brightness // 25, 10),
+                min(brightness // 5, 50)
+            )
+        except (ValueError, IndexError):
+            pass
 
-            pixel_circle.fill((0, 0, 0))
-            pixel_circle[(self.windDir % 360) // 30] = color
-            pixel_circle.show()
+        pixel_circle.fill((0, 0, 0))
+        pixel_circle[(self.windDir % 360) // 30] = color
+        pixel_circle.show()
 
     def allowRedraw(self):
         self.canRedraw = True
@@ -245,26 +298,41 @@ class State:
         return self.canRedraw and self.time is not None and self.volts is not None
 
     def draw(self):
-        if self.display:
-            for i in range(4):
-                magtag.peripherals.neopixels[i] = self.ledColors[i]
-            magtag.peripherals.neopixels.show()
+        if not self.display:
+            return
+        for i in range(4):
+            magtag.peripherals.neopixels[i] = self.ledColors[i]
+        magtag.peripherals.neopixels.show()
 
-            if self.dirty and self.readyToDraw():
-                aqis = []
-                if self.aqiIn is not None:
-                    aqis.append('In: {inside:.0f}'.format(inside=self.aqiIn))
-                if self.aqiOut is not None:
-                    aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
-                magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
-                if self.co2 is not None:
-                    magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
-                magtag.set_text(self.wind, 0, False)
-                magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
-                magtag.refresh()
-                self.mqtt_client.publish(INFO_TOPIC, 'drawing')
-                self.dirty = False
-                self.canRedraw = False
+        if not (self.dirty and self.readyToDraw()):
+            return
+
+        # Never block waiting on the e-ink.  If it's not ready yet, stay
+        # dirty and try again on a later pass through the main loop.
+        display = magtag.graphics.display
+        if display.time_to_refresh > 0 or display.busy:
+            return
+
+        aqis = []
+        if self.aqiIn is not None:
+            aqis.append('In: {inside:.0f}'.format(inside=self.aqiIn))
+        if self.aqiOut is not None:
+            aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
+        magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
+        if self.co2 is not None:
+            magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
+        magtag.set_text(self.wind, 0, False)
+        magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
+        w.feed()
+        try:
+            display.refresh()
+        except RuntimeError as e:
+            print("Refresh failed, will retry:", e)
+            return
+        w.feed()
+        self.mqtt_client.publish(INFO_TOPIC, 'drawing')
+        self.dirty = False
+        self.canRedraw = False
 
     def blink(self, n, color):
         if self.blinkState[n]:
@@ -274,19 +342,23 @@ class State:
         self.blinkState[n] = not self.blinkState[n]
 
     def gotDoorbell(self, client, topic, t):
-        duration = 30
         if t != 'on': return
 
-        schedule.clear('doorbell')
+        # A new ding restarts the blinking.
+        if self.doorbellJob:
+            schedule.cancel_job(self.doorbellJob)
 
-        def blink3(): self.blink(1, (127, 0, 0))
-        def resume3():
-            self.blinkState[1] = False
-            self.ledColors[1] = (0, 0, 0)
-            schedule.clear('doorbell')
+        end = time.monotonic() + DOORBELL_SECS
 
-        schedule.every(0.5).seconds.until(timedelta(seconds=duration)).do(blink3).tag('doorbell')
-        schedule.once(duration+1).seconds.do(resume3).tag('doorbell')
+        def blinkDoorbell():
+            if time.monotonic() >= end:
+                self.blinkState[1] = False
+                self.ledColors[1] = (0, 0, 0)
+                self.doorbellJob = None
+                return schedule.CancelJob
+            self.blink(1, (127, 0, 0))
+
+        self.doorbellJob = schedule.every(0.5).seconds.do(blinkDoorbell)
 
     def gotPWState(self, client, topic, t):
         print("got powerwall state")
@@ -339,8 +411,6 @@ def init():
         text_anchor_point=(1, 0)
     )
 
-    # magtag.set_text('Wind: {wind}'.format(wind=self.wind), 4, False)
-
     w.feed()
     print("Available WiFi networks:")
     for network in wifi.radio.start_scanning_networks():
@@ -367,10 +437,10 @@ def init():
     state.mqtt_client.add_topic_callback(PW_STATE_TOPIC, state.gotPWState)
     print("Connecting to MQTT: ", secrets["broker"])
     state.mqtt_client.connect()
+    w.feed()
     print("Subscribing to a bunch of junk")
     state.mqtt_client.subscribe(AQI_TOPIC)
     state.mqtt_client.subscribe(TIME_TOPIC)
-    state.mqtt_client.subscribe(PERIOD_TOPIC)
     state.mqtt_client.subscribe(NETSTATE_TOPIC)
     state.mqtt_client.subscribe(DISPLAY_TOPIC)
     state.mqtt_client.subscribe(DOORBELL_TOPIC)
@@ -380,10 +450,15 @@ def init():
     state.mqtt_client.subscribe(WINDD_TOPIC)
 
 def handleButtons():
-    for l in ['a', 'b', 'c', 'd']:
-        if getattr(magtag.peripherals, 'button_' + l + '_pressed'):
-            state.mqtt_client.publish(BUTTON_TOPIC + l, 1, qos=1)
-    state.mqtt_client.loop()
+    pressed = False
+    event = buttons.events.get()
+    while event:
+        if event.pressed:
+            state.mqtt_client.publish(BUTTON_TOPIC + BUTTON_NAMES[event.key_number], 1, qos=1)
+            pressed = True
+        event = buttons.events.get()
+    if pressed:
+        state.mqtt_client.loop()
 
 def main():
     w.feed()
@@ -393,27 +468,24 @@ def main():
     schedule.run_all()
 
     while True:
-        if magtag.peripherals.any_button_pressed:
-            handleButtons()
+        handleButtons()
         schedule.run_pending()
         state.draw()
-        time.sleep(0.1) # schedule.idle_seconds())
+        time.sleep(0.05)
 
         if state.volts < 3.5:
             print("doing a deep sleep")
             magtag.peripherals.neopixels.fill((0, 0, 0))
             magtag.peripherals.neopixel_disable = True
-            w.deinit()
             magtag.exit_and_deep_sleep(900)
 
-# main()
-
-while True:
-    try:
-        main()
-    except:
-        print("oh no: exception")
-        cylon((16,0,0))
-    for i in range(60):
-        w.feed()
-        time.sleep(1)
+try:
+    main()
+except Exception as e:
+    print("oh no: exception")
+    traceback.print_exception(e, e, e.__traceback__)
+    cylon((16,0,0))
+# Restarting from scratch is what reliably recovers (fresh WiFi, fresh MQTT
+# client, fresh display state), so do that instead of retrying in place.
+time.sleep(5)
+microcontroller.reset()
