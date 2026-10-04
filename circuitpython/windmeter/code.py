@@ -8,7 +8,7 @@ import time
 import traceback
 import wifi
 from microcontroller import watchdog as w
-from watchdog import WatchDogMode
+from watchdog import WatchDogMode, WatchDogTimeout
 import circuitpython_schedule as schedule
 import json
 
@@ -36,11 +36,13 @@ NVM_MAX=64
 
 sleepTime=900
 
-# RESET rather than RAISE: a raised WatchDogTimeout can land anywhere
-# (including the middle of an e-ink refresh) and leave things wedged.
-# A real reset is what fixes it by hand, so let the watchdog do that.
-w.timeout=20.0
-w.mode = WatchDogMode.RESET
+print("Reset reason:", microcontroller.cpu.reset_reason)
+
+# RAISE so a stall produces a traceback showing where we were stuck.
+# The handler at the bottom resets the board afterwards, so we still get
+# a clean restart.
+w.timeout=60.0
+w.mode = WatchDogMode.RAISE
 w.feed()
 
 magtag = MagTag()
@@ -85,6 +87,7 @@ magtag.peripherals.neopixel_disable = False
 if magtag.peripherals.light < MIN_LIGHT:
     print("Light is {0}, guess I'll sleep now".format(magtag.peripherals.light))
     cylon((4,0,0))
+    w.deinit()
     magtag.exit_and_deep_sleep(60)
 
 
@@ -234,7 +237,7 @@ def main():
     # 0: Big display
     magtag.add_text(
         # text_font="/fonts/Helvetica-Bold-100.bdf",
-        text_font="/fonts/Poetsen-60.bdf",
+        text_font="/fonts/Poetsen-60.pcf",
         text_position=(
             (magtag.graphics.display.width // 2) - 1,
             (magtag.graphics.display.height // 2) - 20,
@@ -305,7 +308,7 @@ def main():
 
 try:
     main()
-except Exception as e:
+except (Exception, WatchDogTimeout) as e:
     print("oh no: exception")
     traceback.print_exception(e, e, e.__traceback__)
     cylon((16,0,0))

@@ -352,7 +352,7 @@ def init():
     # 0: Big display
     magtag.add_text(
         # text_font="/fonts/Helvetica-Bold-100.bdf",
-        text_font="/fonts/Poetsen-60.bdf",
+        text_font="/fonts/Poetsen-60.pcf",
         text_position=(
             (magtag.graphics.display.width // 2) - 1,
             (magtag.graphics.display.height // 2) - 20,
