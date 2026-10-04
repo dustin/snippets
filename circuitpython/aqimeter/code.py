@@ -279,10 +279,10 @@ class State:
             aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
         magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
         if self.pwSoC is not None:
-            magtag.set_text('PW: {:.0f}%'.format(self.pwSoC), 3, False)
+            magtag.set_text('PW: {:.0f}%'.format(self.pwSoC), 4, False)
         magtag.set_text(self.wind, 0, False)
         magtag.set_text(self.time, 1, False)
-        magtag.set_text('{}°'.format(self.windDir), 4, False)
+        magtag.set_text('{}°'.format(self.windDir), 3, False)
         w.feed()
         try:
             display.refresh()
@@ -373,14 +373,14 @@ def init():
         text_anchor_point=(0, 0)
     )
 
-    # 3: Powerwall SoC
+    # 3: Wind Direction
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(magtag.graphics.display.width - 6, 2),
         text_anchor_point=(1, 0)
     )
 
-    # 4: Wind Direction, right-aligned across from the time
+    # 4: Powerwall SoC, right-aligned across from the time
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(magtag.graphics.display.width - 6, magtag.graphics.display.height - 14),
