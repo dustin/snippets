@@ -18,7 +18,6 @@ pixel_circle_pin = board.D10
 num_circle_pixels = 12
 
 pm25 = None
-scd = None
 
 try:
     i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
@@ -31,16 +30,6 @@ try:
         pm25 = PM25_I2C(i2c)
 except:
     pm25 = None
-
-try:
-    import adafruit_scd30
-    if i2c:
-        scd = adafruit_scd30.SCD30(i2c)
-        scd.measurement_interval = 10
-        scd.self_calibration_enabled = True
-except:
-    print("Failed to initialize SCD-30")
-    scd = None
 
 try:
     from secrets import secrets
@@ -57,14 +46,12 @@ NETSTATE_TOPIC="home/ping/8.8.8.8/label"
 VOLT_TOPIC="home/magtag/{mqtt_username}/voltage".format(**secrets)
 BAT_TOPIC="home/magtag/{mqtt_username}/battery".format(**secrets)
 PM25_TOPIC="home/magtag/{mqtt_username}/pm2.5".format(**secrets)
-CO2_TOPIC="home/magtag/{mqtt_username}/co2".format(**secrets)
-TEMP_TOPIC="home/magtag/{mqtt_username}/temperature".format(**secrets)
-HUMIDITY_TOPIC="home/magtag/{mqtt_username}/humidity".format(**secrets)
 DISPLAY_TOPIC="home/magtag/{mqtt_username}/display".format(**secrets)
 BUTTON_TOPIC="home/magtag/{mqtt_username}/button/".format(**secrets)
 INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
 DOORBELL_TOPIC="home/doorbell/ding"
 PW_STATE_TOPIC="home/power/batteryState"
+PW_SOC_TOPIC="home/power/battery"
 
 DOORBELL_SECS=30
 
@@ -130,7 +117,7 @@ class State:
         self.time = None
         self.aqiIn = None
         self.aqiOut = None
-        self.co2 = None
+        self.pwSoC = None
         self.netState = 'ok'
         self.activity = 'bad'
         self.wind = 'unkn'
@@ -200,33 +187,6 @@ class State:
         if aqi != self.aqiIn:
             self.aqiIn = aqi
             self.dirty = True
-
-    def updateCO2(self):
-        if not scd:
-            return
-        try:
-            if not scd.data_available:
-                return
-            co2 = scd.CO2
-            temp = scd.temperature
-            rh = scd.relative_humidity
-        except (OSError, RuntimeError) as e:
-            print("SCD-30 read failed:", e)
-            return
-
-        if co2 < 300 or co2 > 10000:
-            print("Invalid co2 reading of", co2)
-            return
-
-        if self.co2 is None or round(co2) != round(self.co2):
-            self.dirty = True
-        self.co2 = co2
-
-        self.mqtt_client.publish(CO2_TOPIC, co2, retain=True)
-        self.mqtt_client.publish(TEMP_TOPIC, temp, retain=True)
-        self.mqtt_client.publish(HUMIDITY_TOPIC, rh, retain=True)
-        self.mqtt_client.loop()
-        print("read co2", self.co2)
 
     def updateBattery(self):
         self.volts = magtag.peripherals.battery
@@ -318,8 +278,8 @@ class State:
         if self.aqiOut is not None:
             aqis.append('Out: {outside:.0f}'.format(outside=self.aqiOut))
         magtag.set_text('AQI ' + (', '.join(aqis)), 2, False)
-        if self.co2 is not None:
-            magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
+        if self.pwSoC is not None:
+            magtag.set_text('PW: {:.0f}%'.format(self.pwSoC), 3, False)
         magtag.set_text(self.wind, 0, False)
         magtag.set_text(self.time, 1, False)
         magtag.set_text('{}°'.format(self.windDir), 4, False)
@@ -364,13 +324,22 @@ class State:
         print("got powerwall state")
         self.ledColors[3] = (0, 0, 8) if t == 'charged' else (8, 0, 0)
 
+    def gotPWSoC(self, client, topic, t):
+        try:
+            v = float(t)
+        except (ValueError, TypeError):
+            print("Invalid powerwall SoC:", t)
+            return
+        if self.pwSoC is None or round(v) != round(self.pwSoC):
+            self.dirty = True
+        self.pwSoC = v
+
     def mqtt_loop(self):
         if self.mqtt_client:
             self.mqtt_client.loop()
 
 state = State()
 schedule.every(60).seconds.do(state.updatePM25)
-schedule.every(10).seconds.do(state.updateCO2)
 schedule.every(60).seconds.do(state.updateBattery)
 schedule.every(60).seconds.do(state.allowRedraw)
 schedule.every(1).seconds.do(state.mqtt_loop)
@@ -404,7 +373,7 @@ def init():
         text_anchor_point=(0, 0)
     )
 
-    # 3: CO2
+    # 3: Powerwall SoC
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(magtag.graphics.display.width - 6, 2),
@@ -442,6 +411,7 @@ def init():
     state.mqtt_client.add_topic_callback(DISPLAY_TOPIC, state.gotDisplay)
     state.mqtt_client.add_topic_callback(DOORBELL_TOPIC, state.gotDoorbell)
     state.mqtt_client.add_topic_callback(PW_STATE_TOPIC, state.gotPWState)
+    state.mqtt_client.add_topic_callback(PW_SOC_TOPIC, state.gotPWSoC)
     print("Connecting to MQTT: ", secrets["broker"])
     state.mqtt_client.connect()
     w.feed()
@@ -452,6 +422,7 @@ def init():
     state.mqtt_client.subscribe(DISPLAY_TOPIC)
     state.mqtt_client.subscribe(DOORBELL_TOPIC)
     state.mqtt_client.subscribe(PW_STATE_TOPIC)
+    state.mqtt_client.subscribe(PW_SOC_TOPIC)
     state.mqtt_client.subscribe(ACTIVITY_TOPIC)
     state.mqtt_client.subscribe(WIND_TOPIC)
     state.mqtt_client.subscribe(WINDD_TOPIC)
