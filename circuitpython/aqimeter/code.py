@@ -7,7 +7,7 @@ import time
 import traceback
 import wifi
 from microcontroller import watchdog as w
-from watchdog import WatchDogMode
+from watchdog import WatchDogMode, WatchDogTimeout
 import circuitpython_schedule as schedule
 import neopixel
 
@@ -87,10 +87,14 @@ def pm25ToAQI(c):
             return round((ihi - ilo) / (chi - clo) * (c - clo) + ilo)
     return 500
 
-# RESET rather than RAISE: a raised WatchDogTimeout can land anywhere
-# (including the middle of an e-ink refresh) and leave things wedged.
-w.timeout=30.0
-w.mode = WatchDogMode.RESET
+print("Reset reason:", microcontroller.cpu.reset_reason)
+
+# RAISE so a stall produces a traceback showing where we were stuck.
+# The handler at the bottom resets the board afterwards, so we still get
+# a clean restart.  (RESET mode also can't be deinit'd, which breaks the
+# pretend deep sleep CircuitPython does while on USB.)
+w.timeout=60.0
+w.mode = WatchDogMode.RAISE
 w.feed()
 
 magtag = MagTag()
@@ -474,14 +478,15 @@ def main():
         time.sleep(0.05)
 
         if state.volts < 3.5:
-            print("doing a deep sleep")
+            print("Battery at {:.2f}V, doing a deep sleep".format(state.volts))
             magtag.peripherals.neopixels.fill((0, 0, 0))
             magtag.peripherals.neopixel_disable = True
+            w.deinit()
             magtag.exit_and_deep_sleep(900)
 
 try:
     main()
-except Exception as e:
+except (Exception, WatchDogTimeout) as e:
     print("oh no: exception")
     traceback.print_exception(e, e, e.__traceback__)
     cylon((16,0,0))
