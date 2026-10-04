@@ -252,6 +252,7 @@ class State:
 
     def gotWind(self, client, topic, t):
         if self.wind != t:
+            print("got wind", t)
             self.wind = t
             self.dirty = True
             self.drawRing()
@@ -259,6 +260,7 @@ class State:
     def gotWindDir(self, client, topic, t):
         try:
             d = int(float(t))
+            print("got wind direction", t)
         except (ValueError, TypeError):
             print("Invalid wind direction:", t)
             return
@@ -291,7 +293,7 @@ class State:
         self.canRedraw = True
 
     def readyToDraw(self):
-        return self.canRedraw and self.time is not None and self.volts is not None
+        return self.canRedraw and self.time is not None and self.windDir is not None
 
     def draw(self):
         if not self.display:
@@ -318,7 +320,7 @@ class State:
         if self.co2 is not None:
             magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
         magtag.set_text(self.wind, 0, False)
-        magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
+        magtag.set_text('{time}                  {windDir}°'.format(time=self.time, windDir=self.windDir), 1, False)
         w.feed()
         try:
             display.refresh()
@@ -387,7 +389,7 @@ def init():
         text_anchor_point=(0.5, 0.5),
     )
 
-    # 1: Time and Voltage
+    # 1: Time and Direction
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(6, magtag.graphics.display.height - 14),
