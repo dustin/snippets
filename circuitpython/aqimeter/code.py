@@ -266,6 +266,7 @@ class State:
             return
         if self.windDir != d:
             self.windDir = d
+            self.dirty = True
             self.drawRing()
 
     def drawRing(self):
@@ -320,7 +321,8 @@ class State:
         if self.co2 is not None:
             magtag.set_text('CO2: {co2:.0f} ppm'.format(co2=self.co2), 3, False)
         magtag.set_text(self.wind, 0, False)
-        magtag.set_text('{time}                  {windDir}°'.format(time=self.time, windDir=self.windDir), 1, False)
+        magtag.set_text(self.time, 1, False)
+        magtag.set_text('{}°'.format(self.windDir), 4, False)
         w.feed()
         try:
             display.refresh()
@@ -389,7 +391,7 @@ def init():
         text_anchor_point=(0.5, 0.5),
     )
 
-    # 1: Time and Direction
+    # 1: Time
     magtag.add_text(
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(6, magtag.graphics.display.height - 14),
@@ -407,6 +409,13 @@ def init():
         text_font="/fonts/Arial-Bold-12.pcf",
         text_position=(magtag.graphics.display.width - 6, 2),
         text_anchor_point=(1, 0)
+    )
+
+    # 4: Wind Direction, right-aligned across from the time
+    magtag.add_text(
+        text_font="/fonts/Arial-Bold-12.pcf",
+        text_position=(magtag.graphics.display.width - 6, magtag.graphics.display.height - 14),
+        text_anchor_point=(1, 0.5)
     )
 
     w.feed()
