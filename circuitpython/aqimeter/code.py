@@ -66,7 +66,6 @@ INFO_TOPIC="home/magtag/{mqtt_username}/info".format(**secrets)
 DOORBELL_TOPIC="home/doorbell/ding"
 PW_STATE_TOPIC="home/power/batteryState"
 
-MIN_LIGHT=500
 DOORBELL_SECS=30
 
 # EPA PM2.5 AQI breakpoints (2024 revision):
@@ -91,8 +90,7 @@ print("Reset reason:", microcontroller.cpu.reset_reason)
 
 # RAISE so a stall produces a traceback showing where we were stuck.
 # The handler at the bottom resets the board afterwards, so we still get
-# a clean restart.  (RESET mode also can't be deinit'd, which breaks the
-# pretend deep sleep CircuitPython does while on USB.)
+# a clean restart.
 w.timeout=60.0
 w.mode = WatchDogMode.RAISE
 w.feed()
@@ -121,14 +119,8 @@ def cylon(color):
     magtag.peripherals.neopixel_disable = True
     w.feed()
 
-# Before we do anything of interest, check to see if the light's on.
-# If it's dark, we shouldn't do anything.
 magtag.peripherals.neopixels.fill((0, 0, 0))
 magtag.peripherals.neopixel_disable = False
-if magtag.peripherals.light < MIN_LIGHT:
-    print("Light is {0}, guess I'll sleep now".format(magtag.peripherals.light))
-    cylon((4,0,0))
-    magtag.exit_and_deep_sleep(60)
 
 pixel_circle = neopixel.NeoPixel(pixel_circle_pin, num_circle_pixels, brightness=0.1, auto_write=False)
 
@@ -476,13 +468,6 @@ def main():
         schedule.run_pending()
         state.draw()
         time.sleep(0.05)
-
-        if state.volts < 3.5:
-            print("Battery at {:.2f}V, doing a deep sleep".format(state.volts))
-            magtag.peripherals.neopixels.fill((0, 0, 0))
-            magtag.peripherals.neopixel_disable = True
-            w.deinit()
-            magtag.exit_and_deep_sleep(900)
 
 try:
     main()
