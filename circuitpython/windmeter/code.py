@@ -1,11 +1,14 @@
 from adafruit_magtag.magtag import MagTag
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
+import board
+import keypad
+import microcontroller
 import socketpool
 import time
+import traceback
 import wifi
 from microcontroller import watchdog as w
 from watchdog import WatchDogMode
-import time
 import circuitpython_schedule as schedule
 import json
 
@@ -22,14 +25,45 @@ BAT_TOPIC="home/magtag/{mqtt_username}/battery".format(**secrets)
 DUR_TOPIC="home/magtag/{mqtt_username}/duration".format(**secrets)
 WIND_TOPIC="weather/+"
 MIN_LIGHT=500
+DEFAULT_STATION='kihei'
+# If the saved station hasn't reported after this long, fall back to another.
+STATION_GRACE=30
+
+# Selected station is kept in NVM so it survives resets and deep sleep.
+# Layout: magic byte, length byte, utf-8 station name.
+NVM_MAGIC=0xA5
+NVM_MAX=64
 
 sleepTime=900
 
-w.timeout=10.0
-w.mode = WatchDogMode.RAISE
+# RESET rather than RAISE: a raised WatchDogTimeout can land anywhere
+# (including the middle of an e-ink refresh) and leave things wedged.
+# A real reset is what fixes it by hand, so let the watchdog do that.
+w.timeout=20.0
+w.mode = WatchDogMode.RESET
 w.feed()
 
 magtag = MagTag()
+
+# Scan button C in the background so presses aren't missed while we're
+# blocked in MQTT or a display refresh.  The MagTag library already owns
+# the pin, so release it first.
+magtag.peripherals.buttons[2].deinit()
+buttons = keypad.Keys((board.BUTTON_C,), value_when_pressed=False, pull=True)
+
+def loadStation():
+    nvm = microcontroller.nvm
+    try:
+        if nvm[0] == NVM_MAGIC and 0 < nvm[1] <= NVM_MAX:
+            return bytes(nvm[2:2 + nvm[1]]).decode('utf-8')
+    except Exception as e:
+        print("Couldn't load station:", e)
+    return DEFAULT_STATION
+
+def saveStation(name):
+    b = name.encode('utf-8')[:NVM_MAX]
+    microcontroller.nvm[0:2 + len(b)] = bytes([NVM_MAGIC, len(b)]) + b
+    print("Saved station", name)
 
 def cylon(color):
     w.feed()
@@ -60,12 +94,14 @@ class State:
         self.time = None
         self.windVals = {}
         self.wind = 'unkn'
-        self.stations = ['kihei']
-        self.current = 'kihei'
+        self.current = loadStation()
+        self.saved = self.current
+        self.stations = [self.current]
         self.canRedraw = True
         self.display = True
         self.ledColors = [(0, 0, 0)] * 4
         self.volts = None
+        self.started = None
 
         pool = socketpool.SocketPool(wifi.radio)
 
@@ -82,36 +118,55 @@ class State:
             self.mqtt_client.loop()
 
     def readyToDraw(self):
-        return self.canRedraw and self.time is not None and self.volts is not None
+        return (self.canRedraw and self.time is not None
+                and self.volts is not None and self.current in self.windVals)
 
     def draw(self):
-        if self.display:
-            for i in range(4):
-                magtag.peripherals.neopixels[i] = self.ledColors[i]
-            magtag.peripherals.neopixels.show()
+        if not self.display:
+            return
+        for i in range(4):
+            magtag.peripherals.neopixels[i] = self.ledColors[i]
+        magtag.peripherals.neopixels.show()
 
-            if self.dirty and self.readyToDraw():
-                wv = self.windVals[self.current]
-                locName = 'Kihei'
-                if self.current in self.windVals:
-                    locName = wv['label']
-                print("Drawing ", locName)
-                magtag.set_text(locName, 2, False)
-                magtag.set_text(self.wind, 0, False)
-                magtag.set_text('{dir_card} {dir_deg}°'.format(**wv), 3, False)
-                magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
-                magtag.refresh()
-                # self.mqtt_client.publish(INFO_TOPIC, 'drawing')
-                self.dirty = False
-                self.canRedraw = False
+        if not (self.dirty and self.readyToDraw()):
+            return
+
+        # Never block waiting on the e-ink.  If it's not ready yet, stay
+        # dirty and try again on a later pass through the main loop.
+        display = magtag.graphics.display
+        if display.time_to_refresh > 0 or display.busy:
+            return
+
+        wv = self.windVals[self.current]
+        print("Drawing ", wv['label'])
+        magtag.set_text(wv['label'], 2, False)
+        magtag.set_text(self.wind, 0, False)
+        magtag.set_text('{dir_card} {dir_deg}°'.format(**wv), 3, False)
+        magtag.set_text('{time}                 {bat:.2f}V'.format(time=self.time, bat=self.volts), 1, False)
+        w.feed()
+        try:
+            display.refresh()
+        except RuntimeError as e:
+            print("Refresh failed, will retry:", e)
+            return
+        w.feed()
+        self.dirty = False
+        self.canRedraw = False
+
+        # Persist only once a selection has actually been shown, so quickly
+        # cycling through stations doesn't write NVM for each one.
+        if self.current != self.saved:
+            saveStation(self.current)
+            self.saved = self.current
 
     def forceDraw(self):
         self.dirty = True
         self.canRedraw = True
         self.updateWindText()
-        self.draw()
 
     def updateWindText(self):
+        if self.current not in self.windVals:
+            return
         w = self.windVals[self.current]
         d = '{avg}g{gust}'.format(avg=round(w['avg']), gust=round(w['gust']))
         if d != self.wind:
@@ -119,14 +174,19 @@ class State:
             self.dirty = True
 
     def gotWind(self, client, topic, t):
-        w = json.loads(t)
-        self.windVals[w['shortLabel']] = w
-        if w['shortLabel'] not in self.stations:
-            self.stations.append(w['shortLabel'])
+        try:
+            w = json.loads(t)
+            label = w['shortLabel']
+        except (ValueError, KeyError, TypeError) as e:
+            print("Bad wind message on", topic, e)
+            return
+        self.windVals[label] = w
+        if label not in self.stations:
+            self.stations.append(label)
             self.stations = sorted(self.stations)
             print("Stations now:", self.stations)
 
-        if w['shortLabel'] == self.current:
+        if label == self.current:
             self.updateWindText()
 
     def allowRedraw(self):
@@ -135,37 +195,41 @@ class State:
     def gotTime(self, client, topic, t):
         self.time = t
 
-    def gotAQI(self, client, topic, a):
-        print("got AQI", a)
-        try:
-            self.aqiOut = float(a)
-            self.dirty = True
-        except (ValueError, TypeError):
-            print("Invalid AQI value:", a)
-
     def updateBattery(self):
         self.volts = magtag.peripherals.battery
         self.mqtt_client.publish(VOLT_TOPIC, self.volts, retain=True)
         self.mqtt_client.publish(BAT_TOPIC, min(100, self.volts*100 / 4.2), retain=True)
         self.mqtt_client.loop()
 
-    def nextStation(self):
+    def advance(self, n):
         c = self.stations.index(self.current)
-        n = (c + 1) % len(self.stations)
-        self.current = self.stations[n]
+        self.current = self.stations[(c + n) % len(self.stations)]
         print("Changed to station ", self.current)
+        self.wind = 'unkn'
+        self.forceDraw()
+
+    def checkStation(self):
+        # The saved station may no longer be published.  Rather than sit on
+        # a blank screen forever, drop it and show something that exists.
+        if self.started is None or self.current in self.windVals:
+            return
+        if not self.windVals or time.monotonic() - self.started < STATION_GRACE:
+            return
+        print("No data for", self.current, "- falling back")
+        self.stations.remove(self.current)
+        self.current = self.stations[0]
+        self.saved = self.current  # don't overwrite the user's choice
         self.forceDraw()
 
 state = State()
 schedule.every(1).seconds.do(w.feed)
 schedule.every(1).seconds.do(state.mqtt_loop)
+schedule.every(1).seconds.do(state.checkStation)
 schedule.every(60).seconds.do(state.updateBattery)
 schedule.every(60).seconds.do(state.allowRedraw)
 
 def main():
     w.feed()
-    startTime = time.monotonic()
-
 
     # 0: Big display
     magtag.add_text(
@@ -213,17 +277,12 @@ def main():
 
     w.feed()
 
-    timeAndAQI = ["", -1, 0]
-
-    pool = socketpool.SocketPool(wifi.radio)
-
-    volts = magtag.peripherals.battery
-
     state.mqtt_client.add_topic_callback(TIME_TOPIC, state.gotTime)
     state.mqtt_client.add_topic_callback(WIND_TOPIC, state.gotWind)
     state.mqtt_client.connect()
     state.mqtt_client.subscribe(TIME_TOPIC)
     state.mqtt_client.subscribe(WIND_TOPIC)
+    state.started = time.monotonic()
 
     w.feed()
 
@@ -231,21 +290,27 @@ def main():
     schedule.run_all()
 
     while True:
-        if magtag.peripherals.button_c_pressed:
-            state.nextStation()
+        presses = 0
+        event = buttons.events.get()
+        while event:
+            if event.pressed:
+                presses += 1
+            event = buttons.events.get()
+        if presses:
+            state.advance(presses)
 
         schedule.run_pending()
         state.draw()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
-# main()
-
-while True:
-    try:
-        main()
-    except:
-        print("oh no: exception")
-        cylon((16,0,0))
-    for i in range(60):
-        w.feed()
-        time.sleep(1)
+try:
+    main()
+except Exception as e:
+    print("oh no: exception")
+    traceback.print_exception(e, e, e.__traceback__)
+    cylon((16,0,0))
+# Restarting from scratch is what reliably recovers (fresh WiFi, fresh MQTT
+# client, fresh display state), so do that instead of retrying in place.
+# The selected station survives in NVM.
+time.sleep(5)
+microcontroller.reset()
