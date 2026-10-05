@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MagTag demo</title>
+<style>
+  /* The panel is 296x128 with four grays: black, dark, light, white.
+     Stick to these four so nothing gets quantized unexpectedly. */
+  :root {
+    --k: #000;     /* black      */
+    --d: #555;     /* dark gray  */
+    --l: #aaa;     /* light gray */
+    --w: #fff;     /* white      */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 296px; height: 128px; overflow: hidden;
+    background: var(--w); color: var(--k);
+    font-family: "Inter", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    height: 24px; padding: 0 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--k); color: var(--w);
+    font-weight: 700; font-size: 15px;
+  }
+  header .time { font-weight: 600; font-size: 13px; }
+
+  main {
+    height: 104px; padding: 6px 8px 6px;
+    display: grid; grid-template-columns: 1fr 112px; gap: 8px;
+  }
+
+  .big { font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+  .big small { font-size: 15px; font-weight: 700; margin-left: 2px; }
+  .sub { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .note {
+    font-size: 11px; color: var(--d); margin-top: 4px;
+    line-height: 1.25;
+    /* wraps automatically; clamp to two lines with an ellipsis */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .chart { display: flex; flex-direction: column; justify-content: space-between; }
+  .chart .label { font-size: 10px; font-weight: 600; color: var(--d); text-align: right; }
+
+  .swatches { display: flex; gap: 3px; margin-top: 4px; }
+  .swatches span { flex: 1; height: 8px; border: 1px solid var(--k); }
+</style>
+</head>
+<body>
+  <header>
+    <span>Pauwela</span>
+    <span class="time">12:00 HST</span>
+  </header>
+
+  <main>
+    <section>
+      <div class="big">4.2<small>ft</small></div>
+      <div class="sub">13s NNW · 410 kJ</div>
+      <div class="note">
+        Long text wraps on its own and gets clamped to two lines with an ellipsis,
+        so nothing spills off the bottom of the panel no matter how much you write.
+      </div>
+    </section>
+
+    <section class="chart">
+      <div class="label">last 24h</div>
+      <!-- inline SVG: bars in light gray, trend line in black -->
+      <svg width="112" height="56" viewBox="0 0 112 56">
+        <g fill="var(--l)">
+          <rect x="2"  y="34" width="10" height="22"/>
+          <rect x="16" y="30" width="10" height="26"/>
+          <rect x="30" y="26" width="10" height="30"/>
+          <rect x="44" y="28" width="10" height="28"/>
+          <rect x="58" y="20" width="10" height="36"/>
+          <rect x="72" y="16" width="10" height="40"/>
+          <rect x="86" y="10" width="10" height="46"/>
+          <rect x="100" y="12" width="10" height="44"/>
+        </g>
+        <polyline points="7,30 21,26 35,22 49,24 63,16 77,12 91,6 105,8"
+                  fill="none" stroke="var(--k)" stroke-width="2.5"
+                  stroke-linejoin="round" stroke-linecap="round"/>
+        <line x1="0" y1="55.5" x2="112" y2="55.5" stroke="var(--k)"/>
+      </svg>
+      <div class="swatches">
+        <span style="background:var(--k)"></span>
+        <span style="background:var(--d)"></span>
+        <span style="background:var(--l)"></span>
+        <span style="background:var(--w)"></span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
