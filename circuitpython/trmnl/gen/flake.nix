@@ -17,7 +17,7 @@
       mkRender = pkgs:
         let
           browser =
-            if pkgs.stdenv.isLinux
+            if pkgs.stdenv.hostPlatform.isLinux
             then "${pkgs.chromium}/bin/chromium"
             else "${pkgs.google-chrome}/bin/google-chrome-stable";
         in
