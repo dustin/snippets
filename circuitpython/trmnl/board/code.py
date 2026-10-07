@@ -176,6 +176,22 @@ def draw_stale(reason):
 
 # ---------- update ----------
 
+def fetch(http, url, tries=2):
+    """GET an image, retrying once on a dropped connection. Checks the status."""
+    for attempt in range(tries):
+        try:
+            resp = http.get(url, timeout=30)
+            if resp.status_code != 200:
+                raise RuntimeError(f"HTTP {resp.status_code} for {url}")
+            data = resp.content
+            resp.close()
+            return data
+        except OSError as e:
+            print(f"fetch {url} failed ({attempt + 1}/{tries}):", repr(e))
+            if attempt == tries - 1:
+                raise
+            time.sleep(1)
+
 def run(want_page):
     """One update showing want_page if it exists. Returns seconds to sleep."""
     global stage
@@ -196,6 +212,8 @@ def run(want_page):
     if resp.status_code != 200:
         raise RuntimeError(f"HTTP {resp.status_code}")
     r = resp.json()
+    resp.close()                               # don't leave the socket half-used
+    print("api:", r)
 
     # "pages" is optional; without it the top-level image is the only page
     pages = r.get("pages") or [{"image_url": r["image_url"], "filename": r["filename"]}]
@@ -217,7 +235,7 @@ def run(want_page):
     p = pages[page]
     if p["filename"] != get_last() or mem[F_STALE]:
         stage = "image"
-        data = http.get(p["image_url"], timeout=30).content
+        data = fetch(http, p["image_url"])
         show(image_group(io.BytesIO(data)))
         set_last(p["filename"])
         mem[F_CACHED] = 1 if cache(data) else 0
