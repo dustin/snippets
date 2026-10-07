@@ -7,8 +7,7 @@ CACHE = "/last.bmp"                 # image currently on screen, for the stale b
 RETRY_MIN, RETRY_MAX = 300, 3600    # failure backoff: 5 min, doubling, up to 1 h
 
 # Buttons in physical order, LEFT to RIGHT. Page 1 is the leftmost button.
-# If presses pick the wrong page, reverse this tuple.
-BUTTONS = (board.BUTTON_D, board.BUTTON_C, board.BUTTON_B, board.BUTTON_A)
+BUTTONS = (board.BUTTON_A, board.BUTTON_B, board.BUTTON_C, board.BUTTON_D)
 
 # sleep_memory layout
 #   [0] filename length, [1:33] filename of the image on screen
@@ -193,7 +192,7 @@ def run(want_page):
     stage = "server"
     resp = http.get(f"{SERVER}/api/display", timeout=15,
                     headers={"ID": mac, "Access-Token": os.getenv("BYOS_KEY"),
-                             "RSSI": rssi})
+                             "RSSI": rssi, "Page": str(want_page + 1)})
     if resp.status_code != 200:
         raise RuntimeError(f"HTTP {resp.status_code}")
     r = resp.json()

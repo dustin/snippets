@@ -49,6 +49,7 @@ class CDP:
         os.close(from_chrome_w)
         self._buf = b""
         self._id = 0
+        self.events = []
 
     def send(self, method, params=None, session=None):
         self._id += 1
@@ -72,7 +73,8 @@ class CDP:
                 if "error" in msg:
                     raise RuntimeError(msg["error"])
                 return msg.get("result", {})
-            # events and unrelated replies are ignored
+            if "method" in msg:
+                self.events.append(msg)                # kept for diagnostics
 
     def close(self):
         try:
@@ -83,6 +85,45 @@ class CDP:
             self.proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             self.proc.kill()
+
+
+def diagnose(cdp, s):
+    """Explain why a page never became ready: errors, failed requests, state."""
+    lines = []
+    try:
+        r = cdp.send("Runtime.evaluate", {"returnByValue": True, "expression":
+                     "JSON.stringify({url: location.href, title: document.title,"
+                     " readyState: document.readyState,"
+                     " text: (document.body ? document.body.innerText : '').slice(0, 300)})"}, s)
+        st = json.loads(r["result"]["value"])
+        lines.append(f"  page: {st['url']}  (readyState={st['readyState']}, title={st['title']!r})")
+        if st["text"].strip():
+            lines.append("  visible text: " + " | ".join(st["text"].split("\n")[:6]))
+    except Exception as e:
+        lines.append(f"  (couldn't read page state: {e})")
+
+    urls = {}
+    for ev in cdp.events:
+        m, p = ev["method"], ev.get("params", {})
+        if m == "Network.requestWillBeSent":
+            urls[p["requestId"]] = p["request"]["url"]
+        elif m == "Network.responseReceived" and p["response"]["status"] >= 400:
+            lines.append(f"  HTTP {p['response']['status']}: {p['response']['url']}")
+        elif m == "Network.loadingFailed" and not p.get("canceled"):
+            lines.append(f"  request failed ({p['errorText']}): {urls.get(p['requestId'], '?')}")
+        elif m == "Runtime.exceptionThrown":
+            d = p["exceptionDetails"]
+            msg = d.get("exception", {}).get("description") or d.get("text", "")
+            lines.append("  JS exception: " + msg.split("\n")[0])
+        elif m == "Runtime.consoleAPICalled" and p["type"] in ("error", "warning", "assert"):
+            args = " ".join(str(a.get("value", a.get("description", ""))) for a in p["args"])
+            lines.append(f"  console.{p['type']}: {args}")
+        elif m == "Log.entryAdded" and p["entry"]["level"] in ("error", "warning"):
+            e = p["entry"]
+            lines.append(f"  {e['source']} {e['level']}: {e['text']}" + (f" ({e['url']})" if e.get("url") else ""))
+    if len(lines) == 1:
+        lines.append("  no errors or failed requests were reported")
+    return "\n".join(lines)
 
 
 def main():
@@ -100,7 +141,8 @@ def main():
 
             cdp.send("Emulation.setDeviceMetricsOverride",
                      {"width": W, "height": H, "deviceScaleFactor": 1, "mobile": False}, s)
-            cdp.send("Page.enable", session=s)
+            for domain in ("Page", "Runtime", "Network", "Log"):
+                cdp.send(domain + ".enable", session=s)
             cdp.send("Page.navigate", {"url": url}, s)
 
             deadline = time.monotonic() + timeout
@@ -110,8 +152,19 @@ def main():
                 if r.get("result", {}).get("value") is True:
                     break
                 if time.monotonic() > deadline:
-                    sys.exit(f"shot.py: page never set <html data-ready> within {timeout:g}s")
+                    sys.exit(f"shot.py: page never set <html data-ready> within {timeout:g}s\n"
+                             + diagnose(cdp, s))
                 time.sleep(0.1)
+
+            # Report what was actually rendered when it isn't what was asked for
+            # (a redirect that drops the query string renders the wrong card).
+            final = cdp.send("Runtime.evaluate", {"expression": "location.href",
+                                                  "returnByValue": True}, s)
+            final = final.get("result", {}).get("value", "")
+            if final != url or os.environ.get("SHOT_DEBUG"):
+                print(f"shot.py: requested {url}\nshot.py: rendered  {final}", file=sys.stderr)
+            if os.environ.get("SHOT_DEBUG"):
+                print(diagnose(cdp, s), file=sys.stderr)
 
             shot = cdp.send("Page.captureScreenshot",
                             {"format": "png",
