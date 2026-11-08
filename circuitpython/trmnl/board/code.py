@@ -2,7 +2,12 @@ import os, io, time, alarm, board, wifi, socketpool, ssl, displayio, supervisor
 import digitalio, neopixel, terminalio
 import adafruit_requests, adafruit_imageload
 
-SERVER = os.getenv("BYOS_URL")
+SERVER = (os.getenv("BYOS_URL") or "").rstrip("/")
+# With BYOS_PAGES (space-separated page names, e.g. "buoy-pauwela
+# tide-kaipukaihina"), BYOS_URL is a base like https://api.downwind.pro/trmnl
+# and each button is one page: <BYOS_URL>/<page>/api/display. Without it,
+# BYOS_URL is one server whose response lists the pages.
+PAGES = (os.getenv("BYOS_PAGES") or "").split()
 CACHE = "/last.bmp"                 # image currently on screen, for the stale badge
 RETRY_MIN, RETRY_MAX = 300, 3600    # failure backoff: 5 min, doubling, up to 1 h
 
@@ -206,22 +211,37 @@ def run(want_page):
     rssi = str(ap.rssi) if ap else "0"
 
     stage = "server"
-    resp = http.get(f"{SERVER}/api/display", timeout=15,
-                    headers={"ID": mac, "Access-Token": os.getenv("BYOS_KEY"),
-                             "RSSI": rssi, "Page": str(want_page + 1)})
+    if PAGES:
+        page = want_page if want_page < len(PAGES) else 0
+        url = f"{SERVER}/{PAGES[page]}/api/display"
+    else:
+        url = f"{SERVER}/api/display"
+    d = board.DISPLAY
+    resp = http.get(url, timeout=15,
+                    headers={"ID": mac, "Access-Token": os.getenv("BYOS_KEY") or "",
+                             "RSSI": rssi, "Page": str(want_page + 1),
+                             "Width": str(d.width), "Height": str(d.height),
+                             "Format": "bmp"})
     if resp.status_code != 200:
         raise RuntimeError(f"HTTP {resp.status_code}")
     r = resp.json()
     resp.close()                               # don't leave the socket half-used
     print("api:", r)
 
-    # "pages" is optional; without it the top-level image is the only page
-    pages = r.get("pages") or [{"image_url": r["image_url"], "filename": r["filename"]}]
-    pages = pages[:len(BUTTONS)]
-    mem[F_COUNT] = len(pages)
-    page = want_page if want_page < len(pages) else 0
-
     refresh = int(r.get("refresh_rate", 1800))
+    if PAGES:
+        mem[F_COUNT] = min(len(PAGES), len(BUTTONS))
+        mem[F_PAGE] = page
+        if not r.get("image_url"):             # first ask for this page: not rendered yet
+            return refresh
+        pages = [None] * page + [{"image_url": r["image_url"], "filename": r["filename"]}]
+    else:
+        # "pages" is optional; without it the top-level image is the only page
+        pages = r.get("pages") or [{"image_url": r["image_url"], "filename": r["filename"]}]
+        pages = pages[:len(BUTTONS)]
+        mem[F_COUNT] = len(pages)
+        page = want_page if want_page < len(pages) else 0
+
     led_spec = r.get("leds") or {}
     mode = led_spec.get("mode", "flash")
     t_on = time.monotonic()
@@ -251,7 +271,7 @@ def run(want_page):
         end = time.monotonic() + max(1, refresh - (time.monotonic() - t_on))
         while time.monotonic() < end:
             for i, b in enumerate(ins):
-                if not b.value and i < len(pages) and i != page:
+                if not b.value and i < mem[F_COUNT] and i != page:
                     mem[F_BUTTON] = i + 1
                     supervisor.reload()
             time.sleep(0.05)
